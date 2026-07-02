@@ -9,6 +9,7 @@ import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { reorder_svg_layers } from './svg_layers.js';
 /**
  * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
@@ -78,6 +79,13 @@ export class FslViz extends LitElement {
          * Held so `disconnectedCallback` can release the subscription.
          */
         this._parent_sub = null;
+        /**
+         * Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the
+         * viz to the host's new machine after a live rebuild, #1387). Captures the
+         * exact host the listener was attached to, so teardown is correct even if
+         * `_parent_host` was cleared or replaced. Null when standalone / before binding.
+         */
+        this._host_unbind = null;
     }
     /**
      * Lit lifecycle hook. Triggers an async SVG render whenever `fsl` or
@@ -135,10 +143,9 @@ export class FslViz extends LitElement {
             if (this._parent_host !== host) {
                 return;
             }
+            let sub;
             try {
-                this._parent_sub = host.machine.on('transition', () => {
-                    this._rerenderFromHostMachine();
-                });
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
             }
             catch (e) {
                 // The parent existed but its machine wasn't ready / threw.  Emit
@@ -151,6 +158,17 @@ export class FslViz extends LitElement {
                 }));
                 return;
             }
+            this._parent_sub = sub;
+            // Re-subscribe + re-render when the host swaps its machine (#1387 live
+            // rebuild): the old subscription is on a dead machine object.
+            const on_rebuild = () => {
+                sub();
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+                this._parent_sub = sub;
+                this._rerenderFromHostMachine();
+            };
+            host.addEventListener('fsl-machine-rebuilt', on_rebuild);
+            this._host_unbind = () => { host.removeEventListener('fsl-machine-rebuilt', on_rebuild); };
             this._rerenderFromHostMachine();
         });
     }
@@ -165,6 +183,10 @@ export class FslViz extends LitElement {
         if (this._parent_sub !== null) {
             this._parent_sub();
             this._parent_sub = null;
+        }
+        if (this._host_unbind !== null) {
+            this._host_unbind();
+            this._host_unbind = null;
         }
         this._parent_host = null;
     }
@@ -186,7 +208,7 @@ export class FslViz extends LitElement {
             const result = await machine_to_svg_string(m, this.engine ? { engine: this.engine } : undefined);
             // Guard against the parent disappearing mid-render.
             if (this._parent_host === host) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -216,7 +238,7 @@ export class FslViz extends LitElement {
             const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
             // Guard against stale results: only commit if fsl has not changed since this render started.
             if (this.fsl === source) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -242,6 +264,125 @@ export class FslViz extends LitElement {
     render() {
         return html `<div class="container">${unsafeHTML(this._svg)}</div>`;
     }
+    /**
+     * Clears any active programmatic highlights from the rendered SVG,
+     * restoring every node and edge to its default Graphviz presentation.
+     *
+     * Removes only the inline `fill` / `stroke` / `opacity` overrides that
+     * {@link highlightTrace} installs; the SVG's own presentation attributes
+     * are untouched. Safe to call when nothing is highlighted, before the
+     * first render, or while detached — it no-ops if there is no rendered
+     * SVG to clear.
+     *
+     * ```typescript
+     * const viz = document.querySelector('fsl-viz');
+     * viz.highlightTrace(['a', 'b']);
+     * viz.clearHighlights();   // back to the default rendering
+     * ```
+     *
+     * @see highlightTrace
+     */
+    clearHighlights() {
+        if (!this.shadowRoot) {
+            return;
+        }
+        const container = this.shadowRoot.querySelector('.container');
+        if (!container) {
+            return;
+        }
+        // Remove the inline styles that override the SVG presentation attributes.
+        const elements = container.querySelectorAll('.node, .edge, .node *, .edge *');
+        elements.forEach(el => {
+            el.style.removeProperty('fill');
+            el.style.removeProperty('stroke');
+            el.style.removeProperty('opacity');
+        });
+    }
+    /**
+     * Programmatically highlights one execution trace (a path of state names)
+     * through the rendered graph, optionally fading everything off the path.
+     *
+     * Matches nodes by their Graphviz `<title>` (the state name) and edges by
+     * the `from->to` title Graphviz emits, applying inline style overrides so
+     * the highlight composes over — and is reversible against — the default
+     * rendering (see {@link clearHighlights}, which this calls first). No-ops
+     * when detached, before the first render, or given an empty trace.
+     *
+     * ```typescript
+     * // Highlight a -> b -> c in green, without dimming the rest:
+     * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+     * ```
+     *
+     * @param trace   Ordered state names describing the path (e.g.
+     *                `['A', 'B', 'C']`). Consecutive pairs select the edges
+     *                `A->B` and `B->C`. An empty array is a no-op.
+     * @param options Highlight styling; see {@link HighlightOptions}. Defaults
+     *                to crimson with off-trace fading enabled.
+     *
+     * @see clearHighlights
+     * @see HighlightOptions
+     */
+    highlightTrace(trace, options = {}) {
+        if (!this.shadowRoot) {
+            return;
+        }
+        const container = this.shadowRoot.querySelector('.container');
+        if (!container || trace.length === 0) {
+            return;
+        }
+        this.clearHighlights();
+        const color = options.color || '#b71c1c'; // default: a distinct crimson
+        const fadeOthers = options.fadeOthers !== false; // default: true
+        const targetNodes = new Set();
+        const targetEdges = new Set();
+        for (let i = 0; i < trace.length; i++) {
+            targetNodes.add(trace[i]);
+            if (i < trace.length - 1) {
+                targetEdges.add(`${trace[i]}->${trace[i + 1]}`);
+            }
+        }
+        const allNodes = container.querySelectorAll('.node');
+        const allEdges = container.querySelectorAll('.edge');
+        // Graphviz escapes '->' inside <title> as '&#45;&gt;'; DOM textContent
+        // usually decodes it, but normalize defensively (and drop quotes).
+        const unescapeTitle = (title) => title.replace(/&#45;/g, '-').replace(/&gt;/g, '>').replace(/"/g, '');
+        allNodes.forEach(node => {
+            const titleEl = node.querySelector('title');
+            const title = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
+            if (targetNodes.has(title)) {
+                node.querySelectorAll('polygon, ellipse, path').forEach(shape => {
+                    shape.style.stroke = color;
+                    shape.style.strokeWidth = '2px';
+                });
+                node.querySelectorAll('text').forEach(text => {
+                    text.style.fill = color;
+                });
+            }
+            else if (fadeOthers) {
+                node.style.opacity = '0.2';
+            }
+        });
+        allEdges.forEach(edge => {
+            const titleEl = edge.querySelector('title');
+            const title = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
+            if (targetEdges.has(title)) {
+                // Recolour the edge line and its arrowhead. The edge's action label
+                // is intentionally left alone: reorder_svg_layers() hoists every edge
+                // <text> out of its group onto a top paint layer (so labels can't be
+                // overdrawn), where it carries no <title> to correlate back to this
+                // edge — so a state-name trace cannot reliably re-style it.
+                edge.querySelectorAll('path, polygon').forEach(shape => {
+                    shape.style.stroke = color;
+                    if (shape.tagName.toLowerCase() === 'polygon') {
+                        shape.style.fill = color; // arrowheads
+                    }
+                });
+            }
+            else if (fadeOthers) {
+                edge.style.opacity = '0.2';
+            }
+        });
+    }
 }
 FslViz.styles = css `
     :host {
@@ -251,6 +392,31 @@ FslViz.styles = css `
     .container {
       width: 100%;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container svg {
+      /* Zoom the graph to fill the container (aspect maintained via the SVG's
+         own preserveAspectRatio), leaving 5% padding on the constraining axis —
+         the 90% box centered in the flex container yields the 5% inset. */
+      width: 90%;
+      height: 90%;
+    }
+
+    /* Smoothly animate the inline style overrides applied by highlightTrace()
+       so a trace fades in/out rather than snapping. */
+    .container svg g.node path,
+    .container svg g.node polygon,
+    .container svg g.node ellipse,
+    .container svg g.edge path,
+    .container svg g.edge polygon {
+      transition: fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease;
+    }
+
+    .container svg g.node text,
+    .container svg g.edge text {
+      transition: fill 0.3s ease, opacity 0.3s ease;
     }
   `;
 __decorate([

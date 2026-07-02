@@ -34,7 +34,7 @@ export const fslDeprecated: (tag: Tag) => Tag = Tag.defineModifier('fslDeprecate
  */
 export const STRUCTURAL_KEYWORDS: ReadonlySet<string> = new Set([
   'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state',
-  'action', 'transition', 'validation', 'configuration', 'graph', 'hooks',
+  'action', 'transition', 'validation', 'configuration', 'graph', 'editor', 'hooks',
   'property', 'required', 'default',
 ]);
 
@@ -54,6 +54,10 @@ export const PROPERTY_KEYWORDS: ReadonlySet<string> = new Set([
   'dot_preamble', 'default_size',
   // per-element style keys
   'label', 'color', 'shape', 'corners', 'linestyle', 'image', 'url',
+  // hyphenated style keys (read as a single compound token by the tokenizer)
+  'background-color', 'text-color', 'border-color', 'edge-color', 'line-style',
+  // editor: {} block keys (fsl#1334)
+  'stochastic_run_count', 'panels',
 ]);
 
 /**
@@ -134,8 +138,17 @@ export const fslStreamParser: StreamParser<FslStreamState> = {
     if (ATOM_START.test(ch)) {
       let tok = '';
       let next = stream.peek();
-      while (next !== undefined && ATOM_BODY.test(next)) {
-        tok += stream.next();
+      while (next !== undefined) {
+        if (ATOM_BODY.test(next)) {
+          tok += stream.next();
+        } else if (next === '-' && ATOM_BODY.test(stream.string.slice(stream.pos + 1, stream.pos + 2))) {
+          // An interior hyphen (between word chars) joins a compound key like
+          // `background-color`; a trailing one (before `>` of `->`, or at EOL)
+          // does not. `slice` yields '' past the end, so no nullish branch.
+          tok += stream.next();
+        } else {
+          break;
+        }
         next = stream.peek();
       }
       if (DEPRECATED_KEYWORDS.has(tok)) { return DEPRECATED_TOKEN; }

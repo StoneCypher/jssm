@@ -155,6 +155,18 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toMatch(/use exactly one source/);
   });
 
+  it('ignores slotted content (elements with a slot attribute) as a text source', () => {
+    const host = document.createElement('div');
+    // UI projected into named slots (e.g. an actions panel) is not FSL source.
+    const panel = document.createElement('div');
+    panel.setAttribute('slot', 'actions');
+    panel.innerHTML = '<button>Enable</button><button>Next</button>';
+    host.appendChild(panel);
+    const r = resolve_fsl_source(host, 'Off -> On;');   // only the fsl attribute counts
+    expect(r.fsl).toBe('Off -> On;');
+    expect(r.provided_count).toBe(1);
+  });
+
   it('errors when all three channels are provided', () => {
     const host = document.createElement('div');
     const script = document.createElement('script');
@@ -331,6 +343,27 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     document.body.removeChild(el);
   });
 
+  it('moves via host.transition() (legal) and host.force_transition() (forced)', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el);
+
+    expect(el.transition('B')).toBe(true);   // legal edge A -> B
+    expect(el.state()).toBe('B');
+
+    const el2 = document.createElement('fsl-instance') as FslInstance;
+    el2.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el2);
+
+    expect(el2.transition('C')).toBe(false);        // A ~> C is forced-only
+    expect(el2.state()).toBe('A');
+    expect(el2.force_transition('C')).toBe(true);   // force succeeds
+    expect(el2.state()).toBe('C');
+
+    document.body.removeChild(el);
+    document.body.removeChild(el2);
+  });
+
   it('reflects legal-actions, terminal, and complete host attributes', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
@@ -423,6 +456,132 @@ describe('FslInstance shadow DOM', () => {
 
     // State-specific slot targets the current state.
     expect(html_str).toContain('name="state-Off"');
+
+    document.body.removeChild(el);
+  });
+
+  it('reflects the theme property so its built-in palette can drive the suite', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "Off 'flip' -> On;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.theme).toBe('light');                  // default
+    el.theme = 'dark';
+    await (el as any).updateComplete;
+    expect(el.getAttribute('theme')).toBe('dark');   // reflected to the attribute
+
+    document.body.removeChild(el);
+  });
+
+  it('shows and hides panels via togglePanel / setPanelHidden', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    el.setAttribute('layout', 'rl');
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // aux panels (everything but viz/editor) start hidden by default; toggling
+    // shows the panel, toggling again re-hides it.
+    expect(el.isPanelHidden('history')).toBe(true);
+    el.togglePanel('history');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(false);
+    el.togglePanel('history');                        // back to hidden
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(true);
+
+    // workbench panes → hide-viz / hide-editor classes
+    el.setPanelHidden('viz', true);
+    el.setPanelHidden('editor', true);
+    await (el as any).updateComplete;
+    const wb = el.shadowRoot!.querySelector('.workbench')!;
+    expect(wb.classList.contains('hide-viz')).toBe(true);
+    expect(wb.classList.contains('hide-editor')).toBe(true);
+    el.setPanelHidden('viz', false);
+    el.setPanelHidden('editor', false);
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
+
+    // In split layouts the events (hook-log) + data-inspector panels are easing
+    // side docks, lifted out of the stacked aux; actions instead lives in the
+    // stack as a horizontal bar. Docked panels start hidden, so both docks start
+    // closed; toggling one on flips its 'open' class (not display:none).
+    expect(el.shadowRoot!.querySelector('section.hook-log')).toBeNull();        // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();  // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.actions')).not.toBeNull();     // now in the stack
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(false);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(false);
+    el.togglePanel('hook-log');
+    el.togglePanel('data-inspector');
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(true);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
+
+    document.body.removeChild(el);
+  });
+
+  it('resolves panel visibility by mode: hide / show / default / request', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // default control mode: only viz + editor show
+    expect(el.isPanelHidden('viz')).toBe(false);
+    expect(el.isPanelHidden('editor')).toBe(false);
+    expect(el.isPanelHidden('history')).toBe(true);
+
+    // per-panel hide / show lock the state — togglePanel is a no-op for them
+    el.panelModes = { history: 'show', viz: 'hide' };
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // show
+    expect(el.isPanelHidden('viz')).toBe(true);        // hide
+    el.togglePanel('history');
+    el.togglePanel('viz');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // still locked
+    expect(el.isPanelHidden('viz')).toBe(true);
+
+    // request mode: requested panels show, others fall back to default
+    el.panelModes = { history: 'request', 'data-inspector': 'request' };
+    el.requestedPanels = ['history'];
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);          // requested → shown
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default
+
+    // control-level mode applies when there is no per-panel override
+    el.panelModes = {};
+    el.panelMode = 'show';
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.isPanelHidden('data-inspector')).toBe(false);
+    el.remove();
+  });
+
+  it('drives requestedPanels from the FSL editor:{} block, feeding request mode (fsl#1334)', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "editor: { panels: [history]; }; A 'go' -> B;");
+    el.panelMode = 'request';
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.requestedPanels).toEqual(['history']);
+    expect(el.isPanelHidden('history')).toBe(false);          // FSL-requested → shown under request mode
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default-hidden
+    el.remove();
+  });
+
+  it('seeds the machine with initial data when the data property is set', async () => {
+    const seed = { count: 7, items: [{ sku: 'A1', qty: 2 }] };
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.data = seed;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.machine.data()).toEqual(seed);
 
     document.body.removeChild(el);
   });
@@ -603,6 +762,162 @@ describe('FslInstance default-template slots (S2)', () => {
     }
 
     document.body.removeChild(el);
+  });
+
+});
+
+describe('FslInstance theming', () => {
+
+  const mount_theme = (attrs: Record<string, string> = {}): FslInstance => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', 'a -> b;');
+    for (const [k, v] of Object.entries(attrs)) { el.setAttribute(k, v); }
+    document.body.appendChild(el);
+    return el;
+  };
+  const surface = (el: FslInstance): string => el.style.getPropertyValue('--fsl-color-surface').trim();
+
+  it('applies the Default light palette inline and reflects resolved-theme', async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+    document.body.removeChild(el);
+  });
+
+  it('applies the dark variant when theme=dark', async () => {
+    const el = mount_theme({ theme: 'dark' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#1e1e22');
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('applies a named theme and falls back to Default for an unknown name', async () => {
+    const el = mount_theme({ 'theme-name': 'Solarized' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#fdf6e3');               // Solarized light
+    el.themeName = 'Nonexistent';
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');               // unknown name → Default light
+    document.body.removeChild(el);
+  });
+
+  it("drives a slotted editor's theme to the resolved variant", async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    const ed = document.createElement('div');
+    ed.setAttribute('slot', 'editor');
+    (ed as unknown as { theme: string }).theme = 'unset';
+    el.appendChild(ed);
+    el.theme = 'dark';                                 // updated → _applyTheme drives the editor
+    await el.updateComplete;
+    expect((ed as unknown as { theme: string }).theme).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('resolves system mode from the OS and re-applies on OS change (mocked matchMedia)', async () => {
+    let prefersDark = true;
+    let osHandler: (() => void) | undefined;
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      get matches() { return prefersDark; },
+      media: q,
+      addEventListener: (_e: string, h: () => void) => { osHandler = h; },
+      removeEventListener: (): void => { osHandler = undefined; },
+    })) as unknown as typeof window.matchMedia;
+
+    const el = mount_theme({ theme: 'system' });
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');     // OS prefers dark
+    expect(surface(el)).toBe('#1e1e22');
+
+    prefersDark = false;
+    osHandler!();                                                // OS switches to light
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+
+    el.theme = 'dark';                                           // a fixed mode ignores OS changes
+    await el.updateComplete;
+    prefersDark = true;
+    osHandler!();
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+
+    document.body.removeChild(el);
+    window.matchMedia = original;
+  });
+
+});
+
+describe('FslInstance permalink restore', () => {
+
+  it('restores its machine from the URL fragment when given an id', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#mach=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'mach';
+    el.setAttribute('fsl', 'Left -> Right;');        // declared source — should be overridden
+    document.body.appendChild(el);
+    await el.updateComplete;
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(el.fsl).toBe('Up -> Down;');
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+  it('builds a working machine from a permalink when no source is declared', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#solo=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'solo';                                // no fsl/script/text — the URL is the only source
+    document.body.appendChild(el);                 // must NOT throw despite no declared source
+    await el.updateComplete;
+    await new Promise(r => setTimeout(r, 20));      // restore + deferred build
+
+    expect(el.fsl).toBe('Up -> Down;');
+    expect(el.machine.state()).toBe('Up');         // the deferred build produced a live machine
+    el.transition('Down');
+    expect(el.machine.state()).toBe('Down');       // and it is drivable
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+  it('still throws on connect when there is no source and no permalink segment', () => {
+    const err = capture_connection_error(() => {
+      const el = document.createElement('fsl-instance') as FslInstance;
+      el.id = 'absent';                            // a key, but no #absent= segment and no declared source
+      document.body.appendChild(el);
+    });
+    expect(err).not.toBeNull();
+    expect(err!.message).toMatch(/no FSL source/);
+  });
+
+  it('does not throw when an action fires before the deferred machine is built', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#act=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'act';
+    const btn = document.createElement('button');
+    btn.setAttribute('data-jssm-action', 'go');
+    el.appendChild(btn);
+    document.body.appendChild(el);                 // deferred — _machine still undefined
+
+    // Fire the wired action during the restore window: it must be a no-op, not a
+    // throw through the `machine` getter.
+    expect(() => btn.click()).not.toThrow();
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
   });
 
 });

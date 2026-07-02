@@ -1,5 +1,5 @@
 import { css, LitElement, html } from 'lit';
-import { sm } from 'jssm';
+import { sm, from } from 'jssm';
 
 /**
  * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
@@ -462,6 +462,388 @@ function build_hook_descriptor(spec, wrapped) {
 }
 
 /**
+ * Compressed, URL-safe permalink wire format for FSL machines, shared by the
+ * toolbar's Export→Permalink and the per-instance URL sync controller.
+ *
+ * A machine is encoded to a `<scheme><payload>` segment: `<payload>` is URL-safe
+ * base64, `<scheme>` is `1` when DEFLATE shrank the source and `0` for the raw
+ * bytes when it did not (so a short machine's link never grows). Segments live in
+ * a URL fragment as `#<key>=<segment>` joined by `&`, so several machines can
+ * share one URL.
+ */
+/**
+ * Default fragment key for the single-machine case (back-compat with 5.150).
+ *
+ * @example
+ * DEFAULT_PERMALINK_KEY; // 'm'
+ */
+/**
+ * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
+ * `/`→`_`, and trailing `=` padding stripped.
+ *
+ * @example
+ * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
+ */
+function bytes_to_base64url(bytes) {
+    let binary = '';
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+/**
+ * Inverse of {@link bytes_to_base64url}.
+ *
+ * @example
+ * new TextDecoder().decode(base64url_to_bytes("YQ")); // "a"
+ */
+function base64url_to_bytes(text) {
+    const standard = text.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = standard + '='.repeat((4 - (standard.length % 4)) % 4); // atob wants 4-aligned input
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
+/**
+ * DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`.
+ *
+ * @example
+ * await deflate_raw(new TextEncoder().encode("aaaaaaaa")); // shorter Uint8Array of raw DEFLATE bytes
+ */
+async function deflate_raw(bytes) {
+    const stream = new CompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+}
+/**
+ * Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides
+ * in a URL an attacker can hand a victim, and {@link inflate_raw} runs on it
+ * automatically on page load, so an uncapped inflate is a decompression-bomb
+ * vector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is
+ * generous for real FSL (text — even a vast machine is well under a megabyte).
+ */
+const MAX_PERMALINK_INFLATE_BYTES = 5 * 1024 * 1024;
+/**
+ * Inverse of {@link deflate_raw}, reading the stream in chunks and aborting once
+ * the inflated output would exceed {@link MAX_PERMALINK_INFLATE_BYTES} (a
+ * decompression-bomb guard — see that constant).
+ *
+ * @throws RangeError when the inflated output exceeds the cap.
+ *
+ * @example
+ * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
+ */
+async function inflate_raw(bytes) {
+    const stream = new DecompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    // Read incrementally; stopping past the cap leaves the stream half-drained, so
+    // backpressure halts further inflation and the abandoned stream is GC'd. We do
+    // not cancel (which would abort the writable and leak an unhandled rejection).
+    const reader = stream.readable.getReader();
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break;
+        }
+        total += value.length;
+        if (total > MAX_PERMALINK_INFLATE_BYTES) {
+            throw new RangeError(`permalink inflate exceeded ${MAX_PERMALINK_INFLATE_BYTES} bytes`);
+        }
+        chunks.push(value);
+    }
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+        out.set(chunk, offset);
+        offset += chunk.length;
+    }
+    return out;
+}
+/**
+ * Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).
+ * DEFLATE is used (scheme `1`) only when it is strictly shorter than the raw
+ * bytes (scheme `0`).
+ *
+ * @example
+ * await encode_machine("a -> b;"); // "0YSAtPiBiOw"
+ */
+async function encode_machine(fsl) {
+    const utf8 = new TextEncoder().encode(fsl);
+    const raw = bytes_to_base64url(utf8);
+    const deflated = bytes_to_base64url(await deflate_raw(utf8));
+    return deflated.length < raw.length ? `1${deflated}` : `0${raw}`;
+}
+/**
+ * Inverse of {@link encode_machine}: decode a `<scheme><payload>` segment back
+ * to FSL. Async because inflate is async.
+ *
+ * @example
+ * await decode_machine("0YSAtPiBiOw"); // "a -> b;"
+ */
+async function decode_machine(segment) {
+    const scheme = segment[0];
+    const bytes = base64url_to_bytes(segment.slice(1));
+    const plain = scheme === '1' ? await inflate_raw(bytes) : bytes;
+    return new TextDecoder().decode(plain);
+}
+/** `decodeURIComponent` that returns its input untouched on a malformed escape,
+ *  so a hand-mangled fragment never throws out of {@link read_fragment_param}. */
+function safe_decode(text) {
+    try {
+        return decodeURIComponent(text);
+    }
+    catch (_a) {
+        return text;
+    }
+}
+/**
+ * Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping
+ * empties. Keys are percent-decoded (they are percent-encoded on write by
+ * {@link set_fragment_param}); values are the URL-safe base64 payload as-is.
+ */
+function fragment_pairs(hash) {
+    const body = hash.startsWith('#') ? hash.slice(1) : hash;
+    return body.split('&').filter(Boolean).map(seg => {
+        const eq = seg.indexOf('=');
+        return eq === -1
+            ? [safe_decode(seg), '']
+            : [safe_decode(seg.slice(0, eq)), seg.slice(eq + 1)];
+    });
+}
+/**
+ * Read one segment's value out of a `#a=…&b=…` fragment.
+ *
+ * @returns The value, or `null` if `key` is absent.
+ *
+ * @example
+ * read_fragment_param('#a=0AAA&b=1BBB', 'b'); // "1BBB"
+ */
+function read_fragment_param(hash, key) {
+    const found = fragment_pairs(hash).find(([k]) => k === key);
+    return found ? found[1] : null;
+}
+/**
+ * Return a new fragment body (no leading `#`) with `key`'s segment set to
+ * `value`, preserving every other segment and its order; appends if absent.
+ *
+ * @example
+ * set_fragment_param('#a=0AAA', 'b', '1BBB'); // "a=0AAA&b=1BBB"
+ */
+function set_fragment_param(hash, key, value) {
+    const pairs = fragment_pairs(hash);
+    const at = pairs.findIndex(([k]) => k === key);
+    if (at === -1) {
+        pairs.push([key, value]);
+    }
+    else {
+        pairs[at] = [key, value];
+    }
+    // Percent-encode the key so an `id`/`uhash` containing `=`, `&`, or `#` cannot
+    // break segmentation or collide with a sibling. Values are URL-safe base64.
+    return pairs.map(([k, v]) => `${encodeURIComponent(k)}=${v}`).join('&');
+}
+/**
+ * The fragment key an element owns: its `uhash` attribute if set, else its
+ * `id`, else `null` (does not participate in URL sync). The single source of
+ * this rule, shared by the toolbar export and the sync controller.
+ *
+ * @example
+ * permalink_key_for(el); // "myId"  (when <el id="myId">, no uhash)
+ */
+function permalink_key_for(host) {
+    var _a, _b;
+    return (_b = (_a = host.getAttribute('uhash')) !== null && _a !== void 0 ? _a : host.getAttribute('id')) !== null && _b !== void 0 ? _b : null;
+}
+
+/** Debounce before a live edit is written to the URL fragment. */
+const PERMALINK_WRITE_DEBOUNCE_MS = 300;
+/**
+ * Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it
+ * on connect and writes back (debounced, via `history.replaceState`) whenever
+ * the machine is rebuilt. Inert when the host has no key ({@link permalink_key_for}
+ * returns `null`), so an `fsl-instance` without an `id`/`uhash` never touches
+ * `location`.
+ *
+ * Echo guard: `_last` holds the segment most recently read or written, so a
+ * restore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.
+ *
+ * @example
+ * // In an element's constructor:
+ * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit
+ */
+class FslPermalinkSync {
+    constructor(host) {
+        this.key = null;
+        this._last = null;
+        this._onRebuilt = () => { this._scheduleWrite(); };
+        this._onHashChange = () => { void this._restore(); };
+        this.host = host;
+        host.addController(this);
+    }
+    hostConnected() {
+        this.key = permalink_key_for(this.host);
+        if (this.key === null) {
+            return;
+        }
+        void this._restore();
+        this.host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
+        window.addEventListener('hashchange', this._onHashChange);
+    }
+    hostDisconnected() {
+        if (this.key === null) {
+            return;
+        }
+        this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
+        window.removeEventListener('hashchange', this._onHashChange);
+        if (this._timer !== undefined) {
+            clearTimeout(this._timer);
+            this._timer = undefined;
+        }
+    }
+    /** Read our segment and, if new, push it into the host (overriding declared source). */
+    async _restore() {
+        const segment = read_fragment_param(location.hash, this.key);
+        if (segment === null || segment === this._last) {
+            return;
+        }
+        try {
+            const fsl = await decode_machine(segment);
+            // The decode is async; if the host was disconnected while it ran, drop the
+            // result rather than mutating a detached element (and triggering a stray
+            // rebuild on a later reconnect). A reconnect runs hostConnected → _restore
+            // afresh.
+            if (!this.host.isConnected) {
+                return;
+            }
+            this._last = segment;
+            this.host.fsl = fsl;
+        }
+        catch (_a) {
+            // Malformed/truncated segment, or no compression support: leave the
+            // declared source intact. A bad URL never bricks the page.
+        }
+    }
+    _scheduleWrite() {
+        if (this._timer !== undefined) {
+            clearTimeout(this._timer);
+        }
+        this._timer = setTimeout(() => { void this._write(); }, PERMALINK_WRITE_DEBOUNCE_MS);
+    }
+    /** Encode the current source and merge it into the fragment, history-silently. */
+    async _write() {
+        try {
+            const segment = await encode_machine(this.host.fsl);
+            if (segment === this._last) {
+                return;
+            }
+            this._last = segment;
+            const fragment = set_fragment_param(location.hash, this.key, segment);
+            history.replaceState(history.state, '', `#${fragment}`);
+        }
+        catch (_a) {
+            // No compression support: skip the write rather than throw.
+        }
+    }
+}
+
+/**
+ * Theme registry for the fsl-* suite. A **theme** is a named pair of light/dark
+ * palettes; a **mode** (`system` | `light` | `dark`) picks which variant applies,
+ * with `system` following the OS `prefers-color-scheme`. The host resolves
+ * (theme name × mode) to a palette and writes it as `--fsl-color-*` custom
+ * properties, which cascade to every slotted widget.
+ *
+ * @see resolve_theme_mode
+ */
+/**
+ * The built-in themes: `Default` (the suite's house palette) and `Solarized`
+ * (Ethan Schoonover's palette). Consumers can extend the host's `themes`
+ * registry with their own; every entry shows up in the toolbar's theme list.
+ */
+const BUILTIN_THEMES = {
+    Default: {
+        light: {
+            surface: '#ffffff', text: '#222222', accent: '#5b9dff', border: '#e5e5e5', muted: '#9aa0a6',
+            'json-key': '#5b3da8', 'json-string': '#2e7d32', 'json-number': '#b8860b', 'json-atom': '#c2185b',
+        },
+        dark: {
+            surface: '#1e1e22', text: '#d6d6d6', accent: '#82aaff', border: '#2a2a2e', muted: '#5a5f66',
+            'json-key': '#82aaff', 'json-string': '#c3e88d', 'json-number': '#f78c6c', 'json-atom': '#c792ea',
+        },
+    },
+    Solarized: {
+        light: {
+            surface: '#fdf6e3', text: '#657b83', accent: '#268bd2', border: '#eee8d5', muted: '#93a1a1',
+            'json-key': '#6c71c4', 'json-string': '#859900', 'json-number': '#b58900', 'json-atom': '#d33682',
+        },
+        dark: {
+            surface: '#002b36', text: '#839496', accent: '#268bd2', border: '#073642', muted: '#586e75',
+            'json-key': '#6c71c4', 'json-string': '#859900', 'json-number': '#b58900', 'json-atom': '#d33682',
+        },
+    },
+};
+/**
+ * Resolve a `(registry, theme name, variant)` triple to a concrete palette,
+ * falling back to the built-in `Default` theme when the name is unknown.
+ *
+ * @param themes - The registry to look in.
+ * @param name - The selected theme name.
+ * @param variant - `light` or `dark`.
+ * @returns The palette to apply.
+ */
+function resolve_palette(themes, name, variant) {
+    var _a;
+    return ((_a = themes[name]) !== null && _a !== void 0 ? _a : BUILTIN_THEMES['Default'])[variant];
+}
+/**
+ * Resolve a theme mode to a concrete `light`/`dark`. `system` consults the OS
+ * preference; `light`/`dark` are returned as-is.
+ *
+ * @param mode - The selected mode.
+ * @param prefers_dark - Whether the OS prefers a dark color scheme.
+ * @returns The concrete variant to apply.
+ *
+ * @example
+ * resolve_theme_mode('system', true);  // 'dark'
+ * resolve_theme_mode('light', true);   // 'light'
+ */
+function resolve_theme_mode(mode, prefers_dark) {
+    return mode === 'system' ? (prefers_dark ? 'dark' : 'light') : mode;
+}
+/**
+ * Map a palette to its `--fsl-color-*` custom-property entries, ready to set on
+ * an element's style.
+ *
+ * @param palette - The resolved palette.
+ * @returns `[propertyName, value]` pairs, e.g. `['--fsl-color-surface', '#fff']`.
+ */
+function palette_to_vars(palette) {
+    return Object.entries(palette).map(([k, v]) => [`--fsl-color-${k}`, v]);
+}
+function register_palette_properties() {
+    if (typeof CSS === 'undefined' || typeof CSS.registerProperty !== 'function') {
+        return;
+    }
+    for (const [prop, value] of palette_to_vars(BUILTIN_THEMES['Default'].light)) {
+        try {
+            CSS.registerProperty({ name: prop, syntax: '<color>', inherits: true, initialValue: value });
+        }
+        catch (_a) {
+            // already registered by another host or a prior call
+        }
+    }
+}
+
+/**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
  * `machine.on(...)` event API, added in #638).  Validating here gives the
@@ -682,6 +1064,10 @@ function resolve_fsl_source(host, fsl_attr) {
                 n.remove();
             }
         });
+        // Drop every element assigned to a named slot — slotted UI (toolbar, panels,
+        // action buttons) is projected into the host, not FSL source. Only the
+        // default-slot text (the literal FSL) should remain.
+        clone.querySelectorAll('[slot]').forEach(n => n.remove());
         return (clone.textContent || '').trim();
     })();
     if (text_content_fsl.length > 0) {
@@ -702,6 +1088,36 @@ function resolve_fsl_source(host, fsl_attr) {
     // narrows the runtime invariant.
     const only = sources[0];
     return { fsl: only.fsl, provided_count: 1, error: undefined };
+}
+/**
+ * Resolve `layout="auto"` to a concrete split direction from the viewport
+ * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
+ * (`'tb'`). Pure, so it's testable without a laid-out DOM.
+ *
+ * @example
+ *   auto_mode(1200, 800);   // => 'lr'
+ *   auto_mode(600, 900);    // => 'tb'
+ */
+function auto_mode(width, height) {
+    return width >= height ? 'lr' : 'tb';
+}
+/**
+ * Clamp a gutter-drag coordinate to a split ratio (percent of the first pane).
+ * Pure so it's testable without a laid-out DOM: returns a neutral `50` when the
+ * container has no measured size (e.g. jsdom, where `getBoundingClientRect`
+ * yields zeros), and otherwise clamps to `[15, 85]` so neither pane collapses.
+ *
+ * @example
+ *   split_ratio(30, 0, 100);   // => 30
+ *   split_ratio(5,  0, 100);   // => 15  (clamped low)
+ *   split_ratio(0,  0, 0);     // => 50  (no layout)
+ */
+function split_ratio(coord, start, size) {
+    if (size <= 0) {
+        return 50;
+    }
+    const pct = ((coord - start) / size) * 100;
+    return Math.min(85, Math.max(15, pct));
 }
 /**
  * Web component that owns a single `Machine<unknown>` constructed from an
@@ -732,18 +1148,77 @@ function resolve_fsl_source(host, fsl_attr) {
  * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
  * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
  * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot stochastic - Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).
  * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */
 class FslInstance extends LitElement {
+    /** Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+     *  (inert if it has neither): restore on connect, write debounced on edit. */
     constructor() {
-        super(...arguments);
+        super();
         /**
          * FSL source attribute.  When non-empty, this is the sole channel
          * supplying the machine's source.  Setting both this and a child
          * `<script type="text/fsl">` (or non-empty text content) is an error.
          */
         this.fsl = '';
+        /**
+         * Panel arrangement of the viz + editor panes (see {@link FslLayout}). `''`
+         * (default) renders the stacked sections; `'lr'`/`'rl'` lay them side-by-side
+         * with a draggable vertical gutter (editor left / right); `'tb'`/`'bt'` stack
+         * them with a horizontal gutter; `'editor'`/`'viewer'` show a single pane;
+         * `'tabs'` shows one pane at a time behind a tab strip; `'auto'` follows the
+         * viewport aspect. Other panels (toolbar, info-panel, …) render below.
+         */
+        this.layout = '';
+        /**
+         * Theme **mode**, reflected to the `theme` attribute: `system` (follow the OS
+         * `prefers-color-scheme`), `light`, or `dark`. Combined with {@link themeName}
+         * it selects a palette from {@link themes}, applied as inline `--fsl-color-*`
+         * by {@link _applyTheme}. `<fsl-toolbar>` sets this from its theme pulldown.
+         */
+        this.theme = 'light';
+        /**
+         * Selected theme name, reflected to the `theme-name` attribute. A key of
+         * {@link themes}; an unknown name falls back to the built-in `Default`.
+         */
+        this.themeName = 'Default';
+        /**
+         * The theme registry — named light/dark palette pairs. Defaults to the
+         * built-in `Default` + `Solarized`; a consumer can replace or extend it, and
+         * every entry appears in the toolbar's theme list.
+         */
+        this.themes = BUILTIN_THEMES;
+        /**
+         * Initial extended-state data seeded into the machine at build time. When set
+         * (to anything other than `undefined`), the machine is built via `from(fsl,
+         * { data })` so `<fsl-data-inspector>` has something to show before any
+         * transition; the default keeps the lighter `sm`-tag build path.
+         */
+        this.data = undefined;
+        /** Split ratio (percent of the first pane), updated by the gutter drag. */
+        this._split = 50;
+        /** Which pane the tabbed layout shows. */
+        this._tab = 'viz';
+        /** Concrete direction that `layout="auto"` currently resolves to. */
+        this._autoMode = 'lr';
+        /** Window-resize listener installed while `layout="auto"`, or null. */
+        this._autoListener = null;
+        /** Per-panel runtime visibility overrides set by the user via the toolbar
+         *  toggles; a slot absent here falls back to its mode-resolved base. */
+        this._overrides = new Map();
+        /** Control-level default {@link PanelMode}; {@link panelModes} overrides it
+         *  per panel. `default` shows only the editor + renderer; every other panel
+         *  starts hidden and is opt-in. */
+        this.panelMode = 'default';
+        /** Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+         *  control-level {@link panelMode}. */
+        this.panelModes = {};
+        /** Panels the FSL "requests" — the embedder-set stand-in for the
+         *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+         *  here are shown; others fall back to the default. */
+        this.requestedPanels = [];
         /**
          * The underlying machine instance, constructed at `connectedCallback`.
          * Exposed raw (not proxied) per the #639/#648 design decision so that
@@ -798,6 +1273,42 @@ class FslInstance extends LitElement {
          * DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery.
          */
         this._action_listeners = [];
+        /** Tracks the OS color scheme; null when `matchMedia` is unavailable. */
+        this._mql = null;
+        /** Re-apply on an OS color-scheme change — only relevant while in `system` mode. */
+        this._on_os_theme_change = () => { if (this.theme === 'system') {
+            this._applyTheme();
+        } };
+        /**
+         * Gutter pointer-down: begin a drag. Move/up are attached to the document so
+         * the drag survives the pointer leaving the thin gutter (no pointer-capture,
+         * which keeps the handlers testable in jsdom).
+         */
+        this._onGutterDown = (e) => {
+            e.preventDefault();
+            document.addEventListener('pointermove', this._onGutterMove);
+            document.addEventListener('pointerup', this._onGutterUp);
+        };
+        /** Document pointer-move during a drag: recompute the split ratio. */
+        this._onGutterMove = (e) => {
+            const rect = this.renderRoot.querySelector('.workbench').getBoundingClientRect();
+            const mode = this._effectiveMode();
+            this._split = (mode === 'tb' || mode === 'bt')
+                ? split_ratio(e.clientY, rect.top, rect.height)
+                : split_ratio(e.clientX, rect.left, rect.width);
+            this.requestUpdate();
+        };
+        /** Document pointer-up: end the drag and detach the document listeners. */
+        this._onGutterUp = () => {
+            document.removeEventListener('pointermove', this._onGutterMove);
+            document.removeEventListener('pointerup', this._onGutterUp);
+        };
+        /** Gutter double-click: reset the split to 50/50. */
+        this._onGutterReset = () => {
+            this._split = 50;
+            this.requestUpdate();
+        };
+        new FslPermalinkSync(this);
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
@@ -827,11 +1338,164 @@ class FslInstance extends LitElement {
         return result;
     }
     /**
+     * Convenience wrapper for `machine.transition(state, data)` — moves directly
+     * to a state along a legal (non-forced) edge. Reflects the new state and
+     * requests an update, exactly as {@link FslInstance.do} does for actions.
+     *
+     * @param state - The destination state.
+     * @param data - Optional data payload.
+     * @returns `true` if the transition succeeded (a legal edge existed).
+     */
+    transition(state, data) {
+        const result = this.machine.transition(state, data);
+        this._paint_state_reflection();
+        this.requestUpdate();
+        return result;
+    }
+    /**
+     * Convenience wrapper for `machine.force_transition(state, data)` — moves to a
+     * state along any edge, including forced-only ones. Reflects the new state and
+     * requests an update.
+     *
+     * @param state - The destination state.
+     * @param data - Optional data payload.
+     * @returns `true` if the forced transition succeeded (any edge existed).
+     */
+    force_transition(state, data) {
+        const result = this.machine.force_transition(state, data);
+        this._paint_state_reflection();
+        this.requestUpdate();
+        return result;
+    }
+    /**
      * Convenience wrapper for `machine.state()`.  Returns the current
      * state's name.
      */
     state() {
         return String(this.machine.state());
+    }
+    /** Whether the OS currently prefers a dark color scheme. */
+    _prefers_dark() {
+        return typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    /**
+     * Resolve `theme` (mode) × `themeName` to a palette and apply it: write the
+     * `--fsl-color-*` tokens inline (overriding the CSS fallback and cascading to
+     * every slotted widget), reflect the chosen variant to `resolved-theme`, and
+     * drive each slotted editor's light/dark CodeMirror theme.
+     */
+    _applyTheme() {
+        const variant = resolve_theme_mode(this.theme, this._prefers_dark());
+        this.setAttribute('resolved-theme', variant);
+        for (const [prop, value] of palette_to_vars(resolve_palette(this.themes, this.themeName, variant))) {
+            this.style.setProperty(prop, value);
+        }
+        for (const editor of this.querySelectorAll('[slot="editor"]')) {
+            editor.theme = variant;
+        }
+    }
+    /** Resolve the active layout to a concrete mode (`'auto'` → a direction). */
+    _effectiveMode() {
+        return this.layout === 'auto' ? this._autoMode : this.layout;
+    }
+    /** Tab strip for the `tabs` layout. */
+    _renderTabbar() {
+        return html `
+      <div class="tabbar" role="tablist" aria-label="Pane">
+        <button type="button" role="tab" aria-selected=${this._tab === 'viz'}    @click=${() => this._setTab('viz')}>Graph</button>
+        <button type="button" role="tab" aria-selected=${this._tab === 'editor'} @click=${() => this._setTab('editor')}>Code</button>
+      </div>`;
+    }
+    /** Switch the visible pane in the `tabs` layout. */
+    _setTab(tab) {
+        this._tab = tab;
+        this.requestUpdate();
+    }
+    /** The built-in default hidden state: only the editor + renderer (viz) show. */
+    _defaultHidden(slot) {
+        return slot !== 'viz' && slot !== 'editor';
+    }
+    /**
+     * Whether the panel slotted under `slot` is currently hidden, resolving its
+     * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+     * `hide`/`show` force the state; otherwise a user toggle wins, then a
+     * `request`ed panel shows, then the built-in default.
+     *
+     * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+     * @returns `true` when the panel is hidden.
+     *
+     * @example
+     * el.panelModes = { history: 'show' };
+     * el.isPanelHidden('history'); // false
+     */
+    isPanelHidden(slot) {
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide') {
+            return true;
+        }
+        if (mode === 'show') {
+            return false;
+        }
+        const override = this._overrides.get(slot);
+        if (override !== undefined) {
+            return override;
+        }
+        if (mode === 'request' && this.requestedPanels.includes(slot)) {
+            return false;
+        }
+        return this._defaultHidden(slot);
+    }
+    /**
+     * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+     * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+     * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+     * panel toggles.
+     *
+     * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+     * @param hidden - `true` to hide, `false` to show.
+     */
+    setPanelHidden(slot, hidden) {
+        this._overrides.set(slot, hidden);
+        this.requestUpdate();
+    }
+    /**
+     * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+     * panel's mode is `hide` or `show` — those lock the visibility.
+     *
+     * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+     */
+    togglePanel(slot) {
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide' || mode === 'show') {
+            return;
+        }
+        this.setPanelHidden(slot, !this.isPanelHidden(slot));
+    }
+    /**
+     * Install or remove the window-resize listener that resolves `layout="auto"`
+     * to a concrete direction. Called from {@link updated}; uses the viewport
+     * aspect so it needs no layout measurement (works in jsdom).
+     */
+    _syncAutoListener() {
+        if (this.layout === 'auto' && this._autoListener === null) {
+            const recompute = () => {
+                const next = auto_mode(window.innerWidth, window.innerHeight);
+                if (next !== this._autoMode) {
+                    this._autoMode = next;
+                    this.requestUpdate();
+                }
+            };
+            this._autoListener = recompute;
+            window.addEventListener('resize', recompute);
+            recompute();
+        }
+        else if (this.layout !== 'auto' && this._autoListener !== null) {
+            window.removeEventListener('resize', this._autoListener);
+            this._autoListener = null;
+        }
     }
     /**
      * Lifecycle hook.  Resolves the FSL source, constructs the machine,
@@ -848,30 +1512,63 @@ class FslInstance extends LitElement {
         super.connectedCallback();
         // Step 1: resolve FSL source.
         const resolved = resolve_fsl_source(this, this.fsl);
-        if (resolved.error !== undefined) {
+        // A permalink-only instance has no declared source, but its own URL segment
+        // will supply one asynchronously: FslPermalinkSync (attached in the
+        // constructor) restores `fsl` just after connect, which rebuilds the machine
+        // via willUpdate -> _rebuild_machine. Defer to that instead of throwing;
+        // render() shows the placeholder until the restore lands.
+        const deferToPermalink = resolved.provided_count === 0 && this._permalinkSegmentPresent();
+        if (resolved.error !== undefined && !deferToPermalink) {
             throw new Error(`fsl-instance: ${resolved.error}`);
         }
-        // Step 2: construct the machine.
-        // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
-        const fsl_source = resolved.fsl;
-        this._machine = sm `${fsl_source}`;
-        // Step 3: paint initial host attributes + CSS custom properties.
-        this._paint_state_reflection();
-        // Step 4: shadow DOM render is automatic via Lit; requesting an update
-        // here ensures the first paint sees the freshly painted attributes.
-        this.requestUpdate();
-        // #639 mechanism 4: subscribe to library events and re-emit them as
-        // DOM CustomEvents from this host (#638 supplies the event API).
-        this._install_event_reemission();
-        // #641: <jssm-hook> declarative discovery.
-        this._install_declarative_hooks();
-        // #643: <jssm-on> declarative event observation.
-        this._install_jssm_on_children();
-        // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
-        // install live machine-to-DOM projections.
-        this._unsubs.push(...install_bindings(this, this._machine));
-        // #640: <jssm-action> DOM event → machine action wiring.
+        // Steps 2-4 + machine-scoped wiring: only when a source is available now. In
+        // the deferred case these run later, from _rebuild_machine, once the restore
+        // sets `fsl`.
+        if (!deferToPermalink) {
+            // Step 2: construct the machine.
+            // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
+            const fsl_source = resolved.fsl;
+            this._machine = this._build_machine(fsl_source);
+            this._applyEditorConfig();
+            // Step 3: paint initial host attributes + CSS custom properties.
+            this._paint_state_reflection();
+            // Step 4: shadow DOM render is automatic via Lit; requesting an update
+            // here ensures the first paint sees the freshly painted attributes.
+            this.requestUpdate();
+            // #639 mechanism 4: subscribe to library events and re-emit them as
+            // DOM CustomEvents from this host (#638 supplies the event API).
+            this._install_event_reemission();
+            // #641: <jssm-hook> declarative discovery.
+            this._install_declarative_hooks();
+            // #643: <jssm-on> declarative event observation.
+            this._install_jssm_on_children();
+            // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+            // install live machine-to-DOM projections.
+            this._unsubs.push(...install_bindings(this, this._machine));
+        }
+        // #640: <jssm-action> DOM event -> machine action wiring. The listeners read
+        // `this.machine` live on event, so discovery is correct even before a
+        // deferred build completes.
         this._discover_jssm_actions();
+        // Theme: register the palette tokens as animatable colors (once, globally, so
+        // switches can ease), follow the OS while in `system` mode, then apply the
+        // resolved palette.
+        register_palette_properties();
+        if (typeof window.matchMedia === 'function') {
+            this._mql = window.matchMedia('(prefers-color-scheme: dark)');
+            this._mql.addEventListener('change', this._on_os_theme_change);
+        }
+        this._applyTheme();
+    }
+    /**
+     * True when this instance owns a URL permalink segment (keyed by its
+     * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+     * its FSL source — so `connectedCallback` can defer the machine build to that
+     * restore instead of throwing on an otherwise-absent source.
+     */
+    _permalinkSegmentPresent() {
+        const key = permalink_key_for(this);
+        return key !== null && read_fragment_param(location.hash, key) !== null;
     }
     /**
      * Discover direct-child `<jssm-on>` elements and install their
@@ -980,9 +1677,87 @@ class FslInstance extends LitElement {
      *
      * @param changed - Lit's changed-property map (forwarded to super).
      */
+    /**
+     * Lit lifecycle. After the initial connect, a change to the `fsl` property
+     * (e.g. written back by a bound `<fsl-editor>`, #1387) rebuilds the machine.
+     * The first update is skipped via `hasUpdated` — `connectedCallback` already
+     * built the initial machine.
+     */
+    willUpdate(changed) {
+        if (this.hasUpdated && changed.has('fsl')) {
+            this._rebuild_machine();
+        }
+    }
+    /**
+     * Rebuild the owned machine from the current `fsl` property and re-install
+     * every machine-scoped subscription against the new machine (#1387).
+     *
+     * Semantics:
+     *   - **Keep-last-good:** if the new FSL is empty or fails to parse/compile,
+     *     the current machine is left untouched (a bound editor's lint surfaces
+     *     the error); we never blank or throw on mid-edit invalid source.
+     *   - **Reset-to-start:** a successful rebuild is a fresh machine at its
+     *     start state — the structure changed, so preserving position is unsafe.
+     *   - **Re-subscribe:** mechanism-4 re-emission, `<fsl-hook>`, `<fsl-on>`,
+     *     and `<fsl-bind>` projections are torn down from the old machine and
+     *     re-installed on the new one. DOM action listeners (`<fsl-action>`)
+     *     persist untouched — they read `this.machine` live.
+     */
+    /**
+     * Build a machine from FSL source, seeding {@link data} when it is set.
+     *
+     * @param fsl_source - The FSL string to compile.
+     * @returns The compiled machine.
+     */
+    _build_machine(fsl_source) {
+        return (this.data === undefined
+            ? sm `${fsl_source}`
+            : from(fsl_source, { data: this.data }));
+    }
+    /** Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+     *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+     *  mode honors the source. The embedder's value persists when the FSL is
+     *  silent. Called after each (re)build, with `_machine` freshly assigned. */
+    _applyEditorConfig() {
+        var _a;
+        const panels = (_a = this._machine.editor_config()) === null || _a === void 0 ? void 0 : _a.panels;
+        if (panels !== undefined) {
+            this.requestedPanels = panels;
+        }
+    }
+    _rebuild_machine() {
+        if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
+            return;
+        }
+        let next;
+        try {
+            next = this._build_machine(this.fsl);
+        }
+        catch (_a) {
+            return; // keep-last-good
+        }
+        // Tear down the OLD machine's subscriptions (shared with disconnect).
+        this._unbind_machine_subscriptions();
+        // Swap to the new machine and re-bind everything machine-scoped.
+        this._machine = next;
+        this._applyEditorConfig();
+        this._paint_state_reflection();
+        this._install_event_reemission();
+        this._install_declarative_hooks();
+        this._install_jssm_on_children();
+        this._unsubs.push(...install_bindings(this, next));
+        this.requestUpdate();
+        // Notify bound children (e.g. <fsl-viz>) that the machine object was
+        // replaced, so they can re-subscribe and re-render against the new one.
+        this.dispatchEvent(new CustomEvent('fsl-machine-rebuilt', { bubbles: true, composed: true }));
+    }
     updated(changed) {
         super.updated(changed);
         this._flush_pending_dom_events();
+        this._syncAutoListener();
+        if (['theme', 'themeName', 'themes'].some(p => changed.has(p))) {
+            this._applyTheme();
+        }
     }
     /**
      * Dispatch and clear the queue of pending DOM events.  The queue is
@@ -1008,21 +1783,20 @@ class FslInstance extends LitElement {
         }
     }
     /**
-     * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
-     * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
-     * mechanism-4 re-emission subscriptions, and DOM listeners from
-     * `<jssm-action>` / `data-jssm-action`.
+     * Release every machine-scoped subscription installed against the current
+     * machine: #639 mechanism-4 re-emission, #641 `<fsl-hook>` registrations,
+     * #643 `<fsl-on>` subscriptions, and #645 `<fsl-bind>` projections. Shared by
+     * {@link disconnectedCallback} (full teardown) and the live-rebuild path
+     * ({@link _rebuild_machine}, #1387), which re-installs against the new machine.
+     * DOM action listeners (`<fsl-action>`) are NOT touched here — they read
+     * `this.machine` live and survive a rebuild.
      */
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        // #639 mechanism 4: release host-level re-emission subscriptions and drop
-        // any events that were queued but not yet flushed.
+    _unbind_machine_subscriptions() {
         for (const off of this._reemit_unsubscribes) {
             off();
         }
         this._reemit_unsubscribes = [];
         this._pending_dom_events = [];
-        // #641: remove installed hooks.
         if (this._machine !== undefined) {
             const machine = this._machine;
             for (const desc of this._installed_hooks) {
@@ -1030,7 +1804,6 @@ class FslInstance extends LitElement {
             }
         }
         this._installed_hooks = [];
-        // #643: release every subscription installed from a <jssm-on> child.
         for (const off of this._on_unsubscribes) {
             try {
                 off();
@@ -1038,16 +1811,38 @@ class FslInstance extends LitElement {
             catch ( /* swallow — cleanup must not throw past us */_a) { /* swallow — cleanup must not throw past us */ }
         }
         this._on_unsubscribes = [];
-        // #645: tear down every live binding.
         for (const off of this._unsubs) {
             off();
         }
         this._unsubs = [];
+    }
+    /**
+     * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
+     * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
+     * mechanism-4 re-emission subscriptions, and DOM listeners from
+     * `<jssm-action>` / `data-jssm-action`.
+     */
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        // Release every machine-scoped subscription (#639 re-emission, #641 hooks,
+        // #643 <fsl-on>, #645 <fsl-bind>). Shared with the live-rebuild path (#1387).
+        this._unbind_machine_subscriptions();
         // #640: remove DOM listeners installed via <jssm-action> / data-jssm-action.
         for (const entry of this._action_listeners) {
             entry.target.removeEventListener(entry.event, entry.handler);
         }
         this._action_listeners = [];
+        // Detach any in-flight gutter-drag document listeners.
+        this._onGutterUp();
+        if (this._autoListener !== null) {
+            window.removeEventListener('resize', this._autoListener);
+            this._autoListener = null;
+        }
+        // Stop following the OS color scheme.
+        if (this._mql !== null) {
+            this._mql.removeEventListener('change', this._on_os_theme_change);
+            this._mql = null;
+        }
     }
     /**
      * Wire DOM events to machine actions, using the two declarative forms from
@@ -1101,6 +1896,12 @@ class FslInstance extends LitElement {
      */
     _install_action_listener(config) {
         const handler = (e) => {
+            // A permalink-only instance wires its actions at connect but builds its
+            // machine asynchronously (deferred restore). An event in that window is a
+            // no-op rather than a throw via the `machine` getter.
+            if (this._machine === undefined) {
+                return;
+            }
             if (config.prevent_default) {
                 e.preventDefault();
             }
@@ -1157,58 +1958,101 @@ class FslInstance extends LitElement {
         const state_slot_name = this._machine === undefined
             ? 'state-unknown'
             : `state-${String(this._machine.state())}`;
+        const header = html `
+      <header>
+        <slot name="title"><span class="placeholder">fsl-instance</span></slot>
+      </header>`;
+        const viz = html `<slot name="viz"><span class="placeholder">no viz configured</span></slot>`;
+        const editor = html `<slot name="editor"></slot>`;
+        const toolbar = html `<section class="toolbar"><slot name="toolbar"></slot></section>`;
+        if (this.layout !== '') {
+            const mode = this._effectiveMode();
+            return html `
+        <div class="container is-split">
+          ${header}
+          ${toolbar}
+          <div class="middle">
+            <section class="dock events-dock${this.isPanelHidden('hook-log') ? '' : ' open'}" part="events-dock">
+              <slot name="hook-log"></slot>
+            </section>
+            <div class="workbench${this.isPanelHidden('viz') ? ' hide-viz' : ''}${this.isPanelHidden('editor') ? ' hide-editor' : ''}"
+                 data-mode=${mode} style="--fsl-split:${this._split}%">
+              ${mode === 'tabs' ? this._renderTabbar() : ''}
+              <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
+              <div class="gutter"
+                   @pointerdown=${this._onGutterDown}
+                   @dblclick=${this._onGutterReset}></div>
+              <section class="pane editor" ?hidden=${mode === 'tabs' && this._tab !== 'editor'}>${editor}</section>
+            </div>
+            <section class="dock data-dock${this.isPanelHidden('data-inspector') ? '' : ' open'}" part="data-dock">
+              <slot name="data-inspector"></slot>
+            </section>
+          </div>
+          ${this._renderAuxPanels(true)}
+          <section class="state-section"><slot name=${state_slot_name}></slot></section>
+          <footer><slot name="footer"></slot></footer>
+        </div>
+      `;
+        }
         return html `
       <div class="container">
-        <header>
-          <slot name="title"><span class="placeholder">fsl-instance</span></slot>
-        </header>
-        <section class="viz">
-          <slot name="viz"><span class="placeholder">no viz configured</span></slot>
-        </section>
-        <section class="editor">
-          <slot name="editor"></slot>
-        </section>
-        <section class="toolbar">
-          <slot name="toolbar"></slot>
-        </section>
-        <section class="actions">
-          <slot name="actions"></slot>
-        </section>
-        <section class="info-panel">
-          <slot name="info-panel"></slot>
-        </section>
-        <section class="history">
-          <slot name="history"></slot>
-        </section>
-        <section class="data-inspector">
-          <slot name="data-inspector"></slot>
-        </section>
-        <section class="hook-log">
-          <slot name="hook-log"></slot>
-        </section>
-        <section class="effective-properties">
-          <slot name="effective-properties"></slot>
-        </section>
-        <section class="simulation">
-          <slot name="simulation"></slot>
-        </section>
-        <section class="export">
-          <slot name="export"></slot>
-        </section>
-        <section class="state-section">
-          <slot name=${state_slot_name}></slot>
-        </section>
-        <footer>
-          <slot name="footer"></slot>
-        </footer>
+        ${header}
+        ${toolbar}
+        <section class="viz" ?hidden=${this.isPanelHidden('viz')}>${viz}</section>
+        <section class="editor" ?hidden=${this.isPanelHidden('editor')}>${editor}</section>
+        ${this._renderAuxPanels(false)}
+        <section class="state-section"><slot name=${state_slot_name}></slot></section>
+        <footer><slot name="footer"></slot></footer>
       </div>
+    `;
+    }
+    /** The stacked middle panels, shared by both layouts. The toolbar slot is
+     *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+     *  and `data-inspector` panels are lifted out into easing side docks, so
+     *  `docked` is true there and they are skipped here to avoid duplicating
+     *  their slots; `actions` instead lives here as a horizontal bar. The
+     *  state-section + footer stay in {@link render} so the dynamic state-slot
+     *  name binds at the top level.
+     *
+     *  @param docked - True when hook-log + data-inspector are rendered as side
+     *  docks (split layouts); they are then omitted from this stack. */
+    _renderAuxPanels(docked) {
+        const h = (slot) => this.isPanelHidden(slot);
+        return html `
+      <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
+      <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>
+      <section class="history" ?hidden=${h('history')}><slot name="history"></slot></section>
+      ${docked ? '' : html `<section class="data-inspector" ?hidden=${h('data-inspector')}><slot name="data-inspector"></slot></section>`}
+      ${docked ? '' : html `<section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>`}
+      <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
+      <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
+      <section class="stochastic" ?hidden=${h('stochastic')}><slot name="stochastic"></slot></section>
+      <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
     `;
     }
 }
 FslInstance.styles = css `
     :host {
       display: block;
+      /* Ease every palette token on a theme switch. The tokens are registered as
+         animatable <color>s in JS (register_palette_properties) — @property in a
+         shadow stylesheet does not register globally. Because the host transitions
+         its own --fsl-color-*, every widget's var(--fsl-color-*) re-resolves to the
+         animating value each frame, so the whole suite cross-fades. */
+      transition:
+        --fsl-color-surface 0.28s ease, --fsl-color-text 0.28s ease, --fsl-color-accent 0.28s ease,
+        --fsl-color-border 0.28s ease, --fsl-color-muted 0.28s ease, --fsl-color-json-key 0.28s ease,
+        --fsl-color-json-string 0.28s ease, --fsl-color-json-number 0.28s ease, --fsl-color-json-atom 0.28s ease;
+      /* Pre-JS fallback palette (the Default theme's light variant). At runtime
+         the host writes the resolved theme's --fsl-color-* tokens as inline
+         style (see _applyTheme), which override these and cascade to every
+         slotted widget. A consumer's own --fsl-color-* still wins over both. */
+      --fsl-color-surface: #ffffff; --fsl-color-text: #222222; --fsl-color-accent: #5b9dff;
+      --fsl-color-border: #e5e5e5;  --fsl-color-muted: #9aa0a6;
+      --fsl-color-json-key: #5b3da8; --fsl-color-json-string: #2e7d32;
+      --fsl-color-json-number: #b8860b; --fsl-color-json-atom: #c2185b;
     }
+    @media (prefers-reduced-motion: reduce) { :host { transition: none; } }
     .container {
       width: 100%;
       height: 100%;
@@ -1217,6 +2061,72 @@ FslInstance.styles = css `
       opacity: 0.6;
       font-style: italic;
     }
+
+    /* layout modes: lr/rl (row) · tb/bt (column) · editor/viewer (single) · tabs. */
+    .container.is-split { display: flex; flex-direction: column; }
+    /* the middle band: events dock | workbench | data dock */
+    .middle { display: flex; flex: 1 1 auto; min-height: 0; }
+    .workbench { display: flex; flex: 1 1 auto; min-height: 0; min-width: 0; }
+    /* side docks ease their width like the help drawer; closed = 0, open = a
+       fixed basis. overflow:hidden clips the content during the slide. */
+    .dock {
+      flex: 0 0 0; min-width: 0; overflow: hidden; box-sizing: border-box;
+      background: var(--fsl-color-surface, #fff);
+      transition: flex-basis 0.28s ease;
+    }
+    .dock.open { flex-basis: var(--fsl-dock-width, 17em); }
+    .events-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
+    .data-dock.open    { border-left: 1px solid var(--fsl-color-border, #e5e5e5); }
+    /* a docked panel fills the band's height; the data inspector then scrolls
+       to the dock instead of its own 16em cap. */
+    .dock ::slotted(*) { height: 100%; box-sizing: border-box; }
+    .data-dock { --fsl-data-inspector-max-height: 100%; }
+    @media (prefers-reduced-motion: reduce) { .dock { transition: none; } }
+    .workbench[data-mode="tb"], .workbench[data-mode="bt"], .workbench[data-mode="tabs"] { flex-direction: column; }
+    .workbench .pane { display: flex; min-width: 0; min-height: 0; overflow: hidden; }
+    .workbench .pane ::slotted(*) { flex: 1; min-width: 0; min-height: 0; }
+
+    /* pane order (which pane comes first along the main axis) */
+    .workbench[data-mode="lr"] .editor { order: 0; } .workbench[data-mode="lr"] .gutter { order: 1; } .workbench[data-mode="lr"] .viz { order: 2; }
+    .workbench[data-mode="rl"] .viz { order: 0; } .workbench[data-mode="rl"] .gutter { order: 1; } .workbench[data-mode="rl"] .editor { order: 2; }
+    .workbench[data-mode="tb"] .editor { order: 0; } .workbench[data-mode="tb"] .gutter { order: 1; } .workbench[data-mode="tb"] .viz { order: 2; }
+    .workbench[data-mode="bt"] .viz { order: 0; } .workbench[data-mode="bt"] .gutter { order: 1; } .workbench[data-mode="bt"] .editor { order: 2; }
+
+    /* the first pane carries the split ratio; the other fills */
+    .workbench[data-mode="lr"] .editor, .workbench[data-mode="tb"] .editor,
+    .workbench[data-mode="rl"] .viz,    .workbench[data-mode="bt"] .viz    { flex: 0 0 var(--fsl-split, 50%); }
+    .workbench[data-mode="lr"] .viz,    .workbench[data-mode="tb"] .viz,
+    .workbench[data-mode="rl"] .editor, .workbench[data-mode="bt"] .editor { flex: 1 1 0; }
+
+    /* gutter */
+    .gutter {
+      flex: 0 0 6px; align-self: stretch; cursor: col-resize;
+      background: rgba(0, 0, 0, 0.18); touch-action: none;
+    }
+    .workbench[data-mode="tb"] .gutter, .workbench[data-mode="bt"] .gutter { cursor: row-resize; }
+
+    /* single-pane modes hide the gutter and the other pane */
+    .workbench[data-mode="editor"] .gutter, .workbench[data-mode="editor"] .viz { display: none; }
+    .workbench[data-mode="viewer"] .gutter, .workbench[data-mode="viewer"] .editor { display: none; }
+    .workbench[data-mode="editor"] .editor, .workbench[data-mode="viewer"] .viz { flex: 1 1 0; }
+
+    /* panel-hidden workbench panes (driven by <fsl-toolbar> toggles): drop the
+       hidden pane + the gutter and let the surviving pane fill. */
+    .workbench.hide-viz .viz, .workbench.hide-viz .gutter,
+    .workbench.hide-editor .editor, .workbench.hide-editor .gutter { display: none; }
+    .workbench.hide-viz .editor, .workbench.hide-editor .viz { flex: 1 1 0; }
+
+    /* tabbed: a tab strip + one pane at a time */
+    .workbench[data-mode="tabs"] .gutter { display: none; }
+    .workbench[data-mode="tabs"] .pane { flex: 1 1 0; }
+    .workbench[data-mode="tabs"] .pane[hidden] { display: none; }
+    .tabbar { display: flex; gap: 3px; padding: 5px 6px 0; flex: 0 0 auto; border-bottom: 1px solid rgba(127,127,127,0.25); }
+    .tabbar button {
+      font: inherit; font-size: 12px; padding: 5px 14px; cursor: pointer; color: inherit;
+      background: rgba(127,127,127,0.12); border: 1px solid rgba(127,127,127,0.25);
+      border-bottom: none; border-radius: 6px 6px 0 0;
+    }
+    .tabbar button[aria-selected="true"] { background: var(--_fsl-surface, #fff); font-weight: 600; }
   `;
 /**
  * Library event names this WC re-emits as DOM `CustomEvent`s, fulfilling
@@ -1241,6 +2151,14 @@ FslInstance.REEMITTED_EVENTS = [
  */
 FslInstance.properties = {
     fsl: { type: String, reflect: false },
+    layout: { type: String, reflect: true },
+    theme: { type: String, reflect: true },
+    themeName: { type: String, attribute: 'theme-name', reflect: true },
+    themes: { type: Object, reflect: false },
+    data: { type: Object, reflect: false },
+    panelMode: { type: String, attribute: 'panel-mode', reflect: true },
+    panelModes: { type: Object, attribute: false },
+    requestedPanels: { type: Array, attribute: false },
 };
 
-export { FslInstance, JSSM_ON_EVENT_NAMES, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler };
+export { FslInstance, JSSM_ON_EVENT_NAMES, auto_mode, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler, split_ratio };

@@ -17,6 +17,8 @@ import {
   JssmMachineInternalState,
   JssmAllowsOverride,
   JssmAllowIslands,
+  JssmEditorConfig,
+  JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -71,6 +73,9 @@ import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
+
+// Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
+export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
 
 // The spatial fields (besides `handler`, which every hook needs) that each
 // hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
@@ -456,6 +461,11 @@ function find_connected_components<mDT>(
 
 }
 
+/** Default number of independent Monte-Carlo runs when none is declared. */
+export const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
+
 
 
 class Machine<mDT> {
@@ -518,6 +528,8 @@ class Machine<mDT> {
   _arrange_declaration       : Array<Array<StateType>>;
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
+  _oarrange_declaration      : Array<Array<StateType>>;
+  _farrange_declaration      : Array<Array<StateType>>;
 
   _themes : FslTheme[];
   _flow   : FslDirection;
@@ -566,6 +578,7 @@ class Machine<mDT> {
   _code_allows_override   : JssmAllowsOverride;
   _config_allows_override : JssmAllowsOverride;
   _allow_islands          : JssmAllowIslands;
+  _editor_config?         : JssmEditorConfig;
 
   // Same numeric keying as `_hooks` / `_named_hooks`; see comment above.  #729
   _post_hooks                    : Map<number, HookHandler<mDT>>;
@@ -697,6 +710,8 @@ class Machine<mDT> {
     arrange_declaration       = [],
     arrange_start_declaration = [],
     arrange_end_declaration   = [],
+    oarrange_declaration      = [],
+    farrange_declaration      = [],
     theme                     = ['default'],
     flow                      = 'down',
     graph_layout              = 'dot',
@@ -719,6 +734,7 @@ class Machine<mDT> {
     allows_override,
     config_allows_override,
     allow_islands,
+    editor_config,
     rng_seed,
     time_source,
     timeout_source,
@@ -726,7 +742,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = () => new Date().getTime();
+    this._time_source                   = time_source ?? (() => new Date().getTime());
 
     this._create_started                = this._time_source();
 
@@ -769,6 +785,8 @@ class Machine<mDT> {
     this._arrange_declaration       = arrange_declaration;
     this._arrange_start_declaration = arrange_start_declaration;
     this._arrange_end_declaration   = arrange_end_declaration;
+    this._oarrange_declaration      = oarrange_declaration;
+    this._farrange_declaration      = farrange_declaration;
 
     this._dot_preamble = dot_preamble;
     this._themes       = theme;
@@ -811,6 +829,7 @@ class Machine<mDT> {
     this._code_allows_override   = allows_override;
     this._config_allows_override = config_allows_override;
     this._allow_islands          = allow_islands ?? true;
+    this._editor_config          = editor_config;
 
     if ( (allows_override === false) && (config_allows_override === true) ) {
       throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
@@ -1275,12 +1294,14 @@ class Machine<mDT> {
     this._created = this._time_source();
     this.auto_set_state_timeout();
 
-    this._arrange_declaration.forEach( (arrange_pair: string[]) =>
-      arrange_pair.forEach( (possibleState: string) => {
-        if (!(this._states.has(possibleState))) {
-          throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
-        }
-      })
+    [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration].forEach(
+      (declaration: StateType[][]) => declaration.forEach( (arrange_pair: StateType[]) =>
+        arrange_pair.forEach( (possibleState: StateType) => {
+          if (!(this._states.has(possibleState))) {
+            throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
+          }
+        })
+      )
     );
 
   }
@@ -1534,21 +1555,21 @@ class Machine<mDT> {
    *    [Red Yellow Green] ~> [Off FlashingRed];
    *    FlashingRed -> Red;
    *
-   *    state Red:         { property stop_first true;  property can_go false; };
-   *    state Off:         { property stop_first true;  };
-   *    state FlashingRed: { property stop_first true;  };
-   *    state Green:       { property hesitate   false; };
+   *    state Red:         { property: stop_first true;  property: can_go false; };
+   *    state Off:         { property: stop_first true;  };
+   *    state FlashingRed: { property: stop_first true;  };
+   *    state Green:       { property: hesitate   false; };
    *
    *  `;
    *
    *  traffic_light.state();  // Off
-   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
    *
    *  traffic_light.go('Red');
-   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
    *
    *  traffic_light.go('Green');
-   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
    *  ```
    *
    *  @returns An object mapping every known property name to its current value
@@ -1831,7 +1852,7 @@ class Machine<mDT> {
       jssm_version     : version,
       history          : this._history.toArray(),
       history_capacity : this._history.capacity,
-      timestamp        : new Date().getTime(),
+      timestamp        : this._time_source(),
 
     };
 
@@ -1953,6 +1974,20 @@ class Machine<mDT> {
    */
   machine_name(): string {
     return this._machine_name;
+  }
+
+  /** The editor/panel defaults declared in the FSL `editor: {}` block, or
+   *  `undefined` when none was given.  Read by the all-widgets web control
+   *  (fsl#1334) — `panels` drives `request` panel mode.
+   *
+   *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+   *
+   *  @example
+   *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+   *    m.editor_config();  // => { panels: ['history'] }
+   */
+  editor_config(): JssmEditorConfig | undefined {
+    return this._editor_config;
   }
 
   /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
@@ -2592,7 +2627,154 @@ class Machine<mDT> {
     return histograph(this.probabilistic_walk(n));
   }
 
+  /** One non-destructive weighted-random walk over the graph from `start`.
+   *
+   *  Reads the graph and advances the PRNG only — it never calls
+   *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+   *  state, and touches no `data`.  A state with no probabilistic exits
+   *  (a terminal, or a forced-only `~>` state) ends the walk.
+   *
+   *  @param start - State to begin the walk from.
+   *  @param max_steps - Maximum transitions before the walk is step-capped.
+   *  @returns The {@link JssmStochasticRun} for this walk.
+   */
+  private _stochastic_one_walk(start: StateType, max_steps: number): JssmStochasticRun {
 
+    const states : Array<string> = [start];
+    const edges  : Array<string> = [];
+
+    let cur        : StateType = start;
+    let terminated : boolean   = false;
+
+    for (let step = 0; step < max_steps; step++) {
+      const exits = this.probable_exits_for(cur);
+      if (exits.length === 0) { terminated = true; break; }
+      const selected = weighted_rand_select(exits, undefined, this._rng);
+      edges.push(`${cur}→${selected.to}`);
+      cur = selected.to;
+      states.push(cur);
+    }
+
+    return { states, edges, length: states.length - 1, terminated };
+
+  }
+
+  /** Lazily yield one {@link JssmStochasticRun} at a time.
+   *
+   *  In `montecarlo` mode (default) yields `runs` independent walks from the
+   *  current state, each ending at a terminal or after `max_steps`.  In
+   *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+   *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+   *  fsl-stochastic panel drives it across animation frames.
+   *
+   *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+   *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+   *  prior seed afterward — a direct caller's machine is left reseeded.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.
+   *  @returns A generator of per-run results.
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+   */
+  *stochastic_runs(opts: JssmStochasticOptions = {}): Generator<JssmStochasticRun> {
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
+
+    const mode      : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const max_steps : number             = opts.max_steps ?? STOCHASTIC_DEFAULT_MAX_STEPS;
+    const runs      : number             = (mode === 'steady_state')
+      ? 1
+      : (opts.runs ?? this.editor_config()?.stochastic_run_count ?? STOCHASTIC_DEFAULT_RUNS);
+
+    const start: StateType = this.state();
+
+    for (let i = 0; i < runs; i++) {
+      yield this._stochastic_one_walk(start, max_steps);
+    }
+
+  }
+
+
+
+  /** Run many weighted-random walks and return aggregate statistics.
+   *
+   *  Honors `%` transition probabilities (via the existing probabilistic
+   *  machinery).  Non-destructive: the machine's current state and
+   *  {@link Machine.rng_seed} are restored before returning, so calling this
+   *  never perturbs the live machine.  `montecarlo` mode (default) reports
+   *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+   *  mode runs one long walk and omits those fields.
+   *
+   *  Timing (`after`) decorations and data-guard conditions are not modeled
+   *  by this sampler; it walks the probabilistic graph topology.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+   *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+   *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+   *  @returns A {@link JssmStochasticSummary}.
+   *
+   *  @see Machine.stochastic_runs
+   *  @see Machine.probabilistic_walk
+   *  @see Machine.editor_config
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+   *  s.terminal_reached;  // => 100
+   */
+  stochastic_summary(opts: JssmStochasticOptions = {}): JssmStochasticSummary {
+
+    const mode       : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const saved_seed : number             = this._rng_seed;
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
+    const effective_seed: number = this._rng_seed;
+
+    const state_visits    : Map<string, number> = new Map();
+    const edge_traversals : Map<string, number> = new Map();
+    const path_lengths    : Array<number>       = [];
+
+    let terminal_reached = 0,
+        capped           = 0,
+        runs             = 0;
+
+    try {
+      for (const run of this.stochastic_runs({ ...opts, mode })) {
+        runs += 1;
+        for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
+        for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
+        if (mode === 'montecarlo') {
+          if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
+          else                { capped += 1; }
+        }
+      }
+    } finally {
+      // restore the PRNG so the call is non-destructive even when the loop throws
+      this.rng_seed = saved_seed;
+    }
+
+    const total_visits         : number             = [...state_visits.values()].reduce((a, b) => a + b, 0);
+    const state_visit_fraction : Map<string, number> = new Map();
+    for (const [s, c] of state_visits) {
+      state_visit_fraction.set(s, c / total_visits);
+    }
+
+    const summary: JssmStochasticSummary = {
+      mode, runs, seed: effective_seed,
+      state_visits, state_visit_fraction, edge_traversals,
+    };
+
+    if (mode === 'montecarlo') {
+      summary.path_lengths     = path_lengths;
+      summary.terminal_reached = terminal_reached;
+      summary.capped           = capped;
+    }
+
+    return summary;
+
+  }
 
 
 

@@ -515,6 +515,43 @@ declare type JssmBaseTheme = {
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
  */
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+declare type JssmEditorConfig = {
+    stochastic_run_count?: number;
+    panels?: Array<string>;
+};
+/** Which stochastic view a run batch produces. */
+declare type JssmStochasticMode = 'montecarlo' | 'steady_state';
+/** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
+declare type JssmStochasticOptions = {
+    mode?: JssmStochasticMode;
+    runs?: number;
+    max_steps?: number;
+    seed?: number;
+};
+/** One walk's result, yielded by {@link Machine.stochastic_runs}. */
+declare type JssmStochasticRun = {
+    states: Array<string>;
+    edges: Array<string>;
+    length: number;
+    terminated: boolean;
+};
+/** Aggregate statistics over a stochastic run batch. */
+declare type JssmStochasticSummary = {
+    mode: JssmStochasticMode;
+    runs: number;
+    seed: number;
+    state_visits: Map<string, number>;
+    state_visit_fraction: Map<string, number>;
+    edge_traversals: Map<string, number>;
+    path_lengths?: Array<number>;
+    terminal_reached?: number;
+    capped?: number;
+};
 declare type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
@@ -544,6 +581,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     min_exits?: number;
     max_exits?: number;
     allow_islands?: JssmAllowIslands;
+    editor_config?: JssmEditorConfig;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -561,6 +599,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
+    oarrange_declaration?: Array<Array<StateType>>;
+    farrange_declaration?: Array<Array<StateType>>;
     machine_author?: string | Array<string>;
     machine_comment?: string;
     machine_contributor?: string | Array<string>;
@@ -1784,6 +1824,105 @@ declare namespace jssm_constants_d {
 }
 
 /**
+ * Editor-agnostic data types for the FSL language service.
+ *
+ * These are the neutral contract every editor adapter (CodeMirror, VS Code, a
+ * future LSP server) converts to/from. Shapes are kept aligned with LSP types so
+ * an LSP wrapper is a near-mechanical mapping.
+ */
+/** A character-offset range in the FSL source. */
+interface Range {
+    from: number;
+    to: number;
+}
+/** Diagnostic severity, aligned with LSP severities. */
+declare type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
+/** An editor-agnostic diagnostic (one parse/compile problem). */
+interface Diagnostic {
+    range: Range;
+    severity: DiagnosticSeverity;
+    message: string;
+}
+/** What a completion item suggests, so adapters can pick an icon. */
+declare type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
+/** An editor-agnostic completion suggestion. */
+interface CompletionItem {
+    label: string;
+    kind: CompletionKind;
+    detail?: string;
+}
+/** Parser-derived semantic role of a source span. */
+declare type SemanticSpanKind = 'color' | 'state' | 'enum';
+/** An editor-agnostic semantic span (for decorations / semantic tokens). */
+interface SemanticSpan extends Range {
+    kind: SemanticSpanKind;
+    value?: string;
+}
+
+/**
+ * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
+ * neutral {@link Diagnostic}s. Adapters map these to CodeMirror lint diagnostics,
+ * VS Code markers, or LSP `Diagnostic`s.
+ *
+ * Parse errors (peg.js) carry `.location`; compile errors carry
+ * `.source_location` *when they reference a parsed node* — but machine-level
+ * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
+ * the location is treated as optional and falls back to the whole document.
+ *
+ * Some validity checks (e.g. a `required` property that no state defines) live
+ * in the {@link Machine} constructor, a stage past `compile`. We therefore also
+ * construct the machine so the editor surfaces those construction-time errors
+ * instead of calling such a machine valid. The `Machine` import closes a cycle
+ * (`jssm` re-exports this module), but it is only referenced at call time inside
+ * {@link fslDiagnostics}, never during module initialization, so the cycle is
+ * benign.
+ */
+
+/**
+ * Parse then compile `text`, returning a list of diagnostics — empty when the
+ * machine parses and compiles cleanly.
+ *
+ * @example
+ *   fslDiagnostics('a -> b;');            // => []
+ *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
+ *   // a `required` property no state defines is a construction-time error:
+ *   fslDiagnostics('property p required; a -> b;')[0].severity; // => 'error'
+ */
+declare function fslDiagnostics(text: string): Diagnostic[];
+
+/**
+ * Context-aware, editor-agnostic FSL completions. Value suggestions after a
+ * `key:`, key suggestions at a statement start (top-level vs inside a `{ }`
+ * block, by brace depth). Adapters convert {@link CompletionItem}s to their own
+ * completion type. Value vocab is jssm's own (`gviz_shapes`, `named_colors`,
+ * `FslDirections`), so it cannot drift from the renderer.
+ */
+
+/**
+ * Completions for the caret at `offset` in `text`.
+ *
+ * @example
+ *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
+ */
+declare function fslCompletions(text: string, offset: number): CompletionItem[];
+
+/**
+ * Parser-derived semantic spans for FSL: color values (with resolved hex),
+ * state names, and shape-enum values. Returns `[]` if the document does not
+ * parse. Editor-agnostic — adapters map spans to decorations or semantic
+ * tokens. Logic is a verified port of the sketch's `semantic_overlay.mjs`.
+ */
+
+/**
+ * Collect color / state / shape-enum semantic spans from `text`.
+ *
+ * @example
+ *   fslSemanticSpans('state s : { color: crimson; };')
+ *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
+ */
+declare function fslSemanticSpans(text: string): SemanticSpan[];
+
+/**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
@@ -1796,63 +1935,6 @@ declare const version: string;
  *  with the same `version` string during development, and for diagnostic logs.
  */
 declare const build_time: number;
-
-/**
- *  The FSL Markdown fence convention parser — pure, host-agnostic logic that
- *  turns a fenced-code-block info string into a {@link FenceDescriptor}.  Hosts
- *  (a VS Code preview plugin, a static-site generator, …) each interpret the
- *  descriptor according to their capabilities.
- *
- *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
- */
-/** A single renderable part of a fence block (stacks in listed order, first on top). */
-declare type FencePart = 'image' | 'code' | 'dot' | 'editor' | 'actions' | 'info-panel' | 'toolbar' | 'title' | 'footer';
-/** An image output format for the `image` part. */
-declare type FenceImageFormat = 'svg' | 'png' | 'jpeg' | 'gif';
-/** The unit of a {@link FenceDimension} (`%` is represented as `'percent'`). */
-declare type FenceDimensionUnit = 'px' | 'percent';
-/** A parsed `width=`/`height=` value with its unit. */
-interface FenceDimension {
-    value: number;
-    unit: FenceDimensionUnit;
-}
-/** The fully-parsed, validated description of one FSL Markdown fence block. */
-interface FenceDescriptor {
-    parts: FencePart[];
-    ide: boolean;
-    format: FenceImageFormat;
-    width: FenceDimension | null;
-    height: FenceDimension | null;
-    interactive: boolean;
-    notes: string[];
-}
-/**
- *  Canonical fence language for an info string, or `null` if the block is not
- *  an FSL fence.  Reads only the first whitespace-delimited token,
- *  case-insensitively.
- *
- *  @param info The full fence info string (everything after the opening fence).
- *  @returns `'fsl'` or `'jssm'` for our fences; `null` otherwise.
- *
- *  @example fsl_fence_lang('fsl image code') // => 'fsl'
- *  @example fsl_fence_lang('JSSM')           // => 'jssm'
- *  @example fsl_fence_lang('mermaid')        // => null
- */
-declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
-/**
- *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
- *  the (already-validated) language and is ignored; remaining tokens are
- *  classified as parts, image formats, the `ide` macro, or `width`/`height`
- *  options.  Unrecognized or conflicting tokens are dropped and recorded in
- *  `notes` rather than throwing, so a host can render forward-compatibly.
- *
- *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
- *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
- *
- *  @example parse_fence_info('fsl').parts // => ['image', 'code']
- *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
- */
-declare function parse_fence_info(info: string): FenceDescriptor;
 
 declare type StateType = string;
 
@@ -1937,6 +2019,10 @@ declare function transfer_state_properties(state_decl: JssmStateDeclaration): Js
  *
  */
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
+/** Default number of independent Monte-Carlo runs when none is declared. */
+declare const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+declare const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -1980,6 +2066,8 @@ declare class Machine<mDT> {
     _arrange_declaration: Array<Array<StateType>>;
     _arrange_start_declaration: Array<Array<StateType>>;
     _arrange_end_declaration: Array<Array<StateType>>;
+    _oarrange_declaration: Array<Array<StateType>>;
+    _farrange_declaration: Array<Array<StateType>>;
     _themes: FslTheme[];
     _flow: FslDirection;
     _has_hooks: boolean;
@@ -2012,6 +2100,7 @@ declare class Machine<mDT> {
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
     _allow_islands: JssmAllowIslands;
+    _editor_config?: JssmEditorConfig;
     _post_hooks: Map<number, HookHandler<mDT>>;
     _post_named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
     _post_entry_hooks: Map<number, HookHandler<mDT>>;
@@ -2061,7 +2150,7 @@ declare class Machine<mDT> {
     _firing_error: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -2219,21 +2308,21 @@ declare class Machine<mDT> {
      *    [Red Yellow Green] ~> [Off FlashingRed];
      *    FlashingRed -> Red;
      *
-     *    state Red:         { property stop_first true;  property can_go false; };
-     *    state Off:         { property stop_first true;  };
-     *    state FlashingRed: { property stop_first true;  };
-     *    state Green:       { property hesitate   false; };
+     *    state Red:         { property: stop_first true;  property: can_go false; };
+     *    state Off:         { property: stop_first true;  };
+     *    state FlashingRed: { property: stop_first true;  };
+     *    state Green:       { property: hesitate   false; };
      *
      *  `;
      *
      *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
      *  ```
      *
      *  @returns An object mapping every known property name to its current value
@@ -2489,6 +2578,17 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** The editor/panel defaults declared in the FSL `editor: {}` block, or
+     *  `undefined` when none was given.  Read by the all-widgets web control
+     *  (fsl#1334) — `panels` drives `request` panel mode.
+     *
+     *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+     *
+     *  @example
+     *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+     *    m.editor_config();  // => { panels: ['history'] }
+     */
+    editor_config(): JssmEditorConfig | undefined;
     /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
      *  Returns `undefined` when not present.
      *  @returns The npm package name string, or `undefined`.
@@ -2851,6 +2951,65 @@ declare class Machine<mDT> {
      *  @returns A `Map` from state name to visit count.
      */
     probabilistic_histo_walk(n: number): Map<StateType, number>;
+    /** One non-destructive weighted-random walk over the graph from `start`.
+     *
+     *  Reads the graph and advances the PRNG only — it never calls
+     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+     *  state, and touches no `data`.  A state with no probabilistic exits
+     *  (a terminal, or a forced-only `~>` state) ends the walk.
+     *
+     *  @param start - State to begin the walk from.
+     *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @returns The {@link JssmStochasticRun} for this walk.
+     */
+    private _stochastic_one_walk;
+    /** Lazily yield one {@link JssmStochasticRun} at a time.
+     *
+     *  In `montecarlo` mode (default) yields `runs` independent walks from the
+     *  current state, each ending at a terminal or after `max_steps`.  In
+     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+     *  fsl-stochastic panel drives it across animation frames.
+     *
+     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+     *  prior seed afterward — a direct caller's machine is left reseeded.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.
+     *  @returns A generator of per-run results.
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+     */
+    stochastic_runs(opts?: JssmStochasticOptions): Generator<JssmStochasticRun>;
+    /** Run many weighted-random walks and return aggregate statistics.
+     *
+     *  Honors `%` transition probabilities (via the existing probabilistic
+     *  machinery).  Non-destructive: the machine's current state and
+     *  {@link Machine.rng_seed} are restored before returning, so calling this
+     *  never perturbs the live machine.  `montecarlo` mode (default) reports
+     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+     *  mode runs one long walk and omits those fields.
+     *
+     *  Timing (`after`) decorations and data-guard conditions are not modeled
+     *  by this sampler; it walks the probabilistic graph topology.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+     *  @returns A {@link JssmStochasticSummary}.
+     *
+     *  @see Machine.stochastic_runs
+     *  @see Machine.probabilistic_walk
+     *  @see Machine.editor_config
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+     *  s.terminal_reached;  // => 100
+     */
+    stochastic_summary(opts?: JssmStochasticOptions): JssmStochasticSummary;
     /********
      *
      *  List all actions available from this state.  Please note that the order of
@@ -4623,5 +4782,4 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, parse_fence_info, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
-export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart };
+export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

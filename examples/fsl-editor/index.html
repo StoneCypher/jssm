@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lt;fsl-editor&gt; — showcase</title>
+<style>
+  :root {
+    --ink:#0e1116; --ink-2:#161a22; --line:#2a2f3a; --text:#c9d1d9; --text-dim:#7d8694;
+    --accent:#5b9dff; --signal:#ffb020; --graph-bg:#dddddd;
+    --mono: ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body { font-family:var(--sans); overflow:hidden; }
+  /* The demo IS the widget: the device fills the window edge-to-edge with no
+     chrome around it, so what you see is exactly the <fsl-instance>. */
+  .device { display:flex; height:100vh; overflow:hidden; }
+
+  /* The host owns the layout AND the theme: its built-in --fsl-color-* palette,
+     flipped by the theme attribute the toolbar sets, cascades to every nested
+     widget — so one toggle themes the whole suite. We only feed it the fonts. */
+  fsl-instance { flex:1; min-width:0; min-height:0; display:block; --fsl-font:var(--sans); --fsl-font-mono:var(--mono); }
+  fsl-viz { display:block; background:var(--graph-bg); }
+  fsl-editor { display:block; min-height:0; --fsl-radius:0px; }
+
+  /* A plain Docs button living in the toolbar's trailing slot. It draws on the
+     host's public --fsl-color-* palette (not the demo's fixed-dark :root vars)
+     so it flips light/dark with the rest of the suite. */
+  .tb-help {
+    height:1.9rem; padding:0 .7rem; cursor:pointer; border-radius:4px;
+    border:1px solid var(--fsl-color-border); background:var(--fsl-color-surface); color:var(--fsl-color-text); font:600 .8rem var(--sans);
+  }
+  .tb-help:hover { background:color-mix(in srgb, var(--fsl-color-text) 8%, var(--fsl-color-surface)); }
+
+  /* <fsl-help> drawer — eases in from the right as a third pane. It's a sibling
+     of the host, so the demo mirrors the host's theme onto its theme attribute;
+     its own built-in palette then flips with the suite. */
+  fsl-help { flex:0 0 0; min-width:0; overflow:hidden; transition:flex-basis .28s ease; --fsl-font:var(--sans); }
+  fsl-help[open] { flex-basis:360px; }
+  /* the docs component fills the drawer body */
+  fsl-help fsl-docs { display:block; padding:.5rem .85rem; }
+  @media (prefers-reduced-motion: reduce) { fsl-help { transition:none; } }
+  /* Docs sections slotted into the drawer body use the drawer's own --_fsl-*
+     tokens, so they flip with its theme. */
+  fsl-help details { border-top:1px solid var(--_fsl-border); }
+  fsl-help details:first-of-type { border-top:0; }
+  fsl-help summary { cursor:pointer; padding:.55rem 0; font-weight:600; font-size:.84rem; list-style:none; display:flex; align-items:center; gap:.5rem; color:var(--_fsl-text); }
+  fsl-help summary::-webkit-details-marker { display:none; }
+  fsl-help summary::before { content:"▸"; color:var(--_fsl-accent); transition:transform .15s; }
+  @media (prefers-reduced-motion: reduce) { fsl-help summary::before { transition:none; } }
+  fsl-help details[open] summary::before { transform:rotate(90deg); }
+  fsl-help .doc { padding:0 0 .6rem .9rem; color:var(--_fsl-muted); font-size:.86rem; line-height:1.5; }
+  fsl-help code { font-family:var(--mono); font-size:.82em; background:color-mix(in srgb, var(--_fsl-text) 10%, transparent); padding:.05rem .3rem; border-radius:3px; }
+  fsl-help kbd { font-family:var(--mono); font-size:.76rem; background:color-mix(in srgb, var(--_fsl-text) 10%, transparent); border:1px solid var(--_fsl-border); border-radius:3px; padding:.05rem .35rem; color:var(--_fsl-text); }
+
+  /* Parse-status pill slotted into the footer. */
+  .status { display:inline-flex; align-items:center; gap:.35rem; }
+  .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; transition:background .15s; }
+  .err-dot.bad { background:#f85149; }
+</style>
+</head>
+<body>
+  <div class="device" id="device">
+    <!-- the <fsl-instance> host, its whole widget suite, and an <fsl-help>
+         drawer are built in JS so the host fsl is set before it connects -->
+  </div>
+
+  <script type="module">
+    import { fslDiagnostics } from './fsl-editor.bundle.js';   // registers the whole suite
+
+    const SAMPLE = [
+      'machine_name    : "Traffic Light";',
+      'machine_version : 1.0.0;',
+      'machine_license : MIT;',
+      '',
+      'graph_layout    : dot;',
+      'flow            : down;',
+      '',
+      '// fsl#1334 — the machine can declare which panels open by default; none',
+      '// are requested here, so every panel starts closed (toggle from the control):',
+      'editor : { panels: []; };',
+      '',
+      '// a machine property every state defines — the Properties panel shows its',
+      '// live value (the current light color) and updates on each transition:',
+      'property color default "off";',
+      '',
+      "Off 'Enable' -> Red;",
+      "Red 'Next' => Green 'Next' => Yellow 'Next' => Red;",
+      '[Red Yellow Green] ~> Off;',
+      '',
+      '// visual styling',
+      'arrange [Green Yellow];',
+      '',
+      'state        : { corners: rounded; };',
+      'state Red    : { property: color "red";    background-color: pink; };',
+      'state Yellow : { property: color "yellow"; background-color: lightyellow; };',
+      'state Green  : { property: color "green";  background-color: lightgreen; };',
+      'state Off : {',
+      '  property: color "off";',
+      '  background-color : steelblue;',
+      '  text-color       : white;',
+      '  corners          : regular;',
+      '};',
+    ].join('\n');
+
+    const make = (tag, slot) => {
+      const el = document.createElement(tag);
+      if (slot) { el.setAttribute('slot', slot); }
+      return el;
+    };
+
+    // Build the host with its fsl set BEFORE connect, then slot the whole suite.
+    const host = make('fsl-instance');
+    host.setAttribute('layout', 'rl');    // viz left, editor right
+    host.setAttribute('theme', 'dark');   // start dark; the toolbar toggles the whole suite
+    host.setAttribute('panel-mode', 'request');   // honor the FSL's editor:{panels} (fsl#1334)
+    host.fsl = SAMPLE;
+    // Real, live telemetry: the transition hook below rewrites this on every
+    // step, so the data panel reflects the machine's ACTUAL activity instead of
+    // a frozen sample. Seed the start state so it reads sensibly before the
+    // first transition.
+    host.data = { state: 'Off', steps: 0, last_action: null, path: ['Off'] };
+
+    const title   = make('span', 'title');               // empty → suppresses the placeholder
+    const toolbar = make('fsl-toolbar', 'toolbar');
+    const helpBtn = document.createElement('button');
+    helpBtn.className = 'tb-help'; helpBtn.textContent = '? Docs';
+    toolbar.append(helpBtn);                              // the toolbar's trailing slot
+
+    const viz   = make('fsl-viz', 'viz');
+    const ed    = make('fsl-editor', 'editor'); ed.id = 'ed';   // theme is driven by the host
+    const sim   = make('fsl-simulation', 'simulation');
+    const hist  = make('fsl-history', 'history');
+    const data  = make('fsl-data-inspector', 'data-inspector');
+    const hooks = make('fsl-hook-log', 'hook-log');
+    const info  = make('fsl-info-panel', 'info-panel');
+    const props = make('fsl-effective-properties', 'effective-properties');
+
+    // The actions panel is a real <fsl-actions>: it derives the legal actions +
+    // transitions from the host machine and drives it; every panel follows.
+    const actions = make('fsl-actions', 'actions');
+
+    const footer = make('fsl-footer', 'footer');
+    const statusEl = document.createElement('span');
+    statusEl.className = 'status';
+    statusEl.innerHTML = '<span class="err-dot" id="dot"></span><span id="status">ready</span>';
+    footer.append(statusEl);                             // the footer's trailing slot
+
+    // A declarative transition hook keeps the machine's data live: on every
+    // transition it rewrites m.data with real telemetry — current state, step
+    // count, last action, recent path — which the data panel then displays.
+    // (The host discovers it as a `:scope > fsl-hook` child; it isn't slotted.)
+    const telemetry = document.createElement('fsl-hook');
+    telemetry.setAttribute('kind', 'any transition');
+    telemetry.textContent =
+      'const d = m.data || {};' +
+      ' m.data = { state: m.to, steps: (d.steps || 0) + 1, last_action: m.action || null,' +
+      ' path: [...(d.path || []), m.to].slice(-12) };';
+
+    host.append(title, toolbar, actions, viz, ed, sim, hist, data, hooks, info, props, footer, telemetry);
+    document.getElementById('device').prepend(host);
+
+    // A real <fsl-help> drawer; the toolbar's Docs button toggles it.
+    // The help drawer now hosts the real <fsl-docs> component — the full,
+    // manifest-derived curriculum, with syntax-highlighted, loadable examples.
+    const help = make('fsl-help');
+    const docs = make('fsl-docs');
+    help.append(docs);
+    document.getElementById('device').append(help);
+    helpBtn.onclick = () => { help.open = !help.open; };
+
+    // <fsl-docs> emits `load-example` (bubbles + composed) when a fence's
+    // "Load into editor" button is clicked; seed the live editor with it AND
+    // regenerate the machine. A programmatic `ed.fsl =` write does NOT fire the
+    // editor's `change` event (that's user-edit-only), so the host would never
+    // re-derive viz/panels from it — we push `host.fsl` too so the whole suite
+    // rebuilds around the loaded example.
+    document.addEventListener('load-example', e => { ed.fsl = e.detail.fsl; host.fsl = e.detail.fsl; });
+
+    // The help drawer is a host sibling, so mirror the host's theme onto it
+    // (its own built-in palette then flips with the rest of the suite).
+    const syncHelpTheme = () => help.setAttribute('theme', host.getAttribute('resolved-theme') || 'light');
+    new MutationObserver(syncHelpTheme).observe(host, { attributes: true, attributeFilter: ['resolved-theme'] });
+    syncHelpTheme();
+
+    // Status pill: the editor text is the source of truth for validity.
+    const dot = document.getElementById('dot'), status = document.getElementById('status');
+    let liveFsl = host.fsl;
+    function refreshStatus(fsl) {
+      liveFsl = fsl;
+      const errs = fslDiagnostics(fsl);
+      if (errs.length) {
+        dot.classList.add('bad');
+        status.textContent = 'parse error';
+      } else {
+        dot.classList.remove('bad');
+        status.textContent = 'valid';
+      }
+    }
+    ed.addEventListener('change', e => refreshStatus(e.detail.fsl));
+    setTimeout(() => refreshStatus(host.fsl), 250);
+
+    // The toolbar's Validate / Lint buttons fire intent; the demo fulfills them
+    // against the live editor text (the source of truth for validity).
+    host.addEventListener('fsl-validate', () => {
+      const errs = fslDiagnostics(liveFsl);
+      dot.classList.toggle('bad', errs.length > 0);
+      status.textContent = errs.length ? `invalid — ${errs.length} issue${errs.length > 1 ? 's' : ''}` : 'valid ✓';
+    });
+    host.addEventListener('fsl-lint', () => {
+      const errs = fslDiagnostics(liveFsl);
+      status.textContent = errs.length ? `lint: ${errs.length} issue${errs.length > 1 ? 's' : ''}` : 'lint: clean';
+    });
+
+    // Export: the toolbar fires intent (format + content + destination); the demo
+    // fulfills it. Clipboard for 'clipboard'; the File System Access API for the
+    // directory destinations, reporting the chosen dir back so the toolbar can
+    // offer "to <name>".
+    let lastDirHandle = null;
+    host.addEventListener('fsl-export', async e => {
+      const { format, content, destination } = e.detail;
+      if (destination === 'lastdir' || destination === 'pick') {
+        try {
+          if (destination === 'pick' || !lastDirHandle) {
+            lastDirHandle = await window.showDirectoryPicker();
+            toolbar.lastDirectory = lastDirHandle.name;
+          }
+          const file = await lastDirHandle.getFileHandle(`machine.${format}`, { create: true });
+          const writable = await file.createWritable();
+          await writable.write(content);
+          await writable.close();
+          status.textContent = `saved machine.${format} → ${lastDirHandle.name}`;
+        } catch (_) {
+          status.textContent = 'save canceled';
+        }
+        return;
+      }
+      if (navigator.clipboard) { navigator.clipboard.writeText(content); }
+      status.textContent = `copied ${format.toUpperCase()} · ${content.length} chars`;
+    });
+  </script>
+</body>
+</html>

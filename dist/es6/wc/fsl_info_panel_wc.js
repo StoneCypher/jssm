@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html, css } from 'lit';
 import { state } from 'lit/decorators.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { fslTokens } from './fsl_tokens.js';
 /**
  * Read-only state-inspector web component for a parent `<fsl-instance>`.
  *
@@ -126,10 +127,15 @@ export class FslInfoPanel extends LitElement {
 }
 FslInfoPanel.styles = css `
     :host { display: block; }
+    .info, .placeholder {
+      padding: 0.5rem 0.7rem; font: 0.8rem var(--_fsl-font-mono);
+      color: var(--_fsl-text); background: var(--_fsl-surface);
+    }
     .info { display: grid; gap: var(--fsl-info-panel-gap, 0.25rem); }
     .row { display: flex; gap: 0.5rem; }
-    .label { font-weight: 600; opacity: 0.7; }
-    .placeholder { opacity: 0.6; font-style: italic; }
+    .label { font-weight: 600; color: var(--_fsl-muted); }
+    .placeholder { color: var(--_fsl-muted); font-style: italic; }
+    ${fslTokens}
   `;
 __decorate([
     state()

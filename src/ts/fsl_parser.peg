@@ -585,6 +585,7 @@ SvgColorLabel
   / 'teal'                 { return '#008080ff'; }              / 'Teal'                 { return '#008080ff'; }
   / 'thistle'              { return '#d8bfd8ff'; }              / 'Thistle'              { return '#d8bfd8ff'; }
   / 'tomato'               { return '#ff6347ff'; }              / 'Tomato'               { return '#ff6347ff'; }
+  / 'transparent'          { return '#00000000'; }              / 'Transparent'          { return '#00000000'; }
   / 'turquoise'            { return '#40e0d0ff'; }              / 'Turquoise'            { return '#40e0d0ff'; }
   / 'violet'               { return '#ee82eeff'; }              / 'Violet'               { return '#ee82eeff'; }
   / 'wheat'                { return '#f5deb3ff'; }              / 'Wheat'                { return '#f5deb3ff'; }
@@ -998,6 +999,34 @@ ConfigGraph
       return node;
     }
 
+// `editor: { ... };` — editor/panel defaults the web control reads (fsl#1334).
+// Whitelisted keys only (a typo is a parse error), grouped so a new default is
+// one item rule rather than a new top-level keyword.
+ConfigEditor
+  = WS? "editor" WS? ":" WS? "{" WS? items:EditorConfigItem* WS? "};" WS? {
+      const node: any = { key: "editor_config", value: items };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+EditorConfigItem
+  = EditorStochasticRunCount
+  / EditorPanels
+
+EditorStochasticRunCount
+  = WS? "stochastic_run_count" WS? ":" WS? value:IntegerLiteral WS? ";" WS? {
+      const node: any = { key: "stochastic_run_count", value: parseInt(value, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+EditorPanels
+  = WS? "panels" WS? ":" WS? value:LabelList WS? ";" WS? {
+      const node: any = { key: "panels", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 
 
 
@@ -1085,6 +1114,7 @@ Config "configuration"
   / ConfigFailedOutputs
   / ConfigTransition
   / ConfigGraph
+  / ConfigEditor
   / ConfigAnyState
   / ConfigGraphBgColor
   / ConfigAllowsOverride
@@ -1557,9 +1587,25 @@ ArrangeEndDeclaration
       return node;
     }
 
+OArrangeDeclaration "oarrange declaration"
+  = "oarrange"      WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'oarrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+FArrangeDeclaration "farrange declaration"
+  = "farrange"      WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'farrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 ArrangeDeclaration "arrange declaration"
   = ArrangeStartDeclaration
   / ArrangeEndDeclaration
+  / OArrangeDeclaration
+  / FArrangeDeclaration
   / RegularArrangeDeclaration
 
 

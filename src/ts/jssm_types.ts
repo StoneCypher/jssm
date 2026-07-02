@@ -729,6 +729,48 @@ type JssmTheme = Partial<JssmBaseTheme>;
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
  */
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+type JssmEditorConfig = {
+  stochastic_run_count? : number,
+  panels?               : Array<string>,
+};
+
+/** Which stochastic view a run batch produces. */
+type JssmStochasticMode = 'montecarlo' | 'steady_state';
+
+/** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
+type JssmStochasticOptions = {
+  mode?       : JssmStochasticMode,  // default 'montecarlo'
+  runs?       : number,              // montecarlo: # of independent runs
+  max_steps?  : number,              // montecarlo: per-run step cap; steady_state: walk length
+  seed?       : number,              // fixed value => reproducible
+};
+
+/** One walk's result, yielded by {@link Machine.stochastic_runs}. */
+type JssmStochasticRun = {
+  states     : Array<string>,   // states visited, including the start state
+  edges      : Array<string>,   // "from→to" keys traversed, in order
+  length     : number,          // number of transitions taken (states.length - 1)
+  terminated : boolean,         // true if it reached a terminal, false if step-capped
+};
+
+/** Aggregate statistics over a stochastic run batch. */
+type JssmStochasticSummary = {
+  mode                 : JssmStochasticMode,
+  runs                 : number,
+  seed                 : number,                 // effective seed used
+  state_visits         : Map<string, number>,    // aggregate visit counts
+  state_visit_fraction : Map<string, number>,    // normalized 0..1, sums to 1
+  edge_traversals      : Map<string, number>,    // "from→to" -> count
+  path_lengths?        : Array<number>,          // montecarlo only: per terminating run
+  terminal_reached?    : number,                 // montecarlo only
+  capped?              : number,                 // montecarlo only
+};
+
 type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?                  : JssmLayout,
@@ -765,6 +807,7 @@ type JssmGenericConfig<StateType, DataType> = {
   min_exits?                     : number,
   max_exits?                     : number,
   allow_islands?                 : JssmAllowIslands,
+  editor_config?                 : JssmEditorConfig,
   allow_force?                   : false,
   actions?                       : JssmPermittedOpt,
 
@@ -788,6 +831,8 @@ type JssmGenericConfig<StateType, DataType> = {
   arrange_declaration?           : Array<Array<StateType>>,
   arrange_start_declaration?     : Array<Array<StateType>>,
   arrange_end_declaration?       : Array<Array<StateType>>,
+  oarrange_declaration?          : Array<Array<StateType>>,
+  farrange_declaration?          : Array<Array<StateType>>,
 
   machine_author?                : string | Array<string>,
   machine_comment?               : string,
@@ -1619,6 +1664,11 @@ export {
     JssmArrowDirection,
 
   JssmGenericConfig,
+  JssmEditorConfig,
+    JssmStochasticMode,
+    JssmStochasticOptions,
+    JssmStochasticRun,
+    JssmStochasticSummary,
     JssmGenericState,
     JssmGenericMachine,
 

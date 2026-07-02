@@ -1,0 +1,560 @@
+{
+  "manifest": "teaching-surface",
+  "verified": "2026-06-27",
+  "spec": "notes/superpowers/specs/2026-06-27-help-bar-teaching-surface.md",
+  "note": "Multi-surface. Language features use grammar.rules as their claims; other surfaces use units. Surfaces 2-7 are v5-provisional pending StoneCypher/jssm#822 (v6 re-enumeration).",
+  "groundTruths": {
+    "language": "src/ts/fsl_parser.peg",
+    "api": "src/ts/jssm.ts (exported symbols)",
+    "viz": "src/ts/jssm_viz.ts (exported symbols)",
+    "editor": "src/ts/cm6/fsl_language.ts (exported symbols)",
+    "webcomponent": "custom-elements.json (CEM tag names)",
+    "cli": "package.json bin + src/ts/cli (subcommands, render targets, dispatcher flags)",
+    "llm-prompt": "src/ts/cli/subcommands/export-system-prompt/plugin.ts (prompt headings)"
+  },
+  "features": [
+    {
+      "id": "doc-structure",
+      "surface": "language",
+      "title": "Document structure",
+      "grammar": { "rules": ["Document", "Term", "TermList"], "terminals": [] },
+      "tier": "core",
+      "dependsOn": [],
+      "indexTerms": ["document", "term", "statement", "top level"],
+      "referenceAnchor": "1-document-shape"
+    },
+    {
+      "id": "comments",
+      "surface": "language",
+      "title": "Comments",
+      "grammar": { "rules": ["LineComment", "BlockComment"], "terminals": ["//", "/*", "*/"] },
+      "tier": "core",
+      "dependsOn": ["doc-structure"],
+      "indexTerms": ["comment", "//", "/*", "block comment", "line comment"]
+    },
+    {
+      "id": "transitions",
+      "surface": "language",
+      "title": "Transitions",
+      "grammar": {
+        "rules": ["Exp", "Subexp", "Arrow", "ArrowTarget", "MixedArrow", "ForwardLightArrow", "BackLightArrow", "TwoWayLightArrow", "LightArrow"],
+        "terminals": ["->", "<-", "<->", "→", "←", "↔"]
+      },
+      "tier": "core",
+      "dependsOn": ["labels-quoting"],
+      "indexTerms": ["transition", "arrow", "edge", "->", "<-", "<->"],
+      "referenceAnchor": "3-transitions"
+    },
+    {
+      "id": "arrow-flavors",
+      "surface": "language",
+      "title": "Arrow flavors (fat, tilde, light)",
+      "grammar": {
+        "rules": ["FatArrow", "FatLightArrow", "FatTildeArrow", "ForwardFatArrow", "ForwardTildeArrow", "BackFatArrow", "BackTildeArrow", "LightFatArrow", "LightTildeArrow", "TildeArrow", "TildeFatArrow", "TildeLightArrow", "TwoWayFatArrow", "TwoWayTildeArrow"],
+        "terminals": ["=>", "~>", "<=>", "<~>", "⇒", "⇔"]
+      },
+      "tier": "advanced",
+      "dependsOn": ["transitions"],
+      "indexTerms": ["fat arrow", "tilde arrow", "=>", "~>", "legal", "main path", "forced"],
+      "teachingNote": "Unicode glyphs (→ ⇒ ↔ …) are taught here at advanced tier; you may use them in place of the ASCII forms."
+    },
+    {
+      "id": "timed-transitions",
+      "surface": "language",
+      "title": "Timed transitions (after)",
+      "grammar": { "rules": ["ArrowAfter", "TimeType"], "terminals": ["after", "ms", "s", "sec", "second", "seconds", "min", "minute", "hour", "day", "week"] },
+      "tier": "intermediate",
+      "dependsOn": ["transitions"],
+      "indexTerms": ["after", "timeout", "delay", "timer", "seconds"],
+      "footguns": [
+        { "id": "after-unit-seconds", "summary": "Bare `after N` defaults to SECONDS, not milliseconds (the implicit scale is 1000).", "indexTerms": ["after", "seconds", "milliseconds", "unit", "1000"] }
+      ]
+    },
+    {
+      "id": "weighted-arrows",
+      "surface": "language",
+      "title": "Weighted / probabilistic arrows",
+      "grammar": {
+        "rules": ["ArrowProbability", "Cycle", "NonNegNumber", "IntegerLiteral", "JsNumericLiteral", "JsBinaryIntegerLiteral", "JsDecimalIntegerLiteral", "JsDecimalLiteral", "JsHexIntegerLiteral", "JsNExponentIndicator", "JsNExponentPart", "JsNSignedInteger", "NonJsOctalIntegerLiteral"],
+        "terminals": ["%", "Pi", "Phi", "Infinity", "NaN", "π", "φ", "∞"]
+      },
+      "tier": "advanced",
+      "dependsOn": ["transitions"],
+      "indexTerms": ["probability", "weight", "percent", "random", "cycle", "Pi", "Infinity"],
+      "footguns": [
+        { "id": "no-negative-zero", "summary": "`Cycle` accepts `+0` but not `-0` or bare `0` (zero is treated as unsigned).", "indexTerms": ["zero", "-0", "+0", "cycle"] }
+      ]
+    },
+    {
+      "id": "arrow-decorations",
+      "surface": "language",
+      "title": "Per-arrow decorations (labels, colors)",
+      "grammar": { "rules": ["ArrowDesc", "ArrowDecoration", "ArrowDecorations", "ArrowItem", "ArrowItems", "ArrowItemKey"], "terminals": ["arc_label", "head_label", "tail_label", "edge-color", "line-style"] },
+      "tier": "advanced",
+      "dependsOn": ["transitions", "colors"],
+      "indexTerms": ["arrow label", "edge label", "arc_label", "head_label", "tail_label", "per-arrow color"]
+    },
+    {
+      "id": "labels-quoting",
+      "surface": "language",
+      "title": "Labels and quoting",
+      "grammar": {
+        "rules": ["Label", "String", "Atom", "AtomFirstLetter", "AtomLetter", "ActionLabel", "ActionLabelChar", "ActionLabelQuoteMark", "ActionLabelUnescaped", "QuoteMark", "Char", "Escape", "Unescaped", "Stripe"],
+        "terminals": ["\"", "'"]
+      },
+      "tier": "core",
+      "dependsOn": ["doc-structure"],
+      "indexTerms": ["label", "string", "atom", "quote", "name", "action"],
+      "referenceAnchor": "5-labels-strings-atoms",
+      "footguns": [
+        { "id": "quote-semantics", "summary": "Double quotes parse as string literals; single quotes parse as action labels. Their escape vocabularies differ.", "indexTerms": ["quote", "single", "double", "string", "action label"] }
+      ]
+    },
+    {
+      "id": "states",
+      "surface": "language",
+      "title": "State declarations",
+      "grammar": { "rules": ["StateDeclaration", "StateDeclarationDesc", "StateItems"], "terminals": ["state"] },
+      "tier": "core",
+      "dependsOn": ["labels-quoting"],
+      "indexTerms": ["state", "node", "declaration"]
+    },
+    {
+      "id": "state-styling",
+      "surface": "language",
+      "title": "State styling",
+      "grammar": {
+        "rules": ["StateDeclarationItem", "SdStateColor", "SdStateTextColor", "SdStateBackgroundColor", "SdStateBorderColor", "SdStateShape", "SdStateCorners", "SdStateLineStyle", "SdStateImage", "SdStateUrl", "SdStateLabel", "SdStateProperty"],
+        "terminals": ["color", "text-color", "background-color", "border-color", "shape", "corners", "line-style", "image", "url", "property"]
+      },
+      "tier": "intermediate",
+      "dependsOn": ["states", "colors"],
+      "indexTerms": ["style", "color", "shape", "border", "background", "image", "node style"]
+    },
+    {
+      "id": "colors",
+      "surface": "language",
+      "title": "Colors",
+      "grammar": { "rules": ["Color", "SvgColor", "SvgColorLabel", "Rgb3", "Rgb6", "Rgba4", "Rgba8"], "terminals": ["#", "AliceBlue", "Red", "Blue"] },
+      "tier": "intermediate",
+      "dependsOn": [],
+      "indexTerms": ["color", "svg color", "hex", "rgb", "rgba", "#"],
+      "teachingNote": "Teach the PascalCase canonical form (AliceBlue). The lowercase form (aliceblue) also parses and may be noted, but PascalCase is canonical. `#rrggbb` hex is also accepted."
+    },
+    {
+      "id": "shapes",
+      "surface": "language",
+      "title": "State shapes",
+      "grammar": { "rules": ["GvizShape"], "terminals": ["box", "circle", "ellipse", "diamond", "doublecircle"] },
+      "tier": "advanced",
+      "dependsOn": ["state-styling"],
+      "indexTerms": ["shape", "box", "circle", "ellipse", "graphviz shape"]
+    },
+    {
+      "id": "line-styles",
+      "surface": "language",
+      "title": "Line styles",
+      "grammar": { "rules": ["LineStyle", "TransitionLineStyle"], "terminals": ["solid", "dashed", "dotted", "bold"] },
+      "tier": "intermediate",
+      "dependsOn": ["state-styling"],
+      "indexTerms": ["line style", "dashed", "dotted", "solid", "bold"]
+    },
+    {
+      "id": "corners",
+      "surface": "language",
+      "title": "Corner styles",
+      "grammar": { "rules": ["Corners"], "terminals": ["rounded", "regular"] },
+      "tier": "advanced",
+      "dependsOn": ["state-styling"],
+      "indexTerms": ["corners", "rounded", "regular"]
+    },
+    {
+      "id": "directions",
+      "surface": "language",
+      "title": "Directions",
+      "grammar": { "rules": ["Direction"], "terminals": ["up", "down", "left", "right"] },
+      "tier": "advanced",
+      "dependsOn": ["arrange"],
+      "indexTerms": ["direction", "up", "down", "left", "right"]
+    },
+    {
+      "id": "literal-values",
+      "surface": "language",
+      "title": "Literal values (boolean, null, undefined)",
+      "grammar": { "rules": ["Boolean", "Null", "Undefined"], "terminals": ["true", "false", "null", "undefined"] },
+      "tier": "intermediate",
+      "dependsOn": [],
+      "indexTerms": ["true", "false", "null", "undefined", "boolean"]
+    },
+    {
+      "id": "urls",
+      "surface": "language",
+      "title": "URLs",
+      "grammar": { "rules": ["URL", "UrlProtocol"], "terminals": ["http://", "https://"] },
+      "tier": "advanced",
+      "dependsOn": ["state-styling"],
+      "indexTerms": ["url", "link", "http", "https"]
+    },
+    {
+      "id": "groups",
+      "surface": "language",
+      "title": "Groups and named lists",
+      "grammar": { "rules": ["NamedList", "GroupRef", "GroupMember", "GroupMemberList"], "terminals": ["&"] },
+      "tier": "intermediate",
+      "dependsOn": ["states"],
+      "indexTerms": ["group", "named list", "&", "reusable", "set"]
+    },
+    {
+      "id": "hooks",
+      "surface": "language",
+      "title": "Boundary hooks",
+      "grammar": { "rules": ["HookDeclaration", "HookDefinition", "HookEvent", "MachineHookDefinition"], "terminals": ["on", "enter", "exit", "do"] },
+      "tier": "intermediate",
+      "dependsOn": ["states", "groups"],
+      "indexTerms": ["hook", "on enter", "on exit", "boundary", "callback"]
+    },
+    {
+      "id": "config-blocks",
+      "surface": "language",
+      "title": "Configuration blocks",
+      "grammar": {
+        "rules": ["Config", "ConfigState", "ConfigStartState", "ConfigEndState", "ConfigActiveState", "ConfigTerminalState", "ConfigHookedState", "ConfigAnyState", "ConfigTransition", "ConfigGraph", "ConfigStyleItems", "ConfigStartNodes", "ConfigEndNodes", "GraphDefaultEdgeColor", "SingleEdgeColor", "ConfigEditor", "EditorConfigItem", "EditorPanels", "EditorStochasticRunCount"],
+        "terminals": ["state", "start_state", "end_state", "active_state", "terminal_state", "hooked_state", "transition", "graph", "edge-color"]
+      },
+      "tier": "intermediate",
+      "dependsOn": ["state-styling"],
+      "indexTerms": ["config", "transition config", "graph config", "state defaults", "block"],
+      "referenceAnchor": "8-configuration-blocks-config"
+    },
+    {
+      "id": "single-value-configs",
+      "surface": "language",
+      "title": "Single-value configuration",
+      "grammar": {
+        "rules": ["ConfigGraphLayout", "GvizLayout", "ConfigFailedOutputs", "ConfigGraphBgColor", "ConfigAllowsOverride", "OverrideT", "ConfigAllowIslands", "IslandsT", "LabelList", "LabelOrLabelList", "DotPreamble", "DefaultSize", "DefaultSizeVal"],
+        "terminals": ["graph_layout", "start_states", "end_states", "failed_outputs", "graph_bg_color", "allows_override", "allow_islands", "dot", "circo", "fdp", "neato", "twopi", "with_start"]
+      },
+      "tier": "intermediate",
+      "dependsOn": ["config-blocks"],
+      "indexTerms": ["graph_layout", "start_states", "allow_islands", "allows_override", "failed_outputs"],
+      "referenceAnchor": "8-configuration-blocks-config"
+    },
+    {
+      "id": "machine-attributes",
+      "surface": "language",
+      "title": "Machine attributes",
+      "grammar": {
+        "rules": ["MachineAttribute", "MachineDefinition", "MachineName", "MachineAuthor", "MachineContributor", "MachineComment", "MachineReference", "MachineLanguage", "MachineLicense", "LicenseOrLabelOrList", "NpmName", "MachineFlow", "MachineTheme", "Theme", "ThemeOrThemeList", "MachineVersion", "FslVersion"],
+        "terminals": ["machine_name", "machine_author", "machine_license", "machine_language", "fsl_version", "npm_name", "theme", "flow"]
+      },
+      "tier": "core",
+      "dependsOn": ["labels-quoting"],
+      "indexTerms": ["machine_name", "fsl_version", "author", "license", "theme", "metadata", "attribute"],
+      "referenceAnchor": "9-machine-attributes"
+    },
+    {
+      "id": "typed-properties",
+      "surface": "language",
+      "title": "Typed machine properties",
+      "grammar": { "rules": ["MachineProperty", "MachinePropertyDefault", "PropertyVal"], "terminals": ["property", "required", "default"] },
+      "tier": "advanced",
+      "dependsOn": ["machine-attributes"],
+      "indexTerms": ["property", "typed property", "required", "default", "extended state"]
+    },
+    {
+      "id": "semver",
+      "surface": "language",
+      "title": "Version ranges (SemVer)",
+      "grammar": { "rules": ["SemVer", "SemVerOper", "SemVerRange", "SemVerRule"], "terminals": ["<", ">", "<=", ">="] },
+      "tier": "intermediate",
+      "dependsOn": ["machine-attributes"],
+      "indexTerms": ["semver", "version", "fsl_version", "range"]
+    },
+    {
+      "id": "arrange",
+      "surface": "language",
+      "title": "Layout hints (arrange)",
+      "grammar": { "rules": ["ArrangeDeclaration", "ArrangeStartDeclaration", "ArrangeEndDeclaration", "RegularArrangeDeclaration"], "terminals": ["arrange", "arrange-start", "arrange-end"] },
+      "tier": "advanced",
+      "dependsOn": ["states"],
+      "indexTerms": ["arrange", "layout", "rank", "position"]
+    },
+    {
+      "id": "lexical-internal",
+      "surface": "language",
+      "title": "Lexical machinery (internal)",
+      "grammar": { "rules": ["WS", "EOF", "LineTerminator", "HexDigit", "DecimalDigit", "BinaryDigit", "OctalDigit", "NonZeroDigit"], "terminals": [] },
+      "tier": "exclude",
+      "exclude": { "reason": "internal", "forbidInTutorial": false, "note": "Whitespace, EOF, and digit-class lexical helpers; not teachable surface." },
+      "dependsOn": [],
+      "indexTerms": []
+    },
+    {
+      "id": "deprecated-edge-color-alias",
+      "surface": "language",
+      "title": "edge_color (deprecated underscore alias)",
+      "grammar": { "rules": [], "terminals": ["edge_color"] },
+      "tier": "exclude",
+      "exclude": { "reason": "alias", "aliasOf": "config-blocks", "forbidInTutorial": true, "note": "Legacy underscore alias of `edge-color` (StoneCypher/fsl#358). Teach the hyphen form." },
+      "dependsOn": [],
+      "indexTerms": []
+    },
+    {
+      "id": "removed-config-stubs",
+      "surface": "language",
+      "title": "validation: / action: blocks (removed)",
+      "grammar": { "rules": [], "terminals": ["validation", "action"] },
+      "tier": "exclude",
+      "exclude": { "reason": "removed", "forbidInTutorial": true, "note": "Dead 2017 whargarbl/todo config stubs; removed in StoneCypher/fsl#1366 (jssm 5.147.3)." },
+      "removedIn": "5.147.3",
+      "dependsOn": [],
+      "indexTerms": []
+    },
+
+    {
+      "id": "api-machine",
+      "surface": "api",
+      "title": "The Machine and its factories",
+      "units": ["Machine", "sm", "from", "make", "compile", "parse", "deserialize", "transfer_state_properties"],
+      "tier": "core",
+      "dependsOn": ["states", "transitions"],
+      "indexTerms": ["state_machine", "sm", "from", "compile", "deserialize", "instantiate", "Machine"]
+    },
+    {
+      "id": "api-version-info",
+      "surface": "api",
+      "title": "Version and build info (API)",
+      "units": ["version", "build_time", "compareVersions"],
+      "tier": "intermediate",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["version", "build time", "compareVersions"]
+    },
+    {
+      "id": "api-arrow-introspection",
+      "surface": "api",
+      "title": "Arrow introspection helpers",
+      "units": ["arrow_direction", "arrow_left_kind", "arrow_right_kind"],
+      "tier": "advanced",
+      "dependsOn": ["api-machine", "arrow-flavors"],
+      "indexTerms": ["arrow direction", "arrow kind", "introspection"]
+    },
+    {
+      "id": "api-constants",
+      "surface": "api",
+      "title": "Exported constants and vocabularies",
+      "units": ["constants", "shapes", "gviz_shapes", "named_colors", "state_name_chars", "state_name_first_chars", "action_label_chars", "FslDirections"],
+      "tier": "intermediate",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["constants", "shapes", "named_colors", "directions"]
+    },
+    {
+      "id": "api-hook-helpers",
+      "surface": "api",
+      "title": "Hook result helpers (API)",
+      "units": ["is_hook_rejection", "is_hook_complex_result", "abstract_hook_step", "abstract_everything_hook_step"],
+      "tier": "advanced",
+      "dependsOn": ["api-machine", "hooks"],
+      "indexTerms": ["hook", "rejection", "hook result"]
+    },
+    {
+      "id": "api-utilities",
+      "surface": "api",
+      "title": "Utility exports",
+      "units": ["seq", "unique", "find_repeated", "weighted_rand_select", "histograph", "weighted_sample_select", "weighted_histo_key", "gen_splitmix32", "sleep", "state_style_condense"],
+      "tier": "advanced",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["seq", "random", "weighted", "sleep", "utility"],
+      "teachingNote": "Exported but flagged in-source as belonging in a separate utility library; teach sparingly."
+    },
+
+    {
+      "id": "viz-render",
+      "surface": "viz",
+      "title": "Rendering FSL / machines to SVG",
+      "units": ["fsl_to_svg_string", "fsl_to_svg_element", "machine_to_svg_string", "machine_to_svg_element"],
+      "tier": "core",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["svg", "render", "visualize", "diagram"]
+    },
+    {
+      "id": "viz-dot",
+      "surface": "viz",
+      "title": "DOT (Graphviz) output",
+      "units": ["dot", "dot_to_svg", "fsl_to_dot", "machine_to_dot"],
+      "tier": "intermediate",
+      "dependsOn": ["viz-render"],
+      "indexTerms": ["dot", "graphviz"]
+    },
+    {
+      "id": "viz-config",
+      "surface": "viz",
+      "title": "Render configuration",
+      "units": ["configure", "VizRenderOpts", "RenderGroups"],
+      "tier": "intermediate",
+      "dependsOn": ["viz-render"],
+      "indexTerms": ["configure", "render options", "groups"]
+    },
+    {
+      "id": "viz-version-info",
+      "surface": "viz",
+      "title": "Version and build info (viz)",
+      "units": ["version", "build_time"],
+      "tier": "advanced",
+      "dependsOn": ["viz-render"],
+      "indexTerms": ["version", "build time"]
+    },
+    {
+      "id": "viz-internal",
+      "surface": "viz",
+      "title": "Internal viz test hooks",
+      "units": ["_test"],
+      "tier": "exclude",
+      "exclude": { "reason": "internal", "forbidInTutorial": false, "note": "@internal test-only access to private viz helpers." },
+      "dependsOn": [],
+      "indexTerms": []
+    },
+
+    {
+      "id": "editor-language-support",
+      "surface": "editor",
+      "title": "CodeMirror 6 FSL language support",
+      "units": ["fsl", "fslLanguage", "fslStreamParser"],
+      "tier": "core",
+      "dependsOn": ["doc-structure"],
+      "indexTerms": ["codemirror", "cm6", "language support", "editor"]
+    },
+    {
+      "id": "editor-highlighting",
+      "surface": "editor",
+      "title": "Syntax highlighting",
+      "units": ["fslHighlightStyle", "fslDeprecated"],
+      "tier": "intermediate",
+      "dependsOn": ["editor-language-support"],
+      "indexTerms": ["highlight", "syntax color", "deprecated marker"]
+    },
+    {
+      "id": "editor-keyword-sets",
+      "surface": "editor",
+      "title": "Keyword classification sets",
+      "units": ["STRUCTURAL_KEYWORDS", "PROPERTY_KEYWORDS", "DEPRECATED_KEYWORDS", "ENUM_KEYWORDS"],
+      "tier": "advanced",
+      "dependsOn": ["editor-highlighting"],
+      "indexTerms": ["keywords", "structural", "property", "enum"]
+    },
+
+    {
+      "id": "wc-viz",
+      "surface": "webcomponent",
+      "title": "<fsl-viz> diagram element",
+      "units": ["fsl-viz"],
+      "tier": "core",
+      "dependsOn": ["viz-render"],
+      "indexTerms": ["fsl-viz", "web component", "custom element", "diagram"],
+      "teachingNote": "Canonical tag. The legacy jssm-viz / jssm-instance / jssm-bind synonyms are deprecated and are NOT registered in custom-elements.json (runtime-aliased only); teach only fsl-*."
+    },
+    {
+      "id": "wc-instance",
+      "surface": "webcomponent",
+      "title": "<fsl-instance> live machine element",
+      "units": ["fsl-instance"],
+      "tier": "intermediate",
+      "dependsOn": ["wc-viz", "api-machine"],
+      "indexTerms": ["fsl-instance", "interactive", "live machine"]
+    },
+    {
+      "id": "wc-bind",
+      "surface": "webcomponent",
+      "title": "<fsl-bind> data binding",
+      "units": ["fsl-bind"],
+      "tier": "intermediate",
+      "dependsOn": ["wc-instance"],
+      "indexTerms": ["fsl-bind", "binding", "data"]
+    },
+    {
+      "id": "wc-panels",
+      "surface": "webcomponent",
+      "title": "Inspector panels",
+      "units": ["fsl-info-panel", "fsl-effective-properties"],
+      "tier": "advanced",
+      "dependsOn": ["wc-instance"],
+      "indexTerms": ["panel", "inspector", "info", "effective properties"]
+    },
+
+    {
+      "id": "cli-dispatcher",
+      "surface": "cli",
+      "title": "The fsl dispatcher",
+      "units": ["bin:fsl", "bin:jssm", "flag:--help", "flag:-h", "flag:--version", "flag:-V", "name:help", "name:version"],
+      "tier": "core",
+      "dependsOn": [],
+      "indexTerms": ["cli", "fsl", "dispatcher", "--help", "--version"]
+    },
+    {
+      "id": "cli-render",
+      "surface": "cli",
+      "title": "fsl render",
+      "units": ["bin:fsl-render", "sub:render"],
+      "tier": "core",
+      "dependsOn": ["cli-dispatcher", "viz-render"],
+      "indexTerms": ["render", "cli render", "fsl-render"]
+    },
+    {
+      "id": "cli-render-targets",
+      "surface": "cli",
+      "title": "Render output formats",
+      "units": ["target:dot", "target:svg", "target:png", "target:jpeg", "target:html"],
+      "tier": "intermediate",
+      "dependsOn": ["cli-render"],
+      "indexTerms": ["svg", "png", "jpeg", "dot", "html", "format", "export"]
+    },
+    {
+      "id": "cli-export-prompt",
+      "surface": "cli",
+      "title": "fsl export-system-prompt",
+      "units": ["bin:fsl-export-system-prompt", "sub:export-system-prompt"],
+      "tier": "advanced",
+      "dependsOn": ["cli-dispatcher"],
+      "indexTerms": ["system prompt", "llms.txt", "export prompt"]
+    },
+
+    {
+      "id": "prompt-overview",
+      "surface": "llm-prompt",
+      "title": "System-prompt overview sections",
+      "units": ["core-concepts", "syntax-guide", "agent-directives"],
+      "tier": "intermediate",
+      "dependsOn": ["cli-export-prompt"],
+      "indexTerms": ["llms.txt", "system prompt", "agent", "concepts"]
+    },
+    {
+      "id": "prompt-examples",
+      "surface": "llm-prompt",
+      "title": "System-prompt worked examples",
+      "units": ["basic-machine", "actions-and-multiple-targets", "explicit-state-declarations-and-attributes"],
+      "tier": "advanced",
+      "dependsOn": ["prompt-overview"],
+      "indexTerms": ["example", "basic machine", "actions"]
+    },
+
+    {
+      "id": "api-language-service",
+      "surface": "api",
+      "title": "Language service helpers",
+      "units": ["fslCompletions", "fslDiagnostics", "fslSemanticSpans"],
+      "tier": "advanced",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["language service", "completions", "diagnostics", "semantic spans"],
+      "teachingNote": "Added on main by the parallel fsl-editor effort; provisional classification (revisit in a teaching-surface refresh)."
+    },
+    {
+      "id": "wc-editor-suite",
+      "surface": "webcomponent",
+      "title": "FSL editor web-component suite",
+      "units": ["fsl-editor", "fsl-help", "fsl-toolbar", "fsl-footer", "fsl-actions", "fsl-data-inspector", "fsl-export", "fsl-history", "fsl-hook-log", "fsl-simulation", "fsl-docs"],
+      "tier": "advanced",
+      "dependsOn": ["wc-viz"],
+      "indexTerms": ["editor", "help panel", "docs", "toolbar", "footer", "inspector", "web component suite"],
+      "teachingNote": "The production fsl-editor web-component suite. fsl-docs is the productionized docs engine (fills fsl-help's slot), reconciling the sketch panel with this suite."
+    }
+  ]
+}

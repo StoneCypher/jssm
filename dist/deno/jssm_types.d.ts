@@ -622,6 +622,43 @@ declare type JssmTheme = Partial<JssmBaseTheme>;
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
  */
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+declare type JssmEditorConfig = {
+    stochastic_run_count?: number;
+    panels?: Array<string>;
+};
+/** Which stochastic view a run batch produces. */
+declare type JssmStochasticMode = 'montecarlo' | 'steady_state';
+/** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
+declare type JssmStochasticOptions = {
+    mode?: JssmStochasticMode;
+    runs?: number;
+    max_steps?: number;
+    seed?: number;
+};
+/** One walk's result, yielded by {@link Machine.stochastic_runs}. */
+declare type JssmStochasticRun = {
+    states: Array<string>;
+    edges: Array<string>;
+    length: number;
+    terminated: boolean;
+};
+/** Aggregate statistics over a stochastic run batch. */
+declare type JssmStochasticSummary = {
+    mode: JssmStochasticMode;
+    runs: number;
+    seed: number;
+    state_visits: Map<string, number>;
+    state_visit_fraction: Map<string, number>;
+    edge_traversals: Map<string, number>;
+    path_lengths?: Array<number>;
+    terminal_reached?: number;
+    capped?: number;
+};
 declare type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
@@ -651,6 +688,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     min_exits?: number;
     max_exits?: number;
     allow_islands?: JssmAllowIslands;
+    editor_config?: JssmEditorConfig;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -668,6 +706,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
+    oarrange_declaration?: Array<Array<StateType>>;
+    farrange_declaration?: Array<Array<StateType>>;
     machine_author?: string | Array<string>;
     machine_comment?: string;
     machine_contributor?: string | Array<string>;
@@ -1299,4 +1339,4 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 declare type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmEditorConfig, JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };

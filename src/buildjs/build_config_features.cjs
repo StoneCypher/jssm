@@ -50,6 +50,8 @@ const FEATURES = {
   // --- Stage 1: generated sources (disjoint writes under src/ts) ---
   makever: { script: 'makever', stages: [1], mandatory: true },
   peg:     { script: 'peg',     stages: [1], mandatory: true },
+  // writes src/ts/wc/generated/fsl_docs_content.ts from src/help + the manifest
+  make_help_content: { script: 'make_help_content', stages: [1], optional: true, defaultEnabled: true },
 
   // --- Stage 2: compile + source-only analyzers (read src, no src writes) ---
   typescript:    { script: 'typescript',    stages: [2], mandatory: true },
@@ -67,6 +69,9 @@ const FEATURES = {
   make_wc_viz_cdn:      { script: 'make_wc_viz_cdn',      stages: [4], optional: true, defaultEnabled: true },
   make_wc_instance_es6: { script: 'make_wc_instance_es6', stages: [4], optional: true, defaultEnabled: true },
   make_wc_instance_cdn: { script: 'make_wc_instance_cdn', stages: [4], optional: true, defaultEnabled: true },
+  make_wc_editor_es6:   { script: 'make_wc_editor_es6',   stages: [4], optional: true, defaultEnabled: true },
+  make_wc_widgets_es6:  { script: 'make_wc_widgets_es6',  stages: [4], optional: true, defaultEnabled: true },
+  make_wc_docs_es6:     { script: 'make_wc_docs_es6',     stages: [4], optional: true, defaultEnabled: true },
   make_cm6:             { script: 'make_cm6',             stages: [4], optional: true, defaultEnabled: true },
   make_cli:             { script: 'make_cli',             stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
@@ -88,7 +93,7 @@ const FEATURES = {
 
   // --- Stage 7: tests + changelog (disjoint outputs) ---
   vitest:    { script: 'vitest',    stages: [7], optional: true, defaultEnabled: true,
-               requires: ['make_wc_viz_es6', 'make_wc_viz_cdn', 'make_wc_instance_es6', 'make_wc_instance_cdn', 'doctests'] },
+               requires: ['make_wc_viz_es6', 'make_wc_viz_cdn', 'make_wc_instance_es6', 'make_wc_instance_cdn', 'make_wc_editor_es6', 'make_wc_widgets_es6', 'make_wc_docs_es6', 'doctests'] },
   changelog: { script: 'changelog', stages: [7], optional: true, defaultEnabled: true },
 
   // --- Stage 8: perf_chart (writes src/generated_docs — isolated from cloc's src read) ---
@@ -98,6 +103,8 @@ const FEATURES = {
   cloc: { script: 'cloc', stages: [9], optional: true, defaultEnabled: true },
   docs: { script: 'docs', stages: [9], optional: true, defaultEnabled: true },
   site: { script: 'site', stages: [9], optional: true, defaultEnabled: true, requires: ['min_iife'] },
+  // report-only: prints teaching-surface coverage drift; never fails the build (reads cem + the es6 bundle for fences)
+  check_teaching_surface: { script: 'check_teaching_surface', stages: [9], optional: true, defaultEnabled: true, requires: ['cem', 'min_es6'] },
 
   // --- Stage 10: doc generators that write under docs/ after site ---
   make_cookbook:  { script: 'make_cookbook',  stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },

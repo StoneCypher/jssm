@@ -23,6 +23,7 @@ import {
   JssmParseTree,
   JssmStateConfig,
   JssmGenericConfig,
+  JssmEditorConfig,
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
@@ -1007,7 +1008,8 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
   }
 
   if (['arrange_declaration', 'arrange_start_declaration',
-    'arrange_end_declaration'].includes(rule.key)) {
+    'arrange_end_declaration', 'oarrange_declaration',
+    'farrange_declaration'].includes(rule.key)) {
     return { agg_as: rule.key, val: [rule.value] };
   }
 
@@ -1020,7 +1022,7 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     'allow_islands', 'default_state_config', 'default_transition_config', 'default_graph_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
-    'default_terminal_state_config', 'npm_name', 'default_size'
+    'default_terminal_state_config', 'npm_name', 'default_size', 'editor_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -1246,6 +1248,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_start_declaration     : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    oarrange_declaration          : Array<Array<string>>,
+    farrange_declaration          : Array<Array<string>>,
     machine_version               : Array<string>,        // TODO COMEBACK semver
     default_state_config          : Array<JssmStateConfig>,
     default_active_state_config   : Array<JssmStateConfig>,
@@ -1259,7 +1263,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     group_metadata                : Array<{ group: string, declarations: Array<any> }>,  // TODO COMEBACK no any
     hook_decl                     : Array<any>,                                          // TODO COMEBACK no any
     allows_override               : Array<JssmAllowsOverride>,
-    allow_islands                 : Array<JssmAllowIslands>
+    allow_islands                 : Array<JssmAllowIslands>,
+    editor_config                 : Array<{ key: string; value: unknown }>
   } = {
     graph_layout                  : [],
     graph_bg_color                : [],
@@ -1288,6 +1293,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : [],
     arrange_start_declaration     : [],
     arrange_end_declaration       : [],
+    oarrange_declaration          : [],
+    farrange_declaration          : [],
     machine_version               : [],
     default_state_config          : [],
     default_active_state_config   : [],
@@ -1301,7 +1308,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     group_metadata                : [],
     hook_decl                     : [],
     allows_override               : [],
-    allow_islands                 : []
+    allow_islands                 : [],
+    editor_config                 : []
   };
 
   // Build the ordered group registry, reject membership cycles and undeclared
@@ -1424,6 +1432,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   });
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+   'oarrange_declaration', 'farrange_declaration',
    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
    'state_declaration', 'property_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',
@@ -1449,6 +1458,18 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   if (!result_cfg.default_graph_config.length) {
     delete result_cfg.default_graph_config;
+  }
+
+  // Fold the `editor: {}` block's flat items into one object the web control
+  // reads (fsl#1334). The grammar only emits the two whitelisted keys, so the
+  // `else` is `panels`.
+  if (results.editor_config.length) {
+    const ec: JssmEditorConfig = {};
+    for (const item of results.editor_config) {
+      if (item.key === 'stochastic_run_count') { ec.stochastic_run_count = item.value as number; }
+      else                                     { ec.panels = item.value as Array<string>; }
+    }
+    result_cfg.editor_config = ec;
   }
 
   // re-walk state declarations, already wrapped up, to get state properties,

@@ -769,7 +769,8 @@ function compile_rule_handler(rule) {
         return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
     }
     if (['arrange_declaration', 'arrange_start_declaration',
-        'arrange_end_declaration'].includes(rule.key)) {
+        'arrange_end_declaration', 'oarrange_declaration',
+        'farrange_declaration'].includes(rule.key)) {
         return { agg_as: rule.key, val: [rule.value] };
     }
     // things that can only exist once and are just a value under their own name
@@ -781,7 +782,7 @@ function compile_rule_handler(rule) {
         'allow_islands', 'default_state_config', 'default_transition_config', 'default_graph_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_active_state_config',
-        'default_terminal_state_config', 'npm_name', 'default_size'
+        'default_terminal_state_config', 'npm_name', 'default_size', 'editor_config'
     ];
     if (tautologies.includes(rule.key)) {
         return { agg_as: rule.key, val: rule.value };
@@ -975,6 +976,8 @@ function compile(tree) {
         arrange_declaration: [],
         arrange_start_declaration: [],
         arrange_end_declaration: [],
+        oarrange_declaration: [],
+        farrange_declaration: [],
         machine_version: [],
         default_state_config: [],
         default_active_state_config: [],
@@ -988,7 +991,8 @@ function compile(tree) {
         group_metadata: [],
         hook_decl: [],
         allows_override: [],
-        allow_islands: []
+        allow_islands: [],
+        editor_config: []
     };
     // Build the ordered group registry, reject membership cycles and undeclared
     // sub-group members, then resolve/rewrite group references — group targets
@@ -1099,6 +1103,7 @@ function compile(tree) {
         }
     });
     ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+        'oarrange_declaration', 'farrange_declaration',
         'machine_author', 'machine_contributor', 'machine_reference', 'theme',
         'state_declaration', 'property_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
@@ -1117,6 +1122,21 @@ function compile(tree) {
     }, results.default_graph_config);
     if (!result_cfg.default_graph_config.length) {
         delete result_cfg.default_graph_config;
+    }
+    // Fold the `editor: {}` block's flat items into one object the web control
+    // reads (fsl#1334). The grammar only emits the two whitelisted keys, so the
+    // `else` is `panels`.
+    if (results.editor_config.length) {
+        const ec = {};
+        for (const item of results.editor_config) {
+            if (item.key === 'stochastic_run_count') {
+                ec.stochastic_run_count = item.value;
+            }
+            else {
+                ec.panels = item.value;
+            }
+        }
+        result_cfg.editor_config = ec;
     }
     // re-walk state declarations, already wrapped up, to get state properties,
     // which go out in a different datastructure

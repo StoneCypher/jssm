@@ -538,7 +538,13 @@ function buildRemoteScript(params) {
     ? [
         `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
         `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
         '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
@@ -599,31 +605,54 @@ function buildRemoteScript(params) {
  *  Unlike {@link buildRemoteScript} (which the client uploads + drives over SSH),
  *  this script runs at instance boot via cloud-init and does the ENTIRE job with
  *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
- *  check out the released commit, build `dist/`, run both benny suites (scaling,
- *  then the general hook microbenchmark suite — together a few minutes, well
- *  inside the dead-man budget), capture a bounded profiled construct pass, and
- *  upload artifacts (including `general.json`, best-effort) to
- *  {@link PERF_RESULTS_BUCKET} under `<instance-type>/release-<version>/` via
- *  the instance profile (no GitHub credential on the box; the nightly
- *  `perf_results_sync` workflow lands the bucket's contents on the branch),
- *  finally self-terminating.
+ *  check out the released commit, benchmark the SHIPPED committed `dist/` (no
+ *  rebuild, #725), run both benny suites (scaling, then the general hook
+ *  microbenchmark suite — together a few minutes, well inside the dead-man
+ *  budget), capture a bounded profiled construct pass, and upload artifacts
+ *  (including `general.json`, best-effort) to {@link PERF_RESULTS_BUCKET} under
+ *  `<instance-type>/release-<version>/` via the instance profile (no GitHub
+ *  credential on the box; the nightly `perf_results_sync` workflow lands the
+ *  bucket's contents on the branch), finally self-terminating.
+ *
+ *  With `harnessFrom` set (the backfill path), the script instead overlays the
+ *  current benchmark harnesses from that ref onto the (possibly pre-suite)
+ *  checkout and runs them DIRECTLY against the shipped dist — so a release
+ *  predating the `benny:scaling` npm script and the current metric set can still
+ *  be measured. It also normalizes the es5 cjs bundle name (releases before
+ *  ~5.98 shipped it as `jssm.es5.cjs.js`, which today's harness can't `require`)
+ *  and skips the hard committed-dist guard (the normalization + the
+ *  scaling.json upload gate cover it; a genuine failure leaves a marker — see
+ *  below — rather than `shutdown`ing silently).
+ *
+ *  A run that produces no `scaling.json` uploads a loud failure marker to a
+ *  SEPARATE `_failures/<instance-type>/release-<version>/` prefix that the
+ *  nightly sync deliberately does NOT land on the branch — so a silent failure
+ *  becomes visible in the bucket without poisoning the release-dir dedup (which
+ *  would otherwise read the run as "already measured" and block a real re-run).
  *
  *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
- *         shutdownMinutes, bucket }`. `commitSha` pins the exact released commit;
- *         `release` is the version label used only for keying; `bucket` is the
- *         S3 bucket name the artifacts are uploaded to.
+ *         shutdownMinutes, bucket, harnessFrom }`. `commitSha` pins the exact
+ *         released commit; `release` is the version label used only for keying;
+ *         `bucket` is the S3 bucket name the artifacts are uploaded to;
+ *         `harnessFrom`, when set, is the ref whose harnesses are overlaid
+ *         (the backfill path for releases predating the suite).
  *  @returns A `#!/bin/bash` script string.
- *  @throws Error on an unsafe `commitSha`, `release`, `region`, `bucket`, or
- *          `repoUrl` (defense against command injection into the boot script).
+ *  @throws Error on an unsafe `commitSha`, `release`, `region`, `bucket`,
+ *          `repoUrl`, or `harnessFrom` (defense against command injection into
+ *          the boot script).
  *
  *  @example
  *  buildDetachedUserData({ repoUrl: 'https://github.com/StoneCypher/jssm.git',
  *    commitSha: 'a'.repeat(40), release: '5.1.0', instanceType: 'c7g.medium',
  *    region: 'us-east-1', deep: false, shutdownMinutes: 30,
  *    bucket: 'jssm-perf-results-x' }).includes('shutdown -h now') // => true
+ *  @example
+ *  // backfill a pre-suite release with today's harness overlaid:
+ *  buildDetachedUserData({ ...base, harnessFrom: 'main' })
+ *    .includes('node --expose-gc ./src/buildjs/benchmark_scaling.cjs') // => true
  */
 function buildDetachedUserData(params) {
-  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, bucket } = params;
+  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, bucket, harnessFrom } = params;
 
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
     throw new Error(`refusing to build user-data: unsafe commit SHA "${commitSha}"`);
@@ -641,9 +670,67 @@ function buildDetachedUserData(params) {
   if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
     throw new Error(`refusing to build user-data: unsafe repo url "${repoUrl}"`);
   }
+  if (harnessFrom !== undefined && !/^[\w./-]+$/.test(harnessFrom)) {
+    throw new Error(`refusing to build user-data: unsafe harness ref "${harnessFrom}"`);
+  }
 
-  const destDir   = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
-  const benchLine = deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling';
+  const destDir = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
+
+  // Prepare + benchmark. Two shapes:
+  //   • release-time (no harnessFrom): benchmark the shipped committed dist via the
+  //     release's own npm scripts, guarding that the modern dist bundles exist.
+  //   • backfill (harnessFrom): overlay today's harnesses and run them directly, so a
+  //     release predating the benny:scaling script / current metrics still measures;
+  //     normalize the pre-~5.98 bundle name and skip the hard guard (a real failure is
+  //     surfaced by the scaling.json gate + the _failures marker, not a silent shutdown).
+  const prepareAndBench = harnessFrom
+    ? [
+        `# 3. Backfill: benchmark the SHIPPED committed dist (no rebuild, #725) but overlay`,
+        `#    today's harnesses from "${harnessFrom}" so a release predating the benny:scaling`,
+        `#    npm script and the current metric set can still be measured.`,
+        'npm install --no-audit --no-fund',
+        `git fetch origin "${harnessFrom}"`,
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
+        'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
+        '# 3b. Normalize the es5 cjs bundle name across eras. Today\'s harness requires',
+        '#     dist/jssm.es5.cjs and dist/jssm.es5.nonmin.cjs, but the bundle was named',
+        '#     differently before ~5.98: 5.50-era shipped jssm.es5.cjs.js +',
+        '#     jssm.es5.cjs.nonmin.js; 5.11-era shipped jssm.es5.cjs.js +',
+        '#     jssm.es5.cjs.min.js with NO separate nonmin (the unmin bundle is .cjs.js).',
+        '#     Each cp is guarded so it never clobbers an existing (modern) bundle, and the',
+        '#     nonmin fallbacks are ordered so the 5.50 .nonmin.js wins over the 5.11 .cjs.js.',
+        'if [ ! -s dist/jssm.es5.cjs ] && [ -s dist/jssm.es5.cjs.js ]; then cp dist/jssm.es5.cjs.js dist/jssm.es5.cjs; fi',
+        'if [ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.nonmin.js ]; then cp dist/jssm.es5.cjs.nonmin.js dist/jssm.es5.nonmin.cjs; fi',
+        'if [ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.js ]; then cp dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs; fi',
+        '# 4. Benchmark with the overlaid harness, run directly (old releases lack the npm scripts).',
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
+        '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
+        'node ./src/buildjs/benchmark.cjs'
+      ]
+    : [
+        '# 3. Install the harness deps (benny is a devDependency) — but do NOT',
+        "#    rebuild. dist/ is committed and, at a release tag, is release-state by",
+        "#    the /sc-commit + verify-version-bump policy, so we benchmark the SHIPPED",
+        '#    artifact (literally the bytes npm publishes) rather than a fresh rebuild',
+        '#    that could differ. This also drops the ~30-45 min full rebuild that was',
+        "#    overrunning the dead-man's-switch and silently killing every run. #725",
+        'npm install --no-audit --no-fund',
+        'if [ ! -s dist/jssm.es5.cjs ] || [ ! -s dist/jssm.es5.nonmin.cjs ]; then',
+        '  echo "JSSM_PERF: committed dist/ missing at this commit; refusing to rebuild-and-benchmark a different artifact"',
+        '  shutdown -h now',
+        'fi',
+        '',
+        '# 4. Benchmark (mode-dependent).',
+        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling',
+        '# 4b. General (hook microbenchmark) suite.',
+        'npm run benny'
+      ];
 
   return [
     '#!/bin/bash',
@@ -665,22 +752,7 @@ function buildDetachedUserData(params) {
     'cd jssm',
     `git checkout ${commitSha}`,
     '',
-    '# 3. Install the harness deps (benny is a devDependency) — but do NOT',
-    "#    rebuild. dist/ is committed and, at a release tag, is release-state by",
-    "#    the /sc-commit + verify-version-bump policy, so we benchmark the SHIPPED",
-    '#    artifact (literally the bytes npm publishes) rather than a fresh rebuild',
-    '#    that could differ. This also drops the ~30-45 min full rebuild that was',
-    "#    overrunning the dead-man's-switch and silently killing every run. #725",
-    'npm install --no-audit --no-fund',
-    'if [ ! -s dist/jssm.es5.cjs ] || [ ! -s dist/jssm.es5.nonmin.cjs ]; then',
-    '  echo "JSSM_PERF: committed dist/ missing at this commit; refusing to rebuild-and-benchmark a different artifact"',
-    '  shutdown -h now',
-    'fi',
-    '',
-    '# 4. Benchmark (mode-dependent).',
-    benchLine,
-    '# 4b. General (hook microbenchmark) suite.',
-    'npm run benny',
+    ...prepareAndBench,
     '',
     '# 5. Bounded profiled construct pass (non-min bundle for readable frames).',
     'cat > perf_probe.cjs <<\'PROBE\'',
@@ -729,6 +801,12 @@ function buildDetachedUserData(params) {
     '  fi',
     'else',
     '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping upload"',
+    '  # Leave a loud, dedup-SAFE failure marker. It goes to a SEPARATE _failures/',
+    '  # prefix (NOT the release dir) so the nightly sync, which excludes _failures/*,',
+    '  # never lands it on the branch — a marker in the release dir would read as',
+    '  # "already measured" and block a real re-run of this release.',
+    '  echo "scaling.json was never produced for ' + release + ' on ' + instanceType + '; see the instance console for the failing step" > FAILED.txt',
+    `  aws s3 cp FAILED.txt "s3://${bucket}/_failures/${destDir}/FAILED.txt" --region ${region} || echo "JSSM_PERF: FAILED marker upload also failed"`,
     'fi',
     '',
     'echo JSSM_PERF_DONE',
@@ -1410,7 +1488,8 @@ function provisionDetached(exec, opts, state) {
       region          : region,
       deep            : opts.deep,
       shutdownMinutes : opts.shutdownMinutes,
-      bucket          : PERF_RESULTS_BUCKET
+      bucket          : PERF_RESULTS_BUCKET,
+      harnessFrom     : opts.harnessFrom
     }));
   }
 
@@ -1527,8 +1606,10 @@ function printUsage() {
     `  --region <region>        AWS region (default ${DEFAULTS.region})`,
     '  --subnet-id <id>         subnet to launch in (auto-detected if omitted)',
     '  --my-ip <cidr>           SSH-ingress CIDR (default: resolved /32)',
-    '  --harness-from <ref>     overlay the current scaling harness from <ref> (e.g. main)',
-    '                           onto the PR checkout (bench PRs predating the suite)',
+    '  --harness-from <ref>     overlay the current harness from <ref> (e.g. main) onto the',
+    '                           checkout — bench PRs/releases predating the suite; in',
+    '                           --detached (backfill) it also runs the overlaid harness',
+    '                           directly and normalizes the pre-5.98 dist bundle name',
     `  --shutdown-minutes <n>   dead-man's-switch timer (default ${DEFAULTS.shutdownMinutes})`,
     '  --spot                   launch as a Spot instance (default on-demand)',
     '  --force                  re-measure even if perf_results already has this (type, PR)',

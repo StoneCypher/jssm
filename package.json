@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.148.0",
+  "version": "5.156.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -66,6 +66,30 @@
       "import": "./dist/wc/instance.define.js",
       "default": "./dist/wc/instance.define.js"
     },
+    "./wc/editor": {
+      "import": "./dist/wc/editor.js",
+      "default": "./dist/wc/editor.js"
+    },
+    "./wc/editor/define": {
+      "import": "./dist/wc/editor.define.js",
+      "default": "./dist/wc/editor.define.js"
+    },
+    "./wc/widgets": {
+      "import": "./dist/wc/widgets.js",
+      "default": "./dist/wc/widgets.js"
+    },
+    "./wc/widgets/define": {
+      "import": "./dist/wc/widgets.define.js",
+      "default": "./dist/wc/widgets.define.js"
+    },
+    "./wc/docs": {
+      "import": "./dist/wc/docs.js",
+      "default": "./dist/wc/docs.js"
+    },
+    "./wc/docs/define": {
+      "import": "./dist/wc/docs.define.js",
+      "default": "./dist/wc/docs.define.js"
+    },
     "./cm6": {
       "types": "./dist/es6/cm6/fsl_language.d.ts",
       "import": "./dist/cm6/fsl_language.js",
@@ -103,6 +127,12 @@
     "dist/wc/viz.define.js",
     "dist/wc/instance.js",
     "dist/wc/instance.define.js",
+    "dist/wc/editor.js",
+    "dist/wc/editor.define.js",
+    "dist/wc/widgets.js",
+    "dist/wc/widgets.define.js",
+    "dist/wc/docs.js",
+    "dist/wc/docs.define.js",
     "dist/cm6/fsl_language.js",
     "dist/es6/cm6/fsl_language.d.ts",
     "dist/cdn/viz.js",
@@ -165,15 +195,20 @@
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
     "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
     "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
+    "make_wc_editor_es6": "rollup -c rollup.config.wc.editor.es6.js",
+    "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
+    "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
-    "prep": "npm run makever && npm run peg",
+    "make_help_content": "node src/buildjs/build_help_content.cjs",
+    "prep": "npm run makever && npm run peg && npm run make_help_content",
     "make": "node src/buildjs/run_build.cjs --profile=fast",
-    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run make_help_content && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_wc_editor_es6 && npm run make_wc_widgets_es6 && npm run make_wc_docs_es6 && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
+    "check_teaching_surface": "node src/scripts/teaching_surface/check_teaching_surface.cjs --report",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
     "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",
@@ -250,8 +285,12 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.10.4",
     "@codemirror/language": "^6.12.3",
+    "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.2",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
     "@lezer/highlight": "^1.2.3",
@@ -304,10 +343,10 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
-    "lit": ">=3",
     "@codemirror/language": ">=6",
     "@codemirror/state": ">=6",
-    "@lezer/highlight": ">=1"
+    "@lezer/highlight": ">=1",
+    "lit": ">=3"
   },
   "peerDependenciesMeta": {
     "lit": {

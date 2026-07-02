@@ -536,7 +536,7 @@ style=filled;
 bgcolor="${graph_bg_color}";
 ${extra_graph_attrs}
 node [fontsize=14; shape=box; style=filled; fillcolor=white; fontname="Times New Roman"];
-edge [fontsize=6; fontname="Open Sans"];
+edge [fontsize=6; fontname="Open Sans"; fontcolor="#0066bb"];
 ${edge_defaults ? `edge [ ${edge_defaults} ];\n` : ''}
 ${nodes}
 
@@ -799,6 +799,14 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
   const strike      = new Set<string>();
   const kind_of     = (s: string): StateKind => state_kinds.get(s) ?? 'base';
 
+  // `farrange` forces its members' left-to-right order by relaxing the rank
+  // constraint of every real edge incident to a member, so the invisible
+  // ordering chain (emitted in arranges_for) wins over the members' own edges.
+  const farrange_members = new Set<string>(
+    ((u_jssm._farrange_declaration as string[][]) || []).flat().map(String));
+  const cf = (s: string, ex: string): string =>
+    (farrange_members.has(String(s)) || farrange_members.has(String(ex))) ? 'constraint=false;' : '';
+
   // Render one solo directed edge `s -> ex` for transition `tr`.
   const solo_edge = (s: string, ex: string, tr: JssmTransition<string, T>): string => {
     const ex_kind     = kind_of(ex);
@@ -808,7 +816,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
     const maybeLabel  = label ? `taillabel="${doublequote(label)}";` : '';
     const arrowHead   = arrow_for(tr);
     const edgeInline  = `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, tr.kind, '_solo')}"`;
-    return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+    return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
   };
 
   return l_states.map((s) =>
@@ -855,7 +863,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
 
         strike.add(`${ex}|${s}`);
 
-        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
       }
 
       // one directed line per forward edge — parallel action edges (#325) and
@@ -873,8 +881,15 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
 
 
 /**
- *  Render `arrange`, `arrange_start`, and `arrange_end` declarations to
- *  rank-grouped subgraphs (`rank=same`/`rank=min`/`rank=max`).
+ *  Render `arrange`, `arrange_start`, `arrange_end`, `oarrange`, and `farrange`
+ *  declarations to rank-grouped subgraphs (`rank=same`/`rank=min`/`rank=max`).
+ *
+ *  `arrange*` emit only a rank group. `oarrange`/`farrange` additionally emit an
+ *  invisible left-to-right ordering chain (`a->b->c [style=invis]`) so the listed
+ *  states keep their written order on the rank. `oarrange` is best-effort (it
+ *  yields to hard rank constraints, never reshaping the graph); `farrange`'s
+ *  ordering is forced by also relaxing its members' real edges via
+ *  `constraint=false`, emitted in {@link states_to_edges_string}.
  *
  *  @internal
  */
@@ -885,9 +900,20 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, strin
       ? decls.map(d => `{rank=${rank}; ${d.map(di => node_of(di, state_index)).join('; ')};};`).join('\n')
       : '';
 
+  // For each group, an invisible chain pinning left-to-right order: one
+  // `prev->cur [style=invis]` edge per adjacent pair (empty for <2 members).
+  const order_chain = (decls: string[][] | undefined): string =>
+    decls
+      ? decls.map(d => d.slice(1).map((di, i) =>
+          `${node_of(d[i], state_index)}->${node_of(di, state_index)} [style=invis];`).join(' ')
+        ).join('\n')
+      : '';
+
   return group(u_jssm._arrange_declaration,       'same')
        + group(u_jssm._arrange_start_declaration, 'min')
-       + group(u_jssm._arrange_end_declaration,   'max');
+       + group(u_jssm._arrange_end_declaration,   'max')
+       + group(u_jssm._oarrange_declaration,      'same') + order_chain(u_jssm._oarrange_declaration)
+       + group(u_jssm._farrange_declaration,      'same') + order_chain(u_jssm._farrange_declaration);
 
 }
 

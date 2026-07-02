@@ -82,6 +82,37 @@ function augmentDeepJson(summary) {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ *  Normalize the mutating-op rows (`transition()`, `action()`) to per-transition
+ *  throughput.  Those cases run a closed walk of `stepCount` ops per benny
+ *  iteration, so benny measures laps/sec; multiplying `ops` by `stepCount` (and
+ *  dividing any deep-mode `msPerOp` by it) converts to transitions/sec, keeping
+ *  shapes with different lap lengths comparable.  Read-only ops do a fixed `K`
+ *  calls per iteration and are left untouched.  Runs before the exponent/memory
+ *  passes so every downstream consumer reads the normalized `ops`.
+ *
+ *  @returns void; rewrites `benchmark/results/scaling.json` in place.
+ */
+function normalizePass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  const stepByName = new Map();
+  for (const shape of shapes) {
+    if (shape.transitionWalk) { stepByName.set(`${shape.name} transition()`, shape.transitionWalk.stepCount); }
+    if (shape.actionWalk)     { stepByName.set(`${shape.name} action()`,     shape.actionWalk.stepCount); }
+  }
+
+  for (const r of data.results) {
+    const steps = stepByName.get(r.name);
+    if (steps) {
+      r.ops = perTransition(r.ops, steps);
+      if (typeof r.msPerOp === 'number') { r.msPerOp = r.msPerOp / steps; }
+    }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 function writeMarkdownPivot() {
   const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
   const mdPath   = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.md');
@@ -134,34 +165,14 @@ function writeMarkdownPivot() {
 
 // ----------------------------------------------------------------------------
 // Shape factories (structured topologies — deterministic from N)
+// FSL generators live in ./benchmark_scaling_shapes.cjs so they stay unit-testable.
 // ----------------------------------------------------------------------------
 
-function buildChainFSL(n) {
-  const lines = ['allows_override: true;'];
-  for (let i = 0; i < n - 1; ++i) lines.push(`s${i} -> s${i + 1};`);
-  lines.push(`s${n - 1} -> s0;`);
-  return lines.join('\n');
-}
-
-function buildDenseFSL(n) {
-  const lines = ['allows_override: true;'];
-  for (let i = 0; i < n; ++i) {
-    for (let j = 0; j < n; ++j) {
-      if (i !== j) lines.push(`s${i} -> s${j};`);
-    }
-  }
-  return lines.join('\n');
-}
-
-function buildHubFSL(n) {
-  // s0 is the hub; every other state has edges to and from s0.
-  const lines = ['allows_override: true;'];
-  for (let i = 1; i < n; ++i) {
-    lines.push(`s${i} -> s0;`);
-    lines.push(`s0 -> s${i};`);
-  }
-  return lines.join('\n');
-}
+const {
+  buildChainFSL, buildDenseFSL, buildHubFSL,
+  closedWalk, closedSubWalk, perTransition,
+  edgePairKey, labelActionEdges, closedActionWalk,
+} = require('./benchmark_scaling_shapes.cjs');
 
 function installHubHooks(machine, n) {
   // One per-edge hook for every edge in the hub topology.
@@ -185,52 +196,38 @@ function buildHookedHub(n) {
 
 const K = 100;   // per-call work, matches existing benny convention
 
-function edgePairKey(from, to) {
-  return `${from}\u0000${to}`;
-}
-
-function arrowForEdge(edge) {
-  if (edge.forced_only || edge.kind === 'forced') { return '~>'; }
-  if (edge.main_path   || edge.kind === 'main')   { return '=>'; }
-  return '->';
-}
-
 function attachActionSupport(shape, decorateActionMachine) {
   if (typeof shape.machine.list_edges !== 'function') { return shape; }
 
-  const labelsByPair = new Map();
-  const lines        = ['allows_override: true;'];
-  let actionId       = 0;
+  // Bare labeled action FSL (no allows_override config) so it parses on pre-5.86 engines.
+  const { fsl, labelsByPair } = labelActionEdges(shape.machine);
 
-  for (const edge of shape.machine.list_edges()) {
-    const label = `act_${actionId++}`;
-    labelsByPair.set(edgePairKey(edge.from, edge.to), label);
-    lines.push(`${edge.from} '${label}' ${arrowForEdge(edge)} ${edge.to};`);
-  }
-
-  const actionSeq    = [];
+  // actionStates: K source states for the read-only list_exit_actions /
+  // probable_action_exits probes (their state arg is explicit, so no walk needed).
   const actionStates = [];
   for (const [from, to] of shape.edgePairs) {
-    const label = labelsByPair.get(edgePairKey(from, to));
-    if (label === undefined) { return shape; }
-    actionSeq.push(label);
+    if (!labelsByPair.has(edgePairKey(from, to))) { return shape; }   // unlabelable edge -> no action support
     actionStates.push(from);
   }
 
-  const actionMachine = sm([lines.join('\n')]);
+  const actionMachine = sm([fsl]);
   if (decorateActionMachine) { decorateActionMachine(actionMachine); }
 
-  // Instrument integrity: every action benchmark must measure successful
-  // dispatch, not the cheap rejected-action path.
-  actionMachine.override('s0');
-  for (let k = 0; k < K; ++k) {
-    if (actionMachine.action(actionSeq[k]) !== true) {
+  // Closed action walk: the transition walk's edges mapped to their action labels.
+  // Same topology, so replay is legal and returns the action machine to its start
+  // state — no override() reset. attachActionSupport only runs for structured shapes,
+  // which always carry a transitionWalk.
+  const actionWalk = closedActionWalk(shape.transitionWalk, actionMachine.state(), labelsByPair);
+
+  // Instrument integrity: every action benchmark must measure successful dispatch,
+  // not the cheap rejected-action path. The closed walk leaves the machine on start.
+  for (let k = 0; k < actionWalk.stepCount; ++k) {
+    if (actionMachine.action(actionWalk.labels[k]) !== true) {
       throw new Error(`instrument bug: ${shape.name} action() failed at step ${k}`);
     }
   }
-  actionMachine.override('s0');
 
-  return { ...shape, actionMachine, actionSeq, actionStates };
+  return { ...shape, actionMachine, actionWalk, actionStates };
 }
 
 function buildShapeChain(n) {
@@ -248,7 +245,7 @@ function buildShapeChain(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return attachActionSupport({ name: `chain-${n}`, machine, transitionSeq: seq, edgePairs });
+  return attachActionSupport({ name: `chain-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk: closedWalk('chain', n, K) });
 }
 
 function buildShapeDense(n) {
@@ -266,7 +263,7 @@ function buildShapeDense(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return attachActionSupport({ name: `dense-${n}`, machine, transitionSeq: seq, edgePairs });
+  return attachActionSupport({ name: `dense-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk: closedWalk('dense', n, K) });
 }
 
 function buildHubTraversal(n) {
@@ -299,22 +296,22 @@ function buildHubEdgePairs(n) {
 
 function buildShapeHub(n) {
   const machine = sm([buildHubFSL(n)]);
-  return attachActionSupport({ name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) });
+  return attachActionSupport({ name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n), transitionWalk: closedWalk('hub', n, K) });
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
   return attachActionSupport(
-    { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) },
+    { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n), transitionWalk: closedWalk('hub', n, K) },
     (actionMachine) => installHubHooks(actionMachine, n)
   );
 }
 
 function loadMessyFixture(n) {
   const file = path.join(__dirname, '..', '..', 'benchmark', 'fixtures', `messy-${n}.fsl`);
-  // Prepend allows_override:true so the per-iteration reset works, matching the structured
-  // shapes. The fixture files themselves are frozen and don't carry this directive.
-  return 'allows_override: true;\n' + fs.readFileSync(file, 'utf8');
+  // Bare fixture FSL (no allows_override config) so it parses on pre-5.86 engines; the
+  // messy transition case uses a closed sub-walk (below) instead of an override() reset.
+  return fs.readFileSync(file, 'utf8');
 }
 
 function buildShapeMessy(n) {
@@ -338,8 +335,11 @@ function buildShapeMessy(n) {
     edgePairs.push([cur, next]);
     cur = next;
   }
-  machine.override('s0');
-  return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs };
+  // Closed sub-walk for the mutating transition() case: a BFS cycle s0 -> ... -> s0, so
+  // replay needs no override() reset. null when s0 has no cycle -> transition() is feature-
+  // gated out for this fixture (its read-only has_state / edges_between probes still run).
+  const transitionWalk = closedSubWalk(machine, 's0', K);
+  return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk };
 }
 
 /**
@@ -360,7 +360,9 @@ function buildShapeByName(name) {
 // via the graviton runner's `--harness-from` overlay — degrades to a partial suite
 // instead of crashing on a method it doesn't have yet. With a current build every
 // flag is true and the suite includes every planned column.
-const probe = sm(['allows_override: true;\ns0 -> s1;']);
+// Bare FSL only (no allows_override config) so the probe itself parses on pre-5.86
+// engines — otherwise the very degradation framework it drives would crash here.
+const probe = sm(['s0 -> s1;']);
 const HAS   = {
   set_hook               : typeof probe.set_hook               === 'function',
   list_exits             : typeof probe.list_exits             === 'function',
@@ -378,23 +380,26 @@ const shapes = plan.plannedShapeNames(HAS).map(buildShapeByName);
 // ----------------------------------------------------------------------------
 
 function transitionCase(shape) {
+  // Drive the shape's closed walk: a whole number of laps that returns to the start
+  // state, so continuous replay across benny iterations stays legal with no
+  // override() reset. Shapes with no closed transition walk (e.g. a messy fixture
+  // whose s0 has no cycle) carry no transitionWalk and are skipped here.
+  const w = shape.transitionWalk;
+  if (!w) { return null; }
   const name = `${shape.name} transition()`;
   return b.add(name, () => {
-    // Reset to s0 each iteration so the precomputed transitionSeq stays valid across
-    // shapes whose cycle length doesn't divide K (chain-200, hub-N, messy-N, ...).
-    // The override adds ~1% to per-iteration time for mutation-style cases; it
-    // is omitted for read-only cases that don't mutate state.
-    shape.machine.override('s0');
-    for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+    for (let k = 0; k < w.stepCount; ++k) shape.machine.transition(w.targets[k]);
   }, bennyOpts(name));
 }
 
 function actionCase(shape) {
   if (!shape.actionMachine) { return null; }
+  // Closed action walk returns the machine to its start each iteration, so replay stays
+  // legal with no override() reset. Normalized to per-action throughput in normalizePass.
+  const w = shape.actionWalk;
   const name = `${shape.name} action()`;
   return b.add(name, () => {
-    shape.actionMachine.override('s0');
-    for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
+    for (let k = 0; k < w.stepCount; ++k) shape.actionMachine.action(w.labels[k]);
   }, bennyOpts(name));
 }
 
@@ -489,10 +494,14 @@ function memoryPass() {
   const rebuild   = (name) => sm([sourceForShape(name)]);
   const opBatches = (shape) => {
     const out = [];
-    out.push([`${shape.name} transition()`, () => {
-      shape.machine.override('s0');
-      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
-    }]);
+    if (shape.transitionWalk) {
+      const w = shape.transitionWalk;
+      // Full closed walk (returns to s0) so the next batch starts legal, override-free;
+      // divides by its own stepCount, not K, since the lap length varies by shape.
+      out.push([`${shape.name} transition()`, () => {
+        for (let k = 0; k < w.stepCount; ++k) shape.machine.transition(w.targets[k]);
+      }, w.stepCount]);
+    }
     if (HAS.edges_between) {
       out.push([`${shape.name} edges_between()`, () => {
         for (let k = 0; k < K; ++k) { const [f, t] = shape.edgePairs[k]; shape.machine.edges_between(f, t); }
@@ -504,10 +513,12 @@ function memoryPass() {
       }]);
     }
     if (shape.actionMachine && HAS.action) {
+      const w = shape.actionWalk;
+      // Full closed action walk (returns to start), override-free; divides by its own
+      // stepCount, not K, matching the action() benchmark case.
       out.push([`${shape.name} action()`, () => {
-        shape.actionMachine.override('s0');
-        for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
-      }]);
+        for (let k = 0; k < w.stepCount; ++k) shape.actionMachine.action(w.labels[k]);
+      }, w.stepCount]);
     }
     if (shape.actionMachine && HAS.list_exit_actions) {
       out.push([`${shape.name} list_exit_actions()`, () => {
@@ -594,11 +605,15 @@ function warmupPass() {
   const byName   = new Map(data.results.map((r) => [r.name, r]));
   const ns       = () => Number(process.hrtime.bigint());
   for (const shape of shapes) {
+    const walk = shape.transitionWalk;
+    if (!walk) { continue; }   // no closed transition walk -> no warmup row (matches transitionCase)
     const batches = [];
     for (let i = 0; i < 6; ++i) {
-      shape.machine.override('s0');
+      // Full closed walk per batch returns to s0, so the next batch starts legal with no
+      // override() reset. coldMs/warmMs are per-walk diagnostics; warmupRatio is
+      // batch-size-independent (cold ÷ warm).
       const t = ns();
-      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+      for (let k = 0; k < walk.stepCount; ++k) shape.machine.transition(walk.targets[k]);
       batches.push((ns() - t) / 1e6);
     }
     const w   = timing.summarizeWarmup(batches);
@@ -640,6 +655,7 @@ b.suite(
       // Deep mode: inject the additive msPerOp/samples fields into the saved
       // JSON before the markdown writer reads it, so the ms/op column appears.
       if (DEEP) { augmentDeepJson(summary); }
+      normalizePass();   // per-transition normalization before exponents/memory read ops
       memoryPass();
       exponentsPass();
       bundlesPass();
