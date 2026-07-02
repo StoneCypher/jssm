@@ -91,11 +91,17 @@ export async function rasterize(
   return rasterizeViaResvgWasm(svg, target, opts);
 }
 
-async function rasterizeViaCanvas(
+/**
+ *  Load an SVG into a sized OffscreenCanvas and draw it: the shared front
+ *  half of both Canvas-backend rasterizers.  Sizing follows rasterize()'s
+ *  documented precedence (width > height > scale-zoom).
+ *
+ *  @internal
+ */
+async function loadAndSizeCanvas(
   svg: string,
-  target: RasterTarget,
   opts: RasterOptions,
-): Promise<Uint8Array> {
+): Promise<{ canvas: any; ctx: any; width: number; height: number }> {
   const encoded = (typeof btoa !== 'undefined')
     ? btoa(unescape(encodeURIComponent(svg)))
     : Buffer.from(svg, 'utf8').toString('base64');
@@ -134,6 +140,16 @@ async function rasterizeViaCanvas(
   const ctx = canvas.getContext('2d') as any;
   if (!ctx) throw new RenderError('failed to acquire 2d canvas context');
   ctx.drawImage(img as any, 0, 0, width, height);
+
+  return { canvas, ctx, width, height };
+}
+
+async function rasterizeViaCanvas(
+  svg: string,
+  target: RasterTarget,
+  opts: RasterOptions,
+): Promise<Uint8Array> {
+  const { canvas } = await loadAndSizeCanvas(svg, opts);
 
   const blob = await canvas.convertToBlob({
     type: mimeOf(target),
@@ -263,49 +279,13 @@ export async function rasterizeRgba(svg: string, opts: RasterOptions = {}): Prom
 }
 
 async function rgbaViaCanvas(svg: string, opts: RasterOptions): Promise<RgbaRaster> {
-  // Identical image-load and sizing steps as rasterizeViaCanvas — only the
-  // final canvas readout (getImageData vs. convertToBlob) differs.
-  const encoded = (typeof btoa !== 'undefined')
-    ? btoa(unescape(encodeURIComponent(svg)))
-    : Buffer.from(svg, 'utf8').toString('base64');
-  const url = `data:image/svg+xml;base64,${encoded}`;
-
-  const ImageCtor: typeof Image = (globalThis as any).Image;
-  if (typeof ImageCtor === 'undefined') {
-    throw new RasterizationUnsupportedError('OffscreenCanvas present but Image constructor is not');
-  }
-
-  const img = new ImageCtor();
-  img.src = url;
-  if (typeof (img as any).decode === 'function') {
-    await (img as any).decode();
-  } else {
-    await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('image load failed')); });
-  }
-
-  const natW = (img as any).width  ?? 800;
-  const natH = (img as any).height ?? 600;
-  let width: number;
-  let height: number;
-  if (opts.width !== undefined) {
-    width  = opts.width;
-    height = Math.round(width * natH / natW);
-  } else if (opts.height !== undefined) {
-    height = opts.height;
-    width  = Math.round(height * natW / natH);
-  } else {
-    const zoom = zoomFor(opts);
-    width  = Math.round(natW * zoom);
-    height = Math.round(natH * zoom);
-  }
-
-  const canvas = new OffscreenCanvas(width, height);
-  const ctx = canvas.getContext('2d') as any;
-  if (!ctx) throw new RenderError('failed to acquire 2d canvas context');
-  ctx.drawImage(img as any, 0, 0, width, height);
+  const { ctx, width, height } = await loadAndSizeCanvas(svg, opts);
 
   const data = ctx.getImageData(0, 0, width, height);
-  return { rgba: new Uint8Array(data.data.buffer.slice(0)), width, height };
+  const rgba = new Uint8Array(
+    data.data.buffer.slice(data.data.byteOffset, data.data.byteOffset + data.data.byteLength)
+  );
+  return { rgba, width, height };
 }
 
 async function rgbaViaResvgWasm(svg: string, opts: RasterOptions): Promise<RgbaRaster> {
