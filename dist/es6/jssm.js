@@ -3670,11 +3670,14 @@ class Machine {
                         data_changed = true;
                     }
                 }
+                // shared by steps 5 and 6: pre-commit, this._state_id is still the
+                // from-state, so both probes key on the same pair; compute it once
+                const pre_pair_id = pair_key(this._state_id, newStateId);
                 // 5. named transition / action hook
                 if (this._has_named_hooks) {
                     if (wasAction) {
                         // Numeric pair probe, then the action id captured at dispatch (#729).
-                        const byPair = this._named_hooks.get(pair_key(this._state_id, newStateId));
+                        const byPair = this._named_hooks.get(pre_pair_id);
                         const nh = byPair === undefined ? undefined : byPair.get(actionId);
                         const outcome = abstract_hook_step(nh, hook_args);
                         if (outcome.pass === false) {
@@ -3689,7 +3692,7 @@ class Machine {
                 // 6. regular hook
                 if (this._has_basic_hooks) {
                     // Numeric pair probe (#729); one integer hash replaces two string maps.
-                    const h = this._hooks.get(pair_key(this._state_id, newStateId));
+                    const h = this._hooks.get(pre_pair_id);
                     const outcome = abstract_hook_step(h, hook_args);
                     if (outcome.pass === false) {
                         this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced);
@@ -3832,11 +3835,15 @@ class Machine {
                     peh(hook_args);
                 }
             }
+            // shared by steps 5 and 6: post-commit this._state_id has moved on, so
+            // the from-side of the pair comes from the captured fromStateId;
+            // compute it once
+            const post_pair_id = pair_key(fromStateId, newStateId);
             // 5. named transition / action hook
             if (this._has_post_named_hooks) {
                 if (wasAction) {
                     // Numeric pair probe, then the action id captured at dispatch (#729).
-                    const byPair = this._post_named_hooks.get(pair_key(fromStateId, newStateId));
+                    const byPair = this._post_named_hooks.get(post_pair_id);
                     const pnh = byPair === undefined ? undefined : byPair.get(actionId);
                     if (pnh !== undefined) {
                         pnh(hook_args);
@@ -3846,7 +3853,7 @@ class Machine {
             // 6. regular hook
             if (this._has_post_basic_hooks) {
                 // Numeric pair probe (#729).
-                const hook = this._post_hooks.get(pair_key(fromStateId, newStateId));
+                const hook = this._post_hooks.get(post_pair_id);
                 if (hook !== undefined) {
                     hook(hook_args);
                 }
