@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render_fence_html, transform_markdown } from '../fsl_fence_render.js';
+import { fsl_to_svg_string } from '../jssm_viz.js';
+import { extract_state_fills } from '../fsl_svg_patch.js';
 
 describe('render_fence_html', () => {
 
@@ -13,8 +15,10 @@ describe('render_fence_html', () => {
 
   it('code state names carry the diagram colors inline', async () => {
     const html = await render_fence_html('Red -> Green;', 'fsl code');
+    const svg   = await fsl_to_svg_string('Red -> Green;');
+    const fills = extract_state_fills(svg);
     expect(html).toContain('data-state="Red"');
-    expect(html).toMatch(/data-state="Red"[^>]*style="color:/);
+    expect(html).toContain(`style="color:${fills.get('Red')}"`);
   });
 
   it('dot renders escaped DOT source, not an image', async () => {
@@ -111,6 +115,26 @@ describe('transform_markdown', () => {
   it('supports longer backtick fences', async () => {
     const md = '````fsl\na -> b;\n````\n';
     expect(await transform_markdown(md)).toContain('class="fsl-fence"');
+  });
+
+  it('does not close on a body line that merely starts with the tick run', async () => {
+    const md = '````fsl\na -> b;\n````\n\n```js\nconst s = "```fsl inside a js block";\n```\n';
+    const out = await transform_markdown(md);
+    expect(out).toContain('class="fsl-fence"');
+    expect(out).toContain('const s = "```fsl inside a js block";');
+  });
+
+  it('passes through a longer non-FSL fence containing a shorter fsl-looking fence, byte-identical', async () => {
+    const inner = '````md\nExample:\n\n```fsl\na -> b;\n```\n\ndone\n````\n';
+    const out = await transform_markdown(inner);
+    expect(out).toBe(inner);
+  });
+
+  it('renders an fsl fence whose body contains a line starting with backticks-plus-text', async () => {
+    const md = '````fsl\na -> b;\n````\n';
+    const out = await transform_markdown(md);
+    expect(out).toContain('class="fsl-fence"');
+    expect(out).not.toContain('````');
   });
 
 });
