@@ -139,3 +139,33 @@ describe('hooks returning null are handled gracefully by the machine', () => {
   });
 
 });
+
+
+
+/**
+ *
+ *  A hook returning a FRESH `{ pass: true }` literal (no `data` member) is a
+ *  complex result that is not the shared HOOK_PASSED singleton, so it takes
+ *  the own-property reflection path inside `_update_hook_fields` and must
+ *  report "no data change": the transition passes and machine data is
+ *  untouched.
+ *
+ */
+
+describe('hooks returning a fresh dataless { pass: true } object', () => {
+
+  test('transition passes and data is unchanged', () => {
+    const machine = jssm.from(`a -> b;`, { data: 'unchanged' });
+    machine.set_hook({
+      from: 'a',
+      to:   'b',
+      kind: 'hook',
+      handler: () => ({ pass: true })
+    });
+
+    expect( machine.transition('b') ).toBe(true);
+    expect( machine.state() ).toBe('b');
+    expect( machine.data() ).toBe('unchanged');
+  });
+
+});
