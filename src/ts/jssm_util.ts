@@ -106,10 +106,14 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
 
   // called once per probabilistic walk step: plain loops, no per-call closure
   // allocations (previously frand, or_one, and a reduce callback each call).
-  // undefined weights count as 1, as before.
+  // undefined weights count as 1, as before.  Every internal caller uses the
+  // default 'probability' key, so that case reads the property by name — a
+  // monomorphic named-load IC — instead of a dynamic keyed load.
+  const named: boolean = probability_property === 'probability';
+
   let prob_sum: number = 0;
   for (const opt of options) {                       // eslint-disable-line fp/no-loops
-    const p = opt[probability_property];
+    const p = named ? opt.probability : opt[probability_property];
     prob_sum += (p === undefined) ? 1 : p;
   }
 
@@ -121,7 +125,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   // advance past each element whose running sum is <= rnd; the element that
   // pushes the sum over rnd is the selection
   while (cursor < options.length) {                  // eslint-disable-line fp/no-loops
-    const p = options[cursor][probability_property];
+    const p = named ? options[cursor].probability : options[cursor][probability_property];
     cursor_sum += (p === undefined) ? 1 : p;
     ++cursor;
     if (cursor_sum > rnd) { break; }
@@ -183,14 +187,27 @@ function seq(n: number): number[] {
  *
  */
 
-const histograph: Function = (ar : any[]): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
+const histograph: Function = (ar : any[]): Map<any, number> => { // eslint-disable-line flowtype/no-weak-types
 
-    [...ar].sort()
-      .reduce(
-        (m,v): Map<any, any> =>    // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
-          ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m),
-          new Map()
-      );
+  // one counting pass, then a sort over only the k distinct keys — previously
+  // this copied and sorted all n elements (O(n log n) plus a transient array)
+  // before counting.  Map insertion order (sorted keys, default lexicographic
+  // comparator, exactly as before) is preserved because it is observable to
+  // every iterating caller.
+  const counts: Map<any, number> = new Map();
+  for (const v of ar) {                                // eslint-disable-line fp/no-loops
+    const c = counts.get(v);
+    counts.set(v, c === undefined ? 1 : c + 1);
+  }
+
+  const out: Map<any, number> = new Map();
+  for (const k of [...counts.keys()].sort()) {         // eslint-disable-line fp/no-loops
+    out.set(k, counts.get(k));
+  }
+
+  return out;
+
+};
 
 
 
@@ -259,14 +276,27 @@ const weighted_sample_select: Function = (n: number, options: Array<any>, probab
  *
  */
 
-const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Map<any, number> => { // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
-    histograph(
-      weighted_sample_select(n, opts, prob_prop, rng)
-        .map(
-          (s): any => s[extract]     // TODO FIXME eslint-disable-line flowtype/no-weak-types
-        )
-    );
+  // draw and count in one loop: previously this built four n-length transient
+  // arrays (seq, the sample map, the extract map, and histograph's sort copy).
+  // RNG draw order is identical — n sequential weighted_rand_select calls —
+  // and the sorted-key Map ordering matches histograph's output exactly.
+  const counts: Map<any, number> = new Map();
+  for (let i = 0; i < n; i++) {                        // eslint-disable-line fp/no-loops
+    const key = weighted_rand_select(opts, prob_prop, rng)[extract];
+    const c   = counts.get(key);
+    counts.set(key, c === undefined ? 1 : c + 1);
+  }
+
+  const out: Map<any, number> = new Map();
+  for (const k of [...counts.keys()].sort()) {         // eslint-disable-line fp/no-loops
+    out.set(k, counts.get(k));
+  }
+
+  return out;
+
+};
 
 
 
