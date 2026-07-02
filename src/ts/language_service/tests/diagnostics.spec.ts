@@ -25,6 +25,16 @@ describe('fslDiagnostics', () => {
     expect(Array.isArray(fslDiagnostics(''))).toBe(true);
   });
 
+  it('reports a readable error for a transition-free document (states-first authoring)', () => {
+    // A document of state blocks with no transitions yet is a natural
+    // mid-authoring state; the lint message must name the actual problem,
+    // not leak an internal TypeError.
+    const out = fslDiagnostics('state Off : {};');
+    expect(out).toHaveLength(1);
+    expect(out[0].severity).toBe('error');
+    expect(out[0].message).toMatch(/no transitions/);
+  });
+
   it('reports a construction-time error (required property missing on a state)', () => {
     // Parses AND compiles, but the Machine constructor rejects it: `color` is
     // required yet `Off` never defines it. The editor must surface this, not

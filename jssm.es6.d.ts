@@ -1415,6 +1415,12 @@ declare function wrap_parse(input: string, options?: Object): any;
  *              semantic error thrown will carry a `source_location` span
  *              pointing at the offending statement.
  *
+ *  @throws {JssmError} If the document declares no transitions (for example a
+ *                      states-first document of only `state` blocks) — a
+ *                      machine requires at least one transition; also for
+ *                      repeated property definitions, group errors, and other
+ *                      semantic problems noted throughout.
+ *
  */
 declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGenericConfig<StateType, mDT>;
 /*********
