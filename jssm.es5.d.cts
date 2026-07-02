@@ -1936,6 +1936,63 @@ declare const version: string;
  */
 declare const build_time: number;
 
+/**
+ *  The FSL Markdown fence convention parser — pure, host-agnostic logic that
+ *  turns a fenced-code-block info string into a {@link FenceDescriptor}.  Hosts
+ *  (a VS Code preview plugin, a static-site generator, …) each interpret the
+ *  descriptor according to their capabilities.
+ *
+ *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
+ */
+/** A single renderable part of a fence block (stacks in listed order, first on top). */
+declare type FencePart = 'image' | 'code' | 'dot' | 'editor' | 'actions' | 'info-panel' | 'toolbar' | 'title' | 'footer';
+/** An image output format for the `image` part. */
+declare type FenceImageFormat = 'svg' | 'png' | 'jpeg' | 'gif';
+/** The unit of a {@link FenceDimension} (`%` is represented as `'percent'`). */
+declare type FenceDimensionUnit = 'px' | 'percent';
+/** A parsed `width=`/`height=` value with its unit. */
+interface FenceDimension {
+    value: number;
+    unit: FenceDimensionUnit;
+}
+/** The fully-parsed, validated description of one FSL Markdown fence block. */
+interface FenceDescriptor {
+    parts: FencePart[];
+    ide: boolean;
+    format: FenceImageFormat;
+    width: FenceDimension | null;
+    height: FenceDimension | null;
+    interactive: boolean;
+    notes: string[];
+}
+/**
+ *  Canonical fence language for an info string, or `null` if the block is not
+ *  an FSL fence.  Reads only the first whitespace-delimited token,
+ *  case-insensitively.
+ *
+ *  @param info The full fence info string (everything after the opening fence).
+ *  @returns `'fsl'` or `'jssm'` for our fences; `null` otherwise.
+ *
+ *  @example fsl_fence_lang('fsl image code') // => 'fsl'
+ *  @example fsl_fence_lang('JSSM')           // => 'jssm'
+ *  @example fsl_fence_lang('mermaid')        // => null
+ */
+declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
+/**
+ *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
+ *  the (already-validated) language and is ignored; remaining tokens are
+ *  classified as parts, image formats, the `ide` macro, or `width`/`height`
+ *  options.  Unrecognized or conflicting tokens are dropped and recorded in
+ *  `notes` rather than throwing, so a host can render forward-compatibly.
+ *
+ *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
+ *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
+ *
+ *  @example parse_fence_info('fsl').parts // => ['image', 'code']
+ *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ */
+declare function parse_fence_info(info: string): FenceDescriptor;
+
 declare type StateType = string;
 
 declare const shapes: string[];
@@ -4782,4 +4839,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, parse_fence_info, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart };

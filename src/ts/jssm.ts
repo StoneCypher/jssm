@@ -443,8 +443,11 @@ function find_connected_components<mDT>(
     const queue     : Array<StateType> = [start];
     visited.add(start);
 
-    while (queue.length > 0) {
-      const node      = queue.shift()!;
+    // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
+    // worst case; reading by cursor keeps it O(V + E)
+    let head = 0;
+    while (head < queue.length) {
+      const node      = queue[head++];
       component.push(node);
       for (const neighbor of adj.get(node)!) {
         if (!visited.has(neighbor)) {
@@ -990,6 +993,10 @@ class Machine<mDT> {
     // scan (which made construction O(V*E) on dense graphs).  #673
     const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
+    // complete.includes was an O(|complete|) array scan per newly-created
+    // state — O(V·C) overall; one Set turns it into O(V)
+    const complete_set: Set<StateType> = new Set(complete);
+
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
     // edge); the undefined check on the get's result carries the same
@@ -1002,13 +1009,13 @@ class Machine<mDT> {
       // get the cursors.  what a mess
       let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
       if (cursor_from === undefined) {
-        cursor_from = { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
+        cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
         this._new_state(cursor_from);
       }
 
       let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
       if (cursor_to === undefined) {
-        cursor_to = { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
+        cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
         this._new_state(cursor_to);
       }
 
@@ -2569,12 +2576,19 @@ class Machine<mDT> {
     const legal_exits          : Array<JssmTransition<StateType, mDT>> = [],
           probability_bearing  : Array<JssmTransition<StateType, mDT>> = [];
 
+    // hoisted: every exit shares whichState, so probe _edge_map for the
+    // from-side once instead of re-hashing the same key per exit inside
+    // lookup_transition_for.  wstate.to is non-empty only when at least one
+    // outbound edge exists, and every outbound edge creates the from-side
+    // mapping at construction — so emg is defined whenever the loop runs.
+    const emg: Map<StateType, number> = this._edge_map.get(whichState);
+
     for (const ws of wstate.to) {
 
-      // wstate.to is built from the same edge set lookup_transition_for
-      // resolves against, so the lookup cannot miss; the guard mirrors the
-      // old defensive .filter(Boolean) and is equally unreachable.
-      const edge: JssmTransition<StateType, mDT> = this.lookup_transition_for(whichState, ws);
+      // wstate.to is built from the same edge set _edge_map indexes, so the
+      // per-target get cannot miss; the guard mirrors the old defensive
+      // .filter(Boolean) and is equally unreachable.
+      const edge: JssmTransition<StateType, mDT> = this._edges[ emg.get(ws) ];
       /* v8 ignore next */
       if (!edge) { continue; }
 
@@ -4323,11 +4337,20 @@ class Machine<mDT> {
     // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
     // covers from-states that have no outgoing edges (terminal states) and
     // states that don't exist at all, both of which return [] without iterating.
+    //
+    // The match itself compares interned numeric state ids against the packed
+    // _edge_to_ids array rather than dereferencing each edge object for a
+    // string compare: non-matching edges never touch an edge object, which is
+    // most of the cost on dense shapes (heavier edge objects degrade a deref
+    // loop — the 5.142/5.143 regression mechanism).  Every state named by any
+    // edge is interned at construction, so an unknown `to` provably has no
+    // edges and returns [] immediately.
+    const to_id = this._state_interner.id_of(to);
+    if (to_id === undefined) { return []; }
     const outbound: Array<number> = this._outbound_edge_ids.get(from) ?? [];
     const result: JssmTransition<StateType, mDT>[] = [];
     for (const edgeId of outbound) {
-      const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
-      if (edge.to === to) { result.push(edge); }
+      if (this._edge_to_ids[edgeId] === to_id) { result.push(this._edges[edgeId]); }
     }
     return result;
   }
@@ -4647,16 +4670,15 @@ class Machine<mDT> {
       const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
       if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
-          // first matching outbound edge's kind, without building the result
-          // array edges_between allocated here on every hooked transition.
-          // First-match semantics are kept deliberately: _edge_map is
-          // last-wins for multi-edge (from, to) pairs, so lookup_transition_for
-          // could disagree with the old edges_between(...)[0].  #735
-          // TODO this won't do the right thing if various edges have different types
-          for (const ob_eid of this._outbound_edge_ids.get(this._state)) {
-            const ob_edge = this._edges[ob_eid];
-            if (ob_edge.to === newStateOrAction) { trans_type = ob_edge.kind; break; }
-          }
+          // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
+          // both first-declared-wins for parallel (from, to) pairs (see the
+          // constructor around _edge_map / _edge_id_by_pair), and
+          // _outbound_edge_ids fills in declaration order — so the old
+          // first-match outbound scan always resolved to this same edgeId.
+          // Direct read replaces the O(out-degree) object-deref scan; the
+          // first-declared-kind semantics are pinned by the parallel-edge
+          // transition-kind hook spec.  #735
+          trans_type = this._edges[edgeId].kind;
         }
         valid      = true;
         newState   = newStateOrAction;
@@ -5050,6 +5072,12 @@ class Machine<mDT> {
    *  Called internally after each transition.
    */
   auto_set_state_timeout(): void {
+
+    // called on every successful transition-commit.  Machines with no `after`
+    // clauses at all (the overwhelmingly common case) previously still paid a
+    // string hash + map probe here per transition; one integer size read
+    // short-circuits that.
+    if (this._after_mapping.size === 0) { return; }
 
     const after_res = this._after_mapping.get(this._state);
     if (after_res !== undefined) {
@@ -6614,6 +6642,12 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
  */
 
 function _update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookComplexResult<mDT>): boolean {
+  // HOOK_PASSED is the shared frozen outcome for "no hook installed" and for
+  // hooks returning true/undefined — the overwhelming majority of the up-to-
+  // ~10 steps per hooked transition.  It can never carry `data` (frozen, built
+  // without one), so one pointer compare replaces the hasOwnProperty
+  // reflection call for the common case.
+  if (res === HOOK_PASSED) { return false; }
   if (Object.prototype.hasOwnProperty.call(res, 'data')) {
     hook_args.data      = res.data;
     hook_args.next_data = res.next_data;
@@ -6685,6 +6719,8 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
  *  so a shared instance is observationally identical; freezing turns that
  *  read-only contract from incidental into enforced.  Complex results (hooks
  *  returning `{ pass, data, ... }`) still pass through untouched.  #705
+ *  _update_hook_fields additionally identity-checks HOOK_PASSED to skip its
+ *  own-property probe on the common no-op outcome.
  *
  *  @see abstract_hook_step
  *  @see abstract_everything_hook_step
@@ -7048,3 +7084,16 @@ export {
 //  FslThemes
 
 };
+
+export {
+  fsl_fence_lang,
+  parse_fence_info
+} from './fsl_markdown_fence';
+
+export type {
+  FencePart,
+  FenceImageFormat,
+  FenceDimensionUnit,
+  FenceDimension,
+  FenceDescriptor
+} from './fsl_markdown_fence';

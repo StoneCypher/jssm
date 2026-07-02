@@ -34,4 +34,17 @@ describe('edges_between', () => {
     expect(m.edges_between('nonexistent', 'b')).toEqual([]);
   });
 
+  test('returns empty array when to does not exist in the machine', () => {
+    const m = sm`a -> b;`;
+    expect(m.edges_between('a', 'nonexistent')).toEqual([]);
+  });
+
+  test('returns every parallel action edge between the same pair, in declaration order', () => {
+    const m  = sm`a 'go' -> b; a 'run' -> b;`,
+          ab = m.edges_between('a', 'b');
+    expect(ab.length).toBe(2);
+    expect(ab[0].action).toBe('go');
+    expect(ab[1].action).toBe('run');
+  });
+
 });

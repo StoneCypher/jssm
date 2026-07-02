@@ -69,3 +69,24 @@ describe('parallel action edges (#325, #531)', () => {
     expect(sm`a 30% -> b; a 70% -> c;`.list_edges().length).toBe(2) );
 
 });
+
+
+
+// transition-kind hooks resolve the dispatched edge's kind through the same
+// first-declared-wins rule as lookup_transition_for and the pair fast-path,
+// so a parallel (from, to) pair with mixed arrow kinds fires the hook of the
+// FIRST-declared edge's kind
+describe('parallel edges: transition-kind hooks see the first-declared kind', () => {
+
+  test('main-then-legal parallel pair dispatches the main-transition hook', () => {
+    // a=>b declared first (kind 'main'), a->b second (kind 'legal').
+    const m = sm`a 'go' => b; a 'walk' -> b;`;
+    let main_fired = false, standard_fired = false;
+    m.hook_main_transition( () => { main_fired = true; } );
+    m.hook_standard_transition( () => { standard_fired = true; } );
+    expect(m.transition('b')).toBe(true);
+    expect(main_fired).toBe(true);       // first-declared edge kind is 'main'
+    expect(standard_fired).toBe(false);  // 'legal' hook must not fire
+  });
+
+});
