@@ -104,7 +104,6 @@ function median_cut(
         if (hi - lo > best_range) { best_range = hi - lo; best_box = bi; best_channel = ci; }
       });
     });
-    if (best_box === -1) { break; }   // every box is a single color
 
     const box = boxes[best_box]!;
     const ch  = CHANNELS[best_channel]!;

@@ -22,7 +22,7 @@ describe('quantize', () => {
   });
 
   it('reduces >max_colors inputs to at most max_colors, mapping to nearby colors', () => {
-    // 512 distinct grays via r-channel spread across g variations
+    // 128 distinct colors (32 r-steps × 4 g-steps, fixed b) — forces median-cut
     const pixels: Array<[number, number, number, number]> = [];
     for (let r = 0; r < 256; r += 8) {
       for (let g = 0; g < 256; g += 64) {
@@ -33,6 +33,19 @@ describe('quantize', () => {
     expect(q.palette_count).toBeLessThanOrEqual(8);
     expect(q.indices.length).toBe(pixels.length);
     // every index points inside the palette
+    for (const i of q.indices) { expect(i).toBeLessThan(q.palette_count); }
+  });
+
+  it('handles lopsided weights that shrink a box to a single color', () => {
+    // one massively dominant color plus a scatter of rare distinct colors:
+    // count-weighted median splits produce singleton boxes before the
+    // box budget is exhausted, exercising the singleton-skip branch.
+    const pixels: Array<[number, number, number, number]> = [];
+    for (let i = 0; i < 500; ++i) { pixels.push([10, 20, 30, 255]); }   // dominant
+    for (let r = 0; r < 8; ++r)   { pixels.push([r * 32, 255 - r * 32, r * 16, 255]); }
+    const q = quantize(px(...pixels), 4);
+    expect(q.palette_count).toBeLessThanOrEqual(4);
+    expect(q.indices.length).toBe(pixels.length);
     for (const i of q.indices) { expect(i).toBeLessThan(q.palette_count); }
   });
 
