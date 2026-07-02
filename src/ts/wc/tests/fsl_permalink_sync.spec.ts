@@ -19,6 +19,18 @@ if (!customElements.get('plk-host')) { customElements.define('plk-host', Host); 
 
 const tick = (ms = 0): Promise<void> => new Promise(r => setTimeout(r, ms));
 
+// Poll until `cond` holds, rather than sleeping a fixed amount. The write path
+// is debounced (300ms) AND then awaits an async encode, so a fixed `tick(350)`
+// has almost no margin and races under full-suite CPU load — the historical
+// flake. Polling waits exactly as long as needed and no longer.
+const waitFor = async (cond: () => boolean, timeout = 3000, step = 10): Promise<void> => {
+  const start = Date.now();
+  while (!cond()) {
+    if (Date.now() - start > timeout) { throw new Error(`waitFor: condition not met within ${timeout}ms`); }
+    await tick(step);
+  }
+};
+
 beforeEach(() => { history.replaceState(history.state, '', location.pathname); vi.restoreAllMocks(); });
 
 describe('FslPermalinkSync', () => {
@@ -80,7 +92,7 @@ describe('FslPermalinkSync', () => {
     document.body.appendChild(el);
     await el.updateComplete;
     el.rebuilt();
-    await tick(350);                               // past the 300ms debounce
+    await waitFor(() => spy.mock.calls.length > 0);  // debounce + async encode; wait for the write, don't race a fixed sleep
     expect(spy).toHaveBeenCalled();
     const url = spy.mock.calls[spy.mock.calls.length - 1]![2] as string;
     expect(url).toContain('other=0ZZZ');           // sibling preserved
@@ -111,7 +123,8 @@ describe('FslPermalinkSync', () => {
     const spy = vi.spyOn(history, 'replaceState');
     el.rebuilt();                                  // schedules a write (timer set)
     el.rebuilt();                                  // second call clears the pending timer, reschedules
-    await tick(350);
+    await waitFor(() => spy.mock.calls.length > 0); // wait for the single coalesced write
+    await tick(350);                               // margin: an erroneous second write would land here
     expect(spy).toHaveBeenCalledTimes(1);          // the two rebuilds collapse into one write
     el.remove();
   });
