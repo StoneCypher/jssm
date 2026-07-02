@@ -18,6 +18,13 @@ describe('extract_state_fills / patch_state_fill', () => {
     const after   = extract_state_fills(patched);
     expect(after.get('B')).toBe('#ff9930');
     expect(after.get('A')).toBe(before.get('A'));
+
+    // Regression: SHAPE_FILL_RE must not widen to match text-element fills.
+    // Extract the text element's fill from both to verify it remains unchanged.
+    const textFillRe = /<text[^>]*\bfill="([^"]*)"/;
+    const beforeFill = textFillRe.exec(svg)?.[1];
+    const afterFill = textFillRe.exec(patched)?.[1];
+    expect(afterFill).toBe(beforeFill);
   });
 
   it('handles state names needing XML escaping', async () => {
@@ -26,6 +33,18 @@ describe('extract_state_fills / patch_state_fill', () => {
     expect(fills.has('a<b')).toBe(true);
     const patched = patch_state_fill(svg, 'a<b', '#123456');
     expect(extract_state_fills(patched).get('a<b')).toBe('#123456');
+  });
+
+  it('unescapes ampersand and other XML entities in state names', async () => {
+    // Attempt real render with ampersand-bearing name (try order: double-quoted, single-quoted, plain).
+    // Graphviz parses &-bearing identifiers when double-quoted; renders them escaped in <text>.
+    let svg = await fsl_to_svg_string('"a&b" -> C;');
+    const fills = extract_state_fills(svg);
+    // Should find the unescaped name 'a&b' (graphviz renders it as &amp; in text content)
+    expect(fills.has('a&b')).toBe(true);
+    const patched = patch_state_fill(svg, 'a&b', '#654321');
+    const after = extract_state_fills(patched);
+    expect(after.get('a&b')).toBe('#654321');
   });
 
   // Regression: jssm lowercases dot node ids and disambiguates collisions with
@@ -47,6 +66,11 @@ describe('extract_state_fills / patch_state_fill', () => {
     expect(patch_state_fill(svg, 'Nope', '#fff')).toBe(svg);
   });
 
+  // The following tests use small hand-authored SVG fragments, not real
+  // renders: they exercise malformed-input guard branches that valid
+  // graphviz output cannot produce, but which the public API (any string)
+  // can. Authorized deviation from the real-renders-only rule for exactly
+  // this guard-clause purpose — everything behavioral above uses real renders.
   it('extracts empty text content by filtering it out', () => {
     const svg = `<g id="node1" class="node"><title>a</title><polygon fill="#fff"/><text></text></g>`;
     const fills = extract_state_fills(svg);
@@ -65,7 +89,7 @@ describe('extract_state_fills / patch_state_fill', () => {
     expect(result).toBe(svg);
   });
 
-  it('patch returns unchanged when node is malformed (missing text)', () => {
+  it('patch returns unchanged when node is missing text', () => {
     const svg = `<g id="node1" class="node"><title>a</title><polygon fill="#fff"/></g>`;
     const result = patch_state_fill(svg, 'A', '#abc');
     expect(result).toBe(svg);
