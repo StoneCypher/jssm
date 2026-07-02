@@ -6629,6 +6629,12 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
  */
 
 function _update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookComplexResult<mDT>): boolean {
+  // HOOK_PASSED is the shared frozen outcome for "no hook installed" and for
+  // hooks returning true/undefined — the overwhelming majority of the up-to-
+  // ~10 steps per hooked transition.  It can never carry `data` (frozen, built
+  // without one), so one pointer compare replaces the hasOwnProperty
+  // reflection call for the common case.
+  if (res === HOOK_PASSED) { return false; }
   if (Object.prototype.hasOwnProperty.call(res, 'data')) {
     hook_args.data      = res.data;
     hook_args.next_data = res.next_data;
@@ -6700,6 +6706,8 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
  *  so a shared instance is observationally identical; freezing turns that
  *  read-only contract from incidental into enforced.  Complex results (hooks
  *  returning `{ pass, data, ... }`) still pass through untouched.  #705
+ *  _update_hook_fields additionally identity-checks HOOK_PASSED to skip its
+ *  own-property probe on the common no-op outcome.
  *
  *  @see abstract_hook_step
  *  @see abstract_everything_hook_step
