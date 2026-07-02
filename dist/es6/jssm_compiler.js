@@ -946,6 +946,12 @@ function fold_graph_config(aliases, explicit_block) {
  *              semantic error thrown will carry a `source_location` span
  *              pointing at the offending statement.
  *
+ *  @throws {JssmError} If the document declares no transitions (for example a
+ *                      states-first document of only `state` blocks) — a
+ *                      machine requires at least one transition; also for
+ *                      repeated property definitions, group errors, and other
+ *                      semantic problems noted throughout.
+ *
  */
 function compile(tree) {
     const results = {
@@ -1032,6 +1038,14 @@ function compile(tree) {
     // for the same (source_state, action) by depth-specificity before any
     // further processing (the runtime would otherwise reject the duplicates).
     const assembled_transitions = resolve_transition_conflicts(results['transition']);
+    // A machine with no transitions cannot be constructed (and previously
+    // crashed right here with a raw TypeError reading `[0].from`).  This is a
+    // natural mid-authoring document shape — state blocks first, wiring later —
+    // and the editor's lint shows this message verbatim, so name the actual
+    // problem instead of leaking an internal error.
+    if (assembled_transitions.length === 0) {
+        throw new JssmError(undefined, 'This machine has no transitions, only declarations; a machine requires at least one transition (like `a -> b;`)');
+    }
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         end_states: results.end_states,
