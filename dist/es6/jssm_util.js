@@ -77,11 +77,26 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     if (!(typeof options[0] === 'object')) {
         throw new TypeError('options must be a non-empty array of objects');
     }
-    const frand = rng
-        ? (cap) => rng() * cap
-        : (cap) => Math.random() * cap, or_one = (item) => item === undefined ? 1 : item, prob_sum = options.reduce((acc, val) => acc + or_one(val[probability_property]), 0), rnd = frand(prob_sum);
+    // called once per probabilistic walk step: plain loops, no per-call closure
+    // allocations (previously frand, or_one, and a reduce callback each call).
+    // undefined weights count as 1, as before.
+    let prob_sum = 0;
+    for (const opt of options) { // eslint-disable-line fp/no-loops
+        const p = opt[probability_property];
+        prob_sum += (p === undefined) ? 1 : p;
+    }
+    const rnd = (rng ? rng() : Math.random()) * prob_sum;
     let cursor = 0, cursor_sum = 0;
-    while (cursor < options.length && (cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
+    // advance past each element whose running sum is <= rnd; the element that
+    // pushes the sum over rnd is the selection
+    while (cursor < options.length) { // eslint-disable-line fp/no-loops
+        const p = options[cursor][probability_property];
+        cursor_sum += (p === undefined) ? 1 : p;
+        ++cursor;
+        if (cursor_sum > rnd) {
+            break;
+        }
+    }
     return options[cursor - 1];
 };
 /* eslint-enable flowtype/no-weak-types */
