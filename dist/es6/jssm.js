@@ -5511,3 +5511,4 @@ export { version, build_time, transfer_state_properties, Machine, deserialize, c
 seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections
 //  FslThemes
  };
+export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
