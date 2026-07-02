@@ -15,8 +15,10 @@
  *   // Run the full e2e suite against the built site:
  *   node src/buildjs/hosted_test.cjs
  *
- *   // Smoke run against the e2e fixtures (no full build needed):
- *   SERVE_DIR=src/ts/e2e/fixtures node src/buildjs/hosted_test.cjs
+ *   // The e2e suite serves the repo root so component fixtures can reach
+ *   // /dist and /node_modules via import maps (this is what `npm run e2e`
+ *   // does; no build needed — dist/ is committed):
+ *   node src/buildjs/hosted_test.cjs --serve-dir=.
  *
  * @example
  *   // Successful run:
