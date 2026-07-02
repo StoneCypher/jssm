@@ -224,10 +224,11 @@ export interface GifOptions {
 
 /**
  *  Encode RGBA frames as a looping animated GIF89a.  A single global color
- *  table is quantized from the FIRST frame (≤256 colors, median-cut when
- *  over); later frames map through the same palette nearest-first-frame.
- *  Frames must share dimensions.  No transparency, full-frame disposal —
- *  simple and correct first.
+ *  table is quantized over the UNION of all frames' pixels (≤256 colors,
+ *  median-cut when over); each frame then maps nearest-neighbor into that
+ *  palette, so every frame is pixel-exact while the union stays within 256
+ *  distinct colors.  Frames must share dimensions.  No transparency,
+ *  full-frame disposal — simple and correct first.
  *
  *  @param frames - At least one frame; all with identical width/height and
  *  `rgba.length === 4 · width · height`.
@@ -267,7 +268,7 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   const gct_size = 1 << gct_bits;
   const min_code_size = Math.max(2, gct_bits);
 
-  /** Map any frame's pixels to nearest entries of the frame-0 palette. @internal */
+  /** Map a frame's pixels to nearest entries of the union-quantized global palette. @internal */
   const map_to_palette = (rgba: Uint8Array): Uint8Array => {
     const n = rgba.length / 4;
     const out = new Uint8Array(n);
