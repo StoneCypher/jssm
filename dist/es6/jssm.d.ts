@@ -1024,6 +1024,13 @@ declare class Machine<mDT> {
      *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
+     *    results.  The graph is immutable after construction, so a state's
+     *    probable exits never change; sharing one memo across a generator's
+     *    runs collapses runs×steps re-derivations (two array allocations and an
+     *    exit rescan per step) to one per distinct state.  The memo only reuses
+     *    the derived arrays — RNG draw order is untouched, so seeded walks
+     *    reproduce exactly.
      *  @returns The {@link JssmStochasticRun} for this walk.
      */
     private _stochastic_one_walk;
