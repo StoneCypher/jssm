@@ -560,13 +560,37 @@ function membership_distance(
 
 
 
+/**
+ *  Transient conflict-resolution metadata for one compiled edge, carried
+ *  BESIDE the edge in {@link edge_decl_meta} instead of stamped onto it.
+ *
+ *  @internal
+ */
+type EdgeDeclMeta = {
+  decl_id      : number,
+  source_group : string | undefined,
+  specificity  : number | undefined
+};
+
+// Carried in a side table rather than as `__decl_id`/`__source_group`/
+// `__specificity` properties on the edges: the old stamp-then-`delete`
+// pipeline forced a hidden-class transition per edge, and for group-sourced
+// edges the delete (not last-added property) demoted the very objects that
+// become the runtime `_edges` array into V8 dictionary mode for the machine's
+// whole life, taxing every dispatch-path `.kind`/`.to`/`.forced_only` load.
+// WeakMap keys are per-compile edge objects, so entries cannot leak across
+// compiles and are collected with the edges.
+const edge_decl_meta: WeakMap<object, EdgeDeclMeta> = new WeakMap();
+
+
+
 /*********
  *
  *  Arbitrates transitions that compete for the same `(source_state, action)`
  *  pair after group-as-source expansion, returning a new edge list in which
- *  each such pair keeps exactly one winner and every transient
- *  conflict-resolution tag (`__source_group`, `__specificity`) has been
- *  stripped.  Edges without an `action`, and `(from, action)` pairs claimed
+ *  each such pair keeps exactly one winner.  The transient conflict-resolution
+ *  metadata lives in {@link edge_decl_meta}, never on the edges themselves.
+ *  Edges without an `action`, and `(from, action)` pairs claimed
  *  by a single edge, pass through untouched (so a genuine user-authored
  *  duplicate like `a 'x' -> b; a 'x' -> c;` still reaches — and is rejected
  *  by — the Machine constructor's one-action-per-origin check).
@@ -596,10 +620,14 @@ function membership_distance(
  *  // surviving edge is `normal 'error' -> buffering`.
  *  ```
  *
- *  @param edges The assembled, post-expansion edge list (tags still present).
+ *  @param edges The assembled, post-expansion edge list.
+ *  @param has_group_sources Whether the machine declared any groups at all;
+ *         when `false` no edge can carry a source group, the arbitration is a
+ *         provable pass-through, and the bucketing work (one JSON key per
+ *         actioned edge) is skipped entirely.
  *
- *  @returns A new edge list with contested pairs resolved and tags removed;
- *           surviving edges keep their original relative order.
+ *  @returns The edge list with contested pairs resolved; surviving edges keep
+ *           their original relative order.
  *
  *  @see resolve_group_refs
  *  @see membership_distance
@@ -607,43 +635,41 @@ function membership_distance(
  */
 
 function resolve_transition_conflicts<StateType, mDT>(
-  edges: Array<JssmTransition<StateType, mDT>>
+  edges: Array<JssmTransition<StateType, mDT>>,
+  has_group_sources: boolean = true
 ): Array<JssmTransition<StateType, mDT>> {
 
-  type Tagged = JssmTransition<StateType, mDT> & {
-    __decl_id?      : number,
-    __source_group? : string,
-    __specificity?  : number
-  };
+  if (!has_group_sources) { return edges; }
 
   type DeclEntry = {
-    decl_id      : number,
+    decl_id      : number | undefined,
     indices      : Array<number>,
     source_group : string | undefined,
     specificity  : number
   };
 
-  const tagged: Array<Tagged> = edges as Array<Tagged>;
-
   // Group edge indices by (from, action), then by declaration within each, so
   // sibling edges of one fan-out (shared decl_id) never override each other.
-  const buckets: Map<string, Map<number, DeclEntry>> = new Map();
+  // Reverse-direction edges (`<-` halves) carry no metadata and share the
+  // `undefined` declaration bucket, exactly as the untagged edges did before.
+  const buckets: Map<string, Map<number | undefined, DeclEntry>> = new Map();
 
-  tagged.forEach((edge: Tagged, index: number) => {
+  edges.forEach((edge: JssmTransition<StateType, mDT>, index: number) => {
     if (edge.action == null) { return; }                 // actionless edges never contest on action
     const key: string = JSON.stringify([String(edge.from), String(edge.action)]);
 
-    let by_decl: Map<number, DeclEntry> | undefined = buckets.get(key);
+    let by_decl: Map<number | undefined, DeclEntry> | undefined = buckets.get(key);
     if (by_decl === undefined) { by_decl = new Map(); buckets.set(key, by_decl); }
 
-    const decl_id: number = edge.__decl_id as number;
+    const meta: EdgeDeclMeta | undefined = edge_decl_meta.get(edge as object);
+    const decl_id: number | undefined = meta === undefined ? undefined : meta.decl_id;
     const entry: DeclEntry | undefined = by_decl.get(decl_id);
     if (entry === undefined) {
       by_decl.set(decl_id, {
         decl_id,
         indices      : [index],
-        source_group : edge.__source_group,
-        specificity  : edge.__specificity ?? Infinity
+        source_group : meta === undefined ? undefined : meta.source_group,
+        specificity  : (meta === undefined ? undefined : meta.specificity) ?? Infinity
       });
     } else {
       entry.indices.push(index);
@@ -682,8 +708,8 @@ function resolve_transition_conflicts<StateType, mDT>(
         d.indices.forEach((i: number) => dropped.add(i));
         // eslint-disable-next-line no-console
         console.warn(
-          `jssm: group &${d.source_group} transition for state '${String(tagged[d.indices[0]].from)}' `
-          + `on action '${String(tagged[d.indices[0]].action)}' is overridden by nearer group `
+          `jssm: group &${d.source_group} transition for state '${String(edges[d.indices[0]].from)}' `
+          + `on action '${String(edges[d.indices[0]].action)}' is overridden by nearer group `
           + `&${winner.source_group}`
         );
       }
@@ -691,14 +717,13 @@ function resolve_transition_conflicts<StateType, mDT>(
 
   });
 
-  // Emit survivors in original order, stripping the transient tags.
+  // Emit survivors in original order.  No stripping: the metadata never
+  // touched the edge objects, so their hidden classes are intact for the
+  // runtime dispatch paths that will load from them for the machine's life.
   const out: Array<JssmTransition<StateType, mDT>> = [];
 
-  tagged.forEach((edge: Tagged, index: number) => {
+  edges.forEach((edge: JssmTransition<StateType, mDT>, index: number) => {
     if (dropped.has(index)) { return; }
-    delete edge.__decl_id;
-    delete edge.__source_group;
-    delete edge.__specificity;
     out.push(edge);
   });
 
@@ -932,21 +957,19 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
     // Every transition node carries a transient `__decl_id` (assigned per
     // source declaration by resolve_group_refs); a group-sourced node also
-    // carries `__source_group` / `__specificity`.  Stamp these onto the edges
-    // leaving the declared source so resolve_transition_conflicts can
-    // arbitrate competing (from, action) pairs across DISTINCT declarations.
-    // The right-direction edges are the source-driven ones, so tag only the
-    // edges whose `from` is the declaration's source state.
-    const decl_id     : number           = (rule as any).__decl_id;               // TODO FIXME no any
+    // carries `__source_group` / `__specificity`.  Record these in the
+    // edge_decl_meta side table — NEVER as properties on the edges, which
+    // would churn their hidden classes (see the note at edge_decl_meta) — so
+    // resolve_transition_conflicts can arbitrate competing (from, action)
+    // pairs across DISTINCT declarations.  The right-direction edges are the
+    // source-driven ones, so only edges whose `from` is the declaration's
+    // source state get an entry.
+    const decl_id     : number             = (rule as any).__decl_id;             // TODO FIXME no any
     const source_group: string | undefined = (rule as any).__source_group;        // TODO FIXME no any
     const specificity : number | undefined = (rule as any).__specificity;         // TODO FIXME no any
     edges.forEach((edge: JssmTransition<StateType, mDT>) => {
       if (edge.from === rule.from) {
-        (edge as any).__decl_id = decl_id;                                         // TODO FIXME no any
-        if (source_group !== undefined) {
-          (edge as any).__source_group = source_group;                            // TODO FIXME no any
-          (edge as any).__specificity  = specificity;                             // TODO FIXME no any
-        }
+        edge_decl_meta.set(edge as object, { decl_id, source_group, specificity });
       }
     });
 
@@ -1365,7 +1388,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   // for the same (source_state, action) by depth-specificity before any
   // further processing (the runtime would otherwise reject the duplicates).
   const assembled_transitions: JssmTransitions<StateType, mDT> =
-    resolve_transition_conflicts(results['transition']);
+    resolve_transition_conflicts(results['transition'], group_registry.size !== 0);
 
   // A machine with no transitions cannot be constructed (and previously
   // crashed right here with a raw TypeError reading `[0].from`).  This is a

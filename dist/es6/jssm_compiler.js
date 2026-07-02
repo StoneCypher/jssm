@@ -414,13 +414,22 @@ function membership_distance(registry, state, group) {
     }
     return Infinity;
 }
+// Carried in a side table rather than as `__decl_id`/`__source_group`/
+// `__specificity` properties on the edges: the old stamp-then-`delete`
+// pipeline forced a hidden-class transition per edge, and for group-sourced
+// edges the delete (not last-added property) demoted the very objects that
+// become the runtime `_edges` array into V8 dictionary mode for the machine's
+// whole life, taxing every dispatch-path `.kind`/`.to`/`.forced_only` load.
+// WeakMap keys are per-compile edge objects, so entries cannot leak across
+// compiles and are collected with the edges.
+const edge_decl_meta = new WeakMap();
 /*********
  *
  *  Arbitrates transitions that compete for the same `(source_state, action)`
  *  pair after group-as-source expansion, returning a new edge list in which
- *  each such pair keeps exactly one winner and every transient
- *  conflict-resolution tag (`__source_group`, `__specificity`) has been
- *  stripped.  Edges without an `action`, and `(from, action)` pairs claimed
+ *  each such pair keeps exactly one winner.  The transient conflict-resolution
+ *  metadata lives in {@link edge_decl_meta}, never on the edges themselves.
+ *  Edges without an `action`, and `(from, action)` pairs claimed
  *  by a single edge, pass through untouched (so a genuine user-authored
  *  duplicate like `a 'x' -> b; a 'x' -> c;` still reaches — and is rejected
  *  by — the Machine constructor's one-action-per-origin check).
@@ -450,21 +459,29 @@ function membership_distance(registry, state, group) {
  *  // surviving edge is `normal 'error' -> buffering`.
  *  ```
  *
- *  @param edges The assembled, post-expansion edge list (tags still present).
+ *  @param edges The assembled, post-expansion edge list.
+ *  @param has_group_sources Whether the machine declared any groups at all;
+ *         when `false` no edge can carry a source group, the arbitration is a
+ *         provable pass-through, and the bucketing work (one JSON key per
+ *         actioned edge) is skipped entirely.
  *
- *  @returns A new edge list with contested pairs resolved and tags removed;
- *           surviving edges keep their original relative order.
+ *  @returns The edge list with contested pairs resolved; surviving edges keep
+ *           their original relative order.
  *
  *  @see resolve_group_refs
  *  @see membership_distance
  *  @internal
  */
-function resolve_transition_conflicts(edges) {
-    const tagged = edges;
+function resolve_transition_conflicts(edges, has_group_sources = true) {
+    if (!has_group_sources) {
+        return edges;
+    }
     // Group edge indices by (from, action), then by declaration within each, so
     // sibling edges of one fan-out (shared decl_id) never override each other.
+    // Reverse-direction edges (`<-` halves) carry no metadata and share the
+    // `undefined` declaration bucket, exactly as the untagged edges did before.
     const buckets = new Map();
-    tagged.forEach((edge, index) => {
+    edges.forEach((edge, index) => {
         var _a;
         if (edge.action == null) {
             return;
@@ -475,14 +492,15 @@ function resolve_transition_conflicts(edges) {
             by_decl = new Map();
             buckets.set(key, by_decl);
         }
-        const decl_id = edge.__decl_id;
+        const meta = edge_decl_meta.get(edge);
+        const decl_id = meta === undefined ? undefined : meta.decl_id;
         const entry = by_decl.get(decl_id);
         if (entry === undefined) {
             by_decl.set(decl_id, {
                 decl_id,
                 indices: [index],
-                source_group: edge.__source_group,
-                specificity: (_a = edge.__specificity) !== null && _a !== void 0 ? _a : Infinity
+                source_group: meta === undefined ? undefined : meta.source_group,
+                specificity: (_a = (meta === undefined ? undefined : meta.specificity)) !== null && _a !== void 0 ? _a : Infinity
             });
         }
         else {
@@ -518,21 +536,20 @@ function resolve_transition_conflicts(edges) {
             if (d.decl_id !== winner.decl_id) {
                 d.indices.forEach((i) => dropped.add(i));
                 // eslint-disable-next-line no-console
-                console.warn(`jssm: group &${d.source_group} transition for state '${String(tagged[d.indices[0]].from)}' `
-                    + `on action '${String(tagged[d.indices[0]].action)}' is overridden by nearer group `
+                console.warn(`jssm: group &${d.source_group} transition for state '${String(edges[d.indices[0]].from)}' `
+                    + `on action '${String(edges[d.indices[0]].action)}' is overridden by nearer group `
                     + `&${winner.source_group}`);
             }
         });
     });
-    // Emit survivors in original order, stripping the transient tags.
+    // Emit survivors in original order.  No stripping: the metadata never
+    // touched the edge objects, so their hidden classes are intact for the
+    // runtime dispatch paths that will load from them for the machine's life.
     const out = [];
-    tagged.forEach((edge, index) => {
+    edges.forEach((edge, index) => {
         if (dropped.has(index)) {
             return;
         }
-        delete edge.__decl_id;
-        delete edge.__source_group;
-        delete edge.__specificity;
         out.push(edge);
     });
     return out;
@@ -705,21 +722,19 @@ function compile_rule_handler(rule) {
         const edges = compile_rule_handle_transition(rule);
         // Every transition node carries a transient `__decl_id` (assigned per
         // source declaration by resolve_group_refs); a group-sourced node also
-        // carries `__source_group` / `__specificity`.  Stamp these onto the edges
-        // leaving the declared source so resolve_transition_conflicts can
-        // arbitrate competing (from, action) pairs across DISTINCT declarations.
-        // The right-direction edges are the source-driven ones, so tag only the
-        // edges whose `from` is the declaration's source state.
+        // carries `__source_group` / `__specificity`.  Record these in the
+        // edge_decl_meta side table — NEVER as properties on the edges, which
+        // would churn their hidden classes (see the note at edge_decl_meta) — so
+        // resolve_transition_conflicts can arbitrate competing (from, action)
+        // pairs across DISTINCT declarations.  The right-direction edges are the
+        // source-driven ones, so only edges whose `from` is the declaration's
+        // source state get an entry.
         const decl_id = rule.__decl_id; // TODO FIXME no any
         const source_group = rule.__source_group; // TODO FIXME no any
         const specificity = rule.__specificity; // TODO FIXME no any
         edges.forEach((edge) => {
             if (edge.from === rule.from) {
-                edge.__decl_id = decl_id; // TODO FIXME no any
-                if (source_group !== undefined) {
-                    edge.__source_group = source_group; // TODO FIXME no any
-                    edge.__specificity = specificity; // TODO FIXME no any
-                }
+                edge_decl_meta.set(edge, { decl_id, source_group, specificity });
             }
         });
         return { agg_as: 'transition', val: edges };
@@ -1037,7 +1052,7 @@ function compile(tree) {
     // statements (#703).  Arbitration settles group-expanded edges competing
     // for the same (source_state, action) by depth-specificity before any
     // further processing (the runtime would otherwise reject the duplicates).
-    const assembled_transitions = resolve_transition_conflicts(results['transition']);
+    const assembled_transitions = resolve_transition_conflicts(results['transition'], group_registry.size !== 0);
     // A machine with no transitions cannot be constructed (and previously
     // crashed right here with a raw TypeError reading `[0].from`).  This is a
     // natural mid-authoring document shape — state blocks first, wiring later —
