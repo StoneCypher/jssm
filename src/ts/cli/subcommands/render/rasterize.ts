@@ -149,11 +149,18 @@ async function rasterizeViaCanvas(
 // proxy hid this; vitest's real ESM imports surface it as TypeError.
 let wasmInited = false;
 
-async function rasterizeViaResvgWasm(
-  svg: string,
-  target: RasterTarget,
-  opts: RasterOptions,
-): Promise<Uint8Array> {
+/**
+ * Load `@resvg/resvg-wasm` and initialize its wasm runtime, exactly once per
+ * process. Shared by every resvg-backed rasterization path so the module
+ * import and `initWasm` bootstrap live in one place.
+ *
+ * @returns the loaded `@resvg/resvg-wasm` module namespace
+ * @throws RasterizationUnsupportedError if the package cannot be loaded
+ *
+ * @example
+ *   const { Resvg } = await resvgModule();
+ */
+async function resvgModule(): Promise<any> {
   let mod: any;
   try {
     mod = await import('@resvg/resvg-wasm');
@@ -178,6 +185,15 @@ async function rasterizeViaResvgWasm(
     }
   }
 
+  return mod;
+}
+
+async function rasterizeViaResvgWasm(
+  svg: string,
+  target: RasterTarget,
+  opts: RasterOptions,
+): Promise<Uint8Array> {
+  const mod = await resvgModule();
   const Resvg = mod.Resvg;
   // resvg-wasm has no fonts of its own — without `font.fontBuffers` every
   // `<text>` rasterizes blank. The bundled Open Sans is supplied as the only
@@ -206,6 +222,112 @@ async function rasterizeViaResvgWasm(
     // finalizer, their cleanup races the shared wasm instance and
     // intermittently throws "recursive use of an object detected" from an
     // unrelated later render.
+    rendered?.free();
+    resvg.free();
+  }
+}
+
+/** Raw RGBA pixels plus their dimensions, from {@link rasterizeRgba}. */
+export interface RgbaRaster {
+  rgba: Uint8Array;
+  width: number;
+  height: number;
+}
+
+/**
+ * Rasterize an SVG string to raw RGBA8888 pixels, for further encoding (e.g.
+ * animated GIF frames) rather than an encoded image container.
+ *
+ * Same backend selection and sizing semantics as {@link rasterize}:
+ * feature-detects `OffscreenCanvas` at call time, falling back to
+ * `@resvg/resvg-wasm` when it is absent.
+ *
+ * @param svg - SVG source string
+ * @param opts.width - Fit output to this pixel width
+ * @param opts.height - Fit output to this pixel height (ignored if `width` set)
+ * @param opts.scale - Zoom percentage; 100 renders at 3x the SVG's natural
+ *   size (ignored if `width` or `height` is set; default 100)
+ * @returns raw pixels; `rgba.length === 4 * width * height`, row-major,
+ *   top-to-bottom, four bytes per pixel in R, G, B, A order
+ * @throws RasterizationUnsupportedError if neither backend is available
+ * @throws RenderError on backend failures
+ *
+ * @example
+ *   const { rgba, width, height } = await rasterizeRgba(svgString, { scale: 100 });
+ */
+export async function rasterizeRgba(svg: string, opts: RasterOptions = {}): Promise<RgbaRaster> {
+  if (typeof OffscreenCanvas !== 'undefined') {
+    return rgbaViaCanvas(svg, opts);
+  }
+  return rgbaViaResvgWasm(svg, opts);
+}
+
+async function rgbaViaCanvas(svg: string, opts: RasterOptions): Promise<RgbaRaster> {
+  // Identical image-load and sizing steps as rasterizeViaCanvas — only the
+  // final canvas readout (getImageData vs. convertToBlob) differs.
+  const encoded = (typeof btoa !== 'undefined')
+    ? btoa(unescape(encodeURIComponent(svg)))
+    : Buffer.from(svg, 'utf8').toString('base64');
+  const url = `data:image/svg+xml;base64,${encoded}`;
+
+  const ImageCtor: typeof Image = (globalThis as any).Image;
+  if (typeof ImageCtor === 'undefined') {
+    throw new RasterizationUnsupportedError('OffscreenCanvas present but Image constructor is not');
+  }
+
+  const img = new ImageCtor();
+  img.src = url;
+  if (typeof (img as any).decode === 'function') {
+    await (img as any).decode();
+  } else {
+    await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('image load failed')); });
+  }
+
+  const natW = (img as any).width  ?? 800;
+  const natH = (img as any).height ?? 600;
+  let width: number;
+  let height: number;
+  if (opts.width !== undefined) {
+    width  = opts.width;
+    height = Math.round(width * natH / natW);
+  } else if (opts.height !== undefined) {
+    height = opts.height;
+    width  = Math.round(height * natW / natH);
+  } else {
+    const zoom = zoomFor(opts);
+    width  = Math.round(natW * zoom);
+    height = Math.round(natH * zoom);
+  }
+
+  const canvas = new OffscreenCanvas(width, height);
+  const ctx = canvas.getContext('2d') as any;
+  if (!ctx) throw new RenderError('failed to acquire 2d canvas context');
+  ctx.drawImage(img as any, 0, 0, width, height);
+
+  const data = ctx.getImageData(0, 0, width, height);
+  return { rgba: new Uint8Array(data.data.buffer.slice(0)), width, height };
+}
+
+async function rgbaViaResvgWasm(svg: string, opts: RasterOptions): Promise<RgbaRaster> {
+  const mod = await resvgModule();
+  const Resvg = mod.Resvg;
+  const resvg = new Resvg(svg, {
+    font: {
+      fontBuffers: [bundledFontBytes()],
+      defaultFontFamily: 'Open Sans',
+      loadSystemFonts: false,
+    },
+    fitTo: resvgFitTo(opts),
+  });
+  let rendered: any;
+  try {
+    rendered = resvg.render();
+    return {
+      rgba: new Uint8Array(rendered.pixels),
+      width: rendered.width,
+      height: rendered.height,
+    };
+  } finally {
     rendered?.free();
     resvg.free();
   }
