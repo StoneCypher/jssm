@@ -4323,11 +4323,20 @@ class Machine<mDT> {
     // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
     // covers from-states that have no outgoing edges (terminal states) and
     // states that don't exist at all, both of which return [] without iterating.
+    //
+    // The match itself compares interned numeric state ids against the packed
+    // _edge_to_ids array rather than dereferencing each edge object for a
+    // string compare: non-matching edges never touch an edge object, which is
+    // most of the cost on dense shapes (heavier edge objects degrade a deref
+    // loop — the 5.142/5.143 regression mechanism).  Every state named by any
+    // edge is interned at construction, so an unknown `to` provably has no
+    // edges and returns [] immediately.
+    const to_id = this._state_interner.id_of(to);
+    if (to_id === undefined) { return []; }
     const outbound: Array<number> = this._outbound_edge_ids.get(from) ?? [];
     const result: JssmTransition<StateType, mDT>[] = [];
     for (const edgeId of outbound) {
-      const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
-      if (edge.to === to) { result.push(edge); }
+      if (this._edge_to_ids[edgeId] === to_id) { result.push(this._edges[edgeId]); }
     }
     return result;
   }
