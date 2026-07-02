@@ -21,6 +21,16 @@ describe('highlight_fsl_runs', () => {
     expect(runs.some(r => r.classes.includes('fsl-tok-'))).toBe(true);
   });
 
+  it('keeps the full state name on every fragment of a digit-leading name split by the stream tokenizer', () => {
+    const runs = highlight_fsl_runs('123abc -> b;');
+    // The CM6 stream tokenizer splits '123abc' into a `number` token ('123')
+    // and a `variableName` token ('abc'); both fragments must carry the
+    // full, AST-resolved state name rather than their own fragment text.
+    const fragments = runs.filter(r => r.text === '123' || r.text === 'abc');
+    expect(fragments).toHaveLength(2);
+    for (const r of fragments) { expect(r.state).toBe('123abc'); }
+  });
+
 });
 
 describe('highlight_fsl_html', () => {
@@ -52,6 +62,14 @@ describe('highlight_fsl_html', () => {
     });
     expect(html).not.toContain('style=');
     expect(html).toContain('data-state="Red"');
+  });
+
+  it('matches a quoted state name with an internal space against state_colors by its unquoted, unescaped value', () => {
+    const html = highlight_fsl_html('a -> "b c";', {
+      state_colors: new Map([['b c', '#112233']]),
+    });
+    expect(html).toContain('data-state="b c"');
+    expect(html).toContain('style="color:#112233"');
   });
 
 });

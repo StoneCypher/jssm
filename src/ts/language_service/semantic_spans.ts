@@ -37,13 +37,13 @@ function collect(node: unknown, text: string, out: SemanticSpan[]): void {
     out.push({ from: n.value_loc.start.offset, to: n.value_loc.end.offset, kind: 'color', value: n.value });
   }
   if (n.from_loc && typeof n.from === 'string') {
-    out.push({ from: n.from_loc.start.offset, to: n.from_loc.end.offset, kind: 'state' });
+    out.push({ from: n.from_loc.start.offset, to: n.from_loc.end.offset, kind: 'state', value: n.from });
   }
   if (n.to_loc && typeof n.to === 'string') {
-    out.push({ from: n.to_loc.start.offset, to: n.to_loc.end.offset, kind: 'state' });
+    out.push({ from: n.to_loc.start.offset, to: n.to_loc.end.offset, kind: 'state', value: n.to });
   }
   if (n.name_loc && typeof n.name === 'string') {
-    out.push({ from: n.name_loc.start.offset, to: n.name_loc.end.offset, kind: 'state' });
+    out.push({ from: n.name_loc.start.offset, to: n.name_loc.end.offset, kind: 'state', value: n.name });
   }
   if (ENUM_VALUE_KEYS.has(n.key) && typeof n.value === 'string' && n.loc && !n.value_loc) {
     out.push({ ...valueSpanWithin(text, n.loc, n.value), kind: 'enum' });

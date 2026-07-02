@@ -98,11 +98,13 @@ export function highlight_fsl_runs(source: string): HighlightRun[] {
       span !== undefined ? `fsl-sem-${span.kind}` : '',
     ].filter(Boolean).join(' ');
     const run: HighlightRun = { text, classes };
-    // `fslSemanticSpans` never populates `value` on `state`-kind spans (only
-    // `color` spans carry a resolved value) — the state *name* is the run's
-    // own text, which is guaranteed to equal `source.slice(span.from, span.to)`
-    // for an unsplit span since the cut set includes both span boundaries.
-    if (span?.kind === 'state') { run.state = text; }
+    // `span.value` is the AST-resolved, already-unescaped state name (see
+    // semantic_spans.ts's `kind: 'state'` branch) — not the run's own text,
+    // which can be a fragment of a state name split across multiple runs by
+    // the stream tokenizer (e.g. a digit-leading name) or can include quote
+    // marks the parser already stripped. It is always defined for a
+    // `state`-kind span produced by this parser.
+    if (span?.kind === 'state') { run.state = span.value!; }
     out.push(run);
   }
 
