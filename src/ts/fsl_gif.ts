@@ -262,8 +262,8 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   const combined = new Uint8Array(frames.reduce((sum, f) => sum + f.rgba.length, 0));
   let pos = 0;
   for (const f of frames) { combined.set(f.rgba, pos); pos += f.rgba.length; }
-  const first = quantize(combined, 256);
-  const gct_bits = Math.max(1, Math.ceil(Math.log2(Math.max(2, first.palette_count))));
+  const quantized = quantize(combined, 256);
+  const gct_bits = Math.max(1, Math.ceil(Math.log2(Math.max(2, quantized.palette_count))));
   const gct_size = 1 << gct_bits;
   const min_code_size = Math.max(2, gct_bits);
 
@@ -281,10 +281,10 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
       const hit = cache.get(key);
       if (hit !== undefined) { out[i] = hit; continue; }
       let best = 0, best_d = Infinity;
-      for (let p = 0; p < first.palette_count; ++p) {
-        const dr = r - first.palette[p * 3]!;
-        const dg = g - first.palette[p * 3 + 1]!;
-        const db = b - first.palette[p * 3 + 2]!;
+      for (let p = 0; p < quantized.palette_count; ++p) {
+        const dr = r - quantized.palette[p * 3]!;
+        const dg = g - quantized.palette[p * 3 + 1]!;
+        const db = b - quantized.palette[p * 3 + 2]!;
         const d  = dr * dr + dg * dg + db * db;
         if (d < best_d) { best_d = d; best = p; }
       }
@@ -305,8 +305,8 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
 
   // global color table, padded to 2^gct_bits entries
   for (let p = 0; p < gct_size; ++p) {
-    if (p < first.palette_count) {
-      bytes.push(first.palette[p * 3]!, first.palette[p * 3 + 1]!, first.palette[p * 3 + 2]!);
+    if (p < quantized.palette_count) {
+      bytes.push(quantized.palette[p * 3]!, quantized.palette[p * 3 + 1]!, quantized.palette[p * 3 + 2]!);
     } else {
       bytes.push(0, 0, 0);
     }
@@ -324,7 +324,7 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
     // image descriptor: full frame, no local color table
     bytes.push(0x2C); push_u16(0); push_u16(0); push_u16(width); push_u16(height); bytes.push(0x00);
 
-    const indices = fi === 0 ? first.indices : map_to_palette(frames[fi]!.rgba);
+    const indices = map_to_palette(frames[fi]!.rgba);
     const packed  = lzw_encode(indices, min_code_size);
 
     bytes.push(min_code_size);

@@ -112,4 +112,16 @@ describe('encode_gif', () => {
     expect(decoded.frames[0]!.rgb.length).toBeGreaterThan(0);
   });
 
+  it('encodes exactly width*height pixels in every frame image block', () => {
+    const decoded = decode_gif(encode_gif([
+      { rgba: solid(3, 2, 255, 0, 0), width: 3, height: 2 },
+      { rgba: solid(3, 2, 0, 0, 255), width: 3, height: 2 },
+      { rgba: solid(3, 2, 0, 255, 0), width: 3, height: 2 },
+    ]));
+    expect(decoded.frames.length).toBe(3);
+    for (const frame of decoded.frames) {
+      expect(frame.rgb.length).toBe(3 * 2 * 3);   // w*h pixels, 3 bytes each
+    }
+  });
+
 });
