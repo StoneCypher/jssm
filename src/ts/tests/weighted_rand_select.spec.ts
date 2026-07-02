@@ -47,6 +47,16 @@ describe('weighted_rand_select/2', () => {
 
   });
 
+  test('honors a custom probability property name', () => {
+    // a zero-weight option under the custom key can never be selected, so
+    // every draw must land on the weighted one; this also exercises the
+    // dynamic-keyed (non-'probability') load path
+    const weighted = [ { label: 'never', weight: 0 }, { label: 'always', weight: 1 } ];
+    for (let i = 0; i < 25; ++i) {
+      expect( jssm.weighted_rand_select(weighted, 'weight').label ).toBe('always');
+    }
+  });
+
 });
 
 // stochable

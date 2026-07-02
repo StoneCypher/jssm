@@ -332,10 +332,20 @@ function find_connected_components(states, edges) {
 export const STOCHASTIC_DEFAULT_RUNS = 1000;
 /** Default per-run step cap (montecarlo) / walk length (steady_state). */
 export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
+/**
+ *  Default time / timeout sources, hoisted to module scope so machines that
+ *  don't override them (nearly all) share three singletons instead of
+ *  allocating three fresh closures per construction.
+ *
+ *  @internal
+ */
+const DEFAULT_TIME_SOURCE = () => new Date().getTime();
+const DEFAULT_TIMEOUT_SOURCE = (f, a) => setTimeout(f, a);
+const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
     constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
-        this._time_source = time_source !== null && time_source !== void 0 ? time_source : (() => new Date().getTime());
+        this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
         this._create_started = this._time_source();
         this._instance_name = instance_name;
         this._states = new Map();
@@ -455,12 +465,14 @@ class Machine {
         this._group_hooks = group_hooks !== null && group_hooks !== void 0 ? group_hooks : new Map();
         this._state_hooks = state_hooks !== null && state_hooks !== void 0 ? state_hooks : new Map();
         this._group_metadata = new Map();
-        (group_metadata !== null && group_metadata !== void 0 ? group_metadata : new Map()).forEach((raw, group_name) => 
-        // `raw.declarations` is the parser's raw style-item list — structurally
-        // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
-        // JssmStateConfig — so it condenses through the same path as the
-        // `default_*_state_config` blocks (intra-block redefine still throws).
-        this._group_metadata.set(group_name, state_style_condense(raw.declarations, this)));
+        if (group_metadata) { // group-free machines skip a throwaway Map allocation
+            group_metadata.forEach((raw, group_name) => 
+            // `raw.declarations` is the parser's raw style-item list — structurally
+            // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+            // JssmStateConfig — so it condenses through the same path as the
+            // `default_*_state_config` blocks (intra-block redefine still throws).
+            this._group_metadata.set(group_name, state_style_condense(raw.declarations, this)));
+        }
         this._group_order = [...this._group_registry.keys()];
         // Deep/transitive inverse index: for each declared group, flatten its
         // transitive member states (reusing the compiler's `transitive_members`)
@@ -486,8 +498,8 @@ class Machine {
         this._state_labels = new Map();
         this._rng_seed = rng_seed !== null && rng_seed !== void 0 ? rng_seed : new Date().getTime();
         this._rng = gen_splitmix32(this._rng_seed);
-        this._timeout_source = timeout_source !== null && timeout_source !== void 0 ? timeout_source : ((f, a) => setTimeout(f, a));
-        this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : ((h) => clearTimeout(h));
+        this._timeout_source = timeout_source !== null && timeout_source !== void 0 ? timeout_source : DEFAULT_TIMEOUT_SOURCE;
+        this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : DEFAULT_CLEAR_TIMEOUT_SOURCE;
         this._timeout_handle = undefined;
         this._timeout_target = undefined;
         this._timeout_target_time = undefined;
@@ -1866,15 +1878,26 @@ class Machine {
      *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
+     *    results.  The graph is immutable after construction, so a state's
+     *    probable exits never change; sharing one memo across a generator's
+     *    runs collapses runs×steps re-derivations (two array allocations and an
+     *    exit rescan per step) to one per distinct state.  The memo only reuses
+     *    the derived arrays — RNG draw order is untouched, so seeded walks
+     *    reproduce exactly.
      *  @returns The {@link JssmStochasticRun} for this walk.
      */
-    _stochastic_one_walk(start, max_steps) {
+    _stochastic_one_walk(start, max_steps, exit_memo) {
         const states = [start];
         const edges = [];
         let cur = start;
         let terminated = false;
         for (let step = 0; step < max_steps; step++) {
-            const exits = this.probable_exits_for(cur);
+            let exits = exit_memo.get(cur);
+            if (exits === undefined) {
+                exits = this.probable_exits_for(cur);
+                exit_memo.set(cur, exits);
+            }
             if (exits.length === 0) {
                 terminated = true;
                 break;
@@ -1916,8 +1939,10 @@ class Machine {
             ? 1
             : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = this.editor_config()) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
         const start = this.state();
+        // one probable-exits memo for the whole run set; see _stochastic_one_walk
+        const exit_memo = new Map();
         for (let i = 0; i < runs; i++) {
-            yield this._stochastic_one_walk(start, max_steps);
+            yield this._stochastic_one_walk(start, max_steps, exit_memo);
         }
     }
     /** Run many weighted-random walks and return aggregate statistics.
