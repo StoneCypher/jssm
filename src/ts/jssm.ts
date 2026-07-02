@@ -471,6 +471,21 @@ export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 
 
 
+/**
+ *  Default time / timeout sources, hoisted to module scope so machines that
+ *  don't override them (nearly all) share three singletons instead of
+ *  allocating three fresh closures per construction.
+ *
+ *  @internal
+ */
+const DEFAULT_TIME_SOURCE          = (): number => new Date().getTime();
+const DEFAULT_TIMEOUT_SOURCE       = (f: Function, a: number) => setTimeout(f, a);
+const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number) => clearTimeout(h);
+
+
+
+
+
 class Machine<mDT> {
 
 
@@ -745,7 +760,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = time_source ?? (() => new Date().getTime());
+    this._time_source                   = time_source ?? DEFAULT_TIME_SOURCE;
 
     this._create_started                = this._time_source();
 
@@ -887,17 +902,19 @@ class Machine<mDT> {
     this._state_hooks    = state_hooks    ?? new Map();
 
     this._group_metadata = new Map();
-    (group_metadata ?? new Map()).forEach(
-      (raw: JssmStateConfig, group_name: string) =>
-        // `raw.declarations` is the parser's raw style-item list — structurally
-        // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
-        // JssmStateConfig — so it condenses through the same path as the
-        // `default_*_state_config` blocks (intra-block redefine still throws).
-        this._group_metadata.set(
-          group_name,
-          state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
-        )
-    );
+    if (group_metadata) {                      // group-free machines skip a throwaway Map allocation
+      group_metadata.forEach(
+        (raw: JssmStateConfig, group_name: string) =>
+          // `raw.declarations` is the parser's raw style-item list — structurally
+          // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+          // JssmStateConfig — so it condenses through the same path as the
+          // `default_*_state_config` blocks (intra-block redefine still throws).
+          this._group_metadata.set(
+            group_name,
+            state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
+          )
+      );
+    }
 
     this._group_order = [ ...this._group_registry.keys() ];
 
@@ -930,8 +947,8 @@ class Machine<mDT> {
     this._rng_seed                      = rng_seed ?? new Date().getTime();
     this._rng                           = gen_splitmix32(this._rng_seed);
 
-    this._timeout_source                = timeout_source ?? ( (f: Function, a: number) => setTimeout(f, a) );
-    this._clear_timeout_source          = clear_timeout_source ?? ( (h: number) => clearTimeout(h) );
+    this._timeout_source                = timeout_source ?? DEFAULT_TIMEOUT_SOURCE;
+    this._clear_timeout_source          = clear_timeout_source ?? DEFAULT_CLEAR_TIMEOUT_SOURCE;
     this._timeout_handle                = undefined;
     this._timeout_target                = undefined;
     this._timeout_target_time           = undefined;
