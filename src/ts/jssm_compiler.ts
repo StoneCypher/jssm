@@ -128,13 +128,21 @@ function makeTransition<StateType, mDT>(
                             ? arrow_right_kind(this_se.kind)
                             : arrow_left_kind(this_se.kind),
 
+        // action and probability are pre-declared (as after_time always was)
+        // so every compiled edge shares ONE hidden class regardless of which
+        // optional fields its declaration carries.  The conditional assigns
+        // below then overwrite a value instead of adding a property, keeping
+        // the runtime _edges array monomorphic for the dispatch-path loads
+        // (.kind / .to / .forced_only) that run on every transition.
         edge: JssmTransition<StateType, mDT> = {
           from,
           to,
           kind,
           after_time  : isRight? this_se.r_after : this_se.l_after,
           forced_only : kind === 'forced',
-          main_path   : kind === 'main'
+          main_path   : kind === 'main',
+          action      : undefined,
+          probability : undefined
         };
 
   //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
