@@ -22,72 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jul 2, 2026 2:18:33 AM
-
-Commit [55f89c1ac94b61fbd920ff2338d678c78ec0b4ef](https://github.com/StoneCypher/jssm/commit/55f89c1ac94b61fbd920ff2338d678c78ec0b4ef)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): pin @codemirror/view to 6.43.2 to dodge the tile-renderer corruption, with an e2e regression (#891)
-  * @codemirror/view 6.43.3 and 6.43.4 (current npm latest) corrupt the tile
-tree when a real mouse-drag selection across a block is followed by a
-click on a blank separator line and a paste: TilePointer.advance
-destructures parents.pop() as undefined, and every subsequent dispatch
-re-throws, killing the editor until reload. 6.43.2 is clean (10/10 vs
-20/20 measured with the new regression). No fixed upstream release
-exists, so this pins exact 6.43.2 rather than upgrading.
-  * The new e2e regression drives the real built <fsl-editor> through the
-reproducing gesture in trusted-input Chromium; the e2e harness now
-serves the repo root so fixtures resolve CodeMirror from /node_modules
-via import map, meaning the test always exercises the lockfile-resolved
-version.
-  * Claude-Session: https://claude.ai/code/session_01GTQFknBrayVQ9xk5GZzXC9
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 2:15:55 AM
-
-Commit [5b5bf86c6f4f3ff44304b6e196bc5abec4ac0e06](https://github.com/StoneCypher/jssm/commit/5b5bf86c6f4f3ff44304b6e196bc5abec4ac0e06)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build: add the missing min_cdn terser step; cdn bundles shipped unminified
-  * dist/cdn/viz.js and dist/cdn/instance.js were the only bundle family with no
-minify step: 9.07 MB combined, 59% of the unpacked npm package. In-place
-terser --module (they are ESM), matching min_cli's no-intermediate style;
-lit @license comments are retained by terser's default comment filter.
-Wired into build stage 5 behind the two cdn bundle builders.
-  * 4,525,060 -> 485,011 bytes (viz) and 4,553,286 -> 495,618 (instance) measured
-on the committed bundles; bundle_shape.spec.ts (53) passes against the
-minified output.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 2:11:15 AM
-
-Commit [64d4a58d42c9e216a8710ecbfc19a36ff5c654f2](https://github.com/StoneCypher/jssm/commit/64d4a58d42c9e216a8710ecbfc19a36ff5c654f2)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): 5.157.2 — full build after CI wall-clock fixes
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jul 2, 2026 1:58:56 AM
 
 Commit [3b24448fbd8a2b688c21b3f0f66dde64fc16e4d7](https://github.com/StoneCypher/jssm/commit/3b24448fbd8a2b688c21b3f0f66dde64fc16e4d7)
@@ -201,3 +135,54 @@ Commit [6a422b9fb9e0cbdaf8f40fb3da4445fb1032e9a5](https://github.com/StoneCypher
 Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
 
   * docs: publish site for 9da0fd407c31af37536cafa56a8883df42c4883d
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__157__0" />
+
+## [5.157.0] - Jul 2, 2026 1:21:08 AM
+
+Commit [9da0fd407c31af37536cafa56a8883df42c4883d](https://github.com/StoneCypher/jssm/commit/9da0fd407c31af37536cafa56a8883df42c4883d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [8e74095e, 08b600f5]
+
+  * Merge pull request #811 from StoneCypher/feat_26-06-23_fsl-markdown-fence
+  * feat: FSL markdown fence convention parser (jssm core)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 1:07:40 AM
+
+Commit [08b600f58777514c6220965cb8ef7631538c7058](https://github.com/StoneCypher/jssm/commit/08b600f58777514c6220965cb8ef7631538c7058)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): rebuild artifacts + bump to 5.157.0 after merging main (5.156.1)
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 1:03:14 AM
+
+Commit [d925a287015e7eec8567a923ba4b68e5ef22f4fe](https://github.com/StoneCypher/jssm/commit/d925a287015e7eec8567a923ba4b68e5ef22f4fe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: cover the dataless complex-result path uncovered by the HOOK_PASSED short-circuit

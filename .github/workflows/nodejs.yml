@@ -80,6 +80,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
     - name: npm install and ci_test (vet + make_ci + vitest)
       run: |
         npm install && npm run ci_test
@@ -110,6 +111,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     # Cache the browser between runs, keyed on the lockfile (which changes when
     # the playwright version does). Cache hit → `playwright install` is a fast
@@ -138,12 +140,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Use Node.js 24.x
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over atoms
       run: |
@@ -165,6 +168,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over strings
       run: |
@@ -186,6 +190,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over atom labels
       run: |
@@ -207,6 +212,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over string labels
       run: |
@@ -228,6 +234,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over action statements
       run: |
@@ -248,6 +255,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over edge labels
       run: |
@@ -268,6 +276,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over machine property names
       run: |
@@ -288,6 +297,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over error messages
       run: |
@@ -308,6 +318,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over group / named-list names
       run: |
@@ -328,6 +339,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over state-declaration names
       run: |
@@ -348,6 +360,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over hook subjects and actions
       run: |
@@ -368,6 +381,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over machine metadata fields
       run: |
@@ -388,6 +402,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over state properties
       run: |
@@ -408,6 +423,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over image and url style items
       run: |
@@ -428,6 +444,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over arrange declarations
       run: |
@@ -448,6 +465,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over config state lists
       run: |
@@ -468,6 +486,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over config default-state blocks
       run: |
@@ -488,6 +507,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over viz / dot rendering
       run: |
@@ -525,6 +545,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
+        cache: npm
     - name: npm install, build, and test (trimmed; full bundles+minify covered by pr-check and full-build)
       run: |
         npm install && npm run ci_test
@@ -559,6 +580,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
     - name: npm install and full build (site, docs, cookbook, changelog, cloc, readme)
       run: |
         npm install && npm run build
@@ -586,6 +608,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Build the site
       run: |
@@ -626,6 +649,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Run the benchmarks
       run: |
@@ -647,10 +671,11 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Verify the version was bumped
       run: |
-        npm install
+        npm install semver --no-save --no-audit --no-fund
         git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.cjs
@@ -692,6 +717,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
         registry-url: https://registry.npmjs.org/
 
     - name: Push tags
