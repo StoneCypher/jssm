@@ -5060,6 +5060,12 @@ class Machine<mDT> {
    */
   auto_set_state_timeout(): void {
 
+    // called on every successful transition-commit.  Machines with no `after`
+    // clauses at all (the overwhelmingly common case) previously still paid a
+    // string hash + map probe here per transition; one integer size read
+    // short-circuits that.
+    if (this._after_mapping.size === 0) { return; }
+
     const after_res = this._after_mapping.get(this._state);
     if (after_res !== undefined) {
       const [ next_state, after_time ] = after_res;
