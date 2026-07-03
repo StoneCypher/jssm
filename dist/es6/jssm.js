@@ -2512,6 +2512,32 @@ class Machine {
      *
      *  @internal
      */
+    /**
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
+     *
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *
+     *  @see Machine._fire
+     *  @internal
+     */
+    _has_subscribers(name) {
+        const set = this._event_handlers.get(name);
+        return (set !== undefined) && (set.size !== 0);
+    }
     _fire(name, detail) {
         const set = this._event_handlers.get(name);
         if (set === undefined || set.size === 0) {
@@ -3899,28 +3925,39 @@ class Machine {
         // cheaply when that specific event has no subscribers.)  #670
         if (this._event_listener_count !== 0) {
             const newData_after = this._data;
-            this._fire('exit', {
-                state: fromState,
-                to: newState,
-                action: fromAction,
-                data: newData_after
-            });
-            this._fire('transition', {
-                from: fromState,
-                to: newState,
-                action: fromAction,
-                data: newData_after,
-                next_data: newData,
-                trans_type,
-                forced: wasForced
-            });
-            this._fire('entry', {
-                state: newState,
-                from: fromState,
-                action: fromAction,
-                data: newData_after
-            });
-            if (oldData !== newData_after) {
+            // per-name gates: each detail literal below is only built when that
+            // specific event has a live subscriber — a single-purpose panel
+            // listening only to 'transition' previously paid for the exit/entry/
+            // data-change/terminal/complete allocations _fire then discarded.
+            // Gates read at fire time, like the outer count, preserving #671.
+            if (this._has_subscribers('exit')) {
+                this._fire('exit', {
+                    state: fromState,
+                    to: newState,
+                    action: fromAction,
+                    data: newData_after
+                });
+            }
+            if (this._has_subscribers('transition')) {
+                this._fire('transition', {
+                    from: fromState,
+                    to: newState,
+                    action: fromAction,
+                    data: newData_after,
+                    next_data: newData,
+                    trans_type,
+                    forced: wasForced
+                });
+            }
+            if (this._has_subscribers('entry')) {
+                this._fire('entry', {
+                    state: newState,
+                    from: fromState,
+                    action: fromAction,
+                    data: newData_after
+                });
+            }
+            if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
                 this._fire('data-change', {
                     from: fromState,
                     to: newState,
@@ -3935,10 +3972,10 @@ class Machine {
             // each redo has_state plus its own map walk.  Same predicates:
             // terminal = no exits, complete = the constructor-set flag.  #735
             const new_state_rec = this._states.get(newState);
-            if (new_state_rec.to.length === 0) {
+            if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
                 this._fire('terminal', { state: newState, data: newData_after });
             }
-            if (new_state_rec.complete) {
+            if (new_state_rec.complete && this._has_subscribers('complete')) {
                 this._fire('complete', { state: newState, data: newData_after });
             }
         }
