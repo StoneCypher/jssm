@@ -1,4 +1,5 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
+import dts         from 'rollup-plugin-dts';
 
 /**
  * ESM build for the `jssm/fence` subpath (static fence rendering + GIF).
@@ -23,4 +24,17 @@ export default [{
   },
   external,
   plugins : [ nodeResolve({ extensions: ['.js', '.json'] }) ],
+}, {
+
+  // jssm/fence type declarations — flattened to one root file, same pattern
+  // as jssm.es6.d.ts/jssm_viz.es6.d.ts/jssm.cli.d.ts: `fence.d.ts` re-exports
+  // from sibling `dist/es6/*.d.ts` files that are NOT themselves packed (only
+  // `dist/es6/cm6/fsl_language.d.ts` is, and that one is self-contained —
+  // it imports only externalized `@codemirror`/`@lezer` peer packages).  The
+  // fence closure reaches `fsl_walk.d.ts`, which imports the `Machine` type
+  // from `./jssm.js`, so it needs the same whole-program dts bundle the core
+  // build already produces; rollup-plugin-dts inlines that closure here too.
+  input  : 'dist/es6/fence.d.ts',
+  output : { file: 'jssm.fence.d.ts', format: 'es' },
+  plugins : [ dts() ],
 }];
