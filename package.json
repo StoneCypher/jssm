@@ -95,6 +95,11 @@
       "import": "./dist/cm6/fsl_language.js",
       "default": "./dist/cm6/fsl_language.js"
     },
+    "./fence": {
+      "types": "./dist/es6/fence.d.ts",
+      "import": "./dist/fence/fence.js",
+      "default": "./dist/fence/fence.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -199,6 +204,7 @@
     "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
     "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
+    "make_fence": "rollup -c rollup.config.fence.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
