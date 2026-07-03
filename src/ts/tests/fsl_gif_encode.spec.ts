@@ -49,7 +49,8 @@ describe('encode_gif', () => {
       });
       const decoded = decode_gif(encode_gif(frames));
       expect(decoded.frames.length, `trial ${trial}`).toBe(frame_count);
-      // all colors fit one ≤256 union palette, so every frame decodes exactly
+      // seeded colors stay within one ≤256 union palette for this seed, so
+      // frame 0 decodes exactly (asserted below)
       const f0 = frames[0]!.rgba;
       decoded.frames[0]!.rgb.forEach((v, i) => {
         const rgba_i = Math.floor(i / 3) * 4 + (i % 3);

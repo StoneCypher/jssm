@@ -58,10 +58,15 @@ export function patch_state_fill(svg: string, state: string, fill: string): stri
     const text  = body.match(TEXT_RE);
     if (text === null) { return whole; }
     if (xml_unescape(text[1]!) !== state) { return whole; }
-    const patched_body = body.replace(SHAPE_FILL_RE, `$1${fill}$3`);
+    // Function-form replacements: `fill` is caller-supplied and may itself
+    // contain `$`-replacement patterns (e.g. '$&', '$1'). String-form
+    // .replace() reinterprets those in the REPLACEMENT argument as special
+    // tokens rather than literal text; a function's return value is always
+    // inserted verbatim, so both replaces below use the function form.
+    const patched_body = body.replace(SHAPE_FILL_RE, (_m, pre: string, _old: string, post: string) => `${pre}${fill}${post}`);
     if (patched_body === body) { return whole; }
     done = true;
-    return whole.replace(body, patched_body);
+    return whole.replace(body, () => patched_body);
   });
   return out;
 }

@@ -46,6 +46,39 @@ function error_box(source: string, message: string): string {
 /** Note comment, invisible but inspectable. @internal */
 const note_comment = (note: string): string => `<!-- fsl-fence: ${escape_html(note)} -->`;
 
+/**
+ *  Remap a display-text-keyed fill map (as produced by
+ *  {@link extract_state_fills} from a rendered SVG) to be keyed by state
+ *  NAME instead. Graphviz nodes are labeled with each state's display text
+ *  (`label ?? name` — the same derivation `jssm_viz.ts`'s `state_node_line`
+ *  uses via `machine.display_text(s)`), but `highlight_fsl_html`'s
+ *  `state_colors` option is keyed by the state's own name (the code
+ *  highlighter's semantic spans carry names, not labels). Without this
+ *  remap, any labeled state's diagram color silently fails to reach its
+ *  code span.
+ *
+ *  Handles the simple one-label-per-state case only; group-chip-suffixed
+ *  labels (`label_with_chips` in jssm_viz.ts) render extra text after the
+ *  label that this remap does not account for — filed as a follow-up.
+ *
+ *  @param machine - The constructed machine the fills were rendered from.
+ *  @param fills - Display-text-keyed fills, from `extract_state_fills`.
+ *  @returns Fills re-keyed by state name; states with no matching fill are omitted.
+ *
+ *  @internal
+ */
+function state_colors_by_name(
+  machine : ReturnType<typeof sm>,
+  fills   : ReadonlyMap<string, string>,
+): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const s of machine.states()) {
+    const fill = fills.get(machine.display_text(s));
+    if (fill !== undefined) { out.set(s, fill); }
+  }
+  return out;
+}
+
 /** Parts that exist only interactively; static hosts note-and-skip them. @internal */
 const INTERACTIVE_PARTS: ReadonlySet<string> = new Set(['editor', 'actions', 'info-panel', 'toolbar']);
 
@@ -73,8 +106,9 @@ export async function render_fence_html(
 
   const desc = parse_fence_info(info);
 
+  let machine: ReturnType<typeof sm>;
   try {
-    sm`${source}`;
+    machine = sm`${source}`;
   } catch (e) {
     // Every `throw` reachable from `sm()` — the PEG grammar in fsl_parser.ts
     // (peg$SyntaxError subclasses Error), jssm_compiler.ts, and jssm.ts —
@@ -87,8 +121,9 @@ export async function render_fence_html(
     return wrap(desc, [error_box(source, message)]);
   }
 
-  const svg   = await fsl_to_svg_string(source);
-  const fills = extract_state_fills(svg);
+  const svg          = await fsl_to_svg_string(source);
+  const fills        = extract_state_fills(svg);
+  const state_colors = state_colors_by_name(machine, fills);
   const chunks: string[] = desc.notes.map(note_comment);
 
   for (const part of desc.parts) {
@@ -99,7 +134,7 @@ export async function render_fence_html(
     if (part === 'image') { chunks.push(await image_html(source, svg, desc)); continue; }
     if (part === 'code') {
       chunks.push(`<pre class="fsl-code"><code>${
-        highlight_fsl_html(source, { state_colors: fills, inline_colors: opts.inline_colors })
+        highlight_fsl_html(source, { state_colors, inline_colors: opts.inline_colors })
       }</code></pre>`);
       continue;
     }
@@ -108,7 +143,6 @@ export async function render_fence_html(
       continue;
     }
     if (part === 'title') {
-      const machine = sm`${source}`;
       const name = machine.machine_name() ?? 'FSL machine';
       chunks.push(`<div class="fsl-title">${escape_html(name)}</div>`);
       continue;
@@ -250,7 +284,12 @@ export async function render_fence_gif(
 
   const frames: GifFrame[] = [];
   for (const state of walk) {
-    const patched = patch_state_fill(base_svg, state, highlight);
+    // base_svg's nodes are labeled with display text (label ?? name; the
+    // same `machine.display_text(s)` derivation jssm_viz.ts's
+    // state_node_line uses), not the walk's state NAME — patch by that or
+    // a labeled state's frame silently no-ops (see state_colors_by_name for
+    // the render_fence_html analog of this same fix).
+    const patched = patch_state_fill(base_svg, machine.display_text(state), highlight);
     const raster  = await rasterizeRgba(patched, { scale });
     frames.push({ rgba: raster.rgba, width: raster.width, height: raster.height });
   }

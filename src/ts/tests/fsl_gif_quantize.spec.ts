@@ -53,4 +53,17 @@ describe('quantize', () => {
     expect(() => quantize(new Uint8Array(5))).toThrow();
   });
 
+  it('throws when max_colors exceeds 256 (would silently corrupt Uint8Array indices)', () => {
+    expect(() => quantize(px([255, 0, 0, 255]), 257)).toThrow();
+  });
+
+  it('throws when max_colors is below 2 (no palette to quantize into)', () => {
+    expect(() => quantize(px([255, 0, 0, 255]), 1)).toThrow();
+  });
+
+  it('accepts max_colors at the 2..256 boundary', () => {
+    expect(() => quantize(px([255, 0, 0, 255], [0, 255, 0, 255]), 2)).not.toThrow();
+    expect(() => quantize(px([255, 0, 0, 255]), 256)).not.toThrow();
+  });
+
 });

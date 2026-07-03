@@ -21,6 +21,25 @@ describe('render_fence_html', () => {
     expect(html).toContain(`style="color:${fills.get('Red')}"`);
   });
 
+  it('a labeled state still carries its diagram color in code (display-text keying)', async () => {
+    // extract_state_fills keys by the diagram's rendered display text
+    // ("Foo!"), not the state's own name ("a") — render_fence_html must
+    // remap so data-state="a" still gets an inline color.
+    const html = await render_fence_html('state a: { label: "Foo!" ; }; a -> b;', 'fsl code');
+    expect(html).toContain('data-state="a"');
+    expect(html).toMatch(/data-state="a" style="color:[^"]+"/);
+  });
+
+  it('a state with no rendered-text match (empty label) gets no inline color, others unaffected', async () => {
+    // An explicit empty label renders no matching diagram text for 'a', so
+    // the display-text remap has nothing to key off of — 'a' is correctly
+    // omitted from state_colors while 'b' (unaffected) still gets its color.
+    const html = await render_fence_html('state a: { label: "" ; }; a -> b;', 'fsl code');
+    expect(html).toContain('data-state="a"');
+    expect(html).not.toMatch(/data-state="a" style="color:/);
+    expect(html).toMatch(/data-state="b" style="color:[^"]+"/);
+  });
+
   it('dot renders escaped DOT source, not an image', async () => {
     const html = await render_fence_html('a -> b;', 'fsl dot');
     expect(html).toContain('fsl-dot');

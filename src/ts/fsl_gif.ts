@@ -31,6 +31,10 @@ export interface Quantized {
  *  @param max_colors - Palette ceiling, 2..256.
  *
  *  @throws {JssmError} when `rgba.length` is not a multiple of 4.
+ *  @throws {JssmError} when `max_colors` is outside 2..256 — above 256 the
+ *  palette index no longer fits the `Uint8Array` indices this module packs
+ *  into GIF codes (silent index corruption instead of a clear failure);
+ *  below 2 there is no palette to quantize into.
  *
  *  @example
  *  const q = quantize(new Uint8Array([255,0,0,255, 0,255,0,255]));
@@ -40,6 +44,9 @@ export function quantize(rgba: Uint8Array, max_colors: number = 256): Quantized 
 
   if (rgba.length % 4 !== 0) {
     throw new JssmError(undefined, 'quantize: rgba length must be a multiple of 4');
+  }
+  if (max_colors < 2 || max_colors > 256) {
+    throw new JssmError(undefined, 'quantize: max_colors must be 2..256');
   }
 
   const pixel_count = rgba.length / 4;

@@ -53,6 +53,12 @@ Phase B makes the fence convention *renderable* outside a live webview: a set of
 - New package export `"./fence"` → bundled dist entry (esbuild, like the wc entries) containing 3.1–3.3; types emitted alongside.
 - `encode_gif`, `plan_walk` are exported individually (reusable primitives).
 - Core barrel (`jssm`) unchanged. `jssm/viz` unchanged (this consumes it).
+- **As shipped (recorded per final review, 2026-07-02):** the `jssm/fence` barrel (`src/ts/fence.ts`) re-exports the full 11-function primitive surface, plus their types:
+  - `fsl_fence_render.ts` — `render_fence_html`, `render_fence_gif`, `transform_markdown`
+  - `fsl_gif.ts` — `encode_gif`, `quantize`, `lzw_encode`
+  - `fsl_walk.ts` — `plan_walk`
+  - `fsl_fence_highlight.ts` — `highlight_fsl_runs`, `highlight_fsl_html`
+  - `fsl_svg_patch.ts` — `extract_state_fills`, `patch_state_fill`
 
 ## 4. Static syntax highlighting (settled: full parity from v1)
 

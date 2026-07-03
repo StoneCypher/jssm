@@ -61,6 +61,19 @@ describe('extract_state_fills / patch_state_fill', () => {
     expect(after.get('aa')).toBe(fills.get('aa'));
   });
 
+  it('patches a fill containing $-replacement syntax without corruption', async () => {
+    // '$&', '$1', etc. are special tokens in the REPLACEMENT argument of
+    // string-form String.replace(); a caller-supplied fill containing one
+    // must land as literal text, not be reinterpreted as a regex backreference.
+    const svg     = await fsl_to_svg_string('A -> B;');
+    const patched = patch_state_fill(svg, 'B', '$&');
+    const after   = extract_state_fills(patched);
+    expect(after.get('B')).toBe('$&');
+    // stays parseable: the other state's fill is untouched and still extractable
+    const before = extract_state_fills(svg);
+    expect(after.get('A')).toBe(before.get('A'));
+  });
+
   it('returns the svg unchanged when the state does not exist', async () => {
     const svg = await fsl_to_svg_string('A -> B;');
     expect(patch_state_fill(svg, 'Nope', '#fff')).toBe(svg);

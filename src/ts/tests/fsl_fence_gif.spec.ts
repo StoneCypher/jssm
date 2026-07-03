@@ -12,7 +12,22 @@ describe('render_fence_gif', () => {
   }, 60_000);
 
   it('frames differ from one another (the highlight moved)', async () => {
-    const gif = decode_gif(await render_fence_gif('A => B => A;', { scale: 25 }));
+    // highlight_fill is explicit so a future theme default that happens to
+    // collide with the default highlight can't make this false-fail.
+    const gif = decode_gif(await render_fence_gif('A => B => A;', { scale: 25, highlight_fill: '#ff9930' }));
+    expect(gif.frames.length).toBe(2);
+    expect([...gif.frames[0]!.rgb]).not.toEqual([...gif.frames[1]!.rgb]);
+  }, 60_000);
+
+  it('animates labeled states (patches by display text, not the raw state name)', async () => {
+    // Both states are labeled so EVERY frame's patch depends on display-text
+    // keying — if render_fence_gif ever regresses to patching by state name
+    // again, every frame silently stays unpatched and this collapses to a
+    // single repeated (identical) frame.
+    const gif = decode_gif(await render_fence_gif(
+      'state a: { label: "Foo!" ; }; state b: { label: "Bar!" ; }; a => b => a;',
+      { scale: 25, highlight_fill: '#ff9930' },
+    ));
     expect(gif.frames.length).toBe(2);
     expect([...gif.frames[0]!.rgb]).not.toEqual([...gif.frames[1]!.rgb]);
   }, 60_000);

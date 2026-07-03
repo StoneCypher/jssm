@@ -1,11 +1,36 @@
 import type { RenderOptions, RenderResult } from '../../types.js';
-import { RenderError } from '../../types.js';
+import { RenderError, RasterizationUnsupportedError } from '../../types.js';
 import { svgTarget }  from './targets/svg.js';
 import { dotTarget }  from './targets/dot.js';
 import { htmlTarget } from './targets/html.js';
 import { pngTarget }  from './targets/png.js';
 import { jpegTarget } from './targets/jpeg.js';
 import { render_fence_gif } from '../../../fsl_fence_render.js';
+
+/**
+ * Classify a failure from the gif render pipeline for the `render()`
+ * dispatcher's `gif` case. A {@link RasterizationUnsupportedError}
+ * propagates unwrapped — callers need the install-`@resvg/resvg-wasm` hint,
+ * matching the `@throws` contract `pngTarget`/`jpegTarget` already honor.
+ * Everything else becomes a {@link RenderError} carrying the original
+ * message, same as before this helper existed.
+ *
+ * @param e - The error caught from `render_fence_gif`.
+ * @throws {RasterizationUnsupportedError} when `e` already is one.
+ * @throws {RenderError} wrapping any other error's message.
+ *
+ * @example
+ * try { throw new RasterizationUnsupportedError('no backend'); }
+ * catch (e) { wrap_gif_error(e); }   // rethrows the same RasterizationUnsupportedError
+ *
+ * @example
+ * try { throw new Error('boom'); }
+ * catch (e) { wrap_gif_error(e); }   // throws RenderError('GIF render failed: boom')
+ */
+export function wrap_gif_error(e: unknown): never {
+  if (e instanceof RasterizationUnsupportedError) { throw e; }
+  throw new RenderError(`GIF render failed: ${(e as Error).message}`);
+}
 
 /**
  * Render a single FSL source string to the requested output format.
@@ -54,7 +79,7 @@ export async function render(fsl: string, opts: RenderOptions): Promise<RenderRe
           }),
         };
       } catch (e) {
-        throw new RenderError(`GIF render failed: ${(e as Error).message}`);
+        wrap_gif_error(e);
       }
     default:
       throw new RenderError(`unknown target: ${String(opts.target)}`);

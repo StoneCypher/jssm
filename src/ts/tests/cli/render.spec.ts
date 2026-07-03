@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { render } from '../../cli/subcommands/render/render';
-import { RenderError } from '../../cli/types';
+import { render, wrap_gif_error } from '../../cli/subcommands/render/render';
+import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
 import { decode_gif } from '../helpers/gif_decode';
 
 const trafficLight = readFileSync(
@@ -113,6 +113,33 @@ describe('render', () => {
   it('throws for unknown target', async () => {
     // @ts-expect-error testing runtime guard
     await expect(render(trafficLight, { target: 'webp' })).rejects.toThrow(/unknown target/i);
+  });
+
+});
+
+describe('wrap_gif_error', () => {
+
+  it('propagates a RasterizationUnsupportedError unwrapped (the install-resvg hint must survive)', () => {
+    const original = new RasterizationUnsupportedError('no canvas, no wasm');
+    expect(() => wrap_gif_error(original)).toThrow(RasterizationUnsupportedError);
+    try {
+      wrap_gif_error(original);
+      throw new Error('unreachable');
+    } catch (e) {
+      expect(e).toBe(original);
+    }
+  });
+
+  it('wraps any other error in a RenderError carrying the original message', () => {
+    expect(() => wrap_gif_error(new Error('boom'))).toThrow(RenderError);
+    try {
+      wrap_gif_error(new Error('boom'));
+      throw new Error('unreachable');
+    } catch (e) {
+      expect(e).toBeInstanceOf(RenderError);
+      expect(e).not.toBeInstanceOf(RasterizationUnsupportedError);
+      expect((e as Error).message).toContain('boom');
+    }
   });
 
 });
