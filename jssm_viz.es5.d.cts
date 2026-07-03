@@ -1478,6 +1478,28 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /**
+     *  The machine's current data by REFERENCE — no clone.  The public
+     *  {@link Machine.data} contract is a deep clone per call (a mutation
+     *  boundary for external consumers, and deliberately untouched); that clone
+     *  is `structuredClone` of the whole data value, which same-package
+     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
+     *  read one dotted path or serialize per transition — should not pay on
+     *  every event.  Callers MUST NOT mutate the returned value or store it
+     *  beyond the current tick; anything crossing a trust boundary must use
+     *  {@link Machine.data} instead.
+     *
+     *  ```typescript
+     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
+     *  m._data_ref().a.b;   // 1, zero-copy
+     *  ```
+     *
+     *  @returns The live data value; treat as read-only.
+     *
+     *  @see Machine.data
+     *  @internal
+     */
+    _data_ref(): mDT;
     /*********
      *
      *  Get the current value of a given property name.  Checks the current
