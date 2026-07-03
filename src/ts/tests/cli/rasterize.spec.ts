@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { rasterize } from '../../cli/subcommands/render/rasterize';
+import { rasterize, rasterizeRgba } from '../../cli/subcommands/render/rasterize';
 import { svgTarget } from '../../cli/subcommands/render/targets/svg';
 import { bundledFontBytes } from '../../cli/subcommands/render/bundled-font';
 // Statically imported (rather than dynamic) so module identity matches the
@@ -70,6 +70,68 @@ describe('rasterize', () => {
       // The bundled Open Sans renders the <text> even though it requests a
       // family that is not the bundled one; a real glyph run adds image data.
       expect(withText.length).toBeGreaterThan(blank.length + 200);
+    });
+
+    it('rasterizeRgba returns RGBA pixels with matching dimensions for a tiny SVG', async () => {
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3"><rect width="4" height="3" fill="#ff0000"/></svg>';
+      const { rgba, width, height } = await rasterizeRgba(svg, { width: 4 });
+      expect(width).toBe(4);
+      expect(height).toBe(3);
+      expect(rgba.length).toBe(4 * width * height);
+      expect(rgba[0]).toBeGreaterThan(200);   // red channel
+      expect(rgba[1]).toBeLessThan(60);       // green channel
+    });
+
+    it('rasterizeRgba returns STRAIGHT (non-premultiplied) alpha for a semi-transparent fill', async () => {
+      // A 50%-opacity red rect over nothing (a transparent canvas). Under
+      // straight alpha the color channel stores the paint's own color
+      // regardless of coverage: red ~= 255, alpha ~= 128. Under premultiplied
+      // alpha the color channel would be scaled by coverage: red ~= 128 —
+      // resvg's native output, un-premultiplied by rgbaViaResvgWasm to meet
+      // the rasterizeRgba contract. This closes the question ledgered from
+      // Task 5's review for the gif pipeline's compositing assumptions
+      // (encode_gif composites straight RGBA over white).
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2">'
+                + '<rect width="2" height="2" fill="#ff0000" fill-opacity="0.5"/></svg>';
+      const { rgba } = await rasterizeRgba(svg, { width: 2 });
+      const [r, g, b, a] = [rgba[0]!, rgba[1]!, rgba[2]!, rgba[3]!];
+      expect(a).toBeGreaterThan(118);
+      expect(a).toBeLessThan(138);
+      expect(r).toBeGreaterThan(245);
+      expect(g).toBeLessThan(10);
+      expect(b).toBeLessThan(10);
+    });
+
+    it('rasterizeRgba leaves fully-opaque pixels byte-identical (un-premultiply is a no-op at a=255)', async () => {
+      // A fully-opaque fill has nothing to un-premultiply — straight and
+      // premultiplied alpha coincide at a=255. Pins the `a !== 255` fast
+      // path: an opaque red rect must read exactly r=255,a=255, not merely
+      // "close to".
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2">'
+                + '<rect width="2" height="2" fill="#ff0000"/></svg>';
+      const { rgba } = await rasterizeRgba(svg, { width: 2 });
+      const [r, g, b, a] = [rgba[0]!, rgba[1]!, rgba[2]!, rgba[3]!];
+      expect(r).toBe(255);
+      expect(g).toBe(0);
+      expect(b).toBe(0);
+      expect(a).toBe(255);
+    });
+
+    it('rasterizeRgba leaves fully-transparent background pixels at a=0 (un-premultiply is a no-op at a=0)', async () => {
+      // A rect that doesn't cover the whole canvas leaves untouched corners
+      // fully transparent. Pins the `a !== 0` fast path — dividing by a=0
+      // would be undefined, so the loop must skip these pixels outright
+      // rather than produce NaN or a divide-by-zero artifact.
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4">'
+                + '<rect x="1" y="1" width="1" height="1" fill="#ff0000"/></svg>';
+      const { rgba, width } = await rasterizeRgba(svg, { width: 4 });
+      const corner = 0; // pixel (0,0), outside the 1x1 rect
+      const [r, g, b, a] = [rgba[corner]!, rgba[corner + 1]!, rgba[corner + 2]!, rgba[corner + 3]!];
+      expect(a).toBe(0);
+      expect(r).toBe(0);
+      expect(g).toBe(0);
+      expect(b).toBe(0);
+      expect(width).toBe(4);
     });
 
   });
@@ -188,7 +250,16 @@ describe('rasterize', () => {
           this.width = w; this.height = h;
           canvasDims = { width: w, height: h };
         }
-        getContext() { return { drawImage: () => {} }; }
+        getContext() {
+          return {
+            drawImage: () => {},
+            // Consumed only by rasterizeRgba's Canvas path; harmless for the
+            // PNG/JPEG tests above, which never call getImageData.
+            getImageData: (_x: number, _y: number, w: number, h: number) => ({
+              data: new Uint8ClampedArray(4 * w * h).fill(128),
+            }),
+          };
+        }
         async convertToBlob(opts: { type: string }) {
           const bytes = opts.type === 'image/jpeg'
             ? new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0, 0, 0])
@@ -346,6 +417,117 @@ describe('rasterize', () => {
       } finally {
         (globalThis as any).btoa = realBtoa;
       }
+    });
+
+    describe('rasterizeRgba', () => {
+
+      it('uses the OffscreenCanvas path, returning getImageData pixels sized to the canvas', async () => {
+        installOffscreenCanvas();
+        installImage(100, 60);
+        const svg = await svgTarget(trafficLight);
+        const { rgba, width, height } = await rasterizeRgba(svg, { width: 200 });
+        expect(canvasDims).toEqual({ width: 200, height: 120 });
+        expect(width).toBe(200);
+        expect(height).toBe(120);
+        expect(rgba.length).toBe(4 * width * height);
+        expect(rgba[0]).toBe(128);
+      });
+
+      it('--height sizes the canvas to the requested height, width by aspect ratio', async () => {
+        installOffscreenCanvas();
+        installImage(100, 60);
+        const { width, height } = await rasterizeRgba(await svgTarget(trafficLight), { height: 120 });
+        expect(canvasDims).toEqual({ width: 200, height: 120 });
+        expect(width).toBe(200);
+        expect(height).toBe(120);
+      });
+
+      it('default scale renders the canvas at 3x the intrinsic size', async () => {
+        installOffscreenCanvas();
+        installImage(100, 60);
+        const { width, height } = await rasterizeRgba(await svgTarget(trafficLight));
+        expect(canvasDims).toEqual({ width: 300, height: 180 });
+        expect(width).toBe(300);
+        expect(height).toBe(180);
+      });
+
+      it('throws RasterizationUnsupportedError when OffscreenCanvas is present but Image is not', async () => {
+        installOffscreenCanvas();
+        (globalThis as any).Image = undefined;
+        const svg = await svgTarget(trafficLight);
+        await expect(rasterizeRgba(svg, { width: 100 }))
+          .rejects.toBeInstanceOf(RasterizationUnsupportedError);
+      });
+
+      it('falls back to onload event when Image lacks decode()', async () => {
+        installOffscreenCanvas();
+        (globalThis as any).Image = class FakeImage {
+          src = '';
+          width = 100;
+          height = 60;
+          // No decode method on purpose
+          set onload(fn: () => void) { setImmediate(fn); }
+        };
+        const svg = await svgTarget(trafficLight);
+        const { rgba } = await rasterizeRgba(svg, { width: 200 });
+        expect(rgba.length).toBeGreaterThan(0);
+      });
+
+      it('rejects when Image lacks decode() and fires onerror', async () => {
+        installOffscreenCanvas();
+        (globalThis as any).Image = class FakeImage {
+          src = '';
+          width = 100;
+          height = 60;
+          _onerror: (() => void) | null = null;
+          set onerror(fn: () => void) { this._onerror = fn; }
+          set onload(_: () => void) {
+            // Trigger onerror once both handlers have been wired up by rasterizeRgba.
+            setImmediate(() => { if (this._onerror) this._onerror(); });
+          }
+        };
+        const svg = await svgTarget(trafficLight);
+        await expect(rasterizeRgba(svg, { width: 200 }))
+          .rejects.toThrow(/image load failed/);
+      });
+
+      it('falls back to 800x600 intrinsic size when the Image lacks dimensions', async () => {
+        installOffscreenCanvas();
+        installImage(undefined, undefined);
+        const { width, height } = await rasterizeRgba(await svgTarget(trafficLight));
+        // 800x600 defaults, zoomed 3x by the default scale.
+        expect(canvasDims).toEqual({ width: 2400, height: 1800 });
+        expect(width).toBe(2400);
+        expect(height).toBe(1800);
+      });
+
+      it('throws RenderError when canvas.getContext returns null', async () => {
+        installImage(100, 60);
+        (globalThis as any).OffscreenCanvas = class FakeOffscreen {
+          width: number;
+          height: number;
+          constructor(w: number, h: number) { this.width = w; this.height = h; }
+          getContext() { return null; }
+        };
+        const svg = await svgTarget(trafficLight);
+        await expect(rasterizeRgba(svg, { width: 200 }))
+          .rejects.toBeInstanceOf(RenderError);
+      });
+
+      it('falls back to Buffer-based base64 when btoa is undefined', async () => {
+        installOffscreenCanvas();
+        installImage(100, 60);
+        const realBtoa = (globalThis as any).btoa;
+        (globalThis as any).btoa = undefined;
+        try {
+          const svg = await svgTarget(trafficLight);
+          const { rgba } = await rasterizeRgba(svg, { width: 200 });
+          expect(rgba.length).toBeGreaterThan(0);
+        } finally {
+          (globalThis as any).btoa = realBtoa;
+        }
+      });
+
     });
 
   });

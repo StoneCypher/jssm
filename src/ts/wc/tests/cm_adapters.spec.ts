@@ -60,6 +60,26 @@ describe('semantic overlay adapter', () => {
     const set = buildFslDecorations('state Red : { color: crimson; };\nRed -> Green;');
     expect(set.size).toBeGreaterThanOrEqual(3);   // color + Red + Green
   });
+  it('puts chip attributes on color marks only — state values are names, not paints', () => {
+    const set = buildFslDecorations('state Red : { color: crimson; };\nRed -> Green;');
+    const marks: Array<{ cls: string; style?: string }> = [];
+    const cursor = set.iter();
+    while (cursor.value !== null) {
+      const spec = (cursor.value as unknown as { spec: { class: string; attributes: Record<string, string> } }).spec;
+      marks.push({ cls: spec.class, style: spec.attributes.style });
+      cursor.next();
+    }
+    for (const mark of marks.filter(m => m.cls === 'fsl-color')) {
+      expect(mark.style).toContain('--fsl-chip:');
+    }
+    // state spans carry AST-resolved name values since the fence work, but a
+    // name must never become a chip paint — this pins the kind gate.
+    for (const mark of marks.filter(m => m.cls === 'fsl-state')) {
+      expect(mark.style).toBeUndefined();
+    }
+    expect(marks.some(m => m.cls === 'fsl-color')).toBe(true);
+    expect(marks.some(m => m.cls === 'fsl-state')).toBe(true);
+  });
   it('fslOverlayExtension survives doc and selection updates', () => {
     const view = mount('state Red : { color: crimson; };', fslOverlayExtension());
     view.dispatch({ changes: { from: view.state.doc.length, insert: '\nRed -> Green;' } });  // docChanged

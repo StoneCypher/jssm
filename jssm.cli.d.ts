@@ -2,7 +2,7 @@
  * Render targets supported in v1. Future targets (mermaid, plantuml, scxml,
  * ascii, fsl) will be added in v0.2+.
  */
-declare type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
+declare type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html' | 'gif';
 /**
  * Options accepted by `render()` and `renderSet()`.
  *
@@ -10,6 +10,9 @@ declare type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
  * exclusive: `width`/`height` fit to an exact pixel extent, `scale` is a
  * zoom percentage (100 = 3x the SVG's natural size). They are silently
  * ignored for text targets (svg/dot/html).
+ *
+ * `delay` and `maxFrames` apply only to the `gif` target and are silently
+ * ignored otherwise.
  */
 interface RenderOptions {
     target: RenderTarget;
@@ -17,6 +20,10 @@ interface RenderOptions {
     height?: number;
     scale?: number;
     quality?: number;
+    /** Per-frame delay in centiseconds (gif only; default 70). */
+    delay?: number;
+    /** Walk-length ceiling on the animated gif's frame count (gif only; default 64). */
+    maxFrames?: number;
 }
 /**
  * A text-shaped render result (svg / dot / html).
@@ -27,10 +34,10 @@ interface TextResult {
     content: string;
 }
 /**
- * A raster-shaped render result (png / jpeg).
+ * A raster-shaped render result (png / jpeg / gif).
  */
 interface RasterResult {
-    target: Extract<RenderTarget, 'png' | 'jpeg'>;
+    target: Extract<RenderTarget, 'png' | 'jpeg' | 'gif'>;
     kind: 'raster';
     buffer: Uint8Array;
 }
@@ -60,15 +67,17 @@ declare class RasterizationUnsupportedError extends RenderError {
  * Render a single FSL source string to the requested output format.
  *
  * Returns a discriminated union: `kind: 'text'` for SVG / DOT / HTML, and
- * `kind: 'raster'` for PNG / JPEG. Use `kind` to narrow before accessing
- * `content` or `buffer`.
+ * `kind: 'raster'` for PNG / JPEG / GIF. Use `kind` to narrow before
+ * accessing `content` or `buffer`.
  *
  * @param fsl - FSL source text
- * @param opts.target - Output format ('svg' | 'dot' | 'png' | 'jpeg' | 'html')
+ * @param opts.target - Output format ('svg' | 'dot' | 'png' | 'jpeg' | 'html' | 'gif')
  * @param opts.width - Fit raster output to this pixel width (raster only)
  * @param opts.height - Fit raster output to this pixel height (raster only)
  * @param opts.scale - Raster zoom percentage; 100 = 3x natural size (raster only)
  * @param opts.quality - JPEG quality 1-100 (silently ignored for non-jpeg)
+ * @param opts.delay - Per-frame delay in centiseconds (gif only; silently ignored otherwise)
+ * @param opts.maxFrames - Walk-length ceiling on the gif's frame count (gif only; silently ignored otherwise)
  * @returns RenderResult, discriminated by `kind`
  * @throws RenderError on parse, render, or target-dispatch failures
  * @throws RasterizationUnsupportedError on raster targets where no backend exists

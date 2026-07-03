@@ -3,6 +3,11 @@ logs
 *.log
 npm-debug.log*
 
+# Windows path-mangling artifact: a redirect intended for %TEMP% lands in the
+# repo root with backslashes stripped and the drive colon MSYS-encoded as a
+# private-use codepoint (U+F03A), so the name renders as CUsers… but isn't
+C*Users*vitest_output.txt
+
 # Runtime data
 pids
 *.pid

@@ -158,6 +158,27 @@ if (result.kind === 'text') console.log(result.content);
 
 <br/>
 
+## Static fence rendering (`jssm/fence`)
+
+`jssm/fence` renders FSL code fences to static, editor-parity-highlighted HTML — no browser, no editor, no live machine required — for Markdown pipelines, static site generators, and doc tooling.
+
+```typescript
+import { transform_markdown } from 'jssm/fence';
+
+const html = await transform_markdown(markdown);
+// every fsl/jssm fence becomes rendered, highlighted HTML
+// everything else in the document passes through untouched
+console.log(html);
+```
+
+`render_fence_gif` walks a machine's main path (or every edge, if there is no main path) into a looping animated GIF, one Graphviz layout patched per frame: 70cs per-frame delay, loops forever, and a 64-frame walk cap by default, all overridable via options.
+
+PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI — install it with `npm install @resvg/resvg-wasm`.
+
+
+
+<br/>
+
 ## Web Components
 
 `jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
