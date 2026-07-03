@@ -1,0 +1,84 @@
+# Perf envelope — MANUAL ONLY.
+#
+# Fires one self-terminating Graviton instance that benchmarks a branch's
+# COMMITTED dist against a base ref's committed dist in strict A/B/A/B
+# alternation, then waits for and prints the per-case verdict in this job's
+# log.  This is the LEAN branch-vs-main answer machine; the canonical trail
+# (release benchmarks, backfill, nightly sync) stays with graviton_perf.cjs.
+# Results land under s3://<bucket>/_envelopes/<runId>/ — an underscore prefix
+# the nightly perf_results_sync excludes, so envelope runs NEVER pollute the
+# release trail or the chart.
+#
+# Same OIDC role as the release benchmark (secret AWS_GRAVITON_OIDC_ROLE; see
+# notes/superpowers/graviton-ci-aws-setup.md). workflow_dispatch only — never
+# a push/schedule trigger.
+
+name: Perf envelope (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      head_ref:
+        description: Branch/ref to measure (usually your PR branch)
+        required: true
+      base_ref:
+        description: Ref to compare against
+        required: false
+        default: main
+      samples:
+        description: Interleaved samples per side (1-9)
+        required: false
+        default: '3'
+      spot:
+        description: Use a spot instance (~70% cheaper)
+        required: false
+        default: 'true'
+
+permissions:
+  id-token: write   # OIDC token for aws-actions/configure-aws-credentials
+  contents: read
+
+jobs:
+
+  envelope:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
+
+    steps:
+
+    - name: Guard — OIDC role secret must be configured
+      if: env.AWS_GRAVITON_OIDC_ROLE == ''
+      run: |
+        echo "AWS_GRAVITON_OIDC_ROLE is not set; see notes/superpowers/graviton-ci-aws-setup.md"
+        exit 1
+
+    # Full history so any ref resolves to its commit.
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_GRAVITON_OIDC_ROLE }}
+        aws-region: us-east-1
+
+    - name: Fire the envelope run and wait for the verdict
+      run: |
+        BASE_SHA="$(git rev-parse "origin/${{ inputs.base_ref }}^{commit}" 2>/dev/null || git rev-parse "${{ inputs.base_ref }}^{commit}")"
+        HEAD_SHA="$(git rev-parse "origin/${{ inputs.head_ref }}^{commit}" 2>/dev/null || git rev-parse "${{ inputs.head_ref }}^{commit}")"
+        if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then echo "::error::could not resolve refs"; exit 1; fi
+        echo "base ${{ inputs.base_ref }} = $BASE_SHA"
+        echo "head ${{ inputs.head_ref }} = $HEAD_SHA"
+        ARGS=(--base "$BASE_SHA" --head "$HEAD_SHA" --samples "${{ inputs.samples }}" --wait --timeout-minutes 45)
+        if [ "${{ inputs.spot }}" = "true" ]; then ARGS+=(--spot); fi
+        node src/scripts/graviton_envelope.cjs "${ARGS[@]}"
