@@ -3,6 +3,10 @@ logs
 *.log
 npm-debug.log*
 
+# Windows path-mangling artifact: a redirect intended for %TEMP% occasionally
+# lands in the repo root with the separators stripped from its absolute path
+CUsers*vitest_output.txt
+
 # Runtime data
 pids
 *.pid
