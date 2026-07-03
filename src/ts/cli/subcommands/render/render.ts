@@ -43,15 +43,19 @@ export async function render(fsl: string, opts: RenderOptions): Promise<RenderRe
     case 'jpeg':
       return { target: 'jpeg', kind: 'raster', buffer: await jpegTarget(fsl, { width: opts.width, height: opts.height, scale: opts.scale, quality: opts.quality }) };
     case 'gif':
-      return {
-        target: 'gif',
-        kind: 'raster',
-        buffer: await render_fence_gif(fsl, {
-          scale      : opts.scale,
-          delay_cs   : opts.delay,
-          max_frames : opts.maxFrames,
-        }),
-      };
+      try {
+        return {
+          target: 'gif',
+          kind: 'raster',
+          buffer: await render_fence_gif(fsl, {
+            scale      : opts.scale,
+            delay_cs   : opts.delay,
+            max_frames : opts.maxFrames,
+          }),
+        };
+      } catch (e) {
+        throw new RenderError(`GIF render failed: ${(e as Error).message}`);
+      }
     default:
       throw new RenderError(`unknown target: ${String(opts.target)}`);
   }
