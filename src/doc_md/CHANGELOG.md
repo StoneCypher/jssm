@@ -22,82 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jul 2, 2026 10:38:44 PM
-
-Commit [8f4555ca7bf9077e1f2c6bfaa0853f953907d556](https://github.com/StoneCypher/jssm/commit/8f4555ca7bf9077e1f2c6bfaa0853f953907d556)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat: lean graviton envelope — fast branch-vs-main perf verdicts on real hardware
-  * node src/scripts/graviton_envelope.cjs --base <sha> --head <sha> [--wait]
-fires one detached self-terminating Graviton instance (reusing the canonical
-launcher's executor/AMI/subnet/run-instances seams) that benchmarks the
-COMMITTED dist of both refs in strict A/B/A/B alternation, computes per-case
-medians and deltas on-instance, and uploads envelope.md/.json to
-s3://<bucket>/_envelopes/<runId>/ - an underscore prefix the nightly
-perf_results_sync excludes, so envelope runs never pollute the release trail
-or the chart. --wait polls S3 and prints the verdict; a workflow_dispatch
-shim (perf_envelope.yml) makes it one click from Actions with the release
-benchmark's OIDC role. 21 unit tests over the pure logic (arg parsing,
-verdict math, user-data hardening, wait-loop outcomes) plus dry-run
-orchestration coverage.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:25:45 PM
-
-Commit [6175041fa62ca12e479810df2c7f821c9bd11a66](https://github.com/StoneCypher/jssm/commit/6175041fa62ca12e479810df2c7f821c9bd11a66)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): chip attributes are color-span-specific — state values are names, not paints
-  * State spans carry AST-resolved name values since the fence parity work;
-the editor adapter gated chips on value presence, which would have painted
---fsl-chip with state names. Gate on kind instead, pinned by test.
-  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:20:55 PM
-
-Commit [b6ae5dc5f61418b1aae5274ce2ed61c4e04eb398](https://github.com/StoneCypher/jssm/commit/b6ae5dc5f61418b1aae5274ce2ed61c4e04eb398)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(fence): ship the fence entry + typings in the npm tarball
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:16:24 PM
-
-Commit [60157d952345c04a9673529550ef5e6e0682bde7](https://github.com/StoneCypher/jssm/commit/60157d952345c04a9673529550ef5e6e0682bde7)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): 5.157.16 — full build after bind data accessor
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jul 2, 2026 10:10:58 PM
 
 Commit [b4e4fc6b4d4518c0c6a3aea8e83ecff5235f8f06](https://github.com/StoneCypher/jssm/commit/b4e4fc6b4d4518c0c6a3aea8e83ecff5235f8f06)
@@ -202,3 +126,63 @@ live handler set via a new @internal _has_subscribers probe - read at fire
 time exactly like the outer count, so a listener installed inside a pre-hook
 is still seen (#671). Machines with zero listeners skip the block outright,
 as before.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 9:29:29 PM
+
+Commit [ba21dde6480269801f109c46e0c785c8346d891e](https://github.com/StoneCypher/jssm/commit/ba21dde6480269801f109c46e0c785c8346d891e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): gif target honors the RenderError contract; delay/max-frames passthrough pinned
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 9:14:10 PM
+
+Commit [f1ae680b3cc1f2dae40fd9281e1b15a0859acf4f](https://github.com/StoneCypher/jssm/commit/f1ae680b3cc1f2dae40fd9281e1b15a0859acf4f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): fsl render --target gif with --delay and --max-frames
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 8:57:59 PM
+
+Commit [a3c34fe0bbc7fafc95b3ba604f5c91aa33bda407](https://github.com/StoneCypher/jssm/commit/a3c34fe0bbc7fafc95b3ba604f5c91aa33bda407)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): jssm/fence subpath — barrel, rollup entry, build feature, README
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 6:59:39 PM
+
+Commit [c6f43cc30a0e5a5c35081e542ba94863340f6012](https://github.com/StoneCypher/jssm/commit/c6f43cc30a0e5a5c35081e542ba94863340f6012)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): render_fence_gif — one-layout walk animation via SVG patch + resvg + gif89a
