@@ -95,27 +95,31 @@ const FEATURES = {
   // --- Stage 6: cleanup of minify's intermediate nonmin artifact ---
   rm_nonmin: { script: 'rm_nonmin', stages: [6], optional: true, defaultEnabled: true, requires: ['minify'] },
 
-  // --- Stage 7: tests + changelog (disjoint outputs) ---
-  vitest:    { script: 'vitest',    stages: [7], optional: true, defaultEnabled: true,
+  // --- Stage 7: the two remaining src-mutators (disjoint targets: changelog
+  // writes src/doc_md, perf_chart writes src/generated_docs — same disjoint-
+  // mutator precedent as makever ∥ peg in stage 1) ---
+  changelog:  { script: 'changelog',  stages: [7], optional: true, defaultEnabled: true },
+  perf_chart: { script: 'perf_chart', stages: [7], optional: true, defaultEnabled: true },
+
+  // --- Stage 8: src is now stable; every remaining reader runs beside vitest
+  // (the longest single step) with disjoint outputs — vitest→coverage/spec|stoch|docs,
+  // cloc→coverage/cloc, typedoc→docs/docs, site→docs/ (copy), teaching-surface
+  // report-only.  Previously typedoc + double-cloc + site serialized AFTER
+  // vitest for no data reason; this hides them behind the vitest wall. ---
+  vitest:    { script: 'vitest',    stages: [8], optional: true, defaultEnabled: true,
                requires: ['make_wc_viz_es6', 'make_wc_viz_cdn', 'make_wc_instance_es6', 'make_wc_instance_cdn', 'make_wc_editor_es6', 'make_wc_widgets_es6', 'make_wc_docs_es6', 'doctests'] },
-  changelog: { script: 'changelog', stages: [7], optional: true, defaultEnabled: true },
-
-  // --- Stage 8: perf_chart (writes src/generated_docs — isolated from cloc's src read) ---
-  perf_chart: { script: 'perf_chart', stages: [8], optional: true, defaultEnabled: true },
-
-  // --- Stage 9: src-readers + doc generators (src now stable; disjoint doc subdirs) ---
-  cloc: { script: 'cloc', stages: [9], optional: true, defaultEnabled: true },
-  docs: { script: 'docs', stages: [9], optional: true, defaultEnabled: true },
-  site: { script: 'site', stages: [9], optional: true, defaultEnabled: true, requires: ['min_iife'] },
+  cloc: { script: 'cloc', stages: [8], optional: true, defaultEnabled: true },
+  docs: { script: 'docs', stages: [8], optional: true, defaultEnabled: true },
+  site: { script: 'site', stages: [8], optional: true, defaultEnabled: true, requires: ['min_iife'] },
   // report-only: prints teaching-surface coverage drift; never fails the build (reads cem + the es6 bundle for fences)
-  check_teaching_surface: { script: 'check_teaching_surface', stages: [9], optional: true, defaultEnabled: true, requires: ['cem', 'min_es6'] },
+  check_teaching_surface: { script: 'check_teaching_surface', stages: [8], optional: true, defaultEnabled: true, requires: ['cem', 'min_es6'] },
 
-  // --- Stage 10: doc generators that write under docs/ after site ---
-  make_cookbook:  { script: 'make_cookbook',  stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },
-  site_fsl_tools: { script: 'site_fsl_tools', stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },
+  // --- Stage 9: doc generators that write under docs/ after site ---
+  make_cookbook:  { script: 'make_cookbook',  stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
+  site_fsl_tools: { script: 'site_fsl_tools', stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
 
-  // --- Stage 11: readme (consumes vitest metrics + cloc report) ---
-  readme: { script: 'readme', stages: [11], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },
+  // --- Stage 10: readme (consumes vitest metrics + cloc report) ---
+  readme: { script: 'readme', stages: [10], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },
 };
 
 /** Feature names that always run and cannot be disabled. */
