@@ -488,3 +488,18 @@ describe('data/0 for reading current data', () => {
   } );
 
 } );
+
+
+
+// the @internal zero-copy accessor: same-package panels read by reference;
+// the public data() clone boundary is unchanged
+describe('_data_ref', () => {
+
+  test('returns the live reference; data() stays a clone', () => {
+    const m = jssm.from(`x -> y;`, { data: { a: { b: 1 } } });
+    expect( m._data_ref() ).toBe( m._data_ref() );      // stable identity, zero-copy
+    expect( m._data_ref() ).not.toBe( m.data() );       // public clone is a different object
+    expect( m.data() ).toEqual( m._data_ref() );        // same shape
+  });
+
+});
