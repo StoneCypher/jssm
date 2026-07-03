@@ -41,12 +41,14 @@ describe('collectCarrying', () => {
     expect(rows[1]).toEqual({ name: 'carrying property n=10', deltaBytes: 30, variantBytes: 130, plainBytes: 100 });
   });
 
-  test('the real FSL variants actually construct (smoke, sizes small)', () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const jssm = require('../../../dist/jssm.es5.cjs');
+  test('the real FSL variants actually construct (smoke, sizes small)', async () => {
+    // library SOURCE, not dist: the ci-lite CI profile cleans dist/ and does
+    // not rebuild the es5 core bundle, so a dist require breaks every matrix
+    // leg; the assertion here is only that the variant FSL sources are valid
+    const jssm = await import('../../ts/jssm');
     const s = carryingSources(4);
     for (const src of [s.plain, s.groups, s.property]) {
-      const m = jssm.sm([src]);
+      const m = jssm.sm([src] as unknown as TemplateStringsArray);
       expect(m.state()).toBe('s0');
     }
   });
