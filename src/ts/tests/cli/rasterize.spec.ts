@@ -82,6 +82,58 @@ describe('rasterize', () => {
       expect(rgba[1]).toBeLessThan(60);       // green channel
     });
 
+    it('rasterizeRgba returns STRAIGHT (non-premultiplied) alpha for a semi-transparent fill', async () => {
+      // A 50%-opacity red rect over nothing (a transparent canvas). Under
+      // straight alpha the color channel stores the paint's own color
+      // regardless of coverage: red ~= 255, alpha ~= 128. Under premultiplied
+      // alpha the color channel would be scaled by coverage: red ~= 128 —
+      // resvg's native output, un-premultiplied by rgbaViaResvgWasm to meet
+      // the rasterizeRgba contract. This closes the question ledgered from
+      // Task 5's review for the gif pipeline's compositing assumptions
+      // (encode_gif composites straight RGBA over white).
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2">'
+                + '<rect width="2" height="2" fill="#ff0000" fill-opacity="0.5"/></svg>';
+      const { rgba } = await rasterizeRgba(svg, { width: 2 });
+      const [r, g, b, a] = [rgba[0]!, rgba[1]!, rgba[2]!, rgba[3]!];
+      expect(a).toBeGreaterThan(118);
+      expect(a).toBeLessThan(138);
+      expect(r).toBeGreaterThan(245);
+      expect(g).toBeLessThan(10);
+      expect(b).toBeLessThan(10);
+    });
+
+    it('rasterizeRgba leaves fully-opaque pixels byte-identical (un-premultiply is a no-op at a=255)', async () => {
+      // A fully-opaque fill has nothing to un-premultiply — straight and
+      // premultiplied alpha coincide at a=255. Pins the `a !== 255` fast
+      // path: an opaque red rect must read exactly r=255,a=255, not merely
+      // "close to".
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2">'
+                + '<rect width="2" height="2" fill="#ff0000"/></svg>';
+      const { rgba } = await rasterizeRgba(svg, { width: 2 });
+      const [r, g, b, a] = [rgba[0]!, rgba[1]!, rgba[2]!, rgba[3]!];
+      expect(r).toBe(255);
+      expect(g).toBe(0);
+      expect(b).toBe(0);
+      expect(a).toBe(255);
+    });
+
+    it('rasterizeRgba leaves fully-transparent background pixels at a=0 (un-premultiply is a no-op at a=0)', async () => {
+      // A rect that doesn't cover the whole canvas leaves untouched corners
+      // fully transparent. Pins the `a !== 0` fast path — dividing by a=0
+      // would be undefined, so the loop must skip these pixels outright
+      // rather than produce NaN or a divide-by-zero artifact.
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4">'
+                + '<rect x="1" y="1" width="1" height="1" fill="#ff0000"/></svg>';
+      const { rgba, width } = await rasterizeRgba(svg, { width: 4 });
+      const corner = 0; // pixel (0,0), outside the 1x1 rect
+      const [r, g, b, a] = [rgba[corner]!, rgba[corner + 1]!, rgba[corner + 2]!, rgba[corner + 3]!];
+      expect(a).toBe(0);
+      expect(r).toBe(0);
+      expect(g).toBe(0);
+      expect(b).toBe(0);
+      expect(width).toBe(4);
+    });
+
   });
 
   describe('WASM init failure paths (mocked)', () => {

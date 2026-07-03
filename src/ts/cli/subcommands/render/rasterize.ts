@@ -302,8 +302,22 @@ async function rgbaViaResvgWasm(svg: string, opts: RasterOptions): Promise<RgbaR
   let rendered: any;
   try {
     rendered = resvg.render();
+    const rgba = new Uint8Array(rendered.pixels);
+
+    // resvg returns premultiplied alpha; the rasterizeRgba contract (and the
+    // Canvas backend via getImageData) is straight RGBA — un-premultiply.
+    // Measured 2026-07-02: 50%-opacity #ff0000 arrives as r=128,a=128.
+    for (let i = 0; i < rgba.length; i += 4) {
+      const a = rgba[i + 3]!;
+      if (a !== 0 && a !== 255) {
+        rgba[i]     = Math.min(255, Math.round(rgba[i]!     * 255 / a));
+        rgba[i + 1] = Math.min(255, Math.round(rgba[i + 1]! * 255 / a));
+        rgba[i + 2] = Math.min(255, Math.round(rgba[i + 2]! * 255 / a));
+      }
+    }
+
     return {
-      rgba: new Uint8Array(rendered.pixels),
+      rgba,
       width: rendered.width,
       height: rendered.height,
     };
