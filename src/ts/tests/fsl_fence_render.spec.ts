@@ -83,13 +83,9 @@ describe('render_fence_html', () => {
     expect(html).toContain('<div class="fsl-footer"></div>');
   });
 
-  it('gif format emits the placeholder note pending render_fence_gif', async () => {
-    const html = await render_fence_html('a -> b;', 'fsl gif');
-    expect(html).toContain('<!-- fsl-fence:');
-    expect(html).toContain('gif rendering lands with render_fence_gif');
-    expect(html).not.toContain('<img');
-    expect(html).not.toContain('<svg');
-  });
+  // The former gif-placeholder test was superseded when render_fence_gif
+  // landed; the gif branch of image_html is now covered by the 'embeds a
+  // gif data URI' test in fsl_fence_gif.spec.ts.
 
 });
 

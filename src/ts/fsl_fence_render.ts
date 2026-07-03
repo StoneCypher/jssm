@@ -12,9 +12,12 @@
 import { sm, parse_fence_info, fsl_fence_lang } from './jssm.js';
 import type { FenceDescriptor, FenceDimension } from './jssm.js';
 import { fsl_to_svg_string, fsl_to_dot }        from './jssm_viz.js';
-import { rasterize }            from './cli/subcommands/render/rasterize.js';
-import { extract_state_fills }  from './fsl_svg_patch.js';
+import { rasterize, rasterizeRgba }              from './cli/subcommands/render/rasterize.js';
+import { extract_state_fills, patch_state_fill } from './fsl_svg_patch.js';
 import { highlight_fsl_html }   from './fsl_fence_highlight.js';
+import { plan_walk }            from './fsl_walk.js';
+import { encode_gif }           from './fsl_gif.js';
+import type { GifFrame }        from './fsl_gif.js';
 
 /** Options shared by the static fence renderers. */
 export interface FenceRenderOptions {
@@ -132,8 +135,11 @@ function wrap(desc: FenceDescriptor, chunks: string[]): string {
 async function image_html(source: string, svg: string, desc: FenceDescriptor): Promise<string> {
   if (desc.format === 'svg') { return svg; }
   if (desc.format === 'gif') {
-    // replaced by real wiring when render_fence_gif lands (same module)
-    return note_comment('gif rendering lands with render_fence_gif');
+    const gif_bytes = await render_fence_gif(source, {});
+    const gif_b64 = (typeof Buffer !== 'undefined')
+      ? Buffer.from(gif_bytes).toString('base64')
+      : btoa(String.fromCharCode(...gif_bytes));
+    return `<img class="fsl-image" src="data:image/gif;base64,${gif_b64}" alt="FSL state machine walk"/>`;
   }
   const bytes = await rasterize(svg, desc.format, {});
   const b64 = (typeof Buffer !== 'undefined')
@@ -187,5 +193,68 @@ export async function transform_markdown(
   }
 
   return out.join('\n');
+
+}
+
+/** Options for {@link render_fence_gif}. */
+export interface GifRenderOptions {
+  /** Per-frame delay, centiseconds.  Default 70 (~0.7s). */
+  delay_cs?       : number;
+  /** Netscape loop count; 0 = forever (default). */
+  loop?           : number;
+  /** Walk-length ceiling; longer walks truncate.  Default 64. */
+  max_frames?     : number;
+  /** Raster zoom percentage; 100 = 3× natural (the CLI raster convention). Default 100. */
+  scale?          : number;
+  /** Fill painted on the walked state each frame.  Default '#ff9930'. */
+  highlight_fill? : string;
+}
+
+/**
+ *  Render an FSL machine as a looping animated GIF that walks its states:
+ *  main-path (`=>`) states in order when a main path exists, else an
+ *  every-edge tour.  Graphviz lays the machine out ONCE; each frame patches
+ *  one state's fill in the SVG string and rasterizes — identical geometry
+ *  across frames, no layout jitter.
+ *
+ *  @param source - The FSL machine source.
+ *  @param opts.delay_cs - Per-frame delay in centiseconds (default 70).
+ *  @param opts.loop - Netscape loop count, 0 = forever (default 0).
+ *  @param opts.max_frames - Walk-length ceiling; longer walks truncate (default 64).
+ *  @param opts.scale - Raster zoom percentage, 100 = 3× natural size (default 100).
+ *  @param opts.highlight_fill - Fill painted on the walked state (default '#ff9930').
+ *  @returns The encoded GIF89a bytes.
+ *
+ *  @throws {JssmError} on invalid FSL (programmatic callers want exceptions;
+ *  the HTML renderers catch and box instead).
+ *
+ *  @example
+ *  const gif = await render_fence_gif('Red => Green => Yellow => Red;');
+ *  // Uint8Array starting "GIF89a", three frames, looping forever
+ *
+ *  @see plan_walk
+ *  @see encode_gif
+ */
+export async function render_fence_gif(
+  source : string,
+  opts   : GifRenderOptions = {},
+): Promise<Uint8Array> {
+
+  const machine    = sm`${source}`;                    // throws JssmError on bad source
+  const max_frames = opts.max_frames ?? 64;
+  const walk       = plan_walk(machine).slice(0, max_frames);
+
+  const base_svg  = await fsl_to_svg_string(source);
+  const highlight = opts.highlight_fill ?? '#ff9930';
+  const scale     = opts.scale ?? 100;
+
+  const frames: GifFrame[] = [];
+  for (const state of walk) {
+    const patched = patch_state_fill(base_svg, state, highlight);
+    const raster  = await rasterizeRgba(patched, { scale });
+    frames.push({ rgba: raster.rgba, width: raster.width, height: raster.height });
+  }
+
+  return encode_gif(frames, { delay_cs: opts.delay_cs ?? 70, loop: opts.loop ?? 0 });
 
 }
