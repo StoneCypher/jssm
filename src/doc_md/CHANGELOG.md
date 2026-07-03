@@ -22,6 +22,59 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 2, 2026 11:33:46 PM
+
+Commit [67d6553df80bee82dec0cf4c6cb8878536b0e95a](https://github.com/StoneCypher/jssm/commit/67d6553df80bee82dec0cf4c6cb8878536b0e95a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: ignore the MSYS PUA-colon variant of the stray vitest artifact
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 11:31:15 PM
+
+Commit [7c7279934bd89a8881c7a8b7ffa60ab696f32dc6](https://github.com/StoneCypher/jssm/commit/7c7279934bd89a8881c7a8b7ffa60ab696f32dc6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: untrack the mangled-path vitest artifact and ignore its pattern
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 11:28:08 PM
+
+Commit [3a5221e942415b0c5aee81478c4c23a1aa59d5b5](https://github.com/StoneCypher/jssm/commit/3a5221e942415b0c5aee81478c4c23a1aa59d5b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.158.0
+  * Full release build of the fence static-rendering feature set: jssm/fence
+subpath (render_fence_html / render_fence_gif / transform_markdown + the
+GIF89a encoder, walk planner, SVG patching, and parity-highlighter
+primitives), CLI --target gif, and the cookbook swapped onto the parity
+pipeline.
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 2, 2026 11:16:02 PM
 
 Commit [4aaabf39d3f527790b0ede68927c57a7035d81b5](https://github.com/StoneCypher/jssm/commit/4aaabf39d3f527790b0ede68927c57a7035d81b5)
@@ -137,64 +190,3 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 Merges [a98732f1, b2d5d312]
 
   * merge: origin/main (5.157.16) into graviton-envelope branch, keeping 5.157.17
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:44:25 PM
-
-Commit [a98732f1761ff76f3959154ceeac3505334aa07e](https://github.com/StoneCypher/jssm/commit/a98732f1761ff76f3959154ceeac3505334aa07e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): 5.157.17 — full build after graviton envelope
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:38:44 PM
-
-Commit [8f4555ca7bf9077e1f2c6bfaa0853f953907d556](https://github.com/StoneCypher/jssm/commit/8f4555ca7bf9077e1f2c6bfaa0853f953907d556)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat: lean graviton envelope — fast branch-vs-main perf verdicts on real hardware
-  * node src/scripts/graviton_envelope.cjs --base <sha> --head <sha> [--wait]
-fires one detached self-terminating Graviton instance (reusing the canonical
-launcher's executor/AMI/subnet/run-instances seams) that benchmarks the
-COMMITTED dist of both refs in strict A/B/A/B alternation, computes per-case
-medians and deltas on-instance, and uploads envelope.md/.json to
-s3://<bucket>/_envelopes/<runId>/ - an underscore prefix the nightly
-perf_results_sync excludes, so envelope runs never pollute the release trail
-or the chart. --wait polls S3 and prints the verdict; a workflow_dispatch
-shim (perf_envelope.yml) makes it one click from Actions with the release
-benchmark's OIDC role. 21 unit tests over the pure logic (arg parsing,
-verdict math, user-data hardening, wait-loop outcomes) plus dry-run
-orchestration coverage.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 10:25:45 PM
-
-Commit [6175041fa62ca12e479810df2c7f821c9bd11a66](https://github.com/StoneCypher/jssm/commit/6175041fa62ca12e479810df2c7f821c9bd11a66)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): chip attributes are color-span-specific — state values are names, not paints
-  * State spans carry AST-resolved name values since the fence parity work;
-the editor adapter gated chips on value presence, which would have painted
---fsl-chip with state names. Gate on kind instead, pinned by test.
-  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX

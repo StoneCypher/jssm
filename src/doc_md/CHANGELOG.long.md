@@ -22,6 +22,59 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 2, 2026 11:33:46 PM
+
+Commit [67d6553df80bee82dec0cf4c6cb8878536b0e95a](https://github.com/StoneCypher/jssm/commit/67d6553df80bee82dec0cf4c6cb8878536b0e95a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: ignore the MSYS PUA-colon variant of the stray vitest artifact
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 11:31:15 PM
+
+Commit [7c7279934bd89a8881c7a8b7ffa60ab696f32dc6](https://github.com/StoneCypher/jssm/commit/7c7279934bd89a8881c7a8b7ffa60ab696f32dc6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: untrack the mangled-path vitest artifact and ignore its pattern
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 11:28:08 PM
+
+Commit [3a5221e942415b0c5aee81478c4c23a1aa59d5b5](https://github.com/StoneCypher/jssm/commit/3a5221e942415b0c5aee81478c4c23a1aa59d5b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.158.0
+  * Full release build of the fence static-rendering feature set: jssm/fence
+subpath (render_fence_html / render_fence_gif / transform_markdown + the
+GIF89a encoder, walk planner, SVG patching, and parity-highlighter
+primitives), CLI --target gif, and the cookbook swapped onto the parity
+pipeline.
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 2, 2026 11:16:02 PM
 
 Commit [4aaabf39d3f527790b0ede68927c57a7035d81b5](https://github.com/StoneCypher/jssm/commit/4aaabf39d3f527790b0ede68927c57a7035d81b5)

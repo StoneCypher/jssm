@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.158.0 at 7/2/2026, 11:27:19 PM
+* Generated for version 5.157.18 at 7/3/2026, 1:55:46 AM
 
 -->
-# jssm 5.158.0
+# jssm 5.157.18
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -181,27 +181,6 @@ if (result.kind === 'text') console.log(result.content);
 
 <br/>
 
-## Static fence rendering (`jssm/fence`)
-
-`jssm/fence` renders FSL code fences to static, editor-parity-highlighted HTML — no browser, no editor, no live machine required — for Markdown pipelines, static site generators, and doc tooling.
-
-```typescript
-import { transform_markdown } from 'jssm/fence';
-
-const html = await transform_markdown(markdown);
-// every fsl/jssm fence becomes rendered, highlighted HTML
-// everything else in the document passes through untouched
-console.log(html);
-```
-
-`render_fence_gif` walks a machine's main path (or every edge, if there is no main path) into a looping animated GIF, one Graphviz layout patched per frame: 70cs per-frame delay, loops forever, and a 64-frame walk cap by default, all overridable via options.
-
-PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI — install it with `npm install @resvg/resvg-wasm`.
-
-
-
-<br/>
-
 ## Web Components
 
 `jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
@@ -333,7 +312,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  7,991 tests at 100.0% line coverage
+  library.**  7,902 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -466,11 +445,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***7,991 tests***, run 83,033 times.
+***7,902 tests***, run 82,944 times.
 
-- 7,233 specs with 100.0% coverage
-- 758 fuzz tests with 49.4% coverage
-- 10,615 TypeScript lines - 0.8 tests per line, 7.8 generated tests per line
+- 7,144 specs with 100.0% coverage
+- 758 fuzz tests with 52.7% coverage
+- 10,013 TypeScript lines - 0.8 tests per line, 8.3 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
