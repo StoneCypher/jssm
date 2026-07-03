@@ -22,42 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jul 2, 2026 11:22:38 AM
-
-Commit [cf285ff5a497341f11d5519c4cfc00ae39121f18](https://github.com/StoneCypher/jssm/commit/cf285ff5a497341f11d5519c4cfc00ae39121f18)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * ci: deploy-docs republishes test-main-full's docs artifact instead of rebuilding
-  * Every main push ran TWO complete full builds - one gating (test-main-full),
-one purely to repopulate docs/ for gh-pages. test-main-full now uploads its
-docs/ tree as a 1-day artifact on main pushes; deploy-docs downloads it and
-publishes with the existing plain-git step. Bonus correctness: gh-pages now
-serves exactly the tree the gating build produced. The job no longer needs
-Node at all.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 2, 2026 11:19:48 AM
-
-Commit [03baabe6a947cb1d55e40d2b7b3e76c15d24df6d](https://github.com/StoneCypher/jssm/commit/03baabe6a947cb1d55e40d2b7b3e76c15d24df6d)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): 5.157.12 — full build after nonmin de-commit
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jul 2, 2026 11:13:14 AM
 
 Commit [d6e26d1c1531a41ae8893b3688380ea168abc803](https://github.com/StoneCypher/jssm/commit/d6e26d1c1531a41ae8893b3688380ea168abc803)
