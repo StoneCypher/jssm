@@ -79,6 +79,15 @@ describe('render', () => {
     }
   });
 
+  it('dispatches target=gif to raster result (GIF89a magic bytes)', async () => {
+    const r = await render('A => B => A;', { target: 'gif', scale: 25 });
+    expect(r.kind).toBe('raster');
+    expect(r.target).toBe('gif');
+    if (r.kind === 'raster') {
+      expect(String.fromCharCode(...r.buffer.subarray(0, 6))).toBe('GIF89a');
+    }
+  }, 60_000);
+
   it('throws RenderError for invalid FSL', async () => {
     const { RenderError } = await import('../../cli/types');
     await expect(render('not valid fsl !!', { target: 'svg' })).rejects.toBeInstanceOf(RenderError);

@@ -4,8 +4,8 @@ import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
 describe('cli/types', () => {
 
   it('RenderTarget enumerates the v1 targets', () => {
-    const valid: RenderTarget[] = ['svg', 'dot', 'png', 'jpeg', 'html'];
-    expect(valid.length).toBe(5);
+    const valid: RenderTarget[] = ['svg', 'dot', 'png', 'jpeg', 'html', 'gif'];
+    expect(valid.length).toBe(6);
   });
 
   it('RenderError is a real Error subclass with the path field', () => {

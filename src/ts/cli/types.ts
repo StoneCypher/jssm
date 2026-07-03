@@ -2,7 +2,7 @@
  * Render targets supported in v1. Future targets (mermaid, plantuml, scxml,
  * ascii, fsl) will be added in v0.2+.
  */
-export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
+export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html' | 'gif';
 
 /**
  * Options accepted by `render()` and `renderSet()`.
@@ -11,6 +11,9 @@ export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
  * exclusive: `width`/`height` fit to an exact pixel extent, `scale` is a
  * zoom percentage (100 = 3x the SVG's natural size). They are silently
  * ignored for text targets (svg/dot/html).
+ *
+ * `delay` and `maxFrames` apply only to the `gif` target and are silently
+ * ignored otherwise.
  */
 export interface RenderOptions {
   target: RenderTarget;
@@ -18,6 +21,10 @@ export interface RenderOptions {
   height?: number;
   scale?: number;
   quality?: number;
+  /** Per-frame delay in centiseconds (gif only; default 70). */
+  delay?: number;
+  /** Walk-length ceiling on the animated gif's frame count (gif only; default 64). */
+  maxFrames?: number;
 }
 
 /**
@@ -30,10 +37,10 @@ export interface TextResult {
 }
 
 /**
- * A raster-shaped render result (png / jpeg).
+ * A raster-shaped render result (png / jpeg / gif).
  */
 export interface RasterResult {
-  target: Extract<RenderTarget, 'png' | 'jpeg'>;
+  target: Extract<RenderTarget, 'png' | 'jpeg' | 'gif'>;
   kind: 'raster';
   buffer: Uint8Array;
 }
