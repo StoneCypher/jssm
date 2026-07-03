@@ -130,11 +130,31 @@ describe('transform_markdown', () => {
     expect(out).toBe(inner);
   });
 
-  it('renders an fsl fence whose body contains a line starting with backticks-plus-text', async () => {
+  it('renders a four-tick fsl fence cleanly with no residual ticks', async () => {
     const md = '````fsl\na -> b;\n````\n';
     const out = await transform_markdown(md);
     expect(out).toContain('class="fsl-fence"');
     expect(out).not.toContain('````');
+  });
+
+  it('keeps a ticks-plus-text body line inside the fence instead of closing on it', async () => {
+    const md = '```fsl\na -> b;\n```not a close\nmore body\n```\ntail\n';
+    const out = await transform_markdown(md);
+    // the fence body becomes invalid FSL (it contains the stray lines), which
+    // routes to the error box — the point is that 'tail' survives untouched
+    // and the ticks-plus-text line was NOT treated as a close (it ends up in
+    // the error box source, proving it's part of the fence body, not a close).
+    expect(out).toContain('tail');
+    expect(out).toContain('fsl-error-box');
+    expect(out).toContain('```not a close');
+  });
+
+  it('closes a three-tick fence at a four-tick line (CommonMark: at least as many)', async () => {
+    const md = '```fsl\na -> b;\n````\ntail\n';
+    const out = await transform_markdown(md);
+    expect(out).toContain('class="fsl-fence"');
+    expect(out).toContain('<svg');
+    expect(out).toContain('tail');
   });
 
 });

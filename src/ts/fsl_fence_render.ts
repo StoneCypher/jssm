@@ -174,7 +174,7 @@ export async function transform_markdown(
     const info  = open[2]!.trim();
     const body: string[] = [];
     let j = i + 1;
-    const close_re = new RegExp('^' + ticks + '\\s*$');
+    const close_re = new RegExp('^`{' + ticks.length + ',}\\s*$');
     while (j < lines.length && !close_re.test(lines[j]!)) { body.push(lines[j]!); j += 1; }
 
     if (fsl_fence_lang(info) === null) {
