@@ -471,6 +471,21 @@ export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 
 
 
+/**
+ *  Default time / timeout sources, hoisted to module scope so machines that
+ *  don't override them (nearly all) share three singletons instead of
+ *  allocating three fresh closures per construction.
+ *
+ *  @internal
+ */
+const DEFAULT_TIME_SOURCE          = (): number => new Date().getTime();
+const DEFAULT_TIMEOUT_SOURCE       = (f: Function, a: number) => setTimeout(f, a);
+const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number) => clearTimeout(h);
+
+
+
+
+
 class Machine<mDT> {
 
 
@@ -745,7 +760,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = time_source ?? (() => new Date().getTime());
+    this._time_source                   = time_source ?? DEFAULT_TIME_SOURCE;
 
     this._create_started                = this._time_source();
 
@@ -887,17 +902,19 @@ class Machine<mDT> {
     this._state_hooks    = state_hooks    ?? new Map();
 
     this._group_metadata = new Map();
-    (group_metadata ?? new Map()).forEach(
-      (raw: JssmStateConfig, group_name: string) =>
-        // `raw.declarations` is the parser's raw style-item list — structurally
-        // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
-        // JssmStateConfig — so it condenses through the same path as the
-        // `default_*_state_config` blocks (intra-block redefine still throws).
-        this._group_metadata.set(
-          group_name,
-          state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
-        )
-    );
+    if (group_metadata) {                      // group-free machines skip a throwaway Map allocation
+      group_metadata.forEach(
+        (raw: JssmStateConfig, group_name: string) =>
+          // `raw.declarations` is the parser's raw style-item list — structurally
+          // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+          // JssmStateConfig — so it condenses through the same path as the
+          // `default_*_state_config` blocks (intra-block redefine still throws).
+          this._group_metadata.set(
+            group_name,
+            state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
+          )
+      );
+    }
 
     this._group_order = [ ...this._group_registry.keys() ];
 
@@ -930,8 +947,8 @@ class Machine<mDT> {
     this._rng_seed                      = rng_seed ?? new Date().getTime();
     this._rng                           = gen_splitmix32(this._rng_seed);
 
-    this._timeout_source                = timeout_source ?? ( (f: Function, a: number) => setTimeout(f, a) );
-    this._clear_timeout_source          = clear_timeout_source ?? ( (h: number) => clearTimeout(h) );
+    this._timeout_source                = timeout_source ?? DEFAULT_TIMEOUT_SOURCE;
+    this._clear_timeout_source          = clear_timeout_source ?? DEFAULT_CLEAR_TIMEOUT_SOURCE;
     this._timeout_handle                = undefined;
     this._timeout_target                = undefined;
     this._timeout_target_time           = undefined;
@@ -1453,6 +1470,33 @@ class Machine<mDT> {
 
   data(): mDT {
     return structuredClone( this._data );
+  }
+
+
+
+  /**
+   *  The machine's current data by REFERENCE — no clone.  The public
+   *  {@link Machine.data} contract is a deep clone per call (a mutation
+   *  boundary for external consumers, and deliberately untouched); that clone
+   *  is `structuredClone` of the whole data value, which same-package
+   *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
+   *  read one dotted path or serialize per transition — should not pay on
+   *  every event.  Callers MUST NOT mutate the returned value or store it
+   *  beyond the current tick; anything crossing a trust boundary must use
+   *  {@link Machine.data} instead.
+   *
+   *  ```typescript
+   *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
+   *  m._data_ref().a.b;   // 1, zero-copy
+   *  ```
+   *
+   *  @returns The live data value; treat as read-only.
+   *
+   *  @see Machine.data
+   *  @internal
+   */
+  _data_ref(): mDT {
+    return this._data;
   }
 
 
@@ -2650,9 +2694,20 @@ class Machine<mDT> {
    *
    *  @param start - State to begin the walk from.
    *  @param max_steps - Maximum transitions before the walk is step-capped.
+   *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
+   *    results.  The graph is immutable after construction, so a state's
+   *    probable exits never change; sharing one memo across a generator's
+   *    runs collapses runs×steps re-derivations (two array allocations and an
+   *    exit rescan per step) to one per distinct state.  The memo only reuses
+   *    the derived arrays — RNG draw order is untouched, so seeded walks
+   *    reproduce exactly.
    *  @returns The {@link JssmStochasticRun} for this walk.
    */
-  private _stochastic_one_walk(start: StateType, max_steps: number): JssmStochasticRun {
+  private _stochastic_one_walk(
+    start     : StateType,
+    max_steps : number,
+    exit_memo : Map<StateType, Array<JssmTransition<StateType, mDT>>>
+  ): JssmStochasticRun {
 
     const states : Array<string> = [start];
     const edges  : Array<string> = [];
@@ -2661,7 +2716,11 @@ class Machine<mDT> {
     let terminated : boolean   = false;
 
     for (let step = 0; step < max_steps; step++) {
-      const exits = this.probable_exits_for(cur);
+      let exits = exit_memo.get(cur);
+      if (exits === undefined) {
+        exits = this.probable_exits_for(cur);
+        exit_memo.set(cur, exits);
+      }
       if (exits.length === 0) { terminated = true; break; }
       const selected = weighted_rand_select(exits, undefined, this._rng);
       edges.push(`${cur}→${selected.to}`);
@@ -2704,8 +2763,11 @@ class Machine<mDT> {
 
     const start: StateType = this.state();
 
+    // one probable-exits memo for the whole run set; see _stochastic_one_walk
+    const exit_memo: Map<StateType, Array<JssmTransition<StateType, mDT>>> = new Map();
+
     for (let i = 0; i < runs; i++) {
-      yield this._stochastic_one_walk(start, max_steps);
+      yield this._stochastic_one_walk(start, max_steps, exit_memo);
     }
 
   }
@@ -3425,6 +3487,33 @@ class Machine<mDT> {
    *
    *  @internal
    */
+  /**
+   *  Whether at least one live subscriber is registered for `name`.  Used by
+   *  the transition-commit observation block to skip building a detail
+   *  literal that {@link Machine._fire} would immediately discard — a panel
+   *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+   *  previously paid for the exit/entry/data-change detail allocations on
+   *  every transition.  Read at fire time, so a listener installed by a
+   *  pre-hook is still seen (#671).
+   *
+   *  @param name The event name to probe.
+   *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+   *  least one handler.
+   *
+   *  ```typescript
+   *  machine.on('transition', () => {});
+   *  machine._has_subscribers('transition');  // true
+   *  machine._has_subscribers('exit');        // false
+   *  ```
+   *
+   *  @see Machine._fire
+   *  @internal
+   */
+  _has_subscribers(name: JssmEventName): boolean {
+    const set = this._event_handlers.get(name);
+    return (set !== undefined) && (set.size !== 0);
+  }
+
   _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
 
     const set = this._event_handlers.get(name);
@@ -4791,12 +4880,16 @@ class Machine<mDT> {
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
+        // shared by steps 5 and 6: pre-commit, this._state_id is still the
+        // from-state, so both probes key on the same pair; compute it once
+        const pre_pair_id = pair_key(this._state_id, newStateId);
+
         // 5. named transition / action hook
         if (this._has_named_hooks) {
           if (wasAction) {
 
             // Numeric pair probe, then the action id captured at dispatch (#729).
-            const byPair = this._named_hooks.get(pair_key(this._state_id, newStateId));
+            const byPair = this._named_hooks.get(pre_pair_id);
             const nh     = byPair === undefined ? undefined : byPair.get(actionId);
             const outcome = abstract_hook_step(nh, hook_args);
 
@@ -4810,7 +4903,7 @@ class Machine<mDT> {
         if (this._has_basic_hooks) {
 
           // Numeric pair probe (#729); one integer hash replaces two string maps.
-          const h = this._hooks.get(pair_key(this._state_id, newStateId));
+          const h = this._hooks.get(pre_pair_id);
           const outcome = abstract_hook_step(h, hook_args);
 
           if (outcome.pass === false) { this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
@@ -4943,11 +5036,16 @@ class Machine<mDT> {
         if (peh !== undefined) { peh(hook_args); }
       }
 
+      // shared by steps 5 and 6: post-commit this._state_id has moved on, so
+      // the from-side of the pair comes from the captured fromStateId;
+      // compute it once
+      const post_pair_id = pair_key(fromStateId, newStateId);
+
       // 5. named transition / action hook
       if (this._has_post_named_hooks) {
         if (wasAction) {
           // Numeric pair probe, then the action id captured at dispatch (#729).
-          const byPair = this._post_named_hooks.get(pair_key(fromStateId, newStateId));
+          const byPair = this._post_named_hooks.get(post_pair_id);
           const pnh    = byPair === undefined ? undefined : byPair.get(actionId);
 
           if (pnh !== undefined) { pnh(hook_args); }
@@ -4957,7 +5055,7 @@ class Machine<mDT> {
       // 6. regular hook
       if (this._has_post_basic_hooks) {
         // Numeric pair probe (#729).
-        const hook = this._post_hooks.get(pair_key(fromStateId, newStateId));
+        const hook = this._post_hooks.get(post_pair_id);
         if (hook !== undefined) { hook(hook_args); }
       }
 
@@ -5007,28 +5105,39 @@ class Machine<mDT> {
     // cheaply when that specific event has no subscribers.)  #670
     if (this._event_listener_count !== 0) {
       const newData_after: mDT = this._data;
-      this._fire('exit', {
-        state  : fromState,
-        to     : newState,
-        action : fromAction,
-        data   : newData_after
-      });
-      this._fire('transition', {
-        from       : fromState,
-        to         : newState,
-        action     : fromAction,
-        data       : newData_after,
-        next_data  : newData,
-        trans_type,
-        forced     : wasForced
-      });
-      this._fire('entry', {
-        state  : newState,
-        from   : fromState,
-        action : fromAction,
-        data   : newData_after
-      });
-      if (oldData !== newData_after) {
+      // per-name gates: each detail literal below is only built when that
+      // specific event has a live subscriber — a single-purpose panel
+      // listening only to 'transition' previously paid for the exit/entry/
+      // data-change/terminal/complete allocations _fire then discarded.
+      // Gates read at fire time, like the outer count, preserving #671.
+      if (this._has_subscribers('exit')) {
+        this._fire('exit', {
+          state  : fromState,
+          to     : newState,
+          action : fromAction,
+          data   : newData_after
+        });
+      }
+      if (this._has_subscribers('transition')) {
+        this._fire('transition', {
+          from       : fromState,
+          to         : newState,
+          action     : fromAction,
+          data       : newData_after,
+          next_data  : newData,
+          trans_type,
+          forced     : wasForced
+        });
+      }
+      if (this._has_subscribers('entry')) {
+        this._fire('entry', {
+          state  : newState,
+          from   : fromState,
+          action : fromAction,
+          data   : newData_after
+        });
+      }
+      if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
         this._fire('data-change', {
           from     : fromState,
           to       : newState,
@@ -5043,10 +5152,10 @@ class Machine<mDT> {
       // each redo has_state plus its own map walk.  Same predicates:
       // terminal = no exits, complete = the constructor-set flag.  #735
       const new_state_rec: JssmGenericState = this._states.get(newState);
-      if (new_state_rec.to.length === 0) {
+      if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
         this._fire('terminal', { state: newState, data: newData_after });
       }
-      if (new_state_rec.complete) {
+      if (new_state_rec.complete && this._has_subscribers('complete')) {
         this._fire('complete', { state: newState, data: newData_after });
       }
     }

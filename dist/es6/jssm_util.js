@@ -79,10 +79,13 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     }
     // called once per probabilistic walk step: plain loops, no per-call closure
     // allocations (previously frand, or_one, and a reduce callback each call).
-    // undefined weights count as 1, as before.
+    // undefined weights count as 1, as before.  Every internal caller uses the
+    // default 'probability' key, so that case reads the property by name — a
+    // monomorphic named-load IC — instead of a dynamic keyed load.
+    const named = probability_property === 'probability';
     let prob_sum = 0;
     for (const opt of options) { // eslint-disable-line fp/no-loops
-        const p = opt[probability_property];
+        const p = named ? opt.probability : opt[probability_property];
         prob_sum += (p === undefined) ? 1 : p;
     }
     const rnd = (rng ? rng() : Math.random()) * prob_sum;
@@ -90,7 +93,7 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     // advance past each element whose running sum is <= rnd; the element that
     // pushes the sum over rnd is the selection
     while (cursor < options.length) { // eslint-disable-line fp/no-loops
-        const p = options[cursor][probability_property];
+        const p = named ? options[cursor].probability : options[cursor][probability_property];
         cursor_sum += (p === undefined) ? 1 : p;
         ++cursor;
         if (cursor_sum > rnd) {
@@ -135,10 +138,23 @@ function seq(n) {
  *  ```
  *
  */
-const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
- [...ar].sort()
-    .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
- (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
+const histograph = (ar) => {
+    // one counting pass, then a sort over only the k distinct keys — previously
+    // this copied and sorted all n elements (O(n log n) plus a transient array)
+    // before counting.  Map insertion order (sorted keys, default lexicographic
+    // comparator, exactly as before) is preserved because it is observable to
+    // every iterating caller.
+    const counts = new Map();
+    for (const v of ar) { // eslint-disable-line fp/no-loops
+        const c = counts.get(v);
+        counts.set(v, c === undefined ? 1 : c + 1);
+    }
+    const out = new Map();
+    for (const k of [...counts.keys()].sort()) { // eslint-disable-line fp/no-loops
+        out.set(k, counts.get(k));
+    }
+    return out;
+};
 /*******
  *
  *  Draws `n` weighted random samples from an array of objects.  Each draw is
@@ -193,10 +209,23 @@ const weighted_sample_select = (n, options, probability_property, rng) => // TOD
  *  @returns A `Map` from extracted key values to their occurrence counts.
  *
  */
-const weighted_histo_key = (n, opts, prob_prop, extract, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
- histograph(weighted_sample_select(n, opts, prob_prop, rng)
-    .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
-));
+const weighted_histo_key = (n, opts, prob_prop, extract, rng) => {
+    // draw and count in one loop: previously this built four n-length transient
+    // arrays (seq, the sample map, the extract map, and histograph's sort copy).
+    // RNG draw order is identical — n sequential weighted_rand_select calls —
+    // and the sorted-key Map ordering matches histograph's output exactly.
+    const counts = new Map();
+    for (let i = 0; i < n; i++) { // eslint-disable-line fp/no-loops
+        const key = weighted_rand_select(opts, prob_prop, rng)[extract];
+        const c = counts.get(key);
+        counts.set(key, c === undefined ? 1 : c + 1);
+    }
+    const out = new Map();
+    for (const k of [...counts.keys()].sort()) { // eslint-disable-line fp/no-loops
+        out.set(k, counts.get(k));
+    }
+    return out;
+};
 /*******
  *
  *  Internal method generating composite keys for the hook lookup map by
