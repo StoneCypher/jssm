@@ -1,6 +1,6 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { carryingSources, collectCarrying, injectCarryingRows } = require('../benchmark_scaling_carrying.cjs');
+const { carryingSources, median, collectCarrying, injectCarryingRows } = require('../benchmark_scaling_carrying.cjs');
 
 
 
@@ -29,16 +29,38 @@ describe('collectCarrying', () => {
     expect(rows).toEqual([]);
   });
 
-  test('computes variant-minus-plain deltas through a deterministic seam', () => {
+  test('computes variant-minus-plain deltas through a deterministic seam (k=1)', () => {
     // heapUsed sequence per measureRetainedBytes call: base, after.  Feed a
-    // fixed schedule: plain retains 100, groups 160, property 130.
+    // fixed schedule: plain retains 100, groups 160, property 130.  The three
+    // warmup constructions consume no seam reads.
     const reads = [0, 100,   0, 160,   0, 130];
     let i = 0;
+    let built = 0;
     const seam = { gc: () => {}, heapUsed: () => reads[i++] };
-    const rows = collectCarrying(() => ({ a: 1 }), [10], seam);
+    const rows = collectCarrying(() => { built += 1; return { a: 1 }; }, [10], seam, 1);
     expect(rows.length).toBe(2);
-    expect(rows[0]).toEqual({ name: 'carrying groups n=10',   deltaBytes: 60, variantBytes: 160, plainBytes: 100 });
-    expect(rows[1]).toEqual({ name: 'carrying property n=10', deltaBytes: 30, variantBytes: 130, plainBytes: 100 });
+    expect(rows[0]).toEqual({ name: 'carrying groups n=10',   deltaBytes: 60, variantBytes: 160, plainBytes: 100, samples: 1 });
+    expect(rows[1]).toEqual({ name: 'carrying property n=10', deltaBytes: 30, variantBytes: 130, plainBytes: 100, samples: 1 });
+    expect(built).toBe(6);   // 3 warmups + 3 measured constructions
+  });
+
+  test('a single GC hiccup cannot set the row: medians over k samples', () => {
+    // k=3 per variant; plain samples 100,100,100; groups 160,9999,160 (one
+    // hiccup); property 130,130,130 -> medians land as if the run were clean.
+    const retained = [100, 100, 100,   160, 9999, 160,   130, 130, 130];
+    const reads: number[] = [];
+    for (const r of retained) { reads.push(0, r); }
+    let i = 0;
+    const seam = { gc: () => {}, heapUsed: () => reads[i++] };
+    const rows = collectCarrying(() => ({ a: 1 }), [10], seam, 3);
+    expect(rows[0].variantBytes).toBe(160);
+    expect(rows[0].deltaBytes).toBe(60);
+    expect(rows[1].variantBytes).toBe(130);
+  });
+
+  test('median handles odd and even counts', () => {
+    expect(median([3, 1, 2])).toBe(2);
+    expect(median([4, 1, 2, 3])).toBe(2.5);
   });
 
   test('the real FSL variants actually construct (smoke, sizes small)', async () => {
