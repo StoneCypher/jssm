@@ -978,14 +978,22 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     // pairs across DISTINCT declarations.  The right-direction edges are the
     // source-driven ones, so only edges whose `from` is the declaration's
     // source state get an entry.
-    const decl_id     : number             = (rule as any).__decl_id;             // TODO FIXME no any
+    const decl_id     : number | undefined = (rule as any).__decl_id;             // TODO FIXME no any
     const source_group: string | undefined = (rule as any).__source_group;        // TODO FIXME no any
     const specificity : number | undefined = (rule as any).__specificity;         // TODO FIXME no any
-    edges.forEach((edge: JssmTransition<StateType, mDT>) => {
-      if (edge.from === rule.from) {
-        edge_decl_meta.set(edge as object, { decl_id, source_group, specificity });
-      }
-    });
+    // Group-free machines (registry.size === 0) reach here with UNTAGGED
+    // nodes — resolve_group_refs passes them through untouched — and their
+    // conflict arbitration is skipped outright, so the metadata would never
+    // be read.  Skipping the per-edge WeakMap.set removes the one remaining
+    // unconditional per-edge construction cost the side-table refactor added
+    // (the week-over-week trail showed construct paying for it).
+    if (decl_id !== undefined) {
+      edges.forEach((edge: JssmTransition<StateType, mDT>) => {
+        if (edge.from === rule.from) {
+          edge_decl_meta.set(edge as object, { decl_id, source_group, specificity });
+        }
+      });
+    }
 
     return { agg_as: 'transition', val: edges };
   }
