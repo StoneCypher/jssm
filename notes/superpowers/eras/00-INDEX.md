@@ -5,8 +5,8 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION:** Increment 2 — write `dag.md` and `irreversibles.md` (the two missing
-coordination artifacts the critique identified).
+**NEXT ACTION:** Increment 3 — write `era-1-language-contract.md` (the v6 brief, contract half at
+near-spec quality; see ledger row 3).
 
 ## Ledger
 
@@ -16,8 +16,8 @@ coordination artifacts the critique identified).
 | 1b | `00-INDEX.md` | done | This ledger |
 | 1c | Founding docs copied to `../specs/` | done | `fable_sum_{critique,omissions,eras}.md` — committed here; untracked copies on the main checkout are now non-canonical |
 | 1d | `issue-snapshots-2026-07-04/` | done | Frozen TSVs (number/labels/title): jssm open 107, jssm closed 434, fsl open 663, fsl closed 733 |
-| 2a | `dag.md` | queued | The merged dependency graph: megaspec §20 phases × trust M1–M6 × convergence streams × the 8 eras; every cross-plan edge explicit; one page |
-| 2b | `irreversibles.md` | queued | Register of hash/ABI/serialization-shaped decisions that must be specced at contract quality when first touched; seeded from registry-close's 12 rows + omissions D1/D2/D10; each row: what, why irreversible, owning era, spec-status |
+| 2a | `dag.md` | done | Workstream inventory w/ v6 state, explicit edge list, critical path (C1/C2 are the cheapest unblockers), era overlay table |
+| 2b | `irreversibles.md` | done | 20-row register (registry-close 12 + omissions D1/D2/D10 + corpus pinning items), status legend, first-touch triggers, working discipline |
 | 3 | `era-1-language-contract.md` | queued | v6 brief: scope-in/out, the contract half at near-spec quality (canonical hash incl. newline/NFC policy, pinning rules, vector format, 2nd-impl decision brief), work packets sized for Opus/Codex, exit criteria |
 | 4 | `era-4-survival.md` | queued | Durable-execution brief + the brainstorm brief for its future PROCESS run; persistence contract, recorded hook returns (tape/ledger slot), migrates-from, 5.x-snapshot-lift decision; the era the corpus underprices |
 | 5 | `era-2-society.md` | queued | Systems/factories/supervision brief; carries alias-removal + strict-mode breakage batch |
