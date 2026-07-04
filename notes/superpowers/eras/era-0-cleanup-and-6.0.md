@@ -57,9 +57,9 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
   before fixing — it may deserve an immediate 5.x patch release).
 
 ### WP-2 · 5.x bug burn-down — mechanical-to-judgment mix · M
-- **Inputs:** frozen snapshots; the genuine-bug residue: jssm #605 (empty comment body), #584
-  (duplicate γ), #557 (`_data` unset on hookless path), #515 (verify dup), fsl-side viz/editor
-  bugs surfaced by triage (WP-7/8 feed this list).
+- **Inputs:** the `e0`/`KEEP` rows of the two disposition ledgers (the authoritative feed).
+  *Correction 2026-07-04: an earlier draft cited jssm #605/#584/#557/#515 — those are already
+  closed; the ledgers supersede that list.*
 - **Do:** TDD each (repo rules: fix, never pin; no fake tests; stoch where apt); ship as 5.158.x
   patches from main, batched to avoid one-release-per-typo.
 - **Done when:** the triage ledger's `keep-5x-bug` bucket is empty or explicitly deferred with
