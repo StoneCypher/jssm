@@ -1,0 +1,96 @@
+# HANDOFF — The v6→v12 Era Program
+
+> **What this directory is.** The working home of the FSL/jssm era program: the decomposition of
+> the v6 corpus into eight major-version eras, and the planning artifacts successor models need to
+> execute them. Authored by **Claude Fable 5** (July 2026) during a limited-availability window,
+> deliberately structured so that **Opus, Codex, or any successor can resume at any point,
+> including after an unannounced mid-work halt.**
+> **Worktree:** `fable_new_v6_to_v12` · **Branch:** `docs_26-07-04_fable-v6-to-v12` (off `origin/v6`).
+> **The ledger is `00-INDEX.md`. Read it first. Always. It says what exists, what was in flight,
+> and what the next action is.**
+
+## How to resume (successor checklist)
+
+1. Read `00-INDEX.md`. Any artifact marked `in-flight` may be half-written — its intent line says
+   what "done" meant; finish or restart it against that definition.
+2. Read `../specs/fable_sum_eras.md` (the era map), then `fable_sum_critique.md` and
+   `fable_sum_omissions.md`. These three are the founding documents; they compress a full read of
+   the v6 corpus plus both issue trackers.
+3. Do **not** re-read the whole v6 corpus to get started — the briefs in this directory exist
+   precisely so you don't have to. Deep-read a corpus document only when a brief points you at it.
+4. Work in increments. Before starting an artifact: mark it `in-flight` in the INDEX with a
+   one-line definition of done. After finishing: mark it `done`. Commit and push **every**
+   increment. The remote is the survivor, not your session.
+5. Update `00-INDEX.md` as the **first and last** edit of every increment.
+
+## What is decided (do not re-litigate)
+
+- **The era decomposition itself** — eight eras, cleanup → language+contract → society → proofs →
+  survival → trust → fleet → ecosystem — per `fable_sum_eras.md`, agreed with John 2026-07-04.
+  In-corpus "v7" labels are obsolete shorthand for "post-v6."
+- **The cleave**: the portability *contract* (canonical IR/hash/ABI/pinning + one second
+  implementation, differential CI at N=2) lands in era 1; the host *fleet* lands in era 6.
+- **Survival (durable execution) is its own era**, after Proofs, before Trust and Fleet; it
+  finalizes the ABI's effect/persistence surface before the fleet exists.
+- **Standing rules** (fable_sum_eras.md §"Standing rules"): ring discipline; breakage batches at
+  era boundaries; irreversibles specced at contract quality when first touched; the
+  blind-thinkthrough PROCESS gates Survival and Trust (Trust with a security-lensed reviewer).
+- Everything in the megaspec's **decision log (§28)** is settled unless an era brief explicitly
+  reopens it with a reason.
+
+## What is open (genuinely undecided — surface these, don't guess)
+
+- The **automata-ladder conflict**: megaspec §3's four rungs vs the Gemini push-up recorded in
+  `registry-close.md` (defer `pushdown`/`petri` decidability claims to era 3+). Needs a decision
+  record; era-3 brief should carry the question.
+- The **second-implementation language** for era 1 (Rust favored, not committed).
+- Everything listed as an open question inside individual era briefs.
+
+## Conventions in this directory
+
+- One artifact per file; every file starts with a status header: `Status:` (draft / stable),
+  `Author:`, `Date:`, `Open questions:`. Nothing depends on conversation memory.
+- Plain markdown, house style, no emoji in committed artifacts.
+- Era numbering: era 0 (cleanup) through era 7 (ecosystem); version labels v6–v12 are provisional
+  names, not release promises.
+- Issue references: bare `#N` = jssm; `fsl#N` = StoneCypher/fsl. Cross-repo closing keywords need
+  the full `StoneCypher/fsl#N` form.
+- The tracker snapshots in `issue-snapshots-2026-07-04/` are **frozen**: triage against them, so
+  disposition work is stable even as the live trackers move. Note live drift in the disposition
+  files rather than regenerating the snapshot.
+
+## Repo rules that will bite you (crib from CLAUDE.md + hard experience)
+
+- **No compound shell commands** (`&&`, `||`, `;`, pipes) — each is a fresh permission prompt.
+- **git/npm verb-first**, never options between the command and the subcommand. `cd` as its own
+  command; Bash cwd silently resets after some tool calls — re-check `pwd` before commit.
+- **Never `git add -A`** — stage explicit paths (shared machines may host parallel sessions).
+- `main` and `v6` are **protected**: no commits, merges, or pushes to them without John's
+  explicit per-action permission. This branch (`docs_26-07-04_fable-v6-to-v12`) is free.
+- Issues close only via PR `Closes #N` references, never `gh issue close`.
+- **No public actions** (filing issues, PR comments, posting anywhere) without John's explicit
+  OK — prepare artifacts (see `issues-projection.md` when it exists); John or an authorized run
+  files them.
+- Durable docs live under `notes/` (never `docs/` — `npm run clean` deletes `docs/`).
+- Subagents cannot mutate sibling worktrees; commits/pushes happen from the main session.
+
+## Source-of-truth map
+
+| Question | Where |
+|---|---|
+| What is v6, normatively? | `notes/superpowers/specs/2026-06-09-fsl-megaspec.md` (this branch's parent, `v6`) — §28 decision log settles disputes |
+| The era map | `notes/superpowers/specs/fable_sum_eras.md` |
+| What's wrong / missing in the corpus | `fable_sum_critique.md` / `fable_sum_omissions.md` |
+| Trust stack sequencing | `notes/superpowers/plans/2026-06-26-signed-run-receipts-roadmap.md` (M1–M6 = jssm #825–#830) |
+| Tracker state (frozen 2026-07-04) | `issue-snapshots-2026-07-04/*.tsv` — jssm 107 open / 434 closed; fsl 663 open / 733 closed |
+| Hard-topic design process | `notes/superpowers/specs/blind-thinkthrough/PROCESS.md` |
+
+## Division of labor
+
+Fable-authored artifacts here are **judgment-dense syntheses** — they encode a full-context read
+that is expensive to reproduce. Successor models: treat their *conclusions* as decided (per the
+lists above) and their *work packets* as yours to execute, refine, and correct against reality.
+Where an artifact says "delegate: mechanical," that packet was sized for execution without
+whole-corpus context. When reality contradicts a brief, the brief loses — record the correction
+in the brief's file (dated, under a `Corrections` heading) and in the INDEX, so drift is visible
+rather than silent.

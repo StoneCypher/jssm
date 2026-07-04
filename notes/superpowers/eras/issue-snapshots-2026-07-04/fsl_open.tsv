@@ -1,0 +1,663 @@
+1399		leanstral as a prover
+1398		Nova extension (tree-sitter)
+1397		Helix registration (tree-sitter)
+1396		Zed extension (tree-sitter)
+1395		BBEdit codeless language module
+1394		Kate / KSyntaxHighlighting grammar (also covers Pandoc, Qt Creator, KDE tools)
+1393		JetBrains / IntelliJ family support (TextMate bundle; maybe dedicated plugin)
+1392		Notepad++ User Defined Language for FSL
+1391	Version 6|Created by AI|Core|Enhancement	v6: implement `time_between` guard on the v6 guard/sensor + expression-language foundation (defer from v5)
+1389	Version 6|Created by AI|Core|Enhancement	feat(fsl): `time_between` edge guard — wall-clock / day-of-week / day-and-time predicate for `when`
+1388		fsl-editor: P2P collaborative co-authoring of machines over the network (CRDT — Yjs or alternatives)
+1386	Enhancement	fsl-editor: live interactive tutorial / onboarding mode
+1385	Enhancement	fsl-editor + machine: native breakpoints &amp; debugging facilities
+1383	Enhancement	fsl-editor: Codegen menu — clustered target tree (family → language → direct + popular-machine generators)
+1382	Enhancement	fsl-editor: optional arrow-glyph (ligature) display via a Nerd Font
+1379	Test suite|Needs tests|List issue|Accessibility	Universal character set test V6
+1378	Needs implementation|Enhancement|FSL	Wire up version-range matching (SemVerRange) to a compatibility attribute
+1365		Weighted same-action fan-out: allow one action to dispatch to multiple targets by probability
+1364	Documentation Generators|Readme|Integrations|Enhancement|FSL|Visualizations	feat(fsl): transpile FSL → Mermaid for native inline rendering in Markdown / GitHub
+1363	Static analysis|Functional language|Very powerful|Ahead of its time|Compile targets|Types|Transcompile targets|Needs a feature|Enhancement|FSL|Codegen	feat(fsl): self-hosting — FSL's lexer/parser/checker/compiler as (verifiable) FSL machines
+1362	Needs research|Static analysis|Ahead of its time|Stochastic machines|Is blocked|Needs a feature|Enhancement	feat(fsl): probabilistic timed automata (probabilistic + dense-time verification)
+1361	Needs research|Static analysis|Functional language|Very powerful|Ahead of its time|Enhancement	feat(fsl): dense-time (timed-automata) verification
+1360	Needs implementation|Static analysis|Needs a feature|Enhancement|FSL|Features|Big picture	feat(fsl): temporal property language (LTL/CTL-style) + model checking
+1359	Editors|Tooling|Ease of use|Is blocked|Enhancement|Status: Backlog	feat(fsl): editor — assist curating the declared event alphabet
+1358	Static analysis|Ease of use|Graph language|Needs a feature|Enhancement|FSL	feat(fsl): opt-in declared event/action alphabet with exhaustiveness
+1357	Needs a feature|Enhancement|FSL|Features|Needs spec	feat(fsl): source-level lifecycle actions — machine construct/destruct, state entry/exit
+1356	Needs implementation|Graph language|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): wildcard / catch-all transitions (any-state source)
+1355	Static analysis|Functional language|Very powerful|Ahead of its time|Needs a feature|Enhancement|Needs spec	feat(fsl): Design-by-Contract — invariants, require/ensure preconditions & postconditions
+1354	List issue|Composition|Needs a feature|Enhancement|FSL|Big picture|Needs spec|Status: Backlog	feat(fsl): event-driven / actor model (umbrella)
+1353	List issue|Needs a feature|Enhancement|FSL|Features|Big picture	feat(fsl): statechart structural semantics for hierarchy & parallel regions (umbrella)
+1352	Graph language|Composition|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): source-level modularity — cross-file imports + parameterized machine templates
+1351	Needs a feature|Enhancement|FSL|Features|Status: Needs design|Needs spec	feat(fsl): state-scoped activities & services (do / invoke, auto-cancel on exit)
+1350	Graph language|Needs a feature|Core|Enhancement|FSL|Needs spec	feat(fsl): eventless (always) transitions + else/otherwise default branch
+1349	Needs a feature|Enhancement|FSL|Features|Needs spec	feat(fsl): richer time model — periodic (every) transitions + named cancellable timers
+1348	Needs implementation|Types|Version 6|Needs a feature|Core|Enhancement|FSL|Features|Needs spec	feat(fsl): parameterized event payloads
+1347	Graph language|Is blocked|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): deferred events
+1346	Integrations|Very powerful|Ahead of its time|Composition|Needs a feature|Enhancement|Features|Needs spec	feat(fsl): raise / send and inter-machine events (actor model)
+1345	Needs tests|Documentation and docgen|Core|Enhancement|FSL|Status: Needs design|Needs spec	feat(fsl): run-to-completion stepping & transition conflict-resolution semantics
+1344	Needs implementation|Graph language|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): internal vs external (self) transitions
+1343	Graph language|Is blocked|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): in-state guards / cross-region predicates (in(state))
+1342	Graph language|Is blocked|Needs a feature|Enhancement|FSL|Needs spec	feat(fsl): fork / join / choice / junction pseudostates
+1341	Composition|Needs a feature|Core|Enhancement|FSL|Features|Needs spec	feat(fsl): final states with done / completion events
+1340	Graph language|Composition|Needs a feature|Core|Enhancement|FSL|Needs spec	feat(fsl): history pseudostates (shallow H / deep H*)
+1332	Needs research|Integrations|Collected propaganda|Enhancement	add blue.js to the platform support list for jssm
+1331	Tooling|High priority|Ease of use|Issue needs work|Viz action|Very powerful|Visual improvements|Status: Underway|Composition|Needs a feature|Enhancement|CSS|Visualizations	export dot viz to shareable config
+1330	Editors|Highlighters|Needs research|Needs implementation|Tooling|High priority|Machine use cases|Use cases|Publicity and visibility|Ease of use|Graph language|Viz action|Very powerful|Visual improvements|Status: Underway|Environments|Frontend|Enhancement|Visualizations	dot visual stuff in new editor
+1317	Tooling|Chore|Cleanup|Technical debt|Maintenance	remove ancient flowtype eslint annotations
+1315	Package managers|Chore|Cleanup|Ease of use|Size improvement|List issue|Refactor|Build|Enhancement	Fuse all JSSM packages and switch to multiple export and tree shaking
+1313	Needs implementation|Typescript	Resurrect TS patch
+1310	Needs research|Issue needs work	Identify a storage notation
+1309	Tutorials|Documentation and docgen|Needs information	Explanation of tracing facilities
+1307	Needs research|Publicity and visibility|Package Quality	figure out why npm ranking dropped so much
+1306	Process|Needs information|Meta	fix issues into subissues
+1303	Needs implementation|Issue needs work|Needs tests|List issue|Core|Enhancement	Task list for `.set_data`
+1299	Needs implementation|Chore|Machine use cases|Ease of use|Integrations|Needs a feature|Core|Enhancement	hook_after implies hook_after_any
+1284	Tooling|Test suite|Compile targets|Build|Build infrastructure|CI/CD	Build target matrix - core build target runner
+1283	Test suite|Needs tests|List issue|Build	Build target matrix
+1282	Test suite|Needs tests|Build|Rendering compatibility|Javascript|Web	Build target matrix - browser iife
+1281	Test suite|Integrations|Build|Javascript|Web	Build target matrix - browser dynamic import
+1280	Needs research|Tooling|Build|Javascript	Build target matrix - do something about bun
+1279	Needs research|Tooling|Build|Typescript	Build target matrix - do something about ts-loader
+1277	Needs implementation|Tooling|Test suite|Integrations|Environments	Build target matrix - deno url import
+1276	Tooling|Test suite|Integrations|Environments	Build target matrix - deno static import
+1275	Tooling|Test suite|Environments|Build|Javascript	Build target matrix - node dynamic import
+1274	Needs implementation|Test suite|Environments|Build|Javascript	Build target matrix - node static import
+1273	Test suite|Compile targets|Environments|Build|Javascript	Build target matrix - node commonjs
+1272	Needs research|Needs implementation|Tooling|Competition|Issue needs work|Very powerful|Needs a feature|Core|Enhancement|Status: Needs design|API	One-time next-access hooks
+1271	Needs research|Needs implementation|Tooling|Issue needs work|Very powerful|Performance|Needs a feature|Core|Enhancement	History-attached stack traces
+1270	Needs research|Needs implementation|Compile targets|Enhancement|C++|Codegen	Add `circle` as a compiler target
+1269	Needs research|Machine use cases|Use cases|Integrations|Very powerful|Compile targets|C	Look into `libsir` bindings
+1264	High priority|Cleanup|Machine use cases|Ease of use|Solution proposed|Enhancement|API	No practical way to set `.data` to `undefined`
+1257	Needs research|Ease of use|Graph language|Issue needs work|Needs a feature|Enhancement|FSL|Features|Visualizations|Needs spec	State field `kind`
+1256	Needs research|Ease of use|Graph language|Needs a feature|Enhancement|FSL	operator `kind`
+1255	High priority|Enhancement|Website	It's long past time to do something about the website
+1254	High priority|Readme|Documentation and docgen|Enhancement	It's long past time to do something about the readme
+1252	Chore|Cleanup|Publicity and visibility|Bug|Automation|Integrations|Bug is upstream	Twitter broke the 1.1 api; service hasn't published since July.  Needs fixed
+1251	Needs implementation|Needs a feature|Enhancement|API	API to check whether a given transition is hooked
+1249	Needs research|Machine use cases|Static analysis|Stochastics|Performance|Stochastic machines	Large set of random walks to figure reachability (g'lawd this would take forever)
+1248	Needs research|Machine use cases|Test suite|Stochastics|Needs tests|Stochastic machines	Verify correct support for probability `0`, probability `false` in random state transitions, tests
+1247	Needs research|Machine use cases|Static analysis|Stochastics|Stochastic machines|Uncertain|Enhancement	Measure a machine history to determine the likelihood that a state will ever be reached given a fixed starting point
+1246	Needs research|Machine use cases|Stochastics|Stochastic machines|Needs a feature|Core|Enhancement	Measure a machine history to determine the frequency of each exit
+1245	Needs research|Machine use cases|Stochastics|Stochastic machines|Needs a feature|Enhancement|Status: Needs design	Define a mechanism for merging probability maps
+1244	Needs research|Machine use cases|Stochastics|Stochastic machines|Enhancement|Needs spec	Define a loadable transition probability map
+1243	Ease of use|Types|Core|Enhancement	Resetting a machine should take the same arguments as constructing a machine
+1241	Needs research|Tooling|Integrations|Enhancement	argdown
+1240	Editors|Ease of use|Needs a feature|Enhancement|Question|Visualizations	Edit directly on diagram
+1239	Needs implementation|High priority|Competition|Ease of use|Needs tests|Status: Underway|Needs a feature|Enhancement|Typescript|API	Method to check if available action/transition can be made
+1220	Needs a feature|Core|Enhancement|Needs spec	Override hook
+1218	Needs research|Needs a feature|Enhancement|FSL|Status: Needs design|Needs spec	Variance rules for property defaults
+1217	Needs research|Needs implementation|High priority|Machine use cases|Ease of use|Graph language|Needs tests|Needs a feature|Enhancement|Features	Is it possible to create wildcard transitions? 
+1216	Editors|Highlighters|Needs implementation|Publicity and visibility|Integrations|Collected propaganda|Documentation and docgen	make a page listing other tools and integrations
+1215	Editors|Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|CI/CD	Automatically update fsl-viz-editor from jssm updates
+1214	Editors|Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|CI/CD	Automatically update fsl-editor from jssm updates
+1209	Static analysis|Ease of use|Graph language|Ease of contribution|Enhancement|FSL	State declarations for nodes that aren't in the graph dsl should be a bug
+1208	Examples|Ease of use|Issue needs work	Template starting points
+1199	Test suite|Bug|Issue needs work|List issue|Internationalization	Unicode rampage
+1198	Test suite|Bug|Needs tests|Internationalization	Universal character set test - Output tape
+1197	Test suite|Bug|Internationalization	Universal character set test - Input tape
+1196	Test suite|Bug|Internationalization	Universal character set test - Error messages
+1195	Test suite|Bug|Needs tests|Internationalization	Universal character set test - machine properties
+1185	Bug|Visual improvements|CSS|Mac|Firefox|Website|Cosmetic	Feature Comparision List looks ugly as hell
+1184	Readme|Ease of use|Documentation and docgen|Enhancement	Improved README
+1183	Editors|Tooling|Machine use cases|Test suite|Ease of use|Widgets|Very powerful|Status: Underway|Enhancement|Visualizations|Status: Needs design	Start designing the tracer panel
+1182	Examples|Integrations|Very powerful|Is blocked|Typescript	Give an example of Zod enforcement in a hook
+1177	Examples|Needs implementation|Machine use cases|Issue needs work|Enhancement	implement eater.net simple cpu
+1175	Color|Needs a feature|Enhancement|Visualizations	Mechanism to change theme despite source
+1174	Needs implementation|Ease of use|Graph language|Issue needs work|Status: Underway|Enhancement|FSL	Dense property notation
+1173	Needs implementation|Static analysis|Graph language|Issue needs work|Very powerful|Transcompile targets|Is blocked|Enhancement	Transcompiler `targets` directive
+1172	Needs research|Issue needs work|Very powerful|Transcompile targets|Enhancement|Codegen|Blocks others	Transcompiler plugin can declare abilities
+1171	Issue needs work|List issue|Needs a feature|Enhancement|Visualizations|API	Add a style layer on the machine
+1170	Editors|Tooling|Use cases|Publicity and visibility|Ease of use|Issue needs work|Visual improvements|Ease of contribution|List issue|Color|Frontend|Enhancement|Fonts	Theme creation tool in-editor
+1167	Needs implementation|Cleanup|Performance|Version 6|Refactor|Core|Enhancement|Blocks others	Version 6 - states should be integers under the hood
+1166	Needs implementation|Machine use cases|Functional language|Ease of use|Issue needs work|Integrations|Very powerful|Types|List issue|Version 6|Enhancement|Typescript|API	Version 6: poly-type template
+1165	Needs implementation|High priority|Issue needs work|List issue|Is blocked|Enhancement|Visualizations	Support machine label override in viz
+1164	Graph language|Visual improvements|Rendering compatibility|Needs a feature|Enhancement|Visualizations	Property on transition should be able to target html-like or record port
+1162	Needs research|Is blocked|Needs a feature|Enhancement|Needs spec	Event name prefix
+1161	Needs research|Automation|Integrations|Uncertain|Is blocked|Needs a feature|Enhancement	Event consumer
+1158	Needs implementation|Status: Underway|Needs a feature|Enhancement|API	API to check whether a given state is hooked
+1155	Use cases|Visual improvements|Frontend|Enhancement|Visualizations	Themes should attempt to govern graph special features (eg whether to show the title)
+1154	Use cases|Visual improvements|Frontend|Enhancement|Visualizations|Blocks others	Themes should cover the title
+1153	Needs implementation|Use cases|Visual improvements|Frontend|Enhancement|Visualizations	Themes should cover external labels
+1152	Use cases|Visual improvements|Enhancement|Visualizations|Blocks others	Themes should cover edges
+1151	Use cases|Visual improvements|Is blocked|Enhancement|Visualizations	Add 1950s flowchart as a graph theme
+1150	Use cases|Visual improvements|Is blocked|Enhancement|Visualizations	Add flowchart as a graph theme
+1149	Use cases|Visual improvements|Color|Is blocked|Enhancement|Visualizations	Add Monokai as a graph theme
+1148	Editors|Needs research|Use cases|Visual improvements|Color|Is blocked	Lots of themes to learn from
+1147	Use cases|Visual improvements|Color|Frontend|Is blocked|Enhancement|Visualizations	Add Penumbra, Penumbra Dark, +, ++ as graph themes
+1146	Needs research|Use cases|Competition|Integrations|F#	Interesting tool: automated exploration of UI in playwright/etc by FSM
+1145	Needs implementation|Graph language|Status: Underway|Enhancement|FSL	`complete`: `boolean`|`undef` flag on state declarations which marks something an end state
+1144	Cleanup|Use cases|Ease of use|Visual improvements|Ease of contribution|Status: Underway|Refactor|Frontend|CSS|Visualizations|Technical debt	Progressively remove style defaults from jssm_viz in favor of base stylesheet
+1129	Needs research|Tooling|Competition|Integrations|Very powerful|Enhancement	Support debugging with Kuker
+1128	Examples|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Low hanging fruit|Documentation and docgen|Is blocked	State machine pattern catalogue
+1127	Examples|Ease of use|Tutorials|Help sidebar|Documentation and docgen|Enhancement	Feature presentation pattern
+1109	Needs research|Needs implementation|Tooling|Machine use cases|Functional language|Graph language|Issue needs work|Integrations|Very powerful|List issue|Enhancement|Features	Basic hooks in grammar
+1106	List issue|Needs a feature|Core|Enhancement	Future hooks
+1105	List issue|Core|Enhancement|Features	Basic hooks
+1104	Needs implementation|High priority|Machine use cases|Use cases|Graph language|Issue needs work|Integrations|Very powerful|Needs tests|List issue|Machine exposition|Is blocked|Core|Enhancement	Future posthooks work
+1103	Tooling|Cleanup|Static analysis|Issue needs work|List issue|Meta|Cli	Stuff that needs to be done for future repos
+1102	Examples|Documentation Generators|Documentation and docgen|Is blocked|Enhancement	Mass import all example machines into docs
+1101	Needs implementation|Visual improvements|List issue|Status: Underway|Is blocked|Enhancement	Most overconnected issue list in issue tree
+1100	Chore|Ease of contribution|Enhancement|Process	Upgrade three templates (bug report, feature request, example machine) to YAML form notation
+1099	Examples|Machine use cases|Use cases|Publicity and visibility|Readme|Ease of use|Issue needs work|Help sidebar|Ease of contribution|Collected propaganda|Example source|Documentation and docgen|Enhancement|Process|Community	How to submit machines
+1092	Tooling|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Status: Underway|Low hanging fruit|Refactor	Unify tracker for fsl-lint
+1084	Bug|Issue needs work|List issue|Meta|Blocks others	Outstanding bugs
+1083	Automation	Outstanding automation tasks
+1082	Needs implementation|Issue needs work|List issue|Enhancement|FSL|Features|Meta|Blocks others	Upcoming language conveniences
+1081	Editors|Tooling|Use cases|Ease of use|Issue needs work|Visual improvements|List issue|Enhancement|Blocks others	Editor quality of life topics
+1080	Cleanup|Publicity and visibility|Ease of use|Automation|Integrations|List issue|CDN|Meta	CDN stuff
+1079	Needs research|Issue needs work|Types|List issue|Needs a feature|Enhancement|Typescript	Typescript nuclear future
+1078	Tooling|Test suite|Issue needs work|List issue|Meta	Future testing topics
+1077	Documentation Generators|Tutorials|Issue needs work|List issue|Documentation and docgen|Meta	Documentation topics
+1076	Publicity and visibility|Site use cases|Issue needs work|List issue|Blocks others	Site stuff needed
+1075	Examples|List issue|Machine exposition|Example source|Documentation and docgen|Blocks others	Example machines remaining outstanding
+1074	Bug|Issue needs work|Visual improvements|List issue|Frontend	Visual bugs
+1073	Tooling|Cleanup|Static analysis|Issue needs work|Ease of contribution|List issue|Maintenance|Blocks others	Linting stuff
+1070	Needs implementation|Tooling|Machine use cases|Ease of use|Issue needs work|List issue|Status: Underway|Is blocked|Needs a feature|Enhancement	Future serialize and deserialize
+1057	Needs implementation|Tooling|Test suite|Needs a feature|Enhancement	Serialize must refuse to serialize machines requiring newer FSL support than they offer
+1056	Needs implementation|Tooling|Test suite|Core|Enhancement	Deserialization must re-verify machine version support
+1055	Tooling|Automation|Documentation and docgen|Enhancement	Set up hooks, upgrade automations for fsl_gen_docpage
+1054	Tooling|Refactor|Is blocked|Cli	Separate jssm-viz-cli implementation from CLI, so that it can also be used as a library by fsl_gen_docpage
+1052	Examples|Machine use cases|Use cases|Tutorials|Collected propaganda	Property getters make FSMs/FBMs implementations of Strategy Pattern
+1027	Needs research|Needs implementation|High priority|Machine use cases|Use cases|Functional language|Ease of use|Very powerful|Needs tests|Status: Underway|Is blocked|Enhancement|FSL	Props should be able to be serviced by functions (ostensibly a hook) rather than flat data reads
+1026	Needs research|Needs implementation|High priority|Machine use cases|Use cases|Functional language|Ease of use|Very powerful|Needs tests|Status: Underway|Needs a feature|Enhancement	Props must be able to express functions
+1017	Needs implementation|Ease of use|Very powerful|Status: Underway|Needs a feature|Core|Enhancement	Force flag to ignore jssm version in deserialization
+1016	Needs research|Tooling|Documentation and docgen|Enhancement	Find a mechanism to measure documentation coverage
+1015	Needs implementation|Ease of use|Size improvement|Very powerful|Status: Underway|Enhancement	Serialize to-string headered notation must be compressed
+1014	Needs implementation|Ease of use|Very powerful|Status: Underway|Enhancement|FSL	Serialize must parse a to-string headered notation
+1013	Needs implementation|Ease of use|Very powerful|Status: Underway|Needs a feature|Enhancement	Serialize must provide a to-string headered notation
+1008	Needs implementation|Ease of use|Very powerful|Status: Underway|Enhancement|Blocks others	Serialize must handle tape output
+1007	Needs implementation|Machine use cases|Ease of use|Very powerful|Status: Underway|Enhancement|API|Blocks others	Serialize must handle tape input
+996	Pastebins|Editors|Needs implementation|REPL|Tooling|Publicity and visibility|Ease of use|Issue needs work|Widgets|Integrations|Very powerful|Visual improvements|Enhancement|Visualizations	Branch view (-viz, codemirror)
+994	Needs research|Needs implementation|Test suite|Stochastics|Issue needs work|Very powerful|List issue|Status: Underway|Enhancement|Typescript|FSL	Stochastic primitives
+986	Needs implementation|Tooling|Chore|Automation|Integrations|Status: Underway|Low hanging fruit|Is blocked|CI/CD|Blocks others	Put CLOC in Github Actions report output
+984	Chore|Cleanup|Readme|Status: Underway|Low hanging fruit|Documentation and docgen	Capture maintainable content from existing README
+983	Cleanup|Readme|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement	Start rewriting README using documentation landing page
+982	Tooling|Documentation Generators|Cleanup|Readme|Automation|Documentation and docgen|Refactor|Enhancement	Separate README badges and headers into subordinate document
+980	Needs implementation|List issue|Documentation and docgen|Enhancement|Features	Introducing FBMs
+979	Tutorials|Documentation and docgen|Enhancement	Tutorial explaining how to model an HFSM as an FBM
+978	Stochastics|Tutorials|Documentation and docgen|Enhancement	Tutorial explaining the difference between SFSMs and FBGs
+955	Pastebins|Needs research|Publicity and visibility|Ease of use|Issue needs work|Integrations|Collected propaganda|List issue|Customer acquisition	Get added to various pastebins and js/inno hosts as a standard lib or tickable lib
+953	Ease of use|Automation|Very powerful|Needs a feature|Enhancement|FSL|Needs spec	Disable calling forced transitions from the outside
+943	Needs implementation|Functional language|Very powerful|Types|Needs a feature|Core|Enhancement	Return from hooks: complex return type: support causing terminate
+942	Needs implementation|Functional language|Very powerful|Needs a feature|Core|Enhancement|FSL	Return from hooks: complex return type: support causing reset
+941	Needs implementation|Functional language|Very powerful|Types|Core|Enhancement	Return from hooks: complex return type: support causing start
+940	Needs implementation|Functional language|Very powerful|Types|Core|Enhancement	Return from hooks: complex return type: support the error queue
+939	Needs implementation|Functional language|Very powerful|Types|Core|Enhancement	Return from hooks: complex return type: support the warning queue
+937	Needs implementation|Functional language|Very powerful|Types|Needs a feature|Core|Enhancement	Return from hooks: complex return type: support tape output
+936	Needs implementation|Functional language|Very powerful|Types|Core|Enhancement	Return from hooks: complex return type: support tape input
+935	Needs implementation|Functional language|Very powerful|Needs tests|Types|Status: Underway|Core	Return from hooks: complex return type: validate that data changing correctly supports assigning false, undefined, null
+934	Needs implementation|High priority|Functional language|Very powerful|Types|Uncertain|Needs a feature|Core|Enhancement	Return from hooks: complex return type: support follow-up state change (?)
+933	Needs implementation|High priority|Functional language|Very powerful|Needs a feature|Core|Enhancement|Features	Return from hooks: complex return type: support state change
+928	Tooling|High priority|Machine use cases|Use cases|Functional language|Graph language|Issue needs work|Very powerful|Types|List issue|Machine exposition|Status: Underway|Core|Enhancement|API	Return from hooks is more complex than yes/no
+921	Needs research|Package managers|Chore|Cleanup|Publicity and visibility|Bug|Issue needs work|Integrations|Collected propaganda|Environments|Is blocked	Get Deno package to work
+920	Needs implementation|REPL|Tooling|Package managers|Chore|Publicity and visibility|Ease of use|Automation|Integrations|Collected propaganda|Environments|CDN	Produce fsli on deno-land
+919	Tooling|Package managers|Documentation Generators|Chore|Publicity and visibility|Ease of use|Automation|Integrations|Collected propaganda|Environments|CDN|Typescript	Produce typedoc-plugin-fsl on deno-land
+917	Package managers|Chore|Publicity and visibility|Ease of use|Automation|Integrations|Collected propaganda|Environments|CDN|Cli	Produce jssm-cli on deno-land
+916	Package managers|Chore|Publicity and visibility|Ease of use|Automation|Integrations|Collected propaganda|Environments|CDN|Visualizations	Produce jssm-viz on deno-land
+914	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Core|Enhancement|Features	post_after
+913	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Enhancement|Blocks others	post_tape_output
+912	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Enhancement|Blocks others	post_tape_input
+911	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Core|Enhancement|FSL	post_terminate
+910	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Enhancement|Features	post_start
+909	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Enhancement|API	post_reset
+908	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Enhancement|Features	post_error
+907	Needs implementation|Machine use cases|Use cases|Graph language|Integrations|Very powerful|Needs tests|Machine exposition|Needs a feature|Enhancement|Features	post_rejection
+894	Examples|Cleanup|Tutorials|Issue needs work|Collected propaganda|CDN	Soundtrack tracker
+893	Publicity and visibility|Automation|Viz action|Integrations|CI/CD	Bring jssm-viz-action discord hook online
+892	Needs implementation|Publicity and visibility|Automation|Integrations|Enhancement	Bring typedoc-plugin-fsl discord hook online
+891	Needs implementation|Publicity and visibility|Automation|Integrations|Community	Bring fsl.tools discord hook online
+890	Editors|Needs implementation|Tooling|Publicity and visibility|Automation|Integrations	Bring fsl.tools/editor discord hook online
+889	Needs implementation|Publicity and visibility|Automation|Integrations|Community	Bring fslp discord hook online
+888	Needs implementation|Publicity and visibility|Automation|Integrations|Community	Bring fsli discord hook online
+887	Needs implementation|Tooling|Publicity and visibility|Automation|Integrations	Bring fsl-lint discord hook online
+886	Needs implementation|Publicity and visibility|Automation|Integrations|Community	Bring fsl discord hook online
+881	Chore|Cleanup|Issue needs work|Automation|Integrations|List issue|CI/CD	Bring other discord webhooks online
+880	Needs implementation|Needs a feature|Core|Enhancement|Javascript	Hooks should be able to take a promise
+879	Examples|Machine use cases|Collected propaganda|Example source	USB Device State from Oracle's Solaris docs
+878	Machine use cases|Collected propaganda|Windows	Microsoft bounds drivers with state machines
+877	Examples|Machine use cases|Use cases|Collected propaganda|Example source	Oof.  A practical SCSI state machine example?
+875	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Viz action|Integrations|Ease of contribution|Status: Underway|Environments|CI/CD|Cli	Automatically update jssm-viz-action from jssm-cli updates
+874	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|Build infrastructure|CI/CD|Website	Automatically update fsl.tools from jssm-viz updates
+873	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|Build infrastructure|CI/CD	Automatically update fsli from jssm updates
+872	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|Build infrastructure|CI/CD|Workflows	Automatically update fslp from jssm updates
+871	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|Enhancement|CI/CD|Workflows	Automatically update fsl from jssm updates
+870	Needs implementation|Tooling|Package managers|Documentation Generators|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|CI/CD	Automatically update typedoc-plugin-fsl from jssm-viz updates
+869	Editors|Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|Build infrastructure|CI/CD	Automatically update fsl.tools/editor from jssm-viz updates
+867	Needs implementation|Tooling|Package managers|Chore|Cleanup|Publicity and visibility|Automation|Integrations|Ease of contribution|Status: Underway|Environments|Dependencies|CI/CD|Workflows	Automatically update fsl-lint from jssm updates
+863	Tooling|Chore|Cleanup|Ease of use|Issue needs work|Automation|Very powerful|Ease of contribution|List issue|Status: Underway|Dependencies|CI/CD	Automatically update jssm dependencies within the jssm family tree
+862	Package managers|Ease of use|Bug|Automation|CDN|Is blocked|Bug is upstream	Skypack is not updating JSSM
+861	Documentation Generators|Documentation and docgen|Needs a feature|Enhancement|Markdown|Cli	fsl-cli should generate markdown pages appropriate for tsdoc or other documentation engines
+860	Functional language|Graph language|Needs a feature|Enhancement|FSL	Disallow transitions attribute
+858	Examples|Competition|Publicity and visibility|Ease of use|Tutorials|Collected propaganda|Documentation and docgen|Environments|Enhancement	Stent has a great "converting from redux" article.  We should do something similar
+857	Machine use cases|Use cases|Test suite|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen	State Machines for Testers and QA
+856	Examples|Documentation Generators|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen	State Machines for New Programmers
+855	Examples|Needs implementation|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen|Enhancement	State Machines for Computer Scientists
+854	Examples|Needs implementation|Machine use cases|Use cases|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen	State Machines for Network Engineers
+853	Examples|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen|SQL	State Machines for DBAs
+852	Needs implementation|Use cases|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen|Backend	State Machines for Backend Developers
+851	Examples|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen|Frontend|Enhancement|Web	State Machines for Web Developers
+850	Examples|Machine use cases|Use cases|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Example source|Documentation and docgen|Enhancement	State Machines for Game Developers
+849	Examples|Machine use cases|Use cases|Publicity and visibility|Tutorials|Good first issue|Issue needs work|Ease of contribution|Collected propaganda|List issue|Example source|Help wanted	Currently known needed example machines
+847	Tooling|Automation|Enhancement|Build infrastructure|CI/CD	Set up a Starter Workflow
+842	Publicity and visibility|Ease of use|Tutorials|Integrations|Collected propaganda|Documentation and docgen|Enhancement	Create a Github Skills tutorial
+841	Ease of use|Tutorials|Help sidebar|Automation|Status: Underway|Low hanging fruit|Documentation and docgen|CI/CD	Sidebar Tutorial: Github Action tutorial
+838	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement	Sidebar Tutorial: Publishing machines
+837	Editors|Examples|Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Enhancement	Sidebar Tutorial: Example machines
+836	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement|FSL	Sidebar Tutorial: Language reference
+835	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement|API	Sidebar Tutorial: API reference
+834	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Environments|Enhancement	Sidebar Tutorial: Node, the Browser, and Deno
+833	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Build|Enhancement	Sidebar Tutorial: Bundling
+832	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement	Sidebar Tutorial: Getting Started
+831	Ease of use|Tutorials|Help sidebar|Status: Underway|Low hanging fruit|Documentation and docgen	Sidebar Tutorial: What Are State Machines?
+828	Package managers|Chore|Publicity and visibility|Ease of use|Integrations|Collected propaganda|CDN	Add to cdnjs
+826	Cleanup|Automation|Very powerful|Documentation and docgen|Enhancement|Visualizations	Add issue tree image to documentation
+821	Needs implementation|Documentation and docgen|Environments|Is blocked|Bug is upstream	Write a page on how to use in deno
+820	Tutorials|Status: Underway|Documentation and docgen|Environments|Enhancement|Web	Write a page on how to use in the browser
+819	Tooling|Tutorials|Integrations|Status: Underway|Documentation and docgen|Enhancement	Write a series of pages on how to use with each bundler
+816	Tutorials|Help sidebar|List issue|Status: Underway|Documentation and docgen	Write some documentation sidebar tutorials
+813	Help sidebar|Status: Underway|Documentation and docgen|Enhancement	Start writing documentation sidebar articles
+811	Issue needs work|List issue|Status: Underway|Documentation and docgen|Enhancement|Meta|Blocks others	Improve the documentation
+772	Cleanup|Good first issue|Issue needs work|Ease of contribution|List issue|Documentation and docgen|Help wanted|Blocks others	Let's write some docs!
+762	Needs implementation|High priority|Machine use cases|Use cases|Functional language|Ease of use|Graph language|Issue needs work|Integrations|Very powerful|Needs tests|List issue|Machine exposition|Status: Underway|Enhancement|Big picture	Properties
+757	Needs research|Functional language|Graph language|Issue needs work|List issue|Version 6|Refactor|Enhancement|Big picture|Breaking change	Planning for version 6.0
+756	Package managers|Chore|Publicity and visibility|Ease of use|Automation|Integrations|Collected propaganda|List issue|Environments|CDN|Build|Blocks others	Start producing a deno package
+752	Test suite|Ease of use|List issue|Status: Underway|Needs a feature|Enhancement|Reopened	Better error object
+750	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Is blocked|Enhancement	Improved error object member: state stack trace at error time
+749	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Enhancement|API|Blocks others	Improved error object member: complete output tape at error time
+748	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Needs tests|Enhancement|Blocks others	Improved error object member: input tape position at error time
+747	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Types|Enhancement	Improved error object member: start/stop/halt state at error time
+745	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Types|Enhancement	Improved error object member: data at error time
+744	Needs implementation|Tooling|Functional language|Test suite|Ease of use|Graph language|Integrations|Enhancement|API	Improved error object member: target action at error time
+736	Tooling|Chore|Competition|Readme|Tutorials|Issue needs work|Automation|Collected propaganda|List issue|Status: Underway|Documentation and docgen|Build|Blocks others	Tool the readme
+735	Needs research|Needs implementation|Issue needs work|List issue|Needs a feature|Core|Enhancement|Features	Novel hooks
+732	Tooling|Chore|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Uncertain|Dependencies	Consider re-engaging eslint-unicorn
+731	Tooling|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Frontend|Enhancement	Consider re-engaging eslint-react
+730	Tooling|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Enhancement|Typescript|Technical debt	Consider re-engaging eslint-plugin-promise
+729	Tooling|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Dependencies|Question|Technical debt	Consider re-engaging eslint-plugin-new-with-error
+728	Tooling|Cleanup|Static analysis|Functional language|Ease of use|Automation|Ease of contribution|Enhancement|Typescript	Consider re-engaging eslint-plugin-fp
+727	Needs research|Tooling|Chore|Cleanup|Static analysis|Ease of use|Automation|Ease of contribution|Maintenance	Do a new search for compelling linter plugins
+726	Tooling|Chore|Cleanup|Static analysis|Ease of use|Issue needs work|Automation|Ease of contribution|Needs information|Maintenance	Update the personal lint plugin
+712	High priority|Bug|Issue needs work|Types|Status: Underway|Build|Typescript|Technical debt	Type checking: strict never got set in tsconfig ... 200+ errors is prolly why
+710	Test suite|Good first issue|Needs tests|Difficulty: easy|Enhancement	Test that colliding action and node names don't trigger hooks inappropriately
+708	Needs research|Functional language|Issue needs work|Needs a feature|Enhancement|Question|FSL|Status: Needs design	Should there be a no-op that allows data change?
+706	Needs implementation|Functional language|Ease of use|Is blocked|Core|Enhancement|Blocks others	machines should be able to disallow constructor configuring read of undefined props as undefined instead of throwing
+705	Needs implementation|Functional language|Ease of use|Is blocked|Enhancement	constructor configuration to choose whether to throw or return undefined on access of a property that doesn't exist
+704	Cleanup|Publicity and visibility|Ease of use|Automation|Integrations|CDN|Enhancement|Build infrastructure|CI/CD	Make updating CDNjs part of CI/CD
+699	Needs implementation|Chore|Ease of use|List issue|Core|Enhancement|Typescript|API	Fluent hooking API
+697	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Enhancement|Typescript|API	Tape output fluent hook
+696	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Enhancement|Typescript|API|Blocks others	Tape input fluent hook
+695	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations	Start fluent hook
+694	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Enhancement|Typescript|API	Terminate fluent hook
+693	Ease of use|Needs a feature|Core|Enhancement	In constructor, option to not start immediately
+692	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Enhancement|Javascript|Features|API	Reset fluent hook
+691	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Needs a feature|Enhancement|Typescript|API	Error fluent hook
+690	Needs implementation|Chore|Machine use cases|Ease of use|Good first issue|Integrations|Is blocked|Needs a feature|Enhancement|Features|API	Reject fluent hook
+677	Needs implementation|Machine use cases|Is blocked|Needs a feature|Enhancement|API	API Tape Output Hooks
+676	Needs implementation|Machine use cases|Is blocked|Needs a feature|Core|Enhancement|API	API Tape Input Hooks
+675	Needs implementation|Machine use cases|Is blocked|Enhancement|API	API Terminate Hooks
+674	Needs implementation|Machine use cases|Is blocked|Needs a feature|Enhancement|Typescript|API	API Start Hooks
+673	Needs implementation|Machine use cases|Is blocked|Needs a feature|Enhancement|API	API Reset Hooks
+672	Needs implementation|Machine use cases|Is blocked|Enhancement|Features|API	API Error Hooks
+671	Needs implementation|Machine use cases|Is blocked|Enhancement|Javascript|API	API Reject Hooks
+659	Test suite|Needs tests|Is blocked|Core	Need tests around unused hooks and weird action cases
+653	Chore|Test suite|Good first issue|Needs tests|FSL	Make sure that neither empty string for state name nor action name are acceptable
+652	Chore|Cleanup|Test suite|Stochastics|Good first issue|Needs tests|Low hanging fruit|Typescript	Get 100% coverage for stoch on `jssm-util.ts`
+651	Chore|Cleanup|Test suite|Stochastics|Needs tests|Core|Typescript	Get 100% coverage for stoch on `jssm.ts`
+649	Needs research|Needs implementation|Functional language|Ease of use|Integrations|Very powerful|Example source|Solution proposed|Enhancement|Question|FSL	Inline anonymous bindings as hooks
+648	Needs implementation|High priority|Functional language|Ease of use|Very powerful|Needs a feature|Solution proposed|Enhancement|Typescript|Status: Needs design	How do we actually named hook?
+647	Highlighters|Documentation Generators|Publicity and visibility|Ease of use|Tutorials|Integrations|Collected propaganda|Documentation and docgen|Enhancement|Blocks others	Use CodeHike to make new tutorials
+646	Needs research|Ease of use|Enhancement|Typescript|Question|API	Do we want getters for status functions?
+645	Needs implementation|Functional language|Test suite|Integrations|Needs tests|Enhancement|FSL|Codegen	hooks: open; and hooks: closed; in compiler
+642	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Enhancement|FSL|Features	on_after in grammar
+641	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Enhancement|FSL|Blocks others	on_tape_output in grammar
+640	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL|Blocks others	on_tape_input in grammar
+639	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Enhancement|FSL	on_terminate in grammar
+638	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Enhancement|FSL|Features	on_start in grammar
+637	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_reset in grammar
+636	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_error in grammar
+635	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_reject in grammar
+634	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Core|Enhancement|FSL|Features|Needs spec	on_any_action in grammar
+633	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Enhancement|FSL|Needs spec	on_node_action in grammar
+632	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_action in grammar
+631	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Enhancement|FSL	on_forced_transition in grammar
+630	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Core|Enhancement|FSL	on_main_transition in grammar
+629	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_standard_transition in grammar
+628	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Enhancement|FSL|Features	on_any_transition in grammar
+625	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_transition in grammar
+624	Needs implementation|Functional language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL|Features	on_exit in grammar
+623	Needs implementation|Functional language|Graph language|Integrations|Needs tests|Machine exposition|Needs a feature|Enhancement|FSL	on_enter in grammar
+622	Needs research|Needs implementation|Tooling|Machine use cases|Use cases|Functional language|Test suite|Stochastics|Graph language|Issue needs work|Integrations|Very powerful|Needs tests|Machine exposition|Example source|Performance|Is blocked|Needs a feature|Core|Enhancement|FSL|Needs spec	Hook notation
+621	Needs implementation|Machine use cases|Functional language|Graph language|Needs a feature|Core|Enhancement	Machine needs a concept of being stopped distinct of state, for hooks
+620	Needs implementation|Machine use cases|Functional language|Ease of use|Graph language|Integrations|Needs a feature|Enhancement|Needs spec	Hook requirement
+619	Needs implementation|Machine use cases|Functional language|Test suite|Ease of use|Graph language|Integrations|Machine exposition|Needs a feature|Enhancement|FSL	Do we need a short notation for hookability? (now: yes, "named hooks")
+618	Needs implementation|High priority|Use cases|Ease of use|Graph language|Visual improvements|Needs a feature|Enhancement|FSL	Short notation for arrange chains
+617	Needs implementation|Machine use cases|Test suite|Graph language|Types|Machine exposition|Example source|Enhancement|FSL|Features|Needs spec	Hooks should be "open" or "closed"
+616	Chore|Cleanup|Publicity and visibility|Visual improvements|Low hanging fruit|Frontend|Website|Blocks others	Clean up fsl.tools website
+615	Examples|Use cases|Publicity and visibility|Ease of use|Tutorials|Low hanging fruit|Documentation and docgen	Explain value of storing state machines as strings or datastructures in docs
+611	Test suite|Needs tests|Enhancement|Build infrastructure|CI/CD	Set up trace tests to make sure future releases aren't missing obscure builds 
+610	Editors|Highlighters|Bug|Blocks others	sublime highlighter state statement doesn't recognize quoted labels containing spaces
+608	Chore|Publicity and visibility|Bug|Automation|CI/CD|Website	Need an uptime monitor
+606	Needs implementation|Low priority|Graph language|Visual improvements|Rendering compatibility|Enhancement|Visualizations|Blocks others	Transitions need line styles too
+599	Examples|Needs implementation|Publicity and visibility|Ease of use|Tutorials|Collected propaganda|Documentation and docgen|Enhancement|FSL	Add a `Learn X in Y Minutes` entry for jssm
+595	Needs research|Competition|Publicity and visibility|Issue needs work|Compile targets|List issue|Question	Ragel is in Wikipedia's parser generator list.  Once we drop parsers, should we be too?
+594	Editors|Highlighters|Needs implementation|Tooling|Integrations|Very powerful|Needs a feature|Enhancement	Add a tree-sitter grammar
+592	Examples|Machine use cases|Use cases|Publicity and visibility|Tutorials|Collected propaganda|Low hanging fruit|Youtube	Video of making and executing decision trees
+591	Needs implementation|Tooling|Publicity and visibility|Integrations|Build|Enhancement|Javascript	Make an @rollup/plugin-fsl
+590	Needs research|Chore|Meta|Maintenance	Re-walk jssm closed issue list
+589	Needs research|Examples|Machine use cases|Use cases|Publicity and visibility|Tutorials|Site use cases|Documentation and docgen	Show how to use JSSM to do executable, potentially cyclic decision trees
+587	Tooling|Build|Is blocked|Typescript	Prior compile for parser constants
+586	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Is blocked|Enhancement	Minify by removing comments
+585	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Enhancement|Blocks others	Minify by creating lists where possible
+584	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Enhancement	Minify by conjoining lists where possible
+583	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Performance|Enhancement|Blocks others	Minify by reducing strings to atoms when possible
+582	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Enhancement	Minify by removing lists when only one item is contained
+581	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Color|Enhancement|Blocks others	Minify by reducing color notation when possible
+580	Needs implementation|Machine use cases|Site use cases|Size improvement|Minifier|Enhancement|Blocks others	Minify by removing optional whitespace
+579	Needs research|Stochastics|Very powerful|List issue|Enhancement|Codegen	Chasing the fully reversible parser dragon
+577	Integrations|Transcompile targets|Javascript|Codegen|Blocks others	Transcompile to little-state-machine
+576	Needs implementation|Integrations|Transcompile targets|Enhancement|Javascript|Blocks others	Transcompile to stent
+575	Publicity and visibility|Collected propaganda	"Why developers should be force-fed state machines"
+574	Integrations|Transcompile targets|Enhancement|Javascript|Codegen|Blocks others	Transcompile to switchhub
+573	Integrations|Transcompile targets|Enhancement|Javascript|Codegen|Blocks others	Transcompile to st8
+572	Needs implementation|Integrations|Transcompile targets|Enhancement|Javascript|Blocks others	Transcompile to @steelbreeze/state
+571	Integrations|Transcompile targets|Is blocked|Enhancement|Javascript|Codegen	Transcompile to robot
+570	Competition|Integrations|Transcompile targets|Enhancement|Javascript|Codegen|Blocks others	Transcompile to easy-sm
+569	Needs implementation|Integrations|Transcompile targets|Javascript|Blocks others	Transcompile to machina.js
+568	Graph language|Integrations|Transcompile targets|Is blocked|Enhancement|Codegen	Transcompile to state-machine-cat
+567	Transcompile targets|Needs a feature|Enhancement|Javascript|Codegen|Blocks others	Transcompile to jsclass
+566	Needs implementation|Integrations|Transcompile targets|Is blocked|Javascript	Transcompile to javascript-state-machine
+565	Needs implementation|Transcompile targets|Enhancement|Javascript|Blocks others	Transcompile to state.js
+564	Integrations|Transcompile targets|Is blocked|Enhancement|Javascript|Codegen	Transcompile to XState
+563	Needs research|Use cases|Competition|Publicity and visibility|Integrations|Transcompile targets|List issue|Enhancement|Codegen	Transcompile to other existing state machines
+562	Needs research|Competition|Tutorials|Issue needs work|Integrations|List issue|Documentation and docgen|Blocks others	FSL Book needs to cover everything in the original Harel document
+561	Tooling|Cleanup|Test suite|Stochastics|Issue needs work|Automation|Very powerful|Ease of contribution|List issue|Build|Enhancement|Typescript|Build infrastructure|Codegen	Unify the constant lists by semi-generating the parser
+557	Needs research|Tooling|Test suite|Ease of use|Issue needs work|Integrations|Enhancement|Build infrastructure	Consider wallaby for faster in-context testing
+556	Chore|Cleanup|Test suite|Stochastics|Needs tests|List issue	Get 100% coverage for stoch
+547	Test suite|Good first issue|Types|Low hanging fruit|Is blocked|Enhancement	Define the type for the `Object` in the `Parse/2` wrapper
+545	Tooling|Chore|Cleanup|Low hanging fruit|Build|Technical debt|Blocks others	re-enable personal eslint config once brought up to date
+530	Needs research|Tooling|Machine use cases|Competition|Publicity and visibility|Integrations|Very powerful|Compile targets|Transcompile targets|C++	Compile target: taskflow
+528	Editors|Highlighters|REPL|Machine use cases|Use cases|Publicity and visibility|Ease of use|Integrations|Very powerful|Is blocked	Get into the Monaco languages list
+527	Editors|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Very powerful|Needs a feature|Enhancement|iOS|Mobile	iOS app
+526	Editors|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Very powerful|Frontend|Web|Website	Web app
+525	Editors|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Very powerful|Is blocked|Enhancement|Android|Mobile	Two-screen optimized android app
+524	Editors|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Very powerful|Enhancement|Android|Mobile	Android app
+518	Examples|Use cases|Example source	NSA hiring flowchart
+517	Publicity and visibility|Site use cases|Low hanging fruit|Enhancement|Website|Customer acquisition|SEO	touch up seo
+513	Needs implementation|Functional language|Is blocked|Enhancement|HTML|Codegen	Ability to derive state tables as HTML
+512	Static analysis|Functional language|Machine exposition|Needs a feature|Enhancement|API	Ability to derive state tables as JSON
+511	Needs research|Publicity and visibility|Customer acquisition|SEO	Start figuring out a strategy to get listed on sites
+510	Documentation and docgen|Uncertain|Enhancement|PDF	maybe produce the pdf manual you always talk about for other things
+509	Needs implementation|Machine use cases|Functional language|Publicity and visibility|Graph language|Integrations|Very powerful|Types|Transcompile targets|Enhancement|Typescript|Cli|Codegen	jssm and jssm-cli should be able to produce ts definitions as strings
+508	Needs research|Needs implementation|Tooling|Use cases|Competition|Issue needs work|Integrations	Amazon SWF
+507	Editors|Needs implementation|Tooling|Cleanup|Test suite|Automation|Needs tests|Enhancement|Javascript	Testing for JSSM-VIZ-DEMO
+506	Pastebins|Editors|Needs implementation|REPL|Tooling|High priority|Use cases|Publicity and visibility|Ease of use|Tutorials|Issue needs work|Widgets|Integrations|Very powerful|Enhancement|Status: Needs design	Editor share crosslink
+505	Needs implementation|Tooling|Chore|Test suite|Stochastics|Graph language|Issue needs work|Integrations|Very powerful|Needs tests|List issue|Enhancement|Internationalization	Use "big list of naughty strings" (without empty string) to test node name generation
+500	Editors|Needs research|Needs implementation|REPL|Tooling|Functional language|Ease of use|Graph language|Issue needs work|Very powerful|Needs a feature|Enhancement|Javascript|FSL|Codegen|API	Fluent anti-compiler
+499	Needs research|Examples|Use cases|Publicity and visibility|Graph language|Documentation and docgen	Unweighted and gender weighted family trees
+498	Needs research|Tooling|Machine use cases|Test suite|Ease of use|Needs a feature|Solution proposed|Enhancement|API	Machine fluent interface
+497	Needs implementation|Test suite|Stochastics|Very powerful|Needs tests|List issue|Stochastic machines|Enhancement	Available stochastic testing criteria
+496	Needs research|Competition|Integrations|Transcompile targets	Amazon States Language
+495	Needs implementation|Functional language|Ease of use|Integrations|Needs a feature|Enhancement	custom .to_string() formatter
+494	Needs implementation|Functional language|Ease of use|Integrations|Needs a feature|Enhancement	.to_string() formatter support for data
+493	Needs implementation|Functional language|Ease of use|Integrations|Needs a feature|Enhancement|Blocks others	.to_string() formatter
+492	Needs research|Graph language|Very powerful|Uncertain|Enhancement	finite state tree automata?
+490	Issue needs work|List issue|Big picture|Meta	Top level topics
+489	Needs research|Use cases|Functional language|Graph language|Issue needs work|Integrations|Composition|Is blocked|Needs a feature|Enhancement|Status: Needs design	Templated inclusion
+486	Needs research|List issue|Uncertain|Suppressed|Features	Evaluate whether to re-enable currently suppressed features
+485	Needs research|Needs implementation|Tooling|Machine use cases|Static analysis|Functional language|Test suite|Stochastics|Publicity and visibility|Issue needs work|Very powerful|List issue|Stochastic machines|Enhancement	Probabilities, probabilistics, and stochastics
+483	Needs implementation|Use cases|Ease of use|Widgets|Frontend|Javascript|Visualizations|Blocks others	Vanilla .js widget renderer component
+482	Needs research|Needs implementation|Machine use cases|Functional language|Test suite|Needs tests|List issue|Core|Enhancement|Features	On the ending of machines
+481	Editors|Highlighters|Issue needs work|Integrations|List issue|Meta	Highlighter stuff
+480	Tooling|Package managers|Issue needs work|List issue|Package Quality|Big picture	Package quality issues
+479	Issue needs work|Visual improvements|List issue|Rendering compatibility|Enhancement|Visualizations	General visual improvements
+478	Examples|Machine use cases|Use cases|Tutorials|Issue needs work|List issue	Outsider tutorial content
+477	Ease of use|Tutorials|Issue needs work|List issue|Documentation and docgen|Meta	Tutorial material
+475	Low priority|Cleanup|Bug|Visual improvements|Visualizations|Cosmetic	Do something about the appearance of some shapes
+473	Publicity and visibility|Issue needs work|List issue|Customer acquisition	Other sites
+471	Cleanup|Publicity and visibility|Readme|Ease of use|Good first issue|Issue needs work|List issue|Low hanging fruit|Documentation and docgen|Enhancement|Website	README improvements
+468	Issue needs work|List issue|Enhancement|FSL|Features|Big picture|Meta	New language concepts and features
+467	Machine use cases|Use cases|Publicity and visibility|Ease of use|Site use cases|Issue needs work|List issue|Is blocked|Windows|Mac|iOS|Android|Web	Apps
+466	Editors|Ease of use|Good first issue|Issue needs work|Widgets|Visual improvements|List issue|Frontend|Enhancement	Editor quality of life improvements
+465	Test suite|Stochastics|Issue needs work|List issue|Big picture	Stochastic testing in general
+464	Needs research|Needs implementation|Tooling|Static analysis|Publicity and visibility|Ease of use|Automation|Integrations|Enhancement|CI/CD	Github action for linting machines
+463	Tooling|Static analysis|Issue needs work|List issue|Needs a feature|Enhancement|Cli	FSL needs a linter
+462	Examples|Needs implementation|Tooling|Publicity and visibility|Site use cases|Issue needs work|Very powerful|List issue|Low hanging fruit|Enhancement|Website	Let's have a machine gallery!
+461	Examples|Publicity and visibility|Tutorials|Site use cases|Issue needs work|List issue|Low hanging fruit|Enhancement	Specific examples of gallery entries
+459	Needs implementation|Machine use cases|Functional language|Issue needs work|Very powerful|Needs a feature|Enhancement|Needs spec	Factory machine data factory method
+458	Needs implementation|Machine use cases|Functional language|Integrations|Very powerful|Needs a feature|Enhancement|API|Blocks others	Termination promise resolver
+457	Needs research|Machine use cases|Use cases|Functional language|Very powerful|Needs a feature|Enhancement|Status: Needs design	Tape Output
+456	Needs implementation|Tooling|Publicity and visibility|Integrations|Very powerful|Compile targets|Transcompile targets|Enhancement|Codegen	Emit meaningful, usable SCXML
+454	Needs implementation|Chore|Machine use cases|Functional language|Test suite|Graph language|Bug|Issue needs work|Needs tests|FSL	Repeat state declaration actually should not be an error
+453	High priority|Functional language|Ease of use|Graph language|Very powerful|Needs a feature|Enhancement|Needs spec	State spread
+450	Needs implementation|Machine use cases|Functional language|Test suite|Stochastics|Ease of use|Issue needs work|Very powerful|List issue|Needs a feature|Enhancement|API	Tape Input
+449	Needs research|Test suite|Good first issue|Issue needs work|Uncertain|Needs a feature|Enhancement|Question	.reset
+447	Editors|Highlighters|Needs implementation|Issue needs work|Integrations|Visual improvements|List issue|Enhancement|FSL	Further improvements to Sublime highlighter
+446	Examples|Machine use cases|Use cases|Tutorials|Good first issue|Low hanging fruit|Documentation and docgen	Use FSL to explain the difference between Mealy and Moore less painfully
+445	Examples|Needs implementation|Machine use cases|Competition|Functional language|Publicity and visibility|Tutorials|Graph language|Very powerful|Needs a feature|Enhancement|FSL	Transitions should have properties
+443	Tooling|Test suite|Needs a feature|Enhancement|FSL	Can specify which start node to take from factory
+441	Competition|Publicity and visibility|Good first issue|Issue needs work|List issue|Low hanging fruit|Documentation and docgen|Customer acquisition|SEO	Comparison SEO stalk the various competing machines
+440	Examples|Publicity and visibility|Site use cases|Good first issue|Issue needs work|List issue|Low hanging fruit|Customer acquisition|SEO	SEO stalk the various phrases
+438	Use cases|Graph language|Visual improvements|Icons|Enhancement|Visualizations|Blocks others	Add FontAwesome as node symbols
+437	Needs implementation|Use cases|Graph language|Issue needs work|Visual improvements|List issue|Enhancement|Visualizations	Things that a user might suggest for visual differentiation
+436	Use cases|Graph language|Issue needs work|Visual improvements|List issue|Frontend|Enhancement|CSS|Visualizations	Things that need to be visually differentiated
+434	Machine use cases|Functional language|Integrations|Very powerful|Machine exposition|Low hanging fruit|Needs a feature|Enhancement	Explicit list of supported hooks for machine
+433	Use cases|Graph language|Visual improvements|Needs a feature|Enhancement|Visualizations	Voluntary edge labels
+431	Machine use cases|Functional language|Is blocked|Needs a feature|Enhancement	Factory machine name factory method
+430	Functional language|Needs a feature|Enhancement|FSL	Factories need to permit definition of instance name
+425	Low priority|Use cases|Graph language|Enhancement|Visualizations|Blocks others	Control ports of transitions
+424	Low priority|Use cases|Graph language|Enhancement|Visualizations|Blocks others	Control arrow ends of transitions
+423	Low priority|Use cases|Graph language|Enhancement|Features|Visualizations	Control hover label of transitions
+422	Low priority|Use cases|Graph language|Needs a feature|Enhancement|Visualizations	Control hover label of states
+421	Low priority|Use cases|Graph language|Needs a feature|Enhancement	URL decoration for transitions
+419	Needs implementation|Machine use cases|Functional language|Test suite|Graph language|Needs tests|Stochastic machines|Enhancement|FSL	Remove single-action-per-origin limtation when probabilistics involved
+418	Needs research|Needs implementation|Tooling|Machine use cases|Use cases|Functional language|Publicity and visibility|Graph language|Issue needs work|Integrations|Very powerful|Compile targets|Transcompile targets|List issue|Enhancement|Big picture|Codegen	Code emission
+417	Needs research|Tooling|Low priority|Use cases|Ease of use|Graph language|Issue needs work|Integrations|Visual improvements|Types|List issue|Needs a feature|Enhancement|Codegen	Auto-api
+416	Use cases|Graph language|Issue needs work|Visual improvements|List issue|Rendering compatibility|Enhancement|Features|Visualizations	Things to expose from GraphViz
+414	Needs implementation|Machine use cases|Use cases|Functional language|Test suite|Stochastics|Graph language|Very powerful|Stochastic machines|Needs a feature|Enhancement	Weighted start states
+413	Needs research|Needs implementation|Machine use cases|Test suite|Ease of use|Very powerful|Needs a feature|Enhancement|Features|API	Factories
+409	Highlighters|Needs implementation|Tooling|High priority|Competition|Publicity and visibility|Ease of use|Integrations|Very powerful|FSL	Github Linguist
+407	Needs research|Needs implementation|Tooling|Package managers|High priority|Machine use cases|Competition|Publicity and visibility|Ease of use|Issue needs work|Very powerful|Compile targets|Enhancement|Javascript|Cli|Codegen	Ability to compile an `npm` module ❤️ 
+404	Ease of use|Issue needs work|Needs tests|Enhancement|Blocks others	Improved labels should be used in errors, alongside node names
+401	Examples|Needs implementation|Test suite|Ease of use|Tutorials|Graph language|Issue needs work|List issue|Documentation and docgen|Needs a feature|Enhancement|Visualizations	Stripes
+400	Needs implementation|Test suite|Ease of use|Tutorials|Graph language|Issue needs work|List issue|Enhancement|FSL|Visualizations	Cycles
+399	High priority|Ease of use|Issue needs work|Ease of contribution|List issue|Documentation and docgen|Meta	Make jssm easier to contribute to
+398	Examples|High priority|Use cases|Publicity and visibility|Ease of use|Tutorials|Ease of contribution|Low hanging fruit|Documentation and docgen	Example machines that intentionally tour the language
+396	High priority|Cleanup|Publicity and visibility|Ease of use|Tutorials|Bug|Frontend|Web|Website	Fix the videos on the landing page
+392	Needs research|Ease of use|Issue needs work|Widgets|Uncertain|Frontend|Enhancement	Blocks-style viewer and LZ URL decompressor should be able to UI panel
+391	Pastebins|Editors|Needs research|Ease of use|Issue needs work|Widgets|Uncertain	Blocks-style viewer and LZ URL decompressor should be able to expose editor
+390	Needs research|Test suite|Needs tests|Types|Typescript	Test the `.d.ts` 
+389	Needs research|Test suite|Build|Package Quality	Test the `module` attribute of package
+382	Examples|Chore|High priority|Cleanup|Ease of use|Tutorials|Automation|List issue|Documentation and docgen|Website	Finish centralizing, canonizing, and unanimizing all the written material onto fsl.tools
+372	Editors|Use cases|Ease of use|Graph language|Good first issue|Visual improvements|Low hanging fruit|Needs a feature|Enhancement|Visualizations	Lock outputs, terminals, complete, finalized to last row
+371	Editors|Use cases|Ease of use|Graph language|Visual improvements|Needs a feature|Enhancement|Visualizations	Lock inputs to first row
+365	Chore|Low priority|Cleanup|Good first issue|Low hanging fruit|Icons|Frontend|Website	graph_explorer needs a favicon
+346	Use cases|Test suite|Graph language|Issue needs work|Visual improvements|Color|Needs a feature|Enhancement|FSL	Also do the assign-level properties
+344	Use cases|Test suite|Graph language|Good first issue|Visual improvements|Color|Rendering compatibility|Enhancement	Add support for X11 colors
+337	Needs research|Ease of use|Issue needs work|Visual improvements|Color|Enhancement|Visualizations	How does color auto-descend?
+327	Publicity and visibility|Ease of use|Tutorials|Issue needs work|Collected propaganda|List issue|Documentation and docgen	Arrange a series of courses; place it many places
+326	Graph language|Issue needs work|Needs a feature|Enhancement|Features	provide edge labels so people don't have to use actions as labels
+324	Publicity and visibility|Tutorials|Issue needs work|List issue|Customer acquisition|Youtube	Make a youtube channel for all these tutorials
+323	Examples|Use cases|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Visualizations	Video: speed run make the test case from jssm-viz
+322	Needs research|Use cases|Ease of use|Issue needs work|Visual improvements|List issue|Frontend|Enhancement|Visualizations	Visual improvements to JSSM-viz
+321	Editors|Needs implementation|Use cases|Competition|Ease of use|Graph language|Issue needs work|Visual improvements|List issue|Visualizations|Meta	Visual improvements to the graph
+320	Editors|Needs implementation|Use cases|Competition|Ease of use|Graph language|Issue needs work|Visual improvements|List issue|Enhancement|Visualizations	Visual improvements to edges
+319	Editors|Needs implementation|Use cases|Competition|Ease of use|Graph language|Issue needs work|Visual improvements|List issue|Frontend|Visualizations	Visual improvements to states
+318	Needs research|Tooling|Chore|High priority|Cleanup|Issue needs work|Automation|Status: Underway	Use dependency tree to find stray issues
+317	Needs research|Tooling|Use cases|Publicity and visibility|Ease of use|Very powerful|Needs a feature|Question|Security	Should we allow URLs?
+315	Use cases|Graph language|Widgets|Automation|Integrations|Very powerful|Enhancement|Visualizations|Codegen	Expose SVG ID of nodes to user
+313	Low priority|Use cases|Ease of use|Needs a feature|Enhancement|Visualizations	Set a hover label
+312	Low priority|Graph language|Color|Needs a feature|Enhancement|Visualizations	Support transparent as a state background color
+311	Editors|Needs implementation|Tooling|Use cases|Publicity and visibility|Ease of use|Graph language|Widgets|Integrations|Enhancement|Visualizations|Customer acquisition	Offer up to Wikipedia as flowchart renderer?
+310	Publicity and visibility|Ease of use|Tutorials|Issue needs work|List issue|Documentation and docgen|Enhancement|Youtube	Make a Youtube formal course
+309	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement	Make a Skillshare class
+308	Publicity and visibility|Ease of use|Tutorials|Enhancement|Customer acquisition	Make a Lynda class
+307	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement	Make a Coursera class
+306	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement	Make a Udacity class
+305	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement	Make a Udemy class
+304	Editors|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement|Visualizations|Youtube	Video: how to install and use the jssm-viz react renderer and editor unified control
+303	Publicity and visibility|Ease of use|Tutorials|Integrations|Documentation and docgen|Visualizations|Youtube	Video: how to install and use the jssm-viz react renderer control
+302	Editors|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Youtube	Video: how to install and use the jssm react editor control
+301	Publicity and visibility|Ease of use|Tutorials|Automation|Viz action|Integrations|Documentation and docgen|Youtube	Video: how to install and use the github jssm-viz-action
+300	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Cli|Youtube	Video: how to install and use jssm-viz-cli
+299	Examples|Package managers|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Youtube	Video: how to add jssm-viz to a node project from npm
+298	Package managers|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Web|Youtube	Video: how to add jssm-viz to a browser project from npm
+297	Examples|Package managers|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Youtube	Video: how to add JSSM to a node project from npm
+296	Package managers|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Web|Youtube	Video: how to add JSSM to a browser project from npm
+295	Publicity and visibility|Ease of use|Tutorials|Integrations|Documentation and docgen|CDN|Web|Youtube	Video: how to add JSSM to a browser project from CDN
+294	Examples|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Web|Youtube	Video: how to add JSSM to a browser project locally
+293	Highlighters|Needs research|Needs implementation|Tooling|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Automation|Integrations|Documentation and docgen|Needs a feature|Enhancement|Visualizations	Make a typedoc custom tag
+292	Editors|Use cases|Publicity and visibility|Ease of use|Site use cases|Visual improvements|Color|Frontend|Enhancement|Visualizations	We should have a theme for standard flowchart symbols
+291	Needs research|Needs implementation|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Tutorials|Automation|Viz action|Integrations|Documentation and docgen|Enhancement|CI/CD|Workflows	viz action to docs branch
+288	Tooling|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Integrations|Documentation and docgen|Enhancement|Typescript	inveigle into tsdoc
+282	Editors|Needs research|Needs implementation|REPL|Tooling|Machine use cases|Graph language|Integrations|Needs a feature|Enhancement|Codegen	Need a toString / fromString
+281	Examples|Cleanup|Use cases|Publicity and visibility|Tutorials|Collected propaganda|Low hanging fruit|Needs information	oh man let's clean up XKCD
+279	Needs implementation|High priority|Cleanup|Test suite|Graph language|Very powerful|Needs tests|Enhancement	Apparently named lists parse.  Implement and test their use
+277	Tooling|Low priority|Test suite|Automation|Integrations|Performance|Website	Performance test the site (artillery and gimbal, or tsung, or jmeter)
+276	Tooling|Documentation Generators|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Documentation and docgen|Enhancement|Needs external	documentation.js renderer component
+275	Needs implementation|Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Frontend|Enhancement|Javascript|Web	gatsby renderer component
+274	Needs implementation|Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Enhancement|PHP|Visualizations	wordpress renderer component
+272	Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Frontend|Needs a feature|Enhancement|Javascript|Visualizations	jquery renderer component
+271	Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Enhancement|Needs external	w3 control renderer component
+270	Needs implementation|Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Frontend|Enhancement|Javascript|Visualizations|Web	Vue.js renderer component
+269	Needs implementation|Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Frontend|Enhancement|Features|Web	Angular renderer component
+268	Tooling|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Frontend|Needs a feature|Enhancement|Visualizations	React renderer component
+266	Editors|Ease of use|Site use cases|Good first issue|Issue needs work|Help sidebar|Low hanging fruit|Documentation and docgen|Difficulty: easy|Enhancement	Add start_state:, end_state:, state: config statements to help panel
+265	Editors|Ease of use|Good first issue|Issue needs work|Help sidebar|Low hanging fruit|Documentation and docgen|Difficulty: easy|Enhancement	Add state declarations to the help panel
+264	Use cases|Graph language|Issue needs work|Visual improvements|Status: Underway|Needs a feature|Enhancement|HTML|Status: Needs design|Needs spec	Support for GraphViz' nightmare HTML labels
+261	Needs research|Needs implementation|Tooling|Publicity and visibility|Ease of use|Good first issue|Automation|Integrations|Low hanging fruit|Enhancement|Javascript|Installer	Make yo generator for jssm projects
+260	Needs research|Examples|Tooling|Publicity and visibility|Ease of use|Good first issue|Integrations|Ease of contribution|Low hanging fruit|Enhancement	Make template repo for jssm projects
+259	Needs research|Examples|Needs implementation|Tooling|Publicity and visibility|Ease of use|Good first issue|Integrations|Low hanging fruit|Enhancement	Make template repo for FSL machines
+258	Examples|Publicity and visibility|Ease of use|Tutorials|Site use cases|Help sidebar|Viz action|Documentation and docgen	Video examples of using the action
+255	Needs research|Tooling|Machine use cases|Functional language|Graph language|Issue needs work|Integrations|Very powerful|List issue|Needs a feature|Core|Features|Big picture|Needs spec	Hooks
+254	REPL|Competition|Publicity and visibility|Tutorials|Site use cases|Issue needs work|Documentation and docgen|Enhancement	full year training with videos (wow)
+253	Examples|Use cases|Publicity and visibility|Tutorials|Site use cases|Good first issue|Low hanging fruit|Enhancement	Puzzles like advent / euler
+252	Examples|Low priority|Machine use cases|Use cases|Good first issue|Issue needs work|Low hanging fruit|Enhancement	Holiday machines 
+251	Good first issue|Issue needs work|Ease of contribution|Low hanging fruit|Enhancement|Website|Internationalization|Localization	Translation assistance page
+248	Publicity and visibility|Ease of use|Tutorials|Site use cases|Issue needs work|Collected propaganda|Frontend|Needs a feature|Enhancement|Website	Gallery needs categories and sorting
+247	Issue needs work|Visual improvements|Frontend|Enhancement|Visualizations|Needs information	Default new shapes for nodes with hooks
+245	Needs implementation|Ease of use|Graph language|Needs a feature|Enhancement|Visualizations|Blocks others	Physical colocation of start, end nodes
+244	Needs implementation|Test suite|Ease of use|Graph language|Composition|Enhancement|FSL|Needs spec	Named sequential groups should be subordinable
+243	Needs implementation|Competition|Ease of use|Graph language|Good first issue|Visual improvements|Status: Underway|Enhancement|Visualizations	Containing box and descriptive title
+241	Publicity and visibility|Ease of use|Tutorials|Issue needs work|Help sidebar|Documentation and docgen|Youtube	In-place video of making FSMs
+240	Needs research|Static analysis|Test suite|Stochastics|Issue needs work|List issue|Enhancement	Can FSMs be unit tested?
+239	Examples|Needs implementation|Tooling|High priority|Ease of use|Tutorials|Integrations|Documentation and docgen|Javascript	React tutorial
+238	Needs research|Publicity and visibility|Tutorials|Site use cases|List issue|Documentation and docgen|Question	Is there enough material for daily lessons ?
+237	Needs research|Needs implementation|Tooling|Static analysis|Ease of use|Issue needs work|Automation|Integrations|Enhancement|FSL|CI/CD|Workflows	Fsl testing gh actions 
+236	Needs research|Needs implementation|Tooling|Package managers|Competition|Publicity and visibility|Ease of use|Issue needs work|Integrations|List issue|Enhancement	start thinking about how to get fsl into other systems
+235	Needs research|Needs implementation|Ease of use|Graph language|Integrations|Composition|Needs a feature|Enhancement|Features	Embeddable machine fragments 
+232	Needs implementation|Tooling|Machine use cases|Use cases|Competition|Publicity and visibility|Ease of use|Site use cases|Issue needs work|Automation|Viz action|Integrations|Status: Underway|Visualizations|CI/CD	Put FSL, JSSM on gh actions 
+231	Editors|Needs implementation|Tooling|Publicity and visibility|Ease of use|Site use cases|Integrations|Enhancement|Blocks others	Protocol handler that goes to editor app
+230	Needs research|Examples|Ease of use|Tutorials|Issue needs work|Automation|Integrations|Documentation and docgen|Enhancement|CI/CD	Github Actions examples
+228	Needs implementation|Tooling|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Graph language|Automation|Integrations|Enhancement|Visualizations|CI/CD|Workflows	Create a GitHub Action to do auto-render
+227	Needs implementation|Tooling|Publicity and visibility|Ease of use|Automation|Integrations|Enhancement|Visualizations	(free) GH auto-render service for pulls
+226	Use cases|Test suite|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Javascript|Visualizations	node.js png rendering tutorial
+224	Publicity and visibility|Tutorials|Site use cases|Documentation and docgen|Youtube	make some videos 
+223	Chore|Low priority|Cleanup|Automation|Process|Maintenance	Push content to org
+222	Cleanup|Publicity and visibility|Ease of use|Tutorials|Issue needs work|List issue|Documentation and docgen|Website	clean up site 
+221	Needs implementation|Chore|Test suite|Stochastics|Publicity and visibility|Ease of use|Integrations|Stochastic machines|Enhancement|Javascript	Add FSL to fast-check
+220	Editors|REPL|Chore|Publicity and visibility|Ease of use|Site use cases|Visual improvements|Frontend|Needs a feature|Enhancement|Mobile	Need a mobile-appropriate version of the editor (responsive)
+215	Ease of use|Tutorials|Good first issue|Help sidebar|Documentation and docgen|Enhancement	Reference FSL tour in graph explorer sidebar help
+214	Chore|Ease of use|Tutorials|Frontend|Enhancement|Web	FSL Tour should store current state in localStorage
+213	Needs implementation|Tooling|Ease of use|Tutorials|Site use cases|Automation|Build|Typescript|CSS	Build process for FSL tour
+212	Examples|Needs implementation|Use cases|Publicity and visibility|Site use cases|Automation|Integrations|Enhancement	Github search based auto-gallery
+211	Needs research|Needs implementation|Tooling|Documentation Generators|Low priority|Publicity and visibility|Readme|Ease of use|Issue needs work|Automation|Very powerful|Collected propaganda|Machine exposition|Documentation and docgen|Uncertain	Documentation extraction?
+210	Examples|Needs implementation|Tooling|Low priority|Publicity and visibility|Ease of use|Enhancement	Starting templates for machines
+207	Editors|Examples|REPL|Tooling|Publicity and visibility|Ease of use|Tutorials|Site use cases|Good first issue|Documentation and docgen|Enhancement|Website	Redoing the FSL Language Tour/Tutorial
+206	Needs implementation|Publicity and visibility|Ease of use|Tutorials|Good first issue|Ease of contribution|Low hanging fruit|Documentation and docgen|Markdown|Community	"How to contribute" docs
+204	Examples|Machine use cases|Use cases|Tutorials|Good first issue|Low hanging fruit	Recipes as state machine examples 
+202	Examples|Publicity and visibility|Ease of use|Tutorials|Site use cases|Good first issue|Integrations|Low hanging fruit|Documentation and docgen|Enhancement|Visualizations	Embedding guide, step-by-step 
+201	Examples|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Youtube	Example videos that explain example machines' creation 
+200	Pastebins|Needs research|Needs implementation|Low priority|Static analysis|Functional language|Graph language|Size improvement|Minifier|Enhancement|Visualizations	Use graph source minifier on viewer url data to allow larger graphs
+199	Pastebins|Needs research|Needs implementation|Tooling|Low priority|Static analysis|Functional language|Graph language|Size improvement|Minifier|List issue|Enhancement|FSL	Graph source minifier
+198	Editors|Needs research|Chore|Low priority|Publicity and visibility|Integrations|Low hanging fruit|Visualizations|Web|Website	Add google analytics to fsl viewer
+197	Publicity and visibility|Ease of use|Tutorials|Good first issue|Help sidebar|Documentation and docgen|Frontend|Enhancement	tutorial into help bar
+195	Pastebins|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Site use cases|Widgets|Frontend|Is blocked|Enhancement|Visualizations	Add control bar for transitions and actions to viewer
+194	Editors|Needs implementation|Tooling|Publicity and visibility|Ease of use|Widgets|Frontend|Enhancement	Make control bar default off, and turned on by either code or url argument
+193	Publicity and visibility|Ease of use|Low hanging fruit|Frontend|Needs a feature|Enhancement|Features|Visualizations	Add rotate to viewer
+192	Editors|Publicity and visibility|Ease of use|Site use cases|Low hanging fruit|Needs a feature|Enhancement|Features|Visualizations	Add to-png to viewer
+191	Needs research|Needs implementation|Machine use cases|Functional language|Test suite|Stochastics|Graph language|Needs tests|Minifier|Enhancement	Stochastically verify minifier
+190	Pastebins|Needs implementation|Tooling|Static analysis|Publicity and visibility|Size improvement|Minifier|Enhancement|Blocks others	implement "source minify" on machines
+187	Editors|Highlighters|Needs implementation|Tooling|Competition|Publicity and visibility|Integrations|Enhancement	emacs / spacemacs
+186	Editors|Highlighters|Needs implementation|Tooling|Competition|Publicity and visibility|Good first issue|Integrations|Help wanted|Enhancement	vi / vim / evim highlighters
+178	Editors|Needs implementation|Chore|Low priority|Ease of use|Good first issue|Visual improvements|Frontend|Enhancement|Web|Blocks others	animated left/right swap of editor, renderer
+177	Editors|Ease of use|Widgets|Frontend|Enhancement	ACE ui elements for known fixed lists
+173	Needs research|Ease of use|Graph language|Issue needs work|Difficulty: difficult|Needs a feature|Enhancement|FSL	A notation for breaking into a remote subgraph
+168	Editors|High priority|Use cases|Ease of use|Site use cases|Bug|Good first issue|Visualizations|Website	Repair to-png button
+166	Editors|Needs research|Needs implementation|Tooling|Documentation Generators|Use cases|Publicity and visibility|Readme|Ease of use|Graph language|Integrations|Documentation and docgen|Javascript|Markdown|Visualizations	Investigate markvis for documentation
+164	Needs research|Tooling|Test suite|Site use cases|Automation|Web	investigate wendigo for site testing
+163	Tooling|Publicity and visibility|Integrations|Needs a feature|Enhancement|Visualizations	poster printing service for fsl diagrams 
+162	Highlighters|Use cases|Publicity and visibility|Ease of use|Color|Needs a feature|Enhancement	pre-existing color themes 
+161	Needs implementation|Use cases|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen	guide on effective styling use
+160	Needs research|Needs implementation|Functional language|Test suite|Integrations|Uncertain|Composition|Needs a feature|Enhancement|Status: Needs design	Embedding machines in other machines
+159	Low priority|Tutorials|Automation|Integrations|Documentation and docgen	Put into book kit
+157	Needs research|Chore|Cleanup|List issue|Website	track down all assets 
+156	Examples|Tooling|Documentation Generators|High priority|Machine use cases|Use cases|Publicity and visibility|Tutorials|Automation|Very powerful|Collected propaganda|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement|Visualizations	Tutorial on how to make flowcharts from npm scripts 
+154	Pastebins|Editors|Needs implementation|Tooling|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Tutorials|Site use cases|Automation|Integrations|Needs a feature|Enhancement|Visualizations|Web	blocks style self post reflector
+153	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement|Youtube	video tutorials 
+150	Low priority|Readme|Documentation and docgen|Color|PDF	Should probably sort out b/w and color for print edition
+149	Needs implementation|Use cases|Stochastics|Graph language|Types|Enhancement|Visualizations	Make the end node notation more useful
+147	Chore|Low priority|Visual improvements|Documentation and docgen	Cover image
+146	Editors|Needs research|Tooling|Package managers|Machine use cases|Publicity and visibility|Integrations|Enhancement|Typescript|Language server	Microsoft LSPs for TypeScript
+143	Needs implementation|Low priority|Graph language|Color|Enhancement|Features|Visualizations	Edge attributes
+142	Needs implementation|Graph language|Needs a feature|Enhancement|FSL|Features	No-self spread
+137	Needs implementation|Tooling|Static analysis|Graph language|Automation|Enhancement	Linter should warn about islands
+136	Use cases|Publicity and visibility|Tutorials|Visual improvements|Documentation and docgen	Tutorial: how to control the appearance
+135	Examples|Publicity and visibility|Ease of use|Tutorials|Ease of contribution|Documentation and docgen|Community	Tutorial: how to submit a machine to the gallery
+134	Needs implementation|Tooling|Test suite|Needs a feature|Enhancement|FSL	New parser should be perfectly reversible (recreate whitespace + comments)
+133	Editors|Highlighters|Tooling|Integrations|Enhancement|Javascript	Better Sublime highlighter that can embed into JS
+132	Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement	Rewrite the language guide as The FSL Book
+131	Examples|Publicity and visibility|Ease of use|Tutorials|Site use cases|Documentation and docgen|Enhancement	Tutorial: how to make an embeddable usable machine, step by step
+129	Examples|High priority|Use cases|Publicity and visibility|Ease of use|Tutorials|Status: Underway|Low hanging fruit|Documentation and docgen|Enhancement	Tutorial: how to convert a UI into an FSM, step by step
+127	Low priority|Use cases|Graph language|Visual improvements|Needs a feature|Enhancement|Visualizations|Status: Needs design	Port hints for edges
+126	Needs research|Chore|Low priority|Use cases|Rendering compatibility|Visualizations|Bug is upstream|Fonts	Look into fixing font metrics
+123	Editors|Tooling|Machine use cases|Use cases|Test suite|Publicity and visibility|Ease of use|Site use cases|Widgets|Integrations|List issue|Frontend|Enhancement|Visualizations	fsl widget notes
+119	Cleanup|Test suite|Needs tests|Core|FSL	Make sure everything in spec is in PEG
+116	Documentation Generators|Use cases|Ease of use|Tutorials|Enhancement|HTML|Visualizations	Tutorials focused around HTML-like labels
+113	Needs research|Needs implementation|Documentation Generators|Use cases|Publicity and visibility|Ease of use|Graph language|Very powerful|Visual improvements|Color|Enhancement|Features|Visualizations	Node kind targets for theming
+112	Examples|Tooling|Low priority|Cleanup|Static analysis|Automation|Enhancement	Put linting and auditing into place for the example machines
+111	Needs implementation|Documentation Generators|Use cases|Ease of use|Needs a feature|Enhancement|Visualizations	Some mechanism for text node callouts
+109	Editors|Publicity and visibility|Transcompile targets|Is blocked|SEO	Add to software list for UML state charts on Wikerpoodia
+106	Examples|Machine use cases|Ease of use|Tutorials|Documentation and docgen|Enhancement|Javascript	Lightweight working-in-JS tutorial series
+105	Examples|Ease of use|Tutorials|Documentation and docgen|Enhancement	Lightweight how-to-get-started tutorial (language only)
+104	Use cases|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Uncertain|Visualizations	Separate tutorial series on appearance
+103	Examples|Publicity and visibility|Ease of use|Tutorials|Documentation and docgen|Enhancement|Visualizations|Youtube	Task oriented walkthrough - a video series that's also a text series
+101	Publicity and visibility|Issue needs work|Integrations|Is blocked|Javascript|Customer acquisition	Get listed on resourcesjs.org
+99	Examples|High priority|Use cases|Publicity and visibility|Ease of use|Tutorials|Widgets|Integrations|Status: Underway|Low hanging fruit|Documentation and docgen|Frontend|Web	How to use a state machine to drive a React interface
+98	Editors|Use cases|Publicity and visibility|Ease of use|Widgets|Integrations|Frontend|Javascript|Features|Visualizations|Web	Make -viz renderer components
+94	Needs implementation|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Site use cases|Widgets|Integrations|Enhancement|Visualizations|Web	Blocks-style viewer needs to be embeddable
+93	Pastebins|Editors|Needs implementation|REPL|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Widgets|Frontend|Is blocked|Enhancement|Features	Behavioral controls in editor
+91	Package managers|Publicity and visibility|Readme|Ease of use|Documentation and docgen|Enhancement	Need better packaging instructions in the README
+88	Needs research|Needs implementation|Machine use cases|Functional language|Stochastics|Graph language|Issue needs work|Needs a feature|Enhancement|FSL|Features	operator `when`
+87	Editors|Highlighters|Needs research|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Automation|Integrations|Needs a feature|Enhancement|Language server	Microsoft heavy-duty path: a Language Service Provider
+85	Pastebins|Tooling|Machine use cases|Use cases|Publicity and visibility|Ease of use|Site use cases|Good first issue|Integrations|Enhancement|Visualizations	Blocks-style live viewer from gh/gist/etc
+84	Editors|Good first issue|Integrations|Needs a feature|Enhancement|Visualizations	visualizer / editor must provide both svg and png
+83	Editors|Machine use cases|Use cases|Publicity and visibility|Integrations|Frontend|Visualizations|Mac|Desktop	Mac app of graph explorer
+80	Editors|Needs implementation|Tooling|Publicity and visibility|Integrations|Is blocked|Enhancement|Visualizations	Support WebView in VS Code
+79	Editors|Highlighters|Needs implementation|Package managers|Publicity and visibility|Integrations|Enhancement	Support Visual Studio Code
+78	Editors|Highlighters|Integrations|Needs a feature|Enhancement	Support Microsoft Monaco
+77	Editors|Highlighters|Integrations|Needs a feature|Enhancement	Support Microsoft Monarch 
+72	Test suite|Graph language|Issue needs work|Needs tests	Spread
+68	Needs implementation|Test suite|Stochastics|Good first issue|Performance|Low hanging fruit|Enhancement	Deepak
+66	Examples|Machine use cases|Test suite|Enhancement	one of the tests should honestly be a chess game being played through
+65	Examples|Chore|Cleanup|Functional language|Test suite|Graph language|Issue needs work|Needs tests|Technical debt|Maintenance	lol just try to keep the kitchen sink up to date
+54	Needs implementation|Functional language|Uncertain|Needs a feature|Enhancement|Needs spec	Destructuring assignment in functional language
+52	Tooling|Static analysis|Good first issue|Automation|Low hanging fruit|Needs a feature|Enhancement	Linter should warn about missing annotations
+50	Competition|Visual improvements|Rendering compatibility|Enhancement|Visualizations	Should be able to render as well as Flowgarithm
+47	Needs research|Examples|Low priority|Use cases|Tutorials|Graph language|Collected propaganda|Example source|Enhancement|Visualizations	Better event-process charts
+46	Examples|Machine use cases|Use cases|Stochastics|Blocks others	Fault Trees and Fault Tree Analysis
+44	Examples|Needs implementation|Machine use cases|Use cases|Graph language	Oil cracking SL
+43	Examples|Tooling|Machine use cases|Use cases|Visual improvements|Enhancement|Visualizations	DRAKON style chart animations
+42	Editors|Needs research|REPL|Tooling|High priority|Machine use cases|Use cases|Publicity and visibility|Ease of use|Enhancement|Windows|Desktop	Windows app
+40	Needs research|Examples|Machine use cases|Use cases	Decision trees
+35	Examples|Chore|Cleanup|Machine use cases|Good first issue|Issue needs work|List issue	Create issues for and define the basic example machines
+32	Editors|Highlighters|Cleanup|Is blocked	TextMate grammar
+18	Highlighters|Needs implementation|Good first issue|Integrations|Enhancement|Python	Get FSL into Pygments (python)
+17	Highlighters|Needs implementation|Good first issue|Integrations|Enhancement|Ruby	Get FSL into Rouge (ruby)
+15	Pastebins|Editors|Highlighters|Needs implementation|Documentation Generators|High priority|Publicity and visibility|Readme|Integrations|Is blocked|Enhancement|FSL|Visualizations	Try to get into GitHub both as a source and as a rendered language
+12	Editors|Highlighters|Needs implementation|High priority|Good first issue|Integrations|Enhancement|Javascript|FSL	Add FSL to CodeMirror
+11	Highlighters|Needs implementation|Publicity and visibility|Ease of use|Good first issue|Integrations|Enhancement	Add FSL to highlight.js
+10	Pastebins|Editors|Highlighters|REPL|Publicity and visibility|Automation|Integrations|Is blocked|Customer acquisition	Proffer FSL to repl.it
+8	Editors|Examples|Needs implementation|REPL|Tooling|Automation|Enhancement|Cli	Create FSLi local interactive console / repl tool
+5	Editors|Highlighters|Needs implementation|Good first issue|Integrations|Enhancement|FSL	Prism.js
+2	Pastebins|Low priority|Publicity and visibility|Integrations|Enhancement|Needs external	get listed on glot.io

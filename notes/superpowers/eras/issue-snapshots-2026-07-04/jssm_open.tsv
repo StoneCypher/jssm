@@ -1,0 +1,107 @@
+922		ci: decide whether push-only heavy jobs (18 unicode suites, benchmark, main matrix/full) gate to main-only
+921		v6: drop dist/deno from the npm files list (manifest entry on the v6 branch)
+920	Performance	perf: cm6-editor sketch runtime fixes (debounced overlay parse, viz render guard, parse memo, splitter rAF)
+919		fence rendering follow-up tail: display-text edge cases, encode_gif memory, zero-dim guard, SPEC-derived target enum, group/hook semantic coloring
+909		State kinds: inventory and future vocabulary for the visual styling cascade (umbrella)
+897		feat(wc): <fsl-workbench> dockable layout shell for the fsl-* panel suite
+896		feat(wc): editable extended-state data — opt-in 'editable' attribute on <fsl-data-inspector>
+895		feat(viz): bake a theme-derived legend into the rendered SVG (in-image, all consumers)
+894		feat(wc): <fsl-timers> pending-timeout panel — countdown view of 'after' timed transitions
+893		feat(wc): <fsl-diagnostics> problems panel — render fsl-validate / fsl-lint results
+874		perf_backfill: harden c8g.medium runs + refill the 5.45–5.65 override-free gap
+871		Build a Reddit (Devvit) app for FSL state machines + graph rendering
+870		Build a Reddit (Devvit) app for FSL state machines + graph rendering
+869		Package-registry richness: npm keywords, JSR, schema.org JSON-LD
+868		Publish articles + a Wikipedia mention for FSL/jssm
+867		Seed canonical Stack Overflow Q&A for FSL/jssm
+866		Seed a Reddit training surface for FSL/jssm
+865		Ship a tree-sitter-fsl grammar
+864		Agent-framework tool integrations (LangChain / LlamaIndex / Vercel AI SDK)
+863		Publish an "FSL Assistant" Custom GPT / Gemini Gem / Claude Project
+862		Set crawler posture: robots.txt + sitemap for LLM crawlers
+861		Publish the verified proof-example corpus as LLM training/RAG material
+860		Publish a canonical "FSL for LLMs" reference
+859		Submit jssm/FSL docs to Context7 and DeepWiki
+858		Add llms.txt + llms-full.txt to fsl.tools
+857		Corpus & retrieval visibility: make FSL/jssm visible to the models themselves
+856		Add an AGENTS.md to the repo (agent-convention compliance)
+855		Publish an FSL agent via Docker cagent / Agentfile
+854		Publish an FSL agent as a Letta Agent File (.af)
+853		Agentfile distribution (speculative): package FSL as a portable agent
+852		Contribute an FSL skill example to anthropics/skills
+851		Add the FSL skill/plugin to awesome-claude-code
+850		Add the FSL skill to awesome-claude-skills
+849		List the FSL skill on Smithery / mcp.so (skill listings)
+848		Publish the FSL skill via a Claude Code plugin marketplace
+847		Skill distribution: publish + list an FSL/jssm skill
+846		AI-ecosystem distribution: get FSL/jssm into MCP, Skill, and Agentfile channels
+845		Add to punkpeye/awesome-mcp-servers
+844		Add to modelcontextprotocol/servers (official community list)
+843		List in Zed (MCP / context servers)
+842		List in Continue (MCP)
+841		List in the Cursor MCP directory
+840		List in the Cline MCP Marketplace
+839		List in the Docker MCP Catalog
+838		List on mcp.so
+837		List on PulseMCP (pulsemcp.com)
+836		List on Glama (glama.ai/mcp/servers)
+835		List on Smithery (smithery.ai)
+834		List in the Claude connectors / MCP directory (Anthropic)
+833		List in the Official MCP Registry (registry.modelcontextprotocol.io)
+832		MCP distribution: list FSL/jssm in every relevant MCP registry
+831		List jssm/FSL in the GitHub MCP registry (github.com/mcp)
+830		M6 (signed-run-receipts): signed run-receipts — replayed slice (capstone)
+829		M5 (signed-run-receipts): verify verb (trust chain)
+828		M4 (signed-run-receipts): property evaluator (built-in subset then full language)
+827		M3 (signed-run-receipts): run verb / deterministic tape replayer — IMPLEMENTED on v6
+826		M2 (signed-run-receipts): keyless signing + transparency log + revocation/advisory
+825		M1 (signed-run-receipts): check verb + verification certificates
+822	Documentation and docgen	Revisit the documentation surface inventory for v6 (multi-surface help-bar / teaching-surface coverage)
+820	Enhancement|Widgets	feat(wc): load a theme from a URL parameter in the web version
+819		fsl web replay shell: browser tape-replay over the host-agnostic M3 engine (counterexample playback)
+818		Pin the surface grammar for proof constructs (contracts, temporal/Dwyer, flow, refinement) — §29 Grammar appendix slice, blocks the example corpus
+817		Proof-by-example corpus: 100+ CI-verified FSL examples (book / cookbook / doctest / llms.txt material)
+815		v6 §15/§26: cross-host byte-identical replay determinism conformance — deferred beyond M3 (JS-only) determinism
+813		v6 §15: full durable-execution posture (flight recorder, OTel, persistence contract, migrates from) — deferred beyond M3 minimal replay
+798		Re-land pick / oracle / graph-highlighter (backed out in 5.145.2 — were never CI-green)
+793	List issue|Enhancement|Widgets|Big picture	Track: <fsl-*> web-component panel suite (excludes wrapper pipeline / Angular / SSR)
+792	Enhancement|FSL|Codegen|Needs implementation	feat: FSL source formatter / pretty-printer (AST → FSL)
+790		Download DeBERTa-v3 ONNX models and push to phantom-models branch
+778	Enhancement|FSL|Package managers|MCP	RFC: machines.txt — publish a site's state machines (llms.txt for behavior), + a package-manifest companion block
+759	Bug|FSL	v6/val #7: numeric-looking enum members type-mismatch their own defaults; ban them
+758	Bug|Types	v6/val #6: validate_val_value silently no-ops on an unknown type kind
+757	Bug|FSL|Codegen	v6/val #4: val/prop name collision not rejected (megaspec §5)
+756	Core|Performance|Types	v6/val #3+#5: columnar val storage + undo-log journal (decision-log §27); replace Map, journal logs by slot
+755	Bug|FSL|Types	v6/val #2: non-null-by-default hole — unsupplied non-nullable val reads as undefined; T?/default null unimplemented
+754	Enhancement|FSL|Breaking change	v6/val #1: restrict bareword Atom to identifier-like; require quoting for symbol-bearing names
+743	Dependencies|Enhancement|Size improvement	Inline circular_buffer_js + reduce-to-639-1 and break both deps → zero runtime dependencies
+720	Refactor|Core|Performance	perf(machine): constructor cleanups — seen_edges duplicates _edge_map; complete.includes() per new state
+719	Refactor|Performance	perf(transition): gate auto_set_state_timeout / clear_state_timeout for machines with no 'after' config
+718	Core|Enhancement|Performance	perf(hooks): identity fast-path in _update_hook_fields for shared outcomes (4.9% of hooked transition)
+717	Performance	perf(parser): investigate peg$parseSubexp — largest single parser frame at 8.2% post-batch
+716	FSL|Performance	perf(parser): first-char gate for ArrowDecoration probes — four failed rule calls per side per undecorated edge
+715	FSL|Performance	perf(parser): merge NonNegNumber alternatives — every integer literal parses IntegerLiteral twice
+714	FSL|Performance	perf(parser): hand-rolled arrow-token scanner — arrow family is ~19% of construct() self-time
+713	Performance	perf(parser): two-pass expectation-free parsing — peg$fail still 9.1% after #704
+712	Core|Performance	perf(transition): inline the validity/edge-lookup chain in transition_impl (56% of unhooked transition self-time)
+690	Needs research|Enhancement|API	Observable support
+686	Enhancement|Web	feat(wc): SSR support (@lit-labs/ssr / Declarative Shadow DOM)
+685	Enhancement|Widgets|Web	feat(wc): Angular hand-written wrapper directives + generated types
+684	Build|Enhancement|Widgets|Codegen	feat(wc): framework-wrapper generator pipeline (React/Vue/Svelte/Solid)
+666	Enhancement|Examples|Visualizations	feat(wc): <jssm-examples> sub-component (recipe gallery)
+650	Chore|FSL|Documentation and docgen|Needs tests	chore(spec): extract FSL into its own repo with versioned spec + conformance testsuite
+631	Enhancement|FSL|Cli	fsl CLI: unified JSON configuration file
+630	Enhancement|REPL|Cli	fsl REPL: interactive mode when invoked with no subcommand
+629	Enhancement|Editors|Tooling|Cli|Language server	fsl lsp: Language Server Protocol implementation for editor integration
+628	Enhancement|MCP|Agents|Cli	fsl mcp: Model Context Protocol server for AI agents
+627	Enhancement|REPL|Visualizations|Website|Cli	fsl playground: local web playground server
+626	Enhancement|FSL|Cli	fsl convert: format converter between FSL and other state-machine notations
+625	Enhancement|FSL|Cli	fsl new: project scaffolder subcommand
+624	Enhancement|Typescript|Types|Cli|Codegen	fsl typegen: emit TypeScript type declarations from FSL machines
+623	Enhancement|FSL|Static analysis|Cli	fsl check: static analyzer for FSL machines
+622	Stochastics|Cli	fsl test: model-based testing framework for FSL machines
+621	Enhancement|FSL|Tooling|Cli	fsl fmt: formatter subcommand for FSL source
+620	Enhancement|FSL|Static analysis|Cli	fsl lint: linter subcommand for FSL source
+619	List issue|Enhancement|Cli	fsl CLI: unified toolchain — tracking issue
+610	Needs research|Package Quality|Needs a feature|Core|Enhancement|FSL|Features|Package managers	Expose FSL state machines through package.json — design spec request
+607	Enhancement|Visualizations|Cli|Needs spec	Custom theme files: auto-load default.fsl_theme, invoke named themes via CLI
