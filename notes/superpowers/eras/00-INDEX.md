@@ -7,8 +7,8 @@
 
 **NEXT ACTION (for successors):** The plan layer is COMPLETE. Execute era 0: start at
 `era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). Pending from John:
-era-0 WP-6 dragon questions 1–3; era-1 open questions (Rust confirm, IR-vs-reparse for C5, M2
-placement); ledger approvals as WP-7/WP-8 produce them. Fable-optional if tokens remain:
+era-0 WP-6 dragon questions 1–3; ledger approvals as WP-7/WP-8 produce them. (Era-1 trio
+DECIDED 2026-07-04: Rust; C5 consumes IR; M2 attempts era 1, slips to era 5 freely.) Fable-optional if tokens remain:
 deepen dispositions rules, or draft the C1 hash spec itself.
 
 ## Ledger

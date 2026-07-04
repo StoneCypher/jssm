@@ -83,6 +83,13 @@
   one-line comment citing what supersedes/absorbs it; (c) anything not on an approved ledger
   still requires an explicit ask. All other public actions (posting, PRs to protected branches,
   external comms) remain ask-first.
+- **Issue granularity & cadence:** the era briefs are the backlog of record; the tracker
+  mirrors only active and near-term work. Era umbrellas file now (projection §A); an era's
+  work packets become child issues **just-in-time when that era activates** (drafted by the
+  executor into a projection revision, batch-approved, then filed individually as drafted);
+  spec-internal items (megaspec features, irreversibles rows) get an issue only at first-touch.
+  Never bulk-dump the whole program into the tracker — that recreates the stale-tracker
+  problem era 0 exists to fix.
 - **Tracker policy (John, 2026-07-04): the jssm tracker is kept EMPTY** — npm ranks modules
   partly on open-issue signals. ALL new issues go to **StoneCypher/fsl**, permanently. Existing
   jssm open issues drain via migrate-or-close: migrate = create the fsl twin (titled/bodied with

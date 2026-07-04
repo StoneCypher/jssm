@@ -5,9 +5,11 @@
 > the corpus promises: the typed replayable **language** (P2/P3) and the portability
 > **contract** (C1–C5). Everything here is ADDITIVE — the breakage batch shipped in 6.0.
 > **Entry criteria:** 6.0.0 published; dual-track retired; dragon lane live.
-> **Open questions:** (1) second-implementation language — Rust recommended, unconfirmed;
-> (2) C5 consumes the compiled IR or reparses FSL — IR recommended, unconfirmed; (3) M2
-> (signing/log) in-era vs deferred to era 5.
+> **DECIDED (John, 2026-07-04 — "accept all three"):** (1) second implementation is **Rust**;
+> (2) C5 **consumes the compiled IR** (no second FSL parser; this triggers the irreversibles
+> #14 IR-freeze at C5 start); (3) **M2 attempts era 1** inside WP-1.8's trust plumbing and
+> slips to era 5 without ceremony if it doesn't fit — the record format (M1) is the
+> irreversible part, the signing wrapper is not.
 
 ## Exit criteria
 
