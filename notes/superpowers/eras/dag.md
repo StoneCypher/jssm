@@ -30,6 +30,7 @@
 | C4 | conformance-vector format + first corpus | posture everywhere, zero vectors exist |
 | C5 | second implementation + differential CI (N=2) | decided in principle (era map); language choice open (Rust favored) |
 | G | overlapping groups §19 implementation | plan exists but predates vitest migration — needs refresh |
+| D | dragon suite (grammar-adversarial tier: `dragons-egg.md`, `vitest.dragon.config.ts`, `kitchen_sink_dragon.maximal.ts`) | harness + one kitchen-sink generator exist; not CI-wired; **era-0 exit criterion** — D hardens the parser/compiler before P2 grammar work, and D's generator lineage feeds C4/C5 (fuzz corpus) and megaspec §26 self-fuzzing |
 
 ## The edges (what blocks what)
 
@@ -85,8 +86,8 @@ that unblock the trust stack and the conformance posture respectively.
 
 | Era | Contains (from above) |
 |-----|----------------------|
-| 0 Cleanup | tracker triage (rulebook in `era-0-cleanup.md`); S1 merge; stale-audit re-verification |
-| 1 Language+Contract | P1-tail, P2, P3, G, J, S2, S3, C1–C5, M1, M4-subset; M2 if it fits |
+| 0 Cleanup → **6.0.0** | tracker triage (rulebook: `era-0-cleanup-and-6.0.md`); S1 merge; stale-audit re-verification; **the One Merge** (v6 branch → main); breakage batch (#754, synonym removal, probabilistic split, J bare-functions — J moves here from era 1, with a 7.0 fallback); **dragon suite live** (D); dual-track retired, trunk-based thereafter |
+| 1 Language+Contract (6.x) | P1-tail, P2, P3, G, S2, S3, C1–C5, M1, M4-subset; M2 if it fits |
 | 2 Society | F1–F5, supervision, alias removal, strict mode |
 | 3 Proofs | F6, temporal/backends, ladder decision, M4-full, testing toolkit; certificates mature |
 | 4 Survival | persistence contract (#813), hook-return recorder, migrates-from, OTel/drift/calibrate |

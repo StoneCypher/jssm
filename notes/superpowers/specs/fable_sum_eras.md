@@ -12,28 +12,41 @@
 > literally they would make v7 v6-sized again. This document supersedes that naming; the version
 > numbers below are provisional era labels, not release promises.
 
+> **AMENDMENT (2026-07-04, later the same day — versioning model, confirmed by John):**
+> **Breakage-batch-opens-major.** Era 0 is not a 5.x finale: it **ships as 6.0.0**, carrying the
+> currently-decided breakage batch AND the v6 integration branch's completed content (merged
+> home in "the One Merge"), ending the toxic dual-track permanently. Era 1 is then purely
+> additive and fills the **6.x series** (no major of its own); each later era opens its major
+> with its own batched breakage (if an era accumulates none, its major is a milestone bump).
+> Only eras 0 and 1 change labels; v7–v12 stand. Execution detail lives in
+> `notes/superpowers/eras/era-0-cleanup-and-6.0.md`.
+
 ## The sequence
 
-| # | Era | Theme in one line |
-|---|-----|-------------------|
-| 0 | **Cleanup** (5.x finale) | Burn down the two trackers' non-v6-scoped debt before v6 lands on it |
-| 1 | **v6 — Language + Contract** | FSL becomes a typed, replayable data machine — and locks the portability contract |
-| 2 | **v7 — Society** | Machines get I/O and each other: channels, systems, factories, populations, supervision |
-| 3 | **v8 — Proofs** | The verification stack proper: temporal, backends, composed checking, the testing toolkit |
-| 4 | **v9 — Survival** | Durable execution: machines that outlive processes, versions, and their authors |
-| 5 | **v10 — Trust** | Proofs and runs become portable, signed, revocable social objects |
-| 6 | **v11 — Fleet** | The multi-host fan-out, certifying a stable language against the era-1 contract |
-| 7 | **v12 — Ecosystem** | The registry and the agent economy: other people's machines |
+| # | Era | Ships as | Theme in one line |
+|---|-----|----------|-------------------|
+| 0 | **Cleanup → 6.0** | 6.0.0 | End the 5.x line: triage, breakage batch, the One Merge, dragon suite live, dual-track retired |
+| 1 | **Language + Contract** | 6.x | FSL becomes a typed, replayable data machine — and locks the portability contract |
+| 2 | **Society** | 7.0+ | Machines get I/O and each other: channels, systems, factories, populations, supervision |
+| 3 | **Proofs** | 8.0+ | The verification stack proper: temporal, backends, composed checking, the testing toolkit |
+| 4 | **Survival** | 9.0+ | Durable execution: machines that outlive processes, versions, and their authors |
+| 5 | **Trust** | 10.0+ | Proofs and runs become portable, signed, revocable social objects |
+| 6 | **Fleet** | 11.0+ | The multi-host fan-out, certifying a stable language against the era-1 contract |
+| 7 | **Ecosystem** | 12.0+ | The registry and the agent economy: other people's machines |
 
-## Era 0 — Cleanup (the 5.x finale)
+## Era 0 — Cleanup → 6.0 (ending the 5.x line)
 
-Close or resolve the bulk of the fsl/jssm issues that aren't explicitly v6-scoped: bugs,
-hygiene, preparatory syntax repair, the strict-mode prerequisite cluster's burn-down. Also:
-re-verify the June implementation audit (omissions D11) so v6 starts from known-true findings,
-not stale ones. Whether this carries a major version number is bookkeeping; as an *era* it is
-first, and it happens on main under the release-per-push model.
+Ships as **6.0.0**. Four jobs: (1) tracker triage per the disposition rulebook (bugs, hygiene,
+the strict-mode prerequisite cluster's burn-down, June-audit re-verification — omissions D11);
+(2) the **breakage batch** — atom charset #754, `jssm-*` synonym removal, probabilistic
+list-target split, and (long pole, with a 7.0 fallback) the §27 bare-functions/`jssm/compat`
+split; (3) **the One Merge** — the v6 integration branch merges home once, its completed content
+(val core, tapes, M3 replayer, canonical serialization, codegen/import/export) becoming 6.0's
+feature payload, after which the dual-track and its merge-up tax are retired and development is
+trunk-based on main forever; (4) the **stochastic dragon** suite brought live (harness exists;
+see the era-0 brief) so the parser/compiler are hardened before era 1 builds on them.
 
-## Era 1 — v6: Language + Contract
+## Era 1 — the 6.x series: Language + Contract
 
 **Language half:** `val`/`prop`/`sensor`; the scalar→container type system; expressions;
 `assign`/`where`; contracts as runtime asserts + safety-only checking (reachability,

@@ -28,6 +28,13 @@
 - **The era decomposition itself** — eight eras, cleanup → language+contract → society → proofs →
   survival → trust → fleet → ecosystem — per `fable_sum_eras.md`, agreed with John 2026-07-04.
   In-corpus "v7" labels are obsolete shorthand for "post-v6."
+- **The versioning model (confirmed 2026-07-04): breakage-batch-opens-major.** Era 0 ships as
+  **6.0.0** — breakage batch + the v6 branch's completed content via the One Merge — ending the
+  5.x line and the integration-branch dual-track. Era 1 fills 6.x additively; Society opens 7.0;
+  each later era opens its major with its own breakage batch. See `era-0-cleanup-and-6.0.md`.
+- **The dragon suite goes live in era 0** (John, 2026-07-04): the grammar-adversarial testing
+  tier (see `notes/dragons-egg.md`, `vitest.dragon.config.ts`, `kitchen_sink_dragon.maximal.ts`)
+  is a 6.0 exit criterion, so era-1 grammar work lands on a hardened parser.
 - **The cleave**: the portability *contract* (canonical IR/hash/ABI/pinning + one second
   implementation, differential CI at N=2) lands in era 1; the host *fleet* lands in era 6.
 - **Survival (durable execution) is its own era**, after Proofs, before Trust and Fleet; it

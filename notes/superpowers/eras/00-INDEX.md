@@ -5,8 +5,8 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION:** Increment 3 — write `era-1-language-contract.md` (the v6 brief, contract half at
-near-spec quality; see ledger row 3).
+**NEXT ACTION:** Increment 4 — `era-1-language-contract.md` (contract half at near-spec quality).
+Await John's answers to the WP-6 dragon questions (era-0 brief) before deepening that packet.
 
 ## Ledger
 
@@ -22,7 +22,7 @@ near-spec quality; see ledger row 3).
 | 4 | `era-4-survival.md` | queued | Durable-execution brief + the brainstorm brief for its future PROCESS run; persistence contract, recorded hook returns (tape/ledger slot), migrates-from, 5.x-snapshot-lift decision; the era the corpus underprices |
 | 5 | `era-2-society.md` | queued | Systems/factories/supervision brief; carries alias-removal + strict-mode breakage batch |
 | 6 | `era-3-proofs.md` | queued | Verification brief; MUST carry the automata-ladder decision question (megaspec §3 vs Gemini push-up) as its headline open item |
-| 7 | `era-0-cleanup.md` | queued | The triage RULEBOOK, not the sweep: disposition categories (absorb-into-era / superseded-by-manual-program / keep-5.x-bug / park-satellite), bucket definitions from the 2026-07-04 tracker read, per-bucket examples; sweep itself is delegated (see 9) |
+| 7 | `era-0-cleanup-and-6.0.md` | done | **Executed as increment 3, promoted ahead of era-1** (John: end 5.x ASAP; renumber confirmed — era 0 ships as 6.0.0). Contains: exit criteria, phase plan, 10 work packets (incl. WP-4 One Merge, WP-3 bare-functions w/ 7.0 fallback, WP-6 dragon-live w/ 4 open questions for John), triage rulebook w/ disposition codes |
 | 8 | `era-5-trust.md`, `era-6-fleet.md`, `era-7-ecosystem.md` | queued | Deliberately thin: theme, boundaries, entry criteria, known hazards (trust: transparency-log equivocation + security-adversarial-review gate); no fake precision |
 | 9 | `dispositions/` | queued | Advisory-corpus + tracker disposition ledgers. Fable writes the RULES + contentious calls; the mechanical sweeps (codex_on_v6's 130 items; ~600 fsl issues) are DELEGATE: MECHANICAL (Opus/Codex, or Opus subagents) |
 | 10 | `issues-projection.md` | queued | Prepared issue titles+bodies (era umbrellas, decision-record asks) for batch filing WITH JOHN'S APPROVAL — no public actions without it |
