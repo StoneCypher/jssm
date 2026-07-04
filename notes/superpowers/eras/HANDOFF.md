@@ -75,9 +75,20 @@
 - `main` and `v6` are **protected**: no commits, merges, or pushes to them without John's
   explicit per-action permission. This branch (`docs_26-07-04_fable-v6-to-v12`) is free.
 - Issues close only via PR `Closes #N` references, never `gh issue close`.
-- **No public actions** (filing issues, PR comments, posting anywhere) without John's explicit
-  OK — prepare artifacts (see `issues-projection.md` when it exists); John or an authorized run
-  files them.
+- **Public tracker actions — standing scoped grant (John, 2026-07-04):** the model is
+  *prepare → John approves the ledger once, as a batch → execution from the approved ledger is
+  pre-authorized and mechanical.* Concretely: (a) new issues may be filed **only** exactly as
+  written in an `issues-projection.md` revision John has approved; (b) existing issues may be
+  closed **only** if listed in an approved dispositions ledger, and every close carries a
+  one-line comment citing what supersedes/absorbs it; (c) anything not on an approved ledger
+  still requires an explicit ask. All other public actions (posting, PRs to protected branches,
+  external comms) remain ask-first.
+- **Tracker policy (John, 2026-07-04): the jssm tracker is kept EMPTY** — npm ranks modules
+  partly on open-issue signals. ALL new issues go to **StoneCypher/fsl**, permanently. Existing
+  jssm open issues drain via migrate-or-close: migrate = create the fsl twin (titled/bodied with
+  a "was jssm#NNN" pointer), then close the jssm side citing the fsl number; PRs that fix
+  migrated work use cross-repo `closes StoneCypher/fsl#N` (one keyword per line). This resumes
+  the project's own historical consolidation (fsl #20/#25/#1085–#1098).
 - Durable docs live under `notes/` (never `docs/` — `npm run clean` deletes `docs/`).
 - Subagents cannot mutate sibling worktrees; commits/pushes happen from the main session.
 

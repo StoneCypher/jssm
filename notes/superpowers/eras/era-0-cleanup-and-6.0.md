@@ -155,10 +155,15 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
 - **Done when:** all 663 rows dispositioned; bucket counts summarized; the `close-proposal`
   list extracted to `issues-projection.md` for John's batch approval.
 
-### WP-8 · jssm tracker triage sweep (107 open) — mechanical · S
-- Same as WP-7 over `jssm_open.tsv` → `dispositions/jssm-triage.md`. Most rows pre-sort (trust
-  stack #825–#830 → eras 1/5; AI-distribution #831–#869 → era 7; perf #712–#720 → era-1 with
-  #756; wc suite #793+ → wc track; val tail #754–#759 → WP-5/WP-10).
+### WP-8 · jssm tracker DRAIN — mechanical · M
+- **Policy (John, 2026-07-04): the jssm tracker is kept EMPTY** (npm search-ranking signal);
+  all new issues go to fsl, permanently. So WP-8 is not triage-in-place — it is
+  **migrate-or-close for all 107**: every keeper (trust stack #825–#830, perf levers, wc suite,
+  val tail, CLI verbs, AI-distribution block) gets an fsl twin ("was jssm#NNN" in the body, era
+  tag per the rulebook) and the jssm original closes citing the fsl number; everything else
+  closes as SUP/DONE?/SAT per the rulebook. Output: `dispositions/jssm-drain.md` ledger →
+  John's batch approval → mechanical execution under the standing grant (HANDOFF). PRs fixing
+  migrated items use cross-repo `closes StoneCypher/fsl#N`.
 
 ### WP-9 · The 6.0.0 release event — judgment · S–M
 - **Do:** `/sc-commit` on the assembly branch (version → 6.0.0, full `npm run build`, never
@@ -185,11 +190,15 @@ One disposition per issue:
 | `DONE?` | probably already done | Title suggests shipped work (e.g. things the style-cascade/serialize/hooks programs completed). Verify against code before proposing close; if verification is nontrivial, mark `DONE?-unverified`. |
 | `META` | list/umbrella issue | Re-point at the era map; propose converting to era umbrellas (issues-projection). |
 
-Hard rules: **never `gh issue close`** — closes happen via PR `Closes #N` or John's explicit
-batch action; the snapshot is the triage universe (note live drift, don't chase it); when two
-dispositions fit, prefer the one that produces less work (`SUP` over `E7` for pure-marketing
-items); anything genuinely ambiguous gets `ASK` and a one-line question, and ASK rows go to
-John in one batch, not one-at-a-time.
+Add disposition `MIG` — migrate to fsl (jssm issues only; fsl twin filed, jssm side closed with
+cross-reference), per the jssm-empty policy.
+
+Hard rules: tracker mutations ONLY under the HANDOFF standing grant (prepare → John approves the
+ledger batch → mechanical execution; nothing off-ledger); **all new issues go to fsl, never
+jssm**; every close carries a citation comment; the snapshot is the triage universe (note live
+drift, don't chase it); when two dispositions fit, prefer the one that produces less work
+(`SUP` over `E7` for pure-marketing items); anything genuinely ambiguous gets `ASK` and a
+one-line question, batched to John, not one-at-a-time.
 
 ## Corrections
 
