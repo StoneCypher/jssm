@@ -28,6 +28,15 @@
 | B1 | `decision record: automata-ladder checkable band (megaspec §3 vs registry-close push-up)` | fable_sum_critique finding 3 |
 | B2 | `spec: canonical source_hash (normalization, layers, algorithm)` | irreversibles #1 / era-1 WP-1.1 |
 | B3 | `manifest entries: jssm-* synonym removal + probabilistic list split` | era-0 WP-5 |
+| B4 | `spec: operational-semantics appendix (megaspec §29 commitment; small-step macrostep)` | era-1 WP-1.2, DO-FIRST |
+| B5 | `perf envelope: allowed runtime regression budget for v6 enabling infra vs 6.0 baseline` | omissions D4; precedes #756 |
+| B6 | `reserve the stable diagnostic/error-code namespace before ad-hoc kinds multiply` | irreversibles #16 |
+
+Deliberately NOT pre-filed (first-touch cadence, HANDOFF): remaining §29 appendices (verifier
+budget model, security/effects model, compatibility policy), fsl.lock / certificate-record /
+interface-card / publish-manifest / advisory-feed schemas, hook-return slot (next tape-format
+touch), 5.x snapshot-lift policy (era 4), seed-tree edit stability (F1), era-5 security review
+(era-5 entry). Each is inventoried in `irreversibles.md` or the era briefs with its trigger.
 
 ## C. Migration twins (WP-8 jssm drain)
 
