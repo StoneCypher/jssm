@@ -124,14 +124,26 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
 - **Why era 0:** hardens the parser/compiler before the One Merge's val grammar and era 1's P2
   grammar land on them; the generator lineage becomes the fuzz corpus for the era-1 conformance
   work (C4) and the megaspec §26 self-fuzzing posture.
-- **Open questions FOR JOHN (the undocumented residue):**
+- **DECIDED (John, 2026-07-04) — round-trip scope:** era 0 ships **semantic** round-trip
+  (`parse(emit(parse(src)))` AST/graph-equal, via the lossy regenerator once its start-states
+  bug is fixed); **byte-level** reversibility (#134: CST/trivia retention, true bijection) is
+  era 1, riding the C3/C4 + formatter work. The full #579 generator/parser dual is era 1's
+  opening move when P2 grammar surgery begins (it pays per-rule-added-after); optional era-0
+  stretch ONLY if the lane comes up fast: a crude grammar-walking generator built by parsing
+  the `.peg` with PEG.js itself (FSL's declare-by-use property makes generated documents
+  unusually likely to be semantically valid).
+- **Open questions FOR JOHN (remaining):**
   1. Is "running" for 6.0 = kitchen-sink green in a CI lane + the three §-expansions, or the
      full dragons-egg gap list (§2, §5, §7–§11 stoch first, then dragon)?
-  2. Is the fsl#579 "fully reversible parser dragon" (generator/parser dual, with #134
-     reversibility) part of this era's ambition or an era-1 C4 concern?
-  3. Gating policy: dragon findings block release (gate) or report-only until stable?
-  4. Runtime budget per CI run (the config allows 120s/test; a real dragon lane wants a
+  2. Gating policy: dragon findings block release (gate) or report-only until stable?
+  3. Runtime budget per CI run (the config allows 120s/test; a real dragon lane wants a
      time-boxed nightly with a small always-on PR smoke slice)?
+- **Downstream note (era 1, recorded here so it isn't lost):** the editor gets a **Format
+  button** when the pretty-printer (#792) lands — `<fsl-toolbar>` already ships buttons; the
+  button applies the format as ONE CodeMirror transaction (undo-safe), via text-diff so the
+  cursor maps, and **guards itself with the era-0 semantic round-trip check**: format → reparse
+  → AST-compare → apply only on equality, else refuse and report a formatter bug. The era-0
+  law becomes the button's safety interlock.
 - **Done when:** dragon lane green in CI under the agreed policy; ≥3 grammar sections at
   dragon tier; find-handling convention documented in dragons-egg.md.
 
