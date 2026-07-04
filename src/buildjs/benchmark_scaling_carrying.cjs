@@ -42,36 +42,72 @@ function carryingSources(n) {
 }
 
 /**
+ *  Median of a numeric array (mean of the middle pair on even counts).
+ *
+ *  @param xs Non-empty numeric array.
+ *  @returns The median value.
+ *
+ *  @example median([3, 1, 2])  // => 2
+ */
+function median(xs) {
+  const s = [...xs].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return (s.length % 2 === 1) ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+/**
  *  Measure the carrying footprint deltas at the given chain sizes: for each
  *  size, retained bytes of each variant minus retained bytes of the plain
  *  chain.  A positive delta is the price of merely declaring the feature.
+ *
+ *  Hardened against the artifacts the metric's first canonical run showed
+ *  (5.158.0: a 150 KB "group cost" at n=10 and negative retentions):
+ *  every variant is constructed once as a discarded WARMUP before anything is
+ *  measured — so first-use module costs (lazy JIT, first group-table paths)
+ *  are not billed to whichever variant happens to run first — and each
+ *  retention is the MEDIAN of `k` samples, so a single GC hiccup cannot set
+ *  the row.
  *
  *  @param smFn The `sm` template function of the library under test (passed
  *    in, not required here, so `--harness-from` overlays measure the old
  *    library with today's instrument).
  *  @param sizes Chain lengths to measure, e.g. `[10, 200]`.
  *  @param seam Injectable `{ gc, heapUsed }`; defaults to the real one.
- *  @returns Array of rows `{ name, deltaBytes, variantBytes, plainBytes }`,
- *    empty when the GC is not exposed (graceful, like the sibling metrics).
+ *  @param k Samples per variant per size; the row carries their median.
+ *  @returns Array of rows `{ name, deltaBytes, variantBytes, plainBytes,
+ *    samples }`, empty when the GC is not exposed (graceful, like the
+ *    sibling metrics).
  *
  *  @example
  *  collectCarrying(sm, [10])[0]
- *  // => { name: 'carrying groups n=10', deltaBytes: 1234, ... }
+ *  // => { name: 'carrying groups n=10', deltaBytes: 1234, ..., samples: 5 }
  */
-function collectCarrying(smFn, sizes, seam = memory.defaultSeam()) {
+function collectCarrying(smFn, sizes, seam = memory.defaultSeam(), k = 5) {
   if (typeof seam.gc !== 'function') { return []; }
 
   const rows = [];
   for (const n of sizes) {
     const src = carryingSources(n);
-    const plainBytes = memory.measureRetainedBytes(() => smFn([src.plain]), seam);
+
+    // warmup: construct every variant once, unmeasured, so first-use costs
+    // land here instead of inside whichever measurement runs first
+    for (const variant of ['plain', 'groups', 'property']) { smFn([src[variant]]); }
+
+    const sample = (source) => {
+      const xs = [];
+      for (let i = 0; i < k; ++i) { xs.push(memory.measureRetainedBytes(() => smFn([source]), seam)); }
+      return median(xs);
+    };
+
+    const plainBytes = sample(src.plain);
     for (const variant of ['groups', 'property']) {
-      const variantBytes = memory.measureRetainedBytes(() => smFn([src[variant]]), seam);
+      const variantBytes = sample(src[variant]);
       rows.push({
         name       : `carrying ${variant} n=${n}`,
         deltaBytes : variantBytes - plainBytes,
         variantBytes,
-        plainBytes
+        plainBytes,
+        samples    : k
       });
     }
   }
@@ -95,4 +131,4 @@ function injectCarryingRows(data, rows) {
   for (const r of rows) { data.results.push(r); }
 }
 
-module.exports = { carryingSources, collectCarrying, injectCarryingRows };
+module.exports = { carryingSources, median, collectCarrying, injectCarryingRows };
