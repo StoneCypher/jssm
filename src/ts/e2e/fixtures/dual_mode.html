@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>fsl-editor / fsl-instance dual-mode e2e fixture</title>
+
+    <!--
+      Dual-mode fixture: a real <fsl-editor> slotted into a real <fsl-instance>.
+      Same serving contract as tile_crash.html — the e2e harness serves the
+      REPO ROOT, and this import map resolves the editor bundle's externals to
+      /node_modules (the lockfile-resolved CodeMirror) and jssm to /dist.
+    -->
+    <script type="importmap">
+    {
+      "imports": {
+        "jssm":                     "/dist/jssm.es6.mjs",
+        "jssm/cm6":                 "/dist/cm6/fsl_language.js",
+        "@codemirror/view":         "/node_modules/@codemirror/view/dist/index.js",
+        "@codemirror/state":        "/node_modules/@codemirror/state/dist/index.js",
+        "@codemirror/language":     "/node_modules/@codemirror/language/dist/index.js",
+        "@codemirror/commands":     "/node_modules/@codemirror/commands/dist/index.js",
+        "@codemirror/autocomplete": "/node_modules/@codemirror/autocomplete/dist/index.js",
+        "@codemirror/lint":         "/node_modules/@codemirror/lint/dist/index.js",
+        "@lezer/common":            "/node_modules/@lezer/common/dist/index.js",
+        "@lezer/highlight":         "/node_modules/@lezer/highlight/dist/index.js",
+        "@lezer/lr":                "/node_modules/@lezer/lr/dist/index.js",
+        "@marijn/find-cluster-break": "/node_modules/@marijn/find-cluster-break/src/index.js",
+        "style-mod":                "/node_modules/style-mod/src/style-mod.js",
+        "w3c-keyname":              "/node_modules/w3c-keyname/index.js",
+        "crelt":                    "/node_modules/crelt/index.js",
+        "lit":                      "/node_modules/lit/index.js",
+        "lit/":                     "/node_modules/lit/",
+        "lit-html":                 "/node_modules/lit-html/lit-html.js",
+        "lit-html/":                "/node_modules/lit-html/",
+        "lit-element/":             "/node_modules/lit-element/",
+        "@lit/reactive-element":    "/node_modules/@lit/reactive-element/reactive-element.js",
+        "@lit/reactive-element/":   "/node_modules/@lit/reactive-element/"
+      }
+    }
+    </script>
+
+    <style>
+      body         { margin: 1em; }
+      fsl-instance { display: block; width: 60em; }
+    </style>
+  </head>
+
+  <body>
+
+    <fsl-instance id="host" fsl="a -> b;">
+      <fsl-editor id="ed" slot="editor"></fsl-editor>
+    </fsl-instance>
+
+    <script type="module">
+
+      import '/dist/wc/instance.define.js';
+      import '/dist/wc/editor.define.js';
+
+      await customElements.whenDefined('fsl-instance');
+      await customElements.whenDefined('fsl-editor');
+
+      const host = document.getElementById('host');
+      const ed   = document.getElementById('ed');
+
+      await host.updateComplete;
+      await ed.updateComplete;
+
+      // Let fonts and CodeMirror's async measure pass settle before the spec
+      // starts dispatching real input.
+      await document.fonts.ready;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      window.__fixture_ready = true;
+
+    </script>
+
+  </body>
+</html>

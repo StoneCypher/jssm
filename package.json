@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.159.1",
+  "version": "5.159.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -352,8 +352,12 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
+    "@codemirror/autocomplete": ">=6",
+    "@codemirror/commands": ">=6",
     "@codemirror/language": ">=6",
+    "@codemirror/lint": ">=6",
     "@codemirror/state": ">=6",
+    "@codemirror/view": ">=6 <6.43.3 || >6.43.4",
     "@lezer/highlight": ">=1",
     "lit": ">=3"
   },
@@ -361,13 +365,22 @@
     "lit": {
       "optional": true
     },
+    "@codemirror/autocomplete": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
     "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/lint": {
       "optional": true
     },
     "@codemirror/state": {
       "optional": true
     },
-    "@lezer/highlight": {
+    "@codemirror/view": {
       "optional": true
     }
   },
