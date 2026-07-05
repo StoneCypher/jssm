@@ -1,0 +1,10 @@
+{
+  "id": "W12.9",
+  "title": "machines.txt + package exposure",
+  "version": 16,
+  "cluster": "distribution",
+  "src": ["MP§25.1", "jssm#778", "jssm#610"],
+  "issue": 778,
+  "manager": "`machines.txt` (an RFC, like robots.txt but for discoverable machines) plus package.json exposure — the conventions that make a site or package advertise the FSL machines it contains, so crawlers, agents, and tools can find them. This is discoverability plumbing: it is how a machine published anywhere becomes findable by the AI systems and tooling that would want to consume it, instead of sitting invisible in a repo.",
+  "cs": "machines.txt RFC (#778) + package.json exposure (#610); discoverability conventions; fsl-twins jssm#778/#610."
+}

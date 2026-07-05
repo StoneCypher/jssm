@@ -1,0 +1,10 @@
+{
+  "id": "W12.5",
+  "title": "semantic patches",
+  "version": 16,
+  "cluster": "query-patches",
+  "src": ["MP§29"],
+  "issue": null,
+  "manager": "A structured-edit protocol that lets many agents work on one machine without trampling each other's text — semantic patches with source-hash preconditions, dry-run, and behavioral-diff receipts. This is how AI agents collaborate on machines: edits are operations with preconditions and provable behavioral effects, not blind text merges, and the same machinery powers a git semantic-merge driver so even version control understands an FSL change behaviorally rather than line by line.",
+  "cs": "semantic patches (§29 door): fsl.patch.v1-style ops, source-hash preconditions, dry-run + behavioral-diff receipts; the git semantic merge driver rides the same machinery."
+}

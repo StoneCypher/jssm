@@ -1,0 +1,10 @@
+{
+  "id": "W12.1",
+  "title": "registry loop-first vertical",
+  "version": 16,
+  "cluster": "registry",
+  "src": ["MP§25.1"],
+  "issue": null,
+  "manager": "Before building any marketplace, prove the research-grade core on a tiny vertical: an agent states a contract, queries, assembles a composite, gets a green proof or a minimal counterexample, and swaps a part under refinement. If that loop isn't cheap enough for an agent's inner loop, the whole thesis is hollow — so prove it on a narrow slice before indexing anything. This is the registry's make-or-break experiment, deliberately done small first rather than built out on faith.",
+  "cs": "slice per registry-close: TS/JS only, hierarchical operator only, checkable band only, author-claimed + one registry-verified(ts-js) path, counterexample traces, adapter-as-proof-carrying-component, skeletal third-party adjunct binding (namespace+hash); THEN the wider marketplace."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W12.7",
+  "title": "synth (aspirational)",
+  "version": 16,
+  "cluster": "infer-synth",
+  "src": ["MP§25.1"],
+  "issue": null,
+  "manager": "Derive a guardrail machine from properties, correct by construction — safety-game solving over Dwyer-pattern specs yields a maximally-permissive policy machine plus a certificate. This is the other aspirational bookend: instead of writing a machine and proving it satisfies a property, you state the property and synthesize a machine that provably does. Aspirational until the eval bar clears, but it is the endpoint the whole verification stack has been pointing toward from the start.",
+  "cs": "synth = safety-game solving over Dwyer-pattern specs (decidable safety fragment) -> maximally-permissive policy + certificate; the correct-by-construction bookend; aspirational until eval clears."
+}
