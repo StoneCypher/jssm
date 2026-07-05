@@ -1,0 +1,11 @@
+{
+  "id": "W11.2",
+  "title": "per-host runtimes via the bringup kit",
+  "version": 15,
+  "cluster": "per-host-runtimes",
+  "src": ["MP§16", "MP§26"],
+  "issue": null,
+  "deps": ["W11.1"],
+  "manager": "Adding host N stops being a research project — port a roughly 200-line harness, run the conformance corpus, declare your tier. Python and C follow the v6 Rust runtime; demand picks the rest. The bringup kit is what turns \"support another language\" from a months-long port into a bounded, checklist-driven task, because each runtime is just an IR consumer plus a C2 stepper measured against the shared vectors.",
+  "cs": "bringup kit = corpus runner, trace comparator, canonical-value serialization tests, IR loader tests, ABI mocks, negative diagnostics, replay tests, manifest validator; each runtime = IR consumer + C2 stepper (T1 first); tier growth by passing more vectors, never by assertion."
+}

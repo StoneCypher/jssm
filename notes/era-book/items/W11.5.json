@@ -1,0 +1,10 @@
+{
+  "id": "W11.5",
+  "title": "typegen fleet-wide",
+  "version": 15,
+  "cluster": "typegen-manifests-wasm",
+  "src": ["MP§16"],
+  "issue": null,
+  "manager": "Every host gets the machine's type surface in its own idiom — C headers, Rust enums, Python type hints — via target plugins, with no certification gate. This scales the v10 TypeScript typegen to the whole fleet: whatever language you consume a machine from, you get compile-time-checked state and action names and data shapes in that language's native types, so the machine is as pleasant and safe to use from C as it is from TypeScript.",
+  "cs": "typegen C headers / Rust enums / Python hints via target plugins (no cert gate); the fleet-wide scaling of v10 typegen (W6.106)."
+}
