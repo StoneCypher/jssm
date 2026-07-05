@@ -23,6 +23,7 @@ umbrellas are filed; row IDs are internal ledger keys, the filed issues are unaf
 
 | # | Draft title | Milestone | Filed |
 |---|-------------|-----------|-------|
+| A0 | `5.x "The Long Goodbye" — end-of-line cleanup before 6.0 (umbrella)` | #48 | **fsl#1418** |
 | A1 | `v6 "The Ground" — end the 5.x line: breakage batch, One Merge, dragon (umbrella)` | #49 | **fsl#1401** |
 | A2 | `v7 "The Computing Machine" — scalars, expressions, where-guards, stdlib (umbrella)` | #50 | **fsl#1402** |
 | A3 | `v8 "The Structured Machine" — containers, ADTs, streams, fn-slots, groups, graph (umbrella)` | #51 | **fsl#1403** |
