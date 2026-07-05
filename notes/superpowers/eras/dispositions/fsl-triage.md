@@ -664,10 +664,9 @@
 78 e7 — Monaco support
 77 e7 — Monarch support
 72 e2 — spread tests (with 453)
-68 CLOSE — RESOLVED (John 2026-07-04): the deepak_cpp/deepak_python tradition (4×4 string
-     arrays → collated nonsense sentence); author's call: won't follow through, close. If the
-     corpus program ever wants the pedagogy (weighted lists + emit + seeded randomness), a
-     depersonalized "technobabble generator" example carries it without the mockery
+68 CLOSE — RESOLVED (John 2026-07-04): the deepak tradition retires; its pedagogy lives on as
+     **fsl#1400** (Star Trek technobabble generator — the streams teaching machine, filed
+     2026-07-04 at John's direction; lands with streams in v8). #68 closes citing #1400
 66 SUP(CORP) — chess game test (chess is corpus flagship)
 65 e0 — kitchen sink upkeep (dragon WP-6!)
 64? — (closed; not in universe)
