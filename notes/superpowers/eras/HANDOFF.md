@@ -107,11 +107,14 @@
 
 ## Time-sensitive facts
 
-- **The `fsl` GitHub org transfer is in flight** (John, 2026-07-04): prior owner agreed; a
-  **90-day window is active (expires ~early October 2026)** — accepting it is John's personal
-  action. Once held, everything migrates under the org; SAT satellite repos get created there;
-  it is load-bearing for the v15 fleet era. If you are a successor reading this near the
-  deadline, remind John.
+- **The `fsl` GitHub org transfer is in flight** (John, 2026-07-04): prior owner agreed; accepting
+  it is John's personal action. Once held, everything migrates under the org; SAT satellite repos
+  get created there; it is load-bearing for the v15 fleet era.
+  **CORRECTED DATE (John, 2026-07-05):** the prior owner deleted on **June 14 2026**; GitHub runs a
+  **no-exceptions 90-day** reclaim window from that date, so the true deadline is **~September 12
+  2026** (not the earlier "~early October" estimate). Because GitHub's edge-of-day counting is
+  unknown, **John watches from September 9 2026** (three days early). If you are a successor active
+  near that date, remind John — this is a hard, unextendable clock.
 
 ## Source-of-truth map
 

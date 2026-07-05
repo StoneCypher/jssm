@@ -82,3 +82,9 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   ledger KEEP rows to "FIXED ON v6 … closes on the WP-4 One Merge" (matching #827's already-on-v6
   status), and added a **KEEP-issue closers** bullet to WP-4 requiring the One Merge PR to carry
   `Closes #755 #757 #758 #759 #827` (+#921) so they auto-close from main. #754 stays WP-5.
+- **2026-07-05 · Increment 7 (Opus 4.8, two decisions banked):** (1) **WP-4 merges the docs
+  branch, not bare v6** (John) — docs is a superset of v6, so the One Merge lands the era book on
+  main "for posterity"; recorded in the WP-4 packet + Corrections. (2) **fsl-org deadline
+  corrected** — prior owner deleted 2026-06-14; 90-day no-exceptions window ⇒ ~Sept 12 deadline
+  (HANDOFF said early October); John watches from Sept 9. HANDOFF time-sensitive + Corrections
+  updated. v6-branch fate reaffirmed: keep frozen/protected, retire at WP-9 after 6.0.0 verifies.

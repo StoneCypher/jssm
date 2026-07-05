@@ -81,7 +81,15 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
 ### WP-4 · The One Merge — judgment · M–L
 - **Inputs:** memory recipes (mid-PR release race; `--theirs` generated + rebuild); convergence
   doc's mechanics section; current divergence (v6 is 159 ahead / ~270 behind).
-- **Do:** worktree off latest main; `git merge origin/v6`; resolve real source conflicts
+- **DECIDED (John, 2026-07-05) — merge the docs branch, not bare v6.** `docs_26-07-04_fable-v6-to-v16`
+  is a strict superset of `origin/v6` (v6 is 0 ahead / 71 behind: all v6 code + the era-program
+  notes + a small `era_book` renderer & `markdown-it` devDep). Merging **the docs branch** into the
+  assembly lands the 6.0 code AND the era book in the one merge, so the planning record "lives in
+  posterity in the tree" on main (John's words). Pre-flight: confirm the `era_book` script +
+  `markdown-it` don't break `npm run build`, and that `notes/` is NOT in package.json's npm `files`
+  allowlist (planning docs stay repo-only, never shipped to npm). Keep the docs branch a superset:
+  if `v6` ever advances before this merge, merge v6 → docs first (never push to protected v6).
+- **Do:** worktree off latest main; `git merge <docs branch>` (per the decision above); resolve real source conflicts
   (expect: `jssm.ts`, `jssm_compiler.ts`, the peg, `package.json` — take the 6.0.0-alpha line
   and set 6.0.0-alpha.next; both sides' tests are additive, keep both); resolve ALL generated
   artifacts by `--theirs`-then-full-rebuild (`npm run build`, from Bash, per memory); full suite
@@ -221,4 +229,10 @@ one-line question, batched to John, not one-at-a-time.
 
 ## Corrections
 
-*(append dated corrections here as packets discover reality diverging from this brief)*
+- **2026-07-05 (Opus 4.8):** WP-4 merge-target DECIDED — merge the `docs_26-07-04_fable-v6-to-v16`
+  branch (a superset of v6), not bare `origin/v6`, so the era-program notes land on main for
+  posterity. Detail in the WP-4 packet. Resolves the "do the planning notes reach main?" open
+  question in John's favour of keeping them in the tree.
+- **2026-07-05 (Opus 4.8):** fsl-org transfer deadline corrected — prior owner deleted June 14
+  2026; 90-day no-exceptions window ⇒ **~Sept 12 2026** deadline (HANDOFF said "early October");
+  John watches from **Sept 9**. See HANDOFF time-sensitive.
