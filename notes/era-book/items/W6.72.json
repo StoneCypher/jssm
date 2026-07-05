@@ -1,0 +1,11 @@
+{
+  "id": "W6.72",
+  "title": "priority + doc-order selection",
+  "version": 9,
+  "cluster": "rtc",
+  "src": ["MP§12"],
+  "issue": null,
+  "deps": ["W6.71"],
+  "manager": "The rule for which enabled transition is selected when several compete: explicit priority first, then document order as the deterministic tiebreak. This is what makes a machine's choice among simultaneously-enabled transitions predictable and reproducible instead of implementation-defined — the same source picks the same transition on every host, which is a precondition for replay meaning anything.",
+  "cs": "transition selection by explicit priority then document order; deterministic; part of the macrostep (W6.71); interacts with the edge resolution order (W6.89)."
+}

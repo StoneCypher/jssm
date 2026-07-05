@@ -1,0 +1,11 @@
+{
+  "id": "W6.95",
+  "title": "native safety checker: reachability + invariants + error-state targets",
+  "version": 9,
+  "cluster": "safety-checker",
+  "src": ["MP§17"],
+  "issue": null,
+  "deps": ["W6.64", "W6.70"],
+  "manager": "The first verification engine that ships in FSL — a native, backend-free safety checker that proves reachability (can we get to this state), checks invariants hold across all reachable states, and flags whether error states are reachable. No SAT/SMT backends yet, just a built-in breadth-first search over the reachable configuration space, but this is the moment FSL stops merely running machines and starts proving things about them.",
+  "cs": "native BFS safety checker (§17-safety); reachability, invariant-holds, and error-state target analysis; no external backends yet (those are era 3); consumes invariants (W6.64) and error states (W6.70)."
+}

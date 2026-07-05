@@ -1,0 +1,10 @@
+{
+  "id": "W6.67",
+  "title": "error tape (regenerated class)",
+  "version": 9,
+  "cluster": "error-model",
+  "src": ["MP§11", "MP§14"],
+  "issue": null,
+  "manager": "The error tape — a recorded stream of the errors a machine has produced, in the same tape family as input and output — so a run's failures are a replayable, inspectable artifact rather than lost console output. This is the diagnostics substrate: a bug report can ship the error tape, and the whole run can be replayed to reproduce exactly how the machine arrived at the failure, which is the difference between a fixable bug and a shrug.",
+  "cs": "error tape in the tape family (§11/§14); regenerated class; replayable; pairs with the output/input tapes (W7.9) and the era-4 flight recorder."
+}

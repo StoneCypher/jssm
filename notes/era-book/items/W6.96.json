@@ -1,0 +1,11 @@
+{
+  "id": "W6.96",
+  "title": "M1 check verb + unsigned certificate record",
+  "version": 9,
+  "cluster": "m-track",
+  "src": ["MP§17", "era1/WP-1.8"],
+  "issue": null,
+  "deps": ["W6.99", "W6.95"],
+  "manager": "The `check` verb plus an unsigned certificate record — run the safety checker and emit a structured, machine-readable record of what was checked and what held, bound to the canonical source hash. This is milestone 1 of the trust stack: not signed yet, but the record format is the irreversible part, and everything the later signing, verify, and receipts machinery does is built on this record existing and binding to the right hash.",
+  "cs": "`check` verb + unsigned certificate record (irreversibles #15); subject = canonical source hash (W6.99); runs the safety checker (W6.95); the record format is the irreversible piece, signing lands era 5; jssm twins #825/#623."
+}

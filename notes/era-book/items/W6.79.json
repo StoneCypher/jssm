@@ -1,0 +1,11 @@
+{
+  "id": "W6.79",
+  "title": "machine hooks: closed enforcement via declarations",
+  "version": 9,
+  "cluster": "hooks",
+  "src": ["MP§12", "fsl#617", "fsl#645"],
+  "issue": 617,
+  "deps": ["W6.77"],
+  "manager": "A machine can declare `hooks: closed`, forbidding any hook not explicitly declared — so a machine that must not be observed or extended in unexpected ways can enforce that at compile time. This is the counterpart to open hooking: it lets a machine's author lock down the observation surface, which matters for sealed and proven builds and for machines whose exact behavior is part of a contract others rely on.",
+  "cs": "`hooks: closed` enforced against declarations (fsl#617/#645); rejects undeclared hooks; over the uniform registry (W6.77); interacts with sealed/proven builds."
+}

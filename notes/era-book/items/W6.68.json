@@ -1,0 +1,10 @@
+{
+  "id": "W6.68",
+  "title": "rollback event on the bus + pre-error snapshot",
+  "version": 9,
+  "cluster": "error-model",
+  "src": ["MP§11"],
+  "issue": null,
+  "manager": "When a macrostep rolls back after a violation, it emits a rollback event carrying a snapshot of the pre-error state, so observers can see exactly what was attempted and undone. Rollback becomes an observable, first-class event rather than a silent revert — which is what makes contract failures debuggable, and what lets a supervisor or logger react to a failed transaction instead of never learning it happened.",
+  "cs": "rollback event on the observation bus with a pre-error snapshot payload; fires on macrostep reverse-replay (W6.69); consumed through the hook registry (W6.77)."
+}

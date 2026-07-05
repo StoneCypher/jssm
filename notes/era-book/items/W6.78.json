@@ -1,0 +1,11 @@
+{
+  "id": "W6.78",
+  "title": "introspection has_hook/hooks_on",
+  "version": 9,
+  "cluster": "hooks",
+  "src": ["MP§12", "fsl#1251", "fsl#1158", "fsl#434"],
+  "issue": 1251,
+  "deps": ["W6.77"],
+  "manager": "Introspection over the hook registry — `has_hook`, `hooks_on` — so code and tooling can ask which hooks are attached where, at runtime. This answers the long-standing \"is this transition hooked?\" questions as real API, which matters for debugging, for conditional rendering (draw hooked states differently), and for a machine reasoning about its own observability instead of guessing.",
+  "cs": "has_hook/hooks_on queries over the uniform registry (W6.77); fsl#1251/#1158/#434; feeds hooked-state rendering and tooling."
+}

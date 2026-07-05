@@ -1,0 +1,10 @@
+{
+  "id": "W6.66",
+  "title": "last_error/error_count + Error.kind enum",
+  "version": 9,
+  "cluster": "error-model",
+  "src": ["MP§11"],
+  "issue": null,
+  "manager": "A queryable error surface — `last_error`, `error_count`, and an `Error.kind` enum — so a machine and its host can inspect what went wrong as structured data rather than a string to grep. Making errors first-class values with a typed kind is what lets error-handling logic branch reliably, and what feeds the error tape and the recovery transitions instead of everyone reinventing error plumbing.",
+  "cs": "last_error/error_count getters; Error.kind enum (§11); structured errors, not strings; feeds error states (W6.70) and the error tape (W6.67)."
+}

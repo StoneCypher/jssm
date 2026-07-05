@@ -1,0 +1,11 @@
+{
+  "id": "W6.71",
+  "title": "macrostep pipeline per the C2 appendix",
+  "version": 9,
+  "cluster": "rtc",
+  "src": ["MP§12", "fsl#1345"],
+  "issue": 1345,
+  "deps": ["WP6.6"],
+  "manager": "The run-to-completion macrostep engine, implemented exactly to the C2 operational-semantics appendix: take an event, select and fire transitions, drain the internal queue, run eventless cascades, check invariants at the stable point, then commit or roll back. This is the beating heart of FSL execution, and building it to the written appendix rather than to habit is precisely what lets a second implementation agree with it step for step.",
+  "cs": "RTC macrostep per the C2 appendix (WP6.6, fsl#1345); selection -> internal FIFO drain -> eventless cascade -> invariant-at-stable -> commit/rollback; the reference the trace schema and the second implementation conform to."
+}

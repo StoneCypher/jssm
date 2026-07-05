@@ -1,0 +1,11 @@
+{
+  "id": "W6.97",
+  "title": "M4-subset predicates over runs",
+  "version": 9,
+  "cluster": "m-track",
+  "src": ["MP§17", "era1/WP-1.8"],
+  "issue": null,
+  "deps": ["Tjssm-827"],
+  "manager": "A built-in subset of run-predicates — `reached_state`, `in_config`, `is_legal_run`, `never_entered` — that evaluate over a recorded run (an M3 tape) without needing the full expression language. This is milestone 4's early half: it lets you ask concrete questions about what actually happened in a run right now, straight off the replay engine, while the full property language waits for the P2 expression language to mature.",
+  "cs": "M4-subset predicates (reached_state/in_config/is_legal_run/never_entered) over M3 runs (Tjssm-827); no P2 dependency by design; the full property language is era 3; jssm twin #828."
+}

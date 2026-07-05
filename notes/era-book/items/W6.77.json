@@ -1,0 +1,10 @@
+{
+  "id": "W6.77",
+  "title": "uniform observational registry (kind, target, phase)",
+  "version": 9,
+  "cluster": "hooks",
+  "src": ["MP§12", "MP§14"],
+  "issue": null,
+  "manager": "One uniform registry that every hook and observer flows through, keyed by (kind, target, phase) — so instead of a dozen bespoke hook mechanisms there is a single indexed system that construct-hooks, transition-hooks, boundary-hooks, and lifecycle-hooks all register into. This is the architectural spine of the entire hook story: it is what makes hooks introspectable, closeable, and uniform, and it is where the old scattered hook APIs finally converge.",
+  "cs": "uniform observational registry keyed by (kind, target, phase); every hook kind registers here; enables introspection (W6.78) and closed-enforcement (W6.79); the §12/§14 convergence point that supersedes the on_* grammar cluster."
+}

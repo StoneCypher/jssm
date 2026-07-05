@@ -1,0 +1,11 @@
+{
+  "id": "W6.74",
+  "title": "before-macrostep / at-stable / post-commit hook points",
+  "version": 9,
+  "cluster": "hooks",
+  "src": ["MP§12"],
+  "issue": null,
+  "deps": ["W6.71"],
+  "manager": "The three macrostep-level hook points — before the macrostep, at the stable point, after commit — so host code can observe the machine at exactly the moments that matter without wrapping every transition. These are the coarse-grained observation seams for logging, metrics, and integration, defined relative to the RTC pipeline so their timing is precise, portable, and the same on every host.",
+  "cs": "before-macrostep / at-stable / post-commit hook points on the RTC pipeline (W6.71); registered via the uniform registry (W6.77); timing pinned by C2."
+}
