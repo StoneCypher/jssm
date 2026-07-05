@@ -1,0 +1,10 @@
+{
+  "id": "Tfsl-1269",
+  "title": "libsir native C bindings",
+  "version": 15,
+  "cluster": "codegen-adapters",
+  "src": ["e6-triage", "fsl#1269"],
+  "issue": 1269,
+  "manager": "A concrete, named request for a native C emission target: compile a machine to C that reports its lifecycle through libsir, the cross-platform thread-safe C logging library. It matters because it is a real host developer pulling on the \"C follows Rust\" native-emitter path rather than a hypothetical one — someone who wants FSL to speak their runtime and their logging stack out of the box. Done means the machine emits C that steps correctly and threads its transitions, enters, and exits through libsir's channels, proven the way every target is: golden traces run through the adapter's actual runtime, refusal-by-default on any semantics the C emitter can't carry.",
+  "cs": "native emitter under the S3 target-plugin architecture (surface/emit-utils/TARGET_META), not an ecosystem-library adapter; libsir is the logging sink for the lifecycle hook surface; certified via golden traces through compiled-and-linked C, tier declared by vectors passed."
+}
