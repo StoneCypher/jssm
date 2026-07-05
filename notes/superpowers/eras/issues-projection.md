@@ -12,14 +12,17 @@
 
 | # | Draft title | Body core |
 |---|-------------|-----------|
-| A1 | `era 0 — cleanup → 6.0.0: end the 5.x line (umbrella)` | link era-0 brief; exit criteria; child = WP list |
-| A2 | `era 1 — the 6.x series: language + portability contract (umbrella)` | link era-1 brief |
-| A3 | `era 2 — society: systems, factories, supervision (umbrella; opens 7.0)` | link thin brief |
-| A4 | `era 3 — proofs: verification stack (umbrella; opens 8.0)` | link thin brief; NOTE the ladder decision record as first child |
-| A5 | `era 4 — survival: durable execution (umbrella; opens 9.0; PROCESS-gated)` | link thin brief |
-| A6 | `era 5 — trust: signed proofs and receipts (umbrella; opens 10.0; security-review-gated)` | link thin brief |
-| A7 | `era 6 — fleet: multi-host fan-out (umbrella; opens 11.0)` | link thin brief |
-| A8 | `era 7 — ecosystem: registry and agent economy (umbrella; opens 12.0)` | link thin brief |
+| A1 | `v6 "The Ground" — end the 5.x line: breakage batch, One Merge, dragon (umbrella)` | link era-0 brief; exit criteria; child = WP list |
+| A2 | `v7 "The Computing Machine" — scalars, expressions, where-guards (umbrella)` | link era-1 brief (wave 6.2) |
+| A2b | `v8 "The Structured Machine" — containers, ADTs, streams, groups (umbrella)` | link era-1 brief (waves 6.3+6.6) |
+| A2c | `v9 "The Transactional Machine" — assign, contracts, RTC, safety (umbrella; opens w/ mDT→val-record batch)` | link era-1 brief (waves 6.4+6.5+6.8) |
+| A2d | `v10 "The Portable Machine" — conformance, Rust N=2, format (umbrella)` | link era-1 brief (waves 6.7+6.9) |
+| A3 | `v11 "The Social Machine" — systems, factories, supervision (umbrella)` | link thin brief |
+| A4 | `v12 "The Proven Machine" — verification stack (umbrella)` | link thin brief; ladder decision record = first child |
+| A5 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | link thin brief |
+| A6 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | link thin brief |
+| A7 | `v15 "The Ubiquitous Machine" — multi-host fan-out (umbrella)` | link thin brief |
+| A8 | `v16 "The Public Machine" — registry + agent economy (umbrella)` | link thin brief |
 
 ## B. Decision-record asks (file to fsl)
 

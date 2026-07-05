@@ -84,6 +84,9 @@ that unblock the trust stack and the conformance posture respectively.
 
 ## Era overlay
 
+*(Version map after the 2026-07-04 five-way split: era 0 → v6 "The Ground"; era 1 → v7–v10;
+eras 2–7 → v11–v16. Any "7.0" in prose above reads as v11. Full map: HANDOFF.)*
+
 | Era | Contains (from above) |
 |-----|----------------------|
 | 0 Cleanup → **6.0.0** | tracker triage (rulebook: `era-0-cleanup-and-6.0.md`); S1 merge; stale-audit re-verification; **the One Merge** (v6 branch → main); breakage batch (#754, synonym removal, probabilistic split, J bare-functions — J moves here from era 1, with a 7.0 fallback); **dragon suite live** (D); dual-track retired, trunk-based thereafter |

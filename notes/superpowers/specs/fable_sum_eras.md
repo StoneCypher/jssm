@@ -21,18 +21,30 @@
 > Only eras 0 and 1 change labels; v7–v12 stand. Execution detail lives in
 > `notes/superpowers/eras/era-0-cleanup-and-6.0.md`.
 
-## The sequence
+> **SECOND AMENDMENT (2026-07-04, adopted by John — the five-way split of old-v6):** the
+> Language+Contract era subdivides into four further majors along the read/write/prove seams;
+> downstream eras renumber +4. **The table below is now canonical (v6→v16)**; counts are topic
+> unions (spec W-items ∪ era-tagged tracker, ±10%). Work-era IDs (0–7) and ledger era-codes
+> (`eN`) are unchanged; the version map lives in `eras/HANDOFF.md`. N=2 timing under this
+> split: contract *decisions* (C1/C2/pinning/vector format) stay in v6; vectors accumulate
+> JS-only from v7; the Rust runtime lands v10, replaying the whole accumulated corpus.
 
-| # | Era | Ships as | Theme in one line |
-|---|-----|----------|-------------------|
-| 0 | **Cleanup → 6.0** | 6.0.0 | End the 5.x line: triage, breakage batch, the One Merge, dragon suite live, dual-track retired |
-| 1 | **Language + Contract** | 6.x | FSL becomes a typed, replayable data machine — and locks the portability contract |
-| 2 | **Society** | 7.0+ | Machines get I/O and each other: channels, systems, factories, populations, supervision |
-| 3 | **Proofs** | 8.0+ | The verification stack proper: temporal, backends, composed checking, the testing toolkit |
-| 4 | **Survival** | 9.0+ | Durable execution: machines that outlive processes, versions, and their authors |
-| 5 | **Trust** | 10.0+ | Proofs and runs become portable, signed, revocable social objects |
-| 6 | **Fleet** | 11.0+ | The multi-host fan-out, certifying a stable language against the era-1 contract |
-| 7 | **Ecosystem** | 12.0+ | The registry and the agent economy: other people's machines |
+## The sequence (canonical: v6→v16)
+
+| Ver | Era | Pithy name | Theme in one line | ~Topics |
+|-----|-----|-----------|-------------------|---------|
+| 5.x | 0a | **The Long Goodbye** | pre-6.0 patches: triage fixes, dragon prep, audit re-verification | ~25 |
+| 6 | 0 | **The Ground** | breakage batch, the One Merge, dragon live, C1/C2 pinned + the dual; dual-track dies | ~40 |
+| 7 | 1a | **The Computing Machine** | scalars, operators, control expressions, strings, `where` guards | ~45 |
+| 8 | 1b | **The Structured Machine** | containers, ADTs, streams, function-typed slots, groups + graph cascade | ~70 |
+| 9 | 1c | **The Transactional Machine** | assign/journal/rollback, contracts, error model, RTC, safety checking, M1 — opens with the mDT→val-record hook-retarget batch | ~85 |
+| 10 | 1d | **The Portable Machine** | conformance corpus, IR freeze, Rust N=2 differential, byte-reversibility, typegen | ~70 |
+| 11 | 2 | **The Social Machine** | channels, systems, factories, populations, supervision | ~80 |
+| 12 | 3 | **The Proven Machine** | temporal, backends, composed checking, testing toolkit | ~38 |
+| 13 | 4 | **The Durable Machine** | persistence, recorded effects, migrates-from, drift, calibrate | ~17 |
+| 14 | 5 | **The Trusted Machine** | signing, transparency log, receipts, lockfiles | ~11 |
+| 15 | 6 | **The Ubiquitous Machine** | host fan-out, T2/T3 certification, adapters, WASM product | ~28 |
+| 16 | 7 | **The Public Machine** | registry, guardrails, query, curriculum, distribution (largely ambient) | ~135 |
 
 ## Era 0 — Cleanup → 6.0 (ending the 5.x line)
 

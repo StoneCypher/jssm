@@ -103,7 +103,13 @@ WP-1.1 → WP-1.2 immediately (unblockers; both are writing, not code). Then thr
 tracks: contract (1.3 → 1.4 → 1.5), language (1.6 → 1.7 → 1.8), surfaces (1.9, 1.10). The
 tracks joint at the exit criteria: every P2/P3 slice feeds C4 vectors; C5 gates them all.
 
-## The 6.x waves (subdivision of the ~270 v6 topics; each wave = one+ minor releases)
+## The waves → majors (AMENDED 2026-07-04: the five-way split, canonical v6→v16)
+
+**This era now spans majors v7–v10.** The wave table below predates the split; its mapping to
+majors: wave 6.1 (foundations) → **v6 The Ground**; 6.2 → **v7 Computing**; 6.3 + 6.6 → **v8
+Structured** (groups/graph ride v8); 6.4 + 6.5 + 6.8 → **v9 Transactional** (opens with the
+mDT→val-record hook-retarget breakage batch); 6.7 + 6.9 → **v10 Portable**. The perf lane runs
+through all. Dependency spine and content stand unchanged; read "wave" as "major slice."
 
 | Wave | Theme | Core content | ≈topics |
 |------|-------|--------------|---------|

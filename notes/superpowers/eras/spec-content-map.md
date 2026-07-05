@@ -1,5 +1,8 @@
 # Spec-Content Map — which corpus content ships in which major
 
+> **AMENDED 2026-07-04 (five-way split; canonical v6→v16):** headings below use the OLD labels.
+> Translate: "v6" splits across v6–v10 per the era-1 wave→major note; "v7"→v11, "v8"→v12,
+> "v9"→v13, "v10"→v14, "v11"→v15, "v12"→v16. Content assignments themselves are unchanged.
 > **Status:** stable · **Author:** Claude Fable 5 · **Date:** 2026-07-04
 > **Purpose:** the version-bucketing of the SPEC CORPUS (the tracker twin is in
 > `dispositions/`). This is the coarse per-feature target tagging the critique asked for.

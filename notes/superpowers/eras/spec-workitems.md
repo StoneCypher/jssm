@@ -1,5 +1,10 @@
 # Spec Work-Item Register — the corpus at issue granularity
 
+> **AMENDED 2026-07-04 (five-way split; canonical v6→v16): W-IDs ARE STABLE — do not renumber.**
+> Version translation: W6.* items split across majors v6–v10 (foundations→v6; scalars/expr/
+> strings/where→v7; containers/data/streams/fn-slots/groups/graph→v8; mutation/contracts/error/
+> RTC/hooks/safety/M-track→v9; conformance/N=2/format/tooling→v10 — per the era-1 wave→major
+> note). W7.*→v11, W8.*→v12, W9.*→v13, W10.*→v14, W11.*→v15, W12.*→v16.
 > **Status:** stable · **Author:** Claude Fable 5 · **Date:** 2026-07-04
 > **Purpose:** every discrete buildable item in the v6 spec corpus, as trackable work items —
 > the spec-side twin of the `dispositions/` ledgers, at equal-or-finer granularity than issues.

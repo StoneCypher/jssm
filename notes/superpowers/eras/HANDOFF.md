@@ -28,10 +28,15 @@
 - **The era decomposition itself** — eight eras, cleanup → language+contract → society → proofs →
   survival → trust → fleet → ecosystem — per `fable_sum_eras.md`, agreed with John 2026-07-04.
   In-corpus "v7" labels are obsolete shorthand for "post-v6."
-- **The versioning model (confirmed 2026-07-04): breakage-batch-opens-major.** Era 0 ships as
-  **6.0.0** — breakage batch + the v6 branch's completed content via the One Merge — ending the
-  5.x line and the integration-branch dual-track. Era 1 fills 6.x additively; Society opens 7.0;
-  each later era opens its major with its own breakage batch. See `era-0-cleanup-and-6.0.md`.
+- **The versioning model (confirmed 2026-07-04, twice-amended — CANONICAL: the v6→v16 five-way
+  split).** Breakage-batch-opens-major stands; old-v6 subdivides into five majors and downstream
+  renumbers +4. **Translation map** (work-era IDs and ledger `eN` codes are STABLE): era0/`e0`
+  → **v6 "The Ground"** (+5.x Long Goodbye patches); era1/`e1` → **v7 Computing / v8 Structured
+  / v9 Transactional / v10 Portable** (wave→major note in the era-1 brief); era2/`e2` → **v11
+  Social**; era3/`e3` → **v12 Proven**; era4/`e4` → **v13 Durable**; era5/`e5` → **v14
+  Trusted**; era6/`e6` → **v15 Ubiquitous**; era7/`e7` → **v16 Public**. Canonical table with
+  pithy names + counts: `../specs/fable_sum_eras.md`. v9 opens with the mDT→val-record
+  hook-retarget breakage batch; the era-0 bare-functions fallback re-batches to v9 if taken.
 - **The dragon suite goes live in era 0** (John, 2026-07-04): the grammar-adversarial testing
   tier (see `notes/dragons-egg.md`, `vitest.dragon.config.ts`, `kitchen_sink_dragon.maximal.ts`)
   is a 6.0 exit criterion, so era-1 grammar work lands on a hardened parser.
