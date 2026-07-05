@@ -79,7 +79,9 @@ literals → operators & precedence → `let`/`if`/`case` + exhaustiveness → c
 HOFs → `assign` + `where` → stdlib (§7, pinned infra per irreversibles #13) → lambdas
 (defunctionalization tag normalization = irreversibles #12, spec at this slice). Entangled
 infrastructure decision at slice 1: the PEG.js 0.10 substrate (semi-generation fsl#561,
-possible parser regeneration) — decide once, at the workshop-renovation moment.
+possible parser regeneration) — decide once, at the workshop-renovation moment. **John's
+stated direction (2026-07-04): fork peggy** to produce a richly-typed grammar (supersedes the
+old typed-PEG patch attempt, fsl#1313 closed); evaluate the fork at this slice.
 
 ### WP-1.8 · P3: contracts + safety checking + trust plumbing — judgment · L
 `require`/`ensure`/`invariant` (runtime asserts, §10/§11 semantics incl. rollback + error

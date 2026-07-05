@@ -43,7 +43,8 @@
 798 MIG-e1 — re-land pick/oracle/graph-highlighter (branches exist)
 793 MIG-e1 — wc panel-suite track (umbrella twin)
 792 MIG-e1 — formatter/pretty-printer (WP-1.10; merge with fmt-verb twin of 621)
-790 ASK — DeBERTa/phantom-models side project; scope unclear
+790 MIG(defer:pick) — RESOLVED (John 2026-07-04): tied to the PICK work; fsl twin filed tagged
+    deferred-until-pick (activates with the pick workstream / #798 re-land), jssm side closes
 778 MIG-e7 — machines.txt RFC
 759 KEEP(fix PR) — val numeric-enum bug (era-0/1 tail)
 758 KEEP(fix PR) — validator silent no-op

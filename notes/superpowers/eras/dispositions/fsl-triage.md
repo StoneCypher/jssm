@@ -5,8 +5,10 @@
 > **Codes:** `eN` absorb into era N (stays open, era-tagged, closes when its work ships) ·
 > `e0` feeds era-0 WP-2 bug burn-down · `SUP(x)` close, superseded by x — MP=megaspec §, MAN=the
 > manual/taxonomy/curriculum program, CORP=example corpus #817, HB=help-bar program, ERA=the era
-> map · `SAT` close→satellite repo (grammars/editors distribution) · `DONE?` verify shipped,
-> then close · `DUP(#)` duplicate · `ASK` John decides.
+> map · `SAT` migrate→satellite repo — **twin-first, same as MIG (John 2026-07-04): a SAT row
+> closes ONLY after the destination repo exists AND carries the matching issue; until then it
+> stays open, tagged sat-pending** · `DONE?` verify shipped, then close · `DUP(#)` duplicate ·
+> `ASK` John decides.
 
 1399 e3 — leanstral prover: checker-backend research
 1398 SAT — Nova ext (tree-sitter satellite)
@@ -56,7 +58,8 @@
 1330 e1 — dot visual stuff in editor (underway)
 1317 e0 — remove flowtype eslint annotations (WP-2)
 1315 SUP(MP§27) — tree-shaking = bare-functions 6.0
-1313 ASK — resurrect TS patch (context lost?)
+1313 SUP — RESOLVED (John 2026-07-04): stale attempt at richly-typed PEG output; close. Future
+     direction on record: fork peggy for typed grammar (era-1 WP-1.7 note)
 1310 e4 — storage notation (persistence contract)
 1309 SUP(MAN) — tracing docs → manual forensics chapter
 1307 e0 — npm ranking; the jssm drain IS the fix
