@@ -105,6 +105,14 @@
 - Durable docs live under `notes/` (never `docs/` — `npm run clean` deletes `docs/`).
 - Subagents cannot mutate sibling worktrees; commits/pushes happen from the main session.
 
+## Time-sensitive facts
+
+- **The `fsl` GitHub org transfer is in flight** (John, 2026-07-04): prior owner agreed; a
+  **90-day window is active (expires ~early October 2026)** — accepting it is John's personal
+  action. Once held, everything migrates under the org; SAT satellite repos get created there;
+  it is load-bearing for the v15 fleet era. If you are a successor reading this near the
+  deadline, remind John.
+
 ## Source-of-truth map
 
 | Question | Where |

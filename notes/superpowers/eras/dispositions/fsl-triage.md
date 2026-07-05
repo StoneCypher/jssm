@@ -1,7 +1,8 @@
 # fsl Triage Ledger — all 663 open issues, individually dispositioned
 
-> **Status:** stable (Fable first-pass, 2026-07-04; awaiting John's batch approval; DONE? rows
-> need executor verification before closing) · **Universe:** `issue-snapshots-2026-07-04/fsl_open.tsv`.
+> **Status:** all ASK rows RESOLVED 2026-07-04 (search "RESOLVED"); ledger complete and
+> awaiting John's batch approval; DONE? rows still need executor verification before closing ·
+> **Universe:** `issue-snapshots-2026-07-04/fsl_open.tsv`.
 > **Codes:** `eN` absorb into era N (stays open, era-tagged, closes when its work ships) ·
 > `e0` feeds era-0 WP-2 bug burn-down · `SUP(x)` close, superseded by x — MP=megaspec §, MAN=the
 > manual/taxonomy/curriculum program, CORP=example corpus #817, HB=help-bar program, ERA=the era
@@ -574,7 +575,10 @@
 227 e7 — free render service
 226 SUP(MAN) — png tutorial
 224 SUP(MAN) — make videos
-223 ASK — push content to org
+223 e7 — RESOLVED (John 2026-07-04): the `fsl` GitHub org IS happening — prior owner agreed
+     to transfer, **90-day window active (expires ~early Oct 2026 — TIME-SENSITIVE, John's
+     personal action)**. Everything migrates to the org once held; satellite repos (SAT twins)
+     get created under it; especially load-bearing for the codegen/fleet era (v15)
 222 e7 — clean up site
 221 e7 — FSL into fast-check upstream
 220 e2 — mobile editor responsive
@@ -660,7 +664,10 @@
 78 e7 — Monaco support
 77 e7 — Monarch support
 72 e2 — spread tests (with 453)
-68 ASK — Deepak perf test (in-joke context)
+68 CLOSE — RESOLVED (John 2026-07-04): the deepak_cpp/deepak_python tradition (4×4 string
+     arrays → collated nonsense sentence); author's call: won't follow through, close. If the
+     corpus program ever wants the pedagogy (weighted lists + emit + seeded randomness), a
+     depersonalized "technobabble generator" example carries it without the mockery
 66 SUP(CORP) — chess game test (chess is corpus flagship)
 65 e0 — kitchen sink upkeep (dragon WP-6!)
 64? — (closed; not in universe)
