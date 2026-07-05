@@ -32,6 +32,19 @@ describe('render_fence_gif', () => {
     expect([...gif.frames[0]!.rgb]).not.toEqual([...gif.frames[1]!.rgb]);
   }, 60_000);
 
+  it('animates group-chip states (patches by the chip label, not the raw name)', async () => {
+    // Every walked state carries a group chip ("a [g1]" / "b [g1]"), so each
+    // frame's patch depends on chip-aware keying. If render_fence_gif keyed by
+    // the bare state name it would miss on every frame, leaving them all
+    // unpatched and identical — this collapse is what the assertion catches.
+    const gif = decode_gif(await render_fence_gif(
+      '&g1 : [a b]; &g2 : [a]; &g3 : [b]; a => b => a;',
+      { scale: 25, highlight_fill: '#ff9930' },
+    ));
+    expect(gif.frames.length).toBe(2);
+    expect([...gif.frames[0]!.rgb]).not.toEqual([...gif.frames[1]!.rgb]);
+  }, 60_000);
+
   it('truncates at max_frames', async () => {
     const gif = decode_gif(await render_fence_gif('A -> B; C -> D; E -> F;', { max_frames: 2, scale: 25 }));
     expect(gif.frames.length).toBe(2);

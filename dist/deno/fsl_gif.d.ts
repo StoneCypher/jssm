@@ -66,8 +66,9 @@ export interface GifOptions {
  *  @param frames - At least one frame; all with identical width/height and
  *  `rgba.length === 4 · width · height`.
  *
- *  @throws {JssmError} on zero frames, mismatched dimensions, or an rgba
- *  buffer whose length contradicts its stated dimensions.
+ *  @throws {JssmError} on zero frames, a zero-width or zero-height frame,
+ *  mismatched dimensions, or an rgba buffer whose length contradicts its
+ *  stated dimensions.
  *
  *  @example
  *  const red = { rgba: new Uint8Array([255,0,0,255]), width: 1, height: 1 };

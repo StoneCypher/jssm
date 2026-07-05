@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-532 merges; 369 releases
+533 merges; 370 releases
 
 
 
@@ -12,8 +12,652 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 8:46:04 PM
+
+Commit [c0065a854da7d9190e599383e46b96bab86e111d](https://github.com/StoneCypher/jssm/commit/c0065a854da7d9190e599383e46b96bab86e111d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v10 Portable, 16 files
+  * Editions + version-gating (W6.93,94), the CLI/tooling verb surface
+(W6.101-111: lint, format+CST, parse --json, explain, list, typegen,
+inspect, grammar export, minifier, SVG contract, doc-comments), and
+the portability contract packets WP10.1 (C3 grammar appendix), WP10.2
+(C4 conformance vectors), WP10.3 (C5 second implementation +
+differential CI). Completes the entire W6.* register (v6-v10). deps
+encode the C2->C4->C5 conformance chain from dag.md.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 8:42:39 PM
+
+Commit [df70e3b23581ddb1096ecac81b916467d89e0faa](https://github.com/StoneCypher/jssm/commit/df70e3b23581ddb1096ecac81b916467d89e0faa)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v9 Transactional, 23 files
+  * Mutation + old (W6.60), the design-by-contract quartet (W6.62-65),
+the error/rollback model incl. undo-journal rollback (W6.66-70), the
+RTC macrostep per C2 (W6.71-73), the unified observational hook
+registry (W6.74-79), and the first native safety checker with the M1
+certificate record and M4-subset predicates (W6.95-98). issue-twins
+from the =fsl# tags; deps encode the contract->violation->checker,
+rollback<->#756, and M1<->C1 edges from dag.md.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 8:37:25 PM
+
+Commit [73201145bb9d992ad495ec4cdecb8dd8d8b00dbe](https://github.com/StoneCypher/jssm/commit/73201145bb9d992ad495ec4cdecb8dd8d8b00dbe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v8 Structured, 31 files
+  * Containers (W6.13-18), data/ADT types (W6.19-25), function slots for
+the State/Strategy patterns (W6.26-30), streams (W6.31), first-class
+groups (W6.80-85), and the multigraph/resolution/wildcard/eventless
+graph surface (W6.87-92). W6.86 (repeat-state merge) already present
+as the exemplar. issue-twins set from the =fsl# tags; deps encode the
+ADT, defunctionalization, and group spines from dag.md.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 8:28:11 PM
+
+Commit [9bdf5a4741dfaab281a2eae2d3809ea70e68d986](https://github.com/StoneCypher/jssm/commit/9bdf5a4741dfaab281a2eae2d3809ea70e68d986)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v7 Computing, 40 files
+  * The P2 expression-language spine: numeric tower (W6.1-4,6-8), scalar
+values (W6.11,12), byte model (W6.10), string model + portable ops
+(W6.9,57-59), expressions (W6.32-42), totality (W6.43-45), stdlib
+(W6.46-56), and where-guards (W6.61). W6.5 (decimal) already present
+as the exemplar. deps encode the P2 slice spine from dag.md
+(scalars -> operators -> case -> stdlib), single-expression per edge.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 8:05:16 PM
+
+Commit [5bd4e6801bf39e276ab8471da637678b4c49cb7d](https://github.com/StoneCypher/jssm/commit/5bd4e6801bf39e276ab8471da637678b4c49cb7d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items — era-0 program topics as WP items, 10 files
+  * Mints synthetic WP<version>.<n> items for the ID-less program work in
+era 0 (John's call): WP6.1 bare-functions, WP6.2 One Merge, WP6.3
+synonym removal, WP6.4 probabilistic split, WP6.5 dragon-live, WP6.6
+C2 semantics, WP6.7 perf-envelope, WP6.8 error-codes, WP6.9
+tracker-drain, WP5x.1 audit re-verify. deps/blocks encoded from
+dag.md (single-expression per edge). Era-0 register now complete:
+every 05x + 06 long-form entry has an item.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:57:04 PM
+
+Commit [132b91b5b6892b16441655f12185e81e20fcfea5](https://github.com/StoneCypher/jssm/commit/132b91b5b6892b16441655f12185e81e20fcfea5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v6 The Ground, 10 files
+  * Addressable v6 rows: W6.99 (C1 canonical hash) and W6.100 (seeded-walk
+reproducibility) from the W-list, plus the jssm KEEP/tail rows that map
+to 6.0 — atom-charset breakage (#754), the P1 val-bug tail (#755/757/
+758/759), the columnar-val perf keystone (#756), M3 replay via the One
+Merge (#827), and the deno drop (#921). PROGRESS.md records the
+cluster-tier vs item-tier decision: ID-less program WPs (One Merge,
+perf envelope, error-code namespace, etc.) stay at the long-form
+cluster tier, not duplicated as item JSON.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:53:01 PM
+
+Commit [6e0deb61b384ed9b29018c5f20e5b7275ac033c7](https://github.com/StoneCypher/jssm/commit/6e0deb61b384ed9b29018c5f20e5b7275ac033c7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): items slice — v5.x Long Goodbye, 31 files
+  * Seeds the item register for the 5.x cleanup era: all e0-tagged tracker
+rows (30 fsl + jssm#922), no W-items, clustered per the 05x long form
+(june-audit, bug-qol-residue, lint-tooling-refresh, coverage-chores,
+dragon-phase-a, housekeeping). PROGRESS.md records the slice and the
+derived W6.*->version mapping for the v6-v10 slices.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:42:51 PM
+
+Commit [31cae87d985d98c28ac4637b87a2bdba09c58e2d](https://github.com/StoneCypher/jssm/commit/31cae87d985d98c28ac4637b87a2bdba09c58e2d)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for b8ab8f324321266f18a2a5742879ae2b3e92cda9
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__159__0" />
+
+## [5.159.0] - Jul 4, 2026 7:40:14 PM
+
+Commit [b8ab8f324321266f18a2a5742879ae2b3e92cda9](https://github.com/StoneCypher/jssm/commit/b8ab8f324321266f18a2a5742879ae2b3e92cda9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [5987fa2b, 464010a2]
+
+  * Merge pull request #925 from StoneCypher/feat_26-07-04_group-hook-spans_919
+  * feat(language-service): state spans for group members and hook subjects — lights up editor, cookbook, and fence together
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:34:32 PM
+
+Commit [805452ffd8c6ad68ec75a65a3730f347e1696b98](https://github.com/StoneCypher/jssm/commit/805452ffd8c6ad68ec75a65a3730f347e1696b98)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): JSON item system — one item per file in items/, schema in README, two exemplars (W6.5, W6.86), generator renders the Item Register
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:25:36 PM
+
+Commit [f3257aa20b02b8743283bfbc9b15108ff1a583b1](https://github.com/StoneCypher/jssm/commit/f3257aa20b02b8743283bfbc9b15108ff1a583b1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): 5.x long form + era_book HTML generator (src/scripts, npm run era_book, markdown-it devDep; not in build chain)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 7:00:06 PM
+
+Commit [cfd94d544e599b00a2190414a60feb3093bcbc86](https://github.com/StoneCypher/jssm/commit/cfd94d544e599b00a2190414a60feb3093bcbc86)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v16 The Public Machine — LONG FORM complete; THE ERA BOOK IS DONE (overview + 12 one-pagers + 11 long forms)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:58:51 PM
+
+Commit [c1ad6214aad7c16b765c311e85e7ff8d168391f1](https://github.com/StoneCypher/jssm/commit/c1ad6214aad7c16b765c311e85e7ff8d168391f1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v15 The Ubiquitous Machine — LONG FORM complete (5 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:57:44 PM
+
+Commit [53d51893f4e36b00e8da2be8f8d67b76dc9a7fb9](https://github.com/StoneCypher/jssm/commit/53d51893f4e36b00e8da2be8f8d67b76dc9a7fb9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v14 The Trusted Machine — LONG FORM complete (5 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:56:32 PM
+
+Commit [043e3648c257d8df2a2e5029476f1644a7f83da3](https://github.com/StoneCypher/jssm/commit/043e3648c257d8df2a2e5029476f1644a7f83da3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v13 The Durable Machine — LONG FORM complete (6 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:55:09 PM
+
+Commit [dda73414bcd809f29e09fb46d396b5742c50e90c](https://github.com/StoneCypher/jssm/commit/dda73414bcd809f29e09fb46d396b5742c50e90c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v12 The Proven Machine — LONG FORM complete (6 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:53:56 PM
+
+Commit [8d2d3351b2800022363ff8ea7b9cbed4388b073e](https://github.com/StoneCypher/jssm/commit/8d2d3351b2800022363ff8ea7b9cbed4388b073e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v11 The Composable Machine — LONG FORM complete (8 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:52:42 PM
+
+Commit [08fc9808258022322e7e12e4fbc524fed29ed0a4](https://github.com/StoneCypher/jssm/commit/08fc9808258022322e7e12e4fbc524fed29ed0a4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v10 The Portable Machine — LONG FORM complete (6 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:51:36 PM
+
+Commit [a7c0ddd34f362bad95a134d31d271da33e73a12d](https://github.com/StoneCypher/jssm/commit/a7c0ddd34f362bad95a134d31d271da33e73a12d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v9 The Transactional Machine — LONG FORM complete (7 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:50:25 PM
+
+Commit [142b2ece0e87b0e6e3d8df2132963fef5fe204f0](https://github.com/StoneCypher/jssm/commit/142b2ece0e87b0e6e3d8df2132963fef5fe204f0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v8 The Structured Machine — LONG FORM complete (7 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:49:03 PM
+
+Commit [82120d0264c1f13f3904d9c0d80787f7372d45d9](https://github.com/StoneCypher/jssm/commit/82120d0264c1f13f3904d9c0d80787f7372d45d9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v7 The Computing Machine — LONG FORM complete (9 items)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:47:40 PM
+
+Commit [16c4bfeab129812651d3e042ce36b55c2f20b3ea](https://github.com/StoneCypher/jssm/commit/16c4bfeab129812651d3e042ce36b55c2f20b3ea)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v6 The Ground — LONG FORM complete (12 items, manager + CS level)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:45:09 PM
+
+Commit [79b940fbda9fa4cc2a602de1c1ffc8fcf8ac243c](https://github.com/StoneCypher/jssm/commit/79b940fbda9fa4cc2a602de1c1ffc8fcf8ac243c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): one-pagers v14, v15, v16 — the one-pager tier is COMPLETE (overview + 12 majors)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:43:27 PM
+
+Commit [b1cd1b29ae3b2ad832c0cae0bb6df593cac5f9ea](https://github.com/StoneCypher/jssm/commit/b1cd1b29ae3b2ad832c0cae0bb6df593cac5f9ea)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): one-pagers v11, v12, v13
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:41:44 PM
+
+Commit [b9f8836343e734f3f089647aed634f8683d1144f](https://github.com/StoneCypher/jssm/commit/b9f8836343e734f3f089647aed634f8683d1144f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): one-pagers v8, v9, v10
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:40:04 PM
+
+Commit [f3067489ae3d82dc576f4afabf0e27c84bdaa371](https://github.com/StoneCypher/jssm/commit/f3067489ae3d82dc576f4afabf0e27c84bdaa371)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): one-pagers 5.x, v6, v7
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:38:33 PM
+
+Commit [4b0f6dea834f7a96bcbd0126061c9af7781de6a9](https://github.com/StoneCypher/jssm/commit/4b0f6dea834f7a96bcbd0126061c9af7781de6a9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): scaffold — README format contract + program overview one-pager
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:33:32 PM
+
+Commit [a2d4acea63d228c034098c4b78edd4a7b75613db](https://github.com/StoneCypher/jssm/commit/a2d4acea63d228c034098c4b78edd4a7b75613db)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(specs): C2 — operational semantics of the macrostep (small-step algorithm, deterministic selection, hook timing, divergence killers) — the keystone appendix, specced
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:29:20 PM
+
+Commit [4cc911c268feac1cbb66b6821ce9faa02211dae6](https://github.com/StoneCypher/jssm/commit/4cc911c268feac1cbb66b6821ce9faa02211dae6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(specs): C1 — canonical source_hash spec (normalization pipeline, sha256 tag, proof_input_hash, 10 conformance vectors) — the trust stack's hinge, specced
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 6:10:51 PM
+
+Commit [08f2882e7bc8d59ba2e6f89136600d80dcaca2e3](https://github.com/StoneCypher/jssm/commit/08f2882e7bc8d59ba2e6f89136600d80dcaca2e3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): all approvals granted — fsl-triage + projection approved; 12 fsl milestones created (#48-#59); era-tagging = milestone assignment; execution fully unblocked
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:58:52 PM
+
+Commit [e29643e24110d410caf32d13679ded7bef2f04d4](https://github.com/StoneCypher/jssm/commit/e29643e24110d410caf32d13679ded7bef2f04d4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): fsl#1400 filed (technobabble streams example); #68 closes citing it
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:57:47 PM
+
+Commit [a0d70a3a8279b8f1e01f42ccca9d940827c3f579](https://github.com/StoneCypher/jssm/commit/a0d70a3a8279b8f1e01f42ccca9d940827c3f579)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): final ASK resolutions — fsl org transfer in flight (90-day window, TIME-SENSITIVE in HANDOFF), deepak closed with depersonalized alternative noted; all ASKs resolved
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:50:47 PM
+
+Commit [89c6993279b61ddfb888e2252da908f9420b5312](https://github.com/StoneCypher/jssm/commit/89c6993279b61ddfb888e2252da908f9420b5312)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): ASK resolutions 557 (stale/vitest) + 317 (URLs allowed, render-layer sanitization; carriers 420/421 annotated)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:47:58 PM
+
+Commit [17d71d4a3715289d6c492e1dbbcd87d88c158f2c](https://github.com/StoneCypher/jssm/commit/17d71d4a3715289d6c492e1dbbcd87d88c158f2c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): ASK resolutions 1252 (playwright; commented on issue) + 1220 (SUP into v9 registry); SUP closes now require a live-issue citation like SAT/MIG
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:43:22 PM
+
+Commit [b8fd1080f7f3da3017d1b89373aa0dd3e3ecfdd1](https://github.com/StoneCypher/jssm/commit/b8fd1080f7f3da3017d1b89373aa0dd3e3ecfdd1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): ASK resolutions #790 (defer:pick) + fsl#1313 (close; peggy-fork direction recorded); SAT rows now twin-first like MIG
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:38:29 PM
+
+Commit [e6f3bdc451c51fcc69c90f8a817dd5a184c087d3](https://github.com/StoneCypher/jssm/commit/e6f3bdc451c51fcc69c90f8a817dd5a184c087d3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): names public; v11 renamed The Composable Machine; jssm-drain ledger APPROVED except ASK #790
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:35:42 PM
+
+Commit [0155ce7dd7f19fb880bc40a58ed891f924cba39c](https://github.com/StoneCypher/jssm/commit/0155ce7dd7f19fb880bc40a58ed891f924cba39c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): dragon trio decided — light 6.0 bar + dragons-egg closes by end of v6; detector-never-gates/findings-gate-via-promotion; three-tier CI budget
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:26:05 PM
+
+Commit [547d2e92cfac1a42e1e5cc21d9917963c41364e6](https://github.com/StoneCypher/jssm/commit/547d2e92cfac1a42e1e5cc21d9917963c41364e6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): CUTOVER to canonical v6-v16 five-way tiering with pithy names — eras table, HANDOFF translation map, wave-to-major mapping, projection umbrellas retitled; branch/worktree renamed to fable-v6-to-v16
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 5:21:58 PM
+
+Commit [464010a29069952cb0ff8d0761447c166b1244f2](https://github.com/StoneCypher/jssm/commit/464010a29069952cb0ff8d0761447c166b1244f2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.159.0
+  * Claude-Session: https://claude.ai/code/session_01JxpTqYwQPeQSxZ95FsScVX
 
 
 

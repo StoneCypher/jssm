@@ -3,13 +3,18 @@ import { basename, dirname, extname, join } from 'path';
 import { parseFslArgs } from '../../cli-utils.js';
 import { render } from './render.js';
 import type { RenderTarget, RenderOptions } from '../../types.js';
-import { RenderError } from '../../types.js';
+import { RenderError, RENDER_TARGETS } from '../../types.js';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 
-const SPEC = {
+/**
+ * The `fsl-render` argument specification consumed by {@link parseFslArgs}.
+ * Exported so tests can assert the `--target` enum stays in lockstep with the
+ * canonical {@link RENDER_TARGETS} rather than a hand-maintained literal.
+ */
+export const SPEC = {
   flags: {
-    target:   { short: 't' as const, enum: ['svg','dot','png','jpeg','html','gif'] as const, default: 'svg' },
+    target:   { short: 't' as const, enum: RENDER_TARGETS, default: 'svg' as const },
     output:   { short: 'o' as const },
     'out-dir': {},
     stdout:   { boolean: true as const },

@@ -1,11 +1,20 @@
-import type { RenderTarget, RenderOptions, RenderResult, RasterResult, TextResult } from '../../cli/types';
-import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
+import type { RenderTarget, RenderResult, RasterResult, TextResult } from '../../cli/types';
+import { RenderError, RasterizationUnsupportedError, RENDER_TARGETS } from '../../cli/types';
+import { SPEC } from '../../cli/subcommands/render/plugin';
 
 describe('cli/types', () => {
 
-  it('RenderTarget enumerates the v1 targets', () => {
-    const valid: RenderTarget[] = ['svg', 'dot', 'png', 'jpeg', 'html', 'gif'];
-    expect(valid.length).toBe(6);
+  it('the CLI --target enum is exactly the canonical RenderTarget set', () => {
+    // Derive the expectation from the runtime sources, not a hardcoded list +
+    // count.  The old `.toBe(6)` form was tautological against omissions — it
+    // was hand-bumped 5→6 when `gif` landed and would silently pass if a target
+    // were dropped.  RENDER_TARGETS is the single source the RenderTarget type
+    // derives from; SPEC.flags.target.enum is what the CLI actually validates
+    // against.  The `RenderTarget[]` annotation adds a compile-time guarantee
+    // that every SPEC value is a valid target; the `toEqual` guarantees the CLI
+    // enum has not drifted from the canonical set.  One edit updates all three.
+    const specTargets: RenderTarget[] = [...SPEC.flags.target.enum];
+    expect(specTargets).toEqual([...RENDER_TARGETS]);
   });
 
   it('RenderError is a real Error subclass with the path field', () => {

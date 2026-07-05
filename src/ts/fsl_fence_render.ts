@@ -11,7 +11,7 @@
 
 import { sm, parse_fence_info, fsl_fence_lang } from './jssm.js';
 import type { FenceDescriptor, FenceDimension } from './jssm.js';
-import { fsl_to_svg_string, fsl_to_dot }        from './jssm_viz.js';
+import { fsl_to_svg_string, fsl_to_dot, state_svg_label_texts } from './jssm_viz.js';
 import { rasterize, rasterizeRgba }              from './cli/subcommands/render/rasterize.js';
 import { extract_state_fills, patch_state_fill } from './fsl_svg_patch.js';
 import { highlight_fsl_html }   from './fsl_fence_highlight.js';
@@ -47,34 +47,35 @@ function error_box(source: string, message: string): string {
 const note_comment = (note: string): string => `<!-- fsl-fence: ${escape_html(note)} -->`;
 
 /**
- *  Remap a display-text-keyed fill map (as produced by
- *  {@link extract_state_fills} from a rendered SVG) to be keyed by state
- *  NAME instead. Graphviz nodes are labeled with each state's display text
- *  (`label ?? name` — the same derivation `jssm_viz.ts`'s `state_node_line`
- *  uses via `machine.display_text(s)`), but `highlight_fsl_html`'s
- *  `state_colors` option is keyed by the state's own name (the code
- *  highlighter's semantic spans carry names, not labels). Without this
- *  remap, any labeled state's diagram color silently fails to reach its
- *  code span.
+ *  Remap an SVG-label-keyed fill map (as produced by
+ *  {@link extract_state_fills} from a rendered SVG) to be keyed by state NAME
+ *  instead. Graphviz labels each node with its full rendered label text —
+ *  display text, plus any group chips, plus any multi-line wrap — while
+ *  `highlight_fsl_html`'s `state_colors` option is keyed by the state's own
+ *  name (the code highlighter's semantic spans carry names, not labels).
+ *  Without this remap, any state whose label diverges from its name silently
+ *  fails to carry its diagram color to its code span.
  *
- *  Handles the simple one-label-per-state case only; group-chip-suffixed
- *  labels (`label_with_chips` in jssm_viz.ts) render extra text after the
- *  label that this remap does not account for — filed as a follow-up.
+ *  Both sides of the join derive the SVG label text from the same source:
+ *  `label_texts` comes from {@link state_svg_label_texts} (the viz's own label
+ *  builder) and `fills`'s keys are read straight off the SVG, so group chips
+ *  and multi-line labels are handled without either side drifting.
  *
- *  @param machine - The constructed machine the fills were rendered from.
- *  @param fills - Display-text-keyed fills, from `extract_state_fills`.
+ *  @param label_texts - State name → its rendered SVG label text, from
+ *  `state_svg_label_texts`.
+ *  @param fills - SVG-label-keyed fills, from `extract_state_fills`.
  *  @returns Fills re-keyed by state name; states with no matching fill are omitted.
  *
  *  @internal
  */
 function state_colors_by_name(
-  machine : ReturnType<typeof sm>,
-  fills   : ReadonlyMap<string, string>,
+  label_texts : ReadonlyMap<string, string>,
+  fills       : ReadonlyMap<string, string>,
 ): Map<string, string> {
   const out = new Map<string, string>();
-  for (const s of machine.states()) {
-    const fill = fills.get(machine.display_text(s));
-    if (fill !== undefined) { out.set(s, fill); }
+  for (const [state, label] of label_texts) {
+    const fill = fills.get(label);
+    if (fill !== undefined) { out.set(state, fill); }
   }
   return out;
 }
@@ -123,7 +124,7 @@ export async function render_fence_html(
 
   const svg          = await fsl_to_svg_string(source);
   const fills        = extract_state_fills(svg);
-  const state_colors = state_colors_by_name(machine, fills);
+  const state_colors = state_colors_by_name(state_svg_label_texts(machine), fills);
   const chunks: string[] = desc.notes.map(note_comment);
 
   for (const part of desc.parts) {
@@ -278,18 +279,19 @@ export async function render_fence_gif(
   const max_frames = opts.max_frames ?? 64;
   const walk       = plan_walk(machine).slice(0, max_frames);
 
-  const base_svg  = await fsl_to_svg_string(source);
-  const highlight = opts.highlight_fill ?? '#ff9930';
-  const scale     = opts.scale ?? 100;
+  const base_svg    = await fsl_to_svg_string(source);
+  const highlight   = opts.highlight_fill ?? '#ff9930';
+  const scale       = opts.scale ?? 100;
+  const label_texts = state_svg_label_texts(machine);
 
   const frames: GifFrame[] = [];
   for (const state of walk) {
-    // base_svg's nodes are labeled with display text (label ?? name; the
-    // same `machine.display_text(s)` derivation jssm_viz.ts's
-    // state_node_line uses), not the walk's state NAME — patch by that or
-    // a labeled state's frame silently no-ops (see state_colors_by_name for
-    // the render_fence_html analog of this same fix).
-    const patched = patch_state_fill(base_svg, machine.display_text(state), highlight);
+    // base_svg's nodes are labeled with their full SVG label text (display
+    // text + any group chips + any multi-line wrap), not the walk's state
+    // NAME — patch by the shared derivation or a labeled/chipped/wrapped
+    // state's frame silently no-ops. `walk` is drawn from the machine's own
+    // states, so every entry has a label_texts key.
+    const patched = patch_state_fill(base_svg, label_texts.get(state)!, highlight);
     const raster  = await rasterizeRgba(patched, { scale });
     frames.push({ rgba: raster.rgba, width: raster.width, height: raster.height });
   }

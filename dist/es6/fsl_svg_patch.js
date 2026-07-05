@@ -5,8 +5,22 @@ function xml_unescape(s) {
 }
 /** Match one graphviz node group; capture [1] the group body. @internal */
 const NODE_GROUP_RE = /<g[^>]*\bclass="node"[^>]*>([\s\S]*?)<\/g>/g;
-const TEXT_RE = /<text[^>]*>([\s\S]*?)<\/text>/;
+const TEXT_RE_G = /<text[^>]*>([\s\S]*?)<\/text>/g;
 const SHAPE_FILL_RE = /(<(?:ellipse|polygon|path)\b[^>]*\bfill=")([^"]*)(")/;
+/**
+ *  The state key for one node group: the XML-unescaped content of *every* one
+ *  of its `<text>` elements, joined by `\n`.  Graphviz splits a label that
+ *  wraps across lines into one `<text>` per line, so reading only the first
+ *  would key on a truncated string; joining the lines with `\n` reconstructs
+ *  the machine's display text exactly (matching `state_svg_label_texts`).
+ *  Returns `null` for a node group carrying no `<text>` element at all.
+ *
+ *  @internal
+ */
+function node_label_text(body) {
+    const lines = [...body.matchAll(TEXT_RE_G)].map(m => xml_unescape(m[1]));
+    return lines.length === 0 ? null : lines.join('\n');
+}
 /**
  *  Read each state's current fill color out of a graphviz-rendered machine
  *  SVG, keyed by state name.  States whose shape carries no `fill` attribute
@@ -23,13 +37,10 @@ export function extract_state_fills(svg) {
     const out = new Map();
     for (const group of svg.matchAll(NODE_GROUP_RE)) {
         const body = group[1];
-        const text = body.match(TEXT_RE);
+        const label = node_label_text(body);
         const shape = body.match(SHAPE_FILL_RE);
-        if (shape !== null && text !== null) {
-            const state_name = xml_unescape(text[1]);
-            if (state_name) {
-                out.set(state_name, shape[2]);
-            }
+        if (shape !== null && label !== null && label !== '') {
+            out.set(label, shape[2]);
         }
     }
     return out;
@@ -54,11 +65,11 @@ export function patch_state_fill(svg, state, fill) {
         if (done) {
             return whole;
         }
-        const text = body.match(TEXT_RE);
-        if (text === null) {
+        const label = node_label_text(body);
+        if (label === null) {
             return whole;
         }
-        if (xml_unescape(text[1]) !== state) {
+        if (label !== state) {
             return whole;
         }
         // Function-form replacements: `fill` is caller-supplied and may itself

@@ -138,6 +138,30 @@ function doublequote(txt: string): string {
 
 
 /**
+ *  Reverse {@link doublequote}: turn DOT's `\"` escape back into the literal
+ *  `"` that graphviz renders into SVG `<text>` content.  Used by
+ *  {@link state_svg_label_texts} to reconstruct a node's on-screen label from
+ *  the DOT label it was handed, so the fence renderer keys against exactly what
+ *  was drawn.
+ *
+ *  ```typescript
+ *  undoublequote('a\\"b');  // 'a"b'
+ *  undoublequote('safe');   // 'safe'
+ *  ```
+ *
+ *  @param txt A DOT-escaped attribute string (as produced by `doublequote`).
+ *  @returns The string with every `\"` collapsed back to `"`.
+ *
+ *  @internal
+ */
+function undoublequote(txt: string): string {
+  return txt.replace(/\\"/g, '"');
+}
+
+
+
+
+/**
  *  Convert a state name into a URL-friendly slug suitable for use as the
  *  body of a dot/SVG node identifier.  The transformation is:
  *
@@ -1253,6 +1277,75 @@ function node_block_for<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_in
 }
 
 
+
+
+/**
+ *  The per-state group-chip map that {@link node_block_for} appends to labels
+ *  in a given render mode.  Mirrors that function's mode dispatch and calls the
+ *  very same chip sources — {@link chips_for_all_groups} for `'chips'`,
+ *  {@link plan_cluster_groups} (with identical inputs) for `'cluster'` — so a
+ *  reconstructed label can never disagree with the one graphviz was handed.
+ *  `'off'`, and any machine that declares no groups, yields an empty map.
+ *
+ *  @internal
+ */
+function chips_for_render_mode<T>(u_jssm: jssm.Machine<T>, l_states: string[], mode: RenderGroups): Map<string, string[]> {
+  if ((mode === 'off') || (u_jssm.groups().length === 0)) { return new Map(); }
+  if (mode === 'chips') { return chips_for_all_groups(u_jssm, l_states); }
+  const order   = u_jssm.groups();
+  const parents = group_parent_map(u_jssm._group_registry, order);
+  return plan_cluster_groups(u_jssm, l_states, order, parents).chips;
+}
+
+
+
+
+/**
+ *  The exact text graphviz places in each state's SVG `<text>` element(s) when
+ *  a machine is rendered via {@link machine_to_dot} / {@link fsl_to_svg_string}:
+ *  the state's display text plus any group chips the node builder appends, with
+ *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
+ *  wraps across lines becomes several `<text>` elements; this returns the lines
+ *  joined by `\n`, exactly how {@link extract_state_fills} reads them back — so
+ *  the derived key and the extracted key meet at the same string.
+ *
+ *  This is the single source of truth the static fence renderer keys its
+ *  highlight and recolor lookups against, so those lookups can never drift from
+ *  what was actually drawn — plain labels, group chips, and multi-line wraps
+ *  alike.  It is built by running the node builder's own
+ *  `label_with_chips(doublequote(display_text), chips)` and inverting the one
+ *  escaping step, so it follows any change to the label format for free.
+ *
+ *  @param u_jssm The machine being rendered.
+ *  @param opts Render flags; only `render_groups` affects the label text
+ *  (default `'cluster'`, matching `fsl_to_svg_string`).
+ *  @returns A map from each state name to its rendered SVG label text.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *  import { state_svg_label_texts } from 'jssm/viz';
+ *
+ *  // a state in two groups renders a chip suffix in its node label
+ *  state_svg_label_texts(sm`&g1 : [a b]; &g2 : [a]; a -> b;`).get('a');  // 'a [g1]'
+ *  state_svg_label_texts(sm`a -> b;`).get('a');                          // 'a'
+ *  ```
+ *
+ *  @see extract_state_fills
+ */
+function state_svg_label_texts<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Map<string, string> {
+  const l_states           = u_jssm.states();
+  const mode: RenderGroups = opts.render_groups ?? 'cluster';
+  const chips              = chips_for_render_mode(u_jssm, l_states, mode);
+
+  const out = new Map<string, string>();
+  for (const s of l_states) {
+    const dot_label = label_with_chips(doublequote(u_jssm.display_text(s)), chips.get(s) ?? []);
+    out.set(s, undoublequote(dot_label));
+  }
+  return out;
+}
+
+
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
@@ -1488,6 +1581,7 @@ export {
   dot, dot_to_svg,
   fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element,
   machine_to_dot, machine_to_svg_string, machine_to_svg_element,
+  state_svg_label_texts,
   version, build_time
 };
 
@@ -1499,11 +1593,11 @@ export const _test = {
   color8to6, u_color8to6, vc, node_of,
   slug_for, slug_states,
   shape_for_state, image_for_state, style_for_state,
-  cluster_id_for, label_with_chips,
+  cluster_id_for, label_with_chips, undoublequote,
   group_parent_map, group_ancestry,
   primary_group_for, plan_cluster_groups,
   groups_to_subgraph_string, chips_for_all_groups,
-  node_block_for,
+  node_block_for, chips_for_render_mode,
   edge_attr_for, edge_defaults_body,
   graph_attr_for, graph_attrs_body, graph_bg_color_from_config
 };

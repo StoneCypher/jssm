@@ -1,8 +1,41 @@
 import { describe, it, expect } from 'vitest';
-import { fsl_to_svg_string } from '../jssm_viz.js';
+import { sm } from '../jssm.js';
+import { fsl_to_svg_string, state_svg_label_texts } from '../jssm_viz.js';
 import { extract_state_fills, patch_state_fill } from '../fsl_svg_patch.js';
 
 describe('extract_state_fills / patch_state_fill', () => {
+
+  it('keys a multi-line label by all its <text> lines joined, not just the first', async () => {
+    // graphviz splits a `\n`-bearing label into one <text> per line; reading
+    // only the first would key on a truncated string. The full display text is
+    // the lines joined by '\n' — exactly what state_svg_label_texts derives.
+    const svg   = await fsl_to_svg_string('state a: { label: "Line One\\nLine Two"; }; a -> b;');
+    const fills = extract_state_fills(svg);
+    expect(fills.has('Line One\nLine Two')).toBe(true);
+    expect(fills.has('Line One')).toBe(false);
+    const patched = patch_state_fill(svg, 'Line One\nLine Two', '#abcdef');
+    expect(extract_state_fills(patched).get('Line One\nLine Two')).toBe('#abcdef');
+    // the untouched neighbor keeps its fill
+    expect(extract_state_fills(patched).get('b')).toBe(fills.get('b'));
+  });
+
+  it('state_svg_label_texts equals the SVG text keys extract sees (chips + multi-line)', async () => {
+    // The anti-drift invariant: the label text the fence renderer derives for a
+    // state is byte-identical to the key extract_state_fills reads off the real
+    // SVG — for plain labels, group chips, and wrapped multi-line labels alike.
+    for (const src of [
+      '&g1 : [a b]; &g2 : [a]; &g3 : [b]; a -> b;',        // both a,b carry a chip
+      'state a: { label: "Line One\\nLine Two"; }; a -> b;', // a wraps to two <text> lines
+      'Red -> Green;',                                      // plain names, no groups
+    ]) {
+      const svg    = await fsl_to_svg_string(src);
+      const keys   = new Set(extract_state_fills(svg).keys());
+      const labels = state_svg_label_texts(sm`${src}`);
+      for (const [state, label] of labels) {
+        expect(keys.has(label), `${src} :: ${state} -> ${JSON.stringify(label)}`).toBe(true);
+      }
+    }
+  });
 
   it('finds every state of a real render, each with a fill', async () => {
     const svg = await fsl_to_svg_string('A -> B; B -> C;');

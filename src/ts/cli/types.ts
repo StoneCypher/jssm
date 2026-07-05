@@ -1,8 +1,21 @@
 /**
- * Render targets supported in v1. Future targets (mermaid, plantuml, scxml,
- * ascii, fsl) will be added in v0.2+.
+ * The render targets supported in v1, in canonical order (the CLI `--target`
+ * enum and `--help` list order).  This tuple is the single runtime source of
+ * truth: both the {@link RenderTarget} type and the `fsl-render` CLI's
+ * `--target` enum derive from it, so a new target is declared in exactly one
+ * place.  Future targets (mermaid, plantuml, scxml, ascii, fsl) land here in
+ * v0.2+.
+ *
+ * @example
+ * RENDER_TARGETS.includes('gif' as RenderTarget);  // true
  */
-export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html' | 'gif';
+export const RENDER_TARGETS = ['svg', 'dot', 'png', 'jpeg', 'html', 'gif'] as const;
+
+/**
+ * A render target the CLI and library can produce.  Derived from
+ * {@link RENDER_TARGETS} so the type can never drift from the runtime enum.
+ */
+export type RenderTarget = typeof RENDER_TARGETS[number];
 
 /**
  * Options accepted by `render()` and `renderSet()`.
