@@ -18,30 +18,37 @@ fsl#1401–#1411, each pinned to its milestone (#49–#59), labelled `Created by
 mission + delivers + exit criteria + links to the era book (`notes/era-book/`) and briefs, and
 the "children file just-in-time" cadence line.**
 
+*(Renumbered A1–A11 2026-07-04, dropping the pre-five-way-split `A2b/c/d` fossil now that all
+umbrellas are filed; row IDs are internal ledger keys, the filed issues are unaffected.)*
+
 | # | Draft title | Milestone | Filed |
 |---|-------------|-----------|-------|
 | A1 | `v6 "The Ground" — end the 5.x line: breakage batch, One Merge, dragon (umbrella)` | #49 | **fsl#1401** |
 | A2 | `v7 "The Computing Machine" — scalars, expressions, where-guards, stdlib (umbrella)` | #50 | **fsl#1402** |
-| A2b | `v8 "The Structured Machine" — containers, ADTs, streams, fn-slots, groups, graph (umbrella)` | #51 | **fsl#1403** |
-| A2c | `v9 "The Transactional Machine" — assign, contracts, RTC, hooks, safety (umbrella; opens w/ mDT→val-record batch)` | #52 | **fsl#1404** |
-| A2d | `v10 "The Portable Machine" — conformance, Rust N=2, format, tooling (umbrella)` | #53 | **fsl#1405** |
-| A3 | `v11 "The Composable Machine" — systems, factories, supervision, statecharts (umbrella)` | #54 | **fsl#1406** |
-| A4 | `v12 "The Proven Machine" — verification stack (umbrella)` | #55 | **fsl#1407** |
-| A5 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | #56 | **fsl#1408** |
-| A6 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | #57 | **fsl#1409** |
-| A7 | `v15 "The Ubiquitous Machine" — multi-host fan-out (umbrella)` | #58 | **fsl#1410** |
-| A8 | `v16 "The Public Machine" — registry + agent economy (umbrella)` | #59 | **fsl#1411** |
+| A3 | `v8 "The Structured Machine" — containers, ADTs, streams, fn-slots, groups, graph (umbrella)` | #51 | **fsl#1403** |
+| A4 | `v9 "The Transactional Machine" — assign, contracts, RTC, hooks, safety (umbrella; opens w/ mDT→val-record batch)` | #52 | **fsl#1404** |
+| A5 | `v10 "The Portable Machine" — conformance, Rust N=2, format, tooling (umbrella)` | #53 | **fsl#1405** |
+| A6 | `v11 "The Composable Machine" — systems, factories, supervision, statecharts (umbrella)` | #54 | **fsl#1406** |
+| A7 | `v12 "The Proven Machine" — verification stack (umbrella)` | #55 | **fsl#1407** |
+| A8 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | #56 | **fsl#1408** |
+| A9 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | #57 | **fsl#1409** |
+| A10 | `v15 "The Ubiquitous Machine" — multi-host fan-out (umbrella)` | #58 | **fsl#1410** |
+| A11 | `v16 "The Public Machine" — registry + agent economy (umbrella)` | #59 | **fsl#1411** |
 
 ## B. Decision-record asks (file to fsl)
 
-| # | Draft title | Source |
-|---|-------------|--------|
-| B1 | `decision record: automata-ladder checkable band (megaspec §3 vs registry-close push-up)` | fable_sum_critique finding 3 |
-| B2 | `spec: canonical source_hash (normalization, layers, algorithm)` | irreversibles #1 / era-1 WP-1.1 |
-| B3 | `manifest entries: jssm-* synonym removal + probabilistic list split` | era-0 WP-5 |
-| B4 | `spec: operational-semantics appendix (megaspec §29 commitment; small-step macrostep)` | era-1 WP-1.2, DO-FIRST |
-| B5 | `perf envelope: allowed runtime regression budget for v6 enabling infra vs 6.0 baseline` | omissions D4; precedes #756 |
-| B6 | `reserve the stable diagnostic/error-code namespace before ad-hoc kinds multiply` | irreversibles #16 |
+**EXECUTED 2026-07-04 (Opus 4.8, John's go): all 6 filed to StoneCypher/fsl, labelled
+`Created by AI`. B2–B6 pin to v6 (#49, the active era) as children of the v6 umbrella #1401;
+B1 pins to v12 (#55) as the first child of the v12 umbrella #1407.**
+
+| # | Draft title | Milestone | Filed |
+|---|-------------|-----------|-------|
+| B1 | `decision record: automata-ladder checkable band — §3 four rungs vs the formal push-up` | #55 | **fsl#1417** |
+| B2 | `spec: canonical source_hash — normalization, layer identity, algorithm (C1)` | #49 | **fsl#1412** |
+| B3 | `manifest entries: jssm-* synonym removal + probabilistic list-target split` | #49 | **fsl#1414** |
+| B4 | `spec: operational-semantics appendix — small-step macrostep (C2, §29)` | #49 | **fsl#1413** |
+| B5 | `perf envelope: allowed runtime-regression budget for v6 enabling infra vs 6.0 baseline` | #49 | **fsl#1415** |
+| B6 | `reserve the stable diagnostic/error-code namespace before ad-hoc codes multiply` | #49 | **fsl#1416** |
 
 Deliberately NOT pre-filed (first-touch cadence, HANDOFF): remaining §29 appendices (verifier
 budget model, security/effects model, compatibility policy), fsl.lock / certificate-record /
