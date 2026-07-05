@@ -1,0 +1,10 @@
+{
+  "id": "WP6.1",
+  "title": "bare-functions API split (§27)",
+  "version": 6,
+  "cluster": "bare-functions",
+  "src": ["era0/WP-3", "MP§27", "v6_breaking_changes.json#bare-functions-default-api"],
+  "issue": null,
+  "manager": "For years consumers asked for tree-shaking and couldn't have it: the 420-method Machine class means every bundle carries the whole library whether you call it or not. 6.0 makes `import { create, transition } from 'jssm'` the default — free functions over a plain state record, so a bundler can drop what you don't touch — while the entire 5.x class survives intact at `jssm/compat`. Legacy users change one import line, and that the contract still holds is proven by running the whole 5.x suite against compat verbatim. This is the era's long pole; it re-batches to a later major if it slips more than about two weeks.",
+  "cs": "extract state-record type + free functions from class internals (the methods already operate on fields); regenerate `Machine` as mechanical delegation so there is one source of truth; entry-point split + `sideEffects:false`; a bundle-size test asserts the shaken symbols are absent; wc/viz consume the bare functions; manifest entry exists."
+}

@@ -3,7 +3,8 @@
 One line per slice. Ordered by execution value: v5.x → v6 → v7 → v8 → v9 → v10 → v11 → v12 → v13 → v14 → v15 → v16.
 
 - 2026-07-04 · **v5.x** · The Long Goodbye · 31 files (Tfsl-486,480 audit; Tfsl-1299,1264,1185,935,710,659,653 bug/QoL; Tfsl-1317,1073,732,731,730,729,728,727,726,545,112 lint; Tfsl-652,651,556,389 coverage; Tfsl-65 + Tjssm-922 dragon-A; Tfsl-1307,1100,986,611,365 housekeeping) — all `e0` cleanup rows, no W-items; `npm run era_book` green.
-- 2026-07-04 · **v6** · The Ground · 10 files (W6.99 C1 hash, W6.100 seeded-walk repro; Tjssm-754 atom-charset breakage; Tjssm-755,757,758,759 val-bug-tail; Tjssm-756 perf-keystone; Tjssm-827 M3 via One Merge; Tjssm-921 deno drop) — the addressable rows that map to v6; `npm run era_book` green. **See cluster-tier note below** — the v6 program WPs without a W-ID/issue stay at cluster tier.
+- 2026-07-04 · **v6** · The Ground · 10 files (W6.99 C1 hash, W6.100 seeded-walk repro; Tjssm-754 atom-charset breakage; Tjssm-755,757,758,759 val-bug-tail; Tjssm-756 perf-keystone; Tjssm-827 M3 via One Merge; Tjssm-921 deno drop) — the addressable rows that map to v6; `npm run era_book` green.
+- 2026-07-04 · **era-0 WP topics** · 10 files (WP6.1 bare-functions, WP6.2 One Merge, WP6.3 synonym removal, WP6.4 probabilistic split, WP6.5 dragon-live, WP6.6 C2 semantics, WP6.7 perf-envelope, WP6.8 error-codes, WP6.9 tracker-drain; WP5x.1 audit re-verify) — the ID-less program topics, now first-class items per John's call (`WP<version>.<n>` scheme). deps/blocks encoded from `dag.md`. Era 0 register is now COMPLETE (every 05x + 06 long-form entry has an item).
 
 ## Derived W6.* → version mapping (proceeding on this unless corrected)
 
@@ -35,6 +36,17 @@ reservation, `jssm-*` synonym removal, the probabilistic list-target split, the 
 appendix, tracker execution, audit re-verification. Under the strict ID rules (an item is a
 W-ID or a `T<repo>-<number>` tracker row) these have no conformant item ID, so they stay at
 the **cluster tier** — captured in the long-form markdown, not duplicated as item JSON. Only
-the addressable rows became items. Flagging in case John wants synthetic IDs (e.g. `WP6.x`)
-for the ID-less program topics; if so, that is a one-time schema decision affecting each era's
-WP-level entries, not this era alone.
+the addressable rows became items.
+
+**RESOLVED (John, 2026-07-04): mint synthetic `WP<version>.<n>` items for the ID-less program
+topics.** Done for era 0. The same pattern recurs downstream and gets the same treatment as each
+era is authored: the contract packets C3/C4/C5 (era-1 WP-1.3/1.4/1.5 → v10), the P2
+generator/parser-dual infra (v7), the manual/book program, and each era brief's umbrella-level
+WPs that carry no issue. `WP` (program work) stays visually distinct from `W` (feature items).
+
+**Dependency edges** come from `notes/superpowers/eras/dag.md` (the merged DAG). Encoded so far,
+single-expression per edge (exemplar convention, no reciprocals): W6.99→W6.96 (C1 blocks M1);
+WP6.2→Tjssm-827/921 (One Merge lands the payload they close on); WP6.5←Tfsl-65/Tjssm-922
+(dragon-live needs phase-A kitchen-sink + CI gating); WP6.7→Tjssm-756 (perf envelope gates the
+journal rewrite). Cross-era edges (C1→trust stack, C2→C4, #756→era-3/4) get wired from the
+downstream item when that era is authored.

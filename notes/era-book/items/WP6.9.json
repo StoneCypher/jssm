@@ -1,0 +1,10 @@
+{
+  "id": "WP6.9",
+  "title": "tracker execution — drain, closes, umbrellas",
+  "version": 6,
+  "cluster": "tracker-drain",
+  "src": ["era0/WP-7", "era0/WP-8", "issues-projection.md"],
+  "issue": null,
+  "manager": "Both disposition ledgers and the issues projection are approved; this is the mechanical execution of them. It empties the jssm tracker (an npm search-ranking win), files the twelve era umbrellas and six asks on fsl, closes roughly 235 fsl issues each with a living citation to what supersedes it, and milestone-tags the survivors. Done when jssm sits at zero and the fsl tracker mirrors the era program rather than a decade of backlog.",
+  "cs": "file projection A/B (milestone-pinned); MIG twins carry a \"was jssm#NNN\" pointer; every close cites umbrella+artifact (SUP), the satellite twin (SAT), or verified code (DONE?, verify first); filed numbers recorded back into the ledgers."
+}

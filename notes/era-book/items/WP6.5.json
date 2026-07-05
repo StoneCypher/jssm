@@ -1,0 +1,11 @@
+{
+  "id": "WP6.5",
+  "title": "dragon suite live in CI",
+  "version": 6,
+  "cluster": "dragon",
+  "src": ["era0/WP-6", "notes/dragons-egg.md"],
+  "issue": null,
+  "deps": ["Tfsl-65", "Tjssm-922"],
+  "manager": "The adversarial grammar-fuzzing tier — the layer above stochastic testing — exists as a harness and one kitchen-sink file, currently dormant. 6.0 wakes it: green in CI, three grammar sections fuzzed at dragon tier, and a doctrine where every confirmed find becomes a permanent minimal regression plus a source fix (never a pinned bug). The full grammar backfill closes by v6's end, and from v7 on every new grammar slice lands pre-fuzzed at birth. This is what hardens the parser before the expression-language grammar lands on it.",
+  "cs": "fix bit-rot in `kitchen_sink_dragon.maximal.ts` (print splitmix+fc seeds on failure); lanes per the decided budget (PR fixed-seed 60-90s / nightly 10-15m random / weekly deep with mutation arms); implement the dragons-egg §3/§4/§6 suggestion lists; convention: find -> minimal spec + fix + egg entry; the lane gates on suite completion only, never on generative flake."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "WP6.8",
+  "title": "error-code namespace reservation",
+  "version": 6,
+  "cluster": "error-codes",
+  "src": ["era0/WP-2", "projection/B6", "MP§11"],
+  "issue": null,
+  "manager": "Error codes become public API the instant the first one ships — users grep for them, tools branch on them — so reserving the numbering scheme now costs an afternoon while retrofitting it later costs a whole edition. 6.0 reserves the `FSL####` ranges by phase and maps the error kinds that already exist onto them, so the `explain` verb and everything downstream read from a stable table instead of ad-hoc strings.",
+  "cs": "`FSL####` ranges partitioned by phase (parse/compile/runtime/check/cli); ReplayError/ConfigError/CodegenError kinds get numbers; the `explain` skeleton reads the table; filed via projection B6."
+}
