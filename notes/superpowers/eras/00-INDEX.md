@@ -53,7 +53,7 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   ledger covers 100%; snapshot drift 107→106 = one issue closed since, no orphan. **Correction:**
   the worktree/branch were renamed `fable_new_v6_to_v12` / `docs_…v6-to-v12` →
   `fable_new_v6_to_v16` / `docs_…v6-to-v16` in the five-way-split renumber; the HANDOFF header
-  still shows the old v12 names (left as-is, flagged here). Also corrected: the successor queue's
+  still showed the old v12 names at this point (fixed later in Increment 8). Also corrected: the successor queue's
   "step 1 = file projection A+B" was already complete (Increment 2), so the true resume point is
   the WP-8 drain. Surfaced to John the §C/§D drafting gate before the drain can file (see NEXT
   ACTION); awaiting his drafting-vs-direct-file decision.
@@ -88,3 +88,8 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   corrected** — prior owner deleted 2026-06-14; 90-day no-exceptions window ⇒ ~Sept 12 deadline
   (HANDOFF said early October); John watches from Sept 9. HANDOFF time-sensitive + Corrections
   updated. v6-branch fate reaffirmed: keep frozen/protected, retire at WP-9 after 6.0.0 verifies.
+- **2026-07-05 · Increment 8 (Opus 4.8, drift fix):** Fixed the stale program/branch naming in
+  the HANDOFF header — title, worktree/branch line, and the "this branch is free" line now read
+  `v6→v16` / `fable_new_v6_to_v16` / `docs_26-07-04_fable-v6-to-v16` (were `…v12`), with a short
+  note recording the original scaffold names + the 5.x→v16 scope. Increment-1 log keeps the v12
+  names as true history; increment-3's "still shows old names" flag updated to point here.

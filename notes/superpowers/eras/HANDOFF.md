@@ -1,11 +1,13 @@
-# HANDOFF — The v6→v12 Era Program
+# HANDOFF — The v6→v16 Era Program
 
 > **What this directory is.** The working home of the FSL/jssm era program: the decomposition of
 > the v6 corpus into eight major-version eras, and the planning artifacts successor models need to
 > execute them. Authored by **Claude Fable 5** (July 2026) during a limited-availability window,
 > deliberately structured so that **Opus, Codex, or any successor can resume at any point,
 > including after an unannounced mid-work halt.**
-> **Worktree:** `fable_new_v6_to_v12` · **Branch:** `docs_26-07-04_fable-v6-to-v12` (off `origin/v6`).
+> **Worktree:** `fable_new_v6_to_v16` · **Branch:** `docs_26-07-04_fable-v6-to-v16` (off `origin/v6`).
+> *(Originally scaffolded as `…v6_to_v12` / `…v6-to-v12`; renamed in the five-way-split renumber —
+> see INDEX increments 1 and 3. The program spans 5.x "The Long Goodbye" → v16 "The Public Machine".)*
 > **The ledger is `00-INDEX.md`. Read it first. Always. It says what exists, what was in flight,
 > and what the next action is.**
 
@@ -79,7 +81,7 @@
   command; Bash cwd silently resets after some tool calls — re-check `pwd` before commit.
 - **Never `git add -A`** — stage explicit paths (shared machines may host parallel sessions).
 - `main` and `v6` are **protected**: no commits, merges, or pushes to them without John's
-  explicit per-action permission. This branch (`docs_26-07-04_fable-v6-to-v12`) is free.
+  explicit per-action permission. This branch (`docs_26-07-04_fable-v6-to-v16`) is free.
 - Issues close only via PR `Closes #N` references, never `gh issue close`.
 - **Public tracker actions — standing scoped grant (John, 2026-07-04):** the model is
   *prepare → John approves the ledger once, as a batch → execution from the approved ledger is
