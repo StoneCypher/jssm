@@ -30,6 +30,24 @@ describe('render_fence_html', () => {
     expect(html).toMatch(/data-state="a" style="color:[^"]+"/);
   });
 
+  it('a group-chip state still carries its diagram color in code (chip keying)', async () => {
+    // With `render_groups: 'cluster'` (the fence default) a state in two groups
+    // renders a chip suffix into its node label ("a [g1]"), so the diagram text
+    // diverges from the state name. Keying by display text alone would miss and
+    // 'a' would lose its inline color.
+    const html = await render_fence_html('&g1 : [a b]; &g2 : [a]; a -> b;', 'fsl code');
+    expect(html).toContain('data-state="a"');
+    expect(html).toMatch(/data-state="a" style="color:[^"]+"/);
+  });
+
+  it('a multi-line-label state still carries its diagram color in code (multi-<text> keying)', async () => {
+    // The label wraps to two <text> elements; keying on the first line only
+    // ("Line One") would never match the full display text.
+    const html = await render_fence_html('state a: { label: "Line One\\nLine Two"; }; a -> b;', 'fsl code');
+    expect(html).toContain('data-state="a"');
+    expect(html).toMatch(/data-state="a" style="color:[^"]+"/);
+  });
+
   it('a state with no rendered-text match (empty label) gets no inline color, others unaffected', async () => {
     // An explicit empty label renders no matching diagram text for 'a', so
     // the display-text remap has nothing to key off of — 'a' is correctly

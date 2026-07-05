@@ -74,6 +74,23 @@ describe('encode_gif', () => {
     expect(() => encode_gif([{ rgba: new Uint8Array(4), width: 2, height: 2 }])).toThrow();
   });
 
+  it('throws on a zero-width frame instead of emitting a bogus code', () => {
+    // 4·0·h === 0 slips past the rgba-length check and reaches lzw_encode with
+    // empty indices, where `indices[0]!` coerces undefined and silently emits
+    // code 0. The boundary guard turns that into a clear JssmError.
+    expect(() => encode_gif([{ rgba: new Uint8Array(0), width: 0, height: 2 }])).toThrow(/non-zero/);
+  });
+
+  it('throws on a zero-height frame', () => {
+    expect(() => encode_gif([{ rgba: new Uint8Array(0), width: 2, height: 0 }])).toThrow(/non-zero/);
+  });
+
+  it('still encodes a 1x1 frame', () => {
+    const gif = encode_gif([{ rgba: solid(1, 1, 10, 20, 30), width: 1, height: 1 }]);
+    expect(String.fromCharCode(...gif.slice(0, 6))).toBe('GIF89a');
+    expect(decode_gif(gif).frames.length).toBe(1);
+  });
+
   it('covers palette matching where later entries improve on earlier ones', () => {
     // Build a frame with multiple distinct colors to ensure a multi-entry palette
     const buf = new Uint8Array(12 * 4);
@@ -119,6 +136,30 @@ describe('encode_gif', () => {
       const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
       expect(v).toBe(buf2[rgba_i]!);
     });
+  });
+
+  it('is deterministic and grows its output buffer past the initial 1KB', () => {
+    // Index-derived colors (odd multipliers → full low-bit period) give a
+    // high-entropy, many-color frame whose encoded size runs well past the 1KB
+    // starting buffer, so the growable-output branch runs. Encoding the same
+    // frames twice must be byte-identical (the per-encode nearest-color cache
+    // and palette carry no cross-call state).
+    const spread = (w: number, h: number, phase: number): Uint8Array => {
+      const b = new Uint8Array(w * h * 4);
+      for (let i = 0; i < w * h; ++i) {
+        b.set([(i * 97 + phase) & 0xff, (i * 57 + phase) & 0xff, (i * 29 + phase) & 0xff, 255], i * 4);
+      }
+      return b;
+    };
+    const frames = [
+      { rgba: spread(48, 48, 0),  width: 48, height: 48 },
+      { rgba: spread(48, 48, 11), width: 48, height: 48 },
+    ];
+    const a = encode_gif(frames, { delay_cs: 10 });
+    const b = encode_gif(frames, { delay_cs: 10 });
+    expect([...a]).toEqual([...b]);
+    expect(a.length).toBeGreaterThan(1024);
+    expect(decode_gif(a).frames.length).toBe(2);
   });
 
   it('encodes exactly width*height pixels in every frame image block', () => {
