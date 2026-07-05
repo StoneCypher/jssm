@@ -1,0 +1,10 @@
+{
+  "id": "WP14.1",
+  "title": "security-adversarial review (design gate)",
+  "version": 14,
+  "cluster": "security-gate",
+  "src": ["notes/superpowers/plans/2026-06-26-signed-run-receipts-roadmap.md", "MP§29"],
+  "issue": null,
+  "manager": "Before M2's spec hardens, a security-lensed pass attacks the trust stack's known soft spots — it has had logic review but never a hostile one, and a trust system nobody has tried to break is a trust system that will break in production against someone who did try. The findings amend the receipts design. This is the external-specialist gate the blind-thinkthrough process requires for security-critical work.",
+  "cs": "agenda on record: transparency-log split-view/equivocation (witness cosigning or gossip; offline inclusion proofs alone can't detect forks), OIDC-provider compromise as keyless root, single-receipt revocation, presentation replay; satisfies the PROCESS external-specialist gate."
+}

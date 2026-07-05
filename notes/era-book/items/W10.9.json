@@ -1,0 +1,10 @@
+{
+  "id": "W10.9",
+  "title": "fsl.lock schema + sweeps",
+  "version": 14,
+  "cluster": "ecosystem-plumbing",
+  "src": ["MP§25.2"],
+  "issue": null,
+  "manager": "`fsl.lock` — reproducible system builds where every registry member is pinned to its source hash, certificate, and edition, sweepable in CI so a build can't silently drift. This is the supply-chain keystone, specced before the first incident instead of after: the lockfile is what makes \"the exact same verified components\" a checkable fact, and `verify` sweeps enforce that every locked certificate stays valid over time.",
+  "cs": "schema (irreversibles #18): members[{name, source_hash, certificate_ref, edition, resolved_path}]; lock-verify in `verify` sweeps; receipts participate (\"these receipts must stay valid\"); refinement certs flow through upgrades."
+}

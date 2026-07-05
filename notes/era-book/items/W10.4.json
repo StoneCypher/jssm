@@ -1,0 +1,10 @@
+{
+  "id": "W10.4",
+  "title": "verify verb full chain (M5)",
+  "version": 14,
+  "cluster": "m5-verify",
+  "src": ["MP§25.2"],
+  "issue": null,
+  "manager": "One verb — `verify` — walks the whole trust sentence: signed by whom, logged when, which rules were certified, run recomputed, revocations checked. Cheap mode trusts the issuer's replay in milliseconds; full mode re-derives everything from scratch. This is milestone 5: the single command that answers \"should I believe this certificate,\" at whatever level of paranoia the situation calls for, from a fast CI gate to a full independent recomputation.",
+  "cs": "chain per receipts §7 (sig->identity->log inclusion->cert covers hash->replay(full)->tier evidence->identity binding->revocation->window); `--cheap|--full|--offline` (offline: staleness caveat, never hard-fail); lockfile/dir sweeps default cheap; exit codes per class; jssm twin #829."
+}

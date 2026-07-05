@@ -1,0 +1,10 @@
+{
+  "id": "W10.5",
+  "title": "receipts replayed slice (M6)",
+  "version": 14,
+  "cluster": "m6-receipts",
+  "src": ["MP§25.2"],
+  "issue": null,
+  "manager": "Receipts — attestations about a single run: \"this run of machine@hash satisfied property φ, at this authenticity tier, for this subject.\" The `replayed` tier ships first, and v13's recorded-effect ledger is what makes even hooked machines attestable. Receipts are diplomas for computations: compliance gates, agent-to-agent trust, provable claims about what a specific run actually did — with tiers that can't be faked because the evidence is what produces them.",
+  "cs": "record per receipts §5 (signed core + optional bundle); issuance = replay + φ-gate + sign (false claims unmintable); `replayed` tier first (v13 ledger, W9.2); jssm twin #830."
+}

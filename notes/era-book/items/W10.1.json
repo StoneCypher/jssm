@@ -1,0 +1,10 @@
+{
+  "id": "W10.1",
+  "title": "sigstore-keyless signing",
+  "version": 14,
+  "cluster": "m2-signing",
+  "src": ["MP§25.1"],
+  "issue": null,
+  "manager": "Certificates get identities — sigstore-style keyless signing bound to who ran the check (a CI workflow identity or a maintainer's OIDC identity), so a certificate says not just \"this was checked\" but \"this was checked by this identity.\" Keyless means no long-lived signing keys to leak; the identity comes from an OIDC provider at signing time, which is how modern supply-chain signing sidesteps the key-management disaster entirely.",
+  "cs": "sigstore-style OIDC keyless (CI workflow / maintainer identities); `fsl login` local vs CI-OIDC flows; no long-lived keys; the identity layer over M2 signing (W8.19)."
+}
