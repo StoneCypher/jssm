@@ -101,3 +101,12 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   Flagged #1307 as satisfied-by-the-drain (close at 6.0). **Next on 5.x = the CODE burn-down**
   (WP-1 audit reverify -> pack-shape test; WP-6 dragon revival; WP-2 bug fixes) - those ship as
   5.158.x patches from protected `main`, so they need a worktree off main + John's per-action go.
+- **2026-07-05 · Increment 10 (Opus 4.8, WP-1 audit re-verify):** John's go. Worktree
+  `fix_26-07-05_5x-audit-reverify` off main @ b5509127. Re-verified all 7 megaspec-critique §1
+  findings vs main (5.159.2) + origin/v6. **Verdict (table in the era-0 brief Corrections):
+  nothing on main/5.x needs fixing** — #1 (pack shape) already FIXED on main (files allowlist +
+  npm pack now include dist/cli/lib.* + jssm.cli.d.*, confirmed); #7 (FmtConfig) FIXED; #2–#6 are
+  v6-only surfaces (codegen/interchange absent from main src, confirmed via git grep origin/v6) →
+  recorded as v6-assembly re-verification items, NOT 5.x WP-2. So **WP-2 inherits zero audit
+  items.** Remaining WP-1 deliverable: the pack-shape regression test (guards #1) on the worktree,
+  → a 5.158.x patch (needs /sc-commit + John's merge, main protected).

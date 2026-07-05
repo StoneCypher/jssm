@@ -236,3 +236,28 @@ one-line question, batched to John, not one-at-a-time.
 - **2026-07-05 (Opus 4.8):** fsl-org transfer deadline corrected — prior owner deleted June 14
   2026; 90-day no-exceptions window ⇒ **~Sept 12 2026** deadline (HANDOFF said "early October");
   John watches from **Sept 9**. See HANDOFF time-sensitive.
+
+### WP-1 · June implementation-audit re-verification — VERDICT (2026-07-05, Opus 4.8)
+
+Re-verified the seven `megaspec-critique.md §1` findings against **current main (5.159.2, @ `b5509127`)**
+and **`origin/v6`**. Method: source greps + `git grep origin/v6` + `npm pack --dry-run --json` on
+a main-based worktree (`fix_26-07-05_5x-audit-reverify`). **Headline: nothing on main/5.x needs
+fixing — the one shipped-package finding (#1) is already fixed, #7 is fixed, and #2–#6 are v6-only
+surfaces that ride to the v6 assembly, NOT the 5.x burn-down.**
+
+| # | Finding (mid-June, vs the v6 worktree) | main verdict | v6 |
+|---|---|---|---|
+| 1 | Published CLI pack shape broken — `dist/cli/lib.*` + `jssm.cli.d.*` absent from the tarball | **FIXED on main** — `files` allowlist + `npm pack --dry-run` now include all four (`dist/cli/lib.cjs/.mjs`, `jssm.cli.d.cts/.ts`) | n/a (shipped-pkg concern) |
+| 2 | `codegen`/`import`/`export` verbs advertised before `bin` wired | **REFUTED on main** — dispatcher is now a PATH-plugin model, advertises only `render` (no hardcoded verbs) | LIVE (v6 `dispatcher.ts:205` advertises `codegen`) |
+| 3 | JSON interchange loses declared `start_states` | **REFUTED on main — v6-only** (`fslToModel`/`modelToFsl` absent from main src) | LIVE on v6 (`cli/subcommands/interchange`) |
+| 4 | JSON envelope (`format`/`version`) unvalidated | **REFUTED on main — v6-only** (`jsonToModel` absent from main) | LIVE on v6 (has partial envelope tests — re-verify in assembly) |
+| 5 | `native:typescript` codegen erases forced-transition semantics | **REFUTED on main — v6-only** (codegen absent from main) | LIVE on v6 (`cli/subcommands/codegen`) |
+| 6 | `CodegenConfig` (`defaultTarget`/`outDir`) vs open JSON schema | **REFUTED on main — v6-only** (`CodegenConfig` absent from main; changelog shows fields added on v6) | LIVE on v6 (schema-completeness to verify) |
+| 7 | Phantom `FmtConfig` test import | **FIXED** — absent from main AND v6 (changelog: `fix(v6): correct phantom FmtConfig test import`) | fixed |
+
+**Consequences:** WP-2 (5.x bug burn-down) inherits **zero** items from this audit — none of the
+findings are live on the shipped 5.x line. Findings #2–#6 are recorded here as **v6-assembly
+re-verification items** (check/fix during WP-4/era-1, on the v6 side); #4 and #6 may already be
+partly addressed on v6 and need a focused re-check when that surface is touched. The one 5.x
+deliverable is the **pack-shape regression test** (guards #1's fix), landing on
+`fix_26-07-05_5x-audit-reverify` → a 5.158.x patch.
