@@ -1,0 +1,10 @@
+{
+  "id": "W7.12",
+  "title": "fsl/fslf/fss/fssf tags + from() family",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22"],
+  "issue": null,
+  "manager": "The file/format tags — fsl, fslf, fss, fssf — distinguishing a bare machine from a factory, a system, and a system-factory, plus a `from()` family for constructing from each. This is the type-tagging that lets tooling and the loader know what shape of thing a document holds, and `from()` is the one uniform entry point for instantiating any of them rather than four bespoke constructors.",
+  "cs": "fsl/fslf/fss/fssf tags (machine/factory/system/system-factory); `from()` construction family; `sm` deprecated synonym; the document-kind taxonomy."
+}

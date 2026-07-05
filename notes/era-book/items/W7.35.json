@@ -1,0 +1,10 @@
+{
+  "id": "W7.35",
+  "title": "state spread + no-self",
+  "version": 11,
+  "cluster": "status-recovery-rest",
+  "src": ["MP§19", "fsl#453", "fsl#72", "fsl#142"],
+  "issue": 453,
+  "manager": "State spread — `...&group` pulling a group's members into a declaration — with a no-self rule preventing a state from spreading into itself. Spread is the composition tool that lets declarations share structure (the same set of transitions applied across a group), and the no-self guard is what keeps spread from creating a paradoxical self-inclusion that would loop the expansion.",
+  "cs": "state spread `...` with a no-self rule (fsl#453/#72/#142); shares structure across group members; the spread half of the groups cluster (W6.81)."
+}

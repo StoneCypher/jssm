@@ -1,0 +1,11 @@
+{
+  "id": "W7.28",
+  "title": "§24 system viz",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§24"],
+  "issue": null,
+  "deps": ["W7.13"],
+  "manager": "System visualization — render a whole system as a diagram with member clusters, ×N population badges, route edges, and a dead-letter sink — so a system is as inspectable at a glance as a single machine is. Visualizing composition is what keeps large systems comprehensible; without it, a five-hundred-machine system is an opaque blob instead of a picture you can actually reason about and debug.",
+  "cs": "§24 system viz; member clusters, ×N population badges, route edges, dead-letter sink; the system-scale counterpart to single-machine rendering."
+}

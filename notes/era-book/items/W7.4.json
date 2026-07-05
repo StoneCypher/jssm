@@ -1,0 +1,11 @@
+{
+  "id": "W7.4",
+  "title": "on chan(payload) heads",
+  "version": 11,
+  "cluster": "channels-emit",
+  "src": ["MP§14", "fsl#1348"],
+  "issue": null,
+  "deps": ["W7.2"],
+  "manager": "Transition heads that bind a typed payload — `on c(payload) ->` — so a transition can name and use the data an event carries, not just react to its name. This is what makes typed channels actually useful: the payload flows into the transition's guards and assignments as a bound, typed value, so \"on deposit(amount)\" can reference the amount instead of the event having to stash its data somewhere on the side.",
+  "cs": "`on c(payload) ->` heads bind typed channel payloads (fsl#1348); the payload is available to guards/assigns; per-channel type-checked."
+}

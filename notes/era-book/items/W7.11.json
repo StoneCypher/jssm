@@ -1,0 +1,10 @@
+{
+  "id": "W7.11",
+  "title": "machine blocks + wire + import/registry",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22", "fsl#1352"],
+  "issue": 1352,
+  "manager": "`machine{}` blocks and a registry with `import`, so more than one machine can live in a document and be referenced by name — the structural precondition for systems. This is where FSL goes from one-machine-per-file to composable modules: a document declares several machines, wires them together, and imports others from a registry instead of copy-pasting.",
+  "cs": "`machine{}` blocks; registry + `import` (fsl#1352); the modularity foundation systems build on; the F4 registry."
+}

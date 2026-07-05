@@ -1,0 +1,10 @@
+{
+  "id": "W7.6",
+  "title": "named hooks: declaration/required/call-position",
+  "version": 11,
+  "cluster": "named-hooks",
+  "src": ["MP§12", "MP§14"],
+  "issue": null,
+  "manager": "Named hooks as a machine's dependency contract — callbacks the machine declares (`hook f(a:T)->R [required]`), that the caller must supply, typed like everything else and called at explicit positions in the logic. This is how a machine states \"I need you to provide this behavior,\" turning host integration from ad-hoc wiring into a checked interface, and return values are recorded so replay never re-fires the outside world.",
+  "cs": "`hook f(a:T)->R [required];` declaration; call-position `call f(x)` / `assign y := call f(x)`; effect boundary per §11; the return-recording format lands v13 (slot reserved) — v11 ships call semantics + live mode."
+}

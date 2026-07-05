@@ -1,0 +1,11 @@
+{
+  "id": "W7.23",
+  "title": "system serialization (recursive snapshot)",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22"],
+  "issue": null,
+  "deps": ["W7.13"],
+  "manager": "A whole system serializes as a recursive snapshot — every member machine, the dispatch queue, the routes, the populations, captured together so an entire running system can be saved and restored exactly. This is replay and persistence scaled from one machine to a whole system: the snapshot is the system's complete state, and restoring it resumes every member precisely where it left off.",
+  "cs": "recursive system snapshot (§22); captures members + queue + populations; nested member snapshots; the system-level replay/persistence unit."
+}

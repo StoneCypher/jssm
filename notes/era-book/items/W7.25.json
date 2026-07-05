@@ -1,0 +1,11 @@
+{
+  "id": "W7.25",
+  "title": "seed tree derive() pinned + vectors + edit-stability",
+  "version": 11,
+  "cluster": "factories",
+  "src": ["MP§21"],
+  "issue": null,
+  "deps": ["W7.24"],
+  "manager": "The seed tree — `derive(u64, label)` deterministically derives a child seed from a parent, so instance 42 of seed 1234 is a fixed coordinate reproducible forever and parallelizable trivially. The derivation is pinned with vectors and an edit-stability policy because it is an irreversible: once machines are built at these coordinates, the derivation can never change without breaking every reproduction that ever relied on it.",
+  "cs": "`derive(u64,label)` = FNV-1a64 + splitmix64 round, pinned with vectors + edit-stability policy (irreversibles #11); the reproducible-coordinate tree; instance N of seed S is fixed forever."
+}

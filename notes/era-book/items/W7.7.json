@@ -1,0 +1,10 @@
+{
+  "id": "W7.7",
+  "title": "time-as-sensor + tick source + abstract time model",
+  "version": 11,
+  "cluster": "sensors-time",
+  "src": ["MP§14", "fsl#1349", "fsl#1389", "fsl#1391"],
+  "issue": 1349,
+  "manager": "Time is just a sensor you inject — a machine reads the clock the same way it reads any other input, which is why a whole system can run on one synthetic clock and replay perfectly. Declaring an abstract time model (monotonic, discrete or dense) lets the checker reason about `time_between` guards, so timing logic becomes verifiable rather than a source of flaky real-clock bugs that only reproduce at 2am.",
+  "cs": "time sources default-clock / tick-source with `.advance` / custom; reads recorded like any sensor (W7.1); declared abstract model (monotonic, discrete|dense) for the checker; `time_between` guards (fsl#1389/#1391); fsl#1349."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "W7.13",
+  "title": "System type, delegated API, Steppable/Serializable/Renderable",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22"],
+  "issue": null,
+  "deps": ["W7.11"],
+  "manager": "The System type — a container of wired machines that presents a delegated API and the shared Steppable/Serializable/Renderable interfaces, so a whole system steps, snapshots, and renders through one uniform surface. This is what lets a five-hundred-machine system be driven exactly like a single machine, and it is the interface the web components auto-detect to render either one without special-casing.",
+  "cs": "System type + delegated API; Steppable/Serializable/Renderable shared interfaces (wc auto-detects); the uniform surface over a wired system (§22)."
+}

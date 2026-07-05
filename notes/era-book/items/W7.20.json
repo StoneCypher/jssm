@@ -1,0 +1,11 @@
+{
+  "id": "W7.20",
+  "title": "supervision + restart intensity",
+  "version": 11,
+  "cluster": "supervision-hierarchy",
+  "src": ["MP§22"],
+  "issue": null,
+  "deps": ["W7.18"],
+  "manager": "Supervision — `on_member_error: escalate | restart | retire` with restart-intensity windows — so failure becomes policy: a crashed member restarts from its factory coordinate, or the error escalates up the containment tree, bounded so a thrashing member can't restart-loop forever. This is Erlang-style let-it-crash for FSL systems: you declare how failure propagates and recovers instead of hoping nothing ever fails.",
+  "cs": "`on_member_error: escalate|restart|retire` + restart-intensity windows (§22); restart from the factory coordinate (W7.25); escalation up the containment tree (W7.22)."
+}

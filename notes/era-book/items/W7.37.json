@@ -1,0 +1,11 @@
+{
+  "id": "W7.37",
+  "title": "docs-extraction artifact",
+  "version": 11,
+  "cluster": "status-recovery-rest",
+  "src": ["MP§16"],
+  "issue": null,
+  "deps": ["W6.111"],
+  "manager": "The docs-extraction artifact — the fifth build artifact that pulls the doc-comments written since v6 out of a machine and emits reference documentation. This is where FSL's doc-comments finally pay off: a machine's states, transitions, and vals become browsable reference docs generated from the source, the way TypeDoc generates documentation from TypeScript rather than making you write it twice.",
+  "cs": "§16 docs-extraction artifact (the fifth artifact); consumes doc-comments (W6.111); emits reference docs; the manual program's generated-docs input."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W7.9",
+  "title": "tape wiring: input ring retention, output/log/error regeneration",
+  "version": 11,
+  "cluster": "tapes",
+  "src": ["MP§14", "fsl#450", "fsl#457", "fsl#913", "fsl#912"],
+  "issue": 450,
+  "manager": "The full tape wiring — a bounded input ring that retains recent inputs, and regenerated output, log, and error tapes — so a running machine has a complete, replayable record of what came in and what went out. Tapes are the substrate for replay, diagnostics, and the later flight recorder; wiring them properly here is what makes a run a reproducible artifact you can hand to someone else rather than a transient event that's gone the moment it finishes.",
+  "cs": "input ring retention + output/log/error tape regeneration (fsl#450/#457/#913/#912); the tape family behind replay and the era-4 flight recorder; commit-time recording."
+}

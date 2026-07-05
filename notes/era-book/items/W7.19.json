@@ -1,0 +1,10 @@
+{
+  "id": "W7.19",
+  "title": "on_undeliverable + dead-letter tape",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22"],
+  "issue": null,
+  "manager": "A policy for messages that can't be delivered — `on_undeliverable: error | drop | dead_letter` — with a dead-letter tape (a third diagnostic tape) capturing the ones you chose to keep. Undeliverable messages are inevitable in a dynamic system (the target retired, the queue was full); making the policy explicit and the dead letters inspectable is the difference between a debuggable system and one that silently drops messages on the floor.",
+  "cs": "`on_undeliverable: error|drop|dead_letter` (§22); dead-letter tape (third diagnostic tape); explicit per-system policy; feeds diagnostics."
+}

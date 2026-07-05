@@ -1,0 +1,11 @@
+{
+  "id": "W7.16",
+  "title": "routes: facts/targets/where-selectors/sender",
+  "version": 11,
+  "cluster": "systems-dispatch",
+  "src": ["MP§22"],
+  "issue": null,
+  "deps": ["W7.13"],
+  "manager": "Routes — `on fact -> target` — the declarative wiring that says which machine's outputs feed which machine's inputs, with `where` member-selectors to target subsets, observation sugar (enters/exits/takes), and `sender` as context. Routes are how a system is wired without imperative glue: you declare the information flow and the dispatcher makes it happen deterministically, so the wiring reads as a spec rather than a pile of event handlers.",
+  "cs": "routes `on fact -> target delivery`; observation sugar enters/exits/takes; `where` member selectors; `sender` context only; the declarative wiring layer."
+}

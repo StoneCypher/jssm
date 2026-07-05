@@ -1,0 +1,11 @@
+{
+  "id": "W7.5",
+  "title": "Mealy + Moore emit points",
+  "version": 11,
+  "cluster": "channels-emit",
+  "src": ["MP§14"],
+  "issue": null,
+  "deps": ["W7.3"],
+  "manager": "Both classic emit disciplines: Mealy outputs (emitted on a transition edge, depending on the input) and Moore outputs (emitted on state entry, depending only on the state). Supporting both means FSL can model the full range of finite-state-machine output styles from the textbooks directly, instead of forcing every design into one convention and making the other awkward to express.",
+  "cs": "Mealy (edge) + Moore (entry) emit points (§14); both lower to the transactional emit (W7.3); the output-timing choice is per-emission."
+}

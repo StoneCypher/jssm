@@ -1,0 +1,10 @@
+{
+  "id": "WP11.1",
+  "title": "alias removal + strict batch",
+  "version": 11,
+  "cluster": "breakage-batch",
+  "src": ["MP§27", "fsl#712"],
+  "issue": 712,
+  "manager": "The v11 breakage batch: the `property`/`var` aliases (deprecated since v6) are finally removed, and TypeScript strict mode flips on — the last item of its long prerequisite cluster, batched at a major where a breaking change belongs. `lint --future` has warned about the aliases since v6, so nobody is caught off guard; this is exactly the cleanup that a breakage-opens-a-major discipline exists to schedule and contain.",
+  "cs": "grammar drops property/var aliases (edition-gated); tsconfig strict + the ~200-error burn-down (fsl#712); manifest entries; `lint --future` warned since v6."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "W7.26",
+  "title": "at/make/with + UnboundParameterError + Factory serialize",
+  "version": 11,
+  "cluster": "factories",
+  "src": ["MP§21"],
+  "issue": null,
+  "deps": ["W7.24"],
+  "manager": "The factory's construction API — pure `at(n)` (the instance at a coordinate), cursor `make()` (the next instance), immutable-curry `with()` (bind some parameters, defer the rest) — plus `UnboundParameterError` that lists every parameter you forgot, and a serialize contract capturing source hash, bindings, seed, and cursor. This is what makes factories ergonomic and resumable: a clear error for missing parameters, and a construction state you can save and continue.",
+  "cs": "pure `at(n)` / cursor `make()` / immutable-curry `with()`; UnboundParameterError lists all unbound; serialize {source_hash, bindings-as-text, seed, cursor}."
+}
