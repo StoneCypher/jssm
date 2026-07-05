@@ -59,6 +59,42 @@ const toc = sections.map(s => {
   return `<li><a href="#${id}">${title}</a></li>`;
 }).join('\n');
 
+const itemsDir = path.join(bookDir, 'items');
+let itemsHtml = '';
+if (fs.existsSync(itemsDir)) {
+  const items = fs.readdirSync(itemsDir).filter(f => f.endsWith('.json'))
+    .map(f => JSON.parse(fs.readFileSync(path.join(itemsDir, f), 'utf8')));
+  const byVersion = new Map();
+  for (const it of items) {
+    const key = String(it.version);
+    if (!byVersion.has(key)) { byVersion.set(key, []); }
+    byVersion.get(key).push(it);
+  }
+  const versionKeys = [...byVersion.keys()]
+    .sort((a, b) => (a === '5.x' ? -1 : b === '5.x' ? 1 : Number(a) - Number(b)));
+  const esc = s => String(s).replace(/&/gu, '&amp;').replace(/</gu, '&lt;');
+  for (const vk of versionKeys) {
+    const rows = byVersion.get(vk).sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
+    itemsHtml += `<h2>Items — v${esc(vk)}</h2>\n` + rows.map(it => {
+      const meta = [
+        it.cluster ? `cluster ${esc(it.cluster)}` : '',
+        it.src?.length ? `src ${it.src.map(esc).join(', ')}` : '',
+        it.issue ? `fsl#${esc(it.issue)}` : '',
+        it.deps?.length ? `deps ${it.deps.map(esc).join(', ')}` : '',
+        it.blocks?.length ? `blocks ${it.blocks.map(esc).join(', ')}` : '',
+      ].filter(Boolean).join(' · ');
+      return `<h3 id="${esc(it.id)}">${esc(it.id)} · ${esc(it.title)}</h3>\n`
+        + (meta ? `<p><small>${meta}</small></p>\n` : '')
+        + `<p>${esc(it.manager)}</p>\n`
+        + (it.cs ? `<p><code>CS</code> ${esc(it.cs)}</p>\n` : '');
+    }).join('\n');
+  }
+  if (itemsHtml) {
+    itemsHtml = `<section id="item-register"><h1>Item Register</h1>\n${itemsHtml}</section>\n<hr/>`;
+    sections.push(itemsHtml);
+  }
+}
+
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"/>
 <title>The FSL Era Book — v6 to v16</title>

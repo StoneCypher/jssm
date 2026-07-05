@@ -7,10 +7,42 @@
 
 1. `00-overview.md` — one page, the whole program (5.x → v16)
 2. `NN-vNN-onepager.md` — one page per major (05x, 06 … 16)
-3. `NN-vNN-long.md` — the long form per major: **every scheduled item** gets (a) one
-   manager-level paragraph — what it is, why it's worth money, what "done" looks like — then
-   (b) a terse CS-level block: data structures, algorithms, invariants, failure modes,
-   dependencies, test posture. Length per item as the content demands; no padding.
+3. `NN-vNN-long.md` — the long form per major: each entry gets (a) one manager-level
+   paragraph — what it is, why it's worth money, what "done" looks like — then (b) a terse
+   CS-level block: data structures, algorithms, invariants, failure modes, dependencies,
+   test posture.
+
+**GRANULARITY (corrected + redesigned with John, 2026-07-04):** the long forms are at
+**cluster** level (~80 units over ~605 topics, ≈7:1 — e.g. "Numeric tower" = W6.1–.8).
+**Item level is JSON, one item per file, in `items/`** — designed for parallel authoring
+with zero merge conflicts; the HTML generator renders them. Three tiers reconcile:
+**book cluster → items/*.json (W-IDs) → tracker issues.**
+
+## 4. The item files — `items/<W-ID>.json`, one item per file
+
+Schema (required: `id`, `title`, `version`, `manager`; all else optional-when-not-valuable):
+
+```json
+{
+  "id": "W6.5",
+  "title": "decimal(p,s) — exact base-10 numerics",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.1"],
+  "blocks": ["W6.52"],
+  "manager": "What the feature IS and WHY IT MATTERS — written for a human deciding whether to care.",
+  "cs": "Necessary technical detail. OMIT THIS FIELD entirely when it adds nothing."
+}
+```
+
+Rules: `version` is a number 6–16 or the string "5.x" (NOT derivable from the W-ID — W6.*
+spans majors 6–10 per the spec-workitems map); milestone derives from version (5.x→fsl ms#48,
+6→#49 … 16→#59); `issue` gets the fsl number once filed (the projection flow fills it);
+`manager` explains what/why, no done-looks-like boilerplate; sources for item content =
+`eras/spec-workitems.md` + `eras/dispositions/*` + the megaspec §refs. Successors seed items
+era-by-era as work activates; exemplars in `items/`.
 
 ## Sources for the long form (successors: derive, don't invent)
 
