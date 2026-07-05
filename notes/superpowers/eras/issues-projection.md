@@ -13,19 +13,24 @@
 
 ## A. Era umbrella issues (file to fsl; one per era; bodies link the era briefs)
 
-| # | Draft title | Body core |
-|---|-------------|-----------|
-| A1 | `v6 "The Ground" — end the 5.x line: breakage batch, One Merge, dragon (umbrella)` | link era-0 brief; exit criteria; child = WP list |
-| A2 | `v7 "The Computing Machine" — scalars, expressions, where-guards (umbrella)` | link era-1 brief (wave 6.2) |
-| A2b | `v8 "The Structured Machine" — containers, ADTs, streams, groups (umbrella)` | link era-1 brief (waves 6.3+6.6) |
-| A2c | `v9 "The Transactional Machine" — assign, contracts, RTC, safety (umbrella; opens w/ mDT→val-record batch)` | link era-1 brief (waves 6.4+6.5+6.8) |
-| A2d | `v10 "The Portable Machine" — conformance, Rust N=2, format (umbrella)` | link era-1 brief (waves 6.7+6.9) |
-| A3 | `v11 "The Composable Machine" — systems, factories, supervision (umbrella)` | link thin brief |
-| A4 | `v12 "The Proven Machine" — verification stack (umbrella)` | link thin brief; ladder decision record = first child |
-| A5 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | link thin brief |
-| A6 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | link thin brief |
-| A7 | `v15 "The Ubiquitous Machine" — multi-host fan-out (umbrella)` | link thin brief |
-| A8 | `v16 "The Public Machine" — registry + agent economy (umbrella)` | link thin brief |
+**EXECUTED 2026-07-04 (Opus 4.8, John's go): all 11 umbrellas filed to StoneCypher/fsl as
+fsl#1401–#1411, each pinned to its milestone (#49–#59), labelled `Created by AI`. Bodies carry
+mission + delivers + exit criteria + links to the era book (`notes/era-book/`) and briefs, and
+the "children file just-in-time" cadence line.**
+
+| # | Draft title | Milestone | Filed |
+|---|-------------|-----------|-------|
+| A1 | `v6 "The Ground" — end the 5.x line: breakage batch, One Merge, dragon (umbrella)` | #49 | **fsl#1401** |
+| A2 | `v7 "The Computing Machine" — scalars, expressions, where-guards, stdlib (umbrella)` | #50 | **fsl#1402** |
+| A2b | `v8 "The Structured Machine" — containers, ADTs, streams, fn-slots, groups, graph (umbrella)` | #51 | **fsl#1403** |
+| A2c | `v9 "The Transactional Machine" — assign, contracts, RTC, hooks, safety (umbrella; opens w/ mDT→val-record batch)` | #52 | **fsl#1404** |
+| A2d | `v10 "The Portable Machine" — conformance, Rust N=2, format, tooling (umbrella)` | #53 | **fsl#1405** |
+| A3 | `v11 "The Composable Machine" — systems, factories, supervision, statecharts (umbrella)` | #54 | **fsl#1406** |
+| A4 | `v12 "The Proven Machine" — verification stack (umbrella)` | #55 | **fsl#1407** |
+| A5 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | #56 | **fsl#1408** |
+| A6 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | #57 | **fsl#1409** |
+| A7 | `v15 "The Ubiquitous Machine" — multi-host fan-out (umbrella)` | #58 | **fsl#1410** |
+| A8 | `v16 "The Public Machine" — registry + agent economy (umbrella)` | #59 | **fsl#1411** |
 
 ## B. Decision-record asks (file to fsl)
 
