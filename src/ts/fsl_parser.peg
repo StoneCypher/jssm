@@ -744,9 +744,9 @@ GroupRef "group reference"
 // `...&child` member spreads the child's members in flat (identity-
 // erasing).  A bare label is an ordinary state member.
 GroupMember
-  = "..." WS? "&" WS? name:Label { return { kind: 'group', name, mode: 'spread' }; }
-  /            "&" WS? name:Label { return { kind: 'group', name, mode: 'nest'   }; }
-  /            name:Label         { return { kind: 'state', name             }; }
+  = "..." WS? "&" WS? name:Label { const m: { kind: 'group'; name: string; mode: 'spread'; __loc?: ReturnType<typeof location> } = { kind: 'group', name, mode: 'spread' }; if (options.locations) { m.__loc = location(); } return m; }
+  /            "&" WS? name:Label { const m: { kind: 'group'; name: string; mode: 'nest';   __loc?: ReturnType<typeof location> } = { kind: 'group', name, mode: 'nest'   }; if (options.locations) { m.__loc = location(); } return m; }
+  /            name:Label         { const m: { kind: 'state'; name: string;                 __loc?: ReturnType<typeof location> } = { kind: 'state', name             }; if (options.locations) { m.__loc = location(); } return m; }
 
 // The membership list for a NamedList declaration.  Backward-compatible:
 // when every member is a plain label the result is a bare `string[]`
@@ -757,7 +757,14 @@ GroupMemberList
   = "[" WS? members:(GroupMember WS?)* "]" {
       const items = members.map(m => m[0]);
       const has_group = items.some(m => m.kind === 'group');
-      return has_group ? items : items.map(m => m.name);
+      // member locations ride as an array expando so the historical value
+      // shapes (bare string[] / member objects) stay byte-compatible for
+      // every consumer; NamedList lifts them onto the node as value_locs
+      type Member    = { kind: string; name: string; __loc?: ReturnType<typeof location> };
+      type MemberArr = (string | Member)[] & { __member_locs?: ReturnType<typeof location>[] };
+      const collapsed: MemberArr = has_group ? items : items.map(m => m.name);
+      if (options.locations) { collapsed.__member_locs = items.map((m: Member) => m.__loc!); }
+      return collapsed;
     }
 
 Stripe
@@ -1502,14 +1509,34 @@ StateDeclaration
 
 NamedList
   = WS? "&" WS? name:Label WS? ":" WS? value:GroupMemberList WS? ";" WS? {
-      const node: any = { key:'named_list', name, value };
-      if (options.locations) { node.loc = location(); }
+      type Loc = ReturnType<typeof location>;
+      const node: { key: 'named_list'; name: string; value: unknown; loc?: Loc; value_locs?: Loc[] }
+        = { key: 'named_list', name, value };
+      if (options.locations) {
+        node.loc        = location();
+        node.value_locs = value.__member_locs;
+        delete value.__member_locs;
+      }
       return node;
     }
-  / WS? "&" WS? name:Label WS? ":" WS? value:Label WS? ";" WS? {
-      const node: any = { key:'named_list', name, value };
-      if (options.locations) { node.loc = location(); }
+  / WS? "&" WS? name:Label WS? ":" WS? value:GroupAliasMember WS? ";" WS? {
+      type Loc = ReturnType<typeof location>;
+      const node: { key: 'named_list'; name: string; value: string; loc?: Loc; value_locs?: Loc[] }
+        = { key: 'named_list', name, value: value.name };
+      if (options.locations) {
+        node.loc        = location();
+        node.value_locs = [value.__loc!];
+      }
       return node;
+    }
+
+// The alias form's single member, wrapped so its own location survives the
+// collapse to the historical bare-string value shape.
+GroupAliasMember
+  = name:Label {
+      const m: { name: string; __loc?: ReturnType<typeof location> } = { name };
+      if (options.locations) { m.__loc = location(); }
+      return m;
     }
 
 
@@ -1525,10 +1552,26 @@ HookEvent "hook event (enter/exit)"
 // hook on a group reference or a plain state.  The action is an
 // ActionLabel (a quoted action name).
 HookDeclaration "hook declaration"
-  = WS? "on" WS event:HookEvent WS subject:(GroupRef / Label) WS "do" WS action:ActionLabel WS? ";" WS? {
-      const node: any = { key: 'hook_decl', event, subject, action };
+  = WS? "on" WS event:HookEvent WS subject:(GroupRef / HookStateSubject) WS "do" WS action:ActionLabel WS? ";" WS? {
+      type Loc = ReturnType<typeof location>;
+      const node: { key: 'hook_decl'; event: string; subject: string | { key: string; name: string }; action: string; loc?: Loc; subject_loc?: Loc }
+        = { key: 'hook_decl', event, subject, action };
+      if (subject.key === 'hook_state_subject') {
+        node.subject = subject.name;
+        if (options.locations) { node.subject_loc = subject.__loc; }
+      }
       if (options.locations) { node.loc = location(); }
       return node;
+    }
+
+// A plain-label hook subject (a state reference), wrapped so its location
+// survives the collapse to the historical bare-string subject shape.
+// Group-ref subjects keep their object shape and carry no subject_loc.
+HookStateSubject
+  = name:Label {
+      const m: { key: 'hook_state_subject'; name: string; __loc?: ReturnType<typeof location> } = { key: 'hook_state_subject', name };
+      if (options.locations) { m.__loc = location(); }
+      return m;
     }
 
 
