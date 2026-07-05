@@ -1,0 +1,10 @@
+{
+  "id": "W6.4",
+  "title": "float/double + IEEE + isnan/isinf/isfinite",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "manager": "IEEE-754 floating point for the cases that genuinely want it — physics, graphics, approximate measurement — with the sharp edges made first-class rather than hidden. `isnan`, `isinf`, and `isfinite` are language builtins, because in FSL a NaN sneaking into a guard should be a question you can explicitly ask, not a silent surprise that makes a transition fire wrong. Float is explicit, so nobody inherits binary drift by accident when they wanted exact.",
+  "cs": "float (32) / double (64) IEEE-754; isnan/isinf/isfinite predicates; no silent promotion from int (W6.7); comparisons total per W6.33."
+}

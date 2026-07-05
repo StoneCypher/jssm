@@ -1,0 +1,10 @@
+{
+  "id": "W6.39",
+  "title": "if/then/else expression",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6"],
+  "issue": null,
+  "manager": "`if/then/else` as an expression that yields a value, not a statement that performs an effect — so a guard or an assignment can branch inline and every branch is required to produce a value of the same type. This is the functional shape that keeps FSL expressions total and typed, instead of leaking the host language's statement-oriented control flow into machine logic where it can't be reasoned about.",
+  "cs": "expression-form if/then/else; both branches required, unified result type; totality-preserving."
+}

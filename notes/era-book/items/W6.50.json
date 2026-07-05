@@ -1,0 +1,11 @@
+{
+  "id": "W6.50",
+  "title": "popcount/clz/ctz/rotl/rotr",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "deps": ["W6.2"],
+  "manager": "The bit-population and bit-rotation intrinsics — popcount, count-leading-zeros, count-trailing-zeros, rotate-left/right — for machines modeling low-level hardware or doing bitset tricks. Each maps to a single CPU instruction in a compiled host, so having them as blessed builtins means the codegen can emit the fast instruction instead of an unrolled loop that computes the same thing slowly.",
+  "cs": "popcount/clz/ctz/rotl/rotr on sized ints (W6.2); width-aware; lower to native intrinsics in compiled targets."
+}

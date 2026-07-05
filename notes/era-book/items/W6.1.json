@@ -1,0 +1,10 @@
+{
+  "id": "W6.1",
+  "title": "int = s53 semantics + literals",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "manager": "FSL's default integer is a signed 53-bit int — the largest integer JavaScript can represent exactly — so `int` means the identical thing whether the machine runs in a browser, in Node, or in a compiled host, with no silent precision loss at the boundary. Literals come in every base a systems programmer expects (hex, binary, octal) with type suffixes (7f, 7L, 7i32, 7u8) so you write the exact type you mean inline instead of casting after the fact. This is the floor the whole numeric tower stands on.",
+  "cs": "s53 = signed 53-bit, JS-exact integer range; literal grammar covers hex/bin/oct + suffixes (f=float, L=longint, iNN/uNN=sized); the default type every other numeric kind promotes to or from explicitly."
+}

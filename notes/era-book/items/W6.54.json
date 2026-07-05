@@ -1,0 +1,11 @@
+{
+  "id": "W6.54",
+  "title": "encoding: base64/base64url/hex/percent",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "deps": ["W6.10"],
+  "manager": "The standard encodings — base64, base64url, hex, percent/URL — as pinned builtins, so a machine that emits or ingests encoded data agrees byte-for-byte with the rest of the world and with itself across hosts. Encoding is deceptively full of variant edge cases (padding rules, url-safe alphabets); blessing one specified implementation kills the interop bugs that otherwise appear only when two systems that each \"do base64\" try to talk.",
+  "cs": "base64/base64url/hex/percent encode+decode; pinned alphabets/padding; operate over bytearray (W6.10); part of the blessed contract-coupled infra."
+}

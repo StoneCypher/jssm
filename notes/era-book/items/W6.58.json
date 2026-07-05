@@ -1,0 +1,11 @@
+{
+  "id": "W6.58",
+  "title": "normalize/case pinned to shipped Unicode",
+  "version": 7,
+  "cluster": "strings",
+  "src": ["MP§8"],
+  "issue": null,
+  "deps": ["W6.9"],
+  "manager": "Case-folding and normalization (NFC/NFD and friends) pinned to a specific shipped Unicode version, so \"uppercase this\" and \"are these two strings equal after normalization\" give the same answer on every host and never drift when a runtime updates its Unicode tables underneath you. Unpinned Unicode is a silent cross-host correctness bug — the same machine disagreeing with itself on two computers — and this nails it shut.",
+  "cs": "normalize + case ops pinned to a bundled Unicode version, not the host's; cross-host determinism now, full cross-host conformance certification later (v11); interacts with the `unicode: N` attribute (W6.59)."
+}

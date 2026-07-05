@@ -1,0 +1,11 @@
+{
+  "id": "W6.57",
+  "title": "portable string ops + negative index + grapheme + / byte view",
+  "version": 7,
+  "cluster": "strings",
+  "src": ["MP§8"],
+  "issue": null,
+  "deps": ["W6.9"],
+  "manager": "A portable, fully-specified set of string operations that behave identically on every host — including negative indexing from the end, grapheme-aware concatenation so combining characters join correctly, and a deliberate byte view for when you need the underlying bytes. The whole point is that string code written once gives the same answer everywhere, which is emphatically not true of the host languages FSL compiles down to.",
+  "cs": "portable op set (slice/index/find/split/etc.); negative indices; grapheme-cluster-correct `+`; byte-view bridge to bytearray (W6.10); every op specified for cross-host identity."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W6.10",
+  "title": "bytearray + [< >] literal",
+  "version": 7,
+  "cluster": "byte-model",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "manager": "A first-class array of bytes with its own literal syntax (`[< ... >]`), for machines that touch binary — protocol frames, hashes, encoded blobs — without smuggling bytes through strings and praying the encoding survives the round trip. Bytes are bytes, kept distinct from text, with a deliberate byte view that the string ops can cross into when you actually mean to.",
+  "cs": "bytearray type + `[< >]` literal; distinct from string; byte-view interop with string ops (W6.57); pairs with the encoding builtins (W6.54) and the pinned hash (W6.55)."
+}

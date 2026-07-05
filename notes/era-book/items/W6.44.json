@@ -1,0 +1,10 @@
+{
+  "id": "W6.44",
+  "title": "by-value capture + acyclic-data enforcement",
+  "version": 7,
+  "cluster": "totality",
+  "src": ["MP§13"],
+  "issue": null,
+  "manager": "When an expression or lambda captures data, it captures by value, and the language enforces that captured data is acyclic — no shared mutable references, no reference cycles that make equality and serialization undecidable. This is what keeps FSL values comparable, hashable, and replayable: a captured value is a snapshot, not a live pointer into somebody else's state that changes under you between two reads.",
+  "cs": "by-value capture; acyclic-data enforcement (compile/runtime guard); underpins intensional equality (W6.28), serialization, and the defunctionalization hash (W6.27)."
+}

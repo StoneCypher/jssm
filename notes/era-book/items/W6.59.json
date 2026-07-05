@@ -1,0 +1,11 @@
+{
+  "id": "W6.59",
+  "title": "unicode: N attribute + finite hard-match",
+  "version": 7,
+  "cluster": "strings",
+  "src": ["MP§8"],
+  "issue": null,
+  "deps": ["W6.9"],
+  "manager": "A machine can declare `unicode: N` to fix exactly which Unicode version its string semantics use and to hard-match a finite alphabet, turning \"strings over these characters\" into a closed, checkable set. This is what lets a machine that processes text still make finiteness claims, and what keeps its meaning stable across the decades Unicode will keep changing out from under it.",
+  "cs": "`unicode: N` machine attribute pins the Unicode version; enables finite hard-match over a declared alphabet; feeds the finite band and the charset/unicode-rampage umbrella (fsl#1199/#1379)."
+}

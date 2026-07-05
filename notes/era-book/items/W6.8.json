@@ -1,0 +1,11 @@
+{
+  "id": "W6.8",
+  "title": "overflow = error + opt-in saturating",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.1"],
+  "manager": "When a sized or bounded integer would overflow, the default is a loud error — not the silent wraparound that turns 255+1 into 0 and ships a security bug. If wraparound or clamping is genuinely what you want, you opt into saturating arithmetic explicitly. Safe by default, dangerous only on request — the opposite of the C tradition where overflow is silent and correctness is the programmer's unpaid job.",
+  "cs": "overflow -> error by default; opt-in saturating (clamp-at-bound) mode; applies to sized ints (W6.2) and bounded ranges (W6.6)."
+}

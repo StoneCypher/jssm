@@ -1,0 +1,10 @@
+{
+  "id": "W6.35",
+  "title": "in membership operator",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6"],
+  "issue": null,
+  "manager": "An `in` operator for membership testing against sets, ranges, and containers — `x in #[a b c]`, `n in 0..9` — so the single most common guard shape reads in one glance instead of a chain of ORs. Small on its own, but it is the difference between a guard a reviewer can read at a glance and one they have to mentally parse into a truth table.",
+  "cs": "`in` over sets/bags/ranges/containers; total; desugars to the container membership protocol (W6.43)."
+}

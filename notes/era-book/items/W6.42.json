@@ -1,0 +1,11 @@
+{
+  "id": "W6.42",
+  "title": "forall/exists bounded quantifiers",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6", "MP§13"],
+  "issue": null,
+  "deps": ["W6.43"],
+  "manager": "Bounded universal and existential quantifiers — `forall x in coll: P(x)`, `exists x in coll: P(x)` — so a guard or contract can say \"every pending order is under budget\" directly, as a proposition, instead of a hand-rolled fold nobody trusts. Because the domain is bounded the quantifier stays computable and the checker can reason about it, which makes it the natural bridge from ordinary expressions to the temporal properties of the proofs era.",
+  "cs": "bounded forall/exists over finite containers/ranges; total; desugars to all/any over the container protocol (W6.43); a precursor to the §17 temporal property language."
+}

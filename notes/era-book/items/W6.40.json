@@ -1,0 +1,10 @@
+{
+  "id": "W6.40",
+  "title": "let-in binding",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6"],
+  "issue": null,
+  "manager": "`let x = ... in ...` for naming a subexpression locally without reaching for mutable state, so a complex guard or assignment can introduce a readable intermediate name that exists only for that expression. Pure, scoped, and side-effect-free, which is what keeps the expression analyzable by the checker instead of becoming a little imperative program hiding inside a transition.",
+  "cs": "`let`-bindings scoped to the `in` body; immutable; by-value; no mutation escapes the expression."
+}

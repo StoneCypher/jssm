@@ -1,0 +1,11 @@
+{
+  "id": "W6.12",
+  "title": "null/undefined JS-distinct, no arithmetic",
+  "version": 7,
+  "cluster": "scalar-values",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.25"],
+  "manager": "FSL keeps `null` and `undefined` as distinct values — matching the JavaScript host rather than pretending the world is simpler than it is — and forbids arithmetic on either, so `null + 1` never quietly becomes 1. The two genuinely mean different things (explicitly-absent versus never-set), and conflating them or doing math on them is exactly where host-language bugs leak into machine logic and stay hidden until a guard reads wrong.",
+  "cs": "null and undefined distinct, both first-class; arithmetic on either is a compile error; interacts with the .data undefined-setter fix (Tfsl-1264) and T? nullability (W6.25)."
+}

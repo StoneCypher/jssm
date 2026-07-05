@@ -1,0 +1,11 @@
+{
+  "id": "W6.7",
+  "title": "numeric promotion rules",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.1"],
+  "manager": "The exact, spelled-out rules for when one numeric type becomes another — and, crucially, that it never happens silently across the lines that matter (int to float, bounded to unbounded). Implicit numeric promotion is a classic bug factory; FSL makes the safe widenings automatic and the lossy conversions require you to say so, so a machine can't quietly turn an exact decimal into a drifting float and only notice three states later.",
+  "cs": "a total, spelled promotion lattice; widening within a kind may be implicit; int->float and bounded->unbounded are explicit-only; feeds the type checker's arithmetic result typing."
+}

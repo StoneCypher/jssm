@@ -1,0 +1,10 @@
+{
+  "id": "W6.37",
+  "title": "++ concat and |> pipe",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6"],
+  "issue": null,
+  "manager": "Concatenation (`++`) for joining sequences and strings, and the pipe operator (`|>`) for threading a value through a chain of transforms left to right. The pipe is what turns a nested pile of function calls into a readable pipeline — `x |> f |> g` instead of `g(f(x))` — which matters enormously once the expression language and stdlib give you functions actually worth chaining.",
+  "cs": "`++` sequence/string concat; `|>` left-to-right application; precedence pinned in W6.38; pairs with the HOFs (W6.43)."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "W6.2",
+  "title": "sized ints int8..256 / uint8..256",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.1"],
+  "manager": "Fixed-width integers from 8 to 256 bits, signed and unsigned — the types you need when a machine models hardware, a wire protocol, or anything where the bit-width is part of the contract. Declaring `uint8` means the value provably lives in 0..255, which the checker can reason about directly, instead of a 53-bit int you merely promise to keep small. Width becomes a fact the tooling can enforce rather than a comment.",
+  "cs": "int8..int256 / uint8..uint256; the bounded widths sit in the SMT/large-finite band; overflow per W6.8; bitwise ops (W6.36) are restricted to exactly these types."
+}

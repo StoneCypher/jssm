@@ -1,0 +1,11 @@
+{
+  "id": "W6.61",
+  "title": "where guards on transitions",
+  "version": 7,
+  "cluster": "guards",
+  "src": ["MP§9", "MP§6"],
+  "issue": null,
+  "deps": ["W6.34"],
+  "manager": "`where` clauses attach a boolean guard to a transition, so an edge only fires when its condition holds — the workhorse of every data-dependent state machine. It reads as \"take this arrow where balance > 0,\" making the guard part of the transition's identity, and it composes with the resolution order so a guarded and an unguarded edge on the same action have a defined, non-surprising precedence. This is the first place the expression language reaches out and touches the graph itself.",
+  "cs": "`where <expr>` guard on transitions; the expression is a total boolean (W6.34); participates in edge resolution order (W6.89); a false guard makes the edge ineligible, not an error."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W6.48",
+  "title": "trig — degrees default + radians",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "manager": "Trigonometry with degrees as the default and radians available explicitly — because most people reaching for sin/cos in a state machine are thinking in degrees, and silently defaulting to radians is a reliable source of \"why is my angle 57 times too big\" bugs. Both are present; the default simply matches how humans actually specify angles instead of how the math library happens to.",
+  "cs": "sin/cos/tan/asin/acos/atan/atan2 and friends; degrees default, radians variants explicit; pinned semantics."
+}

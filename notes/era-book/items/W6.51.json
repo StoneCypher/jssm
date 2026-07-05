@@ -1,0 +1,10 @@
+{
+  "id": "W6.51",
+  "title": "stats family",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "manager": "A basic statistics kit — mean, median, variance, stddev, min/max, sum — over collections, so a machine that summarizes a window of readings doesn't reimplement statistics and quietly pick the wrong variance denominator. Pinned, so \"the average\" and \"the standard deviation\" mean the same thing everywhere and the sample-versus-population choice is specified rather than accidental.",
+  "cs": "mean/median/variance/stddev/min/max/sum over numeric collections; sample-vs-population variance specified; feeds windowed aggregates (W7.33)."
+}

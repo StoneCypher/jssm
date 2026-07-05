@@ -1,0 +1,11 @@
+{
+  "id": "W6.6",
+  "title": "bounded scalar ranges (int 0..3)",
+  "version": 7,
+  "cluster": "numeric-tower",
+  "src": ["MP§4.1"],
+  "issue": null,
+  "deps": ["W6.1"],
+  "manager": "Any integer type can be pinned to an explicit range — `int 0..3` — turning a value into a small closed set the checker can enumerate. This is the difference between \"a number I trust stays in range\" and \"a number the tool proves stays in range,\" and it is what lets a machine's data be model-checked rather than merely tested. It is also the honest way to model a dial with four positions instead of a full integer you swear never leaves 0..3.",
+  "cs": "range annotation on any int type; small ranges land in the enumerable/SMT band; hitting a bound triggers overflow handling per W6.8 (error or opt-in saturating)."
+}

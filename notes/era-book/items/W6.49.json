@@ -1,0 +1,10 @@
+{
+  "id": "W6.49",
+  "title": "gcd/lcm/factorial/comb/perm",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "manager": "The integer-combinatorics builtins — gcd, lcm, factorial, combinations, permutations — for machines doing scheduling, counting, or number-theory logic without hand-rolling the recursion and getting the base case wrong. Blessed, tested, and exact on the integer types, so a scheduling machine that computes how many arrangements exist gets a right answer rather than a plausible one.",
+  "cs": "gcd/lcm/factorial/comb/perm over integer types; exact; factorial/comb/perm may need longint (W6.3) to hold their range."
+}

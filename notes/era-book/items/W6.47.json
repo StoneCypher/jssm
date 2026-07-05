@@ -1,0 +1,10 @@
+{
+  "id": "W6.47",
+  "title": "exp/log family",
+  "version": 7,
+  "cluster": "stdlib",
+  "src": ["MP§7"],
+  "issue": null,
+  "manager": "Exponential and logarithm builtins (exp, log, log2, log10, pow) pinned to defined semantics, for machines doing growth, decay, or scaling math. Transcendental functions are exactly where hosts quietly disagree in the last bit; FSL specifies them so results are portable rather than a platform lottery you only lose in production on the one machine that rounds the other way.",
+  "cs": "exp/log/log2/log10/pow; pinned semantics; documented precision posture for cross-host agreement."
+}

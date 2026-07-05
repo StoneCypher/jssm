@@ -1,0 +1,10 @@
+{
+  "id": "W6.32",
+  "title": "arithmetic + div/mod/rem (Erlang div)",
+  "version": 7,
+  "cluster": "expressions",
+  "src": ["MP§6"],
+  "issue": null,
+  "manager": "The arithmetic operators, with integer division split the way that actually prevents bugs: separate `div`/`mod`/`rem` following the Erlang convention, so the sign behavior of remainder is defined and predictable instead of the C/JavaScript coin-flip that differs by language. When a machine computes a wrapped index or a schedule slot, \"what does -7 mod 3 give\" has exactly one answer here, not one per host.",
+  "cs": "+,-,*, integer div/mod/rem per Erlang semantics (sign-defined); result typing via promotion (W6.7); division by zero is an error, never NaN/Infinity."
+}

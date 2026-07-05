@@ -1,0 +1,10 @@
+{
+  "id": "W6.43",
+  "title": "container protocol: bracket-throws, get→option, HOFs, no foreach",
+  "version": 7,
+  "cluster": "totality",
+  "src": ["MP§6", "MP§13"],
+  "issue": null,
+  "manager": "One uniform protocol every container answers to: bracket indexing throws on a miss (fail loud), `get` returns an option instead (fail safe — your choice at the call site), and a full set of higher-order functions (map, filter, foldl/foldr, all, any, find, count, sort, flat_map) with deliberately no `foreach`, because side-effecting iteration is precisely the thing FSL is designing out. This is how you compute over data without writing a loop that mutates something behind your back.",
+  "cs": "bracket-access throws / `get`->option (W6.22); HOFs map/filter/foldl/foldr/all/any/find/count/sort/flat_map; no foreach; the concrete container types it abstracts over land in v8 (W6.13-.18)."
+}
