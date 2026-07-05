@@ -1,0 +1,11 @@
+{
+  "id": "W9.8",
+  "title": "calibrate verb",
+  "version": 13,
+  "cluster": "flight-recorder",
+  "src": ["MP§15"],
+  "issue": null,
+  "deps": ["W9.7"],
+  "manager": "`calibrate` closes the loop — correct the model's weights and bindings from production data, emitted as a reviewable diff you approve, never a silent change. When drift detection shows the model has gone stale, calibrate proposes the correction; because it arrives as a diff, a human sees exactly what production taught the model before it is re-proven against the updated numbers.",
+  "cs": "`calibrate` emits weight/binding corrections as a reviewable diff, never silent; closes the drift loop (W9.7); the corrected model is re-proven."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W9.13",
+  "title": "5.x snapshot-lift decision",
+  "version": 13,
+  "cluster": "policy-decisions",
+  "src": ["MP§15"],
+  "issue": null,
+  "manager": "A recorded decision — do 5.x-era serializations lift into v6-and-later, or get refused? — written down even if the answer is \"refuse,\" because leaving it implicit is exactly how a silent corruption bug ships. This is one of two policy decisions this era owes: whether the oldest snapshots are worth carrying forward, or whether the clean break is safer, decided deliberately and on the record rather than by whatever the code happens to do.",
+  "cs": "D9 decision: 5.x serializations lift-or-refuse, written down (omissions D9); either answer is acceptable, silence is not; interacts with version-gating (W6.93)."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "W9.4",
+  "title": "hot member upgrade",
+  "version": 13,
+  "cluster": "migration-upgrade",
+  "src": ["MP§15", "MP§22"],
+  "issue": null,
+  "deps": ["W9.3"],
+  "manager": "Live member replacement in a running system — retire a member with a snapshot, lift it through `migrates from`, and restart it from the v2 factory inside dispatch, without stopping the system. With supervision and the migration machinery already in place, hot upgrade simply falls out: a fleet can be upgraded member by member while it keeps serving, no maintenance window required.",
+  "cs": "hot upgrade = retire-with-snapshot -> lift (W9.3) -> restart from v2 factory inside dispatch; live member replacement; builds on supervision (W7.20) + migration (W9.3)."
+}
