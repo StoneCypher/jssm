@@ -1,0 +1,10 @@
+{
+  "id": "Tfsl-1070",
+  "title": "serialize/deserialize future umbrella",
+  "version": 13,
+  "cluster": "persistence",
+  "src": ["e4-triage", "fsl#1070"],
+  "issue": 1070,
+  "manager": "The umbrella tracking the future of serialization and deserialization — the cluster of 'how a machine saves and loads itself' improvements that the durable era finally makes real: versioned snapshots, store bindings, resume-after-crash, lift-or-refuse decisions. On its own it ships nothing; it is the coordination point the persistence contract, version-gating, and snapshot-lift decisions all close under, kept so the serialize story lands as one coherent design rather than a scatter of unrelated patches.",
+  "cs": "umbrella for the serialize/deserialize evolution; children = persistence contract (W9.1), version-gating (W6.93), the 5.x snapshot-lift decision (W9.13), storage notation (Tfsl-1310)."
+}
