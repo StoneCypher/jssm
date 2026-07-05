@@ -132,12 +132,23 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
   stretch ONLY if the lane comes up fast: a crude grammar-walking generator built by parsing
   the `.peg` with PEG.js itself (FSL's declare-by-use property makes generated documents
   unusually likely to be semantically valid).
-- **Open questions FOR JOHN (remaining):**
-  1. Is "running" for 6.0 = kitchen-sink green in a CI lane + the three §-expansions, or the
-     full dragons-egg gap list (§2, §5, §7–§11 stoch first, then dragon)?
-  2. Gating policy: dragon findings block release (gate) or report-only until stable?
-  3. Runtime budget per CI run (the config allows 120s/test; a real dragon lane wants a
-     time-boxed nightly with a small always-on PR smoke slice)?
+- **DECIDED (John, 2026-07-04) — the dragon trio:**
+  1. **Scope:** the **6.0.0 exit bar is light** — kitchen-sink revived + green in CI + the three
+     pre-itemized §-expansions (§3 numeric, §4 colors, §6 arrow decorations). The **full
+     dragons-egg gap list (§2, §5, §7–§11: stoch then dragon tier) closes by the END of the v6
+     major** — a v6→v7 transition gate, worked through 6.x releases. Standing rule from v7 on:
+     every new grammar slice lands with its dragon tier at birth.
+  2. **Gating doctrine (permanent): the detector never gates; findings gate via promotion.**
+     The dragon lane gates only on infrastructure-green (suite completes). Every confirmed find
+     → minimal deterministic `*.spec.ts` regression + source fix (never pinned) + dragons-egg
+     entry; those spec tests gate like any other. Generative flake can never block a release;
+     confirmed bugs always do.
+  3. **CI budget — three tiers, budgeted by iteration counts, not timeouts:** (i) PR smoke:
+     fixed-seed deterministic slice, ~60–90s, always on; (ii) push-to-main/nightly heavy:
+     ~10–15 min, randomized seeds, every failure prints its seed pair (splitmix + fc) for exact
+     replay — folds jssm #922's heavy-jobs-to-main-only direction; (iii) weekly deep: 1–2 h,
+     mutation-testing arms + big-N walks, emitting repro artifacts (seed + generated document)
+     for hand-promotion.
 - **Downstream note (era 1, recorded here so it isn't lost):** the editor gets a **Format
   button** when the pretty-printer (#792) lands — `<fsl-toolbar>` already ships buttons; the
   button applies the format as ONE CodeMirror transaction (undo-safe), via text-diff so the

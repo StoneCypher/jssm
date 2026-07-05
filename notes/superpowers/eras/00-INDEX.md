@@ -5,11 +5,12 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION (for successors):** The plan layer is COMPLETE. Execute era 0: start at
-`era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). Pending from John:
-era-0 WP-6 dragon questions 1–3; ledger approvals as WP-7/WP-8 produce them. (Era-1 trio
-DECIDED 2026-07-04: Rust; C5 consumes IR; M2 attempts era 1, slips to era 5 freely.) Fable-optional if tokens remain:
-deepen dispositions rules, or draft the C1 hash spec itself.
+**NEXT ACTION (for successors):** The plan layer is COMPLETE and ALL design questions are
+decided (dragon trio + era-1 trio, 2026-07-04 — see WP-6 and the era-1 brief). Execute era 0:
+start at `era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). Pending from
+John only: ledger approvals (jssm-drain, fsl-triage, projection rev), the ASK rows, and
+whether pithy era names are public. Fable-optional if tokens remain: draft the C1 hash spec
+and C2 ops-semantics appendix.
 
 ## Ledger
 
