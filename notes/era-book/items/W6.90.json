@@ -1,0 +1,10 @@
+{
+  "id": "W6.90",
+  "title": "eventless + else transitions",
+  "version": 8,
+  "cluster": "graph",
+  "src": ["MP§28", "fsl#1350"],
+  "issue": 1350,
+  "manager": "Eventless transitions (fire automatically when their guard holds, no action needed) and `else` transitions (the fallback when no guarded sibling matches) — the two constructs that let a machine make progress on its own data rather than only in response to external actions. Together they are how you model \"once the balance clears, advance\" without an artificial poke, bounded by the microstep ceiling so they can never loop forever and hang the host.",
+  "cs": "eventless (guard-only, auto-firing) + else (fallback) transitions; drained in the RTC macrostep (W6.73); bounded by the microstep limit (W6.45); fsl#1350."
+}

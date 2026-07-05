@@ -1,0 +1,11 @@
+{
+  "id": "W6.22",
+  "title": "option<T>",
+  "version": 8,
+  "cluster": "data-types",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "deps": ["W6.20"],
+  "manager": "`option<T>` — a value that is either `some(x)` or `none` — the type that replaces null-checks with something the compiler forces you to unwrap. It is what `get` returns on a container miss, so \"the key might not be there\" becomes a fact in the type instead of a null-pointer waiting to happen. Pound for pound the cheapest defect-prevention type in the language.",
+  "cs": "option<T> = some(x) | none; the return of get/find (W6.43); unwrap via case (W6.41); interacts with T? (W6.25)."
+}

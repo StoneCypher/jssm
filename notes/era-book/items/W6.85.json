@@ -1,0 +1,11 @@
+{
+  "id": "W6.85",
+  "title": "per-group history",
+  "version": 8,
+  "cluster": "groups",
+  "src": ["MP§19"],
+  "issue": null,
+  "deps": ["W6.80"],
+  "manager": "Per-group history — a group can remember which of its members was last active, so re-entering the group returns you there (the history-pseudostate idea, scoped to a group). This is what lets a \"paused\" region resume where it left off instead of resetting to the start, modeled cleanly at the group level rather than bolted onto individual states with hand-tracked bookkeeping.",
+  "cs": "per-group history (shallow/deep per config); re-entry restores the last-active member; interacts with nest vs spread (W6.81) and the statechart history pseudostate (W7.30)."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W6.23",
+  "title": "any + sound narrow-only via case",
+  "version": 8,
+  "cluster": "data-types",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "manager": "An `any` escape hatch for when a value's type genuinely isn't known ahead of time — but narrowing out of `any` is only allowed soundly, through a `case` that checks, never by a bare cast. So `any` gives you the flexibility to handle genuinely dynamic data without giving up the guarantee that once you've used a value at a type, it really was that type.",
+  "cs": "`any` top type; sound narrowing only via checked case (W6.41); no unchecked downcast; keeps the type system sound despite the escape hatch."
+}

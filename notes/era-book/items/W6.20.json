@@ -1,0 +1,10 @@
+{
+  "id": "W6.20",
+  "title": "ADT declarations + payloads",
+  "version": 8,
+  "cluster": "data-types",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "manager": "Algebraic data types — named sum types whose variants carry typed payloads, like `Shape = Circle(r) | Rect(w, h)` — the single most important modeling tool for \"this is one of several shapes of thing, each with its own data.\" Combined with exhaustive `case`, ADTs are how FSL makes illegal states unrepresentable and forces every variant to be handled, so adding a case later can't silently fall through.",
+  "cs": "sum-type declarations with per-variant typed payloads; construct + pattern-match (W6.41); exhaustiveness-checked; value equality."
+}

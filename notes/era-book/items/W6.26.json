@@ -1,0 +1,10 @@
+{
+  "id": "W6.26",
+  "title": "fn types uncurried, inline vs first-class",
+  "version": 8,
+  "cluster": "fn-slots",
+  "src": ["MP§4.4"],
+  "issue": null,
+  "manager": "Function types as real types — uncurried, with both inline (lambda) and first-class (named, passed-around) forms — so a machine can take a strategy as a value and call it. This is the foundation of the State and Strategy patterns in FSL: behavior becomes data you can store in a prop or a val and swap at runtime, instead of structure baked into the graph at authoring time.",
+  "cs": "uncurried fn types; inline lambdas + first-class fn values; the basis for fn-typed props (W6.29) and vals (W6.30); defunctionalized for identity (W6.27)."
+}

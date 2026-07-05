@@ -1,0 +1,10 @@
+{
+  "id": "W6.15",
+  "title": "set #[...]",
+  "version": 8,
+  "cluster": "containers",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "manager": "A set literal `#[a b c]` for unordered, de-duplicated membership — the right type whenever \"which things are present\" matters and order and count don't. Backed by the container protocol so `in`, map, and filter all work, and value-based so two sets with the same members are equal, which means set equality does the obvious thing instead of comparing insertion order.",
+  "cs": "set type + `#[ ]` literal; value equality; membership via `in` (W6.35); container protocol (W6.43)."
+}

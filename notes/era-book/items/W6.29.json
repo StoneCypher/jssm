@@ -1,0 +1,11 @@
+{
+  "id": "W6.29",
+  "title": "function-typed prop (State pattern, per-state pin)",
+  "version": 8,
+  "cluster": "fn-slots",
+  "src": ["MP§4.4"],
+  "issue": null,
+  "deps": ["W6.26"],
+  "manager": "A state can pin a function-typed prop — behavior attached per state — which is the State pattern made native: entering a state selects an implementation, and the machine's behavior changes with its state without a pile of mode-checking conditionals. The classic \"the object behaves differently depending on which mode it's in\" modeled as exactly what it is, a function that comes with the state.",
+  "cs": "function-typed property, pinnable per state; the State pattern; backed by fn types (W6.26) and their portable identity (W6.27); fsl#1026/#1027 lineage."
+}

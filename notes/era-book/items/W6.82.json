@@ -1,0 +1,11 @@
+{
+  "id": "W6.82",
+  "title": "group boundary hooks",
+  "version": 8,
+  "cluster": "groups",
+  "src": ["MP§19"],
+  "issue": null,
+  "deps": ["W6.80"],
+  "manager": "Hooks that fire when execution crosses a group's boundary — entering or leaving the set of states the group names — so cross-cutting concerns (start a timer whenever we enter any \"active\" state, log every exit from the \"critical\" region) attach to the group instead of being copied onto every member transition. Define the behavior once on the boundary, not N times on the edges, and it can't drift out of sync as members change.",
+  "cs": "enter/leave-group boundary hook points; fire on crossing the group membership boundary; interact with nest vs spread (W6.81); registered through the uniform observational registry (W6.77)."
+}

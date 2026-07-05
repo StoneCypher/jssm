@@ -1,0 +1,11 @@
+{
+  "id": "W6.81",
+  "title": "nest &c vs spread ...&c",
+  "version": 8,
+  "cluster": "groups",
+  "src": ["MP§19"],
+  "issue": null,
+  "deps": ["W6.80"],
+  "manager": "Two distinct ways to bring one group into another: nesting (`&c` — c becomes a sub-group) versus spreading (`...&c` — c's members are pulled in flat). The distinction matters because it decides whether the inner group's boundary and history survive, and having both spellings lets you compose groups the way the model actually calls for instead of fighting a single fixed containment rule.",
+  "cs": "`&c` nest (preserves inner group identity/boundary) vs `...&c` spread (flattens members); different boundary/history/cascade consequences; fsl#453/#72/#142 spread cluster."
+}

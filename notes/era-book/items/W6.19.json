@@ -1,0 +1,10 @@
+{
+  "id": "W6.19",
+  "title": "object-removal guard (compile error + message)",
+  "version": 8,
+  "cluster": "data-types",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "manager": "A guard that turns \"you removed a field or state something still depends on\" into a compile error with a message naming what broke, instead of a runtime `undefined` surfacing three steps downstream. This is the safety net that makes refactoring a machine's data shape safe: delete something still in use and the compiler stops you at the edit, not the user at runtime with a mystery failure.",
+  "cs": "compile-time removal guard; the diagnostic names the dependent site; part of the object-removal safety story (§4.2)."
+}

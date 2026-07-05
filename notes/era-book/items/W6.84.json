@@ -1,0 +1,11 @@
+{
+  "id": "W6.84",
+  "title": "group config blocks + unified cascade + transition:{}/graph:{}",
+  "version": 8,
+  "cluster": "groups",
+  "src": ["MP§19", "fsl#114"],
+  "issue": 114,
+  "deps": ["W6.80"],
+  "manager": "Configuration blocks attached to a group — styling, transition defaults (`transition:{}`), graph-level settings (`graph:{}`) — that cascade to members through one unified rule, so you set a property on the group and every member inherits it with a defined precedence. This is what makes groups a real styling and behavior layer rather than just a naming convenience, and it descends from the long #114 config-block lineage.",
+  "cs": "per-group config blocks; unified cascade (theme < state:{} < kind < group-by-depth < state) with transition:{}/graph:{} sub-blocks; #114 lineage."
+}

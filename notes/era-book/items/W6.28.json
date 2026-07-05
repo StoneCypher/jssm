@@ -1,0 +1,11 @@
+{
+  "id": "W6.28",
+  "title": "intensional equality",
+  "version": 8,
+  "cluster": "fn-slots",
+  "src": ["MP§4.4"],
+  "issue": null,
+  "deps": ["W6.27"],
+  "manager": "Functions compare by intensional equality — same normalized structure means equal — rather than by reference identity, which wouldn't survive serialization or a second implementation. This is what makes \"is this the same strategy as before\" a meaningful, portable question instead of a pointer comparison that happens to be true only within one process on one host.",
+  "cs": "intensional (structural) equality over the defunctionalization tag (W6.27); reference-independent; survives serialize/replay and the second implementation."
+}

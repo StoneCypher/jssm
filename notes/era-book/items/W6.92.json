@@ -1,0 +1,10 @@
+{
+  "id": "W6.92",
+  "title": "val/prop grammar for the kinds cluster (follows #909 spec)",
+  "version": 8,
+  "cluster": "graph",
+  "src": ["MP§19", "fsl#1256", "fsl#1257", "fsl#909"],
+  "issue": 1256,
+  "manager": "The val/prop grammar for state \"kinds\" — the per-state visual-status predicates (terminal, error, active) that the #909 umbrella defines — pending that spec landing first. This is the language-surface half of the kinds feature: once #909 settles what a kind is, this is the grammar that lets you declare a kind and query it. Deliberately blocked on the spec, so the grammar doesn't get built against a definition that then changes.",
+  "cs": "grammar for kinds val/prop per the #909 spec (needs spec first); fsl#1256 (state field kind) / #1257 (operator kind); see the state-kinds umbrella #909 and the `state * terminal: {}` canonical form."
+}

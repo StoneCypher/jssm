@@ -1,0 +1,11 @@
+{
+  "id": "W6.21",
+  "title": "recursive-ADT rich-gate",
+  "version": 8,
+  "cluster": "data-types",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "deps": ["W6.20"],
+  "manager": "Recursive ADTs — a tree, a linked list, a JSON value defined in terms of itself — admitted through a \"rich gate\" that allows them only where the machinery (equality, serialization, finiteness) can still cope. Recursion is what lets you model genuinely nested data; the gate is what keeps that power from silently breaking replay or blowing past the finite band without anyone noticing until a proof won't terminate.",
+  "cs": "self-referential ADT definitions behind a capability gate; interacts with acyclic-data (W6.44), serialization, and the finite band."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W6.14",
+  "title": "array + length bounds",
+  "version": 8,
+  "cluster": "containers",
+  "src": ["MP§4.2"],
+  "issue": null,
+  "manager": "Homogeneous arrays with optional length bounds — \"a list of at most eight readings\" — so the length becomes a type the checker can size, keeping the machine in the finite band. Bounded arrays are exactly what let a machine hold collections and still make finiteness claims; unbounded arrays are available too, for when you genuinely need them and are willing to leave the checkable band to get them.",
+  "cs": "homogeneous array; optional length bound -> finite band; bracket/get + HOFs via the container protocol (W6.43)."
+}
