@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-731",
+  "title": "re-engage eslint-plugin-react",
+  "version": "5.x",
+  "cluster": "lint-tooling-refresh",
+  "src": ["era0/WP-2"],
+  "issue": 731,
+  "manager": "Re-evaluate the React eslint plugin against the current tree — the web-component wrappers and demo surfaces still contain React-adjacent code worth linting. Re-enable the rules that apply and drop the ones that no longer do, so the parts of the project that touch React get the same lint discipline as the core."
+}

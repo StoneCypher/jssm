@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1100",
+  "title": "YAML issue-form templates",
+  "version": "5.x",
+  "cluster": "housekeeping",
+  "src": ["era0/WP-2"],
+  "issue": 1100,
+  "manager": "Modernize the GitHub issue templates to the structured YAML issue-form format, so new reports arrive with the fields triage actually needs — version, repro, expected-vs-actual — instead of a free-text box. Small operational polish that makes every future tracker interaction cheaper and keeps the incoming stream clean as the project moves all new issues to fsl."
+}

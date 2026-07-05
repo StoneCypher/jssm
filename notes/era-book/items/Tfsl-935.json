@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-935",
+  "title": "validate data-change on false/undefined/null",
+  "version": "5.x",
+  "cluster": "bug-qol-residue",
+  "src": ["era0/WP-2"],
+  "issue": 935,
+  "manager": "The data-change validation path isn't exercised for the three JavaScript values most likely to break it — `false`, `undefined`, and `null` — which are exactly the values where \"falsy\" logic bugs hide. Add tests that pin the intended behavior for each, so a future refactor can't quietly start dropping legitimate `false` updates because someone wrote a truthiness check where they meant a null check."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-730",
+  "title": "re-engage eslint-plugin-promise",
+  "version": "5.x",
+  "cluster": "lint-tooling-refresh",
+  "src": ["era0/WP-2"],
+  "issue": 730,
+  "manager": "Re-enable `eslint-plugin-promise` so async code gets its footguns flagged — unhandled rejections, missing returns inside `.then` chains, promises created but never awaited. This matters more with every async surface the runtime grows, and it is far cheaper to catch these at lint time than in a flaky test."
+}

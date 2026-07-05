@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1264",
+  "title": ".data undefined setter gap",
+  "version": "5.x",
+  "cluster": "bug-qol-residue",
+  "src": ["era0/WP-2"],
+  "issue": 1264,
+  "manager": "Setting a machine's data slot to `undefined` falls through a gap — the assignment is neither applied nor rejected, so the value silently stays stale. A user who writes `undefined` reasonably expects one of two things: it gets stored, or it gets refused with a message. \"Nothing happens\" is the one answer that leads to a bug hunt. Close the gap with a defined, tested behavior."
+}

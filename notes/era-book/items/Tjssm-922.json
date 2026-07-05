@@ -1,0 +1,10 @@
+{
+  "id": "Tjssm-922",
+  "title": "CI heavy-job gating (was jssm#922)",
+  "version": "5.x",
+  "cluster": "dragon-phase-a",
+  "src": ["era0/WP-6"],
+  "issue": 922,
+  "manager": "Decide and wire which CI jobs are \"heavy\" and run only on pushes to main rather than on every pull request. The dragon suite's randomized heavy tier is the immediate customer, but the gating decision governs the whole expensive-job lane — it is what lets long-running fuzzing live in CI without making every PR wait ten minutes for a green check.",
+  "cs": "folds into the WP-6 dragon budget (PR smoke ~60-90s / push+nightly heavy ~10-15min / weekly deep 1-2h); jssm row, migrates to an fsl twin under the jssm-empty policy."
+}

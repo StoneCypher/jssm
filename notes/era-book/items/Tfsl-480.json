@@ -1,0 +1,10 @@
+{
+  "id": "Tfsl-480",
+  "title": "package quality audit",
+  "version": "5.x",
+  "cluster": "june-audit",
+  "src": ["era0/WP-1"],
+  "issue": 480,
+  "manager": "The umbrella for the \"is this package actually well-formed\" audit: does what npm ships match what the README advertises, are the declared bins and export paths real, is the tarball shape right. This is where the June implementation audit's packaging findings get reproduced against today's tree and either fixed cheaply or refiled, so 6.0 ships a package that installs and resolves the way the docs claim rather than the way they claimed in 2024.",
+  "cs": "pack-shape via `npm pack --dry-run --json` assertions; advertised-bin/verb drift; exports map vs actual entry points; feeds the WP-1 verdict table."
+}

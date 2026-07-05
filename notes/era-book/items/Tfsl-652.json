@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-652",
+  "title": "stochastic 100% on jssm-util",
+  "version": "5.x",
+  "cluster": "coverage-chores",
+  "src": ["era0/WP-2"],
+  "issue": 652,
+  "manager": "Close the stochastic-coverage gap on `jssm-util` so its utility functions are exercised by seeded random walks, not just a handful of hand-picked cases. Utilities are where quiet edge-case bugs like to live — an off-by-one in a helper that only fires on unusual input — so getting this to a clean 100% is part of starting the 6.0 suites from a proven-exercised base."
+}

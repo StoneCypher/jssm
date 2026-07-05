@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-651",
+  "title": "stochastic 100% on jssm.ts",
+  "version": "5.x",
+  "cluster": "coverage-chores",
+  "src": ["era0/WP-2"],
+  "issue": 651,
+  "manager": "Bring stochastic coverage of the core `jssm.ts` runtime to 100% — the main engine file, where an uncovered branch is a genuinely untested execution path a real machine could hit. This is the keystone coverage chore: with it done, the 6.0 suites start from a core the seeded walks have actually driven through every branch, not merely the ones the fixed tests remembered to hit."
+}

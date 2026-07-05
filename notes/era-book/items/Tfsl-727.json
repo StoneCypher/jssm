@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-727",
+  "title": "survey new lint plugins",
+  "version": "5.x",
+  "cluster": "lint-tooling-refresh",
+  "src": ["era0/WP-2"],
+  "issue": 727,
+  "manager": "Survey the current eslint plugin ecosystem for rules worth adopting since the config was last touched. The field moves, and a periodic scan is cheaper than discovering — after a bug ships — a whole class of defect the linter could have caught for free. Produces a shortlist of plugins to adopt into the refreshed config."
+}

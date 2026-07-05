@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-726",
+  "title": "update the project's own lint plugin",
+  "version": "5.x",
+  "cluster": "lint-tooling-refresh",
+  "src": ["era0/WP-2"],
+  "issue": 726,
+  "manager": "Update the project's own custom eslint plugin to current plugin APIs and rule shapes. It encodes house-specific conventions no off-the-shelf plugin covers, and it bit-rotted along with the rest of the constellation. Refresh it so the bespoke rules run again instead of silently no-op'ing against a newer eslint."
+}

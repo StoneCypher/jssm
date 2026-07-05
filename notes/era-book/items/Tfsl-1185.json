@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1185",
+  "title": "comparison-list CSS",
+  "version": "5.x",
+  "cluster": "bug-qol-residue",
+  "src": ["era0/WP-2"],
+  "issue": 1185,
+  "manager": "A purely cosmetic defect in the comparison-list styling on the site — misaligned or unstyled rows that make the feature table look broken. It costs nothing to fix and quietly erodes trust in a page whose entire job is to look authoritative next to competing libraries. Batch it into a content-bearing patch rather than cutting a release for it."
+}

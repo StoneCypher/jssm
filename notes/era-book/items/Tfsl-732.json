@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-732",
+  "title": "re-engage eslint-plugin-unicorn",
+  "version": "5.x",
+  "cluster": "lint-tooling-refresh",
+  "src": ["era0/WP-2"],
+  "issue": 732,
+  "manager": "Re-evaluate and re-enable the `eslint-plugin-unicorn` ruleset, which drifted out of the config during the perf work. Unicorn catches a broad band of modern-JS footguns — legacy idioms, error-prone patterns, non-portable APIs — so turning it back on with the rules that still fit keeps 6.x code idiomatic instead of accreting 2021 habits."
+}

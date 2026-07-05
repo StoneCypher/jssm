@@ -1,0 +1,10 @@
+{
+  "id": "Tfsl-65",
+  "title": "kitchen-sink example upkeep",
+  "version": "5.x",
+  "cluster": "dragon-phase-a",
+  "src": ["era0/WP-6"],
+  "issue": 65,
+  "manager": "Keep the \"kitchen sink\" machine — the deliberately maximal FSL document that uses every language feature — current with the language, because the dragon fuzzing suite generates and mutates from it. If the kitchen sink rots, the adversarial tester loses its richest seed and starts fuzzing a stale subset of the grammar. This is phase-A groundwork for waking the dragon before 6.0 ships.",
+  "cs": "seed corpus for `kitchen_sink_dragon.maximal.ts`; upkeep means every grammar feature stays represented so the splitmix-seeded generators cover the real surface, not a 2020 snapshot of it."
+}

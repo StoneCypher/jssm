@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-653",
+  "title": "empty-string state/action rejection test",
+  "version": "5.x",
+  "cluster": "bug-qol-residue",
+  "src": ["era0/WP-2"],
+  "issue": 653,
+  "manager": "An empty string is not a valid state or action name, but nothing proves the parser rejects it. Add the test that asserts a clear rejection, so a malformed machine fails loudly at parse time rather than producing a nameless node that breaks rendering, hooking, and serialization further downstream where the cause is much harder to find."
+}
