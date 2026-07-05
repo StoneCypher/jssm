@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1170",
+  "title": "in-editor theme creation tool",
+  "version": 11,
+  "cluster": "editor",
+  "src": ["e2-triage", "fsl#1170"],
+  "issue": 1170,
+  "manager": "A visual editor for FSL themes — pick colors, edge styles, node shapes, and fonts through controls and watch the diagram restyle live, then export the theme for reuse. Themes are otherwise hand-written token files; this is the WYSIWYG surface that lets a designer produce a branded machine look without learning the theme grammar."
+}

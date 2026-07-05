@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-220",
+  "title": "responsive mobile editor layout",
+  "version": 11,
+  "cluster": "editor",
+  "src": ["e2-triage", "fsl#220"],
+  "issue": 220,
+  "manager": "The editor reflowed to work on a phone or tablet — touch-friendly controls, a layout that collapses the side panels, and a diagram that pans and zooms under touch. The editor was built desktop-first, so a shared link is effectively a dead end on mobile today; this makes the browser tooling usable on the devices where a lot of casual reading and sharing actually happens."
+}

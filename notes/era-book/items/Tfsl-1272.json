@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1272",
+  "title": "one-time (next-access) hooks",
+  "version": 11,
+  "cluster": "hooks",
+  "src": ["e2-triage", "fsl#1272"],
+  "issue": 1272,
+  "manager": "A hook that arms once, fires on the next matching access, then detaches itself — the 'call me the next time X happens, then forget me' primitive. It saves callers from the common, error-prone pattern of registering a listener and immediately unregistering it after a single expected event."
+}

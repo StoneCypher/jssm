@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-94",
+  "title": "embeddable block viewer",
+  "version": 11,
+  "cluster": "viewer",
+  "src": ["e2-triage", "fsl#94"],
+  "issue": 94,
+  "manager": "A viewer packaged to embed cleanly inside block-based hosts — Notion-style blocks, CMS embeds, and similar — so a machine becomes a first-class block in documents that compose their content from embeds. It is the distribution play that puts runnable machines wherever people already write."
+}

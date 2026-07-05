@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-185",
+  "title": "remote subgraph notation",
+  "version": 11,
+  "cluster": "remote-subgraph",
+  "src": ["e2-triage", "fsl#185"],
+  "issue": 185,
+  "manager": "Syntax for referencing a machine that lives elsewhere as a subgraph of the current diagram — a node that stands in for another machine by URL or registry name — so a large system can be drawn as a top-level map with its parts stored and versioned separately. It is the notation half of composing diagrams across documents without inlining everything into one file."
+}

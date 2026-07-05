@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-696",
+  "title": "fluent hook for input-tape reads",
+  "version": 11,
+  "cluster": "tape-io",
+  "src": ["e2-triage", "fsl#696"],
+  "issue": 696,
+  "manager": "The fluent-interface listener for input-tape activity — fires as the machine consumes an event or sensor read, attached in the same chainable style as the rest of the hook API. It lets code observe exactly what the machine is being fed, in the moment, without reaching into internals."
+}

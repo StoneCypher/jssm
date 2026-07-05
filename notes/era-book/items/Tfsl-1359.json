@@ -1,0 +1,9 @@
+{
+  "id": "Tfsl-1359",
+  "title": "editor alphabet curation UI",
+  "version": 11,
+  "cluster": "editor",
+  "src": ["e2-triage", "fsl#1359"],
+  "issue": 1359,
+  "manager": "A panel in the editor for managing a machine's declared event alphabet — the set of events it is allowed to receive — surfacing which events are declared, which are actually used, and which transitions reference an undeclared name, and letting the author add or rename them in place. Declared alphabets are the v11 channels feature; this is the human-facing tool that keeps the declaration and the transitions in sync instead of forcing the author to hand-edit both and hope they match."
+}

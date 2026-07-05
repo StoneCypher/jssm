@@ -1,0 +1,9 @@
+{
+  "id": "Tjssm-690",
+  "title": "reactive/Observable integration (was jssm#690)",
+  "version": 11,
+  "cluster": "framework-wrappers",
+  "src": ["jssm-drain", "jssm#690"],
+  "issue": 690,
+  "manager": "Expose a machine's state and events as an Observable (RxJS-style stream), so reactive codebases can subscribe to a machine the way they subscribe to everything else instead of bolting on manual hook plumbing. The ledger flags it to be revisited against the v11 channels design — channels are the native emission model, and this is the adapter that projects them into the reactive-streams world people already build UIs on."
+}

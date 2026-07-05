@@ -1,0 +1,9 @@
+{
+  "id": "Tjssm-685",
+  "title": "Angular wrapper components (was jssm#685)",
+  "version": 11,
+  "cluster": "framework-wrappers",
+  "src": ["jssm-drain", "jssm#685"],
+  "issue": 685,
+  "manager": "First-class Angular components wrapping the machine viewer and editor, so Angular apps consume FSL through idiomatic bindings and inputs/outputs instead of hand-wiring the raw web component. It is one target of the wrapper program — the framework-native surface that makes adoption in an Angular shop a drop-in rather than an integration project. (fsl#269, the Angular-renderer row, points here as its live carrier.)"
+}
