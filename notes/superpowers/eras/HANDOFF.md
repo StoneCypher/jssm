@@ -33,8 +33,9 @@
   renumbers +4. **Translation map** (work-era IDs and ledger `eN` codes are STABLE): era0/`e0`
   → **v6 "The Ground"** (+5.x Long Goodbye patches); era1/`e1` → **v7 Computing / v8 Structured
   / v9 Transactional / v10 Portable** (wave→major note in the era-1 brief); era2/`e2` → **v11
-  Social**; era3/`e3` → **v12 Proven**; era4/`e4` → **v13 Durable**; era5/`e5` → **v14
-  Trusted**; era6/`e6` → **v15 Ubiquitous**; era7/`e7` → **v16 Public**. Canonical table with
+  Composable**; era3/`e3` → **v12 Proven**; era4/`e4` → **v13 Durable**; era5/`e5` → **v14
+  Trusted**; era6/`e6` → **v15 Ubiquitous**; era7/`e7` → **v16 Public**. Pithy names are
+  PUBLIC-FACING (John, 2026-07-04). Canonical table with
   pithy names + counts: `../specs/fable_sum_eras.md`. v9 opens with the mDT→val-record
   hook-retarget breakage batch; the era-0 bare-functions fallback re-batches to v9 if taken.
 - **The dragon suite goes live in era 0** (John, 2026-07-04): the grammar-adversarial testing

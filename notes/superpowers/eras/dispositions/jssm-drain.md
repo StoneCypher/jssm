@@ -1,6 +1,7 @@
 # jssm Drain Ledger — all 107 open issues, individually dispositioned
 
-> **Status:** stable (Fable first-pass, 2026-07-04; awaiting John's batch approval) ·
+> **Status:** **APPROVED by John 2026-07-04 except the ASK row (#790, pending)** — execution
+> of all other rows is authorized under the HANDOFF standing grant. (Fable first-pass.) ·
 > **Universe:** `issue-snapshots-2026-07-04/jssm_open.tsv`. Policy: jssm tracker → EMPTY.
 > **Codes:** `MIG-eN` migrate to fsl twin ("was jssm#NNN"), tagged era N · `KEEP(x)` stays
 > open briefly, closed by the named PR/workstream · `SUP(x)` close, superseded by x ·

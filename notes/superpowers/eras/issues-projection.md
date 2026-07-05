@@ -17,7 +17,7 @@
 | A2b | `v8 "The Structured Machine" — containers, ADTs, streams, groups (umbrella)` | link era-1 brief (waves 6.3+6.6) |
 | A2c | `v9 "The Transactional Machine" — assign, contracts, RTC, safety (umbrella; opens w/ mDT→val-record batch)` | link era-1 brief (waves 6.4+6.5+6.8) |
 | A2d | `v10 "The Portable Machine" — conformance, Rust N=2, format (umbrella)` | link era-1 brief (waves 6.7+6.9) |
-| A3 | `v11 "The Social Machine" — systems, factories, supervision (umbrella)` | link thin brief |
+| A3 | `v11 "The Composable Machine" — systems, factories, supervision (umbrella)` | link thin brief |
 | A4 | `v12 "The Proven Machine" — verification stack (umbrella)` | link thin brief; ladder decision record = first child |
 | A5 | `v13 "The Durable Machine" — durable execution (umbrella; PROCESS-gated)` | link thin brief |
 | A6 | `v14 "The Trusted Machine" — signing + receipts (umbrella; security-review-gated)` | link thin brief |

@@ -28,6 +28,8 @@
 > (`eN`) are unchanged; the version map lives in `eras/HANDOFF.md`. N=2 timing under this
 > split: contract *decisions* (C1/C2/pinning/vector format) stay in v6; vectors accumulate
 > JS-only from v7; the Rust runtime lands v10, replaying the whole accumulated corpus.
+> **The pithy names are PUBLIC-FACING** (John, 2026-07-04) — use them in announcements,
+> changelogs, and umbrella issues.
 
 ## The sequence (canonical: v6→v16)
 
@@ -39,7 +41,7 @@
 | 8 | 1b | **The Structured Machine** | containers, ADTs, streams, function-typed slots, groups + graph cascade | ~70 |
 | 9 | 1c | **The Transactional Machine** | assign/journal/rollback, contracts, error model, RTC, safety checking, M1 — opens with the mDT→val-record hook-retarget batch | ~85 |
 | 10 | 1d | **The Portable Machine** | conformance corpus, IR freeze, Rust N=2 differential, byte-reversibility, typegen | ~70 |
-| 11 | 2 | **The Social Machine** | channels, systems, factories, populations, supervision | ~80 |
+| 11 | 2 | **The Composable Machine** | channels, systems, factories, populations, supervision | ~80 |
 | 12 | 3 | **The Proven Machine** | temporal, backends, composed checking, testing toolkit | ~38 |
 | 13 | 4 | **The Durable Machine** | persistence, recorded effects, migrates-from, drift, calibrate | ~17 |
 | 14 | 5 | **The Trusted Machine** | signing, transparency log, receipts, lockfiles | ~11 |
