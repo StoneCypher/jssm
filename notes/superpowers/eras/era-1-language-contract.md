@@ -102,3 +102,23 @@ semantic-round-trip interlock (era-0 brief, downstream note).
 WP-1.1 → WP-1.2 immediately (unblockers; both are writing, not code). Then three parallel
 tracks: contract (1.3 → 1.4 → 1.5), language (1.6 → 1.7 → 1.8), surfaces (1.9, 1.10). The
 tracks joint at the exit criteria: every P2/P3 slice feeds C4 vectors; C5 gates them all.
+
+## The 6.x waves (subdivision of the ~270 v6 topics; each wave = one+ minor releases)
+
+| Wave | Theme | Core content | ≈topics |
+|------|-------|--------------|---------|
+| 6.1 | Foundations | C1 hash + C2 appendix + dragon dual + P1 bug tail + perf envelope + error-code namespace + packaging fixes | ~25 |
+| 6.2 | Scalars & expressions | numeric tower, literals, operators/precedence, if/let/case, quantifiers, string core (W6.1–.12, .32–.42, .57) | ~35 |
+| 6.3 | Containers & data | tuple/array/set/bag/map/record, ADTs, option/any/T?, HOF protocol, streams (W6.13–.31) | ~30 |
+| 6.4 | Mutation & contracts | assign+old, the contract quartet, violation model, error model, journal + #756 columnar, function-typed slots | ~35 |
+| 6.5 | RTC & hooks | macrostep impl per C2, ordering/FIFO/bounds, macrostep hook points, handlers, lifecycle hooks, registry+introspection | ~30 |
+| 6.6 | Groups & graph | §19 full, cascade, transition:{}/graph:{}, wildcards+resolution, eventless/else, arranged, multigraph — **independent of 6.2–6.4; may run parallel from 6.1** | ~35 |
+| 6.7 | Conformance & N=2 | C3 (rolling), C4 format + corpus, IR freeze, Rust T1 runtime, differential CI — **starts at 6.1, gates everything at exit** | ~20 |
+| 6.8 | Safety & trust plumbing | native safety checker, M1 cert record, M4-subset, budgets/undecided/estimate, M2 attempt | ~20 |
+| 6.9 | Tooling & surfaces | format+CST+#134, lint, parse --json, explain, list, typegen, inspect, grammar exports, minifier, SVG/themes backlog, Format button | ~50 |
+| lane | Perf (standing) | #712–#720 parser/transition levers, #1167 integer IDs — continuous, envelope-policed, not a wave | ~10 |
+
+Dependency spine: 6.2 → 6.3 → 6.4 → (6.5, 6.8); 6.6 parallel; 6.7 rolling alongside all
+(every wave lands its vectors); 6.9 trails grammar stability slice-by-slice. Feature gates
+(shipped in 6.0's editions mechanism) let waves ship dark on trunk when a slice isn't
+announce-ready — trunk-based never blocks on wave completeness.
