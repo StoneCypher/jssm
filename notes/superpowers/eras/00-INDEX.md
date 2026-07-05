@@ -110,3 +110,12 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   recorded as v6-assembly re-verification items, NOT 5.x WP-2. So **WP-2 inherits zero audit
   items.** Remaining WP-1 deliverable: the pack-shape regression test (guards #1) on the worktree,
   → a 5.158.x patch (needs /sc-commit + John's merge, main protected).
+- **2026-07-05 · Increment 11 (Opus 4.8, WP-1 CLOSED):** The pack-shape test already exists on
+  main — `src/ts/tests/pack_shape.spec.ts` (added ~5.143.x with #1's fix): walks exports/bin/entry
+  targets, asserts each is in `npm pack --dry-run --json`, skips when unbuilt, 120s timeout.
+  **Verified passing** (ran not skipped: 1 passed, 5.7s) on the built main worktree. So **WP-1 is
+  DONE with zero code changes** — both done-when conditions met, no 5.158.x patch needed. Worktree
+  `fix_26-07-05_5x-audit-reverify` is clean (verification-only), free to reuse for WP-6 or remove.
+  **Next 5.x code packet = WP-6 dragon phase A** (revive kitchen_sink_dragon, green locally + CI
+  smoke lane) — the first packet that will actually produce a shippable change; needs a main
+  worktree + John's per-action go.

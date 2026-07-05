@@ -258,6 +258,13 @@ surfaces that ride to the v6 assembly, NOT the 5.x burn-down.**
 **Consequences:** WP-2 (5.x bug burn-down) inherits **zero** items from this audit — none of the
 findings are live on the shipped 5.x line. Findings #2–#6 are recorded here as **v6-assembly
 re-verification items** (check/fix during WP-4/era-1, on the v6 side); #4 and #6 may already be
-partly addressed on v6 and need a focused re-check when that surface is touched. The one 5.x
-deliverable is the **pack-shape regression test** (guards #1's fix), landing on
-`fix_26-07-05_5x-audit-reverify` → a 5.158.x patch.
+partly addressed on v6 and need a focused re-check when that surface is touched.
+
+**WP-1 is COMPLETE with zero code changes.** The pack-shape test the finding asked for **already
+exists** — `src/ts/tests/pack_shape.spec.ts` (added ~5.143.x when #1 was fixed): it walks every
+`exports`/`bin`/`main`/`module`/`browser`/`types` target and asserts each is in `npm pack
+--dry-run --json`, `skipIf` the tree is unbuilt, 120s AV-scan timeout. **Verified passing
+2026-07-05** on a built main worktree (ran, not skipped: `1 passed`, 5.7s). Both WP-1 done-when
+conditions (verdict table + pack-shape test exists and passes) are satisfied. No 5.158.x patch is
+needed from this packet — nothing changed. The worktree `fix_26-07-05_5x-audit-reverify` is clean
+(verification-only) and free to reuse or tear down.
