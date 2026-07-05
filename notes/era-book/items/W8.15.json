@@ -1,0 +1,11 @@
+{
+  "id": "W8.15",
+  "title": "flow contracts (disallow flow a->b)",
+  "version": 12,
+  "cluster": "composed-checking",
+  "src": ["MP§23"],
+  "issue": null,
+  "deps": ["W8.13"],
+  "manager": "Flow contracts — `disallow flow a -> b` — that forbid information from flowing between designated parts of a system, checked as taint-product reachability. This is the security and privacy primitive: assert that secret data can never reach a public output and have the checker prove it, which is exactly the kind of property that is easy to state, catastrophic to get wrong, and impossible to test exhaustively.",
+  "cs": "`disallow flow a->b` = taint-product reachability; information-flow contracts; proves non-interference; a security/privacy checking primitive."
+}

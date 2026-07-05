@@ -1,0 +1,10 @@
+{
+  "id": "W8.12",
+  "title": "FSM-shaped coverage incl. guard MC-DC",
+  "version": 12,
+  "cluster": "testing-toolkit",
+  "src": ["MP§17"],
+  "issue": null,
+  "manager": "Coverage metrics shaped for state machines — state, transition, path, and guard MC-DC (modified condition/decision coverage) — plus standard vacuity checks, so \"is this machine well-tested\" has an answer tuned to the way machines actually fail. Guard MC-DC in particular catches the boolean-condition gaps that line coverage misses entirely, which is exactly where guard bugs like to hide from an ordinary test suite.",
+  "cs": "state/transition/path coverage + guard MC-DC; vacuity checks standard; FSM-shaped rather than line-shaped; measures machine test adequacy."
+}

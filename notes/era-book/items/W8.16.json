@@ -1,0 +1,11 @@
+{
+  "id": "W8.16",
+  "title": "SLO contracts (design-time half)",
+  "version": 12,
+  "cluster": "composed-checking",
+  "src": ["MP§23"],
+  "issue": null,
+  "deps": ["W8.5"],
+  "manager": "Service-level-objective contracts expressed as PCTL in contract position — \"99.9% of requests settle within 100 steps\" as a design-time obligation the checker verifies against the model. This is the design-time half of SLOs (the runtime-monitor half comes in the survival era): it lets you state performance and reliability targets as verifiable properties of the machine, not just hopes you measure after deployment and discover you missed.",
+  "cs": "SLO contracts = PCTL in contract position (design-time half); verified against the model; the runtime-monitor half is era 4; builds on the probabilistic tier (W8.5)."
+}

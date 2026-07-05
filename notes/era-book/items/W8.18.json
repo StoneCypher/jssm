@@ -1,0 +1,10 @@
+{
+  "id": "W8.18",
+  "title": "minimize (bisimulation quotient)",
+  "version": 12,
+  "cluster": "evolution-tooling",
+  "src": ["MP§17"],
+  "issue": null,
+  "manager": "`minimize` — reduce a machine to its smallest behaviorally-equivalent form via a Paige-Tarjan bisimulation quotient, merging states that are indistinguishable. This is classic automata minimization made a verb: a cleaner, smaller machine that provably behaves identically, useful for comprehension, for faster checking, and for canonicalizing a machine before you compare it against another.",
+  "cs": "`minimize` = Paige-Tarjan bisimulation quotient; the smallest behaviorally-equivalent machine; provably behavior-preserving; aids checking and canonicalization."
+}

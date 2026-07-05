@@ -1,0 +1,11 @@
+{
+  "id": "W8.10",
+  "title": "tests-are-tapes promotion flow",
+  "version": 12,
+  "cluster": "testing-toolkit",
+  "src": ["MP§17"],
+  "issue": null,
+  "deps": ["W8.9"],
+  "manager": "A flow that promotes a test into a tape and a tape into a test — a shrunk fuzz failure becomes a permanent regression tape, and a recorded run becomes an assertion. This is the continuum that unifies testing, fuzzing, and replay: every interesting run can become a durable test, so bugs found by fuzzing never come back, and the test suite grows itself from real executions instead of only from what someone thought to write.",
+  "cs": "tests-are-tapes promotion (both directions); a shrunk fuzz failure becomes a permanent tape; recorded runs become assertions; the fuzz->regression pipeline."
+}

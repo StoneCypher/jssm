@@ -1,0 +1,10 @@
+{
+  "id": "W8.22",
+  "title": "mcp verb + time-travel debugging tools",
+  "version": 12,
+  "cluster": "evolution-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "manager": "An `mcp` verb exposing FSL to AI agents, plus time-travel debugging tools — state_at, why_rejected, val_history, diverges_from — that let you interrogate a recorded run at any point. This is the debugging payoff of deterministic replay: because every run is reproducible, you can step backward, ask why a transition was rejected, or find exactly where two runs diverged — all impossible with a normal live-only debugger that only knows the present.",
+  "cs": "`mcp` verb (agent interface) + time-travel tools (state_at/why_rejected/val_history/diverges_from) over recorded runs; the replay-powered debugger."
+}

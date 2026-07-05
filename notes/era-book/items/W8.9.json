@@ -1,0 +1,10 @@
+{
+  "id": "W8.9",
+  "title": "in-language test/expect blocks + assertion vocabulary",
+  "version": 12,
+  "cluster": "testing-toolkit",
+  "src": ["MP§17"],
+  "issue": null,
+  "manager": "Tests written in FSL itself — `test`/`expect` blocks with a rich assertion vocabulary (reaches, blocked, invariant-holds, temporal, IO-relation, replay-equivalence, coverage) — so a machine's tests live with the machine and codegen-export alongside it. This collapses the gap between the machine and its tests: an assertion can itself be a model-check, and the tests travel wherever the machine is compiled instead of being stranded in a separate host harness.",
+  "cs": "in-language `test`/`expect` with assertions (reaches/blocked/invariant-holds/temporal/IO-relation/replay-equivalence/coverage); codegen-exported; tests live with the machine."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "W8.19",
+  "title": "M2 signing + --emit-certificate signed",
+  "version": 12,
+  "cluster": "evolution-tooling",
+  "src": ["MP§17", "notes/superpowers/plans/2026-06-26-signed-run-receipts-roadmap.md"],
+  "issue": null,
+  "deps": ["W6.96"],
+  "manager": "Milestone 2 of the trust stack — keyless signing lands at the latest here, so `--emit-certificate` produces a signed certificate rather than the bare record from v9. This is where a verification result becomes something you can hand to a third party as evidence: not just \"I checked it\" but a cryptographically signed claim bound to the exact source, verifiable by anyone who doesn't trust you and shouldn't have to.",
+  "cs": "M2 keyless signing; `--emit-certificate` signed (upgrades the unsigned M1 record, W6.96); the signature layer over the certificate; may have attempted earlier in era 1, lands here at the latest; jssm twin #826."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "W8.21",
+  "title": "lsp live-verification daemon",
+  "version": 12,
+  "cluster": "evolution-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "manager": "A language-server check-daemon that verifies as you type — incremental, hash-keyed, budgeted — so verification squiggles appear in the editor like type errors, not as a separate batch step you remember to run later. This is what makes verification part of the writing loop instead of a gate: you see a property fail the moment you break it, while the reasoning is still fresh in your head.",
+  "cs": "lsp check-daemon (incremental, hash-keyed, budgeted squiggles); live verification in the editor; makes checking part of the edit loop."
+}

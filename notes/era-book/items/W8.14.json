@@ -1,0 +1,11 @@
+{
+  "id": "W8.14",
+  "title": "assume-guarantee composition",
+  "version": 12,
+  "cluster": "composed-checking",
+  "src": ["MP§23"],
+  "issue": null,
+  "deps": ["W8.13"],
+  "manager": "Assume-guarantee reasoning — each member declares what it assumes of its environment and guarantees in return, and the system is proven correct by discharging those obligations against each other, with session-typed wiring checks from the interfaces. This is the formal machinery behind composed checking: it is how you turn \"each part is correct\" into \"the whole is correct\" without re-proving the whole system from scratch every time.",
+  "cs": "member interface contracts (assumes/guarantees) + composition argument; session-typed wiring checks from interfaces; the A/G machinery under F6 (W8.13)."
+}

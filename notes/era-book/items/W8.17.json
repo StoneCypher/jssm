@@ -1,0 +1,10 @@
+{
+  "id": "W8.17",
+  "title": "diff --behavioral + refinement certificates + free-theorem tape reuse",
+  "version": 12,
+  "cluster": "evolution-tooling",
+  "src": ["MP§17"],
+  "issue": null,
+  "manager": "Upgrades get proofs — `diff --behavioral` shows that v2 simulates v1 (every old behavior is preserved), refinement certificates make that proof portable, and old test tapes replay on v2 for free via the simulation map. This is what makes evolving a machine safe: you prove the new version is a faithful refinement of the old, and your entire existing test corpus carries forward without a single test rewrite.",
+  "cs": "simulation preorder over the old alphabet (decidable finite); refinement certs {v1_hash, v2_hash, verdict}; free theorem: v1 tapes replay on v2 by the simulation map; the safe-evolution toolchain."
+}
