@@ -5,14 +5,18 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION (for successors):** The plan layer is COMPLETE and ALL design questions are
-decided (dragon trio + era-1 trio, 2026-07-04 — see WP-6 and the era-1 brief). Execute era 0:
-start at `era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). **ALL APPROVALS GRANTED
-(2026-07-04): jssm-drain ✔, fsl-triage ✔, projection ✔, all ASKs resolved, names public,
-fsl milestones #48–#59 created.** Nothing pends from John except the fsl-org transfer window
-(HANDOFF, time-sensitive) and future ledger revisions. Tracker execution is fully mechanical
-from here: file A/B drafts (milestone-pinned), drain jssm, run the closes (DONE? verify
-first; SUP/SAT twin-first). Fable-optional: C1 hash spec, C2 ops-semantics appendix.
+**NEXT ACTION (for successors):** Projection A+B are FILED and LIVE (2026-07-04, Opus 4.8):
+era umbrellas fsl#1401-#1411 + #1418, decision records fsl#1412-#1417, all open and
+milestone-pinned (recorded in `issues-projection.md`). **Resume point = WP-8 jssm drain**, then
+WP-7 fsl closes/milestone-tagging, then the era-0 code packets (WP-1 audit reverify, WP-6
+dragon, WP-2 bug burn-down). The drain ledger (`dispositions/jssm-drain.md`) is approved and
+reconciles EXACTLY with all 106 live open jssm issues (snapshot was 107; one closed since, no
+orphan). **GATE before the drain files any twin:** the standing grant (HANDOFF) files new
+issues only as written in an approved `issues-projection.md` revision, and §C (twins) / §D
+(closes) are still placeholders — so the drain's fsl twins must be drafted from the ledger into
+§C/§D and batch-approved by John before filing. Plan layer COMPLETE; all design questions
+decided (dragon trio + era-1 trio). Pending from John: the fsl-org transfer window (HANDOFF,
+time-sensitive) and the drain §C/§D go. Fable-optional: C1 hash spec, C2 ops-semantics appendix.
 
 ## Ledger
 
@@ -38,3 +42,18 @@ first; SUP/SAT twin-first). Fable-optional: C1 hash spec, C2 ops-semantics appen
   review corpus), both trackers surveyed in full (titles/labels), era decomposition agreed with
   John. Priority order for remaining increments = ledger order (2a → 2b → 3 → 4 → 5 → 6 → 7 →
   8 → 9 → 10), chosen by value × irreproducibility-of-Fable's-loaded-context.
+- **2026-07-04 · Increment 2 (Opus 4.8, John's go):** Projection A+B executed. 11 era umbrellas
+  filed fsl#1401-#1411 plus the 5.x umbrella fsl#1418, each pinned to milestones #48-#59; 6
+  decision records filed fsl#1412-#1417 (B2-B6 → v6/#49 as children of #1401, B1 → v12/#55 under
+  #1407). Recorded in `issues-projection.md` §A/§B. (Increment log not updated at the time;
+  backfilled here for the survivor trail.)
+- **2026-07-04 · Increment 3 (Opus 4.8, resume + reconcile):** Fresh-session orientation.
+  Verified projection A+B live, open, and milestone-pinned on fsl. Reconciled
+  `dispositions/jssm-drain.md` against the live jssm tracker: 106 open issues (922 down to 607),
+  ledger covers 100%; snapshot drift 107→106 = one issue closed since, no orphan. **Correction:**
+  the worktree/branch were renamed `fable_new_v6_to_v12` / `docs_…v6-to-v12` →
+  `fable_new_v6_to_v16` / `docs_…v6-to-v16` in the five-way-split renumber; the HANDOFF header
+  still shows the old v12 names (left as-is, flagged here). Also corrected: the successor queue's
+  "step 1 = file projection A+B" was already complete (Increment 2), so the true resume point is
+  the WP-8 drain. Surfaced to John the §C/§D drafting gate before the drain can file (see NEXT
+  ACTION); awaiting his drafting-vs-direct-file decision.
