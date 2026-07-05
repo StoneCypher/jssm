@@ -168,6 +168,7 @@
     "vitest-unicode-full-slow": "npm run vitest-unicode-atom && npm run vitest-unicode-string && npm run vitest-unicode-atom-label && npm run vitest-unicode-string-label && npm run vitest-unicode-action && npm run vitest-unicode-edge-label && npm run vitest-unicode-machine-property && npm run vitest-unicode-error-message && npm run vitest-unicode-group-name && npm run vitest-unicode-state-decl-name && npm run vitest-unicode-hook && npm run vitest-unicode-machine-metadata && npm run vitest-unicode-state-property && npm run vitest-unicode-image-url && npm run vitest-unicode-arrange && npm run vitest-unicode-config-state-list && npm run vitest-unicode-config-state-block && npm run vitest-unicode-viz-dot",
     "vitest-stoch": "vitest run --config vitest.stoch.config.ts",
     "vitest-dragon": "vitest run --config vitest.dragon.config.ts",
+    "era_book": "node src/scripts/era_book_html.cjs",
     "vitest-spec": "vitest run --config vitest.spec.config.ts",
     "vitest-docs": "vitest run --config vitest.docs.config.ts",
     "vitest": "npm run vitest-stoch && npm run vitest-spec && npm run vitest-docs",
@@ -272,6 +273,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "markdown-it": "^14.1.0",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.4",
     "@codemirror/language": "^6.12.3",
