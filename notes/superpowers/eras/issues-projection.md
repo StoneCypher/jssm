@@ -1,7 +1,10 @@
 # Issues Projection — Prepared Tracker Actions
 
-> **Status:** stable (as a skeleton; executors append) · **Author:** Claude Fable 5 ·
-> **Date:** 2026-07-04
+> **Status:** **REVISION APPROVED by John 2026-07-04** — sections A+B are authorized for
+> filing as drafted. **MILESTONES ALREADY CREATED by Fable (2026-07-04): fsl milestones
+> #48 "5.x — The Long Goodbye" through #59 "v16 — The Public Machine"**, one per major;
+> every filed issue gets its milestone; umbrella issues (A) pin to their own milestone ·
+> **Author:** Claude Fable 5 · **Date:** 2026-07-04
 > **Rules (HANDOFF standing grant):** nothing in this file is executed until John approves the
 > containing revision; ALL new issues file to **StoneCypher/fsl** (jssm stays empty); every
 > close cites its supersessor. Executors: append drafts under the matching section, request

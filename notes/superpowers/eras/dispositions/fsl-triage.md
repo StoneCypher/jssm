@@ -1,7 +1,9 @@
 # fsl Triage Ledger — all 663 open issues, individually dispositioned
 
-> **Status:** all ASK rows RESOLVED 2026-07-04 (search "RESOLVED"); ledger complete and
-> awaiting John's batch approval; DONE? rows still need executor verification before closing ·
+> **Status:** **APPROVED by John 2026-07-04 (all rows; ASKs individually resolved)** —
+> execution authorized under the standing grant; DONE? rows still need executor verification
+> before closing. **Era-tagging = assign the matching fsl MILESTONE** (5.x=#48, v6=#49 …
+> v16=#59; e-code→version map in HANDOFF) ·
 > **Universe:** `issue-snapshots-2026-07-04/fsl_open.tsv`.
 > **Codes:** `eN` absorb into era N (stays open, era-tagged, closes when its work ships) ·
 > `e0` feeds era-0 WP-2 bug burn-down · `SUP(x)` close, superseded by x — MP=megaspec §, MAN=the

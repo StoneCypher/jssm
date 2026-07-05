@@ -7,10 +7,12 @@
 
 **NEXT ACTION (for successors):** The plan layer is COMPLETE and ALL design questions are
 decided (dragon trio + era-1 trio, 2026-07-04 — see WP-6 and the era-1 brief). Execute era 0:
-start at `era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). Pending from
-John only: ledger approvals (jssm-drain, fsl-triage, projection rev), the ASK rows, and
-whether pithy era names are public. Fable-optional if tokens remain: draft the C1 hash spec
-and C2 ops-semantics appendix.
+start at `era-0-cleanup-and-6.0.md`, packets in phase order (WP-1/2/6/7/8 first). **ALL APPROVALS GRANTED
+(2026-07-04): jssm-drain ✔, fsl-triage ✔, projection ✔, all ASKs resolved, names public,
+fsl milestones #48–#59 created.** Nothing pends from John except the fsl-org transfer window
+(HANDOFF, time-sensitive) and future ledger revisions. Tracker execution is fully mechanical
+from here: file A/B drafts (milestone-pinned), drain jssm, run the closes (DONE? verify
+first; SUP/SAT twin-first). Fable-optional: C1 hash spec, C2 ops-semantics appendix.
 
 ## Ledger
 
