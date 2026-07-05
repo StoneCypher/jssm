@@ -390,7 +390,7 @@
 563 e6 — transcompile META (adapter matrix)
 562 SUP(MAN) — book covers Harel
 561 e1 — semi-generate parser (P2 workshop, dual)
-557 ASK — wallaby (probably wontfix)
+557 SUP — RESOLVED (John 2026-07-04): stale, superseded by the vitest migration + watch mode
 556 e0 — stoch 100% META
 547 e1 — Parse/2 Object type
 545 e0 — re-enable personal eslint config
@@ -467,8 +467,8 @@
 424 e1 — arrow ends control
 423 e1 — transition hover label
 422 e1 — state hover label
-421 e1 — transition URL decoration
-420 e1 — state URL decoration
+421 e1 — transition URL decoration (render-layer sanitization REQUIRED per #317 resolution)
+420 e1 — state URL decoration (render-layer sanitization REQUIRED per #317 resolution)
 419 e1 — multi-action probabilistic origins (§28)
 418 e6 — code emission META
 417 e1 — auto-api (typegen kin)
@@ -503,7 +503,9 @@
 320 e1 — edge visual META
 319 e1 — state visual META
 318 SUP(ERA) — dependency-tree stray issues
-317 ASK — allow URLs? (security posture)
+317 SUP(decision) — RESOLVED (John 2026-07-04): URLs ALLOWED in-language, sanitized at the
+     render layer (escape/nofollow in SVG/viewers); closes citing #420/#421 (the carriers) +
+     umbrella per SUP discipline
 315 DONE? — SVG id expose (§28 svg_id_for_state shipped)
 313 e1 — hover label
 312 e1 — transparent background
