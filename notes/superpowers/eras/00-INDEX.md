@@ -93,3 +93,11 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   `v6→v16` / `fable_new_v6_to_v16` / `docs_26-07-04_fable-v6-to-v16` (were `…v12`), with a short
   note recording the original scaffold names + the 5.x→v16 scope. Increment-1 log keeps the v12
   names as true history; increment-3's "still shows old names" flag updated to point here.
+- **2026-07-05 · Increment 9 (Opus 4.8, WP-7 5.x slice):** Moved forward on 5.x. Live-verified the
+  30 `e0` rows (all still open, no snapshot drift) and **milestone-tagged them to fsl #48** (batch
+  gh edit; 4 transient GraphQL fails retried clean) — #48 now shows 31 open (30 + umbrella #1418),
+  so the 5.x burn-down is visible on the tracker. Reconciled the book-vs-ledger charset drift:
+  #505/#1195-#1199 are `e1`/v6 (umbrella #1379), not 5.x - corrected the era-book 5.x onepager.
+  Flagged #1307 as satisfied-by-the-drain (close at 6.0). **Next on 5.x = the CODE burn-down**
+  (WP-1 audit reverify -> pack-shape test; WP-6 dragon revival; WP-2 bug fixes) - those ship as
+  5.158.x patches from protected `main`, so they need a worktree off main + John's per-action go.

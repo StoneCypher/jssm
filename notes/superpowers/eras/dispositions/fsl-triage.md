@@ -15,6 +15,14 @@
 > must cite a LIVE issue as well as the superseding artifact — the era umbrella issue at
 > minimum (so SUP closes execute only after the projection's umbrellas are filed), the
 > specific W-item issue when it exists.**
+>
+> **Execution progress (2026-07-05, Opus 4.8):** the **30 `e0` (5.x) rows milestone-tagged to
+> fsl #48 "The Long Goodbye"** — all 30 verified still-open first; #48 now shows 31 open (30 e0 +
+> umbrella #1418), so the 5.x burn-down is visible on the tracker. Charset reconciliation: #505 /
+> #1195–#1199 are `e1` (v6 unicode umbrella #1379), NOT 5.x — the era-book onepager was corrected.
+> #1307 (npm-ranking) is effectively satisfied by the executed jssm drain; keep open, close when
+> the KEEP items clear at 6.0. **Remaining WP-7:** DONE?-verify (~38 rows), SUP/SAT closes, and
+> milestone-tag the other-era `eN` keepers.
 
 1399 e3 — leanstral prover: checker-backend research
 1398 SAT — Nova ext (tree-sitter satellite)

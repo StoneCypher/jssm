@@ -6,9 +6,11 @@ Nothing breaking ships here; everything here makes 6.0 cheaper or safer.
 **Contents (~25 topics; ledger code e0):** the June implementation-audit re-verification
 (package shape, interchange envelope, forced-transition erasure — fix or refile); the genuine
 bug/QoL residue from the triage ledgers; lint-plugin refresh (eslint cluster fsl#726–#732);
-coverage chores (stoch 100% on util/jssm); charset/naughty-strings test prep; kitchen-sink
+coverage chores (stoch 100% on util/jssm); kitchen-sink
 dragon revival groundwork (WP-6 phase A: file green locally, seeds printed); CLOC/CI report
-chores; issue-template YAML upgrade.
+chores; issue-template YAML upgrade. (Charset/naughty-strings prep is adjacent but NOT counted
+here: #505/#1195–#1199 are ledger-tagged e1 under the v6 unicode umbrella #1379 and close in v6,
+not 5.x. Authoritative 5.x item set = the 30 `e0` rows in `dispositions/fsl-triage.md`.)
 
 **Exit:** last 5.158.x published; assembly branch ready; dragon smoke lane runnable; jssm
 tracker drained to zero (migrate-or-close executed); nothing left on 5.x that 6.0 would
