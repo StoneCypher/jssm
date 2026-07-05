@@ -57,6 +57,29 @@ describe('parser source locations — other top-level nodes', () => {
     expect(slice(src, node!.loc!)).toContain('arrange [a b];');
   });
 
+  test('named_list node carries per-member value_locs parallel to value', () => {
+    const src  = '&group: [a b c]; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    const node = tree[0] as { value: string[]; value_locs?: FslSourceLocation[] };
+    expect(node.value_locs).toBeDefined();
+    expect(node.value_locs!.length).toBe(node.value.length);
+    node.value.forEach((member, i) => {
+      expect(slice(src, node.value_locs![i]!)).toBe(member);
+    });
+  });
+
+  test('hook declaration state subject carries a subject_loc; group-ref subject does not', () => {
+    const src  = 'a -> b;\non enter b do \'act\';\n&g : [a b];\non exit &g do \'act2\';';
+    const tree  = jssm.parse(src, { locations: true });
+    const hooks = tree.filter(n => n.key === 'hook_decl') as
+      Array<{ subject: unknown; subject_loc?: FslSourceLocation }>;
+    expect(hooks.length).toBe(2);
+    const [state_hook, group_hook] = hooks;
+    expect(state_hook!.subject_loc).toBeDefined();
+    expect(slice(src, state_hook!.subject_loc!)).toBe('b');
+    expect(group_hook!.subject_loc).toBeUndefined();
+  });
+
 });
 
 describe('parser source locations — config blocks', () => {
@@ -194,7 +217,7 @@ describe('parser source locations — located output minus loc equals default', 
     if (value && typeof value === 'object') {
       const out: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-        if (k === 'loc' || k.endsWith('_loc')) { continue; }
+        if (k === 'loc' || k.endsWith('_loc') || k.endsWith('_locs')) { continue; }
         out[k] = stripLoc(v);
       }
       return out;

@@ -9,7 +9,7 @@ import { htmlTarget } from '../cli/subcommands/render/targets/html';
 import { pngTarget }  from '../cli/subcommands/render/targets/png';
 import { jpegTarget } from '../cli/subcommands/render/targets/jpeg';
 
-import { RenderError, RasterizationUnsupportedError } from '../cli/types';
+import { RenderError, RasterizationUnsupportedError, RENDER_TARGETS } from '../cli/types';
 
 import { chain_plan_arb } from './stoch_helpers';
 
@@ -188,7 +188,12 @@ describe('render() dispatch', () => {
     await fc.assert(
       fc.asyncProperty(
         fc.stringOf(fc.constantFrom(...'abcdefghij'.split('')), { minLength: 2, maxLength: 8 })
-          .filter( t => !['svg', 'dot', 'html', 'png', 'jpeg'].includes(t) ),
+          // Exclude EVERY real target from the canonical source — the old
+          // hand-maintained list omitted 'gif', whose letters (g,i,f) are all in
+          // this a–j alphabet, so fast-check could emit "gif" and then wrongly
+          // demand it throw "unknown target".  Deriving from RENDER_TARGETS keeps
+          // the generator honest as targets are added.
+          .filter( t => !(RENDER_TARGETS as readonly string[]).includes(t) ),
         async (target) => {
           await expect(render(GOOD_FSL, { target: target as never }))
             .rejects.toThrow(`unknown target: ${target}`);

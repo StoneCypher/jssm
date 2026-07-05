@@ -587,6 +587,18 @@ jobs:
       env:
         CI: true
 
+    # deploy-docs republishes exactly this tree instead of running a second
+    # full build per main push; gh-pages therefore serves the same docs/ the
+    # gating build produced.
+    - name: Upload built docs for deploy-docs
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-docs
+        path: docs/
+        retention-days: 1
+        include-hidden-files: true
+
 
 
   deploy-docs:
@@ -604,17 +616,13 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
-    - name: Use Node.js 24.x
-      uses: actions/setup-node@v5
+    # The docs tree comes straight from test-main-full's build — no second
+    # full build, no Node toolchain needed; the publish below is plain git.
+    - name: Download the docs tree built by test-main-full
+      uses: actions/download-artifact@v4
       with:
-        node-version: 24.x
-        cache: npm
-
-    - name: Build the site
-      run: |
-        npm install && npm run build
-      env:
-        CI: true
+        name: built-docs
+        path: docs
 
     # Publish docs/ to gh-pages with plain git and the built-in GITHUB_TOKEN —
     # no third-party action. A throwaway single-commit repo is created inside

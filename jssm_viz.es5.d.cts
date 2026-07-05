@@ -1478,6 +1478,28 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /**
+     *  The machine's current data by REFERENCE — no clone.  The public
+     *  {@link Machine.data} contract is a deep clone per call (a mutation
+     *  boundary for external consumers, and deliberately untouched); that clone
+     *  is `structuredClone` of the whole data value, which same-package
+     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
+     *  read one dotted path or serialize per transition — should not pay on
+     *  every event.  Callers MUST NOT mutate the returned value or store it
+     *  beyond the current tick; anything crossing a trust boundary must use
+     *  {@link Machine.data} instead.
+     *
+     *  ```typescript
+     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
+     *  m._data_ref().a.b;   // 1, zero-copy
+     *  ```
+     *
+     *  @returns The live data value; treat as read-only.
+     *
+     *  @see Machine.data
+     *  @internal
+     */
+    _data_ref(): mDT;
     /*********
      *
      *  Get the current value of a given property name.  Checks the current
@@ -2606,6 +2628,29 @@ declare class Machine<mDT> {
      *
      *  @internal
      */
+    /**
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
+     *
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *
+     *  @see Machine._fire
+     *  @internal
+     */
+    _has_subscribers(name: JssmEventName): boolean;
     _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     /** Low-level hook registration.  Installs a handler described by a
      *  {@link HookDescription} into the appropriate internal map.  Prefer the
@@ -3844,6 +3889,24 @@ declare function vc(col: string): string;
  */
 declare function doublequote(txt: string): string;
 /**
+ *  Reverse {@link doublequote}: turn DOT's `\"` escape back into the literal
+ *  `"` that graphviz renders into SVG `<text>` content.  Used by
+ *  {@link state_svg_label_texts} to reconstruct a node's on-screen label from
+ *  the DOT label it was handed, so the fence renderer keys against exactly what
+ *  was drawn.
+ *
+ *  ```typescript
+ *  undoublequote('a\\"b');  // 'a"b'
+ *  undoublequote('safe');   // 'safe'
+ *  ```
+ *
+ *  @param txt A DOT-escaped attribute string (as produced by `doublequote`).
+ *  @returns The string with every `\"` collapsed back to `"`.
+ *
+ *  @internal
+ */
+declare function undoublequote(txt: string): string;
+/**
  *  Convert a state name into a URL-friendly slug suitable for use as the
  *  body of a dot/SVG node identifier.  The transformation is:
  *
@@ -4238,6 +4301,50 @@ declare type VizRenderOpts = {
  */
 declare function node_block_for<T>(u_jssm: Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_labels: boolean, mode: RenderGroups): string;
 /**
+ *  The per-state group-chip map that {@link node_block_for} appends to labels
+ *  in a given render mode.  Mirrors that function's mode dispatch and calls the
+ *  very same chip sources — {@link chips_for_all_groups} for `'chips'`,
+ *  {@link plan_cluster_groups} (with identical inputs) for `'cluster'` — so a
+ *  reconstructed label can never disagree with the one graphviz was handed.
+ *  `'off'`, and any machine that declares no groups, yields an empty map.
+ *
+ *  @internal
+ */
+declare function chips_for_render_mode<T>(u_jssm: Machine<T>, l_states: string[], mode: RenderGroups): Map<string, string[]>;
+/**
+ *  The exact text graphviz places in each state's SVG `<text>` element(s) when
+ *  a machine is rendered via {@link machine_to_dot} / {@link fsl_to_svg_string}:
+ *  the state's display text plus any group chips the node builder appends, with
+ *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
+ *  wraps across lines becomes several `<text>` elements; this returns the lines
+ *  joined by `\n`, exactly how {@link extract_state_fills} reads them back — so
+ *  the derived key and the extracted key meet at the same string.
+ *
+ *  This is the single source of truth the static fence renderer keys its
+ *  highlight and recolor lookups against, so those lookups can never drift from
+ *  what was actually drawn — plain labels, group chips, and multi-line wraps
+ *  alike.  It is built by running the node builder's own
+ *  `label_with_chips(doublequote(display_text), chips)` and inverting the one
+ *  escaping step, so it follows any change to the label format for free.
+ *
+ *  @param u_jssm The machine being rendered.
+ *  @param opts Render flags; only `render_groups` affects the label text
+ *  (default `'cluster'`, matching `fsl_to_svg_string`).
+ *  @returns A map from each state name to its rendered SVG label text.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *  import { state_svg_label_texts } from 'jssm/viz';
+ *
+ *  // a state in two groups renders a chip suffix in its node label
+ *  state_svg_label_texts(sm`&g1 : [a b]; &g2 : [a]; a -> b;`).get('a');  // 'a [g1]'
+ *  state_svg_label_texts(sm`a -> b;`).get('a');                          // 'a'
+ *  ```
+ *
+ *  @see extract_state_fills
+ */
+declare function state_svg_label_texts<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): Map<string, string>;
+/**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
  *  An optional `footer` may be supplied via `opts.footer`; it is emitted
@@ -4371,6 +4478,7 @@ declare const _test: {
     style_for_state: typeof style_for_state;
     cluster_id_for: typeof cluster_id_for;
     label_with_chips: typeof label_with_chips;
+    undoublequote: typeof undoublequote;
     group_parent_map: typeof group_parent_map;
     group_ancestry: typeof group_ancestry;
     primary_group_for: typeof primary_group_for;
@@ -4378,6 +4486,7 @@ declare const _test: {
     groups_to_subgraph_string: typeof groups_to_subgraph_string;
     chips_for_all_groups: typeof chips_for_all_groups;
     node_block_for: typeof node_block_for;
+    chips_for_render_mode: typeof chips_for_render_mode;
     edge_attr_for: typeof edge_attr_for;
     edge_defaults_body: typeof edge_defaults_body;
     graph_attr_for: typeof graph_attr_for;
@@ -4385,5 +4494,5 @@ declare const _test: {
     graph_bg_color_from_config: typeof graph_bg_color_from_config;
 };
 
-export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, version };
+export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, state_svg_label_texts, version };
 export type { RenderGroups, VizRenderOpts };

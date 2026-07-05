@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.157.12",
+  "version": "5.159.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -95,6 +95,11 @@
       "import": "./dist/cm6/fsl_language.js",
       "default": "./dist/cm6/fsl_language.js"
     },
+    "./fence": {
+      "types": "./jssm.fence.d.ts",
+      "import": "./dist/fence/fence.js",
+      "default": "./dist/fence/fence.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -135,6 +140,7 @@
     "dist/wc/docs.define.js",
     "dist/cm6/fsl_language.js",
     "dist/es6/cm6/fsl_language.d.ts",
+    "dist/fence/fence.js",
     "dist/cdn/viz.js",
     "dist/cdn/instance.js",
     "dist/cli/lib.cjs",
@@ -148,6 +154,7 @@
     "jssm_viz.es6.d.ts",
     "jssm.cli.d.cts",
     "jssm.cli.d.ts",
+    "jssm.fence.d.ts",
     "MIGRATING-jssm-viz.md",
     "custom-elements.json"
   ],
@@ -199,6 +206,7 @@
     "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
     "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
+    "make_fence": "rollup -c rollup.config.fence.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",

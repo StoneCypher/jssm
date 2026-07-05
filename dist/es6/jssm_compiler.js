@@ -748,11 +748,19 @@ function compile_rule_handler(rule) {
         const decl_id = rule.__decl_id; // TODO FIXME no any
         const source_group = rule.__source_group; // TODO FIXME no any
         const specificity = rule.__specificity; // TODO FIXME no any
-        edges.forEach((edge) => {
-            if (edge.from === rule.from) {
-                edge_decl_meta.set(edge, { decl_id, source_group, specificity });
-            }
-        });
+        // Group-free machines (registry.size === 0) reach here with UNTAGGED
+        // nodes — resolve_group_refs passes them through untouched — and their
+        // conflict arbitration is skipped outright, so the metadata would never
+        // be read.  Skipping the per-edge WeakMap.set removes the one remaining
+        // unconditional per-edge construction cost the side-table refactor added
+        // (the week-over-week trail showed construct paying for it).
+        if (decl_id !== undefined) {
+            edges.forEach((edge) => {
+                if (edge.from === rule.from) {
+                    edge_decl_meta.set(edge, { decl_id, source_group, specificity });
+                }
+            });
+        }
         return { agg_as: 'transition', val: edges };
     }
     if (rule.key === 'machine_language') {

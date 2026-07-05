@@ -3,13 +3,18 @@ import { basename, dirname, extname, join } from 'path';
 import { parseFslArgs } from '../../cli-utils.js';
 import { render } from './render.js';
 import type { RenderTarget, RenderOptions } from '../../types.js';
-import { RenderError } from '../../types.js';
+import { RenderError, RENDER_TARGETS } from '../../types.js';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 
-const SPEC = {
+/**
+ * The `fsl-render` argument specification consumed by {@link parseFslArgs}.
+ * Exported so tests can assert the `--target` enum stays in lockstep with the
+ * canonical {@link RENDER_TARGETS} rather than a hand-maintained literal.
+ */
+export const SPEC = {
   flags: {
-    target:   { short: 't' as const, enum: ['svg','dot','png','jpeg','html'] as const, default: 'svg' },
+    target:   { short: 't' as const, enum: RENDER_TARGETS, default: 'svg' as const },
     output:   { short: 'o' as const },
     'out-dir': {},
     stdout:   { boolean: true as const },
@@ -17,6 +22,8 @@ const SPEC = {
     height:   { type: 'number' as const },
     scale:    { type: 'number' as const },
     quality:  { type: 'number' as const, default: 85 },
+    delay:    { type: 'number' as const },
+    'max-frames': { type: 'number' as const },
     help:     { short: 'h' as const, boolean: true as const },
     version:  { short: 'V' as const, boolean: true as const },
   },
@@ -76,14 +83,16 @@ export async function cli(argv: string[]): Promise<number> {
     return 0;
   }
 
-  const target  = parsed.flags.target as RenderTarget;
-  const output  = parsed.flags.output as string | undefined;
-  const outDir  = parsed.flags['out-dir'] as string | undefined;
-  const stdout  = parsed.flags.stdout === true;
-  const width   = parsed.flags.width as number | undefined;
-  const height  = parsed.flags.height as number | undefined;
-  const scale   = parsed.flags.scale as number | undefined;
-  const quality = parsed.flags.quality as number | undefined;
+  const target    = parsed.flags.target as RenderTarget;
+  const output    = parsed.flags.output as string | undefined;
+  const outDir    = parsed.flags['out-dir'] as string | undefined;
+  const stdout    = parsed.flags.stdout === true;
+  const width     = parsed.flags.width as number | undefined;
+  const height    = parsed.flags.height as number | undefined;
+  const scale     = parsed.flags.scale as number | undefined;
+  const quality   = parsed.flags.quality as number | undefined;
+  const delay     = parsed.flags.delay as number | undefined;
+  const maxFrames = parsed.flags['max-frames'] as number | undefined;
 
   // Conflict rules
   const outputFlags = [output, outDir, stdout ? '--stdout' : undefined].filter(x => x !== undefined);
@@ -98,7 +107,7 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const renderOpts: RenderOptions = { target, width, height, scale, quality };
+  const renderOpts: RenderOptions = { target, width, height, scale, quality, delay, maxFrames };
 
   const inputs = parsed.positional;
   if (inputs.length === 0) {

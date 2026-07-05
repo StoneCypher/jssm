@@ -79,7 +79,14 @@ export function resolve_binding(m: Machine<unknown>, expr: string): unknown {
     case 'legal-actions': return m.list_exit_actions().map(a => String(a)).join(' ');
     case 'data':          return m.data();
     default:
-      if (expr.startsWith('data.')) { return walk_path(m.data(), expr.slice(5)); }
+      if (expr.startsWith('data.')) {
+        // walk the live reference (no whole-tree structuredClone per event),
+        // then clone only the extracted leaf so callers still receive a
+        // mutation-isolated value exactly as before — clone cost is now
+        // proportional to the bound leaf, not the machine's entire data
+        const leaf = walk_path(m._data_ref(), expr.slice(5));
+        return ((typeof leaf === 'object') && (leaf !== null)) ? structuredClone(leaf) : leaf;
+      }
       throw new Error(`<jssm-bind>: unknown binding expression "${expr}"`);
   }
 }

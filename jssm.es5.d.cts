@@ -1920,11 +1920,21 @@ declare function fslCompletions(text: string, offset: number): CompletionItem[];
  */
 
 /**
- * Collect color / state / shape-enum semantic spans from `text`.
+ * Collect color / state / shape-enum semantic spans from `text`. State spans
+ * cover transition endpoints, state-declaration subjects, group-list members
+ * (`&G : [a b c];` — but not the group's own name, nor `&`/`...&` nested
+ * group references), and plain-label hook subjects (`on enter x do 'act';` —
+ * but not `&group` subjects). Every state span's `value` is the parser's
+ * resolved name (unquoted, unescaped), while `from`/`to` cover the source
+ * spelling including any quotes.
  *
  * @example
  *   fslSemanticSpans('state s : { color: crimson; };')
  *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
+ *
+ * @example
+ *   fslSemanticSpans('&G : [a b];\na -> b;')
+ *     .filter(s => s.kind === 'state').length;   // => 4 (two members + two endpoints)
  */
 declare function fslSemanticSpans(text: string): SemanticSpan[];
 
@@ -2308,6 +2318,28 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /**
+     *  The machine's current data by REFERENCE — no clone.  The public
+     *  {@link Machine.data} contract is a deep clone per call (a mutation
+     *  boundary for external consumers, and deliberately untouched); that clone
+     *  is `structuredClone` of the whole data value, which same-package
+     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
+     *  read one dotted path or serialize per transition — should not pay on
+     *  every event.  Callers MUST NOT mutate the returned value or store it
+     *  beyond the current tick; anything crossing a trust boundary must use
+     *  {@link Machine.data} instead.
+     *
+     *  ```typescript
+     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
+     *  m._data_ref().a.b;   // 1, zero-copy
+     *  ```
+     *
+     *  @returns The live data value; treat as read-only.
+     *
+     *  @see Machine.data
+     *  @internal
+     */
+    _data_ref(): mDT;
     /*********
      *
      *  Get the current value of a given property name.  Checks the current
@@ -3436,6 +3468,29 @@ declare class Machine<mDT> {
      *
      *  @internal
      */
+    /**
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
+     *
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *
+     *  @see Machine._fire
+     *  @internal
+     */
+    _has_subscribers(name: JssmEventName): boolean;
     _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     /** Low-level hook registration.  Installs a handler described by a
      *  {@link HookDescription} into the appropriate internal map.  Prefer the

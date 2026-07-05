@@ -583,3 +583,24 @@ describe('JssmInstance integration with <jssm-bind>', () => {
   });
 
 });
+
+
+
+// dotted-path bindings walk the live data reference but hand back
+// mutation-isolated values, exactly as when they cloned the whole tree
+describe('resolve_binding data.<path> leaf isolation', () => {
+
+  test('object leaves come back as clones, primitives as themselves', () => {
+    type D = { a: { b: number }, n: number };
+    const m = sm<D>`x -> y;`;
+    // seed data via a transition hook (the hook contract commits `data`)
+    m.hook_any_transition(() => ({ pass: true, data: { a: { b: 1 }, n: 7 } }));
+    m.transition('y');
+    const leaf = resolve_binding(m, 'data.a') as { b: number };
+    expect(leaf).toEqual({ b: 1 });
+    leaf.b = 999;                                        // mutating the returned clone...
+    expect(resolve_binding(m, 'data.a.b')).toBe(1);      // ...never touches machine data
+    expect(resolve_binding(m, 'data.n')).toBe(7);        // primitive branch
+  });
+
+});
