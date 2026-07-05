@@ -1,7 +1,13 @@
 # jssm Drain Ledger — all 107 open issues, individually dispositioned
 
-> **Status:** **APPROVED by John 2026-07-04 except the ASK row (#790, pending)** — execution
-> of all other rows is authorized under the HANDOFF standing grant. (Fable first-pass.) ·
+> **Status:** **EXECUTED 2026-07-05 (Opus 4.8).** All MIG/fold/dup rows filed as fsl twins
+> (fsl#1419–#1515) and the jssm originals closed; tracker drained 106→7 open (KEEP set). Full
+> jssm→fsl map + corrections in `issues-projection.md` "Execution log". **Live-drift corrections:**
+> (a) #631 `DONE?` REFUTED by code (no CLI config loader exists) → migrated OPEN as fsl#1514, not
+> closed-done; (b) #790 (ASK, resolved by John 2026-07-04) migrated as fsl#1515 deferred-until-pick;
+> (c) #919 was already closed live (fence shipped 5.158.0) — twin fsl#1511 filed, migration comment
+> hand-posted. KEEP rows (#921/#827/#759/#758/#757/#755/#754) remain open, close via their own PRs. ·
+> *(Prior: APPROVED by John 2026-07-04 except the ASK row #790, since resolved. Fable first-pass.)* ·
 > **Universe:** `issue-snapshots-2026-07-04/jssm_open.tsv`. Policy: jssm tracker → EMPTY.
 > **Codes:** `MIG-eN` migrate to fsl twin ("was jssm#NNN"), tagged era N · `KEEP(x)` stays
 > open briefly, closed by the named PR/workstream · `SUP(x)` close, superseded by x ·

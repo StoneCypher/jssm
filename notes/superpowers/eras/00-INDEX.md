@@ -5,18 +5,18 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION (for successors):** Projection A+B are FILED and LIVE (2026-07-04, Opus 4.8):
-era umbrellas fsl#1401-#1411 + #1418, decision records fsl#1412-#1417, all open and
-milestone-pinned (recorded in `issues-projection.md`). **Resume point = WP-8 jssm drain**, then
-WP-7 fsl closes/milestone-tagging, then the era-0 code packets (WP-1 audit reverify, WP-6
-dragon, WP-2 bug burn-down). The drain ledger (`dispositions/jssm-drain.md`) is approved and
-reconciles EXACTLY with all 106 live open jssm issues (snapshot was 107; one closed since, no
-orphan). **GATE before the drain files any twin:** the standing grant (HANDOFF) files new
-issues only as written in an approved `issues-projection.md` revision, and §C (twins) / §D
-(closes) are still placeholders — so the drain's fsl twins must be drafted from the ledger into
-§C/§D and batch-approved by John before filing. Plan layer COMPLETE; all design questions
-decided (dragon trio + era-1 trio). Pending from John: the fsl-org transfer window (HANDOFF,
-time-sensitive) and the drain §C/§D go. Fable-optional: C1 hash spec, C2 ops-semantics appendix.
+**NEXT ACTION (for successors):** Projection A+B+C+D are DONE. WP-8 jssm drain EXECUTED
+2026-07-05 (Opus 4.8): 97 fsl twins fsl#1419–#1515, 99 jssm closes, jssm tracker drained 106→7
+(the KEEP set closes via its own PRs). Umbrellas fsl#1401–#1411/#1418 + decision records
+fsl#1412–#1417 already live. **Resume point = WP-7 fsl triage execution** (`dispositions/
+fsl-triage.md`, 663 rows, approved): (1) verify the ~38 `DONE?` rows against code, close the
+confirmed; (2) run the `SUP`/`SAT` closes (twin-first: SUP cites a live umbrella + artifact, SAT
+stays open `sat-pending` until its satellite repo exists); (3) milestone-tag the ~430 `eN`
+keepers. THEN era-0 code packets: WP-1 audit reverify, WP-6 dragon revival, WP-2 bug burn-down
+(all on `main`, 5.158.x patches — protected, needs John per-action). Pending from John: the
+fsl-org transfer window (HANDOFF, time-sensitive). Fable-optional: C1 hash spec, C2 ops-semantics
+appendix. **Lesson banked (Increment 5):** reconcile against the LIVE tracker after any batch —
+internal count-asserts passed while jssm#790 was silently dropped; the live count caught it.
 
 ## Ledger
 
@@ -32,7 +32,7 @@ time-sensitive) and the drain §C/§D go. Fable-optional: C1 hash spec, C2 ops-s
 | 4–6, 8 | `eras-2-to-7-briefs.md` | done | Thin briefs, one file (supersedes separate era-2/3/4/5/6/7 rows): entry criteria, hazards, gates (era 4 PROCESS-gated, era 5 security-review-gated), era-3 ladder decision as headline |
 | 7 | `era-0-cleanup-and-6.0.md` | done | **Executed as increment 3, promoted ahead of era-1** (John: end 5.x ASAP; renumber confirmed — era 0 ships as 6.0.0). Contains: exit criteria, phase plan, 10 work packets (incl. WP-4 One Merge, WP-3 bare-functions w/ 7.0 fallback, WP-6 dragon-live w/ 4 open questions for John), triage rulebook w/ disposition codes |
 | 9 | `dispositions/` | delegated | Rules live in the era-0 brief rulebook (+MIG) and HANDOFF standing grant; the sweeps (WP-7 fsl 663, WP-8 jssm drain 107, codex-130 era-tagging) are executor work producing ledgers here |
-| 10 | `issues-projection.md` | done (drafted; awaiting approval) | A+B filed (Increment 2). §C/§D drafted from the approved drain ledger (Increment 4, John chose draft-then-approve): **95 twins** (milestone-grouped, umbrella-first, 623→825 + 621→792 folded) + **99 closes** (§D1–D3) + **7 KEEP-deferred** (§D4), reconciled to 106. 3 batched open-Qs with safe defaults. **Filing blocked until John approves this revision.** |
+| 10 | `issues-projection.md` | done (A/B/C/D executed) | A+B filed (Increment 2). §C/§D EXECUTED (Increment 5, 2026-07-05): **97 twins fsl#1419–#1515**, **99 jssm closes**, tracker drained 106→7 (KEEP set). Full map + 3 corrections in the projection's Execution log; drain ledger annotated EXECUTED. Corrections: #631 DONE?-refuted→migrated open (fsl#1514); #790 drop caught & migrated (fsl#1515); #919/#666 restored (were dropped from draft). |
 
 ## Increment log
 
@@ -65,3 +65,13 @@ time-sensitive) and the drain §C/§D go. Fable-optional: C1 hash spec, C2 ops-s
   (milestone retags for #756/#650, #826 e1-vs-e5, AI-distribution hierarchy) — all defaulted so
   they don't block filing. NO tracker action taken; awaiting John's one batch approval of the
   revision before any twin is filed or any jssm issue closed.
+- **2026-07-05 · Increment 5 (Opus 4.8, WP-8 drain EXECUTED):** John gave the go (defaults
+  accepted). Filed **97 fsl twins (fsl#1419–#1515)** milestone-pinned + `Created by AI`,
+  umbrella-first; **closed 99 jssm** with citation comments; jssm tracker drained 106→7 (KEEP
+  set). Ran via a resumable state-file script (scratchpad, uncommitted). Three reality-corrections
+  (all recorded in the projection Execution log + drain ledger): (1) #631 `DONE?` refuted by code
+  → migrated OPEN as fsl#1514 not closed-done; (2) #790 had been dropped from the draft §C —
+  caught by reconciling the live tracker post-batch (8 open, not 7) and migrated as fsl#1515;
+  (3) #919/#666 (MIG, absent from draft §C) restored and filed. Full jssm→fsl map in the
+  projection. Method note banked in NEXT ACTION: always reconcile against the live tracker after a
+  batch — the internal asserts were self-consistent yet one short.

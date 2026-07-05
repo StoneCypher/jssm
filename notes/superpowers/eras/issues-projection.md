@@ -57,14 +57,20 @@ interface-card / publish-manifest / advisory-feed schemas, hook-return slot (nex
 touch), 5.x snapshot-lift policy (era 4), seed-tree edit stability (F1), era-5 security review
 (era-5 entry). Each is inventoried in `irreversibles.md` or the era briefs with its trigger.
 
-## C. Migration twins (WP-8 jssm drain) — DRAFTED 2026-07-04, AWAITING JOHN'S BATCH APPROVAL
+## C. Migration twins (WP-8 jssm drain) — EXECUTED 2026-07-05 (Opus 4.8, John's "go")
 
-> **Status:** drafted from the approved `dispositions/jssm-drain.md` ledger (Opus 4.8,
-> Increment 4). John chose *draft-then-approve* (2026-07-04). **NOTHING here is filed until John
-> approves this revision.** Reconciled against the live jssm tracker: 106 open → **95 twins to
-> file**, **99 jssm closes** (§D), **7 KEEP deferred** (close via their own PRs, not this batch).
-> 97 migrating originals map to 95 twins because two fold: jssm#623 (check verb) → the M1-check
-> twin of #825; jssm#621 (fmt verb) → the formatter twin of #792.
+> **Status:** **EXECUTED.** John approved (2026-07-04, defaults accepted) and gave the go
+> (2026-07-05). **97 twins filed to StoneCypher/fsl as fsl#1419–#1515**, milestone-pinned,
+> labelled `Created by AI`, umbrella-first; **99 jssm issues closed** with citation comments; the
+> jssm tracker is drained to **7 open** (the KEEP set, which close via their own PRs). Full
+> jssm→fsl map and three corrections are in the **Execution log** at the bottom of this file.
+> The draft tables below are retained as the approved plan of record; the Execution log carries
+> the filed numbers and the reality-corrections.
+>
+> *Original draft note (Increment 4): reconciled 106 open → 95 twins + 99 closes + 7 KEEP; two
+> folds (jssm#623→#825 twin, jssm#621→#792 twin). Execution added two the draft had dropped
+> (jssm#919, #666, both MIG in the approved ledger) and corrected two DONE?/count errors — see
+> the Execution log.*
 
 **Filing conventions (apply to every twin below):**
 - Title = the original jssm title verbatim (so search/muscle-memory survives).
@@ -244,3 +250,57 @@ Plus the two folded originals:
    straight to v14 (#57)? (Default: #50, note the slip.)
 3. Confirm the AI-distribution umbrella structure (846 → 832/847/857 + families) rather than one
    flat era-7 list; this is the only place I imposed hierarchy the ledger only implied.
+
+## Execution log — WP-8 jssm drain (2026-07-05, Opus 4.8)
+
+**Result:** jssm tracker drained from 106 open to **7 open** (the KEEP set). **97 fsl twins filed**
+(fsl#1419–#1515), milestone-pinned, `Created by AI`, umbrella-first (parents before children so
+child bodies link the parent fsl#). **99 jssm issues closed** as `not planned` with a citation
+comment naming the live fsl twin (dup #871 cites #870). Executed via a resumable state-file script
+(scratchpad, not committed); the durable record is this map.
+
+**Corrections (reality vs the approved ledger — reality won):**
+1. **jssm#631 was NOT done.** The drain ledger marked it `DONE?` ("CLI config shipped"). Code
+   verification refuted it — no CLI config loader anywhere in `src` (no `loadConfig`/`fsl.config`/
+   `.fslrc`; no `fsl` CLI source at all), only mentions in `todo.md`/`CHANGELOG.long.md`. So it was
+   **migrated OPEN** as fsl#1514 (v7, child of the CLI umbrella #1420), not closed as complete.
+2. **jssm#790 was dropped from the drafter's §C arrays** (the count still summed to 106 by an
+   offsetting miscount). Caught by reconciling the live tracker after the batch: 8 remained, not 7.
+   Migrated as fsl#1515 (v7, deferred-until-pick, tied to #798→fsl#1456) and closed.
+3. **jssm#919 (+ #666) were absent from the draft §C** though both are `MIG` in the approved
+   ledger; restored and filed (fsl#1511, fsl#1438). jssm#919 was already closed live (fence
+   rendering shipped 5.158.0), so its twin was still filed and a migration comment was posted to
+   the closed original by hand (gh skips the comment when closing an already-closed issue).
+
+**Milestone/era open-Qs:** kept all defaults (John accepted defaults) — #756 and #650 filed at v7
+(retag candidates for v9/v10), #826 filed at v7 (noted "may slip to v14"). AI-distribution
+hierarchy (846→832/847/857+families) filed as drafted.
+
+**jssm → fsl twin map (97):**
+
+```
+jssm#607=fsl#1426  jssm#610=fsl#1427  jssm#619=fsl#1420  jssm#620=fsl#1428  jssm#622=fsl#1429
+jssm#624=fsl#1430  jssm#625=fsl#1431  jssm#626=fsl#1432  jssm#627=fsl#1433  jssm#628=fsl#1434
+jssm#629=fsl#1435  jssm#630=fsl#1436  jssm#631=fsl#1514  jssm#650=fsl#1437  jssm#666=fsl#1438
+jssm#684=fsl#1439  jssm#685=fsl#1440  jssm#686=fsl#1441  jssm#690=fsl#1442  jssm#712=fsl#1443
+jssm#713=fsl#1444  jssm#714=fsl#1445  jssm#715=fsl#1446  jssm#716=fsl#1447  jssm#717=fsl#1448
+jssm#718=fsl#1449  jssm#719=fsl#1450  jssm#720=fsl#1451  jssm#743=fsl#1452  jssm#756=fsl#1453
+jssm#778=fsl#1454  jssm#790=fsl#1515  jssm#792=fsl#1455  jssm#793=fsl#1421  jssm#798=fsl#1456
+jssm#813=fsl#1457  jssm#815=fsl#1458  jssm#817=fsl#1459  jssm#818=fsl#1460  jssm#819=fsl#1461
+jssm#820=fsl#1462  jssm#822=fsl#1463  jssm#825=fsl#1464  jssm#826=fsl#1465  jssm#828=fsl#1466
+jssm#829=fsl#1467  jssm#830=fsl#1468  jssm#831=fsl#1469  jssm#832=fsl#1423  jssm#833=fsl#1470
+jssm#834=fsl#1471  jssm#835=fsl#1472  jssm#836=fsl#1473  jssm#837=fsl#1474  jssm#838=fsl#1475
+jssm#839=fsl#1476  jssm#840=fsl#1477  jssm#841=fsl#1478  jssm#842=fsl#1479  jssm#843=fsl#1480
+jssm#844=fsl#1481  jssm#845=fsl#1482  jssm#846=fsl#1419  jssm#847=fsl#1424  jssm#848=fsl#1483
+jssm#849=fsl#1484  jssm#850=fsl#1485  jssm#851=fsl#1486  jssm#852=fsl#1487  jssm#853=fsl#1488
+jssm#854=fsl#1489  jssm#855=fsl#1490  jssm#856=fsl#1491  jssm#857=fsl#1425  jssm#858=fsl#1492
+jssm#859=fsl#1493  jssm#860=fsl#1494  jssm#861=fsl#1495  jssm#862=fsl#1496  jssm#863=fsl#1497
+jssm#864=fsl#1498  jssm#865=fsl#1499  jssm#866=fsl#1500  jssm#867=fsl#1501  jssm#868=fsl#1502
+jssm#869=fsl#1503  jssm#870=fsl#1504  jssm#874=fsl#1505  jssm#893=fsl#1506  jssm#894=fsl#1507
+jssm#895=fsl#1508  jssm#896=fsl#1509  jssm#897=fsl#1510  jssm#909=fsl#1422  jssm#919=fsl#1511
+jssm#920=fsl#1512  jssm#922=fsl#1513
+```
+
+Folds (no own twin): jssm#623 → fsl#1464 (M1 check twin) · jssm#621 → fsl#1455 (formatter twin).
+Dup: jssm#871 → cites jssm#870 (fsl#1504). KEEP still open on jssm (close via own PRs):
+#921, #827, #759, #758, #757, #755, #754.
