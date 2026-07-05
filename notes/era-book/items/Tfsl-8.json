@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-8",
+  "title": "repl verb (FSLi interactive tool)",
+  "version": 10,
+  "cluster": "cli-verbs",
+  "src": [
+    "e1-triage",
+    "fsl#8"
+  ],
+  "issue": 8,
+  "manager": "An interactive REPL (FSLi) where you step a machine by hand — fire actions, inspect state and data, watch transitions — at a prompt. A REPL is how you build intuition about a machine's behavior and how you reproduce a bug interactively; it's the exploratory counterpart to the batch CLI verbs.",
+  "cs": "jssm#630 is the twin repl-verb row (folds here under the jssm-empty policy)"
+}

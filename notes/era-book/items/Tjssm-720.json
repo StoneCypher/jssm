@@ -1,0 +1,13 @@
+{
+  "id": "Tjssm-720",
+  "title": "constructor cleanups perf (was jssm#720)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#720"
+  ],
+  "issue": 720,
+  "manager": "Reduce the work the machine constructor does on the hot path — the per-instance setup that runs every time a machine is created, which dominates workloads that spin up many short-lived machines. Constructor cost is paid on every `new`, so trimming it is one of the highest-frequency perf levers in the whole runtime.",
+  "cs": "perf-track lever; verify with graviton envelope, not local timings"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-708",
+  "title": "data-change no-op assign semantics",
+  "version": 9,
+  "cluster": "mutation",
+  "src": [
+    "e1-triage",
+    "fsl#708"
+  ],
+  "issue": 708,
+  "manager": "Nail down what assigning a value equal to the current one means — is it a no-op, or does it still fire the data-change machinery? The answer governs whether hooks, rollback snapshots, and drift detection see a phantom event, so getting assign idempotence right keeps the observational layer honest."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-606",
+  "title": "transition line styles",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#606"
+  ],
+  "issue": 606,
+  "manager": "Let edges carry line styles — dashed, dotted, thick, colored — so a diagram can encode meaning in how a transition is drawn, not just where it goes. It's the cheapest way to distinguish forced from voluntary transitions, or error edges from happy-path edges, at the visual layer."
+}

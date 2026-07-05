@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1382",
+  "title": "arrow ligatures via Nerd Font",
+  "version": 10,
+  "cluster": "editor-qol",
+  "src": [
+    "e1-triage",
+    "fsl#1382"
+  ],
+  "issue": 1382,
+  "manager": "Render FSL's arrow tokens (`->`, `<-`, `<=>`) as true arrow glyphs using Nerd Font ligatures in the editor, so source reads the way it means. It's a small typographic touch that makes FSL look like the diagram language it is rather than ASCII art."
+}

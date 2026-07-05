@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-54",
+  "title": "destructuring assignment in patterns",
+  "version": 7,
+  "cluster": "expressions",
+  "src": [
+    "e1-triage",
+    "fsl#54"
+  ],
+  "issue": 54,
+  "manager": "Let a binding pull fields out of a tuple, record, or ADT in one move — `let {x, y} = point` instead of two separate reads. It's the ergonomic payoff of having real container types: once machines carry structured data, destructuring is what makes reading it in guards and let-bindings pleasant instead of verbose."
+}

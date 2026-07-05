@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-264",
+  "title": "HTML labels",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#264"
+  ],
+  "issue": 264,
+  "manager": "Allow rich HTML in node and edge labels — line breaks, bold, small tables — instead of a single flat string, so a state can show structured content. It's the difference between a label that names a state and one that summarizes it."
+}

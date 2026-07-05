@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-209",
+  "title": "undeclared state-decl = lint error",
+  "version": 10,
+  "cluster": "lint",
+  "src": [
+    "e1-triage",
+    "fsl#209"
+  ],
+  "issue": 209,
+  "manager": "A lint rule that flags a state referenced in a transition but never given its own declaration, catching the typo where `stateA -> stateB` invents a phantom `stateB`. It's exactly the class of mistake the grammar accepts but the author didn't mean, and catching it at lint time saves a confusing debugging session over a state that only ever exists as a target."
+}

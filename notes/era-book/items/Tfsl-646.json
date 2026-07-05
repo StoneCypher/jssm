@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-646",
+  "title": "machine status getters",
+  "version": 9,
+  "cluster": "lifecycle",
+  "src": [
+    "e1-triage",
+    "fsl#646"
+  ],
+  "issue": 646,
+  "manager": "Expose first-class getters for a machine's lifecycle status — running, halted, complete, errored — so host code can ask 'is this machine still live?' without inferring it from side channels. It's the read side of the §12 lifecycle model, the thing a UI or supervisor polls to decide whether to keep stepping."
+}

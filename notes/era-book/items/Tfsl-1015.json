@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1015",
+  "title": "compressed to-string serialize",
+  "version": 10,
+  "cluster": "serialize",
+  "src": [
+    "e1-triage",
+    "fsl#1015"
+  ],
+  "issue": 1015,
+  "manager": "A compressed serialization mode so large machines (and viewer-URL payloads) fit in less space — the difference between a shareable link and one too long to send. Compression is what keeps the 'a machine is just a string' promise practical once machines get big.",
+  "cs": "pairs with the minifier family (W6.109) for URL-borne machines"
+}

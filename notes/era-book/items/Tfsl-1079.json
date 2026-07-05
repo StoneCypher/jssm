@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1079",
+  "title": "TypeScript-future typegen umbrella",
+  "version": 10,
+  "cluster": "typegen",
+  "src": [
+    "e1-triage",
+    "fsl#1079"
+  ],
+  "issue": 1079,
+  "manager": "The umbrella for FSL's TypeScript story — generating types from machines so a machine's states, actions, and data are statically checkable in the host program. Typegen is what makes FSL feel native in a TypeScript codebase: your editor autocompletes state names and the compiler catches a typo'd action, because the types came from the machine itself."
+}

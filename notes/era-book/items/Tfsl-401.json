@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-401",
+  "title": "state stripes",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#401"
+  ],
+  "issue": 401,
+  "manager": "Support striped/banded fills on states as a distinct visual channel — a way to mark a state as special (in-progress, deprecated, conditional) without spending the color or shape budget. Stripes read as 'this one is different' even in monochrome print, which is where flat fills fail."
+}

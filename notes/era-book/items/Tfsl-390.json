@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-390",
+  "title": "test the generated .d.ts",
+  "version": 10,
+  "cluster": "typegen",
+  "src": [
+    "e1-triage",
+    "fsl#390"
+  ],
+  "issue": 390,
+  "manager": "Actually test that the generated TypeScript definitions compile and type-check what they should (and reject what they shouldn't), rather than assuming they're right. Generated types are code; untested generated types are the ones that silently drift from the machine and quietly stop protecting anyone."
+}

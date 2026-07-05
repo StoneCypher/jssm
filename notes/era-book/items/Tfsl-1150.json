@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1150",
+  "title": "built-in theme pack",
+  "version": 10,
+  "cluster": "themes",
+  "src": [
+    "e1-triage",
+    "fsl#1150"
+  ],
+  "issue": 1150,
+  "manager": "Ship a starter set of named built-in themes — flowchart, 1950s flowchart, flowchart-symbols, Monokai, Penumbra — so users get good-looking diagrams by picking a name instead of hand-styling. Curated defaults are what make theming approachable; most users want to choose a look, not design one, and this seeds the choices (including the theme-sources research behind them).",
+  "cs": "folds fsl#1151 (1950s flowchart), #1149 (Monokai), #1147 (Penumbra), #292 (flowchart-symbols), #1148 (theme sources research)"
+}

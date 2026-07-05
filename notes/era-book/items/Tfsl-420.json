@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-420",
+  "title": "URL decoration for states and transitions",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#420"
+  ],
+  "issue": 420,
+  "manager": "Let states and transitions carry URLs so a rendered node becomes a link — to docs, to a ticket, to the code it models — turning a diagram into a navigable index of a system. The catch, resolved per #317, is that URLs are allowed in-language but must be sanitized (escape + nofollow) at the render layer so a diagram can't become an attack vector.",
+  "cs": "folds fsl#421 (transition URL decoration); render-layer sanitization REQUIRED per #317 resolution"
+}

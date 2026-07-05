@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-561",
+  "title": "semi-generate the parser",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "e1-triage",
+    "fsl#561"
+  ],
+  "issue": 561,
+  "manager": "Semi-generate the parser — move part of it from hand-written interpretation toward generated, specialized code — as a P2-workshop performance and maintainability play. A generated parser can be both faster and more faithful to the grammar than a hand-maintained one, at the cost of a generation step; this scopes that tradeoff.",
+  "cs": "P2 workshop, dual with the reversible-parser line; distinct from precompiling constants (#587)"
+}

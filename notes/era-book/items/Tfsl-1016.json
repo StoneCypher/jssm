@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1016",
+  "title": "doc coverage measurement",
+  "version": 10,
+  "cluster": "docgen",
+  "src": [
+    "e1-triage",
+    "fsl#1016"
+  ],
+  "issue": 1016,
+  "manager": "Measure how much of a machine is documented — which states, actions, and properties carry doc-comments and which don't — and report a coverage number. Doc coverage is to documentation what test coverage is to tests: the metric that turns 'we should document more' into a gate you can watch trend up."
+}

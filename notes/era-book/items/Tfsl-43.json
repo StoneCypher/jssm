@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-43",
+  "title": "DRAKON-style animations (render --animate)",
+  "version": 10,
+  "cluster": "viz-render",
+  "src": [
+    "e1-triage",
+    "fsl#43"
+  ],
+  "issue": 43,
+  "manager": "Animate a machine walking its path — highlighting the active state and firing edges over time — in the DRAKON tradition, driven by a `render --animate` mode. A moving diagram teaches how a machine behaves in a way a static snapshot never can, which is huge for docs and teaching."
+}

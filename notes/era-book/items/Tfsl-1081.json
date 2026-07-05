@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1081",
+  "title": "editor QoL umbrella",
+  "version": 10,
+  "cluster": "editor-qol",
+  "src": [
+    "e1-triage",
+    "fsl#1081"
+  ],
+  "issue": 1081,
+  "manager": "The umbrella for web-component editor quality-of-life — the accumulated small frictions in authoring FSL that individually annoy and collectively decide whether the editor feels finished. It's the home for the paper-cut backlog: the completions, the shortcuts, the affordances that make the editor pleasant rather than merely functional.",
+  "cs": "folds fsl#466 (editor QoL META duplicate)"
+}

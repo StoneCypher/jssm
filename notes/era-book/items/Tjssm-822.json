@@ -1,0 +1,13 @@
+{
+  "id": "Tjssm-822",
+  "title": "doc-surface inventory for v6 (was jssm#822)",
+  "version": 10,
+  "cluster": "docgen",
+  "src": [
+    "jssm-drain",
+    "jssm#822"
+  ],
+  "issue": 822,
+  "manager": "Inventory every documentation surface v6 needs — the teaching pages, references, and help-bar entries — as the bridge into the help-bar manifest. You can't build coherent docs for a language this big without first enumerating what must exist; this is the census that turns 'document v6' from a vague ambition into a checklist.",
+  "cs": "bridge to the help-bar manifest (omissions D7)"
+}

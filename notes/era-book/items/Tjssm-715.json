@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-715",
+  "title": "NonNegNumber merge (was jssm#715)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#715"
+  ],
+  "issue": 715,
+  "manager": "Merge/streamline the NonNegNumber handling so non-negative number validation isn't duplicated or re-derived across the parse and runtime paths. It's a small consolidation lever that removes redundant numeric checks from a frequently-hit code path."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-718",
+  "title": "hook fast-path perf (was jssm#718)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#718"
+  ],
+  "issue": 718,
+  "manager": "Add a fast path for transitions with no hooks so the observational hook dispatch doesn't tax the many machines that never register a hook. The hook registry is powerful but not free; a fast path keeps un-hooked transitions as cheap as they were before hooks existed."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-344",
+  "title": "X11 color names + preset color themes",
+  "version": 10,
+  "cluster": "themes",
+  "src": [
+    "e1-triage",
+    "fsl#344"
+  ],
+  "issue": 344,
+  "manager": "Accept X11/CSS color names (not just hex) and ship a set of pre-built color themes, so authors write `crimson` instead of `#dc143c` and can adopt a coordinated palette in one line. Named colors and presets are the low-friction on-ramp to good-looking diagrams for people who don't want to be color designers.",
+  "cs": "folds fsl#162 (pre-existing color themes)"
+}

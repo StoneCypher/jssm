@@ -1,0 +1,13 @@
+{
+  "id": "Tjssm-818",
+  "title": "proof-construct grammar pinning (was jssm#818)",
+  "version": 10,
+  "cluster": "conformance",
+  "src": [
+    "jssm-drain",
+    "jssm#818"
+  ],
+  "issue": 818,
+  "manager": "Pin the grammar of the proof constructs — the exact, stable syntax that verified example machines are written in — so the proof-example corpus rests on a fixed target rather than a moving one. You can't build a durable corpus of proven machines on a grammar that shifts under it; pinning the constructs is the C3 slice that unblocks the corpus.",
+  "cs": "C3 slice; blocks the proof-example corpus (#817)"
+}

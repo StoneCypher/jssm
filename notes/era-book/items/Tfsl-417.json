@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-417",
+  "title": "auto-api generation",
+  "version": 10,
+  "cluster": "typegen",
+  "src": [
+    "e1-triage",
+    "fsl#417"
+  ],
+  "issue": 417,
+  "manager": "Generate a typed API wrapper from a machine — methods for its actions, accessors for its states — so host code calls `machine.approve()` instead of `machine.action('approve')`. An auto-generated API turns the stringly-typed transition surface into a checked, discoverable object, which is where most of typegen's day-to-day value lands."
+}

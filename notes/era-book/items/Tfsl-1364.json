@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1364",
+  "title": "FSL→Mermaid export target",
+  "version": 10,
+  "cluster": "viz-export",
+  "src": [
+    "e1-triage",
+    "fsl#1364"
+  ],
+  "issue": 1364,
+  "manager": "Emit Mermaid diagram source from an FSL machine so the huge population of Mermaid-rendering surfaces — GitHub, GitLab, Notion, countless docs tools — can display FSL machines with zero new tooling. It's a distribution multiplier: meet the diagrams where they already render for free."
+}

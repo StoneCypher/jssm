@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-192",
+  "title": "viewer to-PNG export",
+  "version": 10,
+  "cluster": "viz-export",
+  "src": [
+    "e1-triage",
+    "fsl#192"
+  ],
+  "issue": 192,
+  "manager": "A reliable PNG export from the viewer so users can drop a raster diagram straight into tools that don't take SVG. It's the most-requested share path — people want to paste a picture into chat or a doc, and PNG is the universal currency."
+}

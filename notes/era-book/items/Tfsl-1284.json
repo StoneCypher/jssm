@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1284",
+  "title": "build target matrix runner",
+  "version": 10,
+  "cluster": "build-matrix",
+  "src": [
+    "e1-triage",
+    "fsl#1284"
+  ],
+  "issue": 1284,
+  "manager": "The runner that actually executes the target matrix — spins up each environment, imports FSL the way that environment does, and asserts it works. It's the engine behind the umbrella: the automation that turns 'we support these targets' from a claim in the README into a green check in CI."
+}

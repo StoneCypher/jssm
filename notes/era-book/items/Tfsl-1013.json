@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1013",
+  "title": "headered notation (to-string + parse)",
+  "version": 10,
+  "cluster": "serialize",
+  "src": [
+    "e1-triage",
+    "fsl#1013"
+  ],
+  "issue": 1013,
+  "manager": "A headered serialization notation — a machine text that carries a header block (version, metadata, provenance) both emitted by to-string and understood by the parser. The header is what lets a serialized machine be self-describing, so a reader knows the FSL version and origin before parsing the body.",
+  "cs": "folds fsl#1014 (parse headered notation)"
+}

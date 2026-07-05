@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-897",
+  "title": "fsl-workbench shell (was jssm#897)",
+  "version": 10,
+  "cluster": "wc-panels",
+  "src": [
+    "jssm-drain",
+    "jssm#897"
+  ],
+  "issue": 897,
+  "manager": "The `fsl-workbench` shell web component — the container that composes the editor, viewer, and the various inspector panels into one integrated workspace. It's the thing that turns a pile of individual web components into a coherent tool a user can actually sit down in and work."
+}

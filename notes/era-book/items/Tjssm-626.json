@@ -1,0 +1,13 @@
+{
+  "id": "Tjssm-626",
+  "title": "convert verb (was jssm#626)",
+  "version": 10,
+  "cluster": "cli-verbs",
+  "src": [
+    "jssm-drain",
+    "jssm#626"
+  ],
+  "issue": 626,
+  "manager": "A `convert` verb that transforms FSL to and from other formats — the import/export paths, partially shipped, unified under one command. It's the interop front door: the verb you reach for to get a machine out of FSL into Mermaid/SCXML or bring a foreign diagram in.",
+  "cs": "partially = shipped import/export; note S3"
+}

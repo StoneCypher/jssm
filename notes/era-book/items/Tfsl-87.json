@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-87",
+  "title": "lsp verb (language service provider)",
+  "version": 10,
+  "cluster": "cli-verbs",
+  "src": [
+    "e1-triage",
+    "fsl#87"
+  ],
+  "issue": 87,
+  "manager": "A Language Server Protocol implementation so any LSP-speaking editor — VS Code, Neovim, Zed — gets FSL completion, diagnostics, hover, and go-to-definition for free. LSP is the single highest-leverage integration in modern editor tooling: build it once and FSL becomes a first-class language in every serious editor, instead of a syntax-highlight-only guest.",
+  "cs": "jssm#629 is the twin lsp-verb row; fsl#146 (MS LSP research) is the scoping precursor — both fold here"
+}

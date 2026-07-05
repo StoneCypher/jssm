@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-587",
+  "title": "precompile parser constants",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "e1-triage",
+    "fsl#587"
+  ],
+  "issue": 587,
+  "manager": "Precompute the parser's constant tables at build time instead of reconstructing them at startup, so the first parse doesn't pay a warm-up tax. It's a P2-workshop lever that moves fixed cost out of every process's runtime and into the build, where it's paid once."
+}

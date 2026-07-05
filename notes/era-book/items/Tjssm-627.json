@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-627",
+  "title": "playground verb (was jssm#627)",
+  "version": 10,
+  "cluster": "cli-verbs",
+  "src": [
+    "jssm-drain",
+    "jssm#627"
+  ],
+  "issue": 627,
+  "manager": "A `playground` verb that launches the interactive editor/viewer locally against your own machine, so you can explore and tweak without deploying anything or visiting a website. It brings the online playground experience to the terminal, which matters for offline work and for machines you can't paste into a public site."
+}

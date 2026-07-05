@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1054",
+  "title": "viz-cli as a library",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#1054"
+  ],
+  "issue": 1054,
+  "manager": "Expose the viz command-line renderer as an importable library so applications can generate diagrams in-process instead of shelling out to the CLI. It's the difference between viz being a terminal tool and being an embeddable rendering service other code can call."
+}

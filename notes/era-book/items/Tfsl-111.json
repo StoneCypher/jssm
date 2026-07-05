@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-111",
+  "title": "text node callouts",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#111"
+  ],
+  "issue": 111,
+  "manager": "Support free-floating text callouts — annotations attached to the diagram that aren't states, like notes, legends, or captions. Every real diagram eventually needs to say something about itself that isn't a state or a transition, and callouts are that escape hatch."
+}

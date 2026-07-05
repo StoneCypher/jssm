@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-498",
+  "title": "machine fluent interface + anti-compiler",
+  "version": 10,
+  "cluster": "fluent-interface",
+  "src": [
+    "e1-triage",
+    "fsl#498"
+  ],
+  "issue": 498,
+  "manager": "A fluent programmatic API for building a machine in code — chained calls that add states and transitions — plus the anti-compiler that emits FSL source back from a constructed machine. Together they close the loop between code and text: you can build a machine either way and convert freely, which is what lets FSL be both a data structure you manipulate and a language you write.",
+  "cs": "folds fsl#500 (fluent anti-compiler = emit half, WP-1.10); the fluent interface is the build half, the anti-compiler the emit half"
+}

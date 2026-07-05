@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1166",
+  "title": "poly-type template (typegen)",
+  "version": 10,
+  "cluster": "typegen",
+  "src": [
+    "e1-triage",
+    "fsl#1166"
+  ],
+  "issue": 1166,
+  "manager": "A templating mechanism (§16) for generating types in multiple target shapes from one machine — the poly-type layer that lets typegen aim at different type systems or conventions instead of one hardcoded output. It's the extensibility seam that keeps typegen from being TypeScript-only forever."
+}

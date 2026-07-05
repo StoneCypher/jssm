@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1195",
+  "title": "charset coverage across every surface",
+  "version": 7,
+  "cluster": "charset",
+  "src": [
+    "e1-triage",
+    "fsl#1195"
+  ],
+  "issue": 1195,
+  "manager": "Make Unicode work uniformly across the four places text lives in a machine: machine/state properties, error messages, and the input and output tapes. Today one surface may accept a codepoint another mangles; this closes the gap so a non-ASCII name behaves the same whether it's printed in a diagnostic, stored in a property, or streamed on a tape.",
+  "cs": "folds fsl#1196 (error messages), fsl#1197 (input tape), fsl#1198 (output tape) into one cross-surface charset pass"
+}

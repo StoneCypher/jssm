@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1280",
+  "title": "matrix: Bun",
+  "version": 10,
+  "cluster": "build-matrix",
+  "src": [
+    "e1-triage",
+    "fsl#1280"
+  ],
+  "issue": 1280,
+  "manager": "A matrix leg that verifies FSL runs under Bun, whose runtime and module resolution differ enough from Node that 'works in Node' doesn't imply it. Bun's growing user base expects packages to just work; this leg is the proof that FSL does."
+}

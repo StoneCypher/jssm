@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1055",
+  "title": "fsl_gen_docpage automation",
+  "version": 10,
+  "cluster": "docgen",
+  "src": [
+    "e1-triage",
+    "fsl#1055"
+  ],
+  "issue": 1055,
+  "manager": "Automate the doc-page generation pipeline (fsl_gen_docpage) so producing the per-machine documentation pages is a build step, not a manual chore. Automation is what keeps generated docs actually current — the moment it's manual, it rots."
+}

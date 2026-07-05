@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-400",
+  "title": "cycle visualization",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#400"
+  ],
+  "issue": 400,
+  "manager": "Detect and visually emphasize cycles in a machine so loops in the state graph are obvious rather than hidden in the tangle. Cycles are frequently the interesting or dangerous part of a machine — the retry loop, the deadlock risk — and surfacing them visually is a diagnosis aid, not just decoration."
+}

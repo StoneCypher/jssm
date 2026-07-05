@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1330",
+  "title": "dot visual controls in the editor",
+  "version": 10,
+  "cluster": "editor-qol",
+  "src": [
+    "e1-triage",
+    "fsl#1330"
+  ],
+  "issue": 1330,
+  "manager": "Bring the GraphViz/dot visual controls into the editor so authors can adjust layout and appearance interactively and see the diagram respond, rather than editing config blind. Live visual tweaking is what makes styling discoverable — you find the look you want by moving sliders, not by reading dot documentation."
+}

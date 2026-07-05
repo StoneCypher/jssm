@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-371",
+  "title": "row locking for inputs and terminals",
+  "version": 10,
+  "cluster": "viz-layout",
+  "src": [
+    "e1-triage",
+    "fsl#371"
+  ],
+  "issue": 371,
+  "manager": "Pin start/input states to the first row and terminal states to the last row of the layout so machines read top-to-bottom like the process they model. Free layout wanders; anchoring the entry and exit rows gives every diagram a consistent, readable spine.",
+  "cs": "folds fsl#372 (lock terminals last row)"
+}

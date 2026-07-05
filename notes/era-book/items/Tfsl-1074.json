@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1074",
+  "title": "visual bugs sweep",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#1074"
+  ],
+  "issue": 1074,
+  "manager": "The tracked sweep of outright rendering defects — overlapping labels, clipped arrowheads, mispositioned edges — as distinct from aesthetic wishes. These are the bugs that make a user distrust the renderer, and batching them lets one focused pass fix the correctness of the drawing rather than its taste."
+}

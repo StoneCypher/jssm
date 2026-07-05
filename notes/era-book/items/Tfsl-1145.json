@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1145",
+  "title": "complete flag",
+  "version": 10,
+  "cluster": "conformance",
+  "src": [
+    "e1-triage",
+    "fsl#1145"
+  ],
+  "issue": 1145,
+  "manager": "A `complete` flag/marker asserting that a machine defines a transition for every relevant state/action combination — turning 'is this machine total?' from a manual review into a checkable property. Completeness is exactly the kind of guarantee people want from a state machine (no unhandled inputs), and a flag that enforces it catches the missing-case bugs before they become production surprises."
+}

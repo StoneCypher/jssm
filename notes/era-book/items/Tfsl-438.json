@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-438",
+  "title": "FontAwesome node symbols",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#438"
+  ],
+  "issue": 438,
+  "manager": "Let a state carry a FontAwesome (or icon-font) glyph so nodes can show a lock, a clock, a warning triangle instead of relying on text alone. Icons compress meaning: a padlock on a state says 'secured' faster than any label, and it makes diagrams readable at thumbnail scale."
+}

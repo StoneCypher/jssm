@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-214",
+  "title": "tour progress in localStorage",
+  "version": 10,
+  "cluster": "editor-qol",
+  "src": [
+    "e1-triage",
+    "fsl#214"
+  ],
+  "issue": 214,
+  "manager": "Persist the guided-tour progress in localStorage so a returning user isn't re-shown the intro they already finished, and can resume where they left off. Nothing sours a first impression faster than a tour that restarts every visit; this is the state that makes onboarding respect the user's time."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-716",
+  "title": "ArrowDecoration first-char gate (was jssm#716)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#716"
+  ],
+  "issue": 716,
+  "manager": "Gate ArrowDecoration parsing on a cheap first-character check so the parser doesn't attempt arrow-decoration work on tokens that obviously aren't decorated. A one-character guard in front of an expensive branch is the cheapest kind of parser speedup — it skips the work before it starts."
+}

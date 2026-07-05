@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-143",
+  "title": "edge attributes",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#143"
+  ],
+  "issue": 143,
+  "manager": "Give edges a general attribute bag (color, weight, class, tooltip) parallel to what states already carry, so the transition is a first-class styleable object rather than a second-class line. Most of the diagram's meaning lives in the edges; they deserve the same styling surface as the nodes."
+}

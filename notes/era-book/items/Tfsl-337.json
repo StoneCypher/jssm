@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-337",
+  "title": "theme property cascade",
+  "version": 10,
+  "cluster": "themes",
+  "src": [
+    "e1-triage",
+    "fsl#337"
+  ],
+  "issue": 337,
+  "manager": "Make visual properties cascade — color and other attributes auto-descend through the containment/group hierarchy, can be set at assign-level, and have well-defined default-variance rules — with a dense notation for writing them compactly. Cascade is what lets you theme a whole subtree by styling its parent; without it every state must be styled individually, which no one will do.",
+  "cs": "folds fsl#346 (assign-level properties), #1218 (property-default variance rules), #1174 (dense property notation, underway)"
+}

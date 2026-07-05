@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-820",
+  "title": "web-component theme via URL param (was jssm#820)",
+  "version": 10,
+  "cluster": "themes",
+  "src": [
+    "jssm-drain",
+    "jssm#820"
+  ],
+  "issue": 820,
+  "manager": "Let the FSL web component take its theme from a URL parameter, so a shared or embedded diagram can be re-skinned by link alone — no rebuild, no code change. It's the zero-friction path to previewing a machine under different themes and to letting a host page control appearance declaratively."
+}

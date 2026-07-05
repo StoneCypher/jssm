@@ -1,0 +1,13 @@
+{
+  "id": "Tjssm-717",
+  "title": "parser Subexp frame perf (was jssm#717)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#717"
+  ],
+  "issue": 717,
+  "manager": "Optimize the parser's Subexp frame handling — the per-subexpression bookkeeping that the PEG parser pays on every parse. Parse cost is paid on construction from source (the common entry point), so shaving the Subexp frame is a lever felt by anyone who builds machines from strings.",
+  "cs": "parse-path lever; recall the --cache memoization dead-end (3-17× slower) — the cliff is the parse itself"
+}

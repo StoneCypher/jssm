@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-425",
+  "title": "transition ports + port targeting",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#425"
+  ],
+  "issue": 425,
+  "manager": "Let a transition attach to a specific side or point (port) of a state box, and let authors target those ports, so edges route cleanly instead of all colliding at one anchor. Ports are what separate a tidy hand-drawn-looking diagram from a spaghetti of arrows converging on a single corner.",
+  "cs": "folds fsl#1164 (transition→port targeting), #127 (edge port hints)"
+}

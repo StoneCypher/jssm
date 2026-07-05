@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-714",
+  "title": "arrow-token scanner (was jssm#714)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#714"
+  ],
+  "issue": 714,
+  "manager": "A dedicated scanner for arrow tokens (`->`, `<-`, `<=>` and friends) so the parser recognizes FSL's most common structural tokens with a tight, purpose-built path instead of general machinery. Arrows are the densest tokens in FSL source; scanning them fast pays off on every transition line."
+}

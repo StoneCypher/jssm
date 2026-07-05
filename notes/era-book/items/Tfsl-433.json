@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-433",
+  "title": "voluntary edge labels",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#433"
+  ],
+  "issue": 433,
+  "manager": "Make edge labels optional and author-controlled rather than always-on, so a busy diagram can suppress the obvious ones and keep the informative ones. Forced labels clutter dense machines; letting the author decide which transitions announce themselves is what keeps a large graph readable."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1283",
+  "title": "build matrix umbrella",
+  "version": 10,
+  "cluster": "build-matrix",
+  "src": [
+    "e1-triage",
+    "fsl#1283"
+  ],
+  "issue": 1283,
+  "manager": "The umbrella for a build/target compatibility matrix — the coordinated set of checks that prove FSL loads and runs correctly across every packaging and runtime it claims to support. A library that claims to work in Node, browsers, and bundlers but only tests one of them is making promises it can't keep; the matrix is how those promises become verified."
+}

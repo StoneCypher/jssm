@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-861",
+  "title": "markdown docgen pages from CLI",
+  "version": 10,
+  "cluster": "docgen",
+  "src": [
+    "e1-triage",
+    "fsl#861"
+  ],
+  "issue": 861,
+  "manager": "Generate Markdown documentation pages for a machine from the CLI — a rendered diagram plus its states, transitions, and doc-comments as a committable doc. It's how a machine documents itself into a repo's docs site automatically, so the diagram in the README never drifts from the source."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1303",
+  "title": ".set_data task list (val bridge)",
+  "version": 9,
+  "cluster": "mutation",
+  "src": [
+    "e1-triage",
+    "fsl#1303"
+  ],
+  "issue": 1303,
+  "manager": "The task list for wiring `.set_data` into the new value/record model — the runtime API by which host code pushes structured data into a machine. It's the bridge between the extended-state world and the outside program; without it the rich val types are write-only from FSL's own perspective and unreachable from the embedding application."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-713",
+  "title": "expectation-free parsing (was jssm#713)",
+  "version": 10,
+  "cluster": "perf-lane",
+  "src": [
+    "jssm-drain",
+    "jssm#713"
+  ],
+  "issue": 713,
+  "manager": "Drop the parser's expectation-tracking on the success path — the machinery that records 'what could have come next' for error messages, which costs on every step even when parsing succeeds. Building expectations only when a parse actually fails keeps the common (successful) parse from paying for error-reporting it won't use."
+}

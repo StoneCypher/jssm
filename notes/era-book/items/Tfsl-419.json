@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-419",
+  "title": "multi-action probabilistic transition origins",
+  "version": 8,
+  "cluster": "graph-surface",
+  "src": [
+    "e1-triage",
+    "fsl#419"
+  ],
+  "issue": 419,
+  "manager": "Let a single source fan out to multiple targets under one action with attached probabilities, so a machine can express weighted stochastic branching directly in the graph rather than in surrounding code. This is the §28 substrate the stochastic-walk and verification work needs — probability living in the language, not bolted on."
+}

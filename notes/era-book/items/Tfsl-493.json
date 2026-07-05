@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-493",
+  "title": "to_string formatter + data support",
+  "version": 10,
+  "cluster": "serialize",
+  "src": [
+    "e1-triage",
+    "fsl#493"
+  ],
+  "issue": 493,
+  "manager": "A configurable to_string formatter that can also render a machine's live data, not just its structure — so a serialization captures where the machine IS, not only what it is. Format control plus data support is what makes to_string useful for snapshots and debugging rather than only for pretty-printing the graph.",
+  "cs": "folds fsl#494 (to_string data support)"
+}

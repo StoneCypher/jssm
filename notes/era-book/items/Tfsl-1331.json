@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1331",
+  "title": "export dot viz as shareable config",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#1331"
+  ],
+  "issue": 1331,
+  "manager": "Export the GraphViz/dot rendering configuration alongside the diagram so a styled view can be shared and reproduced, not just screenshotted. It turns a one-off good-looking render into a reusable, portable diagram spec."
+}

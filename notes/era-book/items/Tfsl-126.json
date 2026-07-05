@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-126",
+  "title": "font metrics from upstream",
+  "version": 10,
+  "cluster": "viz",
+  "src": [
+    "e1-triage",
+    "fsl#126"
+  ],
+  "issue": 126,
+  "manager": "Use real font metrics when sizing label boxes so text neither overflows nor floats in an oversized box — the layout engine needs to know how wide a string actually renders, which depends on the font. Wrong metrics are the root cause of most 'label doesn't fit its box' bugs."
+}

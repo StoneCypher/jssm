@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-279",
+  "title": "named lists implement + test",
+  "version": 8,
+  "cluster": "groups",
+  "src": [
+    "e1-triage",
+    "fsl#279"
+  ],
+  "issue": 279,
+  "manager": "Finish and test §19 named lists — reusable named collections of states you can reference by one identifier across declarations. They're the building block that keeps large machines DRY: declare the set once, cite it in transitions and group configs instead of retyping the membership everywhere."
+}

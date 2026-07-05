@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1276",
+  "title": "matrix: Deno (static / url import)",
+  "version": 10,
+  "cluster": "build-matrix",
+  "src": [
+    "e1-triage",
+    "fsl#1276"
+  ],
+  "issue": 1276,
+  "manager": "Cover Deno's static import and URL-import paths as matrix legs, verifying FSL loads under Deno's ESM-and-URL module model. It's the leg that proves FSL works in the Deno world's distinctive import-by-URL convention rather than assuming Node semantics carry over."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-693",
+  "title": "constructor no-autostart option",
+  "version": 9,
+  "cluster": "lifecycle",
+  "src": [
+    "e1-triage",
+    "fsl#693"
+  ],
+  "issue": 693,
+  "manager": "A constructor option that builds a machine without automatically entering its start state, so callers can inspect, wire hooks, or restore serialized data before the first entry action fires. Autostart is the right default but the wrong behavior when you're rehydrating a machine mid-run or attaching instrumentation that must observe the very first transition."
+}
