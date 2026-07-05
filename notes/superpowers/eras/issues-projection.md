@@ -57,13 +57,190 @@ interface-card / publish-manifest / advisory-feed schemas, hook-return slot (nex
 touch), 5.x snapshot-lift policy (era 4), seed-tree edit stability (F1), era-5 security review
 (era-5 entry). Each is inventoried in `irreversibles.md` or the era briefs with its trigger.
 
-## C. Migration twins (WP-8 jssm drain)
+## C. Migration twins (WP-8 jssm drain) — DRAFTED 2026-07-04, AWAITING JOHN'S BATCH APPROVAL
 
-Produced by the WP-8 executor as `dispositions/jssm-drain.md` rows mature: one fsl draft per
-kept jssm issue, titled as the original, body opening `(was jssm#NNN)`. Do not enumerate here
-by hand — generate from the approved drain ledger.
+> **Status:** drafted from the approved `dispositions/jssm-drain.md` ledger (Opus 4.8,
+> Increment 4). John chose *draft-then-approve* (2026-07-04). **NOTHING here is filed until John
+> approves this revision.** Reconciled against the live jssm tracker: 106 open → **95 twins to
+> file**, **99 jssm closes** (§D), **7 KEEP deferred** (close via their own PRs, not this batch).
+> 97 migrating originals map to 95 twins because two fold: jssm#623 (check verb) → the M1-check
+> twin of #825; jssm#621 (fmt verb) → the formatter twin of #792.
 
-## D. Close batches
+**Filing conventions (apply to every twin below):**
+- Title = the original jssm title verbatim (so search/muscle-memory survives).
+- Body opens `(was jssm#NNN)`, then the ledger's one-line intent, then a live back-link to the
+  jssm original; label `Created by AI`; pin the stated milestone.
+- **Umbrella-first ordering:** file the umbrella twins before their children so children can link
+  parents. Umbrellas here: #846 (AI-distribution top), #832 (MCP), #847 (Skill), #857 (corpus),
+  #619 (CLI), #793 (wc panel suite), #909 (state kinds). Each era umbrella (fsl#1401–#1411) is the
+  grandparent by milestone.
+- **SAT rows stay open, tagged `sat-pending`** until their satellite repo exists (only #865
+  tree-sitter here) — the twin is filed but not closed-through.
+- **Milestone/era note:** every `MIG-e1` twin defaults to **#50 (v7)**, the opening era-1 major.
+  Flagged below where a later era-1 wave is likely (val→v9, portability→v10) — these are John-
+  retag candidates, not blockers.
 
-Produced by WP-7/WP-8 executors from approved disposition ledgers (`SUP`/`DONE?`-verified/
-`SAT`/`MIG` originals). Format: `repo#N — close comment text (one line, cites supersessor)`.
+### C-#49 · v6 "The Ground" (e0) — 1 twin
+| jssm# | Twin title (= original) | Notes |
+|---|---|---|
+| 922 | ci: decide whether push-only heavy jobs (…) gate to main-only | folds into WP-6 dragon-lane decision (Q3) |
+
+### C-#50 · v7 "The Computing Machine" (e1) — 43 twins
+*Umbrella twins:* **619** `fsl CLI: unified toolchain — tracking issue`; **793** `Track: <fsl-*> web-component panel suite`; **909** `State kinds: inventory and future vocabulary … (umbrella)`.
+
+| jssm# | Twin title (= original) | Parent / note |
+|---|---|---|
+| 619 | fsl CLI: unified toolchain — tracking issue | CLI umbrella |
+| 620 | fsl lint: linter subcommand for FSL source | child of 619-twin |
+| 622 | *(see C-#55 — e3, test verb moves to v12)* | — |
+| 624 | fsl typegen: emit TypeScript type declarations from FSL machines | child of 619-twin |
+| 625 | fsl new: project scaffolder subcommand | child of 619-twin |
+| 626 | fsl convert: format converter between FSL and other notations | child of 619-twin; note S3 (import/export partly shipped) |
+| 627 | fsl playground: local web playground server | child of 619-twin |
+| 628 | fsl mcp: Model Context Protocol server for AI agents | child of 619-twin; phased after verb surface stabilizes |
+| 629 | fsl lsp: Language Server Protocol implementation | child of 619-twin |
+| 630 | fsl REPL: interactive mode when invoked with no subcommand | child of 619-twin |
+| 607 | Custom theme files: auto-load default.fsl_theme, invoke named themes via CLI | child of 619-twin |
+| 793 | Track: <fsl-*> web-component panel suite | wc-panel umbrella |
+| 897 | feat(wc): <fsl-workbench> dockable layout shell | child of 793-twin |
+| 896 | feat(wc): editable extended-state data — <fsl-data-inspector> | child of 793-twin |
+| 895 | feat(viz): bake a theme-derived legend into the rendered SVG | child of 793-twin |
+| 894 | feat(wc): <fsl-timers> pending-timeout panel | child of 793-twin |
+| 893 | feat(wc): <fsl-diagnostics> problems panel | child of 793-twin |
+| 820 | feat(wc): load a theme from a URL parameter in the web version | child of 793-twin |
+| 819 | fsl web replay shell: browser tape-replay over the M3 engine | child of 793-twin |
+| 798 | Re-land pick / oracle / graph-highlighter (backed out in 5.145.2) | branches exist |
+| 909 | State kinds: inventory and future vocabulary … (umbrella) | state-kinds umbrella; needs spec (omissions C) |
+| 920 | perf: cm6-editor sketch runtime fixes | perf track |
+| 874 | perf_backfill: harden c8g.medium + refill 5.45–5.65 gap | perf track |
+| 720 | perf(machine): constructor cleanups | perf track |
+| 719 | perf(transition): gate auto_set_state_timeout for no-'after' machines | perf track |
+| 718 | perf(hooks): identity fast-path in _update_hook_fields | perf track |
+| 717 | perf(parser): investigate peg$parseSubexp | perf track |
+| 716 | perf(parser): first-char gate for ArrowDecoration probes | perf track |
+| 715 | perf(parser): merge NonNegNumber alternatives | perf track |
+| 714 | perf(parser): hand-rolled arrow-token scanner | perf track |
+| 713 | perf(parser): two-pass expectation-free parsing | perf track |
+| 712 | perf(transition): inline the validity/edge-lookup chain in transition_impl | perf track (biggest lever) |
+| 825 | M1 (signed-run-receipts): check verb + verification certificates | **absorbs jssm#623** (fsl check = M1) |
+| 826 | M2 (signed-run-receipts): keyless signing + transparency log + revocation | attempts e1, **may slip to #57 (v14)** — decided |
+| 828 | M4 (signed-run-receipts): property evaluator | subset e1, full with P2 |
+| 818 | Pin the surface grammar for proof constructs (§29 slice) | blocks the example corpus |
+| 817 | Proof-by-example corpus: 100+ CI-verified FSL examples | user-flagged high value |
+| 822 | Revisit the documentation surface inventory for v6 | bridge to help-bar manifest (omissions D7) |
+| 792 | feat: FSL source formatter / pretty-printer (AST → FSL) | **absorbs jssm#621** (fsl fmt = this) |
+| 756 | v6/val #3+#5: columnar val storage + undo-log journal | **John-retag candidate → #52 (v9)**; envelope first |
+| 743 | Inline circular_buffer_js → zero runtime dependencies | — |
+| 650 | chore(spec): extract FSL into its own repo + conformance testsuite | **John-retag candidate → #53 (v10)** (the contract's housing) |
+| 790 | Download DeBERTa-v3 ONNX models → phantom-models branch | tag `deferred-until-pick`; activates with #798 re-land |
+
+### C-#54 · v11 "The Composable Machine" (e2) — 4 twins
+| jssm# | Twin title (= original) | Note |
+|---|---|---|
+| 690 | Observable support | revisit against §14 channels |
+| 686 | feat(wc): SSR support (@lit-labs/ssr / Declarative Shadow DOM) | framework track (excluded from 793) |
+| 685 | feat(wc): Angular hand-written wrapper directives + generated types | framework track |
+| 684 | feat(wc): framework-wrapper generator pipeline (React/Vue/Svelte/Solid) | framework track |
+
+### C-#55 · v12 "The Proven Machine" (e3) — 1 twin
+| jssm# | Twin title (= original) | Note |
+|---|---|---|
+| 622 | fsl test: model-based testing framework for FSL machines | MBT / test verb |
+
+### C-#56 · v13 "The Durable Machine" (e4) — 1 twin
+| jssm# | Twin title (= original) | Note |
+|---|---|---|
+| 813 | v6 §15: full durable-execution posture (flight recorder, OTel, persistence) | era-4 anchor issue |
+
+### C-#57 · v14 "The Trusted Machine" (e5) — 2 twins
+| jssm# | Twin title (= original) | Note |
+|---|---|---|
+| 830 | M6 (signed-run-receipts): signed run-receipts — replayed slice (capstone) | trust capstone |
+| 829 | M5 (signed-run-receipts): verify verb (trust chain) | — |
+
+### C-#58 · v15 "The Ubiquitous Machine" (e6) — 1 twin
+| jssm# | Twin title (= original) | Note |
+|---|---|---|
+| 815 | v6 §15/§26: cross-host byte-identical replay determinism conformance | fleet determinism |
+
+### C-#59 · v16 "The Public Machine" (e7) — 42 twins
+*Umbrella twins:* **846** `AI-ecosystem distribution: … MCP, Skill, and Agentfile channels` (top); **832** `MCP distribution: list … in every relevant MCP registry`; **847** `Skill distribution: publish + list an FSL/jssm skill`; **857** `Corpus & retrieval visibility: make FSL/jssm visible to the models themselves`.
+
+| jssm# | Twin title (= original) | Parent / note |
+|---|---|---|
+| 846 | AI-ecosystem distribution: get FSL/jssm into MCP, Skill, and Agentfile channels | top distribution umbrella (child of v16 umbrella fsl#1411) |
+| 832 | MCP distribution: list FSL/jssm in every relevant MCP registry | child of 846-twin |
+| 831 | List jssm/FSL in the GitHub MCP registry (github.com/mcp) | child of 832-twin |
+| 833 | List in the Official MCP Registry (registry.modelcontextprotocol.io) | child of 832-twin |
+| 834 | List in the Claude connectors / MCP directory (Anthropic) | child of 832-twin |
+| 835 | List on Smithery (smithery.ai) | child of 832-twin |
+| 836 | List on Glama (glama.ai/mcp/servers) | child of 832-twin |
+| 837 | List on PulseMCP (pulsemcp.com) | child of 832-twin |
+| 838 | List on mcp.so | child of 832-twin |
+| 839 | List in the Docker MCP Catalog | child of 832-twin |
+| 840 | List in the Cline MCP Marketplace | child of 832-twin |
+| 841 | List in the Cursor MCP directory | child of 832-twin |
+| 842 | List in Continue (MCP) | child of 832-twin |
+| 843 | List in Zed (MCP / context servers) | child of 832-twin |
+| 844 | Add to modelcontextprotocol/servers (official community list) | child of 832-twin |
+| 845 | Add to punkpeye/awesome-mcp-servers | child of 832-twin |
+| 847 | Skill distribution: publish + list an FSL/jssm skill | child of 846-twin (skill umbrella) |
+| 848 | Publish the FSL skill via a Claude Code plugin marketplace | child of 847-twin |
+| 849 | List the FSL skill on Smithery / mcp.so (skill listings) | child of 847-twin |
+| 850 | Add the FSL skill to awesome-claude-skills | child of 847-twin |
+| 851 | Add the FSL skill/plugin to awesome-claude-code | child of 847-twin |
+| 852 | Contribute an FSL skill example to anthropics/skills | child of 847-twin |
+| 853 | Agentfile distribution (speculative): package FSL as a portable agent | child of 846-twin (agentfile family) |
+| 854 | Publish an FSL agent as a Letta Agent File (.af) | child of 846-twin |
+| 855 | Publish an FSL agent via Docker cagent / Agentfile | child of 846-twin |
+| 856 | Add an AGENTS.md to the repo (agent-convention compliance) | child of 846-twin; cheap — may just do in era 0 |
+| 857 | Corpus & retrieval visibility: make FSL/jssm visible to the models themselves | child of 846-twin (corpus umbrella) |
+| 858 | Add llms.txt + llms-full.txt to fsl.tools | child of 857-twin |
+| 859 | Submit jssm/FSL docs to Context7 and DeepWiki | child of 857-twin |
+| 860 | Publish a canonical "FSL for LLMs" reference | child of 857-twin |
+| 861 | Publish the verified proof-example corpus as LLM training/RAG material | child of 857-twin (pairs jssm#817) |
+| 862 | Set crawler posture: robots.txt + sitemap for LLM crawlers | child of 857-twin |
+| 863 | Publish an "FSL Assistant" Custom GPT / Gemini Gem / Claude Project | child of 846-twin |
+| 864 | Agent-framework tool integrations (LangChain / LlamaIndex / Vercel AI SDK) | child of 846-twin |
+| 865 | Ship a tree-sitter-fsl grammar | **SAT** — grammars ship from satellite repo; twin tagged `sat-pending` |
+| 866 | Seed a Reddit training surface for FSL/jssm | child of 846-twin |
+| 867 | Seed canonical Stack Overflow Q&A for FSL/jssm | child of 846-twin |
+| 868 | Publish articles + a Wikipedia mention for FSL/jssm | child of 846-twin |
+| 869 | Package-registry richness: npm keywords, JSR, schema.org JSON-LD | child of 846-twin |
+| 870 | Build a Reddit (Devvit) app for FSL state machines + graph rendering | **jssm#871 is a dup — closes to #870, no twin** |
+| 778 | RFC: machines.txt — publish a site's state machines (+ package-manifest block) | pairs jssm#610 |
+| 610 | Expose FSL state machines through package.json — design spec request | pairs jssm#778 |
+
+## D. Close batches (WP-8 jssm drain) — DRAFTED 2026-07-04, AWAITING JOHN'S BATCH APPROVAL
+
+> Executed only after the matching §C twins are filed (so each close cites a LIVE fsl number).
+> Format John approves; execution is mechanical. **95 twins → 97 migrate-closes** (the two folded
+> originals included) **+ 1 dup-close + 1 DONE?-close = 99 jssm closes.**
+
+**D1 · Migration closes (97).** For every §C row, close the jssm original with:
+`Migrated to StoneCypher/fsl#NNN (was jssm#<this>). jssm tracker kept empty per policy (npm search-ranking signal); all issues now live on StoneCypher/fsl.`
+Plus the two folded originals:
+- **jssm#623** → close citing the M1-check twin (fsl twin of #825): "Folded into the `fsl check` = M1 work — migrated as StoneCypher/fsl#NNN."
+- **jssm#621** → close citing the formatter twin (fsl twin of #792): "Folded into the FSL formatter/pretty-printer — migrated as StoneCypher/fsl#NNN."
+
+**D2 · Duplicate close (1).**
+- **jssm#871** → `Duplicate of jssm#870 (identical Devvit app request); #870 is migrating to StoneCypher/fsl#NNN.`
+
+**D3 · DONE?-verified close (1) — needs code verification FIRST (queue step 3).**
+- **jssm#631** `fsl CLI: unified JSON configuration file` — ledger says shipped (loader + render integration). Verify against code, then close citing the shipping commit/PR; if verification fails, downgrade to a #619-twin child instead of closing.
+
+**D4 · KEEP — NOT closed in this batch (7).** These close via their own named PRs (cross-repo
+`closes StoneCypher/fsl#N` where a twin exists), not the drain:
+- **jssm#921** (drop dist/deno) — 6.0 assembly PR
+- **jssm#827** (M3 run verb, implemented on v6) — the One Merge PR
+- **jssm#759 / #758 / #757 / #755** (val bug tail) — the val-fix PRs (WP-2 / WP-10)
+- **jssm#754** (atom charset restriction) — the 6.0 breakage-batch PR (WP-5)
+
+**Open questions for John (batched; none block the mechanical filing — all have safe defaults):**
+1. Milestone retags: move **#756** columnar-vals to **v9 (#52)** and **#650** FSL-repo-extract to
+   **v10 (#53)** now, or keep both at v7 (#50) and retag when era 1 subdivides? (Default: keep at
+   #50, note the intent.)
+2. **#826** M2 signing is tagged e1 but "slips to e5 (v14)" per the ledger — file at v7 (#50) or
+   straight to v14 (#57)? (Default: #50, note the slip.)
+3. Confirm the AI-distribution umbrella structure (846 → 832/847/857 + families) rather than one
+   flat era-7 list; this is the only place I imposed hierarchy the ledger only implied.
