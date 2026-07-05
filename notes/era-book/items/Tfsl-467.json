@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-467",
+  "title": "Apps (umbrella)",
+  "version": 16,
+  "cluster": "apps",
+  "src": [
+    "e7-triage",
+    "fsl#467"
+  ],
+  "issue": 467,
+  "manager": "The umbrella coordinating the whole native-and-web app family — iOS, Android, desktop, web — so they share design, branding, and a common core rather than diverging. It exists to keep the apps a coherent product line instead of one-off builds."
+}

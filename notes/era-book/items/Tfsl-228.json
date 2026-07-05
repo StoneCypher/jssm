@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-228",
+  "title": "Auto-render GitHub Action",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#228"
+  ],
+  "issue": 228,
+  "manager": "Create a GitHub Action that auto-renders FSL diagrams on push. Point it at your machines and every commit regenerates the images — the automation that keeps diagrams in docs and READMEs perpetually current."
+}

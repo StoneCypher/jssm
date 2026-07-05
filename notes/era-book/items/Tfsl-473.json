@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-473",
+  "title": "Other-sites listings (umbrella)",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#473"
+  ],
+  "issue": 473,
+  "manager": "The catch-all umbrella for miscellaneous directory and catalog listings that don't yet have their own row. It's the backlog bucket that keeps stray 'we should be on X' ideas tracked instead of lost."
+}

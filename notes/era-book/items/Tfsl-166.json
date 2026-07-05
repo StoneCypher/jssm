@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-166",
+  "title": "markvis investigation",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#166"
+  ],
+  "issue": 166,
+  "manager": "Investigate markvis as a path for rendering FSL diagrams inside Markdown-based documentation. It's a research row: does markvis give a cheap route to inline machine rendering in the Markdown ecosystem, or not?"
+}

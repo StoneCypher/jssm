@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-847",
+  "title": "Skill distribution (umbrella) (was jssm#847)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#847"
+  ],
+  "issue": 847,
+  "manager": "Publish and list an FSL/jssm skill across the skill directories (was jssm#847) — the umbrella for the skills family. A packaged FSL skill lets AI coding assistants author and check machines on demand; getting it listed where users install skills is how that capability reaches them."
+}

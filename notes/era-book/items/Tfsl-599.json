@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-599",
+  "title": "Learn X in Y Minutes entry",
+  "version": 16,
+  "cluster": "docs-articles",
+  "src": [
+    "e7-triage",
+    "fsl#599"
+  ],
+  "issue": 599,
+  "manager": "Contribute a 'Learn X in Y Minutes' entry for jssm/FSL — the terse, single-page, code-first language tour that format is known for. It's a high-traffic, low-commitment doorway: a developer skims the whole language in five minutes and leaves knowing whether it's for them."
+}

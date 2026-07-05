@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-409",
+  "title": "GitHub Linguist recognition",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#409"
+  ],
+  "issue": 409,
+  "manager": "Get FSL recognized by GitHub Linguist so .fsl files are detected, syntax-highlighted, and counted in repo language stats. Linguist recognition is a credibility milestone: it makes FSL a 'real language' in GitHub's eyes, lighting up highlighting on every machine anyone commits."
+}

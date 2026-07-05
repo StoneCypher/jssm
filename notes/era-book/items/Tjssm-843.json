@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-843",
+  "title": "Zed MCP context-server listing (was jssm#843)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#843"
+  ],
+  "issue": 843,
+  "manager": "List FSL in Zed's MCP / context servers (was jssm#843). Zed is a fast-growing editor with native agent features; presence in its context-server list makes FSL available inside it without extra setup."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-399",
+  "title": "Contribution ease (umbrella)",
+  "version": 16,
+  "cluster": "docs-contribute",
+  "src": [
+    "e7-triage",
+    "fsl#399"
+  ],
+  "issue": 399,
+  "manager": "The umbrella for making jssm/FSL genuinely easy to contribute to — docs, tooling, onboarding, and lowered friction across the board. A project's contributor pipeline is a growth lever; this row tracks the work that turns 'I'd like to help' into an actual first PR."
+}

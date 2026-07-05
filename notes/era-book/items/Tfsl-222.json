@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-222",
+  "title": "Site tidy-up pass",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#222"
+  ],
+  "issue": 222,
+  "manager": "A general tidy-up pass over the site's pages and presentation. Overlaps the larger overhaul but scoped to the quick wins — the obvious rough edges a visitor notices immediately."
+}

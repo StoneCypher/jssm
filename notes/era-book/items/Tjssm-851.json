@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-851",
+  "title": "FSL skill on awesome-claude-code (was jssm#851)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#851"
+  ],
+  "issue": 851,
+  "manager": "Add the FSL skill/plugin to awesome-claude-code (was jssm#851). Same play as the skills list but aimed at the Claude Code audience specifically — meeting agent-tooling users where they already look for capabilities."
+}

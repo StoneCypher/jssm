@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-227",
+  "title": "Free PR render service",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#227"
+  ],
+  "issue": 227,
+  "manager": "Offer a free hosted service that renders FSL diagrams for pull requests — point it at a machine and get back an image. It's a distribution wedge: teams get automatic diagrams in code review without installing anything, and every rendered image is an ad for the language."
+}

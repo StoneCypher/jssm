@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-595",
+  "title": "Wikipedia parser-generator listing question",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#595"
+  ],
+  "issue": 595,
+  "manager": "Decide whether FSL belongs on Wikipedia's parser-generator list (where Ragel sits) once the parser-generation story settles. It's a positioning question as much as a listing: FSL is drifting away from being 'a parser generator,' so this row resolves whether that lineage is worth claiming."
+}

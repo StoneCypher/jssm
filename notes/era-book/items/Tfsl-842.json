@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-842",
+  "title": "GitHub Skills tutorial",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#842"
+  ],
+  "issue": 842,
+  "manager": "Build a GitHub Skills interactive tutorial for FSL — the hands-on, in-repo learning format GitHub hosts. It's guided, zero-setup teaching on a platform with enormous reach, turning 'read about FSL' into 'actually built a machine in a guided exercise.'"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1099",
+  "title": "How-to-submit-machines guide",
+  "version": 16,
+  "cluster": "docs-contribute",
+  "src": [
+    "e7-triage",
+    "fsl#1099"
+  ],
+  "issue": 1099,
+  "manager": "Write the guide for how outsiders can submit their own machines to the gallery and corpus — the concrete contribution path for example machines. Without a clear 'here's how to add yours,' community contributions never materialize; this is the doorway that turns interested users into contributors."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-862",
+  "title": "LLM-crawler posture (was jssm#862)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#862"
+  ],
+  "issue": 862,
+  "manager": "Set the crawler posture — robots.txt and a sitemap tuned for LLM crawlers — so the model-facing content actually gets ingested (was jssm#862). It's the plumbing that decides whether all the llms.txt and reference work is reachable or silently blocked; getting it right is the difference between being crawled and being invisible."
+}

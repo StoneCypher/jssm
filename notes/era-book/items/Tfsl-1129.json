@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1129",
+  "title": "Kuker debugging support",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#1129"
+  ],
+  "issue": 1129,
+  "manager": "Add support for Kuker, the browser devtools extension for debugging state-based apps, so a running FSL machine streams its transitions into Kuker's timeline. It gives developers a real visual debugger for machine execution without FSL having to build its own devtools panel."
+}

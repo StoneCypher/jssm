@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1332",
+  "title": "blue.js platform listing",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#1332"
+  ],
+  "issue": 1332,
+  "manager": "Add jssm/FSL to the blue.js platform-support list — one more directory where a developer scanning for a state-machine library finds FSL sitting alongside the incumbents. Small, but these listings are how discovery actually happens: a name on the right list at the right moment is the difference between being evaluated and never being seen."
+}

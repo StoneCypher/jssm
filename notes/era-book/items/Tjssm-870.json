@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-870",
+  "title": "Reddit Devvit app (was jssm#870)",
+  "version": 16,
+  "cluster": "apps",
+  "src": [
+    "jssm-drain",
+    "jssm#870"
+  ],
+  "issue": 870,
+  "manager": "Build a Reddit app on Devvit that renders FSL machines and their diagrams inside Reddit itself (was jssm#870). It plants FSL directly in a huge developer community's native surface — a state machine posted in a thread can render and run in place, turning discussion into demonstration."
+}

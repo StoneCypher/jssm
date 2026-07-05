@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1254",
+  "title": "README overhaul",
+  "version": 16,
+  "cluster": "readme",
+  "src": [
+    "e7-triage",
+    "fsl#1254"
+  ],
+  "issue": 1254,
+  "manager": "The README is long overdue for a rewrite — it's the first (often only) thing a developer reads before deciding to try FSL, and it currently doesn't sell the language's real story. This is the top-level task to make the front page land: what FSL is, why it's different, and a working example above the fold."
+}

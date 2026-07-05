@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-839",
+  "title": "Docker MCP Catalog listing (was jssm#839)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#839"
+  ],
+  "issue": 839,
+  "manager": "List FSL in the Docker MCP Catalog (was jssm#839). Reaches the container-native audience inside Docker's own tooling, where a listing means one-step adoption for teams already in that world."
+}

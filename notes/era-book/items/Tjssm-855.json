@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-855",
+  "title": "Docker cagent / Agentfile agent (was jssm#855)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#855"
+  ],
+  "issue": 855,
+  "manager": "Publish an FSL agent via Docker's cagent / Agentfile (was jssm#855). Docker's agent packaging reaches the container-native crowd; an FSL agent distributed there is discoverable to teams already living in Docker's tooling."
+}

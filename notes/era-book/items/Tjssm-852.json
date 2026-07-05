@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-852",
+  "title": "FSL skill example in anthropics/skills (was jssm#852)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#852"
+  ],
+  "issue": 852,
+  "manager": "Contribute an FSL skill example to anthropics/skills, the official examples repo (was jssm#852). Landing in the canonical, first-party examples repo is a strong endorsement surface — it puts FSL in front of everyone learning to build skills, at the source."
+}

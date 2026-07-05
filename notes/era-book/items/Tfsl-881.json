@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-881",
+  "title": "Discord webhooks (umbrella)",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#881"
+  ],
+  "issue": 881,
+  "manager": "The umbrella for wiring every FSL-family repo and service to post its releases and events into Discord. It exists so the community-notification story is managed coherently instead of each repo growing its own ad-hoc hook."
+}

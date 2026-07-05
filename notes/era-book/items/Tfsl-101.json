@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-101",
+  "title": "resourcesjs.org listing",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#101"
+  ],
+  "issue": 101,
+  "manager": "Get FSL listed on resourcesjs.org, a curated JavaScript resource directory. Another discovery surface for the JS audience — cheap to do, and each such listing compounds the sense that FSL is an established part of the ecosystem."
+}

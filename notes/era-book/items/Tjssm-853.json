@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-853",
+  "title": "Portable agent via Agentfile (was jssm#853)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#853"
+  ],
+  "issue": 853,
+  "manager": "Package FSL as a portable agent via the Agentfile format (was jssm#853) — the umbrella for the agentfile family, flagged speculative. If portable agent files become a real distribution channel, having FSL shipped as one means an agent that knows state machines travels as a single file."
+}

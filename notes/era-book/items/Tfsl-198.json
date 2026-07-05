@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-198",
+  "title": "Analytics on the viewer",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#198"
+  ],
+  "issue": 198,
+  "manager": "Add analytics to the FSL viewer so there's actual data on how the embedded renderer gets used. Without it, every decision about the viewer is a guess; instrumentation turns 'I think people use X' into evidence."
+}

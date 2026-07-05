@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-857",
+  "title": "Corpus and retrieval visibility (umbrella) (was jssm#857)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#857"
+  ],
+  "issue": 857,
+  "manager": "The umbrella for making FSL/jssm visible to the models themselves — retrieval, corpus, and training-data presence (was jssm#857). The thesis: developers increasingly ask a model, not a search engine, so if the models don't know FSL, FSL doesn't exist. This coordinates every task that gets the language into what models can see and cite."
+}

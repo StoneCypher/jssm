@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-873",
+  "title": "fsli auto-update",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#873"
+  ],
+  "issue": 873,
+  "manager": "Automate updating fsli whenever jssm publishes upstream, so the interactive console tracks the core without manual bumps. Part of the family-wide dependency-propagation automation."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1255",
+  "title": "Website overhaul",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#1255"
+  ],
+  "issue": 1255,
+  "manager": "The fsl.tools website is long overdue for serious work — it's the hub the README, docs, editor, and gallery all point at, and its current state undersells the project. This is the top task to make the site a coherent front door rather than an accreted pile of pages."
+}

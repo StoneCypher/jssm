@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-464",
+  "title": "GitHub linting action",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#464"
+  ],
+  "issue": 464,
+  "manager": "Publish a GitHub Action that lints FSL machines on every push or pull request. It brings FSL into teams' existing CI reflexes — broken or suspect machines get flagged in code review automatically, the same way a linter catches bad code."
+}

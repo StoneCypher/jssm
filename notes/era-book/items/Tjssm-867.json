@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-867",
+  "title": "Stack Overflow Q&A seed (was jssm#867)",
+  "version": 16,
+  "cluster": "qa-seeds",
+  "src": [
+    "jssm-drain",
+    "jssm#867"
+  ],
+  "issue": 867,
+  "manager": "Seed canonical Stack Overflow questions-and-answers for FSL and jssm (was jssm#867). When a developer hits a problem they search Stack Overflow first; if the canonical questions already exist with good answers, FSL has a support presence before anyone asks — and, increasingly, that Q&A is exactly what the coding models are trained on."
+}

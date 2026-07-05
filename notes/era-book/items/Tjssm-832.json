@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-832",
+  "title": "MCP distribution (umbrella) (was jssm#832)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#832"
+  ],
+  "issue": 832,
+  "manager": "The umbrella for listing FSL/jssm in every relevant MCP registry (was jssm#832). MCP is becoming the standard way agents discover tools; being in the registries is how an agent finds and wires up FSL's capabilities without a human integrating anything. This coordinates the per-registry listing tasks below."
+}

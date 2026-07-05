@@ -1,0 +1,13 @@
+{
+  "id": "Tfsl-1363",
+  "title": "Self-hosting FSL toolchain",
+  "version": 16,
+  "cluster": "toolchain",
+  "src": [
+    "e7-triage",
+    "fsl#1363"
+  ],
+  "issue": 1363,
+  "manager": "The dogfood crown: rewrite FSL's own lexer, parser, checker, and compiler as FSL machines that FSL can then verify. Today the toolchain is hand-written TypeScript the language cannot reason about; self-hosting turns the compiler pipeline into state machines whose correctness properties are checkable by the very prover the language ships. It is both the ultimate demo — the language proves its own plumbing — and a forcing function that exposes every place FSL is still too weak to describe real control flow.",
+  "cs": "lexer/parser/checker/compiler expressed as verifiable FSL; correctness properties fed to the same checker used for user machines; success gated on the emitted toolchain passing its own proofs."
+}

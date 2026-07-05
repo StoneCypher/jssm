@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-860",
+  "title": "\"FSL for LLMs\" reference (was jssm#860)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#860"
+  ],
+  "issue": 860,
+  "manager": "Publish a canonical 'FSL for LLMs' reference (was jssm#860) — a single authoritative document written for a model's consumption, dense and unambiguous. It's the citation target: the one page you want a model to have read, so its FSL answers are correct and its examples idiomatic."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-157",
+  "title": "Track down brand assets",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#157"
+  ],
+  "issue": 157,
+  "manager": "Locate and consolidate all the project's scattered brand and media assets — logos, images, diagrams — so they're in one known place. Unglamorous inventory work, but you can't redesign the site or maintain a consistent brand without knowing where the pieces are."
+}

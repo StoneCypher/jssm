@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-440",
+  "title": "Phrase SEO",
+  "version": 16,
+  "cluster": "docs-articles",
+  "src": [
+    "e7-triage",
+    "fsl#440"
+  ],
+  "issue": 440,
+  "manager": "Target the generic phrases people actually search — 'javascript state machine,' 'finite state machine library,' and kin — so FSL surfaces for intent-rich queries. This is the demand-capture half of SEO: not comparisons, but the everyday searches that precede adoption."
+}

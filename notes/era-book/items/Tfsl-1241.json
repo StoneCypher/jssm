@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1241",
+  "title": "Argdown integration",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#1241"
+  ],
+  "issue": 1241,
+  "manager": "Integrate FSL with Argdown, the structured-argumentation notation. Argument maps and state machines are cousins — both directed graphs with typed nodes — and a bridge lets each tool's users reach the other, widening FSL's reach into the argumentation and reasoning-tools community."
+}

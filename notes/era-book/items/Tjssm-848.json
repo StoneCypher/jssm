@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-848",
+  "title": "FSL skill on a Claude Code plugin marketplace (was jssm#848)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#848"
+  ],
+  "issue": 848,
+  "manager": "Publish the FSL skill via a Claude Code plugin marketplace (was jssm#848). It puts FSL one install away for Claude Code users — an agent that can suddenly write, render, and verify state machines because the skill is a click away."
+}

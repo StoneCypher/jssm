@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-221",
+  "title": "FSL in fast-check",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#221"
+  ],
+  "issue": 221,
+  "manager": "Get FSL adopted upstream by fast-check as a first-class way to model-based-test state machines. fast-check is the dominant JS property-testing library; being the recommended state-machine modeling layer there routes a large, sophisticated testing audience straight to FSL."
+}

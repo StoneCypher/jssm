@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-828",
+  "title": "cdnjs listing",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#828"
+  ],
+  "issue": 828,
+  "manager": "List FSL on cdnjs so the browser build is one well-known URL away. cdnjs is a default reflex for front-end developers; being absent means every browser-first user has to discover, trust, and wire up an alternative CDN before they can even try the library."
+}

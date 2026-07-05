@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-869",
+  "title": "Package-registry richness (was jssm#869)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#869"
+  ],
+  "issue": 869,
+  "manager": "Enrich the package-registry presence — npm keywords, a JSR listing, and schema.org JSON-LD metadata (was jssm#869). It's the SEO of package discovery: the right keywords and structured metadata are what make FSL surface when someone searches the registries, and JSON-LD is what lets machines (search and AI) understand what the package is."
+}

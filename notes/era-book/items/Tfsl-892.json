@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-892",
+  "title": "typedoc-plugin-fsl Discord hook",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#892"
+  ],
+  "issue": 892,
+  "manager": "Bring the typedoc-plugin-fsl Discord webhook online so its releases surface for the community. Keeps the docs-integration plugin's activity visible with the rest of the family."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-78",
+  "title": "Monaco language support",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#78"
+  ],
+  "issue": 78,
+  "manager": "Ship real FSL support inside Monaco — tokenization, highlighting, and basic language features — not just a name on the list. Monaco powers web-based editors everywhere; genuine language support there means FSL feels native in any app that embeds Monaco."
+}

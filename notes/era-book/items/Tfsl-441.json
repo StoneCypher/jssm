@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-441",
+  "title": "Comparison SEO",
+  "version": 16,
+  "cluster": "docs-articles",
+  "src": [
+    "e7-triage",
+    "fsl#441"
+  ],
+  "issue": 441,
+  "manager": "Build the head-to-head comparison content that ranks when someone searches 'FSL vs XState' or against any competing machine library. Comparison pages capture buyers at the decision moment; owning those queries means FSL frames its own comparison instead of being defined by a competitor's."
+}

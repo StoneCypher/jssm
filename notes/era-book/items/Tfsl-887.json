@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-887",
+  "title": "fsl-lint Discord hook",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#887"
+  ],
+  "issue": 887,
+  "manager": "Wire the fsl-lint repo's Discord webhook so its releases and events post to the community channel. One thread of the family-wide notification fabric that keeps contributors aware of movement across the whole toolchain."
+}

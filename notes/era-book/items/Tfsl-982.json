@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-982",
+  "title": "Split README badges out",
+  "version": 16,
+  "cluster": "readme",
+  "src": [
+    "e7-triage",
+    "fsl#982"
+  ],
+  "issue": 982,
+  "manager": "Pull the wall of badges and headers out of the README into a subordinate document so the top of the page is prose a human wants to read, not a status-badge thicket. Small formatting change, real first-impression payoff."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-616",
+  "title": "fsl.tools cleanup",
+  "version": 16,
+  "cluster": "site",
+  "src": [
+    "e7-triage",
+    "fsl#616"
+  ],
+  "issue": 616,
+  "manager": "Clean up the fsl.tools website itself — dead links, stale content, and structural cruft accumulated over years. Housekeeping, but the site is the project's storefront; a tidy, current storefront is table stakes for being taken seriously."
+}

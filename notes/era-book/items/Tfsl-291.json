@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-291",
+  "title": "Viz action to docs branch",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#291"
+  ],
+  "issue": 291,
+  "manager": "Wire the visualization GitHub Action to publish rendered diagrams to a docs branch automatically. Every push regenerates the machine images the docs and README embed, so the diagrams are never stale and no one renders by hand."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-864",
+  "title": "Agent-framework tool integrations (was jssm#864)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#864"
+  ],
+  "issue": 864,
+  "manager": "Ship tool integrations for the major agent frameworks — LangChain, LlamaIndex, Vercel AI SDK (was jssm#864). It makes FSL a callable tool inside the frameworks developers build agents with, so an agent can author or verify a state machine as naturally as it calls any other tool."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1216",
+  "title": "Tools and integrations page",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#1216"
+  ],
+  "issue": 1216,
+  "manager": "Create a page that lists every tool and integration that works with FSL — editors, CI actions, renderers, framework wrappers. As the integration surface grows, users need one map of 'what can I plug FSL into'; this is that map, and it doubles as proof of a healthy ecosystem."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-833",
+  "title": "Official MCP Registry listing (was jssm#833)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#833"
+  ],
+  "issue": 833,
+  "manager": "List FSL in the Official MCP Registry at registry.modelcontextprotocol.io (was jssm#833). The canonical, protocol-owned registry — the authoritative index agents and tools resolve against, so an entry here is the reference listing all others echo."
+}

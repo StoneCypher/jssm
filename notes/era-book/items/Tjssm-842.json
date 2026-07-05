@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-842",
+  "title": "Continue MCP listing (was jssm#842)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#842"
+  ],
+  "issue": 842,
+  "manager": "List FSL in Continue's MCP directory (was jssm#842). Continue is a widely-used open-source AI coding assistant; a listing routes its users to FSL's tools natively."
+}

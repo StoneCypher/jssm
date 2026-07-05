@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-856",
+  "title": "AGENTS.md in the repo (was jssm#856)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#856"
+  ],
+  "issue": 856,
+  "manager": "Add an AGENTS.md to the repo for agent-convention compliance (was jssm#856). It's the cheap, standard file that tells coding agents how to work in the repo — small effort, and it makes FSL's own repo a well-behaved place for the agents that increasingly do the work."
+}

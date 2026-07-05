@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-15",
+  "title": "GitHub source + rendered language",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#15"
+  ],
+  "issue": 15,
+  "manager": "Push toward GitHub treating FSL as both a source language (Linguist highlighting) and a rendered one (inline diagram preview in the file view), the way Mermaid renders. The rendered half is the prize — a machine that draws itself in a pull request turns every FSL file into a review-time diagram."
+}

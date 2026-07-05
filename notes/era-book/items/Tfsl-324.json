@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-324",
+  "title": "YouTube channel",
+  "version": 16,
+  "cluster": "docs-articles",
+  "src": [
+    "e7-triage",
+    "fsl#324"
+  ],
+  "issue": 324,
+  "manager": "Stand up a YouTube channel as the home for FSL video content — tutorials, demos, and walkthroughs. Video is a major discovery and learning surface the project has no presence on; a searchable channel is the container everything visual eventually posts to, and a distribution engine of its own."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-863",
+  "title": "FSL Assistant Custom GPT / Gem / Project (was jssm#863)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#863"
+  ],
+  "issue": 863,
+  "manager": "Publish an 'FSL Assistant' as a Custom GPT, Gemini Gem, and Claude Project (was jssm#863) — a ready-made, FSL-expert assistant in each major model's app store. A user picks it and immediately has a helper that writes and checks machines; it's distribution directly into the places people now go to get coding help."
+}

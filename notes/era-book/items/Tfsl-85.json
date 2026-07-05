@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-85",
+  "title": "Blocks live viewer from gists",
+  "version": 16,
+  "cluster": "gallery",
+  "src": [
+    "e7-triage",
+    "fsl#85"
+  ],
+  "issue": 85,
+  "manager": "A Blocks-style live viewer that renders machines directly from a GitHub gist or repo URL. Point it at a gist and get a running, rendered machine — frictionless sharing that needs no hosting on the author's part."
+}

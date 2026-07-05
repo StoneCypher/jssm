@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-955",
+  "title": "Pastebin and script-host listings",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#955"
+  ],
+  "issue": 955,
+  "manager": "Get FSL registered on the pastebins and script hosts (fiddle-style sandboxes and 'tickable library' CDNs) that let someone drop a script tag and have a working machine in ten seconds. The point is zero-install trial: a curious developer pastes an example, it runs, and they never had to install anything to decide they like it."
+}

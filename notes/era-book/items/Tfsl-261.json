@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-261",
+  "title": "Yeoman generator",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#261"
+  ],
+  "issue": 261,
+  "manager": "Build a Yeoman generator that scaffolds a new FSL/jssm project with one command. Scaffolding removes the blank-page problem — a newcomer gets a working, correctly-wired project instead of assembling boilerplate before they can start."
+}

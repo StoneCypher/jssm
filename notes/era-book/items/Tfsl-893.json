@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-893",
+  "title": "jssm-viz-action Discord hook",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#893"
+  ],
+  "issue": 893,
+  "manager": "Wire the jssm-viz-action Discord webhook so the visualization action's releases post to the channel. Completes the per-repo coverage of the family-wide release-notification fabric."
+}

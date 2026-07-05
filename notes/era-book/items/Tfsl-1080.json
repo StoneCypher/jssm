@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-1080",
+  "title": "CDN presence (umbrella)",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#1080"
+  ],
+  "issue": 1080,
+  "manager": "The umbrella tracking every CDN surface FSL should live on — cdnjs, jsDelivr, unpkg, and the hosted-library mirrors — and keeping them all current. It exists so the CDN story is managed as one coherent posture instead of a scatter of half-updated one-off listings."
+}

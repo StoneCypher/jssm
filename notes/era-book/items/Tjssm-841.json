@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-841",
+  "title": "Cursor MCP directory listing (was jssm#841)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#841"
+  ],
+  "issue": 841,
+  "manager": "List FSL in the Cursor MCP directory (was jssm#841). Cursor has a large, active user base; an MCP listing there is direct reach into one of the most-used AI coding editors."
+}

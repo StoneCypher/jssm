@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-525",
+  "title": "Two-screen Android app",
+  "version": 16,
+  "cluster": "apps",
+  "src": [
+    "e7-triage",
+    "fsl#525"
+  ],
+  "issue": 525,
+  "manager": "An Android app optimized for the two-screen / foldable form factor — editor on one panel, live diagram on the other. A showcase of FSL's split source-and-visualization model on hardware that's literally built for it."
+}

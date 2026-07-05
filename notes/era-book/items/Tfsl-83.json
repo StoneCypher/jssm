@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-83",
+  "title": "macOS app",
+  "version": 16,
+  "cluster": "apps",
+  "src": [
+    "e7-triage",
+    "fsl#83"
+  ],
+  "issue": 83,
+  "manager": "A native macOS app of the graph explorer — a real desktop application for browsing and editing machines. Desktop-native means offline use, OS integration, and the polish that says the tooling is first-class, not just a web page."
+}

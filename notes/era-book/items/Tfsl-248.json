@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-248",
+  "title": "Gallery categories and sorting",
+  "version": 16,
+  "cluster": "gallery",
+  "src": [
+    "e7-triage",
+    "fsl#248"
+  ],
+  "issue": 248,
+  "manager": "Add categories, sorting, and navigation to the gallery so it stays usable as it grows past a handful of entries. Discovery infrastructure: a flat list of fifty machines is a pile; a categorized one is a resource."
+}

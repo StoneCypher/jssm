@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-237",
+  "title": "FSL testing GitHub Actions",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#237"
+  ],
+  "issue": 237,
+  "manager": "Provide GitHub Actions for testing FSL machines — running a machine's checks and property tests as part of CI. It closes the loop on 'machines as verified artifacts': the same proofs that pass locally gate the pull request."
+}

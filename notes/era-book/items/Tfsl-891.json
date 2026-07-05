@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-891",
+  "title": "fsl.tools Discord hook",
+  "version": 16,
+  "cluster": "automation",
+  "src": [
+    "e7-triage",
+    "fsl#891"
+  ],
+  "issue": 891,
+  "manager": "Wire the fsl.tools site's Discord webhook so deployments and news reach the community channel. Ties the project's main web presence into the same live-notification fabric as the code repos."
+}

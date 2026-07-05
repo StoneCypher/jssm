@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-846",
+  "title": "AI-ecosystem distribution (umbrella) (was jssm#846)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#846"
+  ],
+  "issue": 846,
+  "manager": "The umbrella for getting FSL/jssm into the AI ecosystem's distribution channels — MCP, Skills, and Agentfile (was jssm#846). It's the coordinating parent for the whole AI-distribution block: the strategy that says 'be where the models and the agents look' and spawns the concrete listing tasks beneath it."
+}

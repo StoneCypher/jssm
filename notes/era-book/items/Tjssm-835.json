@@ -1,0 +1,12 @@
+{
+  "id": "Tjssm-835",
+  "title": "Smithery MCP listing (was jssm#835)",
+  "version": 16,
+  "cluster": "distribution-ai",
+  "src": [
+    "jssm-drain",
+    "jssm#835"
+  ],
+  "issue": 835,
+  "manager": "List FSL on Smithery (smithery.ai) (was jssm#835) — one of the busiest MCP marketplaces. High-traffic discovery for developers actively shopping for agent tools."
+}

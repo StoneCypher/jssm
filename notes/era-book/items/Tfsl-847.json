@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-847",
+  "title": "GitHub Starter Workflow",
+  "version": 16,
+  "cluster": "integrations",
+  "src": [
+    "e7-triage",
+    "fsl#847"
+  ],
+  "issue": 847,
+  "manager": "Contribute an FSL Starter Workflow to GitHub's Actions catalog, so a repo can add FSL CI from the 'set up a workflow' picker in one click. It meets teams exactly where they configure CI and removes every step between 'I have FSL machines' and 'they're checked automatically.'"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-223",
+  "title": "FSL GitHub org migration",
+  "version": 15,
+  "cluster": "abi-migration",
+  "src": [
+    "e7-triage",
+    "fsl#223"
+  ],
+  "issue": 223,
+  "manager": "Migrate the project's content and repos into a dedicated fsl GitHub organization — the prior owner of the name agreed to transfer it, and the 90-day window is live and time-sensitive. A clean, owned org namespace is the home base everything else hangs off: satellite repos, the codegen/fleet-era tooling, and a credible single identity for the whole family."
+}

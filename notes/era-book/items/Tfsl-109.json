@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-109",
+  "title": "Wikipedia UML state-chart listing",
+  "version": 16,
+  "cluster": "distribution-listings",
+  "src": [
+    "e7-triage",
+    "fsl#109"
+  ],
+  "issue": 109,
+  "manager": "Add FSL to the Wikipedia software list for UML state charts. People researching state-chart tools land on that list; an entry routes exactly the right audience — practitioners who already model in states — to FSL."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Tfsl-42",
+  "title": "Windows app",
+  "version": 16,
+  "cluster": "apps",
+  "src": [
+    "e7-triage",
+    "fsl#42"
+  ],
+  "issue": 42,
+  "manager": "A native Windows app of the graph explorer. Windows is where the majority of developers work; a proper desktop client there is the broadest-reach member of the native-app family."
+}
