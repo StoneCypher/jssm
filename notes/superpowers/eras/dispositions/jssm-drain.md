@@ -52,11 +52,11 @@
 790 MIG(defer:pick) — RESOLVED (John 2026-07-04): tied to the PICK work; fsl twin filed tagged
     deferred-until-pick (activates with the pick workstream / #798 re-land), jssm side closes
 778 MIG-e7 — machines.txt RFC
-759 KEEP(fix PR) — val numeric-enum bug (era-0/1 tail)
-758 KEEP(fix PR) — validator silent no-op
-757 KEEP(fix PR) — val/prop collision
+759 KEEP(WP-4 One Merge) — val numeric-enum bug; FIXED ON v6 (PR #760, merged 2026-06-16), closes on the One Merge from main
+758 KEEP(WP-4 One Merge) — validator silent no-op; FIXED ON v6 (PR #760, merged 2026-06-16), closes on the One Merge from main
+757 KEEP(WP-4 One Merge) — val/prop collision; FIXED ON v6 (PR #760, merged 2026-06-16), closes on the One Merge from main
 756 MIG-e1 — columnar vals + undo journal (perf keystone; envelope first)
-755 KEEP(fix PR) — non-null hole
+755 KEEP(WP-4 One Merge) — non-null hole; FIXED ON v6 (PR #761, merged 2026-06-16), closes on the One Merge from main
 754 KEEP(6.0 PR) — atom charset restriction ships in the breakage batch
 743 MIG-e1 — zero runtime dependencies
 720 MIG-e1 — constructor cleanups (perf track)

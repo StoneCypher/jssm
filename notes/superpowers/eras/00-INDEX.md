@@ -75,3 +75,10 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   (3) #919/#666 (MIG, absent from draft §C) restored and filed. Full jssm→fsl map in the
   projection. Method note banked in NEXT ACTION: always reconcile against the live tracker after a
   batch — the internal asserts were self-consistent yet one short.
+- **2026-07-05 · Increment 6 (Opus 4.8, KEEP-note correction):** Checked the "fix PR queued"
+  claim against live PRs — ZERO open PRs on either repo. Found the val KEEP fixes (#755/#757/#758/
+  #759) already merged to the **v6 branch** (jssm PRs #761/#760, 2026-06-16); they didn't
+  auto-close because GitHub only auto-closes from the default branch (main). Sharpened the drain
+  ledger KEEP rows to "FIXED ON v6 … closes on the WP-4 One Merge" (matching #827's already-on-v6
+  status), and added a **KEEP-issue closers** bullet to WP-4 requiring the One Merge PR to carry
+  `Closes #755 #757 #758 #759 #827` (+#921) so they auto-close from main. #754 stays WP-5.

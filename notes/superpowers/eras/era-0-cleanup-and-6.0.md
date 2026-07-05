@@ -92,6 +92,14 @@ verification, escalation triggers. All repo rules per `HANDOFF.md` apply to ever
   (not just adjacently) — stop and document rather than guess.
 - **Note:** verify S1 (#773 totality PR) merged into v6 beforehand; if still open, merge it to
   v6 first (needs John's per-action OK — v6 is protected) or fold it into the assembly branch.
+- **KEEP-issue closers (do NOT forget):** several jssm KEEP issues are already fixed on v6 and
+  only auto-close from main — the One Merge PR is their closer. Its description MUST carry:
+  `Closes #755` `Closes #757` `Closes #758` `Closes #759` (val Phase-1 fixes, landed on v6 via
+  jssm PRs #760/#761) and `Closes #827` (M3 run verb, implemented on v6). Also fold in `Closes
+  #921` (drop dist/deno) if that manifest change rides this branch. Without these keywords the
+  issues linger open and the jssm-empty policy stays unmet after 6.0 ships. (#754 atom-charset is
+  WP-5 breakage-batch work — its own PR closes it, not this one.) See `dispositions/jssm-drain.md`
+  KEEP rows and the drain Execution log.
 
 ### WP-5 · Small breakage batch — mechanical · M
 - **Inputs:** manifest entry #754 (atom charset — grammar + corpus sweep, per its
