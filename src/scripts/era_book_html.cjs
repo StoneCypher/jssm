@@ -7,11 +7,18 @@
  * form, then the README as an appendix. Missing files are skipped with a note,
  * so the script works even on a partially-written book.
  *
+ * After the prose sections it appends the item register (items/*.json),
+ * grouped by version. Each version that carries any dependency edges also gets
+ * a per-era Mermaid graph built from the items' own `deps`/`blocks` fields —
+ * intra-era edges are solid, edges crossing to another era are drawn to a
+ * dashed ghost node labelled with that era. Mermaid renders client-side from a
+ * CDN module, so the page stays a single self-contained file.
+ *
  * Output defaults to `build/era-book.html`; pass a path to override.
  *
  * @example
  *   node src/scripts/era_book_html.cjs
- *   // wrote build/era-book.html (26 sections)
+ *   // wrote build/era-book.html (27 sections)
  *
  * @throws {Error} With install instructions if markdown-it is not installed.
  */
@@ -73,6 +80,49 @@ if (fs.existsSync(itemsDir)) {
   const versionKeys = [...byVersion.keys()]
     .sort((a, b) => (a === '5.x' ? -1 : b === '5.x' ? 1 : Number(a) - Number(b)));
   const esc = s => String(s).replace(/&/gu, '&amp;').replace(/</gu, '&lt;');
+
+  // Per-era dependency diagram, built from the items' own deps/blocks edges.
+  const byId = new Map(items.map(it => [it.id, it]));
+  const mmId = id => 'n_' + String(id).replace(/[^A-Za-z0-9]+/gu, '_');
+  const mmLabel = text => {
+    const cleaned = String(text).replace(/[^A-Za-z0-9 .,:()/+·-]+/gu, ' ')
+      .replace(/\s+/gu, ' ').trim();
+    return cleaned.length > 46 ? `${cleaned.slice(0, 44)}…` : cleaned;
+  };
+  const mermaidForVersion = vk => {
+    const rows = byVersion.get(vk);
+    const nodes = new Map();
+    const edges = new Set();
+    const ext = new Set();
+    const touch = id => {
+      const it = byId.get(id);
+      if (!it) { return null; }
+      const s = mmId(id);
+      if (String(it.version) === vk) { nodes.set(s, mmLabel(`${it.id} · ${it.title}`)); }
+      else { ext.add(s); nodes.set(s, mmLabel(`${it.id} (v${it.version})`)); }
+      return s;
+    };
+    for (const it of rows) {
+      for (const d of it.deps ?? []) {
+        const a = touch(d), b = touch(it.id);
+        if (a && b) { edges.add(`${a} --> ${b}`); }
+      }
+      for (const bl of it.blocks ?? []) {
+        const a = touch(it.id), b = touch(bl);
+        if (a && b) { edges.add(`${a} --> ${b}`); }
+      }
+    }
+    if (edges.size === 0) { return ''; }
+    const lines = ['graph LR'];
+    for (const [s, label] of nodes) { lines.push(`  ${s}["${label}"]`); }
+    for (const e of edges) { lines.push(`  ${e}`); }
+    for (const s of ext) { lines.push(`  class ${s} ext;`); }
+    lines.push('  classDef ext fill:#eee,stroke:#bbb,color:#777,stroke-dasharray:3 3;');
+    return `<p><strong>Dependency graph — v${esc(vk)}</strong> `
+      + `<small>(dashed = cross-era)</small></p>\n`
+      + `<pre class="mermaid">\n${lines.join('\n')}\n</pre>\n`;
+  };
+
   for (const vk of versionKeys) {
     const rows = byVersion.get(vk).sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
     itemsHtml += `<h2>Items — v${esc(vk)}</h2>\n` + rows.map(it => {
@@ -87,7 +137,7 @@ if (fs.existsSync(itemsDir)) {
         + (meta ? `<p><small>${meta}</small></p>\n` : '')
         + `<p>${esc(it.manager)}</p>\n`
         + (it.cs ? `<p><code>CS</code> ${esc(it.cs)}</p>\n` : '');
-    }).join('\n');
+    }).join('\n') + mermaidForVersion(vk);
   }
   if (itemsHtml) {
     itemsHtml = `<section id="item-register"><h1>Item Register</h1>\n${itemsHtml}</section>\n<hr/>`;
@@ -108,11 +158,17 @@ const html = `<!doctype html>
   blockquote { border-left: 4px solid #bbb; margin-left: 0; padding-left: 1em; color: #555; }
   nav { background: #fafafa; border: 1px solid #ddd; padding: 1em 2em; }
   hr { border: none; border-top: 1px dashed #bbb; margin: 3em 0; }
+  pre.mermaid { background: none; border: 1px solid #e6e6e6; border-radius: 4px;
+                padding: 1em; margin: 1em 0; text-align: center; }
 </style></head><body>
 <h1>The FSL Era Book</h1>
 <p><em>v6 “The Ground” through v16 “The Public Machine” — generated ${new Date().toISOString().slice(0, 10)}</em></p>
 <nav><ol>${toc}</ol></nav>
 ${sections.join('\n')}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { curve: 'basis' } });
+</script>
 </body></html>\n`;
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
