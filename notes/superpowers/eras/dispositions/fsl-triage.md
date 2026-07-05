@@ -8,7 +8,10 @@
 > map · `SAT` migrate→satellite repo — **twin-first, same as MIG (John 2026-07-04): a SAT row
 > closes ONLY after the destination repo exists AND carries the matching issue; until then it
 > stays open, tagged sat-pending** · `DONE?` verify shipped, then close · `DUP(#)` duplicate ·
-> `ASK` John decides.
+> `ASK` John decides. **SUP pointer discipline (John, 2026-07-04): like SAT/MIG, a SUP close
+> must cite a LIVE issue as well as the superseding artifact — the era umbrella issue at
+> minimum (so SUP closes execute only after the projection's umbrellas are filed), the
+> specific W-item issue when it exists.**
 
 1399 e3 — leanstral prover: checker-backend research
 1398 SAT — Nova ext (tree-sitter satellite)
@@ -86,7 +89,8 @@
 1256 e1 — operator kind (#909 cluster)
 1255 e7 — website overhaul
 1254 e7 — readme overhaul
-1252 ASK — twitter 1.1 breakage: fix or retire
+1252 e7 — RESOLVED (John 2026-07-04): fix via Playwright browser automation, not the paid X
+     API; direction posted to the issue (comment 2026-07-04)
 1251 e1 — is-transition-hooked API (§12 registry)
 1249 e3 — mass random-walk reachability
 1248 e3 — probability 0/false verification
@@ -98,7 +102,8 @@
 1241 e7 — argdown integration
 1240 e2 — edit on diagram (wc)
 1239 DONE? — can-make check likely shipped (valid_action family)
-1220 ASK — override hook (override shipped; still wanted?)
+1220 SUP(MP§12) — RESOLVED (John 2026-07-04): absorbed by the v9 observational hook registry
+     (override is a registry event kind); closes under the SUP pointer discipline below
 1218 e1 — property-default variance rules
 1217 SUP(#1356) — wildcard dup
 1216 e7 — tools/integrations page
