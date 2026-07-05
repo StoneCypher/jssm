@@ -1,0 +1,11 @@
+{
+  "id": "W6.99",
+  "title": "C1 canonical source_hash",
+  "version": 6,
+  "cluster": "portability-contract",
+  "src": ["MP§26", "era1/WP-1.1", "2026-07-04-canonical-source-hash.md"],
+  "issue": null,
+  "blocks": ["W6.96"],
+  "manager": "One pinned, universal way to hash an FSL source so the answer is identical on every OS and toolchain — the cornerstone of the whole portability contract. Without it, \"the same machine\" is a matter of opinion; with it, two parties can prove they hold byte-identical logic, a certificate can name exactly what it certifies, and a registry can dedupe. It hashes LF-normalized, NFC-normalized, BOM-stripped UTF-8 bytes with SHA-256, so a Windows checkout and a Mac checkout of one file finally agree.",
+  "cs": "UTF-8-or-refuse; BOM strip; CRLF/CR->LF; NFC; vendored SHA-256, `sha256:` tag; certificate subject = normalized-source hash; `proof_input_hash` over RFC 8785 canonical JSON (source + property + assumptions + checker-version, irreversibles #14 slice); ten vectors incl. CRLF/BOM/astral/NFC-NFD; provisional-tag sunset at v9."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "Tjssm-757",
+  "title": "val/prop name collision (was jssm#757)",
+  "version": 6,
+  "cluster": "val-bug-tail",
+  "src": ["era0/WP-10", "era1/WP-1.6"],
+  "issue": 757,
+  "manager": "When a val and a prop share a name they currently collide in a way that corrupts one of them, so a perfectly reasonable machine silently computes with the wrong value. Fix the resolution so the two namespaces stay distinct and predictable. Early 6.0.x val-tail patch, cleared before the expression language builds on top of val."
+}

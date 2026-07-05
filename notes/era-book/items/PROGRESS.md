@@ -3,6 +3,7 @@
 One line per slice. Ordered by execution value: v5.x → v6 → v7 → v8 → v9 → v10 → v11 → v12 → v13 → v14 → v15 → v16.
 
 - 2026-07-04 · **v5.x** · The Long Goodbye · 31 files (Tfsl-486,480 audit; Tfsl-1299,1264,1185,935,710,659,653 bug/QoL; Tfsl-1317,1073,732,731,730,729,728,727,726,545,112 lint; Tfsl-652,651,556,389 coverage; Tfsl-65 + Tjssm-922 dragon-A; Tfsl-1307,1100,986,611,365 housekeeping) — all `e0` cleanup rows, no W-items; `npm run era_book` green.
+- 2026-07-04 · **v6** · The Ground · 10 files (W6.99 C1 hash, W6.100 seeded-walk repro; Tjssm-754 atom-charset breakage; Tjssm-755,757,758,759 val-bug-tail; Tjssm-756 perf-keystone; Tjssm-827 M3 via One Merge; Tjssm-921 deno drop) — the addressable rows that map to v6; `npm run era_book` green. **See cluster-tier note below** — the v6 program WPs without a W-ID/issue stay at cluster tier.
 
 ## Derived W6.* → version mapping (proceeding on this unless corrected)
 
@@ -24,3 +25,16 @@ My reading (exemplars confirm: W6.5 decimal=v7, W6.86 groups=v8):
 5. **W6.104 (explain + error-code registry) → v10** — filed under §25 tooling; the "error-code namespace" half is arguably wave-6.1/v6, but the item as written is the explain verb.
 
 None of these change item content, only the `version` tag. Proceeding on the mapping above.
+
+## Cluster-tier vs item-tier (v6 exposed this; applies throughout)
+
+The README's three tiers are **book cluster → items/*.json (W-IDs/issues) → tracker issues**.
+Several v6 "Ground" topics in `06-ground-long.md` are pure program work with **no W-ID and no
+tracker row** — the One Merge, the dragon go-live, the perf envelope, the error-code namespace
+reservation, `jssm-*` synonym removal, the probabilistic list-target split, the C2 semantics
+appendix, tracker execution, audit re-verification. Under the strict ID rules (an item is a
+W-ID or a `T<repo>-<number>` tracker row) these have no conformant item ID, so they stay at
+the **cluster tier** — captured in the long-form markdown, not duplicated as item JSON. Only
+the addressable rows became items. Flagging in case John wants synthetic IDs (e.g. `WP6.x`)
+for the ID-less program topics; if so, that is a one-time schema decision affecting each era's
+WP-level entries, not this era alone.

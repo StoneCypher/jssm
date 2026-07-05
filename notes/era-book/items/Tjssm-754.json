@@ -1,0 +1,10 @@
+{
+  "id": "Tjssm-754",
+  "title": "atom charset restriction (was jssm#754)",
+  "version": 6,
+  "cluster": "breakage-batch",
+  "src": ["era0/WP-5", "MP§28", "v6_breaking_changes.json#754"],
+  "issue": 754,
+  "manager": "Today a state can be named `foo,bar#baz`, which breaks tooling, highlighting, and the coming expression language (where dot is member access and dash is the arrow). 6.0 restricts unquoted names to identifier form; anything more exotic must be quoted. This is a breaking change, so it rides the 6.0 wall with a corpus sweep and a migration note — it lands once, loudly, with a quote-it suggestion, instead of trickling out and surprising people.",
+  "cs": "peg `AtomFirstLetter/AtomLetter` + enum-member rule -> `[A-Za-z_][A-Za-z0-9_]*`; example/test corpus sweep; diagnostic carries span + suggested_fix (quoted form); vectors accept identifiers and reject `a.b`/`1a`/`a-b` with correct messages; manifest entry already written."
+}

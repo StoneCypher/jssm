@@ -1,0 +1,10 @@
+{
+  "id": "Tjssm-921",
+  "title": "dist/deno drop rides the assembly branch (was jssm#921)",
+  "version": 6,
+  "cluster": "one-merge",
+  "src": ["era0/WP-4"],
+  "issue": 921,
+  "manager": "The Deno distribution target is being dropped, and that removal rides the 6.0 assembly branch so it lands with the major rather than as its own breaking patch. This row tracks the dist/deno cleanup — the 6.0 package stops building, shipping, and testing a target the project no longer supports, which also lets a batch of deno-related issues close as superseded.",
+  "cs": "rides WP-4 assembly; pairs with the deno-drop SUP closes in the fsl triage (#916/#917/#920/#921/#756-META and the deno usage page)."
+}
