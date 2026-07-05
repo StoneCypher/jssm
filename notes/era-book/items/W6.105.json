@@ -1,0 +1,10 @@
+{
+  "id": "W6.105",
+  "title": "list verb",
+  "version": 10,
+  "cluster": "cli-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "manager": "The `list` verb — enumerate the parts of a machine (states, edges, actions, groups, vals) as structured output, so you can ask \"what is in this machine\" programmatically. Small but load-bearing for tooling and for a human exploring an unfamiliar machine: it is the table of contents you reach for before reading the whole thing.",
+  "cs": "`list` verb (§25); enumerate states/edges/actions/groups/vals; structured output; a tooling and exploration primitive."
+}

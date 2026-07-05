@@ -1,0 +1,10 @@
+{
+  "id": "W6.101",
+  "title": "lint verb",
+  "version": 10,
+  "cluster": "cli-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "manager": "The `lint` verb — static analysis of an FSL machine for the problems the grammar accepts but the author probably didn't mean: unreachable states, island subgraphs, undeclared references, style issues. This is the first line of the CLI tooling story and the thing CI runs on every machine; it catches the mistakes that are legal FSL but wrong intent, before they reach a diagram or a user.",
+  "cs": "`lint` verb (§25); reachability/island/undeclared-ref/style checks; jssm twin #620; feeds `lint --future` (W6.94)."
+}

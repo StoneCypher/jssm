@@ -1,0 +1,11 @@
+{
+  "id": "W6.108",
+  "title": "grammar export gbnf/lark/ebnf",
+  "version": 10,
+  "cluster": "cli-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "deps": ["WP10.1"],
+  "manager": "Export FSL's grammar in the formats other tools speak — GBNF (for LLM-constrained generation), Lark, EBNF — so external parsers, generators, and LLM samplers can work with FSL syntax natively. GBNF in particular means a language model can be constrained to emit only valid FSL, which is directly load-bearing for the AI-distribution era. The exports ride the grammar dual, so they stay in sync with the real grammar instead of rotting.",
+  "cs": "grammar export to gbnf/lark/ebnf; rides the C3 grammar dual (WP10.1); GBNF enables constrained LLM generation (era-7 distribution); generated, not hand-maintained."
+}
