@@ -331,12 +331,29 @@ describe('build_data_json', () => {
 
 describe('build_comment_body', () => {
 
-  test('embeds each chart url and the publishing sha', () => {
-    const urls = new Map([['construct()', 'https://x/construct.svg']]);
+  test('embeds each op\'s log and linear image and the publishing sha', () => {
+    const urls = new Map([[ 'construct()',
+      { log: 'https://x/construct.svg', linear: 'https://x/construct.linear.svg' } ]]);
     const body = mpc.build_comment_body(urls, two_runs, 'abc123');
-    expect(body).toContain('![construct() trend](https://x/construct.svg)');
+    expect(body).toContain('![construct() trend (log)](https://x/construct.svg)');
+    expect(body).toContain('![construct() trend (linear, last 30)](https://x/construct.linear.svg)');
     expect(body).toContain('abc123');
     expect(body).toContain('2 measured PRs');
+  });
+
+});
+
+
+
+describe('publish_charts (dry-run urls)', () => {
+
+  test('returns a log and a linear url per op, pinned to the stamp dir', () => {
+    const exec   = mpc.make_executor(true);
+    const panels = new Map([[ 'construct()', { log: '<svg/>', linear: '<svg/>' } ]]);
+    const { urls } = mpc.publish_charts(exec, panels, '20260101-000000');
+    const u = urls.get('construct()');
+    expect(u.log).toContain('/charts/20260101-000000/construct.svg');
+    expect(u.linear).toContain('/charts/20260101-000000/construct.linear.svg');
   });
 
 });
