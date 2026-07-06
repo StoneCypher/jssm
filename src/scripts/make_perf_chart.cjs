@@ -3,9 +3,13 @@
 /**
  *  Graviton perf-trend chart generator (#748).  Reads every measured run from
  *  the `perf_results` data branch (`c8g.medium/pr-N/scaling.json` and
- *  `c8g.medium/release-V/scaling.json`), and renders one log-scale SVG panel
- *  per benchmarked operation — one line per machine shape, PRs ordered by
- *  number then releases by semver — plus a machine-readable data JSON.
+ *  `c8g.medium/release-V/scaling.json`), and renders, per benchmarked operation,
+ *  a log-scale SVG panel (full history, one line per machine shape) over a
+ *  linear-scale twin (the most recent 30 versions, y-axis padded 10% of the data
+ *  span) — PRs ordered by number then releases by semver.  A final panel tracks
+ *  package size as a single line (the summed raw byte size of the published dist
+ *  bundles, from each run's `bundles` block).  Also emits a machine-readable data
+ *  JSON.
  *
  *  Three consumers:
  *
@@ -23,8 +27,8 @@
  *
  *    node src/scripts/make_perf_chart.cjs --comment [--issue <n>]
  *        Run-end mode (the perf_chart workflow, on every push to
- *        perf_results): additionally commits the per-operation SVGs to the
- *        perf_results branch under charts/<stamp>/ and posts them to the
+ *        perf_results): additionally commits the per-operation log + linear SVGs
+ *        to the perf_results branch under charts/<stamp>/ and posts them to the
  *        perf-tracking issue (default #636) via raw URLs pinned to the
  *        publishing commit SHA — GitHub's API has no comment-attachment
  *        upload, and SHA-pinning means later branch movement can never break
@@ -146,30 +150,37 @@ function pivot_series(runs) {
   return series;
 }
 
+/** The single package-size series label; package weight is shape-independent. */
+const PACKAGE_SERIES_LABEL = 'package (raw, all dist)';
+
 /**
- *  Pivot the per-shape machine footprint into a shape -> [{ key, ops }] series,
- *  reading `footprintBytes` (the retained heap of one constructed machine, injected
- *  onto each `construct()` row by the benchmark's memory pass) as the y-value.  The
- *  value lands in the `ops` field so it can reuse {@link panel_svg} directly; the
- *  panel just labels its axis `bytes` instead of `ops/sec`.  Rows without a numeric
- *  `footprintBytes` (e.g. a release benchmarked without `--expose-gc`) are skipped,
- *  so the panel simply has gaps rather than failing.
+ *  Pivot the per-run bundle sizes into a single-line series: the summed raw
+ *  byte size of every published dist artifact (`run.bundles[*].raw`) at each
+ *  run.  Package weight is not a function of machine shape, so — unlike
+ *  {@link pivot_series} — this collapses to exactly one series, reusing
+ *  {@link panel_svg} with a `bytes` axis.  Runs whose `scaling.json` predates
+ *  the bundle-sizing pass carry no `bundles` block and are skipped, so the
+ *  panel simply has gaps.
  *
  *  @param runs Sorted runs from {@link collect_runs}.
- *  @returns Map of shape to an ordered point list (empty when no run carries footprints).
+ *  @returns A one-entry Map (`PACKAGE_SERIES_LABEL` -> ordered points), or an
+ *           empty Map when no run carries a `bundles` block.
+ *
+ *  @example
+ *  bundle_size_series([{ bundles: { a: { raw: 10 }, b: { raw: 5 } }, ... }])
+ *  // => Map { 'package (raw, all dist)' => [{ key, ops: 15 }] }
  */
-function footprint_series(runs) {
-  const by_shape = new Map();
+function bundle_size_series(runs) {
+  const points = [];
   for (const run of runs) {
-    for (const r of run.results) {
-      if (!r.name.endsWith(' construct()'))   { continue; }
-      if (typeof r.footprintBytes !== 'number') { continue; }
-      const shape = r.name.slice(0, r.name.lastIndexOf(' '));
-      if (!by_shape.has(shape)) { by_shape.set(shape, []); }
-      by_shape.get(shape).push({ key: key_of(run), ops: r.footprintBytes });
+    if (!run.bundles || typeof run.bundles !== 'object') { continue; }
+    let total = 0, seen = false;
+    for (const b of Object.values(run.bundles)) {
+      if (b && typeof b.raw === 'number') { total += b.raw; seen = true; }
     }
+    if (seen) { points.push({ key: key_of(run), ops: total }); }
   }
-  return by_shape;
+  return points.length ? new Map([[PACKAGE_SERIES_LABEL, points]]) : new Map();
 }
 
 /**
@@ -212,6 +223,25 @@ function summary_line(runs) {
 }
 
 /**
+ *  Humanize a magnitude for a linear-axis tick: thousands as `k`, millions as
+ *  `M`, billions as `G`, up to one decimal with no trailing zero.  Locale-free
+ *  and deterministic, so tick labels never churn.
+ *
+ *  @param v A finite number.
+ *  @returns e.g. `1200000 -> '1.2M'`, `1500 -> '1.5k'`, `42 -> '42'`.
+ *
+ *  @example format_tick(1200000) // => '1.2M'
+ */
+function format_tick(v) {
+  const abs   = Math.abs(v);
+  const units = [ [1e9, 'G'], [1e6, 'M'], [1e3, 'k'] ];
+  for (const [scale, suffix] of units) {
+    if (abs >= scale) { return `${Number((v / scale).toFixed(1))}${suffix}`; }
+  }
+  return `${Number(v.toFixed(1))}`;
+}
+
+/**
  *  Render one operation's panel as a standalone SVG: log-scale ops/sec, one
  *  line per machine shape, x ticks per run (releases angled and tinted), a
  *  faint vertical guide behind every run column (to line a point up with its
@@ -224,29 +254,47 @@ function summary_line(runs) {
  *  @param width Panel width in px.
  *  @param height Panel height in px.
  *  @param unit Y-axis metric label for the title, e.g. `'ops/sec'` (throughput
- *         panels) or `'bytes'` (the footprint panel).  The point values still come
+ *         panels) or `'bytes'` (the package-size panel).  The point values still come
  *         from each point's `ops` field — `unit` only renames the axis.
+ *  @param scale `'log'` (default) renders the log-decade axis anchored at 10^0;
+ *         `'linear'` renders a linear axis padded 10% of the data span on each
+ *         side, tick labels humanized via {@link format_tick}, and titles the
+ *         panel `(linear scale, last 30)` — the caller windows the points.
  *  @returns A self-contained `<svg>` string.
  */
-function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
+function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 'log') {
   const m  = { t: 34, r: 150, b: 48, l: 64 };
   const iw = width - m.l - m.r, ih = height - m.t - m.b;
 
   const x = (key) => m.l + (keys.indexOf(key) / Math.max(1, keys.length - 1)) * iw;
 
+  const linear = (scale === 'linear');
+
   let lo = Infinity, hi = -Infinity;
   for (const pts of by_shape.values()) {
     for (const p of pts) {
-      if (p.ops > 0) { lo = Math.min(lo, p.ops); hi = Math.max(hi, p.ops); }
+      const usable = linear ? Number.isFinite(p.ops) : p.ops > 0;
+      if (usable) { lo = Math.min(lo, p.ops); hi = Math.max(hi, p.ops); }
     }
   }
-  const ylo = 0;                               // anchor the axis at 10^0 (the zeroth order of ten)
-  const yhi = Math.floor(Math.log10(hi)) + 1;  // round the top up to the next order of ten above the max
-  const y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+
+  let ylo, yhi, y;
+  if (linear) {
+    const span = hi - lo;
+    const pad  = span > 0 ? span * 0.1 : (Math.abs(hi) * 0.1 || 1);   // 10% of the span; flat data -> 10% of the value
+    ylo = lo - pad;
+    yhi = hi + pad;
+    y   = (v) => m.t + ih - ((v - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+  } else {
+    ylo = 0;                                     // anchor the axis at 10^0 (the zeroth order of ten)
+    yhi = Math.floor(Math.log10(hi)) + 1;        // round the top up to the next order of ten above the max
+    y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+  }
 
   const els = [];
   els.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
-  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (log scale) by PR / release, ${DEFAULTS.instanceType}</text>`);
+  const scale_note = linear ? 'linear scale, last 30' : 'log scale';
+  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (${scale_note}) by PR / release, ${DEFAULTS.instanceType}</text>`);
 
   // Gridlines, painted strictly lightest → heaviest so a heavier line is never
   // overpainted by a lighter one at a crossing (in SVG, paint order IS z-order):
@@ -262,13 +310,15 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
     }
   }
   // pass 2 — minor log gridlines at 2..9 × 10^d; the non-uniform spacing within
-  // each decade is the visual tell that the axis is logarithmic
-  for (let d = Math.floor(ylo); d <= Math.ceil(yhi); d++) {
-    for (let mul = 2; mul <= 9; mul++) {
-      const lv = Math.log10(mul * Math.pow(10, d));
-      if (lv >= ylo && lv <= yhi) {
-        const my = y(mul * Math.pow(10, d)).toFixed(1);
-        els.push(`<line x1="${m.l}" y1="${my}" x2="${m.l + iw}" y2="${my}" stroke="#d8d8d8"/>`);
+  // each decade is the visual tell that the axis is logarithmic (log only)
+  if (!linear) {
+    for (let d = Math.floor(ylo); d <= Math.ceil(yhi); d++) {
+      for (let mul = 2; mul <= 9; mul++) {
+        const lv = Math.log10(mul * Math.pow(10, d));
+        if (lv >= ylo && lv <= yhi) {
+          const my = y(mul * Math.pow(10, d)).toFixed(1);
+          els.push(`<line x1="${m.l}" y1="${my}" x2="${m.l + iw}" y2="${my}" stroke="#d8d8d8"/>`);
+        }
       }
     }
   }
@@ -279,12 +329,24 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
       els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#d0d0d0"/>`);
     }
   }
-  // pass 4 — decade gridlines + 1e<d> labels: the heaviest gridline, drawn last
-  // so the log-decade reference lines read cleanly through every crossing
-  for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++) {
-    const yy = y(Math.pow(10, d));
-    els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#b0b0b0"/>`);
-    els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
+  // pass 4 — heaviest horizontal gridlines + axis labels, drawn last so they
+  // read cleanly through every crossing.
+  if (linear) {
+    // five evenly-spaced ticks across the padded linear range, humanized labels
+    const TICKS = 5;
+    for (let i = 0; i <= TICKS; i++) {
+      const v  = ylo + (i / TICKS) * (yhi - ylo);
+      const yy = y(v);
+      els.push(`<line x1="${m.l}" y1="${yy.toFixed(1)}" x2="${m.l + iw}" y2="${yy.toFixed(1)}" stroke="#b0b0b0"/>`);
+      els.push(`<text x="${m.l - 6}" y="${(yy + 4).toFixed(1)}" font-size="10" text-anchor="end" fill="#888">${format_tick(v)}</text>`);
+    }
+  } else {
+    // log decades + 1e<d> labels
+    for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++) {
+      const yy = y(Math.pow(10, d));
+      els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#b0b0b0"/>`);
+      els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
+    }
   }
 
   // x labels: every run (no skipping), tiny and steep, hard against the axis.
@@ -313,7 +375,7 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
   let ci = 0, legend_y = m.t;
   for (const shape of by_shape.keys()) {
     const color = PALETTE[ci++ % PALETTE.length];
-    const pts   = by_shape.get(shape).filter((p) => p.ops > 0);
+    const pts   = by_shape.get(shape).filter((p) => linear ? Number.isFinite(p.ops) : p.ops > 0);
     if (pts.length > 1) {
       const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p.key).toFixed(1)},${y(p.ops).toFixed(1)}`).join(' ');
       els.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"/>`);
@@ -330,53 +392,76 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
 }
 
 /**
- *  Render every operation panel laid out in a `cols`-wide grid (row-major,
- *  left→right then top→bottom) with a title block — the
- *  `src/generated_docs/perf_chart.svg` artifact.
+ *  Render every panel as a log-over-linear pair, laid out in a `cols`-wide grid
+ *  (row-major, left→right then top→bottom) with a title block — the
+ *  `src/generated_docs/perf_chart.svg` artifact.  Each cell stacks the
+ *  full-history log panel above a linear twin windowed to the last 30 versions;
+ *  the final panel is the single-line package size (summed raw dist-bundle
+ *  bytes), added only when the data carries a `bundles` block.
  *
  *  @param runs Sorted runs.
- *  @param panel_width Width of each operation panel in px.
- *  @param panel_height Height of each operation panel in px.
- *  @param panel_gap Vertical gap between panel rows in px (~2em at the 16px root
- *                   font), so the rows read as distinct charts.
- *  @param cols Number of panel columns (2 ⇒ a two-wide grid).
- *  @returns `{ svg, panels }` — the composite document and the individual
- *           panel SVGs keyed by operation (the comment flow embeds those).
+ *  @param panel_width Width of each panel in px (both twins share it).
+ *  @param panel_height Height of each panel in px.
+ *  @param panel_gap Intra-pair gap (log → linear) in px; the inter-pair-row gap
+ *                   is double this, so pairs read as distinct while their two
+ *                   twins read as coupled.
+ *  @param cols Number of pair columns (2 ⇒ a two-wide grid).
+ *  @returns `{ svg, panels }` — the composite document and a Map of each panel's
+ *           `{ log, linear }` SVG pair keyed by operation (`'packageBytes'` for
+ *           the package panel); the comment flow embeds both twins.
  */
 function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 32, cols = 2) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
+  const keys30 = keys.slice(-30);
+
+  // Each panel is a { log, linear } pair: the log twin over full history, the
+  // linear twin over the last 30 keys with a 10%-padded axis.
+  const make_pair = (op, by_shape, unit) => {
+    const windowed = new Map();
+    for (const [shape, pts] of by_shape) {
+      windowed.set(shape, pts.filter((p) => keys30.includes(p.key)));
+    }
+    return {
+      log    : panel_svg(op, by_shape, keys,   panel_width, panel_height, unit, 'log'),
+      linear : panel_svg(op, windowed, keys30, panel_width, panel_height, unit, 'linear')
+    };
+  };
 
   const panels = new Map();
   for (const op of OPERATIONS) {
-    if (series.has(op)) { panels.set(op, panel_svg(op, series.get(op), keys, panel_width, panel_height)); }
+    if (series.has(op)) { panels.set(op, make_pair(op, series.get(op), 'ops/sec')); }
   }
 
-  // 8th panel: machine footprint (bytes) — fills the spare cell of the 2-wide grid
-  // the seven throughput ops leave open. Only added when the data carries footprints.
-  const footprints = footprint_series(runs);
-  if (footprints.size > 0) {
-    panels.set('footprintBytes', panel_svg('footprintBytes', footprints, keys, panel_width, panel_height, 'bytes'));
-  }
+  // package-size panel (single line, bytes): the shape-independent package
+  // weight, only when the data carries a bundles block.
+  const pkg = bundle_size_series(runs);
+  if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes')); }
 
-  const col_gap  = 40;                          // horizontal breathing room between columns
-  const rows     = Math.ceil(panels.size / cols);
-  const header_h = 56;
-  const width    = cols * panel_width + Math.max(0, cols - 1) * col_gap;
-  const total_h  = header_h + rows * panel_height + Math.max(0, rows - 1) * panel_gap;
-  const parts    = [];
+  const col_gap        = 40;                        // horizontal breathing room between columns
+  const intra_pair_gap = panel_gap;                 // log → linear twin inside a pair
+  const inter_pair_gap = panel_gap * 2;             // between pair-rows: doubled, so pairs read as distinct
+  const pair_height    = 2 * panel_height + intra_pair_gap;
+  const rows           = Math.ceil(panels.size / cols);
+  const header_h       = 56;
+  const width          = cols * panel_width + Math.max(0, cols - 1) * col_gap;
+  const total_h        = header_h + rows * pair_height + Math.max(0, rows - 1) * inter_pair_gap;
+
+  const strip = (svg) => svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  const parts = [];
   parts.push(`<svg width="${width}" height="${total_h}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`);
   parts.push(`<rect width="${width}" height="${total_h}" fill="#ffffff"/>`);
   parts.push(`<text x="16" y="24" font-size="17" font-weight="bold" fill="#1a1a1a">jssm performance trend — graviton runners (perf_results branch)</text>`);
   parts.push(`<text x="16" y="44" font-size="11" fill="#666">${summary_line(runs)} Source: ${DEFAULTS.ghRepo} branch perf_results, instance ${DEFAULTS.instanceType}. Data through ${data_stamp(runs)}.</text>`);
 
-  // lay panels out in a cols-wide grid, row-major (left→right, top→bottom)
+  // lay pairs out in a cols-wide grid, row-major; each cell stacks log over linear
   let i = 0;
-  for (const svg of panels.values()) {
+  for (const pair of panels.values()) {
     const col = i % cols, row = Math.floor(i / cols);
     const ox  = col * (panel_width + col_gap);
-    const oy  = header_h + row * (panel_height + panel_gap);
-    parts.push(`<g transform="translate(${ox} ${oy})">${svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`);
+    const oy  = header_h + row * (pair_height + inter_pair_gap);
+    parts.push(`<g transform="translate(${ox} ${oy})">${strip(pair.log)}</g>`);
+    parts.push(`<g transform="translate(${ox} ${oy + panel_height + intra_pair_gap})">${strip(pair.linear)}</g>`);
     i++;
   }
   parts.push('</svg>');
@@ -404,16 +489,18 @@ function build_data_json(runs) {
       release : r.release,
       version : r.version,
       date    : r.date,
-      results : r.results
+      results : r.results,
+      bundles : r.bundles
     }))
   };
 }
 
 /**
- *  Build the issue-comment markdown: summary, one embedded chart per
- *  operation, provenance footer naming the publishing commit.
+ *  Build the issue-comment markdown: summary, each operation's log panel with
+ *  its linear twin embedded directly beneath it, provenance footer naming the
+ *  publishing commit.
  *
- *  @param urls Map of operation name -> SHA-pinned image URL.
+ *  @param urls Map of operation name -> `{ log, linear }` SHA-pinned image URLs.
  *  @param runs Sorted runs (for the summary line).
  *  @param sha The perf_results commit the images are pinned to.
  *  @returns Markdown for `gh issue comment --body-file`.
@@ -422,10 +509,12 @@ function build_comment_body(urls, runs, sha) {
   const lines = [];
   lines.push(`## Graviton perf trend — ${DEFAULTS.instanceType}`);
   lines.push('');
-  lines.push(`${summary_line(runs)} Log-scale ops/sec, one line per machine shape.`);
+  lines.push(`${summary_line(runs)} Each operation shows a log panel (full history) above a linear twin (last 30 versions).`);
   lines.push('');
-  for (const [op, url] of urls) {
-    lines.push(`![${op} trend](${url})`);
+  for (const [op, u] of urls) {
+    lines.push(`![${op} trend (log)](${u.log})`);
+    lines.push('');
+    lines.push(`![${op} trend (linear, last 30)](${u.linear})`);
     lines.push('');
   }
   lines.push(`<sub>Generated by \`src/scripts/make_perf_chart.cjs\` from the \`perf_results\` branch; charts committed at ${sha}.</sub>`);
@@ -538,7 +627,8 @@ function collect_runs(exec, repo_dir) {
       release : rl_m ? rl_m[1] : undefined,
       version : data.version,
       date    : data.date,
-      results : data.results
+      results : data.results,
+      bundles : data.bundles
     });
   }
 
@@ -579,9 +669,10 @@ function push_with_retry(exec, dir) {
  *  a throwaway clone and return SHA-pinned raw URLs for embedding.
  *
  *  @param exec An executor from {@link make_executor}.
- *  @param panels Map of operation name -> SVG markup.
+ *  @param panels Map of operation name -> `{ log, linear }` SVG markup.
  *  @param stamp The data stamp naming this chart set's directory.
- *  @returns `{ sha, urls }` — `urls` maps operation to its pinned raw URL.
+ *  @returns `{ sha, urls }` — `urls` maps operation to `{ log, linear }` pinned
+ *           raw URLs (`<slug>.svg` and `<slug>.linear.svg`).
  */
 function publish_charts(exec, panels, stamp) {
   const tmp = exec.dryRun ? '<tmp>' : fs.mkdtempSync(path.join(os.tmpdir(), 'jssm-perf-charts-'));
@@ -591,8 +682,9 @@ function publish_charts(exec, panels, stamp) {
     if (!exec.dryRun) {
       const dest = path.join(tmp, 'charts', stamp);
       fs.mkdirSync(dest, { recursive: true });
-      for (const [op, svg] of panels) {
-        fs.writeFileSync(path.join(dest, `${chart_slug(op)}.svg`), svg);
+      for (const [op, pair] of panels) {
+        fs.writeFileSync(path.join(dest, `${chart_slug(op)}.svg`),        pair.log);
+        fs.writeFileSync(path.join(dest, `${chart_slug(op)}.linear.svg`), pair.linear);
       }
     }
 
@@ -601,9 +693,11 @@ function publish_charts(exec, panels, stamp) {
     push_with_retry(exec, tmp);
 
     const sha  = exec.run('git', ['rev-parse', 'HEAD'], { cwd: tmp, dryRunStdout: '<sha>' });
+    const base = `https://raw.githubusercontent.com/${DEFAULTS.ghRepo}/${sha}/charts/${stamp}`;
     const urls = new Map([...panels.keys()].map((op) => [
       op,
-      `https://raw.githubusercontent.com/${DEFAULTS.ghRepo}/${sha}/charts/${stamp}/${chart_slug(op)}.svg`
+      { log    : `${base}/${chart_slug(op)}.svg`,
+        linear : `${base}/${chart_slug(op)}.linear.svg` }
     ]));
     return { sha, urls };
   } finally {
@@ -670,8 +764,8 @@ function main(argv) {
 }
 
 module.exports = {
-  semver_compare, compare_runs, key_of, pivot_series, footprint_series, data_stamp, summary_line,
-  panel_svg, render_chart, build_data_json, build_comment_body, chart_slug,
+  semver_compare, compare_runs, key_of, pivot_series, bundle_size_series, data_stamp, summary_line,
+  panel_svg, render_chart, build_data_json, build_comment_body, chart_slug, format_tick,
   parse_args, make_executor, collect_runs, publish_charts, push_with_retry,
   DEFAULTS, OPERATIONS
 };
