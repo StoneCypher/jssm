@@ -404,7 +404,8 @@ function build_data_json(runs) {
       release : r.release,
       version : r.version,
       date    : r.date,
-      results : r.results
+      results : r.results,
+      bundles : r.bundles
     }))
   };
 }
@@ -538,7 +539,8 @@ function collect_runs(exec, repo_dir) {
       release : rl_m ? rl_m[1] : undefined,
       version : data.version,
       date    : data.date,
-      results : data.results
+      results : data.results,
+      bundles : data.bundles
     });
   }
 

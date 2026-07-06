@@ -234,6 +234,12 @@ describe('build_data_json', () => {
     expect(j.runs[0].results[0].name).toBe('chain-200 transition()');
   });
 
+  test('carries the bundles block per run', () => {
+    const j = mpc.build_data_json([ run({ pr: 1,
+      bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 400, brotli: 300 } } }) ]);
+    expect(j.runs[0].bundles['jssm.es5.cjs'].raw).toBe(1000);
+  });
+
 });
 
 
@@ -321,6 +327,26 @@ describe('collect_runs (seamed)', () => {
 
     const runs = mpc.collect_runs(fake_exec, '.');
     expect( runs.map(mpc.key_of) ).toEqual(['598', '700', 'v5.143.4']);
+  });
+
+  test('threads the bundles block onto each run when present', () => {
+    const listing = 'c8g.medium/pr-42/scaling.json';
+    const canned: Record<string, string> = {
+      'FETCH_HEAD:c8g.medium/pr-42/scaling.json':
+        '{"version":"5.0.0","date":"2026-06-01T00:00:00.000Z","results":[],' +
+        '"bundles":{"jssm.es5.cjs":{"raw":1000,"gzip":400,"brotli":300}}}'
+    };
+    const fake_exec = {
+      dryRun: false,
+      run: (_cmd: string, args: string[]) => {
+        if (args[0] === 'fetch')   { return ''; }
+        if (args[0] === 'ls-tree') { return listing; }
+        if (args[0] === 'show')    { return canned[args[1]]; }
+        throw new Error(`unexpected git args ${args.join(' ')}`);
+      }
+    };
+    const runs = mpc.collect_runs(fake_exec, '.');
+    expect( runs[0].bundles['jssm.es5.cjs'].raw ).toBe(1000);
   });
 
   test('returns null when the fetch fails, so builds degrade gracefully', () => {
