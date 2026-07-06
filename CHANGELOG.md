@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-537 merges; 373 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+518 merges; 373 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,47 +22,18 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jul 6, 2026 10:17:23 AM
+## [Untagged] - Jul 6, 2026 3:37:27 PM
 
-Commit [aed50c142115068ed6d950227554799c0af4fae5](https://github.com/StoneCypher/jssm/commit/aed50c142115068ed6d950227554799c0af4fae5)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(era-book): issue schema + renderer (the single source of truth for issues)
-  * Zod schema + deterministic renderer: a validated register item -> issue
-{title, body, labels, milestone, fields}. Generated, never typed, so the format
-can't drift or be ignored.
-  * Sections: Motivation / Summary / Detail / Example / Example (without) / Risks /
-Ecosystem impact / Competitive gap / Done when (prose or checklist) / Depends /
-Blocks / Blocked-by-external / Sources / Charts / footer.
-Lifecycle: kind (17-vocab) / demand / strategic / irreversible / target +
-completion version / origin + finalization dates.
-Tags: topics / size / effort / priority / breaking / status.
-  * Required fields gate rendering, so an item can't become an issue until it's
-complete — the schema IS the quality bar.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 6, 2026 9:13:36 AM
-
-Commit [d2bf1434103e8a20cc8c949c33f502f2c1ad3358](https://github.com/StoneCypher/jssm/commit/d2bf1434103e8a20cc8c949c33f502f2c1ad3358)
+Commit [b794347c608fb158a0a0b2b167550992a5807088](https://github.com/StoneCypher/jssm/commit/b794347c608fb158a0a0b2b167550992a5807088)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(era-book): write back v6 dup issue numbers (W6.99/WP6.3/4/6/7/8 → fsl#1412-1416)
-  * The dedup found six v6 register items marked issue:null were already filed as the
-projection-B decision records fsl#1412-1416. Per the merge-not-just-link rule,
-folded each register item's newer implementation detail into the surviving issue
-(notably #1414 gained the define_canonical()/jssm_compiler.ts:149 code locations),
-then wrote the issue numbers back into the register so it stops claiming they're
-unfiled.
-  * Blind-filing would have created 6 duplicates of #1412-1416.
-  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+  * feat(perf-chart): widen linear twin window to 50 versions, quadruple inter-pair gap
+  * LINEAR_WINDOW constant (50) replaces the hardcoded 30, used by the linear panel
+title, the render_chart window slice, and the issue-comment labels so they never
+drift. Inter-pair-row gap goes from 2x to 4x the base panel_gap so pair sets read
+as clearly distinct.
+  * Claude-Session: https://claude.ai/code/session_01Gyj8SYdxHyyRQo8xyxYCZr
 
 
 
@@ -71,58 +42,16 @@ unfiled.
 
 &nbsp;
 
-## [Untagged] - Jul 6, 2026 6:00:30 AM
+## [Untagged] - Jul 6, 2026 3:24:30 PM
 
-Commit [12b1325bf3df55ab1d6959d143144fc462fa0fa0](https://github.com/StoneCypher/jssm/commit/12b1325bf3df55ab1d6959d143144fc462fa0fa0)
-
-Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
-
-  * chart: graviton perf trend 20260706-044624
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 6, 2026 6:00:17 AM
-
-Commit [67b369e26d33cecb6986d9627c5262f6a251346f](https://github.com/StoneCypher/jssm/commit/67b369e26d33cecb6986d9627c5262f6a251346f)
-
-Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
-
-  * perf: nightly sync of graviton runner results from S3
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 5, 2026 9:40:40 PM
-
-Commit [03230638843b86a6f05b5ae49f7645441370cd3b](https://github.com/StoneCypher/jssm/commit/03230638843b86a6f05b5ae49f7645441370cd3b)
+Commit [2c97b29e43976d486a9e0b7512a9fc843d920401](https://github.com/StoneCypher/jssm/commit/2c97b29e43976d486a9e0b7512a9fc843d920401)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(era-book): completeness audit — the reader tiers are ~15% / 0%, not complete
-  * Honest damage report against John's standard (long form carries every item;
-one-pager names every item; an incomplete list is worse than nothing).
-  * Findings:
-- One-pagers name 0 items individually (prose summaries naming ~clusters).
-- Long-forms: 77 entries across v6-v16 vs 530 register items ~= 15% at item
-  grain (worst v16 4%, v10 5%); authored at cluster grain by design.
-- The item register (items/*.json, 562 substantive entries) is the only
-  item-level layer and is NOT the reader-facing account of record.
-- Fable's final commit stamped the tiers "complete"; they are not, by this
-  standard.
-- Accounting is tangled across four systems (6.0.0 batch vs 6.x series;
-  W-ID prefix != major; register superset of spec-workitems; cluster vs item
-  grain), so per-era counts don't reconcile without a merge.
-  * Not lost — the substance is in the register; the reader tiers were never
-rendered to item grain. Rebuilding to the standard is bounded by the register.
+Merges [65ca23c8, 9029e74a]
+
+  * Merge pull request #928 from StoneCypher/feat_26-07-05_graviton-perf-graphing
+  * feat(perf-chart): package-size panel + linear-scale twins
 
 
 
@@ -131,13 +60,20 @@ rendered to item grain. Rebuilding to the standard is bounded by the register.
 
 &nbsp;
 
-## [Untagged] - Jul 5, 2026 9:36:41 PM
+## [Untagged] - Jul 6, 2026 3:19:27 PM
 
-Commit [fb1a765461dc36c37c7cfde2d65692d4660402d5](https://github.com/StoneCypher/jssm/commit/fb1a765461dc36c37c7cfde2d65692d4660402d5)
+Commit [9029e74a994a02c1c668a04386088b2df74ac613](https://github.com/StoneCypher/jssm/commit/9029e74a994a02c1c668a04386088b2df74ac613)
 
-Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs: publish site for 65ca23c8b652c4b6154230bcc5d3ef72b6627f8a
+Merges [1240c94b, 65ca23c8]
+
+  * Merge main into feat_26-07-05_graviton-perf-graphing
+  * Resolve the release-race: main shipped 5.160.0 (TypeScript 6.0.3 upgrade, #929)
+while this branch also held 5.160.0. Re-bump to 5.161.0, reinstall to main's TS6
+toolchain, and full-rebuild all artifacts from merged source (my perf-chart
+renderer + main's TS6 changes). Spec suite 7274 tests / 100% coverage green.
+  * Claude-Session: https://claude.ai/code/session_01Gyj8SYdxHyyRQo8xyxYCZr
 
 
 
@@ -206,18 +142,21 @@ Plan: notes/superpowers/plans/2026-07-05-typescript-6-upgrade.md
 
 &nbsp;
 
-## [Untagged] - Jul 5, 2026 8:41:29 PM
+## [Untagged] - Jul 5, 2026 8:35:10 PM
 
-Commit [0499c8dccd1debdda0d2938b15f800afbfa108bd](https://github.com/StoneCypher/jssm/commit/0499c8dccd1debdda0d2938b15f800afbfa108bd)
+Commit [1240c94b9c5e6ac1fc403c0affae5718fe2f1325](https://github.com/StoneCypher/jssm/commit/1240c94b9c5e6ac1fc403c0affae5718fe2f1325)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(eras): WP-6 dragon phase A shipped to jssm PR #927 (5.159.3)
-  * Increment 15. John approved the CI-lane diff. /sc-commit bumped to 5.159.3,
-full build green, release commit bf0bec4c. Opened jssm PR #927 -> main
-(Refs fsl#1418/#65, no closes keywords). WP-6 is code-complete, awaiting John's
-merge (main protected); meets the DECIDED 6.0 dragon exit bar.
-  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+  * feat(perf-chart): package-size panel + linear twins (release 5.160.0)
+  * Replace the per-shape heap-footprint panel with a single package-size line
+(summed raw dist-bundle bytes, from each run's scaling.json bundles block), and
+add a linear-scale twin beneath every log panel: linear axis padded 10% of the
+data span, windowed to the most recent 30 versions. Pairs lay out in the 2-wide
+grid with the inter-pair gap doubled. --comment mode publishes and embeds both
+twins. Log panels are byte-identical for unchanged data.
+  * Version bump to 5.160.0 + full build artifacts.
+  * Claude-Session: https://claude.ai/code/session_01Gyj8SYdxHyyRQo8xyxYCZr
 
 
 
@@ -226,22 +165,55 @@ merge (main protected); meets the DECIDED 6.0 dragon exit bar.
 
 &nbsp;
 
-## [Untagged] - Jul 5, 2026 8:37:30 PM
+## [Untagged] - Jul 5, 2026 8:33:45 PM
 
-Commit [bf0bec4cfd27197ffa7f9d9ce4683f307c30b833](https://github.com/StoneCypher/jssm/commit/bf0bec4cfd27197ffa7f9d9ce4683f307c30b833)
+Commit [fd0cbb05ac8a6790dafa16fed53b9369a4fc245f](https://github.com/StoneCypher/jssm/commit/fd0cbb05ac8a6790dafa16fed53b9369a4fc245f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore(release): 5.159.3 — WP-6 dragon phase A (suite live + CI lane)
-  * Version bump 5.159.2 -> 5.159.3 and full `npm run build` (dist bundles, type
-declarations, changelog, readme, cloc, regenerated parser/version, CEM, and a
-perf-chart refresh from the canonical graviton c8g.medium data).
-  * Ships the WP-6 dragon work already committed on this branch:
-- kitchen-sink dragon engages fast-check properly + prints seed pairs on a find
-- §3 numeric / §4 colours / §6 arrow-decoration *.maximal.ts dragon suites,
-  every assertion probed against the parser before it was written
-- fixed a fake stoch test (arrow_decorations shuffle float-index) that the §6
-  dragon surfaced, plus a deterministic permutation regression guard
-- dragon CI lane (npm run vitest-dragon on push + PR; non-gating per the
-  detector-never-gates doctrine)
-  * No runtime or API change — test + tooling + docs only.
+  * docs: load missing-exports explicitly under typedoc 0.28; replace dropped @page links
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:25:43 PM
+
+Commit [0bfa56c1df205257c627150afc4641028b3a4c42](https://github.com/StoneCypher/jssm/commit/0bfa56c1df205257c627150afc4641028b3a4c42)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: gitignore the root tsconfig.tsbuildinfo that tsc --build emits under 6.0.3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:19:59 PM
+
+Commit [8a68a9d80c766936dd34a7cc39ec24d2f1e6f2dd](https://github.com/StoneCypher/jssm/commit/8a68a9d80c766936dd34a7cc39ec24d2f1e6f2dd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(types): satisfy the TS6 checker — node ambient types + generic typed-array casts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:11:13 PM
+
+Commit [d7241e18bfbcbe3f77864f312dcae4f53300d046](https://github.com/StoneCypher/jssm/commit/d7241e18bfbcbe3f77864f312dcae4f53300d046)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: @ts-nocheck the generated fsl_parser.ts for the TS6 checker
