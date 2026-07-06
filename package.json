@@ -310,6 +310,7 @@
     "@swc/core": "^1.15.33",
     "@types/chalk": "^2.2.0",
     "@types/jsdom": "^21.1.7",
+    "@types/node": "^26.1.0",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
     "@vitest/coverage-v8": "^4.1.6",
