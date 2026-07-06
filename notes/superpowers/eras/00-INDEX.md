@@ -155,3 +155,14 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   just: (1) the CI lane (3-tier, edits nodejs.yml — release-sensitive, to show John as a diff
   before landing), then (2) /sc-commit the whole branch as one 5.158.x patch (needs John's merge,
   main protected).
+- **2026-07-05 · Increment 15 (Opus 4.8, WP-6 SHIPPED to PR):** John approved the minimal CI-lane
+  diff. Committed the `dragon` CI job (e646a187), then /sc-commit: version 5.159.2→**5.159.3**
+  (patch — test/tooling/docs only), full `npm run build` green (perf-chart refresh was canonical
+  graviton c8g data, not local benny), release commit bf0bec4c. Pushed; opened **jssm PR #927**
+  → main (Refs fsl#1418, fsl#65; no `closes` keywords — left for John). **WP-6 dragon phase A is
+  code-complete and awaiting John's merge** (main protected). Meets the DECIDED 6.0 dragon exit
+  bar: kitchen-sink revived + green in CI + the three §-expansions. Held for follow-up (in the
+  egg): 3-tier CI budget (env-driven runs/seed + cron; deep tier wants mutation arms) and the
+  SemVer-prerelease §3 dragon test. **After #927 merges + npm shows 5.159.3:** WP-2 inherits zero
+  audit items (per WP-1), so the 5.x bug burn-down is just the ~30 milestone-#48 e0 issues — the
+  remaining 5.x code work before the assembly branch / One Merge (WP-4).
