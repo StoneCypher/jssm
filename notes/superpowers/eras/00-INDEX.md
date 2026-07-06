@@ -132,3 +132,15 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   smoke/heavy/deep, touches nodejs.yml — release-sensitive), the 3 §-expansion dragon files (§3
   numeric, §4 colours, §6 arrow-decorations — the dragons-egg suggestions), find-handling doc,
   egg status update.
+- **2026-07-05 · Increment 13 (Opus 4.8, WP-6 §6 dragon + first real find):** Wrote
+  `arrow_decorations.maximal.ts` (§6 dragon: N≥3 + identical-value duplicate rejection, WS-run
+  invariance, block/line comment invariance, malformed-report — all probed against the parser
+  first). **The dragon immediately earned its keep:** writing it surfaced that
+  `arrow_decorations.stoch.ts`'s `shuffle` used `rng() % (i+1)` on a float RNG → fractional index →
+  `out[j]` always `undefined` → every shuffle collapsed to `[out[0], undefined,…]`, making the
+  three order-invariance stoch tests **fake** (both sides degraded to one decoration, passed
+  trivially). Fixed shuffle (real Fisher-Yates) + added a deterministic permutation guard; order
+  invariance now genuinely holds (stoch green, 12). Logged the find + find-handling convention +
+  dragon-tier-live in `dragons-egg.md`. Verified: dragon 16 green, stoch 12 green, eslint clean.
+  Committed 9c22e282, pushed. **WP-6 remaining:** §3 + §4 dragon expansions, the CI lane
+  (nodejs.yml, needs your review), then /sc-commit the batch as one 5.158.x patch.
