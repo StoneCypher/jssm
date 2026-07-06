@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-534 merges; 371 releases
+536 merges; 372 releases
 
 
 
@@ -12,8 +12,881 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__159__2">5.159.2</a>, <a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:25:43 PM
+
+Commit [0bfa56c1df205257c627150afc4641028b3a4c42](https://github.com/StoneCypher/jssm/commit/0bfa56c1df205257c627150afc4641028b3a4c42)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: gitignore the root tsconfig.tsbuildinfo that tsc --build emits under 6.0.3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:23:54 PM
+
+Commit [e646a1878cb07c91851184a3d950b4bbc4ed6052](https://github.com/StoneCypher/jssm/commit/e646a1878cb07c91851184a3d950b4bbc4ed6052)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci(dragon): add the dragon-tier fuzz suite as a CI lane (WP-6)
+  * Adds a `dragon` job running `npm run vitest-dragon` on every push and PR. A red
+run is a real find (the tests assert probed parser invariants), not generative
+flake. Deliberately NOT in release.needs — per the dragon doctrine the detector
+never gates a publish; confirmed finds gate via their promoted *.spec.ts
+regressions in the normal suite. Meets the DECIDED 6.0 "green in CI" exit bar.
+  * The richer 3-tier budget (fixed-seed smoke / randomized heavy / weekly deep with
+mutation arms) is a follow-up: it needs env-driven iteration counts + a seed
+setup, and the deep tier wants mutation arms that don't exist yet. Held items
+noted in notes/dragons-egg.md.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:19:59 PM
+
+Commit [8a68a9d80c766936dd34a7cc39ec24d2f1e6f2dd](https://github.com/StoneCypher/jssm/commit/8a68a9d80c766936dd34a7cc39ec24d2f1e6f2dd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(types): satisfy the TS6 checker — node ambient types + generic typed-array casts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:11:13 PM
+
+Commit [d7241e18bfbcbe3f77864f312dcae4f53300d046](https://github.com/StoneCypher/jssm/commit/d7241e18bfbcbe3f77864f312dcae4f53300d046)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: @ts-nocheck the generated fsl_parser.ts for the TS6 checker
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 8:09:47 PM
+
+Commit [714178a1ad3ef39d1906e79cc725d1a5c93cfc56](https://github.com/StoneCypher/jssm/commit/714178a1ad3ef39d1906e79cc725d1a5c93cfc56)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: bump to TypeScript 6.0.3 + TS6-compatible typedoc; drop pages plugin
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:55:58 PM
+
+Commit [82772e7865822cf3051251afbd0b03d0ca58c774](https://github.com/StoneCypher/jssm/commit/82772e7865822cf3051251afbd0b03d0ca58c774)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-6 §3+§4 dragon expansions complete — 3/3 DECIDED sections done
+  * Increment 14. colors.maximal.ts (§4) + numeric.maximal.ts (§3) written, probed
+against the parser, green. Dragon suite now 33 tests / 4 files. The three DECIDED
+6.0 dragon §-expansions (§3/§4/§6) are done. Remaining WP-6: the CI lane (edits
+nodejs.yml — to review as a diff) and /sc-commit as one 5.158.x patch.
+Committed on the feature branch b46fcbee.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:55:09 PM
+
+Commit [b46fcbeeb40307feefe8f86599a9f62b2dbd27f1](https://github.com/StoneCypher/jssm/commit/b46fcbeeb40307feefe8f86599a9f62b2dbd27f1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(dragon): §3 numeric + §4 colours dragon tiers (WP-6)
+  * Completes the three DECIDED 6.0 §-expansions (§6 already landed).
+  * colors.maximal.ts (§4): invalid hex lengths (1,2,5,7,9,10) reject — only 3/4/6/8
+parse; whitespace or a non-hex digit anywhere in a hex run rejects; mixed-case
+bodies are case-preserved per digit; Rgba8 round-trips across the full alpha
+range incl. 00/ff. (No finds — the colour grammar is solid. rebeccapurple/CSS4
+gap flagged in the egg, not a red test.)
+  * numeric.maximal.ts (§3): out-of-range octal/binary digits reject at ANY position
+(stoch tested only the first); degenerate/doubled radix prefixes reject; large
+hex parses exactly (no 32-bit truncation); bare negatives reject; word constants
+are case-sensitive; large `after N weeks` converts without overflow. (SemVer
+prerelease held pending the right fsl_version harness — noted in the egg.)
+  * Every behaviour was probed against the parser before assertion. dragons-egg.md
+updated: §3/§4 marked dragon-tier live, file entries + flagged gaps added.
+  * Verified: vitest-dragon green — 33 tests across 4 files. eslint clean.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:52:04 PM
+
+Commit [d9c96c43b15c57f8b1e51e78b9f928a4b4611bad](https://github.com/StoneCypher/jssm/commit/d9c96c43b15c57f8b1e51e78b9f928a4b4611bad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: TypeScript 6 upgrade implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:45:37 PM
+
+Commit [115651f58e1f5c408340e4b050e28d7f438b6390](https://github.com/StoneCypher/jssm/commit/115651f58e1f5c408340e4b050e28d7f438b6390)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: update perf-chart module DocBlock; regenerate chart artifacts for package-size + linear twins
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:42:51 PM
+
+Commit [e8bc64a3f9b8f7d5fbacd67f9c3ffc182ec3437e](https://github.com/StoneCypher/jssm/commit/e8bc64a3f9b8f7d5fbacd67f9c3ffc182ec3437e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-6 §6 dragon done + first real find (fake stoch shuffle test)
+  * Increment 13. arrow_decorations.maximal.ts (§6 dragon) written and green. Writing
+it surfaced that the stoch shuffle was degenerate (float-index bug), making the
+order-invariance tests fake; fixed shuffle + added a permutation guard; dragon 16
+green, stoch 12 green. Logged in dragons-egg.md (find + find-handling convention).
+Committed on the feature branch 9c22e282.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:42:07 PM
+
+Commit [9c22e282e4ebf1fb033e94220fa3eaed0625ed85](https://github.com/StoneCypher/jssm/commit/9c22e282e4ebf1fb033e94220fa3eaed0625ed85)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(dragon): §6 arrow-decoration dragon tier + fix a fake stoch test it found (WP-6)
+  * New arrow_decorations.maximal.ts (dragon §6), asserting behaviour first confirmed
+against the parser:
+- duplicate rejection at N>=3 (stoch only tested N=2), both sides;
+- duplicate rejection with IDENTICAL values (detection keys on kind, not value);
+- whitespace-run invariance at every inter-decoration gap (AST-equal);
+- block/line comment-interleaving invariance at those gaps (AST-equal);
+- malformed decorations (e.g. `N%%`) are reported as parse errors, never a
+  duplicate misfire and never silently parsed.
+  * Writing it surfaced a real find: arrow_decorations.stoch.ts's `shuffle` used
+`rng() % (i+1)` while gen_splitmix32 returns a float in [0,1), so the index was
+fractional and out[j] was always undefined — every shuffle collapsed to
+[out[0], undefined, ...]. The three order-invariance tests were therefore fake:
+both sides degraded to the same single decoration and passed without testing
+order invariance. Fixed to Math.floor(rng()*(i+1)) (real Fisher-Yates) and added
+a deterministic "shuffle is a real permutation" regression. Order invariance now
+genuinely holds under real 4-decoration permutations (stoch still green, 12).
+  * dragons-egg.md: dragon tier marked live, find-handling convention documented,
+§6 status updated, the shuffle find logged.
+  * Verified: vitest-dragon green (16), vitest-stoch green (12), eslint clean.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:40:55 PM
+
+Commit [00a0c838d91d6a20c6a9a65957e71f2de8045f3c](https://github.com/StoneCypher/jssm/commit/00a0c838d91d6a20c6a9a65957e71f2de8045f3c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: publish and embed linear twins in the perf-chart issue comment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:39:24 PM
+
+Commit [fc069969535a4538f487f12bb711c5f943421556](https://github.com/StoneCypher/jssm/commit/fc069969535a4538f487f12bb711c5f943421556)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: render log+linear panel pairs and a package-size panel; drop footprint panel
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:36:07 PM
+
+Commit [d30e94fdac46e3cedea05546eb0f7c6c62c4010f](https://github.com/StoneCypher/jssm/commit/d30e94fdac46e3cedea05546eb0f7c6c62c4010f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add linear scale + format_tick to panel_svg (log path unchanged)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:33:31 PM
+
+Commit [b5c82e06322b6798e7c0ce6d67908c356f80cf5d](https://github.com/StoneCypher/jssm/commit/b5c82e06322b6798e7c0ce6d67908c356f80cf5d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add bundle_size_series (single package-size line from raw bundle bytes)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:32:27 PM
+
+Commit [ee1f13d69b62459cbe14c56d9e5c28a25993a2ac](https://github.com/StoneCypher/jssm/commit/ee1f13d69b62459cbe14c56d9e5c28a25993a2ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: TypeScript 6 upgrade design spec
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:32:11 PM
+
+Commit [ffd58351725193adf8e1f8a1207ad739b06f638a](https://github.com/StoneCypher/jssm/commit/ffd58351725193adf8e1f8a1207ad739b06f638a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: thread scaling.json bundles block through perf-chart collection
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:27:47 PM
+
+Commit [af07e512d83ed7782a300413cacd7c1b0e20df9a](https://github.com/StoneCypher/jssm/commit/af07e512d83ed7782a300413cacd7c1b0e20df9a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-6 dragon step 1 — kitchen-sink now engages fast-check + prints seeds
+  * Increment 12. Reused the WP-1 worktree (renamed branch test_26-07-05_dragon-revival,
+off main, pushed). vitest-dragon was already green, but the kitchen-sink deferred
+its assertion out of fast-check's view (no shrinking, no seed on a find).
+Refactored to assert inside fc.property; verified green and, via a forced find,
+that fast-check prints both seeds (fc replay seed + splitmix gen_seed) reproducibly.
+  * Committed on the feature branch (abb1ad83); not /sc-committed yet — batching the
+WP-6 pieces (CI lane + 3 section-expansions) into one 5.158.x patch.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:26:57 PM
+
+Commit [abb1ad831977d93e42c8957730a6d155892f697d](https://github.com/StoneCypher/jssm/commit/abb1ad831977d93e42c8957730a6d155892f697d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(dragon): engage fast-check properly + print seeds on a find (WP-6)
+  * The kitchen-sink dragon ran fc.assert(fc.property(...)) at collection time and
+registered a deferred test() per iteration, returning undefined from the property
+— so fast-check never saw the assertion: no shrinking, and no reproducible seed
+on a find. It passed, but couldn't meaningfully fail.
+  * Move the halt-vs-shouldHalt assertion INSIDE fc.property (throw with gen_seed +
+machine context on mismatch) and wrap it in one it() running numRuns:100. Now a
+find prints both the splitmix gen_seed (as the shrunk counterexample) and
+fast-check's own replay seed, plus the offending machine string.
+  * Verified: green (1 property, 100 runs); and, with the assertion temporarily
+inverted to force a find, fast-check reported `{ seed: 740228835, ... }` +
+`Counterexample: [false,0]` + `Shrunk 1 time(s)` + the machine — reproducible.
+Generation/walk logic preserved (single splitmix stream); dead code removed.
+  * WP-6 step 1 (revive green + seeds print) complete. eslint clean.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 7:21:43 PM
+
+Commit [dee828ed973cb9c89f5c9fe3416cc0a4e9681aaa](https://github.com/StoneCypher/jssm/commit/dee828ed973cb9c89f5c9fe3416cc0a4e9681aaa)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: implementation plan for perf-chart package-size panel + linear twins
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 4:30:11 PM
+
+Commit [e17745ad4a2e75c72f668ae46ca3b643a7554551](https://github.com/StoneCypher/jssm/commit/e17745ad4a2e75c72f668ae46ca3b643a7554551)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-1 CLOSED — pack-shape test already exists and passes, zero code changes
+  * Increment 11. The pack-shape regression test finding #1 called for already exists
+on main (src/ts/tests/pack_shape.spec.ts, added ~5.143.x with #1's fix): it walks
+every exports/bin/main/module/browser/types target and asserts each is in
+`npm pack --dry-run --json`, skipIf unbuilt, 120s AV-scan timeout.
+  * Verified passing on the built main worktree (ran, not skipped: 1 passed, 5.7s).
+Both WP-1 done-when conditions (verdict table + pack-shape test exists and passes)
+are met, so WP-1 is done with zero code changes and no 5.158.x patch.
+  * Next 5.x code packet is WP-6 (dragon phase A), the first that will produce a
+shippable change.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 4:27:23 PM
+
+Commit [421ee42cbc7fc097fc4a8c253c2ea417ce9bb2c7](https://github.com/StoneCypher/jssm/commit/421ee42cbc7fc097fc4a8c253c2ea417ce9bb2c7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-1 audit re-verify verdict — nothing on main/5.x needs fixing
+  * Increment 10. Re-verified the 7 megaspec-critique §1 findings against current
+main (5.159.2 @ b5509127) and origin/v6, on worktree fix_26-07-05_5x-audit-reverify.
+  * Verdict (full table in the era-0 brief Corrections):
+- #1 pack shape: FIXED on main (files allowlist + npm pack --dry-run now include
+  dist/cli/lib.cjs/.mjs + jssm.cli.d.cts/.ts; confirmed).
+- #7 FmtConfig phantom import: FIXED (absent from main and v6).
+- #2-#6: v6-only surfaces (codegen/import/export verbs, JSON interchange,
+  native:typescript codegen, CodegenConfig) - absent from main src, confirmed
+  live on origin/v6 via git grep. Recorded as v6-assembly re-verification items,
+  NOT 5.x WP-2 work.
+  * Consequence: WP-2 (5.x bug burn-down) inherits zero items from this audit. The
+one 5.x deliverable is the pack-shape regression test (guards #1), landing on the
+worktree branch -> a 5.158.x patch.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 3:36:19 PM
+
+Commit [89c5c0d7d166b63c92acd2e8c30507a8685149ac](https://github.com/StoneCypher/jssm/commit/89c5c0d7d166b63c92acd2e8c30507a8685149ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): 5.x milestone-tagging + charset reconciliation (WP-7 5.x slice)
+  * Increment 9. Moved forward on 5.x:
+- Live-verified all 30 e0 rows still open (no snapshot drift) and milestone-tagged
+  them to fsl #48 "The Long Goodbye". #48 now shows 31 open (30 e0 + umbrella
+  #1418), so the 5.x burn-down is visible on the tracker.
+- Reconciled the book-vs-ledger charset drift: #505/#1195-#1199 are e1/v6 (under
+  the #1379 unicode umbrella), NOT 5.x. Corrected the era-book 5.x onepager, which
+  had compressed them into 5.x prep.
+- Noted #1307 (npm ranking) as satisfied by the executed jssm drain; stays open,
+  closes when the KEEP items clear at 6.0.
+  * Next on 5.x is the code burn-down (WP-1 audit, WP-6 dragon, WP-2 fixes), which
+ships as 5.158.x patches from protected main and needs a worktree + per-action OK.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 3:34:03 PM
+
+Commit [7397775f613d403d94dee7332eafecf0cc56fddc](https://github.com/StoneCypher/jssm/commit/7397775f613d403d94dee7332eafecf0cc56fddc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: spec for graviton perf-chart package-size panel + linear twins
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 3:15:51 PM
+
+Commit [dd5cf6f3fb65f8e53cad1126e0d85c4304c22bca](https://github.com/StoneCypher/jssm/commit/dd5cf6f3fb65f8e53cad1126e0d85c4304c22bca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): fix stale v12 naming drift in HANDOFF header
+  * Increment 8. The five-way-split renumber renamed the worktree/branch
+...v6_to_v12 -> ...v6_to_v16, but HANDOFF's header still described the current
+worktree/branch as v12 (title, worktree/branch line, "this branch is free"
+line). Corrected all three to v16, with a note recording the original scaffold
+names and the 5.x->v16 program scope.
+  * Left as-is on purpose: INDEX increment-1 keeps the v12 names as true history
+(that's what Fable created); increment-3's "still shows old names" flag now
+points at this fix. Legitimate references to the v12 "Proven Machine" era are
+untouched.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 2:23:16 PM
+
+Commit [a27c1c8dca8dc3b5d1f850d882a320daf633b5ef](https://github.com/StoneCypher/jssm/commit/a27c1c8dca8dc3b5d1f850d882a320daf633b5ef)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): bank two decisions — WP-4 merges docs branch; fsl-org deadline is ~Sept 12
+  * Increment 7.
+  * 1. WP-4 merge target DECIDED (John): merge the docs_26-07-04_fable-v6-to-v16
+   branch (a strict superset of origin/v6), not bare v6, so the era-program notes
+   land on main "for posterity". Recorded in the WP-4 packet with the build
+   pre-flight (era_book script + markdown-it devDep must not break npm run build;
+   notes/ must stay out of the npm files allowlist) and the keep-docs-a-superset
+   rule.
+  * 2. fsl-org transfer deadline corrected: prior owner deleted 2026-06-14; GitHub's
+   no-exceptions 90-day window makes the true deadline ~2026-09-12 (HANDOFF said
+   "early October"). John watches from 2026-09-09, three days early, since
+   edge-of-day counting is unknown.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 1:19:37 PM
+
+Commit [c095cbed28f9b6d038bb609ffe15e95fcb1c5a43](https://github.com/StoneCypher/jssm/commit/c095cbed28f9b6d038bb609ffe15e95fcb1c5a43)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): correct KEEP notes — val fixes are on v6, close via the One Merge
+  * Increment 6. Verified against live PRs: zero open PRs on either repo, so "fix PR
+queued" was imprecise. The val KEEP bugs (#755/#757/#758/#759) are already FIXED
+on the v6 branch (jssm PRs #761/#760, merged 2026-06-16) and only stayed open
+because GitHub auto-closes issues from the default branch (main), not v6.
+  * - Sharpened drain-ledger KEEP rows for #755/#757/#758/#759 to "FIXED ON v6 ...
+  closes on the WP-4 One Merge", matching #827's already-on-v6 wording.
+- Added a KEEP-issue-closers bullet to the era-0 WP-4 packet: the One Merge PR
+  MUST carry Closes #755 #757 #758 #759 #827 (+#921) so they auto-close from main.
+  #754 (atom charset) remains WP-5 breakage-batch work with its own closer.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 5:43:42 AM
+
+Commit [941939b18a89e4cedbf1db9ef262980368d480b5](https://github.com/StoneCypher/jssm/commit/941939b18a89e4cedbf1db9ef262980368d480b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): WP-8 jssm drain EXECUTED — 97 twins fsl#1419-1515, 99 closes, tracker 106->7
+  * Increment 5. John's go (defaults accepted). Filed 97 fsl twins (fsl#1419-1515),
+milestone-pinned + Created by AI, umbrella-first; closed 99 jssm originals with
+citation comments; jssm tracker drained from 106 open to 7 (the KEEP set, which
+close via their own PRs).
+  * Three reality-corrections recorded (projection Execution log + drain ledger):
+- jssm#631 DONE? refuted by code (no CLI config loader exists) -> migrated OPEN
+  as fsl#1514, not closed as done.
+- jssm#790 was dropped from the draft §C arrays; caught by reconciling the live
+  tracker after the batch (8 open, not 7) -> migrated as fsl#1515.
+- jssm#919/#666 (MIG, absent from draft §C) restored and filed; #919 was already
+  closed live (fence shipped 5.158.0), migration comment hand-posted.
+  * Full jssm->fsl map in issues-projection.md. Resume point advances to WP-7 fsl
+triage (DONE?-verify, SUP/SAT closes, milestone-tag the eN keepers).
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 4:14:52 AM
+
+Commit [2ca17b46f9d796b58dafde5b98804deec36c89f4](https://github.com/StoneCypher/jssm/commit/2ca17b46f9d796b58dafde5b98804deec36c89f4)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260705-051513
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 4:14:35 AM
+
+Commit [921e9ba59a2a87fb0fc6856be72545cdf83f8411](https://github.com/StoneCypher/jssm/commit/921e9ba59a2a87fb0fc6856be72545cdf83f8411)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 11:29:22 PM
+
+Commit [7ba7bb851799b55e3e7495987b8b111b1f84cf97](https://github.com/StoneCypher/jssm/commit/7ba7bb851799b55e3e7495987b8b111b1f84cf97)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): draft WP-8 drain projection §C/§D (95 twins + 99 closes) for approval
+  * Increment 4. John chose draft-then-approve for the jssm drain. Pulled all 106
+live jssm titles and drafted issues-projection.md §C (95 fsl twins, grouped by
+milestone #49-#59, umbrella-first; jssm#623 folds into the M1-check twin, jssm#621
+into the formatter twin) and §D (99 closes: 97 migrations, #871 dup-of-#870,
+#631 DONE?-verify; plus 7 KEEP items that close via their own 6.0/fix PRs).
+Reconciles to 106. Three batched open-Qs left for John, all with safe defaults
+so they don't block filing. NO tracker action taken — nothing is filed or closed
+until John approves this revision.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 11:20:16 PM
+
+Commit [77a8b59fa465e1a121a5b47d9e9b2cc0e7aba844](https://github.com/StoneCypher/jssm/commit/77a8b59fa465e1a121a5b47d9e9b2cc0e7aba844)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): INDEX resume-point correction — projection A+B filed; drain is next
+  * Increment 3: fresh-session orient + reconcile. Projection A+B verified live
+(fsl#1401-1411,#1418 umbrellas; fsl#1412-1417 decision records), all milestone-
+pinned. jssm-drain ledger reconciled against the live tracker (106 open, 100%
+covered; snapshot 107->106, no orphan). Records the v12->v16 branch rename and
+that the successor queue's step 1 was already done, so resume point = WP-8 drain.
+Flags the section-C/section-D drafting gate before the drain can file twins.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:38:47 PM
+
+Commit [b1805bc5b94a4cc2d3be0379124f97fea83980a0](https://github.com/StoneCypher/jssm/commit/b1805bc5b94a4cc2d3be0379124f97fea83980a0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): add missing v5.x umbrella — fsl#1418 (milestone #48)
+  * Milestone #48 (5.x The Long Goodbye) lacked an anchor umbrella while
+#49-#59 all had one. Filed the Long Goodbye punch-list umbrella and
+added it to projection §A as row A0.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:21:03 PM
+
+Commit [f07cd81f3173cb05d1dbc5dc47819ee17a62c547](https://github.com/StoneCypher/jssm/commit/f07cd81f3173cb05d1dbc5dc47819ee17a62c547)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): projection B executed (fsl#1412-1417) + §A renumbered A1-A11
+  * Filed the 6 section-B decision-record asks to StoneCypher/fsl: canonical
+hash (C1, #1412), ops-semantics appendix (C2, #1413), synonym+prob-split
+manifest (#1414), perf envelope (#1415), error-code namespace (#1416) —
+all v6/#49 under umbrella #1401; the automata-ladder decision (#1417) at
+v12/#55 under umbrella #1407. Renumbered §A to a clean A1-A11, dropping
+the pre-five-way-split A2b/c/d fossil.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:17:15 PM
+
+Commit [ed9cbcf23d996fa1293753975df0ef737c32a93a](https://github.com/StoneCypher/jssm/commit/ed9cbcf23d996fa1293753975df0ef737c32a93a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(eras): projection A executed — 11 era umbrellas filed as fsl#1401-1411
+  * Filed the approved section-A era umbrellas to StoneCypher/fsl, one per
+major (v6-v16), each pinned to its milestone (#49-#59) and labelled
+'Created by AI'. Bodies carry mission + deliverables + exit criteria +
+links to the era book and briefs, with the just-in-time child-filing
+cadence. Marked each projection row filed:fsl#NNN.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:06:14 PM
+
+Commit [52d33cf0082f33f480314e7041a9a4ef7fc3b1da](https://github.com/StoneCypher/jssm/commit/52d33cf0082f33f480314e7041a9a4ef7fc3b1da)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): PROGRESS — record the residue sweep + completion (562 items)
+  * Summarizes the subagent-parallelized tracker-row residue sweep (e1-e7),
+the folding of near-duplicate rows into single items, and the final
+per-version tallies. Repairs a mangled v15 progress line (WP15.1 now
+superseded by the real org-migration issue Tfsl-223).
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:05:31 PM
+
+Commit [16a85a00e3d439b47fe539e2c4ca3a4f82d253d7](https://github.com/StoneCypher/jssm/commit/16a85a00e3d439b47fe539e2c4ca3a4f82d253d7)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for b5509127ac4580d2356e3516511c608632ecaefe
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:04:39 PM
+
+Commit [67788dd828e049617d14d1bcdf7c84f84527b31e](https://github.com/StoneCypher/jssm/commit/67788dd828e049617d14d1bcdf7c84f84527b31e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): e1 tracker residue — 121 files (v7-v10)
+  * The era-1 non-twin residue, split by content across v7-v10: charset/
+unicode surfaces + destructuring (v7); integer state IDs, probabilistic
+origins, named lists (v8); error-object model, strict-read policy,
+assign/reset/lifecycle semantics (v9); and the tooling/surfaces bulk
+(v10) — viz + themes + kinds, editor QoL + wc panels, CLI verbs
+(repl/lsp/init/convert/playground), serialize/typegen/docgen, the perf
+lane (#712-720 etc.), build-target matrix, conformance/proof-corpus,
+and FSL->Mermaid export. W-twins excluded; near-duplicate rows folded
+into single items with folded numbers recorded in cs. Register now
+complete: 562 items across all 12 versions.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__159__2" />
+
+## [5.159.2] - Jul 4, 2026 10:03:00 PM
+
+Commit [b5509127ac4580d2356e3516511c608632ecaefe](https://github.com/StoneCypher/jssm/commit/b5509127ac4580d2356e3516511c608632ecaefe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [4b819087, f042c257]
+
+  * Merge pull request #910 from StoneCypher/fix_26-07-02_editor-cm-peer-deps
+  * fix(wc): declare the editor's full CodeMirror peer set (excluding tile-corrupting view versions); first dual-mode e2e
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 10:01:59 PM
+
+Commit [fec1a56abd3ef8b874ce9a37d968b0e243257799](https://github.com/StoneCypher/jssm/commit/fec1a56abd3ef8b874ce9a37d968b0e243257799)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v16/e7 tracker residue — 136 files (v16 -> 145)
+  * The distribution/ecosystem block: the AI-distribution family (MCP
+registries #831-845, skills #846-852, agentfiles, llms.txt, RAG
+corpus, custom-GPT/Gem, agent-framework tools, tree-sitter), directory
+and CDN listings, docs/articles/SEO, README + site overhaul, native
+and web apps, the gallery, editor/CI integrations, the Discord + auto-
+update automation fabric, the Playwright release announcer, and the
+self-hosting toolchain. Real GitHub issue titles; W12/W-twins and
+#778/#610 excluded. The real fsl org-migration issue (Tfsl-223)
+supersedes the synthetic WP15.1 placeholder and lands at v15 per the
+HANDOFF (load-bearing for the fleet era).
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 9:57:49 PM
+
+Commit [f042c257413752cc868c446f2b399ee0763418c8](https://github.com/StoneCypher/jssm/commit/f042c257413752cc868c446f2b399ee0763418c8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [13ac9b63, 4b819087]
+
+  * Merge main into fix_26-07-02_editor-cm-peer-deps; rebuild at 5.159.2
+  * main released 5.158.0 through 5.159.1 while this PR was open. Merge current
+main, take main's regenerated artifacts for every generated conflict (dist,
+CHANGELOG, README, version, dropping the *.nonmin bundles main removed), keep
+this branch's CodeMirror peerDependencies, re-bump to 5.159.2, and run a full
+`npm run build` so the committed dist reflects current main plus the peer-set
+fix.
+  * The only source change remains: declare the editor's CodeMirror peer set
+(@codemirror/autocomplete / commands / language / lint / state / view) as
+optional peers, with @codemirror/view excluding the tile-corrupting 6.43.3 and
+6.43.4, plus the dual-mode e2e spec and fixture.
+  * Claude-Session: https://claude.ai/code/session_01UkgdvpZXXXWG2jnfpap4yu
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 9:54:21 PM
+
+Commit [c0b09cede40653112c8e029e7dd49199f0d37acd](https://github.com/StoneCypher/jssm/commit/c0b09cede40653112c8e029e7dd49199f0d37acd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(era-book): v11/e2 tracker residue — 26 files
+  * The non-twin e2 residue (actor-model language spine already in W7.*):
+editor surfaces (CRDT collab, alphabet UI, diagram-edit, theme tool,
+mobile), viewer/embed chrome, remote-subgraph notation+expansion,
+input/output tape serialize + fluent/API tape hooks, async + one-time
+hooks, history stack traces, event-name prefixes, and the
+framework-wrapper family (Observable, SSR, Angular, wrapper generator).
+W7 twins excluded per spec-workitems.
+  * Claude-Session: https://claude.ai/code/session_01G4sSH9W8SMx2qJYAv2n6Ax
 
 
 
