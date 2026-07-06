@@ -52,6 +52,11 @@ build/
 docs/docs/*.css.map
 *.nonmin.js
 
+# TypeScript `tsc --build` incremental cache. The explicit rootDir (added for
+# 6.0.3) moves this to the repo root instead of under dist/; it is regenerated
+# every build and must never be committed or published.
+tsconfig.tsbuildinfo
+
 .claude
 .superpowers
 .claire
