@@ -162,6 +162,54 @@ describe('summary_line', () => {
 
 
 
+describe('format_tick', () => {
+
+  test('humanizes with k/M/G and trims trailing zeros', () => {
+    expect(mpc.format_tick(1200000)).toBe('1.2M');
+    expect(mpc.format_tick(1500)).toBe('1.5k');
+    expect(mpc.format_tick(2000000)).toBe('2M');
+    expect(mpc.format_tick(42)).toBe('42');
+  });
+
+});
+
+
+
+describe('panel_svg (scale)', () => {
+
+  const series = new Map([[ 's', [ { key: 'a', ops: 100 }, { key: 'b', ops: 200 }, { key: 'c', ops: 300 } ] ]]);
+  const keys   = ['a', 'b', 'c'];
+
+  test('log path unchanged: log-scale title and a decade label', () => {
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('(log scale)');
+    expect(svg).toContain('1e2');
+  });
+
+  test('linear title reads "linear scale, last 30" with the given unit', () => {
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'bytes', 'linear');
+    expect(svg).toContain('bytes (linear scale, last 30)');
+  });
+
+  test('linear y-bounds pad 10% of the span on each side', () => {
+    // min 100, max 300 -> span 200 -> pad 20 -> axis 80..320; ticks include both ends
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'bytes', 'linear');
+    expect(svg).toContain('>320<');
+    expect(svg).toContain('>80<');
+  });
+
+  test('linear flat data falls back to +/-10% of the value', () => {
+    const flat = new Map([[ 's', [ { key: 'a', ops: 1000 }, { key: 'b', ops: 1000 } ] ]]);
+    const svg  = mpc.panel_svg('op', flat, ['a', 'b'], 720, 372, 'bytes', 'linear');
+    // span 0 -> pad = |1000|*0.1 = 100 -> axis 900..1100
+    expect(svg).toContain('>1.1k<');
+    expect(svg).toContain('>900<');
+  });
+
+});
+
+
+
 describe('render_chart', () => {
 
   test('emits one panel per present operation and a composite header', () => {

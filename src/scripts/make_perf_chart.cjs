@@ -245,6 +245,25 @@ function summary_line(runs) {
 }
 
 /**
+ *  Humanize a magnitude for a linear-axis tick: thousands as `k`, millions as
+ *  `M`, billions as `G`, up to one decimal with no trailing zero.  Locale-free
+ *  and deterministic, so tick labels never churn.
+ *
+ *  @param v A finite number.
+ *  @returns e.g. `1200000 -> '1.2M'`, `1500 -> '1.5k'`, `42 -> '42'`.
+ *
+ *  @example format_tick(1200000) // => '1.2M'
+ */
+function format_tick(v) {
+  const abs   = Math.abs(v);
+  const units = [ [1e9, 'G'], [1e6, 'M'], [1e3, 'k'] ];
+  for (const [scale, suffix] of units) {
+    if (abs >= scale) { return `${Number((v / scale).toFixed(1))}${suffix}`; }
+  }
+  return `${Number(v.toFixed(1))}`;
+}
+
+/**
  *  Render one operation's panel as a standalone SVG: log-scale ops/sec, one
  *  line per machine shape, x ticks per run (releases angled and tinted), a
  *  faint vertical guide behind every run column (to line a point up with its
@@ -257,29 +276,47 @@ function summary_line(runs) {
  *  @param width Panel width in px.
  *  @param height Panel height in px.
  *  @param unit Y-axis metric label for the title, e.g. `'ops/sec'` (throughput
- *         panels) or `'bytes'` (the footprint panel).  The point values still come
+ *         panels) or `'bytes'` (the package-size panel).  The point values still come
  *         from each point's `ops` field — `unit` only renames the axis.
+ *  @param scale `'log'` (default) renders the log-decade axis anchored at 10^0;
+ *         `'linear'` renders a linear axis padded 10% of the data span on each
+ *         side, tick labels humanized via {@link format_tick}, and titles the
+ *         panel `(linear scale, last 30)` — the caller windows the points.
  *  @returns A self-contained `<svg>` string.
  */
-function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
+function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 'log') {
   const m  = { t: 34, r: 150, b: 48, l: 64 };
   const iw = width - m.l - m.r, ih = height - m.t - m.b;
 
   const x = (key) => m.l + (keys.indexOf(key) / Math.max(1, keys.length - 1)) * iw;
 
+  const linear = (scale === 'linear');
+
   let lo = Infinity, hi = -Infinity;
   for (const pts of by_shape.values()) {
     for (const p of pts) {
-      if (p.ops > 0) { lo = Math.min(lo, p.ops); hi = Math.max(hi, p.ops); }
+      const usable = linear ? Number.isFinite(p.ops) : p.ops > 0;
+      if (usable) { lo = Math.min(lo, p.ops); hi = Math.max(hi, p.ops); }
     }
   }
-  const ylo = 0;                               // anchor the axis at 10^0 (the zeroth order of ten)
-  const yhi = Math.floor(Math.log10(hi)) + 1;  // round the top up to the next order of ten above the max
-  const y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+
+  let ylo, yhi, y;
+  if (linear) {
+    const span = hi - lo;
+    const pad  = span > 0 ? span * 0.1 : (Math.abs(hi) * 0.1 || 1);   // 10% of the span; flat data -> 10% of the value
+    ylo = lo - pad;
+    yhi = hi + pad;
+    y   = (v) => m.t + ih - ((v - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+  } else {
+    ylo = 0;                                     // anchor the axis at 10^0 (the zeroth order of ten)
+    yhi = Math.floor(Math.log10(hi)) + 1;        // round the top up to the next order of ten above the max
+    y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
+  }
 
   const els = [];
   els.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
-  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (log scale) by PR / release, ${DEFAULTS.instanceType}</text>`);
+  const scale_note = linear ? 'linear scale, last 30' : 'log scale';
+  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (${scale_note}) by PR / release, ${DEFAULTS.instanceType}</text>`);
 
   // Gridlines, painted strictly lightest → heaviest so a heavier line is never
   // overpainted by a lighter one at a crossing (in SVG, paint order IS z-order):
@@ -295,13 +332,15 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
     }
   }
   // pass 2 — minor log gridlines at 2..9 × 10^d; the non-uniform spacing within
-  // each decade is the visual tell that the axis is logarithmic
-  for (let d = Math.floor(ylo); d <= Math.ceil(yhi); d++) {
-    for (let mul = 2; mul <= 9; mul++) {
-      const lv = Math.log10(mul * Math.pow(10, d));
-      if (lv >= ylo && lv <= yhi) {
-        const my = y(mul * Math.pow(10, d)).toFixed(1);
-        els.push(`<line x1="${m.l}" y1="${my}" x2="${m.l + iw}" y2="${my}" stroke="#d8d8d8"/>`);
+  // each decade is the visual tell that the axis is logarithmic (log only)
+  if (!linear) {
+    for (let d = Math.floor(ylo); d <= Math.ceil(yhi); d++) {
+      for (let mul = 2; mul <= 9; mul++) {
+        const lv = Math.log10(mul * Math.pow(10, d));
+        if (lv >= ylo && lv <= yhi) {
+          const my = y(mul * Math.pow(10, d)).toFixed(1);
+          els.push(`<line x1="${m.l}" y1="${my}" x2="${m.l + iw}" y2="${my}" stroke="#d8d8d8"/>`);
+        }
       }
     }
   }
@@ -312,12 +351,24 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
       els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#d0d0d0"/>`);
     }
   }
-  // pass 4 — decade gridlines + 1e<d> labels: the heaviest gridline, drawn last
-  // so the log-decade reference lines read cleanly through every crossing
-  for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++) {
-    const yy = y(Math.pow(10, d));
-    els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#b0b0b0"/>`);
-    els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
+  // pass 4 — heaviest horizontal gridlines + axis labels, drawn last so they
+  // read cleanly through every crossing.
+  if (linear) {
+    // five evenly-spaced ticks across the padded linear range, humanized labels
+    const TICKS = 5;
+    for (let i = 0; i <= TICKS; i++) {
+      const v  = ylo + (i / TICKS) * (yhi - ylo);
+      const yy = y(v);
+      els.push(`<line x1="${m.l}" y1="${yy.toFixed(1)}" x2="${m.l + iw}" y2="${yy.toFixed(1)}" stroke="#b0b0b0"/>`);
+      els.push(`<text x="${m.l - 6}" y="${(yy + 4).toFixed(1)}" font-size="10" text-anchor="end" fill="#888">${format_tick(v)}</text>`);
+    }
+  } else {
+    // log decades + 1e<d> labels
+    for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++) {
+      const yy = y(Math.pow(10, d));
+      els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#b0b0b0"/>`);
+      els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
+    }
   }
 
   // x labels: every run (no skipping), tiny and steep, hard against the axis.
@@ -346,7 +397,7 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec') {
   let ci = 0, legend_y = m.t;
   for (const shape of by_shape.keys()) {
     const color = PALETTE[ci++ % PALETTE.length];
-    const pts   = by_shape.get(shape).filter((p) => p.ops > 0);
+    const pts   = by_shape.get(shape).filter((p) => linear ? Number.isFinite(p.ops) : p.ops > 0);
     if (pts.length > 1) {
       const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p.key).toFixed(1)},${y(p.ops).toFixed(1)}`).join(' ');
       els.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"/>`);
@@ -706,7 +757,7 @@ function main(argv) {
 
 module.exports = {
   semver_compare, compare_runs, key_of, pivot_series, footprint_series, bundle_size_series, data_stamp, summary_line,
-  panel_svg, render_chart, build_data_json, build_comment_body, chart_slug,
+  panel_svg, render_chart, build_data_json, build_comment_body, chart_slug, format_tick,
   parse_args, make_executor, collect_runs, publish_charts, push_with_retry,
   DEFAULTS, OPERATIONS
 };
