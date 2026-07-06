@@ -80,6 +80,35 @@ describe('pivot_series', () => {
 
 
 
+describe('bundle_size_series', () => {
+
+  test('sums raw bytes across all dist bundles into one line, in run order', () => {
+    const runs = [
+      run({ pr: 1, bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                              'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                              'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const s = mpc.bundle_size_series(runs);
+    expect([...s.keys()]).toEqual(['package (raw, all dist)']);
+    const pts = s.get('package (raw, all dist)');
+    expect(pts.map((p: { ops: number }) => p.ops)).toEqual([1500, 1620]);
+    expect(pts.map((p: { key: string }) => p.key)).toEqual(['1', '2']);
+  });
+
+  test('skips runs lacking a bundles block; empty map when none carry bundles', () => {
+    expect(mpc.bundle_size_series([ run({ pr: 1 }) ]).size).toBe(0);
+    const mixed = mpc.bundle_size_series([
+      run({ pr: 1 }),
+      run({ pr: 2, bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 } } })
+    ]);
+    expect(mixed.get('package (raw, all dist)').map((p: { key: string }) => p.key)).toEqual(['2']);
+  });
+
+});
+
+
+
 describe('footprint_series', () => {
 
   test('reads footprintBytes off construct() rows, per shape, in run order', () => {

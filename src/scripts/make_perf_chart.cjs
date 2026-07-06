@@ -146,6 +146,39 @@ function pivot_series(runs) {
   return series;
 }
 
+/** The single package-size series label; package weight is shape-independent. */
+const PACKAGE_SERIES_LABEL = 'package (raw, all dist)';
+
+/**
+ *  Pivot the per-run bundle sizes into a single-line series: the summed raw
+ *  byte size of every published dist artifact (`run.bundles[*].raw`) at each
+ *  run.  Package weight is not a function of machine shape, so — unlike
+ *  {@link pivot_series} — this collapses to exactly one series, reusing
+ *  {@link panel_svg} with a `bytes` axis.  Runs whose `scaling.json` predates
+ *  the bundle-sizing pass carry no `bundles` block and are skipped, so the
+ *  panel simply has gaps.
+ *
+ *  @param runs Sorted runs from {@link collect_runs}.
+ *  @returns A one-entry Map (`PACKAGE_SERIES_LABEL` -> ordered points), or an
+ *           empty Map when no run carries a `bundles` block.
+ *
+ *  @example
+ *  bundle_size_series([{ bundles: { a: { raw: 10 }, b: { raw: 5 } }, ... }])
+ *  // => Map { 'package (raw, all dist)' => [{ key, ops: 15 }] }
+ */
+function bundle_size_series(runs) {
+  const points = [];
+  for (const run of runs) {
+    if (!run.bundles || typeof run.bundles !== 'object') { continue; }
+    let total = 0, seen = false;
+    for (const b of Object.values(run.bundles)) {
+      if (b && typeof b.raw === 'number') { total += b.raw; seen = true; }
+    }
+    if (seen) { points.push({ key: key_of(run), ops: total }); }
+  }
+  return points.length ? new Map([[PACKAGE_SERIES_LABEL, points]]) : new Map();
+}
+
 /**
  *  Pivot the per-shape machine footprint into a shape -> [{ key, ops }] series,
  *  reading `footprintBytes` (the retained heap of one constructed machine, injected
@@ -672,7 +705,7 @@ function main(argv) {
 }
 
 module.exports = {
-  semver_compare, compare_runs, key_of, pivot_series, footprint_series, data_stamp, summary_line,
+  semver_compare, compare_runs, key_of, pivot_series, footprint_series, bundle_size_series, data_stamp, summary_line,
   panel_svg, render_chart, build_data_json, build_comment_body, chart_slug,
   parse_args, make_executor, collect_runs, publish_charts, push_with_retry,
   DEFAULTS, OPERATIONS
