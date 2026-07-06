@@ -37,8 +37,8 @@ confirmed find always does, via its promoted regression test.
 |---|---|---|---|
 | 1 | Document shape | — | Not directly testable (exercised indirectly) |
 | 2 | Lexical layer | — | Gap |
-| 3 | Numeric | `numeric.stoch.ts` | **Covered** ✓ (fixed two bugs during writing) |
-| 4 | Colours | `colors.stoch.ts` | **Covered** ✓ |
+| 3 | Numeric | `numeric.stoch.ts` · `numeric.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
+| 4 | Colours | `colors.stoch.ts` · `colors.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
 | 5 | Arrows | — | Gap |
 | 6 | Transition expressions — arrow decorations | `arrow_decorations.stoch.ts` · `arrow_decorations.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
 | 6 | Transition expressions — other (Stripe / Cycle / chains) | — | Gap |
@@ -73,6 +73,23 @@ Live from era 0.  Files are `*.maximal.ts`; run via `npm run vitest-dragon`.
   inter-decoration gap; malformed decorations are reported (a parse error, not a
   duplicate misfire or a silent parse). Each asserted behaviour was confirmed
   against the parser before it was encoded.
+- `colors.maximal.ts` (§4) — rejection boundary + case handling: invalid hex
+  lengths (1,2,5,7,9,10) reject (only 3/4/6/8 parse); whitespace or a non-hex
+  digit anywhere in a hex run rejects; mixed-case bodies are case-preserved per
+  digit (3-digit doubles each keeping case, 6/8-digit keep the body verbatim,
+  omitted alpha appended lowercase `ff`); Rgba8 round-trips across the full alpha
+  range incl. 00/ff boundaries. **Flagged gap:** the named palette is 148
+  CSS3/SVG entries; CSS4 names (e.g. `rebeccapurple`) are absent — not tested as
+  a failure, recorded here for a future palette-extension decision.
+- `numeric.maximal.ts` (§3) — rejection boundary + large-value edges:
+  out-of-range octal/binary digits reject at ANY position (stoch checked only the
+  first); degenerate/doubled radix prefixes reject; large hex parses exactly (no
+  32-bit truncation); bare negative literals reject in default and probability
+  positions; word constants are case-sensitive (non-canonical casings reject,
+  `E`/`e` excepted); large `after N weeks` converts arithmetically with no
+  overflow throw. **Held item:** SemVer prerelease/build-metadata rejection needs
+  the correct `fsl_version` harness before it can be asserted (a future §3 dragon
+  test).
 
 ### Dragon findings
 
