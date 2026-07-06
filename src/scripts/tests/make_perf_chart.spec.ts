@@ -159,9 +159,9 @@ describe('panel_svg (scale)', () => {
     expect(svg).toContain('1e2');
   });
 
-  test('linear title reads "linear scale, last 30" with the given unit', () => {
+  test('linear title reads "linear scale, last 50" with the given unit', () => {
     const svg = mpc.panel_svg('op', series, keys, 720, 372, 'bytes', 'linear');
-    expect(svg).toContain('bytes (linear scale, last 30)');
+    expect(svg).toContain('bytes (linear scale, last 50)');
   });
 
   test('linear y-bounds pad 10% of the span on each side', () => {
@@ -205,7 +205,7 @@ describe('render_chart', () => {
     expect([...panels.keys()]).toEqual(['construct()', 'transition()', 'action()']);
     const pair = panels.get('transition()');
     expect(pair.log).toContain('(log scale)');
-    expect(pair.linear).toContain('(linear scale, last 30)');
+    expect(pair.linear).toContain('(linear scale, last 50)');
   });
 
   test('every panel (log and linear) carries an opaque background', () => {
@@ -246,7 +246,7 @@ describe('render_chart', () => {
   });
 
   test('lays each pair log-on-top / linear-beneath at the same width', () => {
-    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32, inter 64)
+    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32, inter 128)
     // construct pair: log (0,56), linear (0, 56+372+32=460); transition pair at x=760
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
@@ -255,15 +255,16 @@ describe('render_chart', () => {
     expect(svg).toContain('translate(760 460)');
   });
 
-  test('doubles the vertical gap between pair-rows; height matches the pair formula', () => {
-    // pair_height = 2*372 + 32 = 776; row1 (action) oy = 56 + (776 + 64) = 896
-    // total_h = 56 + 2*776 + 64 = 1672
+  test('sets the inter-pair-row gap to 4x the base; height matches the pair formula', () => {
+    // pair_height = 2*372 + 32 = 776; inter-pair gap = 32*4 = 128
+    // row1 (action) oy = 56 + (776 + 128) = 960
+    // total_h = 56 + 2*776 + 128 = 1736
     const { svg } = mpc.render_chart(two_runs);
-    expect(svg).toContain('translate(0 896)');
-    expect(svg).toMatch(/<svg[^>]*height="1672"/);
+    expect(svg).toContain('translate(0 960)');
+    expect(svg).toMatch(/<svg[^>]*height="1736"/);
   });
 
-  test('panel_gap sets intra-pair gap (and doubles for inter-pair)', () => {
+  test('panel_gap sets intra-pair gap (and 4x for inter-pair)', () => {
     const height = (s: string) => Number((s.match(/<svg[^>]*height="(\d+)"/) || [])[1]);
     const gapped = mpc.render_chart(two_runs, 720, 372, 32);
     const flush  = mpc.render_chart(two_runs, 720, 372, 0);
@@ -271,16 +272,16 @@ describe('render_chart', () => {
     expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no intra gap
   });
 
-  test('linear twin windows to the most recent 30 versions', () => {
-    const many = Array.from({ length: 35 }, (_, i) => run({
+  test('linear twin windows to the most recent 50 versions', () => {
+    const many = Array.from({ length: 60 }, (_, i) => run({
       pr: i + 1, version: `5.0.${i}`,
       results: [ { name: 'chain-200 transition()', ops: 100 + i } ]
     }));
     const { panels } = mpc.render_chart(many);
     const pair = panels.get('transition()');
     expect(pair.log).toContain('>1<');        // oldest PR present in the full-history log panel
-    expect(pair.linear).not.toContain('>1<'); // ...but dropped from the last-30 linear twin
-    expect(pair.linear).toContain('>35<');    // newest PR present in both
+    expect(pair.linear).not.toContain('>1<'); // ...but dropped from the last-50 linear twin (window = PRs 11..60)
+    expect(pair.linear).toContain('>60<');    // newest PR present in both
   });
 
   test('adds a single-line package-size panel when runs carry bundles', () => {
@@ -336,7 +337,7 @@ describe('build_comment_body', () => {
       { log: 'https://x/construct.svg', linear: 'https://x/construct.linear.svg' } ]]);
     const body = mpc.build_comment_body(urls, two_runs, 'abc123');
     expect(body).toContain('![construct() trend (log)](https://x/construct.svg)');
-    expect(body).toContain('![construct() trend (linear, last 30)](https://x/construct.linear.svg)');
+    expect(body).toContain('![construct() trend (linear, last 50)](https://x/construct.linear.svg)');
     expect(body).toContain('abc123');
     expect(body).toContain('2 measured PRs');
   });
