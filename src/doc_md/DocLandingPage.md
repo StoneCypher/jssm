@@ -70,7 +70,7 @@ LogState();                         // logs "Yellow"
 To make the point, please consider the light switch from our language, as
 compared to the example given by a popular alternative library.
 
-If you'd like more detailed comparisons, please see {@page Shootout.md the line-of-code shootout}.
+If you'd like more detailed comparisons, please see [the line-of-code shootout](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Shootout.md).
 
 &nbsp;
 
@@ -174,7 +174,7 @@ Correct.  Easy.  Brief.  Powerful.  Fast.
 
 Meet your new state machine.
 
-`Next`: {@page GettingStarted.md Let's get started}.
+`Next`: [Let's get started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md).
 
 &nbsp;
 

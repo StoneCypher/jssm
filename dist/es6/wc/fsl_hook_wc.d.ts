@@ -20,9 +20,9 @@ export interface RawHookContext {
  *
  * @see {@link Machine.set_hook}
  */
-export declare type FslHookKind = 'hook' | 'named' | 'any transition' | 'standard transition' | 'main transition' | 'forced transition' | 'entry' | 'exit' | 'any action' | 'global action';
+export type FslHookKind = 'hook' | 'named' | 'any transition' | 'standard transition' | 'main transition' | 'forced transition' | 'entry' | 'exit' | 'any action' | 'global action';
 /** @deprecated Use {@link FslHookKind} instead; kept for backwards compat. */
-export declare type JssmHookKind = FslHookKind;
+export type JssmHookKind = FslHookKind;
 /**
  * Friendly proxy surface that wraps jssm's native `HookContext` for the
  * declarative `<fsl-hook>` / `<jssm-hook>` form.  User-authored handlers
@@ -51,15 +51,15 @@ export interface FslHookProxy<TData = unknown> {
     state(): string;
 }
 /** @deprecated Use {@link FslHookProxy} instead; kept for backwards compat. */
-export declare type JssmHookProxy<TData = unknown> = FslHookProxy<TData>;
+export type JssmHookProxy<TData = unknown> = FslHookProxy<TData>;
 /**
  * Type of a user-authored declarative-hook handler.  The return value is
  * checked: an explicit `false` cancels the transition; any other value
  * (including `undefined`, `true`, or an arbitrary object) allows it.
  */
-export declare type FslHookUserHandler<TData = unknown> = (m: FslHookProxy<TData>) => unknown;
+export type FslHookUserHandler<TData = unknown> = (m: FslHookProxy<TData>) => unknown;
 /** @deprecated Use {@link FslHookUserHandler} instead; kept for backwards compat. */
-export declare type JssmHookUserHandler<TData = unknown> = FslHookUserHandler<TData>;
+export type JssmHookUserHandler<TData = unknown> = FslHookUserHandler<TData>;
 /**
  * Optional per-instance registry of named handlers.  Looked up before
  * `globalThis` when resolving `<fsl-hook handler="name">` /
@@ -67,9 +67,9 @@ export declare type JssmHookUserHandler<TData = unknown> = FslHookUserHandler<TD
  * register their own handlers without polluting the global namespace; useful
  * for module-scoped SPAs where strict CSP blocks inline-body hooks.
  */
-export declare type FslHookRegistry = Map<string, FslHookUserHandler<unknown>>;
+export type FslHookRegistry = Map<string, FslHookUserHandler<unknown>>;
 /** @deprecated Use {@link FslHookRegistry} instead; kept for backwards compat. */
-export declare type JssmHookRegistry = FslHookRegistry;
+export type JssmHookRegistry = FslHookRegistry;
 /**
  * Build a {@link JssmHookProxy} that wraps an arbitrary hook context object.
  *
@@ -147,7 +147,7 @@ export interface FslHookInstallSpec {
     user_handler: FslHookUserHandler<unknown>;
 }
 /** @deprecated Use {@link FslHookInstallSpec} instead; kept for backwards compat. */
-export declare type JssmHookInstallSpec = FslHookInstallSpec;
+export type JssmHookInstallSpec = FslHookInstallSpec;
 /**
  * Parse a single `<jssm-hook>` element into a {@link JssmHookInstallSpec}.
  *

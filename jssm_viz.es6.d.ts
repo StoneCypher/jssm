@@ -1,58 +1,58 @@
 import { circular_buffer } from 'circular_buffer_js';
 
-declare type StateType$1 = string;
+type StateType$1 = string;
 /**
  *  A color value accepted by jssm-viz for state and arrow styling.  Currently
  *  any string, validated downstream by Graphviz / the named-colors list.
  *  Intended to be narrowed to `#RRGGBB` / `#RRGGBBAA` and CSS named colors
  *  in a future release.
  */
-declare type JssmColor = string;
+type JssmColor = string;
 /**
  *  Three-state policy flag: `'required'`, `'disallowed'`, or `'optional'`.
  *  Used by machine configuration where a default-permissive middle ground
  *  is meaningful (for example, the `actions` config key).
  */
-declare type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
+type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
 /**
  *  The set of ASCII arrow tokens recognized by the FSL grammar.  Each arrow
  *  encodes a direction (one-way left/right, or two-way) and a "kind" for
  *  each direction (`-` legal, `=` main path, `~` forced-only).  See the
  *  Language Reference docs for the full semantic table.
  */
-declare type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
+type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
 /**
  * A type teaching Typescript the various supported shapes for nodes, mostly inherited from GraphViz
  */
-declare type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
+type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
 /**
  *  Semantic category of an arrow's transition.  `'legal'` is a normal
  *  transition, `'main'` is part of the machine's primary path, `'forced'`
  *  may only be taken via {@link Machine.force_transition}, and `'none'`
  *  means no transition exists in that direction.
  */
-declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
+type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
 /**
  *  Graphviz layout engine selector.  Controls how jssm-viz lays out the
  *  rendered diagram; `'dot'` is the default and most useful for state
  *  machines.  See the Graphviz documentation for the differences.
  */
-declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';
-declare type JssmCorner = 'regular' | 'rounded' | 'lined';
-declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
+type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';
+type JssmCorner = 'regular' | 'rounded' | 'lined';
+type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
 /**
  *  Tristate flag for whether a property may be overridden at runtime.
  *  `true` permits overrides, `false` forbids them, and `undefined` defers
  *  the decision to the surrounding configuration's default.
  */
-declare type JssmAllowsOverride = true | false | undefined;
+type JssmAllowsOverride = true | false | undefined;
 /**
  *  Controls whether the state graph may contain disconnected components
  *  (islands).  `true` permits islands (default), `false` requires a single
  *  connected component, and `'with_start'` permits islands only when every
  *  component contains at least one start state.
  */
-declare type JssmAllowIslands = true | false | 'with_start';
+type JssmAllowIslands = true | false | 'with_start';
 /**
  *  Structured render-size hint for a machine visualization, set by the FSL
  *  `default_size` directive.  All three forms are optional in the sense that
@@ -66,7 +66,7 @@ declare type JssmAllowIslands = true | false | 'with_start';
  *
  *  @see Machine.default_size
  */
-declare type JssmDefaultSize = {
+type JssmDefaultSize = {
     width?: number;
     height?: number;
 };
@@ -80,7 +80,7 @@ declare const FslDirections: readonly ["up", "right", "down", "left"];
  *  String literal type of the four supported FSL flow directions.  This is
  *  the type of the `flow` config key on a machine.
  */
-declare type FslDirection = typeof FslDirections[number];
+type FslDirection = typeof FslDirections[number];
 /**
  *  Runtime-iterable list of the built-in theme names that ship with jssm-viz.
  *  Use this when you need to enumerate themes; for the type itself see
@@ -92,7 +92,7 @@ declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"
  *  type of the `theme` config key (which accepts an array so that themes
  *  can be layered).
  */
-declare type FslTheme = typeof FslThemes[number];
+type FslTheme = typeof FslThemes[number];
 /**
  *  Persistable snapshot of a Machine produced by {@link Machine.serialize}
  *  and consumed by {@link deserialize}.  Carries the current state, the
@@ -101,7 +101,7 @@ declare type FslTheme = typeof FslThemes[number];
  *
  *  @typeParam DataType - The type of the user-supplied data payload (`mDT`).
  */
-declare type JssmSerialization<DataType> = {
+type JssmSerialization<DataType> = {
     jssm_version: string;
     timestamp: number;
     comment?: string | undefined;
@@ -129,7 +129,7 @@ declare type JssmSerialization<DataType> = {
  *  @see JssmGroupRef
  *  @see JssmGroupRegistry
  */
-declare type JssmGroupMemberRef = {
+type JssmGroupMemberRef = {
     kind: 'state';
     name: string;
 } | {
@@ -155,7 +155,7 @@ declare type JssmGroupMemberRef = {
  *
  *  @see JssmGroupMemberRef
  */
-declare type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
+type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
 /**
  *  The compiled boundary-hook surface for a single subject (a group or a
  *  state): the action to run on entry (`onEnter`) and/or on exit (`onExit`).
@@ -165,7 +165,7 @@ declare type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
  *
  *  @see JssmHookDeclaration
  */
-declare type JssmBoundaryHooks = {
+type JssmBoundaryHooks = {
     onEnter?: string;
     onExit?: string;
 };
@@ -176,7 +176,7 @@ declare type JssmBoundaryHooks = {
  *
  *  @see JssmHookDeclaration
  */
-declare type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
+type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
 /**
  *  Maps each plain state name that has at least one boundary hook to its
  *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
@@ -184,7 +184,7 @@ declare type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
  *
  *  @see JssmHookDeclaration
  */
-declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
+type JssmStateHooks = Map<string, JssmBoundaryHooks>;
 /**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
@@ -197,15 +197,15 @@ declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
  *  may carry only the serialized `name`, and global property definitions
  *  never set them.
  */
-declare type JssmPropertyDefinition = {
+type JssmPropertyDefinition = {
     name: string;
     default_value?: any;
     required?: boolean;
     property?: string;
     state?: string;
 };
-declare type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
-declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
+type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
+type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 /**
  *  A single directed transition (edge) within a state machine.  Captures
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
@@ -217,7 +217,7 @@ declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitt
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The machine's data payload type (`mDT`).
  */
-declare type JssmTransition<StateType, DataType> = {
+type JssmTransition<StateType, DataType> = {
     from: StateType;
     to: StateType;
     after_time?: number;
@@ -231,12 +231,12 @@ declare type JssmTransition<StateType, DataType> = {
     main_path: boolean;
 };
 /** A list of {@link JssmTransition}s — the edge set of a machine. */
-declare type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
+type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
 /**
  *  The set of states that can immediately precede or follow a given state.
  *  Returned by jssm helpers that report a state's connectivity in the graph.
  */
-declare type JssmTransitionList = {
+type JssmTransitionList = {
     entrances: Array<StateType$1>;
     exits: Array<StateType$1>;
 };
@@ -245,7 +245,7 @@ declare type JssmTransitionList = {
  *  states it can be reached from, the set of states it can transition to,
  *  and whether reaching it constitutes "completing" the machine.
  */
-declare type JssmGenericState = {
+type JssmGenericState = {
     from: Array<StateType$1>;
     name: StateType$1;
     to: Array<StateType$1>;
@@ -258,7 +258,7 @@ declare type JssmGenericState = {
  *  `internal_state_impl_version` field exists so that consumers can detect
  *  shape changes if this representation evolves.
  */
-declare type JssmMachineInternalState<DataType> = {
+type JssmMachineInternalState<DataType> = {
     internal_state_impl_version: 1;
     state: StateType$1;
     states: Map<StateType$1, JssmGenericState>;
@@ -268,8 +268,8 @@ declare type JssmMachineInternalState<DataType> = {
     reverse_actions: Map<StateType$1, Map<StateType$1, number>>;
     edges: Array<JssmTransition<StateType$1, DataType>>;
 };
-declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
-declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
+type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
+type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
  *  A source span produced by the FSL parser when `parse(input, { locations:
  *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
@@ -281,12 +281,12 @@ declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataTyp
  *  //             end:   { offset: 7, line: 1, column: 8 } }
  *  ```
  */
-declare type FslSourcePoint = {
+type FslSourcePoint = {
     offset: number;
     line: number;
     column: number;
 };
-declare type FslSourceLocation = {
+type FslSourceLocation = {
     start: FslSourcePoint;
     end: FslSourcePoint;
 };
@@ -295,7 +295,7 @@ declare type FslSourceLocation = {
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
  */
-declare type JssmStateDeclarationRule = {
+type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
@@ -307,7 +307,7 @@ declare type JssmStateDeclarationRule = {
  *  rule list (`declarations`) and the well-known styling fields jssm-viz
  *  understands.  Returned by {@link Machine.state_declaration}.
  */
-declare type JssmStateDeclaration = {
+type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
     shape?: JssmShape;
     color?: JssmColor;
@@ -330,44 +330,44 @@ declare type JssmStateDeclaration = {
  *  optional.  Used as the value type for theme entries and for default
  *  state configuration where most fields will be inherited or merged.
  */
-declare type JssmStateConfig = Partial<JssmStateDeclaration>;
-declare type JssmStateStyleShape = {
+type JssmStateConfig = Partial<JssmStateDeclaration>;
+type JssmStateStyleShape = {
     key: 'shape';
     value: JssmShape;
 };
-declare type JssmStateStyleColor = {
+type JssmStateStyleColor = {
     key: 'color';
     value: JssmColor;
 };
-declare type JssmStateStyleTextColor = {
+type JssmStateStyleTextColor = {
     key: 'text-color';
     value: JssmColor;
 };
-declare type JssmStateStyleCorners = {
+type JssmStateStyleCorners = {
     key: 'corners';
     value: JssmCorner;
 };
-declare type JssmStateStyleLineStyle = {
+type JssmStateStyleLineStyle = {
     key: 'line-style';
     value: JssmLineStyle;
 };
-declare type JssmStateStyleStateLabel = {
+type JssmStateStyleStateLabel = {
     key: 'state-label';
     value: string;
 };
-declare type JssmStateStyleBackgroundColor = {
+type JssmStateStyleBackgroundColor = {
     key: 'background-color';
     value: JssmColor;
 };
-declare type JssmStateStyleBorderColor = {
+type JssmStateStyleBorderColor = {
     key: 'border-color';
     value: JssmColor;
 };
-declare type JssmStateStyleImage = {
+type JssmStateStyleImage = {
     key: 'image';
     value: string;
 };
-declare type JssmStateStyleUrl = {
+type JssmStateStyleUrl = {
     key: 'url';
     value: string;
 };
@@ -376,13 +376,13 @@ declare type JssmStateStyleUrl = {
  *  a state's style configuration.  The `key` discriminator selects which
  *  member, and the `value` is typed accordingly.
  */
-declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage | JssmStateStyleUrl;
+type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage | JssmStateStyleUrl;
 /**
  *  An ordered list of {@link JssmStateStyleKey} entries.  Used by the
  *  `default_*_state_config` machine config options to provide a fallback
  *  style stack.
  */
-declare type JssmStateStyleKeyList = JssmStateStyleKey[];
+type JssmStateStyleKeyList = JssmStateStyleKey[];
 /**
  *  The graph-wide default edge colour style item, produced by the
  *  `edge-color`/`edge_color` line inside a `transition: {}` (or `graph: {}`)
@@ -390,7 +390,7 @@ declare type JssmStateStyleKeyList = JssmStateStyleKey[];
  *  applies to edges rather than nodes, and because it carries the legacy
  *  `graph_default_edge_color` key the grammar emits.
  */
-declare type JssmGraphDefaultEdgeColor = {
+type JssmGraphDefaultEdgeColor = {
     key: 'graph_default_edge_color';
     value: JssmColor;
 };
@@ -402,7 +402,7 @@ declare type JssmGraphDefaultEdgeColor = {
  *
  *  @see JssmTransitionConfig
  */
-declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
+type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
 /**
  *  The compiled value of a `transition: {}` config block: an ordered list of
  *  edge-default style items.  V1 mirrors the state-style shape used by
@@ -417,7 +417,7 @@ declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeCo
  *
  *  @see JssmGraphConfig
  */
-declare type JssmTransitionConfig = JssmTransitionStyleKey[];
+type JssmTransitionConfig = JssmTransitionStyleKey[];
 /**
  *  Graph-scope default-config style items folded from the deprecated
  *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
@@ -425,7 +425,7 @@ declare type JssmTransitionConfig = JssmTransitionStyleKey[];
  *  default) into the consolidated `graph: {}` config.  Each carries the
  *  legacy parse key so downstream consumers can disambiguate.
  */
-declare type JssmGraphAliasKey = {
+type JssmGraphAliasKey = {
     key: 'graph_layout';
     value: JssmLayout;
 } | {
@@ -449,7 +449,7 @@ declare type JssmGraphAliasKey = {
  *
  *  @see JssmGraphConfig
  */
-declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
+type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
 /**
  *  The compiled value of a `graph: {}` config block: an ordered list of
  *  graph-default style items.  The compiler folds the deprecated top-level
@@ -466,7 +466,7 @@ declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
  *
  *  @see JssmTransitionConfig
  */
-declare type JssmGraphConfig = JssmGraphStyleKey[];
+type JssmGraphConfig = JssmGraphStyleKey[];
 /**
  *  Complete shape of a jssm-viz theme.  A theme provides a style block for
  *  each kind of state (`state`, `hooked`, `start`, `end`, `terminal`) as
@@ -478,7 +478,7 @@ declare type JssmGraphConfig = JssmGraphStyleKey[];
  *  Most user-defined themes should be typed as {@link JssmTheme} (the
  *  `Partial` of this) so that omitted fields fall back to the base theme.
  */
-declare type JssmBaseTheme = {
+type JssmBaseTheme = {
     name: string;
     state: JssmStateConfig;
     hooked: JssmStateConfig;
@@ -515,28 +515,28 @@ declare type JssmBaseTheme = {
  *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
  *  and the panels the machine requests under `request` panel mode.
  */
-declare type JssmEditorConfig = {
+type JssmEditorConfig = {
     stochastic_run_count?: number;
     panels?: Array<string>;
 };
 /** Which stochastic view a run batch produces. */
-declare type JssmStochasticMode = 'montecarlo' | 'steady_state';
+type JssmStochasticMode = 'montecarlo' | 'steady_state';
 /** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
-declare type JssmStochasticOptions = {
+type JssmStochasticOptions = {
     mode?: JssmStochasticMode;
     runs?: number;
     max_steps?: number;
     seed?: number;
 };
 /** One walk's result, yielded by {@link Machine.stochastic_runs}. */
-declare type JssmStochasticRun = {
+type JssmStochasticRun = {
     states: Array<string>;
     edges: Array<string>;
     length: number;
     terminated: boolean;
 };
 /** Aggregate statistics over a stochastic run batch. */
-declare type JssmStochasticSummary = {
+type JssmStochasticSummary = {
     mode: JssmStochasticMode;
     runs: number;
     seed: number;
@@ -547,7 +547,7 @@ declare type JssmStochasticSummary = {
     terminal_reached?: number;
     capped?: number;
 };
-declare type JssmGenericConfig<StateType, DataType> = {
+type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
     transitions: JssmTransitions<StateType, DataType>;
@@ -655,7 +655,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
  *
  *  @internal
  */
-declare type JssmCompileSe<StateType, mDT> = {
+type JssmCompileSe<StateType, mDT> = {
     to: StateType;
     se?: JssmCompileSe<StateType, mDT>;
     kind: JssmArrow;
@@ -670,120 +670,120 @@ declare type JssmCompileSe<StateType, mDT> = {
     l_action_loc?: FslSourceLocation;
     r_action_loc?: FslSourceLocation;
 };
-declare type BasicHookDescription<mDT> = {
+type BasicHookDescription<mDT> = {
     kind: 'hook';
     from: string;
     to: string;
     handler: HookHandler<mDT>;
 };
-declare type HookDescriptionWithAction<mDT> = {
+type HookDescriptionWithAction<mDT> = {
     kind: 'named';
     from: string;
     to: string;
     action: string;
     handler: HookHandler<mDT>;
 };
-declare type StandardTransitionHook<mDT> = {
+type StandardTransitionHook<mDT> = {
     kind: 'standard transition';
     handler: HookHandler<mDT>;
 };
-declare type MainTransitionHook<mDT> = {
+type MainTransitionHook<mDT> = {
     kind: 'main transition';
     handler: HookHandler<mDT>;
 };
-declare type ForcedTransitionHook<mDT> = {
+type ForcedTransitionHook<mDT> = {
     kind: 'forced transition';
     handler: HookHandler<mDT>;
 };
-declare type AnyTransitionHook<mDT> = {
+type AnyTransitionHook<mDT> = {
     kind: 'any transition';
     handler: HookHandler<mDT>;
 };
-declare type GlobalActionHook<mDT> = {
+type GlobalActionHook<mDT> = {
     kind: 'global action';
     action: string;
     handler: HookHandler<mDT>;
 };
-declare type AnyActionHook<mDT> = {
+type AnyActionHook<mDT> = {
     kind: 'any action';
     handler: HookHandler<mDT>;
 };
-declare type EntryHook<mDT> = {
+type EntryHook<mDT> = {
     kind: 'entry';
     to: string;
     handler: HookHandler<mDT>;
 };
-declare type ExitHook<mDT> = {
+type ExitHook<mDT> = {
     kind: 'exit';
     from: string;
     handler: HookHandler<mDT>;
 };
-declare type AfterHook<mDT> = {
+type AfterHook<mDT> = {
     kind: 'after';
     from: string;
     handler: HookHandler<mDT>;
 };
-declare type PostBasicHookDescription<mDT> = {
+type PostBasicHookDescription<mDT> = {
     kind: 'post hook';
     from: string;
     to: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostHookDescriptionWithAction<mDT> = {
+type PostHookDescriptionWithAction<mDT> = {
     kind: 'post named';
     from: string;
     to: string;
     action: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostStandardTransitionHook<mDT> = {
+type PostStandardTransitionHook<mDT> = {
     kind: 'post standard transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostMainTransitionHook<mDT> = {
+type PostMainTransitionHook<mDT> = {
     kind: 'post main transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostForcedTransitionHook<mDT> = {
+type PostForcedTransitionHook<mDT> = {
     kind: 'post forced transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostAnyTransitionHook<mDT> = {
+type PostAnyTransitionHook<mDT> = {
     kind: 'post any transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostGlobalActionHook<mDT> = {
+type PostGlobalActionHook<mDT> = {
     kind: 'post global action';
     action: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostAnyActionHook<mDT> = {
+type PostAnyActionHook<mDT> = {
     kind: 'post any action';
     handler: PostHookHandler<mDT>;
 };
-declare type PostEntryHook<mDT> = {
+type PostEntryHook<mDT> = {
     kind: 'post entry';
     to: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostExitHook<mDT> = {
+type PostExitHook<mDT> = {
     kind: 'post exit';
     from: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PreEverythingHook<mDT> = {
+type PreEverythingHook<mDT> = {
     kind: 'pre everything';
     handler: EverythingHookHandler<mDT>;
 };
-declare type EverythingHook<mDT> = {
+type EverythingHook<mDT> = {
     kind: 'everything';
     handler: EverythingHookHandler<mDT>;
 };
-declare type PrePostEverythingHook<mDT> = {
+type PrePostEverythingHook<mDT> = {
     kind: 'pre post everything';
     handler: PostEverythingHookHandler<mDT>;
 };
-declare type PostEverythingHook<mDT> = {
+type PostEverythingHook<mDT> = {
     kind: 'post everything';
     handler: PostEverythingHookHandler<mDT>;
 };
@@ -801,13 +801,13 @@ declare type PostEverythingHook<mDT> = {
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
+type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
  *  Whether an observational hook runs in the pre-transition phase (where it
  *  may veto/mutate the transition) or the post-transition phase (a pure
  *  observer that runs only after a successful transition commits).
  */
-declare type HookPhase = 'pre' | 'post';
+type HookPhase = 'pre' | 'post';
 /**
  *  Normalized description of the target a registry entry is bound to.  Exactly
  *  one scope variant applies; the present fields depend on the scope:
@@ -818,7 +818,7 @@ declare type HookPhase = 'pre' | 'post';
  *  - `'global'` carries no further keys (it matches everything),
  *  - `'group'`  carries `group` (a named state group with a boundary hook).
  */
-declare type HookTarget = {
+type HookTarget = {
     scope: 'edge';
     from: StateType$1;
     to: StateType$1;
@@ -842,7 +842,7 @@ declare type HookTarget = {
  *  covers only the programmatically-registered observational hooks), so the
  *  registry widens its `kind` field with them.
  */
-declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
+type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
 /**
  *  One row of the generated uniform observational-hook registry.  `kind` is
  *  either an original {@link HookDescription} discriminator (e.g. `'entry'`,
@@ -851,7 +851,7 @@ declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | '
  *  normalized {@link HookTarget} it is bound to.  The triple
  *  `(kind, target, phase)` is the registry key the spec calls for.
  */
-declare type HookRegistryEntry = {
+type HookRegistryEntry = {
     kind: HookDescription<unknown>['kind'] | HookBoundaryKind;
     phase: HookPhase;
     target: HookTarget;
@@ -864,7 +864,7 @@ declare type HookRegistryEntry = {
  *  mirrors the spec's `hooks_on(state)` / `hooks_on(from→to)` /
  *  `hooks_on(action)` / `hooks_on(&group)` set with one parameter shape.
  */
-declare type HookQuery = StateType$1 | {
+type HookQuery = StateType$1 | {
     from: StateType$1;
     to: StateType$1;
     action?: string;
@@ -881,7 +881,7 @@ declare type HookQuery = StateType$1 | {
  *  `data` overrides the data observed by other hooks in the same chain,
  *  and `next_data` overrides the data committed after the transition.
  */
-declare type HookComplexResult<mDT> = {
+type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType$1;
     data?: mDT;
@@ -893,7 +893,7 @@ declare type HookComplexResult<mDT> = {
  *  a {@link HookComplexResult} that additionally rewrites the next state
  *  and/or the next data payload.
  */
-declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
+type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 /**
  *  Context object passed to every {@link HookHandler}.  `data` is the
  *  data payload as it stands before the transition, and `next_data` is
@@ -901,7 +901,7 @@ declare type HookResult<mDT> = true | false | undefined | void | HookComplexResu
  *  handlers may inspect or mutate the latter via a
  *  {@link HookComplexResult} return value.
  */
-declare type HookContext<mDT> = {
+type HookContext<mDT> = {
     data: mDT;
     next_data: mDT;
 };
@@ -911,7 +911,7 @@ declare type HookContext<mDT> = {
  *  {@link HookContext} with `hook_name`, which identifies which specific
  *  hook fired so a single handler can route on it.
  */
-declare type EverythingHookContext<mDT> = HookContext<mDT> & {
+type EverythingHookContext<mDT> = HookContext<mDT> & {
     hook_name: string;
 };
 /**
@@ -921,38 +921,38 @@ declare type EverythingHookContext<mDT> = HookContext<mDT> & {
  *  result allows it, and a {@link HookComplexResult} can additionally
  *  rewrite the next state or next data.
  */
-declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
+type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 /**
  *  Signature of a post-transition hook handler.  Invoked after a successful
  *  transition has been committed; the return value is ignored (the
  *  transition cannot be undone).
  */
-declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
+type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
 /**
  *  Signature of an "everything" pre-transition hook handler.  Like
  *  {@link HookHandler} but receives an {@link EverythingHookContext} so the
  *  handler can dispatch on `hook_name`.
  */
-declare type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
+type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
 /**
  *  Signature of an "everything" post-transition hook handler.  Like
  *  {@link PostHookHandler} but receives an {@link EverythingHookContext}.
  *  The return value is ignored.
  */
-declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
+type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
 /**
  *  Bounded history of recently-visited states paired with the data payload
  *  observed in each.  Backed by `circular_buffer_js`, so the oldest entry
  *  is dropped silently once the configured capacity is exceeded.
  */
-declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
+type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
 /**
  *  Pluggable random-number-generator function shape.  Must return a value
  *  in `[0, 1)` exactly as `Math.random` does.  Supplied via the
  *  `rng_seed`-aware machine configuration so that stochastic models can be
  *  made reproducible.
  */
-declare type JssmRng = () => number;
+type JssmRng = () => number;
 /**
  *  All event names that {@link Machine.on} accepts.  These are observation
  *  events fired by the machine in addition to (not in place of) the hook
@@ -960,14 +960,14 @@ declare type JssmRng = () => number;
  *
  *  @see Machine.on
  */
-declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
 /**
  *  Detail payload fired with a `transition` event.  Carries the resolved
  *  source and target, the action name (if the transition was driven by an
  *  action), the data observed before and after the change, the edge kind,
  *  and whether the call was a forced transition.
  */
-declare type JssmTransitionEventDetail<mDT> = {
+type JssmTransitionEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     action?: StateType$1;
@@ -982,7 +982,7 @@ declare type JssmTransitionEventDetail<mDT> = {
  *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
  *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
  */
-declare type JssmRejectionEventDetail<mDT> = {
+type JssmRejectionEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     action?: StateType$1;
@@ -996,7 +996,7 @@ declare type JssmRejectionEventDetail<mDT> = {
  *  Detail payload fired with an `action` event.  Fires when an action is
  *  attempted, before transition validation runs.
  */
-declare type JssmActionEventDetail<mDT> = {
+type JssmActionEventDetail<mDT> = {
     action: StateType$1;
     from: StateType$1;
     to?: StateType$1;
@@ -1008,7 +1008,7 @@ declare type JssmActionEventDetail<mDT> = {
  *  state.  `from` is the predecessor state, if any.  `action` is the
  *  action that drove the entry, if any.
  */
-declare type JssmEntryEventDetail<mDT> = {
+type JssmEntryEventDetail<mDT> = {
     state: StateType$1;
     from?: StateType$1;
     action?: StateType$1;
@@ -1019,7 +1019,7 @@ declare type JssmEntryEventDetail<mDT> = {
  *  state.  `to` is the next state, if any.  `action` is the action that
  *  drove the exit, if any.
  */
-declare type JssmExitEventDetail<mDT> = {
+type JssmExitEventDetail<mDT> = {
     state: StateType$1;
     to?: StateType$1;
     action?: StateType$1;
@@ -1029,7 +1029,7 @@ declare type JssmExitEventDetail<mDT> = {
  *  Detail payload fired with a `terminal` event.  Indicates that the
  *  machine has reached a state with no outgoing edges.
  */
-declare type JssmTerminalEventDetail<mDT> = {
+type JssmTerminalEventDetail<mDT> = {
     state: StateType$1;
     data: mDT;
 };
@@ -1037,7 +1037,7 @@ declare type JssmTerminalEventDetail<mDT> = {
  *  Detail payload fired with a `complete` event.  Indicates that the
  *  machine has reached a FSL `complete` state.
  */
-declare type JssmCompleteEventDetail<mDT> = {
+type JssmCompleteEventDetail<mDT> = {
     state: StateType$1;
     data: mDT;
 };
@@ -1047,7 +1047,7 @@ declare type JssmCompleteEventDetail<mDT> = {
  *  identify the event whose handler threw, and `handler` is the offending
  *  function so consumers can correlate / blame.
  */
-declare type JssmErrorEventDetail = {
+type JssmErrorEventDetail = {
     error: unknown;
     source_event: JssmEventName;
     source_detail: unknown;
@@ -1058,7 +1058,7 @@ declare type JssmErrorEventDetail = {
  *  machine's data payload is replaced.  `old_data` is the value before the
  *  change; `new_data` is the value after.
  */
-declare type JssmDataChangeEventDetail<mDT> = {
+type JssmDataChangeEventDetail<mDT> = {
     from?: StateType$1;
     to?: StateType$1;
     action?: StateType$1;
@@ -1070,7 +1070,7 @@ declare type JssmDataChangeEventDetail<mDT> = {
  *  Detail payload fired with an `override` event.  Distinguishes a forced
  *  state replacement from a normal transition.
  */
-declare type JssmOverrideEventDetail<mDT> = {
+type JssmOverrideEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     old_data: mDT;
@@ -1080,7 +1080,7 @@ declare type JssmOverrideEventDetail<mDT> = {
  *  Detail payload fired with a `timeout` event.  Fires when a configured
  *  `after` clause causes an automatic transition.
  */
-declare type JssmTimeoutEventDetail = {
+type JssmTimeoutEventDetail = {
     from: StateType$1;
     to: StateType$1;
     after_time: number;
@@ -1090,7 +1090,7 @@ declare type JssmTimeoutEventDetail = {
  *  Mirrors the {@link HookDescription} so inspector tools can mirror the
  *  current hook set.
  */
-declare type JssmHookLifecycleEventDetail<mDT> = {
+type JssmHookLifecycleEventDetail<mDT> = {
     description: HookDescription<mDT>;
 };
 /**
@@ -1098,7 +1098,7 @@ declare type JssmHookLifecycleEventDetail<mDT> = {
  *  payload.  Drives the discriminated-union typing of {@link Machine.on},
  *  so `e.action` and friends only exist where they're meaningful.
  */
-declare type JssmEventDetailMap<mDT> = {
+type JssmEventDetailMap<mDT> = {
     'transition': JssmTransitionEventDetail<mDT>;
     'rejection': JssmRejectionEventDetail<mDT>;
     'action': JssmActionEventDetail<mDT>;
@@ -1119,7 +1119,7 @@ declare type JssmEventDetailMap<mDT> = {
  *  filter entry fire the handler.  Events that don't list a filter key in
  *  v1 take no filter properties.
  */
-declare type JssmEventFilterMap<mDT> = {
+type JssmEventFilterMap<mDT> = {
     'transition': {
         from?: StateType$1;
         to?: StateType$1;
@@ -1147,19 +1147,19 @@ declare type JssmEventFilterMap<mDT> = {
  *  @typeparam mDT The type of the machine data member.
  *  @typeparam Ev  The event name.
  */
-declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
 /**
  *  Per-event handler signature.  Receives a detail object typed by event
  *  name, so `e.action` (etc.) only exist where they're meaningful.
  *  @typeparam mDT The type of the machine data member.
  *  @typeparam Ev  The event name.
  */
-declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
 /**
  *  Function returned by {@link Machine.on} and {@link Machine.once} that
  *  removes the subscription.  Calling it more than once is a no-op.
  */
-declare type JssmUnsubscribe = () => void;
+type JssmUnsubscribe = () => void;
 
 /**
  * String interning support for the jssm machine internals.
@@ -1242,7 +1242,7 @@ declare const version: string;
  */
 declare const build_time: number;
 
-declare type StateType = string;
+type StateType = string;
 
 /**
  *  Internal record holding a single registered event subscription: the
@@ -1251,7 +1251,7 @@ declare type StateType = string;
  *
  *  @internal
  */
-declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     handler: JssmEventHandler<mDT, Ev>;
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
@@ -3838,7 +3838,7 @@ declare class Machine<mDT> {
  *    diagram or when overlap is pervasive.
  *  - `'off'` — ignore groups entirely; byte-for-byte the historical output.
  */
-declare type RenderGroups = 'cluster' | 'chips' | 'off';
+type RenderGroups = 'cluster' | 'chips' | 'off';
 /**
  *  Inject runtime configuration for jssm/viz.  Currently only accepts a
  *  custom `DOMParser` constructor for use by `*_svg_element` functions in
@@ -4127,7 +4127,7 @@ declare function graph_attrs_body(config: JssmGraphConfig | undefined): string;
  *
  *  @internal
  */
-declare type StateKind = 'final' | 'complete' | 'terminal' | 'base';
+type StateKind = 'final' | 'complete' | 'terminal' | 'base';
 /**
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
  *  identifier.  Graphviz treats any `subgraph` whose name begins with the
@@ -4276,7 +4276,7 @@ declare function chips_for_all_groups<T>(u_jssm: Machine<T>, l_states: string[])
  *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
  *    output byte-for-byte.
  */
-declare type VizRenderOpts = {
+type VizRenderOpts = {
     hide_state_labels?: boolean;
     footer?: string;
     engine?: string;

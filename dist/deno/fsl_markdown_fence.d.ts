@@ -7,11 +7,11 @@
  *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
  */
 /** A single renderable part of a fence block (stacks in listed order, first on top). */
-export declare type FencePart = 'image' | 'code' | 'dot' | 'editor' | 'actions' | 'info-panel' | 'toolbar' | 'title' | 'footer';
+export type FencePart = 'image' | 'code' | 'dot' | 'editor' | 'actions' | 'info-panel' | 'toolbar' | 'title' | 'footer';
 /** An image output format for the `image` part. */
-export declare type FenceImageFormat = 'svg' | 'png' | 'jpeg' | 'gif';
+export type FenceImageFormat = 'svg' | 'png' | 'jpeg' | 'gif';
 /** The unit of a {@link FenceDimension} (`%` is represented as `'percent'`). */
-export declare type FenceDimensionUnit = 'px' | 'percent';
+export type FenceDimensionUnit = 'px' | 'percent';
 /** A parsed `width=`/`height=` value with its unit. */
 export interface FenceDimension {
     value: number;

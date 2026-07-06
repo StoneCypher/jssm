@@ -12,7 +12,7 @@ export declare const FSL_KEYWORDS: Set<string>;
  */
 export declare const FSL_COLOR_KEYS: Set<string>;
 /** A token's class is one of these, or `null` for uncategorized runs. */
-export declare type FslTokenClass = 'comment' | 'string' | 'action' | 'arrow' | 'number' | 'keyword' | 'key' | 'color';
+export type FslTokenClass = 'comment' | 'string' | 'action' | 'arrow' | 'number' | 'keyword' | 'key' | 'color';
 /** A single highlighted run: its class (or `null`) and the source text. */
 export interface FslToken {
     cls: FslTokenClass | null;

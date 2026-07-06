@@ -1,4 +1,4 @@
-declare type StateType = string;
+type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
 JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmEditorConfig, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmBaseTheme, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
@@ -25,7 +25,7 @@ import { version, build_time } from './version.js';
  *
  *  @internal
  */
-declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     handler: JssmEventHandler<mDT, Ev>;
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;

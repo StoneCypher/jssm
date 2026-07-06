@@ -5,9 +5,9 @@ import type { Machine } from '../jssm.js';
  * removes the underlying `machine.on('transition', ...)` subscription that
  * keeps the binding live.
  */
-export declare type FslBindUnsub = () => void;
+export type FslBindUnsub = () => void;
 /** @deprecated Use {@link FslBindUnsub} instead; kept for backwards compat. */
-export declare type JssmBindUnsub = FslBindUnsub;
+export type JssmBindUnsub = FslBindUnsub;
 /**
  * Walk a dotted path into a value.  Used by the `data.path.to.field`
  * variant of {@link resolve_binding}.  Returns `undefined` whenever the
@@ -145,7 +145,7 @@ export declare class FslBind extends LitElement {
     render(): null;
 }
 /** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
-export declare type JssmBind = FslBind;
+export type JssmBind = FslBind;
 declare global {
     interface HTMLElementTagNameMap {
         'fsl-bind': FslBind;
