@@ -3,9 +3,13 @@
 /**
  *  Graviton perf-trend chart generator (#748).  Reads every measured run from
  *  the `perf_results` data branch (`c8g.medium/pr-N/scaling.json` and
- *  `c8g.medium/release-V/scaling.json`), and renders one log-scale SVG panel
- *  per benchmarked operation — one line per machine shape, PRs ordered by
- *  number then releases by semver — plus a machine-readable data JSON.
+ *  `c8g.medium/release-V/scaling.json`), and renders, per benchmarked operation,
+ *  a log-scale SVG panel (full history, one line per machine shape) over a
+ *  linear-scale twin (the most recent 30 versions, y-axis padded 10% of the data
+ *  span) — PRs ordered by number then releases by semver.  A final panel tracks
+ *  package size as a single line (the summed raw byte size of the published dist
+ *  bundles, from each run's `bundles` block).  Also emits a machine-readable data
+ *  JSON.
  *
  *  Three consumers:
  *
@@ -23,8 +27,8 @@
  *
  *    node src/scripts/make_perf_chart.cjs --comment [--issue <n>]
  *        Run-end mode (the perf_chart workflow, on every push to
- *        perf_results): additionally commits the per-operation SVGs to the
- *        perf_results branch under charts/<stamp>/ and posts them to the
+ *        perf_results): additionally commits the per-operation log + linear SVGs
+ *        to the perf_results branch under charts/<stamp>/ and posts them to the
  *        perf-tracking issue (default #636) via raw URLs pinned to the
  *        publishing commit SHA — GitHub's API has no comment-attachment
  *        upload, and SHA-pinning means later branch movement can never break
