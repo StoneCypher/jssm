@@ -119,3 +119,16 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   **Next 5.x code packet = WP-6 dragon phase A** (revive kitchen_sink_dragon, green locally + CI
   smoke lane) — the first packet that will actually produce a shippable change; needs a main
   worktree + John's per-action go.
+- **2026-07-05 · Increment 12 (Opus 4.8, WP-6 dragon — step 1):** John's go. Reused the WP-1
+  worktree, renamed its branch → `test_26-07-05_dragon-revival` (off main, pushed). Baseline:
+  `npm run vitest-dragon` was ALREADY green (vitest port already done; 100 tests) — but the
+  kitchen-sink ran `fc.assert` at collection time with a deferred `test()` per iteration, so
+  fast-check never saw the assertion (no shrinking, no reproducible seed on a find). **Refactored**
+  it to assert inside `fc.property` (one `it()`, numRuns 100); generation/walk logic preserved.
+  **Verified**: green; and with the assertion temporarily inverted to force a find, fast-check
+  printed `{ seed: 740228835 }` + `Counterexample: [false,0]` (the splitmix gen_seed) + `Shrunk 1
+  time(s)` + the machine — both seeds, reproducible. eslint clean. Committed abb1ad83 (branch not
+  yet /sc-committed — batching WP-6 into one 5.158.x patch). **WP-6 remaining:** CI lane (3-tier
+  smoke/heavy/deep, touches nodejs.yml — release-sensitive), the 3 §-expansion dragon files (§3
+  numeric, §4 colours, §6 arrow-decorations — the dragons-egg suggestions), find-handling doc,
+  egg status update.
