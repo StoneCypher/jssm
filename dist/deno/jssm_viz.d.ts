@@ -15,7 +15,7 @@ import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from '
  *    diagram or when overlap is pervasive.
  *  - `'off'` — ignore groups entirely; byte-for-byte the historical output.
  */
-declare type RenderGroups = 'cluster' | 'chips' | 'off';
+type RenderGroups = 'cluster' | 'chips' | 'off';
 /**
  *  Inject runtime configuration for jssm/viz.  Currently only accepts a
  *  custom `DOMParser` constructor for use by `*_svg_element` functions in
@@ -304,7 +304,7 @@ declare function graph_attrs_body(config: JssmGraphConfig | undefined): string;
  *
  *  @internal
  */
-declare type StateKind = 'final' | 'complete' | 'terminal' | 'base';
+type StateKind = 'final' | 'complete' | 'terminal' | 'base';
 /**
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
  *  identifier.  Graphviz treats any `subgraph` whose name begins with the
@@ -453,7 +453,7 @@ declare function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: stri
  *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
  *    output byte-for-byte.
  */
-declare type VizRenderOpts = {
+type VizRenderOpts = {
     hide_state_labels?: boolean;
     footer?: string;
     engine?: string;

@@ -4,7 +4,7 @@ export interface RasterOptions {
     scale?: number;
     quality?: number;
 }
-declare type RasterTarget = 'png' | 'jpeg';
+type RasterTarget = 'png' | 'jpeg';
 /**
  * Rasterize an SVG string to PNG or JPEG bytes.
  *

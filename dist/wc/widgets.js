@@ -118,6 +118,9 @@ function bytes_to_base64url(bytes) {
 async function deflate_raw(bytes) {
     const stream = new CompressionStream('deflate-raw');
     const writer = stream.writable.getWriter();
+    // 6.0.3 made typed arrays generic over their backing buffer; the DOM
+    // `BufferSource` wants `Uint8Array<ArrayBuffer>` specifically, so narrow the
+    // ArrayBufferLike-backed input at the stream boundary. Runtime is unchanged.
     void writer.write(bytes);
     void writer.close();
     return new Uint8Array(await new Response(stream.readable).arrayBuffer());

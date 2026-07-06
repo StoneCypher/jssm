@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.159.2 at 7/4/2026, 9:56:09 PM
+* Generated for version 5.160.0 at 7/5/2026, 9:26:27 PM
 
 -->
-# jssm 5.159.2
+# jssm 5.160.0
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -469,7 +469,7 @@ If your contribution is missing here, please open an issue.
 ***8,021 tests***, run 83,063 times.
 
 - 7,263 specs with 100.0% coverage
-- 758 fuzz tests with 48.1% coverage
+- 758 fuzz tests with 48.0% coverage
 - 10,711 TypeScript lines - 0.7 tests per line, 7.8 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)

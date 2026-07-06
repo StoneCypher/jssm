@@ -1,6 +1,6 @@
 import { LitElement, type TemplateResult } from 'lit';
 /** A classified slice of a pretty-printed JSON string. */
-export declare type JsonTokenKind = 'key' | 'string' | 'number' | 'bool' | 'null' | 'plain';
+export type JsonTokenKind = 'key' | 'string' | 'number' | 'bool' | 'null' | 'plain';
 export interface JsonToken {
     text: string;
     kind: JsonTokenKind;

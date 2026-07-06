@@ -3847,7 +3847,7 @@ class Machine {
             if (this._event_listener_count !== 0) {
                 this._fire('rejection', {
                     from: fromState,
-                    to: newStateOrAction,
+                    to: newStateOrAction, // we never resolved a real target
                     action: fromAction,
                     data: oldData,
                     next_data: newData,

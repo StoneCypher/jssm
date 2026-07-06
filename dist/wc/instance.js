@@ -521,6 +521,9 @@ function base64url_to_bytes(text) {
 async function deflate_raw(bytes) {
     const stream = new CompressionStream('deflate-raw');
     const writer = stream.writable.getWriter();
+    // 6.0.3 made typed arrays generic over their backing buffer; the DOM
+    // `BufferSource` wants `Uint8Array<ArrayBuffer>` specifically, so narrow the
+    // ArrayBufferLike-backed input at the stream boundary. Runtime is unchanged.
     void writer.write(bytes);
     void writer.close();
     return new Uint8Array(await new Response(stream.readable).arrayBuffer());
@@ -546,6 +549,8 @@ const MAX_PERMALINK_INFLATE_BYTES = 5 * 1024 * 1024;
 async function inflate_raw(bytes) {
     const stream = new DecompressionStream('deflate-raw');
     const writer = stream.writable.getWriter();
+    // See deflate_raw: narrow the ArrayBufferLike-backed input to the
+    // ArrayBuffer-backed Uint8Array the DOM BufferSource wants under 6.0.3.
     void writer.write(bytes);
     void writer.close();
     // Read incrementally; stopping past the cap leaves the stream half-drained, so

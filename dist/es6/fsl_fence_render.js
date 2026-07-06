@@ -1,3 +1,10 @@
+/// <reference types="node" />
+// This module (and the rasterize/bundled-font code it pulls in) has guarded
+// Node-only paths — `Buffer` base64 and `import('fs'|'path'|'module')` for the
+// resvg-wasm loader. The browser-oriented main tsconfig no longer folds
+// @types/node in by default under 6.0.3, so this directive restores those
+// ambient Node types program-wide for the main build (the CLI build gets them
+// via tsconfig.cli.json's `types: ["node"]`). Runtime behavior is unchanged.
 /**
  *  The descriptor interpreter for the FSL Markdown fence convention: turns a
  *  parsed {@link FenceDescriptor} plus FSL source into static HTML, and walks
