@@ -1,6 +1,6 @@
 import { LitElement, type TemplateResult } from 'lit';
 /** Supported export formats. */
-export declare type FslExportFormat = 'dot' | 'json' | 'fsl';
+export type FslExportFormat = 'dot' | 'json' | 'fsl';
 /**
  * `<fsl-export>` — export buttons for a parent `<fsl-instance>`. Each produces a
  * string from the host's machine and fires `fsl-export` with `{ format,

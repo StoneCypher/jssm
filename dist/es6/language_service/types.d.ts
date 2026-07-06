@@ -11,7 +11,7 @@ export interface Range {
     to: number;
 }
 /** Diagnostic severity, aligned with LSP severities. */
-export declare type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
+export type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
 /** An editor-agnostic diagnostic (one parse/compile problem). */
 export interface Diagnostic {
     range: Range;
@@ -19,7 +19,7 @@ export interface Diagnostic {
     message: string;
 }
 /** What a completion item suggests, so adapters can pick an icon. */
-export declare type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
+export type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
 /** An editor-agnostic completion suggestion. */
 export interface CompletionItem {
     label: string;
@@ -27,7 +27,7 @@ export interface CompletionItem {
     detail?: string;
 }
 /** Parser-derived semantic role of a source span. */
-export declare type SemanticSpanKind = 'color' | 'state' | 'enum';
+export type SemanticSpanKind = 'color' | 'state' | 'enum';
 /** An editor-agnostic semantic span (for decorations / semantic tokens). */
 export interface SemanticSpan extends Range {
     kind: SemanticSpanKind;

@@ -2,7 +2,7 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 /** Debounce before a live edit is written to the URL fragment. */
 export declare const PERMALINK_WRITE_DEBOUNCE_MS = 300;
 /** The host element this controller drives: a Lit host exposing a string `fsl`. */
-declare type SyncHost = ReactiveControllerHost & HTMLElement & {
+type SyncHost = ReactiveControllerHost & HTMLElement & {
     fsl: string;
 };
 /**

@@ -8,7 +8,7 @@
  * @see resolve_theme_mode
  */
 /** How a theme's light/dark variant is chosen. `system` follows the OS. */
-export declare type ThemeMode = 'system' | 'light' | 'dark';
+export type ThemeMode = 'system' | 'light' | 'dark';
 /**
  * One palette: the public `--fsl-color-*` tokens (minus the `--fsl-color-`
  * prefix). Every slotted widget derives its internal `--_fsl-*` from these.
@@ -30,7 +30,7 @@ export interface ThemeVariants {
     dark: ThemePalette;
 }
 /** A set of named themes, keyed by display name. */
-export declare type ThemeRegistry = Record<string, ThemeVariants>;
+export type ThemeRegistry = Record<string, ThemeVariants>;
 /**
  * The built-in themes: `Default` (the suite's house palette) and `Solarized`
  * (Ethan Schoonover's palette). Consumers can extend the host's `themes`
