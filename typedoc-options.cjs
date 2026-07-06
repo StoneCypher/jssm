@@ -7,6 +7,9 @@ module.exports = {
   // ],
   customCss: './src/site/typedoc-addon.css',
   // entryPointStrategy: 'packages',
-  // pluginCodeBlocks: { source: '__tests__/mock-fs' },
+  // typedoc 0.23+ no longer auto-loads plugins from node_modules; declare the
+  // one we keep (missing-exports surfaces referenced-but-unexported types under
+  // an <internal> module, matching the pre-upgrade docs).
+  plugin: ['typedoc-plugin-missing-exports'],
   excludePrivate: true
 };
