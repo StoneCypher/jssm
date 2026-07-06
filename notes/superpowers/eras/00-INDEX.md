@@ -144,3 +144,14 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   dragon-tier-live in `dragons-egg.md`. Verified: dragon 16 green, stoch 12 green, eslint clean.
   Committed 9c22e282, pushed. **WP-6 remaining:** §3 + §4 dragon expansions, the CI lane
   (nodejs.yml, needs your review), then /sc-commit the batch as one 5.158.x patch.
+- **2026-07-05 · Increment 14 (Opus 4.8, WP-6 §3+§4 dragons — expansions COMPLETE):** Wrote
+  `colors.maximal.ts` (§4: invalid-length/WS/non-hex rejection, mixed-case preservation, Rgba8
+  alpha round-trip — no finds, colour grammar solid) and `numeric.maximal.ts` (§3: any-position
+  octal/binary rejection, degenerate radix prefixes, exact large-hex, negative rejection,
+  case-sensitive constants, large-time no-overflow). All behaviours probed against the parser
+  first. Dragon suite now **33 tests across 4 files, green**; eslint clean. Egg updated (§3/§4
+  dragon-tier live, entries + flagged gaps: rebeccapurple/CSS4, SemVer harness held). Committed
+  b46fcbee, pushed. **The three DECIDED 6.0 §-expansions (§3/§4/§6) are DONE.** WP-6 remaining is
+  just: (1) the CI lane (3-tier, edits nodejs.yml — release-sensitive, to show John as a diff
+  before landing), then (2) /sc-commit the whole branch as one 5.158.x patch (needs John's merge,
+  main protected).
