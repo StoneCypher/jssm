@@ -3,8 +3,10 @@
   "title": "jssm-* web-component synonym removal",
   "version": 6,
   "cluster": "breakage-batch",
-  "src": ["era0/WP-5"],
-  "issue": null,
+  "src": [
+    "era0/WP-5"
+  ],
+  "issue": 1414,
   "manager": "The web components answer to two names, and the old `jssm-viz`/`jssm-instance`/`jssm-bind` aliases confuse the docs and split search traffic across two spellings of the same tag. 6.0 ships `fsl-*` only. It is a breaking change for anyone using the old tags — one find-and-replace — batched into the 6.0 wall with the README and examples swept and a manifest entry, so the migration is documented once rather than discovered per user.",
   "cs": "delete the alias registrations in `define_canonical()`; grep-kill `jssm-` tags across examples/site; add the manifest entry (the missing one from omissions C); tests assert the alias tags no longer upgrade to the component."
 }

@@ -3,8 +3,12 @@
   "title": "C2 operational-semantics appendix",
   "version": 6,
   "cluster": "portability-contract",
-  "src": ["era1/WP-1.2", "MP§12", "2026-07-04-operational-semantics.md"],
-  "issue": null,
+  "src": [
+    "era1/WP-1.2",
+    "MP§12",
+    "2026-07-04-operational-semantics.md"
+  ],
+  "issue": 1413,
   "manager": "The one paragraph everything keys off — how a macrostep actually runs — is now written as executable pseudocode instead of living in the maintainers' heads. Implementations and the future trace schema conform to it, not to habit, so any disagreement between the M3 replayer, the runtime, and the appendix is by definition a bug to file. This is the shared source of truth that later lets a second implementation agree with the first byte-for-byte.",
   "cs": "audit event-selection order, guard evaluation, FIFO internal-queue drain, assign journaling, invariant-at-stable, commit/rollback, and hook timing against the current `transition_impl`; file every delta as a bug; the C4 trace events will be named after these steps. Done when two models can hand-execute the same tape identically from the text alone."
 }
