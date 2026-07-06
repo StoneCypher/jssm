@@ -180,32 +180,6 @@ function bundle_size_series(runs) {
 }
 
 /**
- *  Pivot the per-shape machine footprint into a shape -> [{ key, ops }] series,
- *  reading `footprintBytes` (the retained heap of one constructed machine, injected
- *  onto each `construct()` row by the benchmark's memory pass) as the y-value.  The
- *  value lands in the `ops` field so it can reuse {@link panel_svg} directly; the
- *  panel just labels its axis `bytes` instead of `ops/sec`.  Rows without a numeric
- *  `footprintBytes` (e.g. a release benchmarked without `--expose-gc`) are skipped,
- *  so the panel simply has gaps rather than failing.
- *
- *  @param runs Sorted runs from {@link collect_runs}.
- *  @returns Map of shape to an ordered point list (empty when no run carries footprints).
- */
-function footprint_series(runs) {
-  const by_shape = new Map();
-  for (const run of runs) {
-    for (const r of run.results) {
-      if (!r.name.endsWith(' construct()'))   { continue; }
-      if (typeof r.footprintBytes !== 'number') { continue; }
-      const shape = r.name.slice(0, r.name.lastIndexOf(' '));
-      if (!by_shape.has(shape)) { by_shape.set(shape, []); }
-      by_shape.get(shape).push({ key: key_of(run), ops: r.footprintBytes });
-    }
-  }
-  return by_shape;
-}
-
-/**
  *  The deterministic stamp for a data set: the lexicographically greatest
  *  `date` across all runs, normalized to `YYYYMMDD-HHMMSS`.  Using data time
  *  instead of wall clock is what makes regeneration reproducible — a build
@@ -414,53 +388,76 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
 }
 
 /**
- *  Render every operation panel laid out in a `cols`-wide grid (row-major,
- *  left→right then top→bottom) with a title block — the
- *  `src/generated_docs/perf_chart.svg` artifact.
+ *  Render every panel as a log-over-linear pair, laid out in a `cols`-wide grid
+ *  (row-major, left→right then top→bottom) with a title block — the
+ *  `src/generated_docs/perf_chart.svg` artifact.  Each cell stacks the
+ *  full-history log panel above a linear twin windowed to the last 30 versions;
+ *  the final panel is the single-line package size (summed raw dist-bundle
+ *  bytes), added only when the data carries a `bundles` block.
  *
  *  @param runs Sorted runs.
- *  @param panel_width Width of each operation panel in px.
- *  @param panel_height Height of each operation panel in px.
- *  @param panel_gap Vertical gap between panel rows in px (~2em at the 16px root
- *                   font), so the rows read as distinct charts.
- *  @param cols Number of panel columns (2 ⇒ a two-wide grid).
- *  @returns `{ svg, panels }` — the composite document and the individual
- *           panel SVGs keyed by operation (the comment flow embeds those).
+ *  @param panel_width Width of each panel in px (both twins share it).
+ *  @param panel_height Height of each panel in px.
+ *  @param panel_gap Intra-pair gap (log → linear) in px; the inter-pair-row gap
+ *                   is double this, so pairs read as distinct while their two
+ *                   twins read as coupled.
+ *  @param cols Number of pair columns (2 ⇒ a two-wide grid).
+ *  @returns `{ svg, panels }` — the composite document and a Map of each panel's
+ *           `{ log, linear }` SVG pair keyed by operation (`'packageBytes'` for
+ *           the package panel); the comment flow embeds both twins.
  */
 function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 32, cols = 2) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
+  const keys30 = keys.slice(-30);
+
+  // Each panel is a { log, linear } pair: the log twin over full history, the
+  // linear twin over the last 30 keys with a 10%-padded axis.
+  const make_pair = (op, by_shape, unit) => {
+    const windowed = new Map();
+    for (const [shape, pts] of by_shape) {
+      windowed.set(shape, pts.filter((p) => keys30.includes(p.key)));
+    }
+    return {
+      log    : panel_svg(op, by_shape, keys,   panel_width, panel_height, unit, 'log'),
+      linear : panel_svg(op, windowed, keys30, panel_width, panel_height, unit, 'linear')
+    };
+  };
 
   const panels = new Map();
   for (const op of OPERATIONS) {
-    if (series.has(op)) { panels.set(op, panel_svg(op, series.get(op), keys, panel_width, panel_height)); }
+    if (series.has(op)) { panels.set(op, make_pair(op, series.get(op), 'ops/sec')); }
   }
 
-  // 8th panel: machine footprint (bytes) — fills the spare cell of the 2-wide grid
-  // the seven throughput ops leave open. Only added when the data carries footprints.
-  const footprints = footprint_series(runs);
-  if (footprints.size > 0) {
-    panels.set('footprintBytes', panel_svg('footprintBytes', footprints, keys, panel_width, panel_height, 'bytes'));
-  }
+  // package-size panel (single line, bytes): the shape-independent package
+  // weight, only when the data carries a bundles block.
+  const pkg = bundle_size_series(runs);
+  if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes')); }
 
-  const col_gap  = 40;                          // horizontal breathing room between columns
-  const rows     = Math.ceil(panels.size / cols);
-  const header_h = 56;
-  const width    = cols * panel_width + Math.max(0, cols - 1) * col_gap;
-  const total_h  = header_h + rows * panel_height + Math.max(0, rows - 1) * panel_gap;
-  const parts    = [];
+  const col_gap        = 40;                        // horizontal breathing room between columns
+  const intra_pair_gap = panel_gap;                 // log → linear twin inside a pair
+  const inter_pair_gap = panel_gap * 2;             // between pair-rows: doubled, so pairs read as distinct
+  const pair_height    = 2 * panel_height + intra_pair_gap;
+  const rows           = Math.ceil(panels.size / cols);
+  const header_h       = 56;
+  const width          = cols * panel_width + Math.max(0, cols - 1) * col_gap;
+  const total_h        = header_h + rows * pair_height + Math.max(0, rows - 1) * inter_pair_gap;
+
+  const strip = (svg) => svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+  const parts = [];
   parts.push(`<svg width="${width}" height="${total_h}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`);
   parts.push(`<rect width="${width}" height="${total_h}" fill="#ffffff"/>`);
   parts.push(`<text x="16" y="24" font-size="17" font-weight="bold" fill="#1a1a1a">jssm performance trend — graviton runners (perf_results branch)</text>`);
   parts.push(`<text x="16" y="44" font-size="11" fill="#666">${summary_line(runs)} Source: ${DEFAULTS.ghRepo} branch perf_results, instance ${DEFAULTS.instanceType}. Data through ${data_stamp(runs)}.</text>`);
 
-  // lay panels out in a cols-wide grid, row-major (left→right, top→bottom)
+  // lay pairs out in a cols-wide grid, row-major; each cell stacks log over linear
   let i = 0;
-  for (const svg of panels.values()) {
+  for (const pair of panels.values()) {
     const col = i % cols, row = Math.floor(i / cols);
     const ox  = col * (panel_width + col_gap);
-    const oy  = header_h + row * (panel_height + panel_gap);
-    parts.push(`<g transform="translate(${ox} ${oy})">${svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`);
+    const oy  = header_h + row * (pair_height + inter_pair_gap);
+    parts.push(`<g transform="translate(${ox} ${oy})">${strip(pair.log)}</g>`);
+    parts.push(`<g transform="translate(${ox} ${oy + panel_height + intra_pair_gap})">${strip(pair.linear)}</g>`);
     i++;
   }
   parts.push('</svg>');
@@ -756,7 +753,7 @@ function main(argv) {
 }
 
 module.exports = {
-  semver_compare, compare_runs, key_of, pivot_series, footprint_series, bundle_size_series, data_stamp, summary_line,
+  semver_compare, compare_runs, key_of, pivot_series, bundle_size_series, data_stamp, summary_line,
   panel_svg, render_chart, build_data_json, build_comment_body, chart_slug, format_tick,
   parse_args, make_executor, collect_runs, publish_charts, push_with_retry,
   DEFAULTS, OPERATIONS

@@ -109,33 +109,6 @@ describe('bundle_size_series', () => {
 
 
 
-describe('footprint_series', () => {
-
-  test('reads footprintBytes off construct() rows, per shape, in run order', () => {
-    const runs = [
-      run({ pr: 1, results: [ { name: 'chain-10 construct()',  ops: 5, footprintBytes: 1000 },
-                              { name: 'dense-10 construct()',  ops: 3, footprintBytes: 2000 },
-                              { name: 'chain-10 transition()', ops: 9 } ] }),
-      run({ pr: 2, results: [ { name: 'chain-10 construct()',  ops: 6, footprintBytes: 1100 } ] })
-    ];
-    const fp = mpc.footprint_series(runs);
-    expect( [...fp.keys()] ).toEqual(expect.arrayContaining(['chain-10', 'dense-10']));
-    expect( fp.get('chain-10').map((p: { ops: number }) => p.ops) ).toEqual([1000, 1100]); // footprintBytes in the value field
-    expect( fp.get('chain-10').map((p: { key: string }) => p.key) ).toEqual(['1', '2']);
-  });
-
-  test('ignores non-construct rows and construct rows lacking a numeric footprintBytes', () => {
-    const runs = [ run({ pr: 1, results: [
-      { name: 'chain-10 construct()',  ops: 5 },                       // construct, but no footprintBytes
-      { name: 'chain-10 transition()', ops: 9, footprintBytes: 999 }   // has footprintBytes, but not construct
-    ] }) ];
-    expect( mpc.footprint_series(runs).size ).toBe(0);
-  });
-
-});
-
-
-
 describe('data_stamp (determinism)', () => {
 
   test('uses the newest data date, not wall clock', () =>
@@ -221,50 +194,42 @@ describe('render_chart', () => {
     expect(svg).toContain('dense-200');
   });
 
-  test('adds a footprintBytes panel (the 8th cell) when construct rows carry footprintBytes', () => {
-    const fpruns = [
-      run({ pr: 1, results: [ { name: 'chain-200 construct()',  ops: 10, footprintBytes: 40000 },
-                              { name: 'chain-200 transition()', ops: 100 } ] }),
-      run({ pr: 2, results: [ { name: 'chain-200 construct()',  ops: 20, footprintBytes: 42000 },
-                              { name: 'chain-200 transition()', ops: 200 } ] })
-    ];
-    const { panels } = mpc.render_chart(fpruns);
-    expect( [...panels.keys()] ).toContain('footprintBytes');
-    expect( panels.get('footprintBytes') ).toContain('bytes (log scale)');   // its own unit label, not ops/sec
-    expect( panels.get('footprintBytes') ).not.toContain('ops/sec');
-  });
-
-  test('omits the footprintBytes panel when no construct row carries footprintBytes', () => {
-    const { panels } = mpc.render_chart(two_runs);
-    expect( [...panels.keys()] ).not.toContain('footprintBytes');
-  });
-
   test('is deterministic: identical input renders byte-identical output', () => {
     const a = mpc.render_chart(two_runs).svg;
     const b = mpc.render_chart(two_runs).svg;
     expect(a).toBe(b);
   });
 
-  test('panels carry an opaque background for dark-mode embedding', () => {
+  test('renders a log+linear pair per operation, panels keyed by op', () => {
     const { panels } = mpc.render_chart(two_runs);
-    for (const svg of panels.values()) {
-      expect(svg).toContain('fill="#ffffff"');
+    expect([...panels.keys()]).toEqual(['construct()', 'transition()', 'action()']);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('(log scale)');
+    expect(pair.linear).toContain('(linear scale, last 30)');
+  });
+
+  test('every panel (log and linear) carries an opaque background', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    for (const pair of panels.values()) {
+      expect(pair.log).toContain('fill="#ffffff"');
+      expect(pair.linear).toContain('fill="#ffffff"');
     }
   });
 
   test('panels draw per-run vertical guides behind the data', () => {
-    const { svg, panels } = mpc.render_chart(two_runs);
-    expect(svg).toContain('stroke="#e8e8e8"');      // the in-between (light) guides
-    for (const p of panels.values()) {
-      expect(p).toContain('stroke="#d0d0d0"');      // the every-fifth (stronger) guide
+    const { panels } = mpc.render_chart(two_runs);
+    for (const pair of panels.values()) {
+      expect(pair.log).toContain('stroke="#e8e8e8"');      // the in-between (light) guides
+      expect(pair.log).toContain('stroke="#d0d0d0"');      // the every-fifth (stronger) guide
+      expect(pair.linear).toContain('stroke="#d0d0d0"');
     }
   });
 
-  test('gridlines paint lightest before heaviest, so decade lines are never overpainted', () => {
+  test('gridlines paint lightest before heaviest', () => {
     const { panels } = mpc.render_chart(two_runs);
-    for (const p of panels.values()) {
-      // light vertical guide (pass 1) must be emitted before the decade line (pass 4)
-      expect(p.indexOf('stroke="#e8e8e8"')).toBeLessThan(p.indexOf('stroke="#b0b0b0"'));
+    for (const pair of panels.values()) {
+      // light vertical guide (pass 1) must be emitted before the heaviest gridline (pass 4)
+      expect(pair.log.indexOf('stroke="#e8e8e8"')).toBeLessThan(pair.log.indexOf('stroke="#b0b0b0"'));
     }
   });
 
@@ -280,21 +245,64 @@ describe('render_chart', () => {
     expect(svg).toContain('fill="#aa4400"');        // 5.144.0 (and first release): base tint
   });
 
-  test('lays panels out in a two-wide grid, row-major', () => {
-    // three panels (construct/transition/action) at default 720 width, 32 row-gap,
-    // 40 col-gap: construct (0,0)->(0 56), transition (1,0)->(760 56), action (0,1)->(0 460)
+  test('lays each pair log-on-top / linear-beneath at the same width', () => {
+    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32, inter 64)
+    // construct pair: log (0,56), linear (0, 56+372+32=460); transition pair at x=760
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
-    expect(svg).toContain('translate(760 56)');
     expect(svg).toContain('translate(0 460)');
+    expect(svg).toContain('translate(760 56)');
+    expect(svg).toContain('translate(760 460)');
   });
 
-  test('panel_gap is configurable and widens the composite height', () => {
+  test('doubles the vertical gap between pair-rows; height matches the pair formula', () => {
+    // pair_height = 2*372 + 32 = 776; row1 (action) oy = 56 + (776 + 64) = 896
+    // total_h = 56 + 2*776 + 64 = 1672
+    const { svg } = mpc.render_chart(two_runs);
+    expect(svg).toContain('translate(0 896)');
+    expect(svg).toMatch(/<svg[^>]*height="1672"/);
+  });
+
+  test('panel_gap sets intra-pair gap (and doubles for inter-pair)', () => {
     const height = (s: string) => Number((s.match(/<svg[^>]*height="(\d+)"/) || [])[1]);
-    const gapped = mpc.render_chart(two_runs, 960, 372, 40);
-    const flush  = mpc.render_chart(two_runs, 960, 372, 0);
+    const gapped = mpc.render_chart(two_runs, 720, 372, 32);
+    const flush  = mpc.render_chart(two_runs, 720, 372, 0);
     expect(height(gapped.svg)).toBeGreaterThan(height(flush.svg));
-    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no gap
+    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no intra gap
+  });
+
+  test('linear twin windows to the most recent 30 versions', () => {
+    const many = Array.from({ length: 35 }, (_, i) => run({
+      pr: i + 1, version: `5.0.${i}`,
+      results: [ { name: 'chain-200 transition()', ops: 100 + i } ]
+    }));
+    const { panels } = mpc.render_chart(many);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('>1<');        // oldest PR present in the full-history log panel
+    expect(pair.linear).not.toContain('>1<'); // ...but dropped from the last-30 linear twin
+    expect(pair.linear).toContain('>35<');    // newest PR present in both
+  });
+
+  test('adds a single-line package-size panel when runs carry bundles', () => {
+    const bruns = [
+      run({ pr: 1, results: [ { name: 'chain-200 transition()', ops: 100 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, results: [ { name: 'chain-200 transition()', ops: 200 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const { panels } = mpc.render_chart(bruns);
+    expect([...panels.keys()]).toContain('packageBytes');
+    const pair = panels.get('packageBytes');
+    expect(pair.log).toContain('bytes (log scale)');
+    expect(pair.log).toContain('package (raw, all dist)');   // the one legend entry
+    expect(pair.log).not.toContain('ops/sec');
+  });
+
+  test('omits the package-size panel when no run carries bundles', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    expect([...panels.keys()]).not.toContain('packageBytes');
   });
 
 });
