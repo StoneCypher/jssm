@@ -5,7 +5,7 @@
  *  the `perf_results` data branch (`c8g.medium/pr-N/scaling.json` and
  *  `c8g.medium/release-V/scaling.json`), and renders, per benchmarked operation,
  *  a log-scale SVG panel (full history, one line per machine shape) over a
- *  linear-scale twin (the most recent 30 versions, y-axis padded 10% of the data
+ *  linear-scale twin (the most recent `LINEAR_WINDOW` versions, y-axis padded 10% of the data
  *  span) — PRs ordered by number then releases by semver.  A final panel tracks
  *  package size as a single line (the summed raw byte size of the published dist
  *  bundles, from each run's `bundles` block).  Also emits a machine-readable data
@@ -74,6 +74,9 @@ const PALETTE = Object.freeze([
   '#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BBBBBB',
   '#222255', '#225555', '#552222', '#555522', '#8855AA'
 ]);
+
+/** How many most-recent versions the linear twin panels window to. */
+const LINEAR_WINDOW = 50;
 
 // ---------------------------------------------------------------------------
 // Pure helpers (unit-tested; no side effects)
@@ -259,7 +262,7 @@ function format_tick(v) {
  *  @param scale `'log'` (default) renders the log-decade axis anchored at 10^0;
  *         `'linear'` renders a linear axis padded 10% of the data span on each
  *         side, tick labels humanized via {@link format_tick}, and titles the
- *         panel `(linear scale, last 30)` — the caller windows the points.
+ *         panel `(linear scale, last N)` (N = {@link LINEAR_WINDOW}) — the caller windows the points.
  *  @returns A self-contained `<svg>` string.
  */
 function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 'log') {
@@ -293,7 +296,7 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
 
   const els = [];
   els.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
-  const scale_note = linear ? 'linear scale, last 30' : 'log scale';
+  const scale_note = linear ? `linear scale, last ${LINEAR_WINDOW}` : 'log scale';
   els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (${scale_note}) by PR / release, ${DEFAULTS.instanceType}</text>`);
 
   // Gridlines, painted strictly lightest → heaviest so a heavier line is never
@@ -395,7 +398,7 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
  *  Render every panel as a log-over-linear pair, laid out in a `cols`-wide grid
  *  (row-major, left→right then top→bottom) with a title block — the
  *  `src/generated_docs/perf_chart.svg` artifact.  Each cell stacks the
- *  full-history log panel above a linear twin windowed to the last 30 versions;
+ *  full-history log panel above a linear twin windowed to the last `LINEAR_WINDOW` versions;
  *  the final panel is the single-line package size (summed raw dist-bundle
  *  bytes), added only when the data carries a `bundles` block.
  *
@@ -413,18 +416,18 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
 function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 32, cols = 2) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
-  const keys30 = keys.slice(-30);
+  const keysWindow = keys.slice(-LINEAR_WINDOW);
 
   // Each panel is a { log, linear } pair: the log twin over full history, the
-  // linear twin over the last 30 keys with a 10%-padded axis.
+  // linear twin over the last LINEAR_WINDOW keys with a 10%-padded axis.
   const make_pair = (op, by_shape, unit) => {
     const windowed = new Map();
     for (const [shape, pts] of by_shape) {
-      windowed.set(shape, pts.filter((p) => keys30.includes(p.key)));
+      windowed.set(shape, pts.filter((p) => keysWindow.includes(p.key)));
     }
     return {
-      log    : panel_svg(op, by_shape, keys,   panel_width, panel_height, unit, 'log'),
-      linear : panel_svg(op, windowed, keys30, panel_width, panel_height, unit, 'linear')
+      log    : panel_svg(op, by_shape, keys,       panel_width, panel_height, unit, 'log'),
+      linear : panel_svg(op, windowed, keysWindow, panel_width, panel_height, unit, 'linear')
     };
   };
 
@@ -440,7 +443,7 @@ function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 3
 
   const col_gap        = 40;                        // horizontal breathing room between columns
   const intra_pair_gap = panel_gap;                 // log → linear twin inside a pair
-  const inter_pair_gap = panel_gap * 2;             // between pair-rows: doubled, so pairs read as distinct
+  const inter_pair_gap = panel_gap * 4;             // between pair-rows: 4× the base gap, so pair sets read as clearly distinct
   const pair_height    = 2 * panel_height + intra_pair_gap;
   const rows           = Math.ceil(panels.size / cols);
   const header_h       = 56;
@@ -509,12 +512,12 @@ function build_comment_body(urls, runs, sha) {
   const lines = [];
   lines.push(`## Graviton perf trend — ${DEFAULTS.instanceType}`);
   lines.push('');
-  lines.push(`${summary_line(runs)} Each operation shows a log panel (full history) above a linear twin (last 30 versions).`);
+  lines.push(`${summary_line(runs)} Each operation shows a log panel (full history) above a linear twin (last ${LINEAR_WINDOW} versions).`);
   lines.push('');
   for (const [op, u] of urls) {
     lines.push(`![${op} trend (log)](${u.log})`);
     lines.push('');
-    lines.push(`![${op} trend (linear, last 30)](${u.linear})`);
+    lines.push(`![${op} trend (linear, last ${LINEAR_WINDOW})](${u.linear})`);
     lines.push('');
   }
   lines.push(`<sub>Generated by \`src/scripts/make_perf_chart.cjs\` from the \`perf_results\` branch; charts committed at ${sha}.</sub>`);
