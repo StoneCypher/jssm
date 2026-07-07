@@ -246,22 +246,22 @@ describe('render_chart', () => {
   });
 
   test('lays each pair log-on-top / linear-beneath at the same width', () => {
-    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32, inter 128)
-    // construct pair: log (0,56), linear (0, 56+372+32=460); transition pair at x=760
+    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32/4=8, inter 128)
+    // construct pair: log (0,56), linear (0, 56+372+8=436); transition pair at x=760
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
-    expect(svg).toContain('translate(0 460)');
+    expect(svg).toContain('translate(0 436)');
     expect(svg).toContain('translate(760 56)');
-    expect(svg).toContain('translate(760 460)');
+    expect(svg).toContain('translate(760 436)');
   });
 
   test('sets the inter-pair-row gap to 4x the base; height matches the pair formula', () => {
-    // pair_height = 2*372 + 32 = 776; inter-pair gap = 32*4 = 128
-    // row1 (action) oy = 56 + (776 + 128) = 960
-    // total_h = 56 + 2*776 + 128 = 1736
+    // pair_height = 2*372 + 8 = 752; inter-pair gap = 32*4 = 128
+    // row1 (action) oy = 56 + (752 + 128) = 936
+    // total_h = 56 + 2*752 + 128 = 1688
     const { svg } = mpc.render_chart(two_runs);
-    expect(svg).toContain('translate(0 960)');
-    expect(svg).toMatch(/<svg[^>]*height="1736"/);
+    expect(svg).toContain('translate(0 936)');
+    expect(svg).toMatch(/<svg[^>]*height="1688"/);
   });
 
   test('panel_gap sets intra-pair gap (and 4x for inter-pair)', () => {

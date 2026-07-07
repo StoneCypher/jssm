@@ -405,9 +405,10 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
  *  @param runs Sorted runs.
  *  @param panel_width Width of each panel in px (both twins share it).
  *  @param panel_height Height of each panel in px.
- *  @param panel_gap Intra-pair gap (log → linear) in px; the inter-pair-row gap
- *                   is double this, so pairs read as distinct while their two
- *                   twins read as coupled.
+ *  @param panel_gap Base gap unit in px.  The intra-pair gap (log → linear) is
+ *                   `panel_gap / 4` so the two twins read as one tightly-coupled
+ *                   unit; the inter-pair-row gap is `panel_gap * 4` so separate
+ *                   pair sets read as clearly distinct.
  *  @param cols Number of pair columns (2 ⇒ a two-wide grid).
  *  @returns `{ svg, panels }` — the composite document and a Map of each panel's
  *           `{ log, linear }` SVG pair keyed by operation (`'packageBytes'` for
@@ -442,7 +443,7 @@ function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 3
   if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes')); }
 
   const col_gap        = 40;                        // horizontal breathing room between columns
-  const intra_pair_gap = panel_gap;                 // log → linear twin inside a pair
+  const intra_pair_gap = panel_gap / 4;             // log → linear twin: tight, so each pair reads as one unit
   const inter_pair_gap = panel_gap * 4;             // between pair-rows: 4× the base gap, so pair sets read as clearly distinct
   const pair_height    = 2 * panel_height + intra_pair_gap;
   const rows           = Math.ceil(panels.size / cols);
