@@ -1,0 +1,11 @@
+{
+  "id": "Wmcp.1",
+  "title": "fsl-mcp authoring satellite — validate/render/explain/simulate/lint",
+  "version": 6,
+  "cluster": "mcp-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "blocks": ["W8.22", "Wmcp.2"],
+  "manager": "An MCP server that lets an AI agent make FSL machines: the agent writes the FSL, and the server validates it, renders the diagram, explains the states and transitions, simulates a walk, and lints for quality. Every tool wraps capability the library already ships (parse, validate, visualize, step), so this is a thin satellite package that can land immediately — years ahead of the full v12 debugging verb — and is the fastest path to authoring FSL with an agent. STANDING RULE: each era that adds authorable language surface ships a matching fsl-mcp update (the Wmcp.* sync items), so the tool never lags the language.",
+  "cs": "Standalone npm package `fsl-mcp`, a stdio MCP server over the current jssm API. Tools: fsl_validate(source)->diagnostics; fsl_render(source)->svg; fsl_explain(source)->state/transition summary; fsl_simulate(source, actions)->state + legal next actions; fsl_lint(source)->quality notes. No runtime or proof dependencies; grows via the per-era Wmcp.* sync items. Spec: notes/superpowers/specs/2026-07-07-fsl-mcp-authoring-satellite.md."
+}

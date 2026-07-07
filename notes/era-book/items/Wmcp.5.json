@@ -1,0 +1,11 @@
+{
+  "id": "Wmcp.5",
+  "title": "fsl-mcp sync: expose the v10 format/CST + conformance surface",
+  "version": 10,
+  "cluster": "mcp-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "deps": ["Wmcp.4"],
+  "manager": "Keep fsl-mcp current with v10. Byte-level reversibility (CST + format) and the conformance/portability contract land, so the MCP should expose an fsl_format tool and report conformance so agents author portable, canonically-formatted machines.",
+  "cs": "Add fsl_format(source)->formatted via the v10 format verb; surface conformance-vector results; keep tool output canonical."
+}

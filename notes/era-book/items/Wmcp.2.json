@@ -1,0 +1,11 @@
+{
+  "id": "Wmcp.2",
+  "title": "fsl-mcp sync: expose the v7 expression surface",
+  "version": 7,
+  "cluster": "mcp-tooling",
+  "src": ["MP§25"],
+  "issue": null,
+  "deps": ["Wmcp.1"],
+  "manager": "Keep fsl-mcp current with v7. When the expression language, numeric tower, strings, and where-guards land, the authoring tools must validate, explain, and where relevant evaluate them — so agents author v7 machines with full feedback instead of the tool silently lagging the grammar.",
+  "cs": "Extend fsl_validate / fsl_explain / fsl_simulate to cover expressions, sized numerics, and where-guards; surface expression diagnostics. Tracks the P2 slices."
+}
