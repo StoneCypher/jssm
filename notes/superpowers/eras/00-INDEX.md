@@ -5,18 +5,20 @@
 > half-written; its "definition of done" line tells you what it was trying to be.
 > Statuses: `done` · `in-flight` · `queued` · `deferred`.
 
-**NEXT ACTION (for successors):** Projection A+B+C+D are DONE. WP-8 jssm drain EXECUTED
-2026-07-05 (Opus 4.8): 97 fsl twins fsl#1419–#1515, 99 jssm closes, jssm tracker drained 106→7
-(the KEEP set closes via its own PRs). Umbrellas fsl#1401–#1411/#1418 + decision records
-fsl#1412–#1417 already live. **Resume point = WP-7 fsl triage execution** (`dispositions/
-fsl-triage.md`, 663 rows, approved): (1) verify the ~38 `DONE?` rows against code, close the
-confirmed; (2) run the `SUP`/`SAT` closes (twin-first: SUP cites a live umbrella + artifact, SAT
-stays open `sat-pending` until its satellite repo exists); (3) milestone-tag the ~430 `eN`
-keepers. THEN era-0 code packets: WP-1 audit reverify, WP-6 dragon revival, WP-2 bug burn-down
-(all on `main`, 5.158.x patches — protected, needs John per-action). Pending from John: the
-fsl-org transfer window (HANDOFF, time-sensitive). Fable-optional: C1 hash spec, C2 ops-semantics
-appendix. **Lesson banked (Increment 5):** reconcile against the LIVE tracker after any batch —
-internal count-asserts passed while jssm#790 was silently dropped; the live count caught it.
+**NEXT ACTION (for successors):** **The full v6→v16 tracker fill is EXECUTED (Increment 16,
+2026-07-07, John-approved).** The era-book projection is now the live tracker + project board:
+96 cluster nodes + 197 new item issues filed, 364 existing issues retrofitted into the
+umbrella→cluster→item hierarchy, board fields set (Status=Triage / W-ID / Cluster + Size/Effort
+on new items), 110 blocked-by links. fsl ~785→1076 open; 7 KEEP items correctly skipped (no fsl
+twin). Umbrellas fsl#1401–#1411/#1418 + decision records fsl#1412–#1417 remain the anchors.
+**The tracker + the `FSL Roadmap — 5.x → v16` project board (#2) are now the canonical plan
+surface**; the era-book under `notes/era-book/` is the source-of-record the fill renders from
+(executor: `build/era-projection/{render,execute}.mjs` — reconcile-first, idempotent, resumable,
+fetch+GraphQL). Remaining threads: era-0 code packets (WP-2 bug burn-down etc.) on protected
+`main` (needs John per-action); the fsl-org transfer window (HANDOFF, time-sensitive, John watches
+from Sept 9); **label/effort/size on filed issues are heuristic first-pass** and open to a review
+pass. **Lesson banked (Increment 5, reaffirmed 16):** reconcile against the LIVE tracker — the
+Tjssm→fsl-twin map is derived from live "Migrated from jssm#N" pointers, not a stale ledger.
 
 ## Ledger
 
@@ -166,3 +168,22 @@ internal count-asserts passed while jssm#790 was silently dropped; the live coun
   SemVer-prerelease §3 dragon test. **After #927 merges + npm shows 5.159.3:** WP-2 inherits zero
   audit items (per WP-1), so the 5.x bug burn-down is just the ~30 milestone-#48 e0 issues — the
   remaining 5.x code work before the assembly branch / One Merge (WP-4).
+- **2026-07-07 · Increment 16 (Opus 4.8, FULL v6→v16 TRACKER FILL EXECUTED, John-approved):**
+  Rendered the entire era-book (`notes/era-book/items/*.json`) into the tracker + project board.
+  Built `build/era-projection/{render,execute}.mjs` (reconcile-first, idempotent, resumable;
+  transport migrated mid-run from `gh`-spawn → direct REST+GraphQL fetch with `--use-system-ca`,
+  then concurrency=5, to beat a ~1–7 min background-runtime cap; final run 119s). **Executed:**
+  96 cluster nodes created + nested under their era umbrellas; **197 new item issues filed**
+  (incl. the MCP split — see below); **364 existing issues retrofitted** into umbrella→cluster→item
+  (7 KEEP items `Tjssm-754/755/757/758/759/827/921` correctly skipped — fixed on v6, no fsl twin);
+  board fields set (Status=Triage, W-ID, Cluster on all; Size/Effort heuristic on the 197 new);
+  **110 blocked-by dependency links**. fsl open ~785→**1076**. **MCP roadmap edit:** split W8.22 —
+  `fsl-mcp` authoring satellite pulled to **v6** (Wmcp.1=#1528), debugging/time-travel half stays
+  **v12**; Wmcp.2–6 thread the tool through v7–v11 + a standing keep-current rule; satellite spec
+  at `notes/superpowers/specs/2026-07-07-fsl-mcp-authoring-satellite.md`. **Verified live:** v6/#1401
+  + v16/#1411 hierarchies; board fields on #1527 (W6.100) and #1642 (W12.3); dependency #1802←#1528.
+  Committed 07db41d8 (era-book + spec + projection). **Cluster granularity (John, Option 1):** a
+  (cluster,version) slice ≥2 → cluster node; singleton → direct under umbrella. **Two bugs caught
+  in the v6 pilot before scaling:** twin pointer is "Migrated from jssm#N" (not "was jssm#N"), and
+  cluster nodes must be explicitly nested under umbrellas. **Open:** labels/effort/size are
+  first-pass heuristics, invite a review pass.
