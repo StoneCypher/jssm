@@ -1,5 +1,11 @@
 # HANDOFF — The v6→v16 Era Program
 
+> **FROZEN — SUPERSEDED (John, 2026-07-07).** The **StoneCypher/fsl issue tracker + project
+> board #2 are now the canonical plan.** This era-book is a transitional bootstrap record being
+> verified for complete transfer to the tracker, after which it will be **DELETED**. Do NOT resume
+> it as the live backlog or re-run `build/era-projection/execute.mjs`. Make plan changes on the
+> tracker.
+
 > **What this directory is.** The working home of the FSL/jssm era program: the decomposition of
 > the v6 corpus into eight major-version eras, and the planning artifacts successor models need to
 > execute them. Authored by **Claude Fable 5** (July 2026) during a limited-availability window,

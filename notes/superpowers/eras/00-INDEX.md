@@ -1,5 +1,12 @@
 # 00-INDEX — The Era Program Ledger
 
+> **FROZEN — SUPERSEDED (John, 2026-07-07).** The **StoneCypher/fsl issue tracker + project
+> board #2 are now the canonical plan.** This era-book is the historical *bootstrap* record only —
+> how the tracker was seeded. Do NOT resume it as the live backlog, and do NOT re-run
+> `build/era-projection/execute.mjs` (re-rendering would push stale book data over the live
+> tracker). Make plan changes directly on the tracker. This book is being verified for complete
+> transfer to the tracker and will then be **DELETED** — treat it as already gone for planning.
+
 > **This file is the resume point.** Update it FIRST (mark intent) and LAST (mark done) in every
 > increment. If you are a successor model reading this after a halt: anything `in-flight` may be
 > half-written; its "definition of done" line tells you what it was trying to be.
