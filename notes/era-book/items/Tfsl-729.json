@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-729",
-  "title": "re-engage new-with-error rule",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 729,
-  "manager": "Re-engage the rule that requires `throw new Error(...)` rather than throwing bare strings or values. Consistent, stack-carrying error objects are the baseline the v6 error model builds on, so getting this enforced now — small and mechanical — means P3 contracts and the error tape land on code that already throws properly."
-}

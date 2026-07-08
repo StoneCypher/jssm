@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-556",
-  "title": "stochastic 100% umbrella",
-  "version": "5.x",
-  "cluster": "coverage-chores",
-  "src": ["era0/WP-2"],
-  "issue": 556,
-  "manager": "The umbrella coordinating the \"get stochastic coverage to 100%\" push across the core files. It tracks the individual coverage chores as a set and closes when both the runtime and the utilities report a clean stochastic 100% — the single place to check whether the coverage story for 6.0 is actually complete rather than complete-on-one-file."
-}

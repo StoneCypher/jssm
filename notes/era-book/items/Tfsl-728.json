@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-728",
-  "title": "re-engage functional-programming lint rules",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 728,
-  "manager": "Re-evaluate the functional-programming eslint plugin (immutability, no-reassignment, const-over-let) against a codebase that increasingly wants pure functions. Enable what fits without fighting the hot-path code that legitimately mutates for speed — the goal is nudging new code toward purity, not declaring war on the optimized inner loops."
-}

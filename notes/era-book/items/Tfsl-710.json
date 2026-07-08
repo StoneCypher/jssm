@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-710",
-  "title": "colliding action/node hook test",
-  "version": "5.x",
-  "cluster": "bug-qol-residue",
-  "src": ["era0/WP-2"],
-  "issue": 710,
-  "manager": "When an action name and a state (node) name collide, hooks can be dispatched to the wrong target, and there is no test guarding the disambiguation. Add coverage that constructs the collision on purpose and asserts each hook reaches its intended subject, so the resolution rule is nailed down before the v6 hook registry — which rebuilds this dispatch — lands on top of it."
-}

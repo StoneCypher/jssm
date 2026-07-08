@@ -1,9 +1,0 @@
-{
-  "id": "Tjssm-759",
-  "title": "val numeric-enum bug (was jssm#759)",
-  "version": 6,
-  "cluster": "val-bug-tail",
-  "src": ["era0/WP-10", "era1/WP-1.6"],
-  "issue": 759,
-  "manager": "Numeric enum values are mishandled in val, so a machine using them validates or evaluates wrong — the number and the enum member drift apart. Fix the numeric-enum path so enums backed by numbers behave like the other scalar-backed kinds. Ships with the P1 val tail as an early 6.0.x patch."
-}

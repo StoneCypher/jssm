@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-195",
-  "title": "viewer control bar",
-  "version": 11,
-  "cluster": "viewer",
-  "src": ["e2-triage", "fsl#195"],
-  "issue": 195,
-  "manager": "A control bar for the viewer — play, step, reset the machine, zoom, download the image — the interactive strip that lets a reader drive a rendered machine instead of only staring at it. It is the difference between an embedded diagram and an embedded, runnable demonstration."
-}

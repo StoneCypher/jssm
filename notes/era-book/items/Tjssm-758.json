@@ -1,9 +1,0 @@
-{
-  "id": "Tjssm-758",
-  "title": "validator silent no-op (was jssm#758)",
-  "version": 6,
-  "cluster": "val-bug-tail",
-  "src": ["era0/WP-10", "era1/WP-1.6"],
-  "issue": 758,
-  "manager": "A validator that should run is silently doing nothing under some configuration — the worst failure mode there is, because the machine looks validated and isn't, so the bug it was meant to catch ships. Find why it no-ops and make it either run or loudly refuse. Early 6.0.x, before anyone trusts a green validation result in the contract work."
-}

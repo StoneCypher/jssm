@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1240",
-  "title": "direct editing on the rendered diagram",
-  "version": 11,
-  "cluster": "editor",
-  "src": ["e2-triage", "fsl#1240"],
-  "issue": 1240,
-  "manager": "Editing the machine by manipulating the picture, not the text — drag a node, draw an edge between two states, rename by clicking a label, and have the FSL source regenerate underneath. Today the diagram is output-only; this makes it a bidirectional surface so visual thinkers can build and modify machines by direct manipulation while the canonical text source stays authoritative."
-}

@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-545",
-  "title": "re-enable the base eslint config",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 545,
-  "manager": "The personal/base eslint configuration was disabled during the perf push; re-enable it so all the plugin-refresh work above actually takes effect. This is the master switch that turns the refreshed constellation back on across the whole tree — without it, every other lint chore in this cluster is dormant."
-}

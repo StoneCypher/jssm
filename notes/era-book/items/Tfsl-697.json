@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-697",
-  "title": "fluent hook for output-tape writes",
-  "version": 11,
-  "cluster": "tape-io",
-  "src": ["e2-triage", "fsl#697"],
-  "issue": 697,
-  "manager": "A chainable, fluent-interface way to attach a listener that fires whenever the machine writes to its output tape, in the builder style the rest of the fluent API already uses. It is the ergonomic surface for reacting to emissions in code, matching how people wire the other lifecycle hooks so tape output is not a special case."
-}

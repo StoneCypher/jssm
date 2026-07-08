@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-391",
-  "title": "viewer reveals editor on demand",
-  "version": 11,
-  "cluster": "viewer",
-  "src": ["e2-triage", "fsl#391"],
-  "issue": 391,
-  "manager": "A control on the read-only viewer that expands it into the full editor, so a page can embed a machine as a static picture and let a curious reader flip it into an editable sandbox in place. It is the on-ramp from 'look at this machine' to 'try changing it' without shipping the whole editor up front on every embed."
-}

@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1299",
-  "title": "hook_after implies hook_after_any",
-  "version": "5.x",
-  "cluster": "bug-qol-residue",
-  "src": ["era0/WP-2"],
-  "issue": 1299,
-  "manager": "Registering an \"after\" hook on a specific transition should also fire the \"after any\" observers, but right now the general subscription is silently skipped when a specific one exists. Code that watches every transition — a logger, a tracer — quietly develops holes exactly where a named handler happens to be attached, which is maddening to debug because the missing events look random. Fix so the specific hook and the any-hook both fire."
-}

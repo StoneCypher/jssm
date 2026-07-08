@@ -1,9 +1,0 @@
-{
-  "id": "Tjssm-684",
-  "title": "framework-wrapper generator (was jssm#684)",
-  "version": 11,
-  "cluster": "framework-wrappers",
-  "src": ["jssm-drain", "jssm#684"],
-  "issue": 684,
-  "manager": "A generator that emits the per-framework wrapper components (React, Angular, Vue, and so on) from one source of truth, instead of hand-maintaining a parallel wrapper per framework as the web component evolves. It is the leverage play behind the whole wrapper family: change the component once and regenerate every framework binding, so the wrappers never drift out of sync."
-}

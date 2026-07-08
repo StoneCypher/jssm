@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-611",
-  "title": "trace tests for obscure builds",
-  "version": "5.x",
-  "cluster": "housekeeping",
-  "src": ["era0/WP-2"],
-  "issue": 611,
-  "manager": "Add trace-level tests for the less-travelled build outputs — the odd bundle formats and entry points that currently ship untested — so a packaging change can't silently break the deno/iife/cjs variants nobody exercises locally. Cheap insurance for the long tail of build targets, where breakage otherwise surfaces only as a stranger's bug report weeks later."
-}

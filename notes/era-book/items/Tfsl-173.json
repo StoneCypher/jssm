@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-173",
-  "title": "remote subgraph expansion (break-in)",
-  "version": 11,
-  "cluster": "remote-subgraph",
-  "src": ["e2-triage", "fsl#173"],
-  "issue": 173,
-  "manager": "The rendering half of remote subgraphs — expanding a referenced remote machine inline so a viewer can break into the stand-in node, see the real states, then collapse it again. Paired with the notation, it lets a system diagram stay legible at the top level while remaining explorable all the way down."
-}

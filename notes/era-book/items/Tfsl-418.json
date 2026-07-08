@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-418",
-  "title": "code-emission umbrella",
-  "version": 15,
-  "cluster": "codegen-adapters",
-  "src": ["e6-triage", "fsl#418"],
-  "issue": 418,
-  "manager": "The tracking umbrella for the entire \"turn a verified machine into code\" surface — the parent that native emitters, the ecosystem-library adapters (W11.3), fleet-wide typegen (W11.5), and the publish/module bundle (W11.10) all close under. It matters because emission is what carries an FSL machine past its own runtime: the same model-checked source becomes an XState export, a C header, a native stepper, or a published package, each behaviorally certified rather than eyeballed as \"looks similar.\" On its own it ships nothing; its product is a coherent, cross-linked map so the emission children land as one designed system instead of a drawer of unrelated one-off exporters."
-}

@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-392",
-  "title": "viewer UI panel",
-  "version": 11,
-  "cluster": "viewer",
-  "src": ["e2-triage", "fsl#392"],
-  "issue": 392,
-  "manager": "A configurable panel wrapped around the read-only machine viewer — the chrome (title, legend, controls) that turns a bare rendered diagram into a self-explanatory embeddable widget. It is the presentation shell people drop into docs and blog posts so a machine arrives with its affordances instead of as a naked SVG."
-}

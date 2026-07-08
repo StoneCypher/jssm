@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-986",
-  "title": "CLOC count in the Actions report",
-  "version": "5.x",
-  "cluster": "housekeeping",
-  "src": ["era0/WP-2"],
-  "issue": 986,
-  "manager": "Surface the CLOC (lines-of-code) count in the GitHub Actions output so the number is visible per run instead of only regenerated locally. A cheap reporting nicety that keeps the size trend honest and in view — useful precisely during a major where the codebase is growing fast and it is easy to lose track of how much."
-}

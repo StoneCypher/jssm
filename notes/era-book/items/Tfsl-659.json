@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-659",
-  "title": "unused-hook / weird-action tests",
-  "version": "5.x",
-  "cluster": "bug-qol-residue",
-  "src": ["era0/WP-2"],
-  "issue": 659,
-  "manager": "Missing coverage for the odd corners of hooking — hooks registered against things that never fire, actions with unusual shapes — where the engine's behavior is currently unspecified-by-omission. Add the tests so these cases have a defined, asserted answer instead of whatever the code happens to do today, which is the kind of thing that changes silently under a refactor."
-}

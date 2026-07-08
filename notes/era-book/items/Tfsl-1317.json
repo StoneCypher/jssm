@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1317",
-  "title": "remove flowtype eslint annotations",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 1317,
-  "manager": "The codebase still carries Flow-type eslint annotations from a type system it no longer uses — dead directives that current lint tooling either warns about or silently ignores. Strip them so lint output is signal rather than archaeology, and 6.x code lands against a ruleset that reflects the language actually in use."
-}

@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1388",
-  "title": "editor real-time collaboration (CRDT)",
-  "version": 11,
-  "cluster": "editor",
-  "src": ["e2-triage", "fsl#1388"],
-  "issue": 1388,
-  "manager": "Two people editing the same FSL document at once, their keystrokes merging without a central lock or lost work — the editor's text buffer backed by a CRDT so concurrent edits converge deterministically. This is the Google-Docs-for-state-machines surface: a team refines a protocol together in the browser, cursors visible, no save conflicts. It rides late in the era because it needs the editor web component stable first, but it is what turns the single-author toy into a shared design tool."
-}

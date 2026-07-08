@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-486",
-  "title": "evaluate suppressed features",
-  "version": "5.x",
-  "cluster": "june-audit",
-  "src": ["era0/WP-1"],
-  "issue": 486,
-  "manager": "Over the years a number of features were switched off — commented out, flagged dark, or left half-wired — and never re-checked. This is the audit pass that walks each one and rules: revive it, delete it, or refile it as real era work. It ships nothing by itself; its product is a decision list, so 6.0 inherits a codebase with no mystery dead switches nobody remembers the state of."
-}

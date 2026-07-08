@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-365",
-  "title": "graph_explorer favicon",
-  "version": "5.x",
-  "cluster": "housekeeping",
-  "src": ["era0/WP-2"],
-  "issue": 365,
-  "manager": "The graph_explorer page has no favicon, so the browser tab shows a generic broken-document icon. A five-minute fix that is pure dignity — it makes the tool look maintained to anyone who pins or bookmarks it. Batch it in with the other housekeeping rather than spending a release on it."
-}

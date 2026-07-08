@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1007",
-  "title": "serialize the input tape",
-  "version": 11,
-  "cluster": "tape-io",
-  "src": ["e2-triage", "fsl#1007"],
-  "issue": 1007,
-  "manager": "Include a machine's input tape — the ordered record of events and sensor reads it consumed — in its serialized form, so reloading a machine restores exactly what it had been fed. Together with the output tape this makes a serialized machine a complete, replayable transcript rather than a bare snapshot."
-}

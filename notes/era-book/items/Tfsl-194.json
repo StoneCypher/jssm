@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-194",
-  "title": "viewer control bar off by default",
-  "version": 11,
-  "cluster": "viewer",
-  "src": ["e2-triage", "fsl#194"],
-  "issue": 194,
-  "manager": "Make the viewer's control bar opt-in, so an embedded machine renders clean by default and shows its controls only when the embedder asks for them. Many embeds want just the picture; this keeps the default presentation uncluttered while the full control bar stays one attribute away."
-}

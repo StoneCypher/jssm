@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-389",
-  "title": "test the module attribute",
-  "version": "5.x",
-  "cluster": "coverage-chores",
-  "src": ["era0/WP-2"],
-  "issue": 389,
-  "manager": "Add coverage for the `module` attribute so its parsing and effect are actually asserted, not assumed. It is a small, currently-untested surface; pinning its behavior now keeps the v6 grammar work from silently changing what it means, which is the kind of regression that only surfaces in a user's bundle long after it shipped."
-}

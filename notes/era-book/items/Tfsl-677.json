@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-677",
-  "title": "programmatic API for output-tape hooks",
-  "version": 11,
-  "cluster": "tape-io",
-  "src": ["e2-triage", "fsl#677"],
-  "issue": 677,
-  "manager": "The imperative-API counterpart to the fluent output-tape hook — register and remove output-tape listeners through explicit method calls, the surface libraries and frameworks prefer when they wire hooks dynamically rather than at construction time. Same event, second idiom, so both call styles are first-class."
-}

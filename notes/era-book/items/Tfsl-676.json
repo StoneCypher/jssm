@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-676",
-  "title": "programmatic API for input-tape hooks",
-  "version": 11,
-  "cluster": "tape-io",
-  "src": ["e2-triage", "fsl#676"],
-  "issue": 676,
-  "manager": "The imperative-API way to register and remove input-tape listeners, for callers that attach observers at runtime instead of in a fluent chain. It rounds out tape observation so every tape event is reachable from both the fluent and the method-call surfaces."
-}

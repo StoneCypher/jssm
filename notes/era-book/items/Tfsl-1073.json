@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1073",
-  "title": "linting refresh umbrella",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 1073,
-  "manager": "The umbrella tracking the whole eslint-refresh effort: the plugin constellation went stale during the performance push and needs re-evaluating as a set, not one rule at a time. This is the coordination point for the individual plugin re-engagements below it; it closes when the lint config is modern again and running clean across the tree."
-}

@@ -1,9 +1,0 @@
-{
-  "id": "Tjssm-686",
-  "title": "web-component server-side rendering (was jssm#686)",
-  "version": 11,
-  "cluster": "framework-wrappers",
-  "src": ["jssm-drain", "jssm#686"],
-  "issue": 686,
-  "manager": "Make the machine web component render on the server — produce meaningful markup during SSR so a machine embedded in a Next/Nuxt/Astro page appears in the initial HTML and hydrates cleanly, rather than flashing empty until client JS boots. It is table-stakes for embedding machines in modern framework-rendered sites and for pages that need those machines to be crawlable."
-}

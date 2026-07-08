@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-112",
-  "title": "lint the example machines",
-  "version": "5.x",
-  "cluster": "lint-tooling-refresh",
-  "src": ["era0/WP-2"],
-  "issue": 112,
-  "manager": "The example FSL machines shipped in the repo and docs aren't linted, so a broken or stylistically-off example can slip in unnoticed — embarrassing precisely because examples are the first thing newcomers copy. Wire the example corpus through the linter so a bad example fails CI instead of teaching a bad habit to everyone who reads it."
-}

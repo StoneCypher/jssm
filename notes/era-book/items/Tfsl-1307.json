@@ -1,9 +1,0 @@
-{
-  "id": "Tfsl-1307",
-  "title": "npm ranking via the tracker drain",
-  "version": "5.x",
-  "cluster": "housekeeping",
-  "src": ["era0/WP-8"],
-  "issue": 1307,
-  "manager": "npm ranks packages partly on open-issue signal, and jssm's tracker was carrying over a hundred stale issues that dragged its search position down. The fix is not a code change — it is the jssm tracker drain: migrate-or-close every open issue, keep the tracker empty, and route all new issues to fsl permanently. This item records that the drain IS the ranking remedy, so the two aren't tracked as separate problems."
-}
