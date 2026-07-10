@@ -87,7 +87,7 @@ type JssmArrowDirection = 'left' | 'right' | 'both';
 /**
  *  Semantic category of an arrow's transition.  `'legal'` is a normal
  *  transition, `'main'` is part of the machine's primary path, `'forced'`
- *  may only be taken via {@link Machine.force_transition}, and `'none'`
+ *  may only be taken via {@link jssm!Machine.force_transition}, and `'none'`
  *  means no transition exists in that direction.
  */
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
@@ -170,8 +170,8 @@ type  FslTheme          = typeof FslThemes[number];
 
 
 /**
- *  Persistable snapshot of a Machine produced by {@link Machine.serialize}
- *  and consumed by {@link deserialize}.  Carries the current state, the
+ *  Persistable snapshot of a Machine produced by {@link jssm!Machine.serialize}
+ *  and consumed by {@link jssm!deserialize}.  Carries the current state, the
  *  associated machine data, the recent history (subject to the configured
  *  capacity), and metadata to detect version-skew on rehydration.
  *
@@ -431,7 +431,7 @@ type JssmGenericState = {
 
 
 /**
- *  The full internal bookkeeping snapshot of a {@link Machine}, exposed for
+ *  The full internal bookkeeping snapshot of a {@link jssm!Machine}, exposed for
  *  advanced introspection.  Contains the current state, the state map, the
  *  edge map and reverse-action map, and the original edge list.  The
  *  `internal_state_impl_version` field exists so that consumers can detect
@@ -522,7 +522,7 @@ type JssmStateDeclarationRule = {
 /**
  *  The fully-condensed declaration for a single state, including its raw
  *  rule list (`declarations`) and the well-known styling fields jssm-viz
- *  understands.  Returned by {@link Machine.state_declaration}.
+ *  understands.  Returned by {@link jssm!Machine.state_declaration}.
  */
 type JssmStateDeclaration = {
 
@@ -717,7 +717,7 @@ type JssmTheme = Partial<JssmBaseTheme>;
 
 
 /**
- *  Full configuration object accepted by the {@link Machine} constructor and
+ *  Full configuration object accepted by the {@link jssm!Machine} constructor and
  *  by {@link from}.  Carries the transition list and the optional knobs
  *  governing layout, theming, history, start/end states, property
  *  definitions, machine metadata (author, license, version, ...) and the
@@ -742,7 +742,7 @@ type JssmEditorConfig = {
 /** Which stochastic view a run batch produces. */
 type JssmStochasticMode = 'montecarlo' | 'steady_state';
 
-/** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
+/** Options for {@link jssm!Machine.stochastic_summary} / {@link jssm!Machine.stochastic_runs}. */
 type JssmStochasticOptions = {
   mode?       : JssmStochasticMode,  // default 'montecarlo'
   runs?       : number,              // montecarlo: # of independent runs
@@ -750,7 +750,7 @@ type JssmStochasticOptions = {
   seed?       : number,              // fixed value => reproducible
 };
 
-/** One walk's result, yielded by {@link Machine.stochastic_runs}. */
+/** One walk's result, yielded by {@link jssm!Machine.stochastic_runs}. */
 type JssmStochasticRun = {
   states     : Array<string>,   // states visited, including the start state
   edges      : Array<string>,   // "from→to" keys traversed, in order
@@ -789,7 +789,7 @@ type JssmGenericConfig<StateType, DataType> = {
 
   /**
    *  Maximum depth of the boundary-hook action cascade before the machine
-   *  throws a {@link JssmError} rather than risking a stack overflow or hang.
+   *  throws a {@link jssm_error!JssmError} rather than risking a stack overflow or hang.
    *
    *  Each time a boundary action fires a transition that itself crosses a
    *  boundary, the depth counter increments.  A cascade exceeding this limit is
@@ -997,7 +997,7 @@ type JssmParseTree<StateType, mDT> =
 
 /**
  *  Signature of an FSL parse function: takes a source string and returns a
- *  {@link JssmParseTree}.  Used to type the parser export so consumers can
+ *  `JssmParseTree`.  Used to type the parser export so consumers can
  *  swap in alternative parser implementations.
  */
 type JssmParseFunctionType<StateType, mDT> =
@@ -1270,7 +1270,7 @@ type HookRegistryEntry = {
 };
 
 /**
- *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  Query for {@link jssm!Machine.has_hook} / {@link jssm!Machine.hooks_on}.  A bare
  *  string is read as a state name; an `{ from, to, action? }` object is read
  *  as an edge (optionally a named edge); an `{ action }` object is read as a
  *  named action; a `{ group }` object is read as a named state group.  This
@@ -1379,7 +1379,7 @@ type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>)
 
 
 /**
- *  Extra diagnostic information attached to a {@link JssmError} when it
+ *  Extra diagnostic information attached to a {@link jssm_error!JssmError} when it
  *  carries machine-relative context — most often the state name a caller
  *  asked about when the error was raised.
  */
@@ -1412,7 +1412,7 @@ type JssmRng = () => number;
 
 
 /**
- *  All event names that {@link Machine.on} accepts.  These are observation
+ *  All event names that {@link jssm!Machine.on} accepts.  These are observation
  *  events fired by the machine in addition to (not in place of) the hook
  *  system.  Hooks intercept; events observe.
  *
@@ -1581,7 +1581,7 @@ type JssmHookLifecycleEventDetail<mDT> = {
 
 /**
  *  Mapped type from {@link JssmEventName} to the corresponding detail
- *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  payload.  Drives the discriminated-union typing of {@link jssm!Machine.on},
  *  so `e.action` and friends only exist where they're meaningful.
  */
 type JssmEventDetailMap<mDT> = {
@@ -1601,7 +1601,7 @@ type JssmEventDetailMap<mDT> = {
 };
 
 /**
- *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  Filter accepted by {@link jssm!Machine.on} / {@link jssm!Machine.once} for an
  *  individual event name.  Only events whose detail key matches every
  *  filter entry fire the handler.  Events that don't list a filter key in
  *  v1 take no filter properties.
@@ -1623,7 +1623,7 @@ type JssmEventFilterMap<mDT> = {
 };
 
 /**
- *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  Per-event filter object (as passed to {@link jssm!Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
  *  @typeParam mDT The type of the machine data member.
  *  @typeParam Ev  The event name.
@@ -1640,7 +1640,7 @@ type JssmEventHandler<mDT, Ev extends JssmEventName> =
   (detail: JssmEventDetailMap<mDT>[Ev]) => void;
 
 /**
- *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  Function returned by {@link jssm!Machine.on} and {@link jssm!Machine.once} that
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 type JssmUnsubscribe = () => void;

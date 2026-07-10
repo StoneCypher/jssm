@@ -159,14 +159,14 @@ State machines ***don't have to be hard***.
 All these tools don't leave you bleeding out.  The author's i7 from 2018 runs
 about 25 million transitions a second.  You probably have an i9 by now.
 
-![](speed%20claim.png)
+![](../assets/speed%20claim.png)
 
 Compilation is similarly fast: 100,000 compilations of the light switch machine
 on the same computer takes only 2.5 seconds.  As such, JSSM is suitable for
 dynamic compilation of completely runtime machines, such as those coming from
 databases, networks, other tools, or user input.
 
-![](compile%20time%20claim.png)
+![](../assets/compile%20time%20claim.png)
 
 &nbsp;
 

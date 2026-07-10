@@ -573,7 +573,7 @@ declare class Machine<mDT> {
      *  Serialize the current machine, including all defining state but not the
      *  machine string, to a structure.  This means you will need the machine
      *  string to recreate (to not waste repeated space;) if you want the machine
-     *  string embedded, call {@link serialize_with_string} instead.
+     *  string embedded, call `serialize_with_string` instead.
      *
      *  @typeParam mDT The type of the machine data member; usually omitted
      *
@@ -960,7 +960,7 @@ declare class Machine<mDT> {
      *  List all entrances attached to the current state.  Please note that the
      *  order of the list is not defined.  This list includes both unforced and
      *  forced entrances; if this isn't desired, consider
-     *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+     *  `list_unforced_entrances` or `list_forced_entrances` as
      *  appropriate.
      *
      *  ```typescript
@@ -982,8 +982,8 @@ declare class Machine<mDT> {
      *
      *  List all exits attached to the current state.  Please note that the order
      *  of the list is not defined.  This list includes both unforced and forced
-     *  exits; if this isn't desired, consider {@link list_unforced_exits} or
-     *  {@link list_forced_exits} as appropriate.
+     *  exits; if this isn't desired, consider `list_unforced_exits` or
+     *  `list_forced_exits` as appropriate.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -1358,9 +1358,9 @@ declare class Machine<mDT> {
      *
      *  @typeParam Ev      The event name (drives the detail type).
      *  @param name        The event name to subscribe to.
-     *  @param filterOrFn  Either a filter object or, when calling the no-filter
-     *                     form, the handler itself.
-     *  @param maybeFn     The handler, when a filter object was supplied.
+     *  @param handler     The handler invoked on each matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (see the example above).
      *  @returns A function that unsubscribes when called.
      *
      *  @see Machine.off
@@ -1379,8 +1379,9 @@ declare class Machine<mDT> {
      *
      *  @typeParam Ev      The event name.
      *  @param name        The event name.
-     *  @param filterOrFn  A filter object or the handler (no-filter form).
-     *  @param maybeFn     The handler, when a filter was supplied.
+     *  @param handler     The handler invoked on the first matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (same shapes as `on`).
      *  @returns A function that unsubscribes early if called before the
      *           handler has fired.
      *
@@ -2337,7 +2338,7 @@ declare class Machine<mDT> {
      *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
      *  "`state foo : { … }`" contribution of the config cascade.  A state with no
      *  declaration yields an all-`undefined` config (which contributes nothing
-     *  once folded with {@link merge_state_config}).
+     *  once folded with `merge_state_config`).
      *
      *  @param state The state whose per-state declared style is wanted.
      *
@@ -2377,7 +2378,7 @@ declare class Machine<mDT> {
      *  overlay (tier 6) is NOT applied here; it is layered on top by
      *  {@link resolve_state_config} so it wins over per-state config.
      *
-     *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
+     *  Tiers, folded least-specific → most-specific with `merge_state_config`
      *  (later wins, never throwing on a cross-tier key collision):
      *
      *    1. theme defaults — `base_theme.state`, then each selected theme's
@@ -2409,7 +2410,7 @@ declare class Machine<mDT> {
      *  successor to the ad-hoc layer merge {@link style_for} used to perform.
      *
      *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
+     *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
      *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
      *  per-state config.  The cache is keyed by state and never invalidated, since
      *  those tiers do not depend on which state is current.
@@ -2419,7 +2420,7 @@ declare class Machine<mDT> {
      *  layers: the active-state THEME layers fold in just below the per-state
      *  config (tier 3-active), and the user `active_state : { … }` overlay folds
      *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
+     *  Every fold uses `merge_state_config`, so a key set at a lower tier is
      *  overridden — never rejected — by a higher one.
      *
      *  ```typescript

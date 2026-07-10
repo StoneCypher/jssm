@@ -263,7 +263,7 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';

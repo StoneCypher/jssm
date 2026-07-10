@@ -494,7 +494,7 @@ declare function chips_for_render_mode<T>(u_jssm: jssm.Machine<T>, l_states: str
  *  the state's display text plus any group chips the node builder appends, with
  *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
  *  wraps across lines becomes several `<text>` elements; this returns the lines
- *  joined by `\n`, exactly how {@link extract_state_fills} reads them back — so
+ *  joined by `\n`, exactly how `extract_state_fills` reads them back — so
  *  the derived key and the extracted key meet at the same string.
  *
  *  This is the single source of truth the static fence renderer keys its
