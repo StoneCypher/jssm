@@ -1625,16 +1625,16 @@ type JssmEventFilterMap<mDT> = {
 /**
  *  Per-event filter object (as passed to {@link Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @typeParam mDT The type of the machine data member.
+ *  @typeParam Ev  The event name.
  */
 type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
 
 /**
  *  Per-event handler signature.  Receives a detail object typed by event
  *  name, so `e.action` (etc.) only exist where they're meaningful.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @typeParam mDT The type of the machine data member.
+ *  @typeParam Ev  The event name.
  */
 type JssmEventHandler<mDT, Ev extends JssmEventName> =
   (detail: JssmEventDetailMap<mDT>[Ev]) => void;
