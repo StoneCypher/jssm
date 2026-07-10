@@ -125,7 +125,7 @@ import {
 } from 'jssm/cli';
 ```
 
-The full design spec is at `notes/superpowers/specs/2026-05-22-fsl-cli-config-design.md`.
+The full design spec is preserved verbatim on the feature's tracker issue, StoneCypher/jssm#631 (the `notes/superpowers/specs/` copy was retired 2026-07-08).
 
 ## Errors
 
@@ -140,7 +140,7 @@ All inherit from the abstract `ConfigError` class; use `e.kind` (`'parse' | 'sch
 
 ## Consumers
 
-The loader works in every modern JS environment. See `notes/superpowers/specs/2026-05-22-fsl-cli-config-design.md` § Consumers for canonical patterns for:
+The loader works in every modern JS environment. See the design spec's § Consumers (preserved on StoneCypher/jssm#631) for canonical patterns for:
 
 - The `fsl` CLI
 - GitHub Actions (Node-based) — use `skipUserGlobal: true` and explicit `projectRoot`
