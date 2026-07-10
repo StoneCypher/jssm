@@ -108,7 +108,7 @@ function parseFslArgs(argv, spec) {
   return { positional, flags, helpText };
 }
 
-const getVersion = () => "5.162.4";
+const getVersion = () => "5.162.5";
 const SPEC = {
   flags: {
     help: { short: "h", boolean: true },
