@@ -96,6 +96,7 @@ const hook_required_fields: Record<HookDescription<unknown>['kind'], ReadonlyArr
   'entry'                    : ['to'],
   'exit'                     : ['from'],
   'after'                    : ['from'],
+  'after any'                : [],
   'post hook'                : ['from', 'to'],
   'post named'               : ['from', 'to', 'action'],
   'post global action'       : ['action'],
@@ -576,6 +577,7 @@ class Machine<mDT> {
   _entry_hooks              : Map<number, HookHandler<mDT>>;
   _exit_hooks               : Map<number, HookHandler<mDT>>;
   _after_hooks              : Map<string, HookHandler<mDT>>;
+  _after_any_hook           : HookHandler<mDT> | undefined;
   _global_action_hooks      : Map<number, HookHandler<mDT>>;
   _any_action_hook          : HookHandler<mDT> | undefined;
   _standard_transition_hook : HookHandler<mDT> | undefined;
@@ -828,6 +830,7 @@ class Machine<mDT> {
     this._entry_hooks              = new Map();
     this._exit_hooks               = new Map();
     this._after_hooks              = new Map();
+    this._after_any_hook           = undefined;
     this._global_action_hooks      = new Map();
     this._any_action_hook          = undefined;
     this._standard_transition_hook = undefined;
@@ -1470,6 +1473,61 @@ class Machine<mDT> {
 
   data(): mDT {
     return structuredClone( this._data );
+  }
+
+
+
+  /*********
+   *
+   *  Replace the machine's data in place, without a transition.  This is the
+   *  practical way to assign any value — including `undefined`, `null`, or
+   *  `false` — outside a hook's complex return, closing the gap where an
+   *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
+   *  a `data-change` event with cause `'set_data'` when the value actually
+   *  changes; unlike {@link override} it requires no `allows_override`
+   *  config, because it never moves the state.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const lswitch = jssm.from('on <=> off;', {data: 1});
+   *  console.log( lswitch.data() );              // 1
+   *
+   *  lswitch.set_data(2);
+   *  console.log( lswitch.data() );              // 2
+   *
+   *  lswitch.set_data(undefined);
+   *  console.log( lswitch.data() );              // undefined
+   *  ```
+   *
+   *  @typeParam mDT The type of the machine data member; usually omitted
+   *
+   *  @param newData The value to install as the machine's data.
+   *
+   *  @returns The machine, for chaining.
+   *
+   *  @see Machine.data
+   *  @see override
+   *
+   */
+
+  set_data(newData: mDT): Machine<mDT> {
+
+    const oldData = this._data;
+    this._data    = newData;
+
+    if (oldData !== newData) {
+      this._fire('data-change', {
+        from     : this._state,
+        to       : this._state,
+        old_data : oldData,
+        new_data : newData,
+        cause    : 'set_data'
+      });
+    }
+
+    return this;
+
   }
 
 
@@ -3675,6 +3733,12 @@ class Machine<mDT> {
         this._has_after_hooks = true;
         break;
 
+      case 'after any':
+        this._after_any_hook  = HookDesc.handler;
+        this._has_hooks       = true;
+        this._has_after_hooks = true;
+        break;
+
 
       case 'post hook': {
         // Numeric pair key; same rationale as 'hook' (#729).
@@ -3870,6 +3934,10 @@ class Machine<mDT> {
 
       case 'after':
         removed = this._after_hooks.delete(HookDesc.from);
+        break;
+
+      case 'after any':
+        if (this._after_any_hook !== undefined) { this._after_any_hook = undefined; removed = true; }
         break;
 
       case 'post hook': {
@@ -4134,6 +4202,41 @@ class Machine<mDT> {
   hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'after', from, handler });
+    return this;
+
+  }
+
+
+
+  /** Register a hook that fires when ANY state's `after` timer elapses — the
+   *  whole-machine companion to {@link hook_after}, mirroring how
+   *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
+   *  state also has a specific {@link hook_after}, the specific hook fires
+   *  first and this one fires second; a specific after hook firing always
+   *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
+   *  `hook_after` it is informational — its outcome cannot reject the timed
+   *  transition — and it does NOT fire on ordinary dispatch.
+   *  @param handler - Callback invoked whenever any `after` timer fires, just
+   *                   before the timed transition is taken.
+   *  @returns `this` for chaining.
+   *
+   *  @example
+   *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+   *    let calls = 0;
+   *    m.hook_after_any(() => { calls += 1; });
+   *    m.go('c');
+   *    m.go('a');
+   *    // ordinary dispatch never fires it; only a timer elapsing does:
+   *    calls;  // => 0
+   *    m.clear_state_timeout();
+   *
+   *  @see hook_after
+   *  @see hook_any_transition
+   *  @see set_state_timeout
+   */
+  hook_after_any(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'after any', handler });
     return this;
 
   }
@@ -4449,7 +4552,13 @@ class Machine<mDT> {
 
   /*********
    *
-   *  Replace the current state and data with no regard to the graph.
+   *  Replace the current state — and, when a data argument is provided, the
+   *  data — with no regard to the graph.
+   *
+   *  The data argument is arity-detected: omitting it preserves the current
+   *  data, while explicitly passing `undefined` really sets the data to
+   *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
+   *  argument silently cleared the data.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -4465,9 +4574,23 @@ class Machine<mDT> {
    *  console.log( machine.state() );    // 'a'
    *  ```
    *
+   *  @param newState The state to teleport to; must exist in the graph.
+   *
+   *  @param newData Replacement data.  Omit to keep the current data; pass
+   *  `undefined` explicitly to clear it.
+   *
+   *  @throws {JssmError} If the machine's config does not set
+   *  `allows_override: true`, or if `newState` does not exist.
+   *
+   *  @see set_data
+   *
    */
 
   override(newState: StateType, newData?: mDT | undefined) {
+
+    // arity, not undefined-comparison: an omitted argument preserves the
+    // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
+    const dataProvided = arguments.length >= 2;
 
     if (this.allows_override) {
 
@@ -4476,14 +4599,14 @@ class Machine<mDT> {
         const oldData   = this._data;
         this._state    = newState;
         this._state_id = this._state_interner.intern(newState);
-        this._data  = newData;
+        if (dataProvided) { this._data = newData; }
         this._fire('override', {
           from     : fromState,
           to       : newState,
           old_data : oldData,
-          new_data : newData
+          new_data : this._data
         });
-        if (oldData !== newData) {
+        if (dataProvided && (oldData !== newData)) {
           this._fire('data-change', {
             from     : fromState,
             to       : newState,
@@ -4707,6 +4830,13 @@ class Machine<mDT> {
    *  `newStateOrAction` is an action name and the target state is looked up
    *  via the current action edge.
    *
+   *  @param dataProvided `true` when the caller explicitly supplied a data
+   *  argument — even an explicitly-`undefined` one, which commits `undefined`
+   *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
+   *  is preserved.  The public wrappers derive this from call arity; the
+   *  default reproduces the old `!== undefined` inference for any direct
+   *  callers.
+   *
    *  @returns `true` if the transition was valid and every hook passed;
    *  `false` if the transition was invalid or any hook rejected.
    *
@@ -4714,7 +4844,7 @@ class Machine<mDT> {
    *
    */
 
-  transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
+  transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided: boolean = newData !== undefined): boolean {
 
 
     let valid      : boolean               = false,
@@ -4960,7 +5090,7 @@ class Machine<mDT> {
 
         if (data_changed) {
           this._data = hook_args.data;
-        } else if (newData !== undefined) {
+        } else if (dataProvided) {
           this._data = newData;
         }
 
@@ -4978,9 +5108,9 @@ class Machine<mDT> {
         this._state    = newState;
         this._state_id = newStateId;
 
-        // TODO known bug: this gives no way to set data to undefined
-        //   see https://github.com/StoneCypher/fsl/issues/1264
-        if (newData !== undefined) {
+        // provision is detected by caller arity, so an explicit `undefined`
+        // commits while an omitted argument preserves (StoneCypher/fsl#1264)
+        if (dataProvided) {
           this._data = newData;
         }
 
@@ -5337,7 +5467,9 @@ class Machine<mDT> {
    */
 
   action(actionName: StateType, newData?: mDT): boolean {
-    return this.transition_impl(actionName, newData, false, true);
+    // arity, not undefined-comparison: an explicit `undefined` is a real
+    // data assignment (StoneCypher/fsl#1264)
+    return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
   }
 
 
@@ -5679,6 +5811,7 @@ class Machine<mDT> {
     push_global(this._main_transition_hook,     'main transition',     'pre');
     push_global(this._forced_transition_hook,   'forced transition',   'pre');
     push_global(this._any_transition_hook,      'any transition',      'pre');
+    push_global(this._after_any_hook,           'after any',           'pre');
     push_global(this._pre_everything_hook,      'pre everything',      'pre');
     push_global(this._everything_hook,          'everything',          'pre');
 
@@ -6268,7 +6401,7 @@ class Machine<mDT> {
    */
 
   do(actionName: StateType, newData?: mDT): boolean {
-    return this.transition_impl(actionName, newData, false, true);
+    return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
   }
 
 
@@ -6308,7 +6441,7 @@ class Machine<mDT> {
    */
 
   transition(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, false, false);
+    return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
   }
 
 
@@ -6338,7 +6471,7 @@ class Machine<mDT> {
    */
 
   go(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, false, false);
+    return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
   }
 
 
@@ -6372,7 +6505,7 @@ class Machine<mDT> {
    */
 
   force_transition(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, true, false);
+    return this.transition_impl(newState, newData, true, false, arguments.length >= 2);
   }
 
 
@@ -6503,6 +6636,9 @@ class Machine<mDT> {
         if (this._has_after_hooks) {
           const ah = this._after_hooks.get(from_state);
           if (ah !== undefined) { ah({ data: this._data, next_data: this._data }); }
+          // a specific after hook firing implies the any-after hook fires too,
+          // afterward; and it also fires alone (StoneCypher/fsl#1299)
+          if (this._after_any_hook !== undefined) { this._after_any_hook({ data: this._data, next_data: this._data }); }
         }
 
         this._fire('timeout', { from: from_state, to: next_state, after_time });

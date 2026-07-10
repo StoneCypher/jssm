@@ -883,6 +883,10 @@ type AfterHook<mDT> = {
     from: string;
     handler: HookHandler<mDT>;
 };
+type AfterAnyHook<mDT> = {
+    kind: 'after any';
+    handler: HookHandler<mDT>;
+};
 type PostBasicHookDescription<mDT> = {
     kind: 'post hook';
     from: string;
@@ -956,12 +960,12 @@ type PostEverythingHook<mDT> = {
  *
  *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
  *  `'main transition'`, `'forced transition'`, `'any transition'`,
- *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
- *  may return a falsy value to veto a transition.  Post-transition
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`,
+ *  `'after any'`) may return a falsy value to veto a transition.  Post-transition
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
-type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
+type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | AfterAnyHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
  *  Whether an observational hook runs in the pre-transition phase (where it
  *  may veto/mutate the transition) or the post-transition phase (a pure
@@ -1235,7 +1239,9 @@ type JssmErrorEventDetail = {
 /**
  *  Detail payload fired with a `data-change` event.  Fires whenever the
  *  machine's data payload is replaced.  `old_data` is the value before the
- *  change; `new_data` is the value after.
+ *  change; `new_data` is the value after.  `cause` names the API family that
+ *  performed the replacement: a data-bearing `transition`, an `override`, or
+ *  a direct `set_data` call.
  */
 type JssmDataChangeEventDetail<mDT> = {
     from?: StateType;
@@ -1243,7 +1249,7 @@ type JssmDataChangeEventDetail<mDT> = {
     action?: StateType;
     old_data: mDT;
     new_data: mDT;
-    cause: 'transition' | 'override';
+    cause: 'transition' | 'override' | 'set_data';
 };
 /**
  *  Detail payload fired with an `override` event.  Distinguishes a forced
