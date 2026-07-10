@@ -1301,15 +1301,15 @@ type JssmEventFilterMap<mDT> = {
 /**
  *  Per-event filter object (as passed to {@link Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @typeParam mDT The type of the machine data member.
+ *  @typeParam Ev  The event name.
  */
 type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
 /**
  *  Per-event handler signature.  Receives a detail object typed by event
  *  name, so `e.action` (etc.) only exist where they're meaningful.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @typeParam mDT The type of the machine data member.
+ *  @typeParam Ev  The event name.
  */
 type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
 /**
@@ -1549,7 +1549,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.state() );             // 'off'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The current state name.
      *
@@ -1569,7 +1569,7 @@ declare class Machine<mDT> {
      *
      *  See also {@link display_text}.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to get the label for.
      *
@@ -1596,7 +1596,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.display_text('b') );              // 'b'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to get display text for.
      *
@@ -1615,7 +1615,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.data() );              // 1
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns A deep clone of the machine's current data value.
      *
@@ -1779,7 +1779,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.is_start_state('b') );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check
      *
@@ -1804,7 +1804,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.is_start_state('b') );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check
      *
@@ -1857,7 +1857,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.state_is_final('second') );  // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check for finality
      *
@@ -1887,7 +1887,7 @@ declare class Machine<mDT> {
      *  string to recreate (to not waste repeated space;) if you want the machine
      *  string embedded, call {@link serialize_with_string} instead.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param comment An optional comment string to embed in the serialized
      *  output for identification or debugging.
@@ -2047,7 +2047,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.states() );             // ['on', 'off']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns An array of all state names in the machine.
      *
@@ -2072,7 +2072,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.has_state('dance') );   // false
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state to be checked for existence.
      *
@@ -2110,7 +2110,7 @@ declare class Machine<mDT> {
      *  ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns An array of all {@link JssmTransition} edge objects.
      *
@@ -2261,7 +2261,7 @@ declare class Machine<mDT> {
      *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose transitions to have listed
      *
@@ -2284,7 +2284,7 @@ declare class Machine<mDT> {
      *  light.list_entrances();      // [ 'yellow', 'off' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose entrances to have listed
      *
@@ -2306,7 +2306,7 @@ declare class Machine<mDT> {
      *  light.list_exits();          // [ 'green', 'off' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose exits to have listed
      *
@@ -2444,7 +2444,7 @@ declare class Machine<mDT> {
      *  console.log( machine.actions() );  // logs ['next', 'shutdown']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose actions to list.  Defaults to the
      *  current state.
@@ -2470,7 +2470,7 @@ declare class Machine<mDT> {
      *  console.log( machine.list_states_having_action('start') );   // ['off']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The action to be checked for associated states
      *
@@ -2543,7 +2543,7 @@ declare class Machine<mDT> {
      *  m.isIn('nonesuch'); // false — undeclared group has no members
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param groupName The group to test the current state against.
      *
@@ -2571,7 +2571,7 @@ declare class Machine<mDT> {
      *  m.groupsOf('z');     // Set {}                    — not in any group
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state whose containing groups are wanted.
      *
@@ -2597,7 +2597,7 @@ declare class Machine<mDT> {
      *  m.groups();  // [ 'first', 'second' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The declared group names, in declaration order.
      *
@@ -2620,7 +2620,7 @@ declare class Machine<mDT> {
      *  m.statesIn('inner');  // [ 'a', 'b' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param groupName The group whose transitive member states are wanted.
      *
@@ -2668,7 +2668,7 @@ declare class Machine<mDT> {
      *  off();  // unsubscribe
      *  ```
      *
-     *  @typeparam Ev      The event name (drives the detail type).
+     *  @typeParam Ev      The event name (drives the detail type).
      *  @param name        The event name to subscribe to.
      *  @param filterOrFn  Either a filter object or, when calling the no-filter
      *                     form, the handler itself.
@@ -2689,7 +2689,7 @@ declare class Machine<mDT> {
      *  m.once('terminal', e => console.log(`done at ${e.state}`));
      *  ```
      *
-     *  @typeparam Ev      The event name.
+     *  @typeParam Ev      The event name.
      *  @param name        The event name.
      *  @param filterOrFn  A filter object or the handler (no-filter form).
      *  @param maybeFn     The handler, when a filter was supplied.
@@ -3193,7 +3193,7 @@ declare class Machine<mDT> {
      *  - When multiple edges exist between two states with different `kind`
      *    values, only the first edge's kind is used to pick the edge-type hook.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted.
+     *  @typeParam mDT The type of the machine data member; usually omitted.
      *
      *  @param newStateOrAction The target state name (for a plain or forced
      *  transition) or the action name (when `wasAction` is true).
@@ -3245,7 +3245,7 @@ declare class Machine<mDT> {
      *
      *  Notice that the machine's current state, `e`, is not in the returned list.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history(): [string, mDT][];
@@ -3278,7 +3278,7 @@ declare class Machine<mDT> {
      *
      *  Notice that the machine's current state, `e`, is in the returned list.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history_inclusive(): [string, mDT][];
@@ -3297,7 +3297,7 @@ declare class Machine<mDT> {
      *  foo.history_length;                                  // 5
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history_length(): number;
@@ -3314,7 +3314,7 @@ declare class Machine<mDT> {
      *  light.state();               // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param actionName The action to engage
      *
@@ -3341,7 +3341,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for standard states.
      *
@@ -3367,7 +3367,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for hooked states.
      *
@@ -3392,7 +3392,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for start states.
      *
@@ -3422,7 +3422,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for end states.
      *
@@ -3447,7 +3447,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for terminal states.
      *
@@ -3469,7 +3469,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for the active state.
      *
@@ -3741,7 +3741,7 @@ declare class Machine<mDT> {
      *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to compute the composite config for.
      *
@@ -3764,7 +3764,7 @@ declare class Machine<mDT> {
      *  winning over outer), then the per-state config, and finally — for the
      *  current state only — the active overlay.  Last wins at every tier.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to compute the composite style for.
      *
@@ -3798,7 +3798,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'yellow'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param actionName The action to engage
      *
@@ -3831,7 +3831,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
@@ -3853,7 +3853,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
@@ -3878,7 +3878,7 @@ declare class Machine<mDT> {
      *  light.state();                     // 'off'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
