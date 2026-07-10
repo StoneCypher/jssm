@@ -665,6 +665,37 @@ jobs:
 
 
 
+  # Dragon tier: the grammar-adversarial `*.maximal.ts` fuzz suite
+  # (`npm run vitest-dragon`). Runs on every push and PR and must complete green.
+  # A red run is a real find, not flake — these tests assert parser invariants
+  # that were probed before they were written, so a failure is a genuine bug (or
+  # a harness break), never a spurious generative miss. Deliberately NOT listed in
+  # `release.needs`: per the dragon doctrine the detector never gates a publish; a
+  # confirmed find gates instead via the minimal `*.spec.ts` regression it gets
+  # promoted into (which the normal spec suite already gates). See
+  # notes/dragons-egg.md ("Find-handling convention").
+  dragon:
+
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+        cache: npm
+    - name: npm install and run the dragon suite
+      run: |
+        npm install && npm run vitest-dragon
+      env:
+        CI: true
+
+
+
   verify-version-bump:
 
     if: github.event_name == 'push'

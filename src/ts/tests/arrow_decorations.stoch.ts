@@ -71,7 +71,12 @@ function shuffle<T>(arr: readonly T[], seed: number): T[] {
   const out = arr.slice();
 
   for (let i = out.length - 1; i > 0; --i) {
-    const j = rng() % (i + 1);
+    // gen_splitmix32 returns a float in [0, 1); the index must be
+    // `Math.floor(r * (i + 1))`.  The earlier `r % (i + 1)` left a fractional
+    // index, so `out[j]` was always `undefined` and every "shuffle" collapsed
+    // to `[out[0], undefined, …]` — the order-invariance tests below were
+    // silently degenerate.  (Found by the §6 dragon tier, 2026-07-05.)
+    const j = Math.floor(rng() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];
   }
 
@@ -209,5 +214,37 @@ describe('Arrow decorations reject duplicate decorations of the same kind', () =
     });
 
   }
+
+});
+
+
+
+
+
+// Direct guard on the `shuffle` helper.  The order-invariance tests above cannot
+// catch a broken shuffle — a degenerate one just makes both sides equal, so they
+// pass MORE readily (which is how the float-index bug hid).  This deterministic
+// test asserts shuffle returns a same-multiset, undefined-free permutation and
+// that it actually reorders for some seed.  (Regression for the §6 dragon find,
+// 2026-07-05.)
+
+describe('shuffle helper is a real permutation', () => {
+
+  test('every seed yields a same-multiset, undefined-free array, and some seed reorders', () => {
+
+    const base = ['a', 'b', 'c', 'd'];
+    let saw_reorder = false;
+
+    for (let seed = 0; seed < 50; seed++) {
+      const out = shuffle(base, seed);
+      expect(out).toHaveLength(base.length);
+      expect(out.some((x) => x === undefined)).toBe(false);
+      expect([...out].sort()).toEqual([...base].sort());
+      if (out.join('') !== base.join('')) saw_reorder = true;
+    }
+
+    expect(saw_reorder).toBe(true);
+
+  });
 
 });

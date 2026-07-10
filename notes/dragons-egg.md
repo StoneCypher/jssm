@@ -19,7 +19,15 @@ section here. Entries follow the same shape:
 - Generators / helpers introduced (reusable building blocks)
 - Dragon-tier suggestions (what aggressive testing should also exercise)
 
-Last updated: 2026-05-12.
+Last updated: 2026-07-05 (dragon tier went live — see "Dragon tier" below).
+
+**Dragon tier is LIVE (era 0, 2026-07-05).** The `*.maximal.ts` suite
+(`npm run vitest-dragon`) is the aggressive tier this file was written to feed.
+**Find-handling convention:** every confirmed dragon find becomes (1) a minimal
+deterministic regression test (a `*.spec.ts`, or a deterministic test beside the
+stoch/dragon file it came from), (2) a source fix — never a pin, and (3) an entry
+in the "Dragon findings" log below. Generative flake never gates a release; a
+confirmed find always does, via its promoted regression test.
 
 
 
@@ -29,10 +37,10 @@ Last updated: 2026-05-12.
 |---|---|---|---|
 | 1 | Document shape | — | Not directly testable (exercised indirectly) |
 | 2 | Lexical layer | — | Gap |
-| 3 | Numeric | `numeric.stoch.ts` | **Covered** ✓ (fixed two bugs during writing) |
-| 4 | Colours | `colors.stoch.ts` | **Covered** ✓ |
+| 3 | Numeric | `numeric.stoch.ts` · `numeric.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
+| 4 | Colours | `colors.stoch.ts` · `colors.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
 | 5 | Arrows | — | Gap |
-| 6 | Transition expressions — arrow decorations | `arrow_decorations.stoch.ts` | **Covered** ✓ |
+| 6 | Transition expressions — arrow decorations | `arrow_decorations.stoch.ts` · `arrow_decorations.maximal.ts` | **Covered** ✓ · **Dragon** 🐉 |
 | 6 | Transition expressions — other (Stripe / Cycle / chains) | — | Gap |
 | 7 | State declarations | — | Gap |
 | 8 | Config blocks | — | Gap |
@@ -45,6 +53,57 @@ Last updated: 2026-05-12.
 
 Plus existing non-grammar coverage: `seq.stoch.ts` covers the `jssm.seq(N)`
 utility function (not a language feature).
+
+
+
+## Dragon tier — files and findings
+
+Live from era 0.  Files are `*.maximal.ts`; run via `npm run vitest-dragon`.
+
+### Files
+
+- `kitchen_sink_dragon.maximal.ts` — splitmix-seeded random-graph generation
+  (loopable vs semi-star) driving construction + long force-walks; property: a
+  bounded walk halts iff the graph is a semi-star. The assertion lives inside
+  `fc.property`, so a find prints both the splitmix `gen_seed` (the shrunk
+  counterexample) and fast-check's own replay seed.
+- `arrow_decorations.maximal.ts` (§6) — pushes past the stoch tier: duplicate
+  rejection at N≥3 and with identical values (detection keys on KIND, not
+  value); whitespace-run invariance and block/line comment invariance at every
+  inter-decoration gap; malformed decorations are reported (a parse error, not a
+  duplicate misfire or a silent parse). Each asserted behaviour was confirmed
+  against the parser before it was encoded.
+- `colors.maximal.ts` (§4) — rejection boundary + case handling: invalid hex
+  lengths (1,2,5,7,9,10) reject (only 3/4/6/8 parse); whitespace or a non-hex
+  digit anywhere in a hex run rejects; mixed-case bodies are case-preserved per
+  digit (3-digit doubles each keeping case, 6/8-digit keep the body verbatim,
+  omitted alpha appended lowercase `ff`); Rgba8 round-trips across the full alpha
+  range incl. 00/ff boundaries. **Flagged gap:** the named palette is 148
+  CSS3/SVG entries; CSS4 names (e.g. `rebeccapurple`) are absent — not tested as
+  a failure, recorded here for a future palette-extension decision.
+- `numeric.maximal.ts` (§3) — rejection boundary + large-value edges:
+  out-of-range octal/binary digits reject at ANY position (stoch checked only the
+  first); degenerate/doubled radix prefixes reject; large hex parses exactly (no
+  32-bit truncation); bare negative literals reject in default and probability
+  positions; word constants are case-sensitive (non-canonical casings reject,
+  `E`/`e` excepted); large `after N weeks` converts arithmetically with no
+  overflow throw. **Held item:** SemVer prerelease/build-metadata rejection needs
+  the correct `fsl_version` harness before it can be asserted (a future §3 dragon
+  test).
+
+### Dragon findings
+
+- **2026-07-05 · §6 · `shuffle` was degenerate → fake order-invariance tests.**
+  `arrow_decorations.stoch.ts`'s `shuffle` indexed with `rng() % (i+1)` while
+  `gen_splitmix32` returns a float in `[0,1)`, so the index was fractional and
+  `out[j]` was always `undefined`; every "shuffle" collapsed to
+  `[out[0], undefined, …]`. The three order-invariance tests therefore compared
+  two identical single-decoration strings and passed without exercising order
+  invariance or multiple decorations at all. **Fix:** `Math.floor(rng() * (i+1))`
+  (real Fisher-Yates). **Regression:** a deterministic "shuffle helper is a real
+  permutation" test (same-multiset, undefined-free, actually reorders). Order
+  invariance now genuinely holds under real 4-decoration permutations. Surfaced
+  while writing the §6 dragon file.
 
 
 
