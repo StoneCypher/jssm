@@ -138,9 +138,9 @@ export declare function resolve_fsl_source(host: HTMLElement, fsl_attr: string):
  * `'tb'`/`'bt'` stacked panes (editor top / bottom) · `'editor'`/`'viewer'`
  * single pane · `'tabs'` one pane at a time · `'auto'` by viewport aspect.
  */
-export declare type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | 'tabs' | 'auto';
+export type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | 'tabs' | 'auto';
 /** Which pane the tabbed layout currently shows. */
-export declare type FslTab = 'viz' | 'editor';
+export type FslTab = 'viz' | 'editor';
 /**
  * How a panel's visibility is governed, per-panel or as the control-level
  * default: `hide` (never shown, locked), `show` (always shown, locked),
@@ -150,7 +150,7 @@ export declare type FslTab = 'viz' | 'editor';
  * until that lands, {@link FslInstance.requestedPanels} is the embedder-set
  * stand-in it reads.
  */
-export declare type PanelMode = 'hide' | 'show' | 'default' | 'request';
+export type PanelMode = 'hide' | 'show' | 'default' | 'request';
 /**
  * Resolve `layout="auto"` to a concrete split direction from the viewport
  * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
@@ -682,7 +682,7 @@ export declare class FslInstance extends LitElement {
     private _renderAuxPanels;
 }
 /** @deprecated Use `FslInstance` instead; kept for backwards compat. */
-export declare type JssmInstance = FslInstance;
+export type JssmInstance = FslInstance;
 declare global {
     interface HTMLElementTagNameMap {
         'fsl-instance': FslInstance;

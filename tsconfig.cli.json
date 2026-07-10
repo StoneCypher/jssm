@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist/cli",
-    "declaration": false
+    "declaration": false,
+    "types": ["node"]
   },
   "include": [
     "src/ts/**/*"

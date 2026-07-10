@@ -15,7 +15,7 @@ import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from '
  *    diagram or when overlap is pervasive.
  *  - `'off'` — ignore groups entirely; byte-for-byte the historical output.
  */
-declare type RenderGroups = 'cluster' | 'chips' | 'off';
+type RenderGroups = 'cluster' | 'chips' | 'off';
 /**
  *  Inject runtime configuration for jssm/viz.  Currently only accepts a
  *  custom `DOMParser` constructor for use by `*_svg_element` functions in
@@ -304,7 +304,7 @@ declare function graph_attrs_body(config: JssmGraphConfig | undefined): string;
  *
  *  @internal
  */
-declare type StateKind = 'final' | 'complete' | 'terminal' | 'base';
+type StateKind = 'final' | 'complete' | 'terminal' | 'base';
 /**
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
  *  identifier.  Graphviz treats any `subgraph` whose name begins with the
@@ -453,7 +453,7 @@ declare function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: stri
  *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
  *    output byte-for-byte.
  */
-declare type VizRenderOpts = {
+type VizRenderOpts = {
     hide_state_labels?: boolean;
     footer?: string;
     engine?: string;
@@ -494,7 +494,7 @@ declare function chips_for_render_mode<T>(u_jssm: jssm.Machine<T>, l_states: str
  *  the state's display text plus any group chips the node builder appends, with
  *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
  *  wraps across lines becomes several `<text>` elements; this returns the lines
- *  joined by `\n`, exactly how {@link extract_state_fills} reads them back — so
+ *  joined by `\n`, exactly how `extract_state_fills` reads them back — so
  *  the derived key and the extracted key meet at the same string.
  *
  *  This is the single source of truth the static fence renderer keys its

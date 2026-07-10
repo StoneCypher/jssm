@@ -1,13 +1,3 @@
-/**
- *  The descriptor interpreter for the FSL Markdown fence convention: turns a
- *  parsed {@link FenceDescriptor} plus FSL source into static HTML, and walks
- *  a whole Markdown document replacing every `fsl`/`jssm` fence in place.
- *  This is the integration point for the five pieces built ahead of it — the
- *  fence-info parser, the viz pipeline, the rasterizer, the SVG fill
- *  extractor, and the editor-parity highlighter.
- *
- *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
- */
 /** Options shared by the static fence renderers. */
 export interface FenceRenderOptions {
     /** Inline state colors in code spans (default true).  @see highlight_fsl_html */

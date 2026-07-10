@@ -70,7 +70,7 @@ LogState();                         // logs "Yellow"
 To make the point, please consider the light switch from our language, as
 compared to the example given by a popular alternative library.
 
-If you'd like more detailed comparisons, please see {@page Shootout.md the line-of-code shootout}.
+If you'd like more detailed comparisons, please see [the line-of-code shootout](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Shootout.md).
 
 &nbsp;
 
@@ -159,14 +159,14 @@ State machines ***don't have to be hard***.
 All these tools don't leave you bleeding out.  The author's i7 from 2018 runs
 about 25 million transitions a second.  You probably have an i9 by now.
 
-![](speed%20claim.png)
+![](../assets/speed%20claim.png)
 
 Compilation is similarly fast: 100,000 compilations of the light switch machine
 on the same computer takes only 2.5 seconds.  As such, JSSM is suitable for
 dynamic compilation of completely runtime machines, such as those coming from
 databases, networks, other tools, or user input.
 
-![](compile%20time%20claim.png)
+![](../assets/compile%20time%20claim.png)
 
 &nbsp;
 
@@ -174,7 +174,7 @@ Correct.  Easy.  Brief.  Powerful.  Fast.
 
 Meet your new state machine.
 
-`Next`: {@page GettingStarted.md Let's get started}.
+`Next`: [Let's get started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md).
 
 &nbsp;
 

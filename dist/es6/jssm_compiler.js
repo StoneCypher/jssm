@@ -40,8 +40,8 @@ function nth_matching_loc(tree, predicate, n) {
  *
  *  @internal
  *
- *  @typeparam StateType The type of state names (usually `string`).
- *  @typeparam mDT       The type of the machine data member; usually omitted.
+ *  @typeParam StateType The type of state names (usually `string`).
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
  *
  *  @param this_se    - The parsed semi-edge containing kind, action, and
  *                      probability metadata.
@@ -690,7 +690,7 @@ function resolve_group_refs(tree, registry) {
  *
  *  @internal
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  */
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
@@ -912,7 +912,7 @@ function fold_graph_config(aliases, explicit_block) {
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -978,7 +978,7 @@ function fold_graph_config(aliases, explicit_block) {
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param tree The parse tree to be boiled down into a machine config.  If the
  *              tree was produced with `parse(input, { locations: true })`, any
@@ -1216,7 +1216,7 @@ function compile(tree) {
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param plan The FSL code to be evaluated and built into a machine config
  *

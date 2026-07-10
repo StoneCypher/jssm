@@ -14,7 +14,7 @@ export declare const RENDER_TARGETS: readonly ["svg", "dot", "png", "jpeg", "htm
  * A render target the CLI and library can produce.  Derived from
  * {@link RENDER_TARGETS} so the type can never drift from the runtime enum.
  */
-export declare type RenderTarget = typeof RENDER_TARGETS[number];
+export type RenderTarget = typeof RENDER_TARGETS[number];
 /**
  * Options accepted by `render()` and `renderSet()`.
  *
@@ -53,7 +53,7 @@ export interface RasterResult {
     kind: 'raster';
     buffer: Uint8Array;
 }
-export declare type RenderResult = TextResult | RasterResult;
+export type RenderResult = TextResult | RasterResult;
 /**
  * Base error class for render-time failures.
  */

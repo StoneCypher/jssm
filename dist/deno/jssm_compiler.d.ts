@@ -25,8 +25,8 @@ declare function nth_matching_loc<StateType, mDT>(tree: JssmParseTree<StateType,
  *
  *  @internal
  *
- *  @typeparam StateType The type of state names (usually `string`).
- *  @typeparam mDT       The type of the machine data member; usually omitted.
+ *  @typeParam StateType The type of state names (usually `string`).
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
  *
  *  @param this_se    - The parsed semi-edge containing kind, action, and
  *                      probability metadata.
@@ -263,7 +263,7 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -329,7 +329,7 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param tree The parse tree to be boiled down into a machine config.  If the
  *              tree was produced with `parse(input, { locations: true })`, any
@@ -350,7 +350,7 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param plan The FSL code to be evaluated and built into a machine config
  *

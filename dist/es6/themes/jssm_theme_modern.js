@@ -48,11 +48,11 @@ const modern_theme = {
     active_end: base_active_end_state_style,
     active_terminal: base_active_terminal_state_style,
     active_hooked: base_active_hooked_state_style,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
+    legal: undefined, // TODO FIXME
+    main: undefined, // TODO FIXME
+    forced: undefined, // TODO FIXME
+    action: undefined, // TODO FIXME
+    graph: undefined, // TODO FIXME
     title: undefined // TODO FIXME
 };
 export { base_state_style, base_active_state_style, base_terminal_state_style, base_active_terminal_state_style, base_start_state_style, base_active_start_state_style, base_end_state_style, base_active_end_state_style, modern_theme, modern_theme as theme };
