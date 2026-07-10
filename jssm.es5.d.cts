@@ -33,7 +33,7 @@ type JssmArrowDirection = 'left' | 'right' | 'both';
 /**
  *  Semantic category of an arrow's transition.  `'legal'` is a normal
  *  transition, `'main'` is part of the machine's primary path, `'forced'`
- *  may only be taken via {@link Machine.force_transition}, and `'none'`
+ *  may only be taken via {@link jssm!Machine.force_transition}, and `'none'`
  *  means no transition exists in that direction.
  */
 type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
@@ -99,8 +99,8 @@ declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"
  */
 type FslTheme = typeof FslThemes[number];
 /**
- *  Persistable snapshot of a Machine produced by {@link Machine.serialize}
- *  and consumed by {@link deserialize}.  Carries the current state, the
+ *  Persistable snapshot of a Machine produced by {@link jssm!Machine.serialize}
+ *  and consumed by {@link jssm!deserialize}.  Carries the current state, the
  *  associated machine data, the recent history (subject to the configured
  *  capacity), and metadata to detect version-skew on rehydration.
  *
@@ -257,7 +257,7 @@ type JssmGenericState = {
     complete: boolean;
 };
 /**
- *  The full internal bookkeeping snapshot of a {@link Machine}, exposed for
+ *  The full internal bookkeeping snapshot of a {@link jssm!Machine}, exposed for
  *  advanced introspection.  Contains the current state, the state map, the
  *  edge map and reverse-action map, and the original edge list.  The
  *  `internal_state_impl_version` field exists so that consumers can detect
@@ -310,7 +310,7 @@ type JssmStateDeclarationRule = {
 /**
  *  The fully-condensed declaration for a single state, including its raw
  *  rule list (`declarations`) and the well-known styling fields jssm-viz
- *  understands.  Returned by {@link Machine.state_declaration}.
+ *  understands.  Returned by {@link jssm!Machine.state_declaration}.
  */
 type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
@@ -503,7 +503,7 @@ type JssmBaseTheme = {
     title: undefined;
 };
 /**
- *  Full configuration object accepted by the {@link Machine} constructor and
+ *  Full configuration object accepted by the {@link jssm!Machine} constructor and
  *  by {@link from}.  Carries the transition list and the optional knobs
  *  governing layout, theming, history, start/end states, property
  *  definitions, machine metadata (author, license, version, ...) and the
@@ -526,14 +526,14 @@ type JssmEditorConfig = {
 };
 /** Which stochastic view a run batch produces. */
 type JssmStochasticMode = 'montecarlo' | 'steady_state';
-/** Options for {@link Machine.stochastic_summary} / {@link Machine.stochastic_runs}. */
+/** Options for {@link jssm!Machine.stochastic_summary} / {@link jssm!Machine.stochastic_runs}. */
 type JssmStochasticOptions = {
     mode?: JssmStochasticMode;
     runs?: number;
     max_steps?: number;
     seed?: number;
 };
-/** One walk's result, yielded by {@link Machine.stochastic_runs}. */
+/** One walk's result, yielded by {@link jssm!Machine.stochastic_runs}. */
 type JssmStochasticRun = {
     states: Array<string>;
     edges: Array<string>;
@@ -565,7 +565,7 @@ type JssmGenericConfig<StateType, DataType> = {
     history?: number;
     /**
      *  Maximum depth of the boundary-hook action cascade before the machine
-     *  throws a {@link JssmError} rather than risking a stack overflow or hang.
+     *  throws a {@link jssm_error!JssmError} rather than risking a stack overflow or hang.
      *
      *  Each time a boundary action fires a transition that itself crosses a
      *  boundary, the depth counter increments.  A cascade exceeding this limit is
@@ -893,7 +893,7 @@ type HookRegistryEntry = {
     target: HookTarget;
 };
 /**
- *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  Query for {@link jssm!Machine.has_hook} / {@link jssm!Machine.hooks_on}.  A bare
  *  string is read as a state name; an `{ from, to, action? }` object is read
  *  as an edge (optionally a named edge); an `{ action }` object is read as a
  *  named action; a `{ group }` object is read as a named state group.  This
@@ -990,7 +990,7 @@ type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
  */
 type JssmRng = () => number;
 /**
- *  All event names that {@link Machine.on} accepts.  These are observation
+ *  All event names that {@link jssm!Machine.on} accepts.  These are observation
  *  events fired by the machine in addition to (not in place of) the hook
  *  system.  Hooks intercept; events observe.
  *
@@ -1131,7 +1131,7 @@ type JssmHookLifecycleEventDetail<mDT> = {
 };
 /**
  *  Mapped type from {@link JssmEventName} to the corresponding detail
- *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  payload.  Drives the discriminated-union typing of {@link jssm!Machine.on},
  *  so `e.action` and friends only exist where they're meaningful.
  */
 type JssmEventDetailMap<mDT> = {
@@ -1150,7 +1150,7 @@ type JssmEventDetailMap<mDT> = {
     'hook-removal': JssmHookLifecycleEventDetail<mDT>;
 };
 /**
- *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  Filter accepted by {@link jssm!Machine.on} / {@link jssm!Machine.once} for an
  *  individual event name.  Only events whose detail key matches every
  *  filter entry fire the handler.  Events that don't list a filter key in
  *  v1 take no filter properties.
@@ -1178,7 +1178,7 @@ type JssmEventFilterMap<mDT> = {
     'hook-removal': Record<string, never>;
 };
 /**
- *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  Per-event filter object (as passed to {@link jssm!Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
  *  @typeParam mDT The type of the machine data member.
  *  @typeParam Ev  The event name.
@@ -1192,7 +1192,7 @@ type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev
  */
 type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
 /**
- *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  Function returned by {@link jssm!Machine.on} and {@link jssm!Machine.once} that
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 type JssmUnsubscribe = () => void;
@@ -1342,7 +1342,7 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -2582,7 +2582,7 @@ declare class Machine<mDT> {
      *  Serialize the current machine, including all defining state but not the
      *  machine string, to a structure.  This means you will need the machine
      *  string to recreate (to not waste repeated space;) if you want the machine
-     *  string embedded, call {@link serialize_with_string} instead.
+     *  string embedded, call `serialize_with_string` instead.
      *
      *  @typeParam mDT The type of the machine data member; usually omitted
      *
@@ -2969,7 +2969,7 @@ declare class Machine<mDT> {
      *  List all entrances attached to the current state.  Please note that the
      *  order of the list is not defined.  This list includes both unforced and
      *  forced entrances; if this isn't desired, consider
-     *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+     *  `list_unforced_entrances` or `list_forced_entrances` as
      *  appropriate.
      *
      *  ```typescript
@@ -2991,8 +2991,8 @@ declare class Machine<mDT> {
      *
      *  List all exits attached to the current state.  Please note that the order
      *  of the list is not defined.  This list includes both unforced and forced
-     *  exits; if this isn't desired, consider {@link list_unforced_exits} or
-     *  {@link list_forced_exits} as appropriate.
+     *  exits; if this isn't desired, consider `list_unforced_exits` or
+     *  `list_forced_exits` as appropriate.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -3367,9 +3367,9 @@ declare class Machine<mDT> {
      *
      *  @typeParam Ev      The event name (drives the detail type).
      *  @param name        The event name to subscribe to.
-     *  @param filterOrFn  Either a filter object or, when calling the no-filter
-     *                     form, the handler itself.
-     *  @param maybeFn     The handler, when a filter object was supplied.
+     *  @param handler     The handler invoked on each matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (see the example above).
      *  @returns A function that unsubscribes when called.
      *
      *  @see Machine.off
@@ -3388,8 +3388,9 @@ declare class Machine<mDT> {
      *
      *  @typeParam Ev      The event name.
      *  @param name        The event name.
-     *  @param filterOrFn  A filter object or the handler (no-filter form).
-     *  @param maybeFn     The handler, when a filter was supplied.
+     *  @param handler     The handler invoked on the first matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (same shapes as `on`).
      *  @returns A function that unsubscribes early if called before the
      *           handler has fired.
      *
@@ -4346,7 +4347,7 @@ declare class Machine<mDT> {
      *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
      *  "`state foo : { … }`" contribution of the config cascade.  A state with no
      *  declaration yields an all-`undefined` config (which contributes nothing
-     *  once folded with {@link merge_state_config}).
+     *  once folded with `merge_state_config`).
      *
      *  @param state The state whose per-state declared style is wanted.
      *
@@ -4386,7 +4387,7 @@ declare class Machine<mDT> {
      *  overlay (tier 6) is NOT applied here; it is layered on top by
      *  {@link resolve_state_config} so it wins over per-state config.
      *
-     *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
+     *  Tiers, folded least-specific → most-specific with `merge_state_config`
      *  (later wins, never throwing on a cross-tier key collision):
      *
      *    1. theme defaults — `base_theme.state`, then each selected theme's
@@ -4418,7 +4419,7 @@ declare class Machine<mDT> {
      *  successor to the ad-hoc layer merge {@link style_for} used to perform.
      *
      *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
+     *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
      *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
      *  per-state config.  The cache is keyed by state and never invalidated, since
      *  those tiers do not depend on which state is current.
@@ -4428,7 +4429,7 @@ declare class Machine<mDT> {
      *  layers: the active-state THEME layers fold in just below the per-state
      *  config (tier 3-active), and the user `active_state : { … }` overlay folds
      *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
+     *  Every fold uses `merge_state_config`, so a key set at a lower tier is
      *  overridden — never rejected — by a higher one.
      *
      *  ```typescript

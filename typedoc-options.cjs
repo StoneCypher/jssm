@@ -11,5 +11,10 @@ module.exports = {
   // one we keep (missing-exports surfaces referenced-but-unexported types under
   // an <internal> module, matching the pre-upgrade docs).
   plugin: ['typedoc-plugin-missing-exports'],
-  excludePrivate: true
+  excludePrivate: true,
+  // Internal-only surfaces (the `@internal` `_test` helper bag and private
+  // `Machine._*` members) are not public API; excluding them keeps them out of
+  // the reference AND drops their internal cross-links, which would otherwise
+  // warn as "resolved but not included".
+  excludeInternal: true
 };
