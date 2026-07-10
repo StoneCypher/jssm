@@ -134,7 +134,7 @@ jobs:
 
   unicode-atoms:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -156,7 +156,7 @@ jobs:
 
   unicode-strings:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -178,7 +178,7 @@ jobs:
 
   unicode-atom-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -200,7 +200,7 @@ jobs:
 
   unicode-string-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -222,7 +222,7 @@ jobs:
 
   unicode-actions:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -244,7 +244,7 @@ jobs:
 
   unicode-edge-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -265,7 +265,7 @@ jobs:
 
   unicode-machine-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -286,7 +286,7 @@ jobs:
 
   unicode-error-messages:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -307,7 +307,7 @@ jobs:
 
   unicode-group-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -328,7 +328,7 @@ jobs:
 
   unicode-state-decl-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -349,7 +349,7 @@ jobs:
 
   unicode-hooks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -370,7 +370,7 @@ jobs:
 
   unicode-machine-metadata:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -391,7 +391,7 @@ jobs:
 
   unicode-state-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -412,7 +412,7 @@ jobs:
 
   unicode-image-url:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -433,7 +433,7 @@ jobs:
 
   unicode-arrange:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -454,7 +454,7 @@ jobs:
 
   unicode-config-state-lists:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -475,7 +475,7 @@ jobs:
 
   unicode-config-state-blocks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -496,7 +496,7 @@ jobs:
 
   unicode-viz-dot:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -645,7 +645,7 @@ jobs:
 
   benchmark:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 20
