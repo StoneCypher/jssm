@@ -124,6 +124,11 @@ function makeTransition<StateType, mDT>(
 
 ): JssmTransition<StateType, mDT> {
 
+  // the explicit quotation syntax lets `""` through the grammar; a nameless
+  // state can never be addressed, so reject at edge assembly (fsl#653)
+  if ((from as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition source)'); }
+  if ((to   as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition target)'); }
+
   const kind: JssmArrowKind = isRight
                             ? arrow_right_kind(this_se.kind)
                             : arrow_left_kind(this_se.kind),
@@ -164,6 +169,10 @@ function makeTransition<StateType, mDT>(
 
   if (this_se[action]      != null) { edge.action      = this_se[action]; }
   if (this_se[probability] != null) { edge.probability = this_se[probability]; }
+
+  // same rejection for `''` action quotation — an action nobody can name
+  // can never be dispatched (fsl#653)
+  if (edge.action === '') { throw new JssmError(undefined, 'An action name may not be the empty string'); }
 
   return edge;
 

@@ -3634,12 +3634,15 @@ class Machine<mDT> {
     }
 
     for (const field of hook_spatial_fields) {
-      const needed  = required.includes(field);
-      const present = (HookDesc as Record<string, unknown>)[field] !== undefined;
-      if (needed && !present) {
-        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+      const needed = required.includes(field);
+      const value  = (HookDesc as Record<string, unknown>)[field];
+      // a required spatial field must be a usable key: a non-empty string.
+      // presence alone isn't enough — `action: false` or `from: ''` would
+      // register a hook nothing can ever fire (fsl#653, fsl#659)
+      if (needed && ((typeof value !== 'string') || (value === ''))) {
+        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}' to be a non-empty string`);
       }
-      if (!needed && present) {
+      if (!needed && (value !== undefined)) {
         throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
       }
     }
