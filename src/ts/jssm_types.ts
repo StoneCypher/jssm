@@ -1072,6 +1072,11 @@ type AfterHook<mDT> = {
   handler : HookHandler<mDT>
 };
 
+type AfterAnyHook<mDT> = {
+  kind    : 'after any',
+  handler : HookHandler<mDT>
+};
+
 
 
 type PostBasicHookDescription<mDT> = {
@@ -1165,8 +1170,8 @@ type PostEverythingHook<mDT> = {
  *
  *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
  *  `'main transition'`, `'forced transition'`, `'any transition'`,
- *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
- *  may return a falsy value to veto a transition.  Post-transition
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`,
+ *  `'after any'`) may return a falsy value to veto a transition.  Post-transition
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
@@ -1182,6 +1187,7 @@ type HookDescription<mDT>
   | EntryHook<mDT>
   | ExitHook<mDT>
   | AfterHook<mDT>
+  | AfterAnyHook<mDT>
   | PostBasicHookDescription<mDT>
   | PostHookDescriptionWithAction<mDT>
   | PostGlobalActionHook<mDT>
@@ -1536,7 +1542,9 @@ type JssmErrorEventDetail = {
 /**
  *  Detail payload fired with a `data-change` event.  Fires whenever the
  *  machine's data payload is replaced.  `old_data` is the value before the
- *  change; `new_data` is the value after.
+ *  change; `new_data` is the value after.  `cause` names the API family that
+ *  performed the replacement: a data-bearing `transition`, an `override`, or
+ *  a direct `set_data` call.
  */
 type JssmDataChangeEventDetail<mDT> = {
   from?     : StateType,
@@ -1544,7 +1552,7 @@ type JssmDataChangeEventDetail<mDT> = {
   action?   : StateType,
   old_data  : mDT,
   new_data  : mDT,
-  cause     : 'transition' | 'override'
+  cause     : 'transition' | 'override' | 'set_data'
 };
 
 /**

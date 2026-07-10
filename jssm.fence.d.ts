@@ -880,6 +880,10 @@ type AfterHook<mDT> = {
     from: string;
     handler: HookHandler<mDT>;
 };
+type AfterAnyHook<mDT> = {
+    kind: 'after any';
+    handler: HookHandler<mDT>;
+};
 type PostBasicHookDescription<mDT> = {
     kind: 'post hook';
     from: string;
@@ -953,12 +957,12 @@ type PostEverythingHook<mDT> = {
  *
  *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
  *  `'main transition'`, `'forced transition'`, `'any transition'`,
- *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
- *  may return a falsy value to veto a transition.  Post-transition
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`,
+ *  `'after any'`) may return a falsy value to veto a transition.  Post-transition
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
-type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
+type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | AfterAnyHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
  *  Whether an observational hook runs in the pre-transition phase (where it
  *  may veto/mutate the transition) or the post-transition phase (a pure
@@ -1213,7 +1217,9 @@ type JssmErrorEventDetail = {
 /**
  *  Detail payload fired with a `data-change` event.  Fires whenever the
  *  machine's data payload is replaced.  `old_data` is the value before the
- *  change; `new_data` is the value after.
+ *  change; `new_data` is the value after.  `cause` names the API family that
+ *  performed the replacement: a data-bearing `transition`, an `override`, or
+ *  a direct `set_data` call.
  */
 type JssmDataChangeEventDetail<mDT> = {
     from?: StateType$1;
@@ -1221,7 +1227,7 @@ type JssmDataChangeEventDetail<mDT> = {
     action?: StateType$1;
     old_data: mDT;
     new_data: mDT;
-    cause: 'transition' | 'override';
+    cause: 'transition' | 'override' | 'set_data';
 };
 /**
  *  Detail payload fired with an `override` event.  Distinguishes a forced
@@ -1460,6 +1466,7 @@ declare class Machine<mDT> {
     _entry_hooks: Map<number, HookHandler<mDT>>;
     _exit_hooks: Map<number, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
+    _after_any_hook: HookHandler<mDT> | undefined;
     _global_action_hooks: Map<number, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
@@ -1621,6 +1628,40 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /*********
+     *
+     *  Replace the machine's data in place, without a transition.  This is the
+     *  practical way to assign any value — including `undefined`, `null`, or
+     *  `false` — outside a hook's complex return, closing the gap where an
+     *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
+     *  a `data-change` event with cause `'set_data'` when the value actually
+     *  changes; unlike {@link override} it requires no `allows_override`
+     *  config, because it never moves the state.
+     *
+     *  ```typescript
+     *  import * as jssm from 'jssm';
+     *
+     *  const lswitch = jssm.from('on <=> off;', {data: 1});
+     *  console.log( lswitch.data() );              // 1
+     *
+     *  lswitch.set_data(2);
+     *  console.log( lswitch.data() );              // 2
+     *
+     *  lswitch.set_data(undefined);
+     *  console.log( lswitch.data() );              // undefined
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newData The value to install as the machine's data.
+     *
+     *  @returns The machine, for chaining.
+     *
+     *  @see Machine.data
+     *  @see override
+     *
+     */
+    set_data(newData: mDT): Machine<mDT>;
     /**
      *  The machine's current data by REFERENCE — no clone.  The public
      *  {@link Machine.data} contract is a deep clone per call (a mutation
@@ -2936,6 +2977,33 @@ declare class Machine<mDT> {
      *  @see set_state_timeout
      */
     hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a hook that fires when ANY state's `after` timer elapses — the
+     *  whole-machine companion to {@link hook_after}, mirroring how
+     *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
+     *  state also has a specific {@link hook_after}, the specific hook fires
+     *  first and this one fires second; a specific after hook firing always
+     *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
+     *  `hook_after` it is informational — its outcome cannot reject the timed
+     *  transition — and it does NOT fire on ordinary dispatch.
+     *  @param handler - Callback invoked whenever any `after` timer fires, just
+     *                   before the timed transition is taken.
+     *  @returns `this` for chaining.
+     *
+     *  @example
+     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+     *    let calls = 0;
+     *    m.hook_after_any(() => { calls += 1; });
+     *    m.go('c');
+     *    m.go('a');
+     *    // ordinary dispatch never fires it; only a timer elapsing does:
+     *    calls;  // => 0
+     *    m.clear_state_timeout();
+     *
+     *  @see hook_after
+     *  @see hook_any_transition
+     *  @see set_state_timeout
+     */
+    hook_after_any(handler: HookHandler<mDT>): Machine<mDT>;
     /** Post-transition hook on a specific edge.  Fires after the transition
      *  from `from` to `to` has completed.  Cannot block the transition.
      *  @param from    - Source state name.
@@ -3080,7 +3148,13 @@ declare class Machine<mDT> {
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     /*********
      *
-     *  Replace the current state and data with no regard to the graph.
+     *  Replace the current state — and, when a data argument is provided, the
+     *  data — with no regard to the graph.
+     *
+     *  The data argument is arity-detected: omitting it preserves the current
+     *  data, while explicitly passing `undefined` really sets the data to
+     *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
+     *  argument silently cleared the data.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -3095,6 +3169,16 @@ declare class Machine<mDT> {
      *  machine.override('a');
      *  console.log( machine.state() );    // 'a'
      *  ```
+     *
+     *  @param newState The state to teleport to; must exist in the graph.
+     *
+     *  @param newData Replacement data.  Omit to keep the current data; pass
+     *  `undefined` explicitly to clear it.
+     *
+     *  @throws {JssmError} If the machine's config does not set
+     *  `allows_override: true`, or if `newState` does not exist.
+     *
+     *  @see set_data
      *
      */
     override(newState: StateType, newData?: mDT | undefined): void;
@@ -3210,13 +3294,20 @@ declare class Machine<mDT> {
      *  `newStateOrAction` is an action name and the target state is looked up
      *  via the current action edge.
      *
+     *  @param dataProvided `true` when the caller explicitly supplied a data
+     *  argument — even an explicitly-`undefined` one, which commits `undefined`
+     *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
+     *  is preserved.  The public wrappers derive this from call arity; the
+     *  default reproduces the old `!== undefined` inference for any direct
+     *  callers.
+     *
      *  @returns `true` if the transition was valid and every hook passed;
      *  `false` if the transition was invalid or any hook rejected.
      *
      *  @internal
      *
      */
-    transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided?: boolean): boolean;
     /** If the current state has an `after` timeout configured, schedule it.
      *  Called internally after each transition.
      */
