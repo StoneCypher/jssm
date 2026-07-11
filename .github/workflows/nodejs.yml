@@ -515,6 +515,31 @@ jobs:
 
 
 
+  # Conventional Commits enforcement on the PR's commit range (fsl#1851).
+  # Merge commits are exempt by commitlint's default ignores; the house-style
+  # relaxations (long bodies, proper-noun subjects) live in
+  # commitlint.config.mjs. Installs only the two commitlint packages — the
+  # full dependency tree is not needed to lint commit messages.
+  commitlint:
+
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+    - name: lint PR commit range as Conventional Commits
+      run: |
+        npm install --no-save @commitlint/cli @commitlint/config-conventional && npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+
+
   # Push to main (or #fullbuild PR): cross-platform verification with the lean
   # ci_test (lite make_ci + vitest). Ubuntu carries the multi-Node engine
   # coverage (incl. the 20.x floor) cheaply; macOS/Windows (far costlier
@@ -591,6 +616,20 @@ jobs:
         npm install && npm run build
       env:
         CI: true
+
+    # Package-shape gate (fsl#1850): validates that the published package's
+    # types resolve under node10/node16/bundler, CJS and ESM. Runs against
+    # the just-built dist; .attw.json exempts the three by-design classes
+    # (node10 subpath resolution, untyped runtime-only wc/cdn bundles,
+    # ESM-only subpaths) so the remaining rules gate hard.
+    - name: attw package-shape gate
+      run: |
+        npm run attw
+
+    # Surface the build's line-count report in the run summary (fsl#986).
+    - name: CLOC report to job summary
+      run: |
+        node src/buildjs/cloc_summary_md.cjs >> "$GITHUB_STEP_SUMMARY"
 
     # deploy-docs republishes exactly this tree instead of running a second
     # full build per main push; gh-pages therefore serves the same docs/ the

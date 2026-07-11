@@ -17,7 +17,9 @@
  *
  * **Excluded entirely** — generated docs whose content varies independent of the
  * build pipeline, so byte-parity is meaningless for them:
- *   - `README.md` + `dist/deno/README.md`: `make_readme` bakes in
+ *   - `README.md` + `dist/deno/README.md`: (`make_deno` seeds the deno copy
+ *     early so the publish-manifest trace can see it; `make_readme` refreshes
+ *     it at the end.) `make_readme` bakes in
  *     `new Date().toLocaleString()` AND the **stochastic** suite's coverage % —
  *     stochastic tests hit random code paths, so the % varies run-to-run.
  *   - `CHANGELOG.md` + `CHANGELOG.long.md`: `better_git_changelog` embeds the

@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.162.8",
+  "version": "5.162.9",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -196,7 +196,7 @@
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
     "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_core": "rollup -c rollup.config.core.js",
-    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
+    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno && cp README.md dist/deno",
     "make_viz": "rollup -c rollup.config.viz.js",
     "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
@@ -233,6 +233,7 @@
     "ci_build": "npm run vet && npm run test",
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "ci_test_runtime": "npm run make_ci && npm run vitest",
+    "attw": "attw --pack .",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
@@ -295,12 +296,15 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.4",
     "@codemirror/language": "^6.12.3",
     "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "6.43.2",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@eslint/js": "^10.0.1",
     "@lezer/highlight": "^1.2.3",
