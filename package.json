@@ -232,6 +232,7 @@
     "e2e": "npm run e2e:install && node src/buildjs/hosted_test.cjs --serve-dir=.",
     "ci_build": "npm run vet && npm run test",
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
+    "ci_test_runtime": "npm run make_ci && npm run vitest",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
