@@ -1,8 +1,8 @@
 import { cli } from './subcommands/export-system-prompt/plugin.js';
 
 /**
- * Binary entry for `fsl-export-system-prompt`. Calls the plugin's `cli()` function and
- * exits with the returned code.
+ * Binary entry for `fsl-export-system-prompt`. Calls the plugin's `cli()`
+ * function and exits with the returned code.
  *
  * Sets `process.exitCode` rather than calling `process.exit(code)` so the
  * event loop drains naturally, consistent with the other CLI entrypoints and

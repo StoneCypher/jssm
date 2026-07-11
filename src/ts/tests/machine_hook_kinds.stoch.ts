@@ -34,10 +34,8 @@ const ARROW_FOR: Record<EdgeKind, string> = {
 
 /**
  *  Builds a ring whose edge `i -> i+1` uses the drawn kind's arrow.
- *
  *  @param kinds  One edge kind per ring position; length is the ring size.
  *  @returns      State names and FSL source.
- *
  *  @example
  *    kind_ring(['legal', 'forced'])
  *    // { names: ['k0','k1'], fsl: 'k0 -> k1;  k1 ~> k0;' }
@@ -59,7 +57,6 @@ function kind_ring(kinds: EdgeKind[]): { names: string[], fsl: string } {
  *  Walks a kind ring n steps from its start, using force_transition on
  *  forced edges and plain transition otherwise, asserting every step
  *  lands.  Returns how many traversed edges had each kind.
- *
  *  @param machine  Machine positioned at the ring start.
  *  @param names    Ring state names in order.
  *  @param kinds    Ring edge kinds in order.

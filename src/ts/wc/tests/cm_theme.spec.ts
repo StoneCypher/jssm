@@ -6,7 +6,7 @@ import { lightEditorTheme, darkEditorTheme } from '../editor/cm_theme.js';
 
 function mount(theme: Extension): EditorView {
   const parent = document.createElement('div');
-  document.body.appendChild(parent);
+  document.body.append(parent);
   return new EditorView({ state: EditorState.create({ doc: 'a -> b;', extensions: [theme] }), parent });
 }
 

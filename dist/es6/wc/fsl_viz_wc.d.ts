@@ -2,15 +2,13 @@ import { LitElement, TemplateResult, PropertyValues } from 'lit';
 import type { Machine } from '../jssm.js';
 /**
  * Styling options for {@link FslViz.highlightTrace}.
- *
- * @property color      Stroke/fill colour applied to the highlighted nodes
+ * color      Stroke/fill colour applied to the highlighted nodes
  *                      and edges. Any CSS colour string; defaults to a
  *                      distinct crimson (`#b71c1c`) when omitted.
- * @property fadeOthers When `true` (the default), every node and edge *not*
+ * fadeOthers When `true` (the default), every node and edge *not*
  *                      on the trace is dimmed to `opacity: 0.2` so the trace
  *                      stands out. Set `false` to highlight the trace without
  *                      fading the rest of the graph.
- *
  * @see FslViz.highlightTrace
  */
 export interface HighlightOptions {
@@ -54,7 +52,6 @@ export interface JssmVizErrorDetail {
  * normalize_viz_error('bare string failure');
  * // => { message: 'bare string failure', location: undefined }
  * ```
- *
  * @param e The thrown value to normalize.
  * @returns A `{ message, location }` object suitable for use as the
  * `detail` of a `viz-error` `CustomEvent`.
@@ -73,7 +70,6 @@ export declare function normalize_viz_error(e: unknown): JssmVizErrorDetail;
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
- *
  * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
@@ -109,7 +105,6 @@ export declare class FslViz extends LitElement {
      * `engine` change — but only in standalone mode.  In nested mode the
      * `fsl` attribute is ignored; renders are driven by the parent machine's
      * transition events instead.
-     *
      * @param changed - Map of changed reactive properties supplied by Lit.
      */
     protected willUpdate(changed: PropertyValues<this>): void;
@@ -136,7 +131,6 @@ export declare class FslViz extends LitElement {
      * {@link machine_to_svg_string} pipeline and commits the result to
      * `_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the
      * SVG.
-     *
      * @returns A promise that resolves once the render attempt has finished.
      */
     private _rerenderFromHostMachine;
@@ -145,7 +139,6 @@ export declare class FslViz extends LitElement {
      * `fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a
      * `viz-error` `CustomEvent` on failure. Guards against stale results
      * when `fsl` changes mid-flight.
-     *
      * @returns A promise that resolves once the render attempt has finished.
      */
     private _renderSvg;
@@ -157,7 +150,6 @@ export declare class FslViz extends LitElement {
      * sanitized SVG. `unsafeHTML` is required because Lit's template-literal
      * interpolation otherwise escapes the markup as text. The directive name
      * makes the trust boundary explicit at the call site.
-     *
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.
      */
     render(): TemplateResult;
@@ -176,7 +168,6 @@ export declare class FslViz extends LitElement {
      * viz.highlightTrace(['a', 'b']);
      * viz.clearHighlights();   // back to the default rendering
      * ```
-     *
      * @see highlightTrace
      */
     clearHighlights(): void;
@@ -194,13 +185,11 @@ export declare class FslViz extends LitElement {
      * // Highlight a -> b -> c in green, without dimming the rest:
      * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
      * ```
-     *
      * @param trace   Ordered state names describing the path (e.g.
      *                `['A', 'B', 'C']`). Consecutive pairs select the edges
      *                `A->B` and `B->C`. An empty array is a no-op.
      * @param options Highlight styling; see {@link HighlightOptions}. Defaults
      *                to crimson with off-trace fading enabled.
-     *
      * @see clearHighlights
      * @see HighlightOptions
      */

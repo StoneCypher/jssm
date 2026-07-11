@@ -66,7 +66,6 @@ const array_box_if_string = n => typeof n === 'string' ? [n] : n;
  *
  */
 // this is explicitly about other peoples' data, so it has to be weakly typed
-/* eslint-disable flowtype/no-weak-types */
 const weighted_rand_select = (options, probability_property = 'probability', rng) => {
     if (!Array.isArray(options)) {
         throw new TypeError('options must be a non-empty array of objects');
@@ -74,7 +73,7 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     if (options.length === 0) {
         throw new TypeError('options must be a non-empty array of objects');
     }
-    if (!(typeof options[0] === 'object')) {
+    if (typeof options[0] !== 'object') {
         throw new TypeError('options must be a non-empty array of objects');
     }
     // called once per probabilistic walk step: plain loops, no per-call closure
@@ -84,7 +83,7 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     // monomorphic named-load IC — instead of a dynamic keyed load.
     const named = probability_property === 'probability';
     let prob_sum = 0;
-    for (const opt of options) { // eslint-disable-line fp/no-loops
+    for (const opt of options) {
         const p = named ? opt.probability : opt[probability_property];
         prob_sum += (p === undefined) ? 1 : p;
     }
@@ -92,7 +91,7 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     let cursor = 0, cursor_sum = 0;
     // advance past each element whose running sum is <= rnd; the element that
     // pushes the sum over rnd is the selection
-    while (cursor < options.length) { // eslint-disable-line fp/no-loops
+    while (cursor < options.length) {
         const p = named ? options[cursor].probability : options[cursor][probability_property];
         cursor_sum += (p === undefined) ? 1 : p;
         ++cursor;
@@ -102,7 +101,6 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     }
     return options[cursor - 1];
 };
-/* eslint-enable flowtype/no-weak-types */
 /*******
  *
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
@@ -116,7 +114,7 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
  *
  */
 function seq(n) {
-    if (!(Number.isInteger(n))) {
+    if (!(Number.isSafeInteger(n))) {
         throw new TypeError('seq/1 takes a non-negative integer n as an argument');
     }
     if (n < 0) {
@@ -126,6 +124,22 @@ function seq(n) {
     // three arrays per call, and seq runs per probabilistic walk / sample
     return Array.from({ length: n }, (_, i) => i);
 }
+/*******
+ *
+ *  Comparator reproducing `Array.prototype.sort`'s default ordering (compare
+ *  as strings), so histogram key order stays byte-identical to the historic
+ *  comparator-free sort — that ordering is observable to every iterating
+ *  caller.
+ *
+ *  ```typescript
+ *  [10, 9, 1].sort(default_lexicographic);  // [1, 10, 9], as with plain .sort()
+ *  ```
+ *
+ */
+const default_lexicographic = (a, b) => {
+    const sa = String(a), sb = String(b);
+    return sa < sb ? -1 : (sa > sb ? 1 : 0);
+};
 /*******
  *
  *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
@@ -145,12 +159,13 @@ const histograph = (ar) => {
     // comparator, exactly as before) is preserved because it is observable to
     // every iterating caller.
     const counts = new Map();
-    for (const v of ar) { // eslint-disable-line fp/no-loops
+    for (const v of ar) {
         const c = counts.get(v);
         counts.set(v, c === undefined ? 1 : c + 1);
     }
     const out = new Map();
-    for (const k of [...counts.keys()].sort()) { // eslint-disable-line fp/no-loops
+    const sorted_keys = [...counts.keys()].sort(default_lexicographic);
+    for (const k of sorted_keys) {
         out.set(k, counts.get(k));
     }
     return out;
@@ -178,9 +193,9 @@ const histograph = (ar) => {
  *  @returns An array of `n` independently selected items.
  *
  */
-const weighted_sample_select = (n, options, probability_property, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_sample_select = (n, options, probability_property, rng) => // TODO FIXME no any
  seq(n)
-    .map((_i) => // TODO FIXME eslint-disable-line flowtype/no-weak-types
+    .map((_i) => // TODO FIXME
  weighted_rand_select(options, probability_property, rng));
 /*******
  *
@@ -215,13 +230,14 @@ const weighted_histo_key = (n, opts, prob_prop, extract, rng) => {
     // RNG draw order is identical — n sequential weighted_rand_select calls —
     // and the sorted-key Map ordering matches histograph's output exactly.
     const counts = new Map();
-    for (let i = 0; i < n; i++) { // eslint-disable-line fp/no-loops
+    for (let i = 0; i < n; i++) {
         const key = weighted_rand_select(opts, prob_prop, rng)[extract];
         const c = counts.get(key);
         counts.set(key, c === undefined ? 1 : c + 1);
     }
     const out = new Map();
-    for (const k of [...counts.keys()].sort()) { // eslint-disable-line fp/no-loops
+    const sorted_keys = [...counts.keys()].sort(default_lexicographic);
+    for (const k of sorted_keys) {
         out.set(k, counts.get(k));
     }
     return out;
@@ -263,16 +279,17 @@ function name_bind_prop_and_state(prop, state) {
  */
 function gen_splitmix32(a) {
     if (a === undefined) {
-        a = new Date().getTime();
+        a = Date.now();
     }
     return function () {
-        a |= 0;
-        a = a + 0x9e3779b9 | 0;
+        a = Math.trunc(a);
+        // eslint-disable-next-line unicorn/prefer-math-trunc -- | 0 is the PRNG's 32-bit wrap; Math.trunc breaks SplitMix32
+        a = a + 2654435769 | 0;
         let t = a ^ a >>> 16;
-        t = Math.imul(t, 0x21f0aaad);
-        t = t ^ t >>> 15;
-        t = Math.imul(t, 0x735a2d97);
-        return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+        t = Math.imul(t, 569420461);
+        t ^= t >>> 15;
+        t = Math.imul(t, 1935289751);
+        return ((t ^ (t >>> 15)) >>> 0) / 4294967296;
     };
 }
 /*******
@@ -327,19 +344,19 @@ const unique = (arr) => {
  */
 function find_repeated(arr) {
     const uniqued = unique(arr);
-    if (uniqued.length !== arr.length) {
-        const residue_keys = new Map();
-        arr.forEach(k => residue_keys.set(k, residue_keys.has(k)
-            ? (residue_keys.get(k) + 1)
-            : 1));
-        uniqued.forEach(k => residue_keys.set(k, residue_keys.get(k) - 1));
-        return [...residue_keys.entries()]
-            .filter((e) => ((e[1] > 0) && (!(Number.isNaN(e[0])))))
-            .map((e) => [e[0], e[1] + 1]);
-    }
-    else {
+    if (uniqued.length === arr.length) {
         return [];
     }
+    const residue_keys = new Map();
+    for (const k of arr)
+        residue_keys.set(k, residue_keys.has(k)
+            ? (residue_keys.get(k) + 1)
+            : 1);
+    for (const k of uniqued)
+        residue_keys.set(k, residue_keys.get(k) - 1);
+    return [...residue_keys]
+        .filter((e) => ((e[1] > 0) && (!(Number.isNaN(e[0])))))
+        .map((e) => [e[0], e[1] + 1]);
 }
 /*******
  *
@@ -358,4 +375,4 @@ function find_repeated(arr) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };
+export { seq, unique, find_repeated, arr_uniq_p, default_lexicographic, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };

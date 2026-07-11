@@ -30,7 +30,7 @@ const arrange_test = (idx: number): boolean => {
 
       try {
         ast = parse(`${form.src} [${cp}];`);
-      } catch (e) {
+      } catch {
         throw new Error(`Broke on ${idx} "${cp}" for ${form.src}`);
       }
 

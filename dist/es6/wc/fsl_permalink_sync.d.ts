@@ -14,7 +14,6 @@ type SyncHost = ReactiveControllerHost & HTMLElement & {
  *
  * Echo guard: `_last` holds the segment most recently read or written, so a
  * restore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.
- *
  * @example
  * // In an element's constructor:
  * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit

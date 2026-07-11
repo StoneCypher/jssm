@@ -4,6 +4,9 @@ import * as fc from 'fast-check';
 import * as jssm from '../jssm';
 import { Interner, pair_key } from '../jssm_intern';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -25,8 +28,10 @@ const word = fc.stringOf(
   { minLength: 2, maxLength: 8 }
 );
 
-/** Two-state action machine used by most registry tests: `ha <-> hb`,
- *  both hops carrying action 'act'. */
+/**
+ * Two-state action machine used by most registry tests: `ha <-> hb`,
+ *  both hops carrying action 'act'.
+ */
 const HOOK_FSL = "ha 'act' -> hb;  hb 'act' -> ha;";
 
 
@@ -364,7 +369,7 @@ describe('islands', () => {
         fc.integer({ min: 2, max: 4 }),
         (component_count) => {
 
-          const parts = [...new Array(component_count).keys()]
+          const parts = Array.from({length: component_count}, (_, index) => index)
             .map( i => `i${i}a -> i${i}b;` );
           const fsl = parts.join('  ');
 
@@ -447,11 +452,11 @@ describe('getter long tail', () => {
 
     const machine = jssm.from("[ma mb] 'go' -> mc;  mc -> ma;");
 
-    expect(machine.list_states_having_action('go').sort()).toEqual(['ma', 'mb']);
+    expect(machine.list_states_having_action('go').sort(code_unit_compare)).toEqual(['ma', 'mb']);
     expect(machine.probable_action_exits('ma').length).toBe(1);
 
     const transitions = machine.list_transitions('mc');
-    expect(transitions.entrances.sort()).toEqual(['ma', 'mb']);
+    expect(transitions.entrances.sort(code_unit_compare)).toEqual(['ma', 'mb']);
     expect(transitions.exits).toEqual(['ma']);
 
     const internals = machine.machine_state();
@@ -466,8 +471,8 @@ describe('getter long tail', () => {
     const host  = jssm.from('ga -> gb;');
     const built = host.sm`xa -> xb;`;
 
-    expect(built.states().sort()).toEqual(['xa', 'xb']);
-    expect(host.states().sort()).toEqual(['ga', 'gb']);
+    expect(built.states().sort(code_unit_compare)).toEqual(['xa', 'xb']);
+    expect(host.states().sort(code_unit_compare)).toEqual(['ga', 'gb']);
 
   });
 
@@ -575,11 +580,11 @@ describe('the string interner', () => {
           const ids = names.map( n => interner.intern(n) );
 
           // ids are dense and stable; both lookups invert each other
-          names.forEach( (n, i) => {
+          for (const [i, n] of names.entries()) {
             expect(interner.intern(n)).toBe(ids[i]);      // idempotent
             expect(interner.id_of(n)).toBe(ids[i]);
             expect(interner.name_of(ids[i])).toBe(n);
-          });
+          }
 
           expect(interner.size).toBe(names.length);
           expect(interner.id_of('never_interned_zz')).toBe(undefined);

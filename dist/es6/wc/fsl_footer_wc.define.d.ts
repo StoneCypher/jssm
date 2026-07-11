@@ -1,2 +1,1 @@
-import { FslFooter } from './fsl_footer_wc.js';
-export { FslFooter };
+export { FslFooter } from './fsl_footer_wc.js';

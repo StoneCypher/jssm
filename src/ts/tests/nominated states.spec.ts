@@ -42,12 +42,12 @@ describe('simple naming', () => {
 
     test('trans then node', () =>
       expect(() => {
-        sm`a -> b; state a: { color: orange; };`;
+        const _m = sm`a -> b; state a: { color: orange; };`;
       }).not.toThrow() );
 
     test('node then trans', () =>
       expect(() => {
-        sm`state a: { color: orange; }; a -> b;`;
+        const _m = sm`state a: { color: orange; }; a -> b;`;
     }).not.toThrow() );
 
     test.todo('Uncomment when named nodes work');
@@ -59,7 +59,7 @@ describe('simple naming', () => {
 
     test('two properties', () =>
       expect(() => {
-        sm`a -> b; state a: { color: orange; shape: circle; };`;
+        const _m = sm`a -> b; state a: { color: orange; shape: circle; };`;
       }).not.toThrow() );
 
   });

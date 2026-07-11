@@ -10,7 +10,6 @@ export const PERMALINK_WRITE_DEBOUNCE_MS = 300;
  *
  * Echo guard: `_last` holds the segment most recently read or written, so a
  * restore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.
- *
  * @example
  * // In an element's constructor:
  * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit
@@ -31,14 +30,14 @@ export class FslPermalinkSync {
         }
         void this._restore();
         this.host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
-        window.addEventListener('hashchange', this._onHashChange);
+        addEventListener('hashchange', this._onHashChange);
     }
     hostDisconnected() {
         if (this.key === null) {
             return;
         }
         this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
-        window.removeEventListener('hashchange', this._onHashChange);
+        removeEventListener('hashchange', this._onHashChange);
         if (this._timer !== undefined) {
             clearTimeout(this._timer);
             this._timer = undefined;

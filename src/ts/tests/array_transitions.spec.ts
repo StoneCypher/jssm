@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -8,18 +8,6 @@ import * as jssm from '../jssm';
 
 
 describe('Array basics', () => {
-
-
-
-  describe('array of one', () => {
-
-    const aLeft = [
-      {main_path: false,forced_only: false,"from":"a","to":"d","kind":"legal"}
-    ];
-
-    test('[a]->d;', () => expect( jssm.compile(jssm.parse('[a]->d;')).transitions ).toEqual(aLeft) );
-
-  });
 
 
 

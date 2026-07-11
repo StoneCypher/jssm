@@ -16,10 +16,10 @@ const atom_test = (idx: number): boolean => {
     let left_test, middle_test, right_test;
 
     try {
-      left_test   = sm`${cp} -> target;`,
-      middle_test = sm`source -> ${cp} -> target;`,
+      left_test   = sm`${cp} -> target;`;
+      middle_test = sm`source -> ${cp} -> target;`;
       right_test  = sm`source -> ${cp};`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

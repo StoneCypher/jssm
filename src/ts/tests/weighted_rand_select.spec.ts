@@ -13,7 +13,7 @@ describe('weighted_rand_select/2', () => {
 
   const acc = { apple: 0, orange: 0, banana: 0 };
 
-  for (let i=0; i<10000; ++i) {
+  for (let i=0; i<10_000; ++i) {
     acc[jssm.weighted_rand_select(fruit).label] = acc[jssm.weighted_rand_select(fruit).label] + 1;
   }
 
@@ -25,8 +25,8 @@ describe('weighted_rand_select/2', () => {
 
   test('uses rng when provided', () => {
 
-    const rng1 = jssm.gen_splitmix32(12345);
-    const rng2 = jssm.gen_splitmix32(12345);
+    const rng1 = jssm.gen_splitmix32(12_345);
+    const rng2 = jssm.gen_splitmix32(12_345);
 
     const results1 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng1).label);
     const results2 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng2).label);
@@ -37,8 +37,8 @@ describe('weighted_rand_select/2', () => {
 
   test('different rng seeds produce different results', () => {
 
-    const rng1 = jssm.gen_splitmix32(12345);
-    const rng2 = jssm.gen_splitmix32(99999);
+    const rng1 = jssm.gen_splitmix32(12_345);
+    const rng2 = jssm.gen_splitmix32(99_999);
 
     const results1 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng1).label);
     const results2 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng2).label);

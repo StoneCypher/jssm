@@ -76,14 +76,14 @@ describe('interned dispatch — guard branches', () => {
 
 describe('interned hooks — unknown-name guards (#729)', () => {
 
-  const noop = () => undefined;
+  const noop = () => {};
 
   test('hooks registered for unknown states never fire and do not disturb the machine', () => {
     let fired = 0;
     const m = jssm.from('a -> b;');
-    m.hook('nope', 'also_nope', () => { fired++; return undefined; });
-    m.hook_entry('never_a_state', () => { fired++; return undefined; });
-    m.hook_exit('never_a_state',  () => { fired++; return undefined; });
+    m.hook('nope', 'also_nope', () => { fired++; return; });
+    m.hook_entry('never_a_state', () => { fired++; return; });
+    m.hook_exit('never_a_state',  () => { fired++; return; });
     expect(m.transition('b')).toBe(true);
     expect(fired).toBe(0);
     expect(m.state()).toBe('b');
@@ -142,11 +142,11 @@ describe('interned hooks — unknown-name guards (#729)', () => {
   test('hooks still fire in order across a full action cycle after re-keying', () => {
     const calls: Array<string> = [];
     const m = jssm.from(`a 'go' -> b 'back' -> a;`);
-    m.hook('a', 'b',              () => { calls.push('basic'); return undefined; });
-    m.hook_action('a', 'b', 'go', () => { calls.push('named'); return undefined; });
-    m.hook_entry('b',             () => { calls.push('entry'); return undefined; });
-    m.hook_exit('a',              () => { calls.push('exit');  return undefined; });
-    m.post_hook('a', 'b',         () => { calls.push('post');  return undefined; });
+    m.hook('a', 'b',              () => { calls.push('basic'); return; });
+    m.hook_action('a', 'b', 'go', () => { calls.push('named'); return; });
+    m.hook_entry('b',             () => { calls.push('entry'); return; });
+    m.hook_exit('a',              () => { calls.push('exit');  return; });
+    m.post_hook('a', 'b',         () => { calls.push('post');  return; });
 
     expect(m.action('go')).toBe(true);
     expect(calls).toEqual(['exit', 'named', 'basic', 'entry', 'post']);

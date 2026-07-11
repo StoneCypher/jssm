@@ -4,6 +4,9 @@ const sm = jssm.sm;
 
 import { JssmGenericConfig } from '../jssm_types';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -174,9 +177,9 @@ describe('Basic usage', () => {
   // props at each step at collection time, then assert the snapshot inside a
   // real `test()` so the behaviour is identical regardless of runner.
 
-  const states: Array<{ name: string; state: string; props: object }> = [];
+  const states: Array<{ name: string; state: string; props: object }> =
+    [{ name: 'Off',   state: traffic_light.state(), props: traffic_light.props() }];
 
-  states.push({ name: 'Off',    state: traffic_light.state(), props: traffic_light.props() });
   traffic_light.go('Red');
   states.push({ name: 'Red',    state: traffic_light.state(), props: traffic_light.props() });
   traffic_light.go('Green');
@@ -427,7 +430,7 @@ describe('List known properties', () => {
   test('Two props', () => {
     const m = sm`property foo default 1; property bar; a -> b;`,
           k = m.known_props();
-    k.sort();
+    k.sort(code_unit_compare);
     expect(k).toStrictEqual(['bar','foo']);
   });
 

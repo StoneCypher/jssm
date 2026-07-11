@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; footer: FslFo
   host.setAttribute('fsl', fsl);
   const footer = document.createElement('fsl-footer') as FslFooter;
   footer.setAttribute('slot', 'footer');
-  host.appendChild(footer);
-  document.body.appendChild(host);
+  host.append(footer);
+  document.body.append(host);
   await host.updateComplete;
   await footer.updateComplete;
   return { host, footer };
@@ -56,7 +56,7 @@ describe('<fsl-footer>', () => {
 
   it('reflects complete status and cleared attributes through the observer', async () => {
     const { host, footer } = await withHost("A 'go' -> B;");
-    const flush = (): Promise<void> => new Promise(r => setTimeout(r));   // let the observer fire
+    const flush = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));   // let the observer fire
 
     host.toggleAttribute('complete', true);              // observer → complete badge
     await flush();
@@ -85,7 +85,7 @@ describe('<fsl-footer>', () => {
 
   it('renders only the slot when standalone (no fsl-instance ancestor)', async () => {
     const footer = document.createElement('fsl-footer') as FslFooter;
-    document.body.appendChild(footer);
+    document.body.append(footer);
     await footer.updateComplete;
     expect(footer.shadowRoot!.querySelector('.state')).toBeNull();
     expect(footer.shadowRoot!.querySelector('.bar')).not.toBeNull();

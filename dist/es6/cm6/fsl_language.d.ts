@@ -68,9 +68,7 @@ export declare const fslLanguage: StreamLanguage<FslStreamState>;
 export declare const fslHighlightStyle: HighlightStyle;
 /**
  * CodeMirror 6 `LanguageSupport` for FSL. Drop into an editor's `extensions`.
- *
  * @returns A `LanguageSupport` extension for FSL highlighting.
- *
  * @example
  *   import { EditorView, basicSetup } from 'codemirror';
  *   import { fsl } from 'jssm/cm6';

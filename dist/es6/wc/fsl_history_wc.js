@@ -15,7 +15,6 @@ import { closest_wc } from './wc_tag_helpers.js';
  * transition, #639) and records the host's reflected `current-state`, so it
  * captures every transition and survives a live machine rebuild without a
  * machine subscription. Standalone (no host ancestor) renders empty.
- *
  * @element fsl-history
  * @csspart timeline - The timeline container.
  */
@@ -56,7 +55,8 @@ export class FslHistory extends LitElement {
         return html `
       <div class="timeline" part="timeline">
         ${this._history.map((s, i) => html `${i > 0 ? html `<span class="arrow">→</span>` : ''}<span class="state ${i === last ? 'current' : ''}">${s}</span>`)}
-      </div>`;
+      </div>
+    `;
     }
 }
 FslHistory.styles = css `

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jv   from '../jssm_viz';
 import * as jssm from '../jssm';
@@ -23,10 +23,10 @@ describe('doublequote helper', () => {
     expect(jv._test.doublequote('safe')).toBe('safe'));
 
   test('escapes a single embedded double-quote', () =>
-    expect(jv._test.doublequote('a"b')).toBe('a\\"b'));
+    expect(jv._test.doublequote('a"b')).toBe(String.raw`a\"b`));
 
   test('escapes multiple embedded double-quotes', () =>
-    expect(jv._test.doublequote('"both"')).toBe('\\"both\\"'));
+    expect(jv._test.doublequote('"both"')).toBe(String.raw`\"both\"`));
 
 });
 
@@ -72,7 +72,7 @@ describe('label_with_chips helper', () => {
 
   test('escapes embedded double-quotes in chip group names', () =>
     expect(jv._test.label_with_chips('State', ['a"b']))
-      .toBe('State [a\\"b]'));
+      .toBe(String.raw`State [a\"b]`));
 
 });
 
@@ -250,13 +250,13 @@ describe('Fix 1 — group names with embedded double-quotes are escaped in DOT',
   test('a group name containing " is escaped in the cluster label attribute', () => {
     const dot = jv.machine_to_dot(sm`&"a\\"b" : [x]; x -> y;`);
     // The DOT source must contain the escaped form  label="a\"b"
-    expect(dot).toContain('label="a\\"b"');
+    expect(dot).toContain(String.raw`label="a\"b"`);
     // It must NOT contain the raw unescaped form label="a"b" (which is corrupt DOT)
     expect(dot).not.toMatch(/label="a"b"/);
   });
 
   test('a group name with " survives the SVG round-trip without throwing', async () => {
-    const svg = await jv.fsl_to_svg_string('&"a\\"b" : [x]; x -> y;');
+    const svg = await jv.fsl_to_svg_string(String.raw`&"a\"b" : [x]; x -> y;`);
     expect(svg).toMatch(/<svg/);
   });
 
@@ -264,7 +264,7 @@ describe('Fix 1 — group names with embedded double-quotes are escaped in DOT',
     // x is in both groups; "a\"b" is the chip
     const dot = jv.machine_to_dot(sm`&"a\\"b" : [x y]; &other : [x z]; x -> y -> z;`);
     // chip for "a\"b" must be escaped inside the label="..." value
-    expect(dot).toContain('[a\\"b]');
+    expect(dot).toContain(String.raw`[a\"b]`);
   });
 
 });
@@ -437,7 +437,7 @@ describe('edge_attr_for / edge_defaults_body helpers', () => {
 
   test('escapes an embedded double-quote in the value', () =>
     expect(jv._test.edge_attr_for('color', 'a"b'))
-      .toBe('color="a\\"b"'));
+      .toBe(String.raw`color="a\"b"`));
 
   test('edge_defaults_body returns empty string for an absent config', () =>
     expect(jv._test.edge_defaults_body(undefined)).toBe(''));

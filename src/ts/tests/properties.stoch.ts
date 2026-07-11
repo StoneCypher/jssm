@@ -38,10 +38,8 @@ const RUNS = 100;
 /**
  *  Parse a top-level `property ...;` declaration and return the
  *  term at `tree[0]`.
- *
  *  @param  src  Full property declaration source, terminator included.
  *  @returns     The property_definition AST node.
- *
  *  @example
  *    parse_prop('property foo default 42 required;')
  *    // → { key:'property_definition', name:'foo', default_value:42, required:true }
@@ -151,6 +149,7 @@ describe('§10 MachineProperty — PropertyVal vocabulary at the default positio
     ['true',                    true                   ],
     ['false',                   false                  ],
     ['42',                      42                     ],
+    // eslint-disable-next-line unicorn/prefer-math-constants -- 3.14 is the exact expected parse of the source literal '3.14', not an approximation of pi
     ['3.14',                    3.14                   ],
     // No `-` prefix: JsNumericLiteral has no signed-literal
     // production.  Negatives appear only as named constants

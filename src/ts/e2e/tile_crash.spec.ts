@@ -38,7 +38,6 @@ import { test, expect, type Page } from '@playwright/test';
  * trailing spaces measurably raise the reproduction rate). It is built by
  * explicit concatenation so the trailing spaces are visible and cannot be
  * silently stripped by editor tooling.
- *
  * @see https://github.com/StoneCypher/jssm/issues/891
  * @see ./fixtures/tile_crash.html for the import map that pins CodeMirror
  *      to the lockfile-installed copy under /node_modules.
@@ -82,7 +81,7 @@ const VERBATIM_FSL =
 
 /** Read the editor's current document text. */
 async function editor_fsl (page: Page): Promise<string> {
-  return page.evaluate(() => (document.getElementById('ed') as unknown as { fsl: string }).fsl);
+  return page.evaluate(() => (document.querySelector('#ed') as unknown as { fsl: string }).fsl);
 }
 
 /**
@@ -93,12 +92,13 @@ async function editor_fsl (page: Page): Promise<string> {
  */
 async function clone_block_via_blank_line (page: Page): Promise<void> {
 
-  const doc   = (await editor_fsl(page)).split('\n');
+  const text  = await editor_fsl(page);
+  const doc   = text.split('\n');
   const blank = doc.findIndex(l => l.trim() === '');
   const start = blank + 1;
   const end   = doc.findIndex((l, i) => i > blank && l.trim() === '};');
 
-  if (blank < 0 || end < 0) throw new Error('fixture document lost its blank-separated block shape');
+  if (blank === -1 || end === -1) throw new Error('fixture document lost its blank-separated block shape');
 
   const lines    = page.locator('fsl-editor .cm-content .cm-line');
   const from_box = await lines.nth(start).boundingBox();
@@ -131,25 +131,25 @@ test('cloning a block via drag-select, copy, blank-line click, paste does not co
       viewport    : { width: 1280, height: 2400 },
     });
     const page = await ctx.newPage();
-    page.on('pageerror', e => uncaught.push(e));
+    page.on('pageerror', e => { uncaught.push(e); });
 
     await page.goto(`${baseURL}/src/ts/e2e/fixtures/tile_crash.html`);
-    await page.waitForFunction(() => (window as unknown as { __fixture_ready?: boolean }).__fixture_ready === true);
+    await page.waitForFunction(() => (globalThis as unknown as { __fixture_ready?: boolean }).__fixture_ready);
 
     // Full-document replace with the verbatim report text: a real dispatch
     // (the fixture seeds a *different* normalized rendering, so the
     // component's echo guard does not swallow it) that rebuilds the tile
     // tree right before the gesture — the measured rate enhancer.
-    await page.evaluate(s => { (document.getElementById('ed') as unknown as { fsl: string }).fsl = s; }, VERBATIM_FSL);
+    await page.evaluate(s => { (document.querySelector('#ed') as unknown as { fsl: string }).fsl = s; }, VERBATIM_FSL);
     await page.waitForTimeout(150);
 
-    for (let cycle = 0; cycle < CYCLES; cycle++) {
-      if (uncaught.length) break;  // view already dead; assert the crisp error below
+    cycles: for (let cycle = 0; cycle < CYCLES; cycle++) {
+      if (uncaught.length > 0) break cycles;  // view already dead; assert the crisp error below
       await clone_block_via_blank_line(page);
       await page.waitForTimeout(150);
     }
 
-    if (uncaught.length || round === ROUNDS - 1) {
+    if (uncaught.length > 0 || round === ROUNDS - 1) {
 
       // The view must never have thrown (the buggy renderer throws
       // TypeError in TilePointer.advance during the paste dispatch and is

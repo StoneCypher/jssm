@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import { nth_matching_loc } from '../jssm_compiler';
 

@@ -12,7 +12,6 @@ import { LitElement, type TemplateResult } from 'lit';
  * `fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A
  * default slot carries embedder status. Standalone (no `<fsl-instance>`
  * ancestor) it renders just the slot.
- *
  * @element fsl-footer
  * @csspart bar - The footer bar container.
  * @slot - Trailing custom status, right-aligned.
@@ -32,9 +31,11 @@ export declare class FslFooter extends LitElement {
     private readonly _onRebuilt;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    /** Recompute the machine-derived counts: local transitions out of the current
+    /**
+     * Recompute the machine-derived counts: local transitions out of the current
      *  state, and the global action / action-start / transition totals. Only
-     *  called while a host is attached, so `_host` is non-null here. */
+     *  called while a host is attached, so `_host` is non-null here.
+     */
     private _syncMachine;
     render(): TemplateResult;
 }

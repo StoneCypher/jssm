@@ -4,9 +4,12 @@ function xml_unescape(s) {
         .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 }
 /** Match one graphviz node group; capture [1] the group body. @internal */
-const NODE_GROUP_RE = /<g[^>]*\bclass="node"[^>]*>([\s\S]*?)<\/g>/g;
+// `[^>]+` rather than `[^>]*` before `\bclass`/`\bfill`: a zero-length run
+// would put the `\b` between two word characters (`<gclass`, `<pathfill`),
+// which can never match, so requiring one character is the same language.
+const NODE_GROUP_RE = /<g[^>]+\bclass="node"[^>]*>([\s\S]*?)<\/g>/g;
 const TEXT_RE_G = /<text[^>]*>([\s\S]*?)<\/text>/g;
-const SHAPE_FILL_RE = /(<(?:ellipse|polygon|path)\b[^>]*\bfill=")([^"]*)(")/;
+const SHAPE_FILL_RE = /(<(?:ellipse|polygon|path)\b[^>]+\bfill=")([^"]*)(")/;
 /**
  *  The state key for one node group: the XML-unescaped content of *every* one
  *  of its `<text>` elements, joined by `\n`.  Graphviz splits a label that
@@ -14,7 +17,6 @@ const SHAPE_FILL_RE = /(<(?:ellipse|polygon|path)\b[^>]*\bfill=")([^"]*)(")/;
  *  would key on a truncated string; joining the lines with `\n` reconstructs
  *  the machine's display text exactly (matching `state_svg_label_texts`).
  *  Returns `null` for a node group carrying no `<text>` element at all.
- *
  *  @internal
  */
 function node_label_text(body) {
@@ -25,12 +27,9 @@ function node_label_text(body) {
  *  Read each state's current fill color out of a graphviz-rendered machine
  *  SVG, keyed by state name.  States whose shape carries no `fill` attribute
  *  are omitted.
- *
  *  @param svg - SVG markup from the jssm viz pipeline (`fsl_to_svg_string`).
- *
  *  @example
  *  extract_state_fills(await fsl_to_svg_string('A -> B;'));  // Map { 'A' => '#…', 'B' => '#…' }
- *
  *  @see patch_state_fill
  */
 export function extract_state_fills(svg) {
@@ -49,14 +48,11 @@ export function extract_state_fills(svg) {
  *  Return a copy of the SVG with the named state's first shape fill replaced.
  *  The unmatched-state case returns the input unchanged (walk truncation and
  *  render races surface as a missing highlight, never a throw).
- *
  *  @param svg - SVG markup from the jssm viz pipeline.
  *  @param state - State name as written in FSL (unescaped).
  *  @param fill - Any SVG paint value, e.g. `'#ff9930'`.
- *
  *  @example
  *  patch_state_fill(svg, 'Red', '#ff9930');  // Red's node now renders orange
- *
  *  @see extract_state_fills
  */
 export function patch_state_fill(svg, state, fill) {

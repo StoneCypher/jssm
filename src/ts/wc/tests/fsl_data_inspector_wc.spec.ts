@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; insp: FslData
   host.setAttribute('fsl', fsl);
   const insp = document.createElement('fsl-data-inspector') as FslDataInspector;
   insp.setAttribute('slot', 'data-inspector');
-  host.appendChild(insp);
-  document.body.appendChild(host);
+  host.append(insp);
+  document.body.append(host);
   await host.updateComplete;
   await insp.updateComplete;
   return { host, insp };
@@ -41,7 +41,7 @@ describe('<fsl-data-inspector>', () => {
 
   it('renders empty when standalone (no fsl-instance ancestor)', async () => {
     const insp = document.createElement('fsl-data-inspector') as FslDataInspector;
-    document.body.appendChild(insp);
+    document.body.append(insp);
     await insp.updateComplete;
     expect(insp.shadowRoot!.querySelector('.empty')).not.toBeNull();
     insp.remove();

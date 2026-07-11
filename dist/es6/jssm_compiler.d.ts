@@ -130,7 +130,7 @@ declare function makeTransition<StateType, mDT>(this_se: JssmCompileSe<StateType
  *                 tracking on every AST node.
  *
  */
-declare function wrap_parse(input: string, options?: Object): any;
+declare function wrap_parse(input: string, options?: object): any;
 /*********
  *
  *  Builds the ordered {@link JssmGroupRegistry} from every `named_list` node

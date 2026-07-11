@@ -21,29 +21,30 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
-  test('Creating an error from the class makes a JssmError', () => {
+  // NOTE: this test's original title claimed the parse failure "makes a
+  // JssmError", but its expect() was never invoked (a bare `expect(fn)` with
+  // no matcher), so nothing was ever verified.  In reality wrap_parse
+  // propagates the PEG parser's raw SyntaxError — see the "complex message"
+  // test below, which pins that raw message as the contract.  If parse
+  // errors are ever wrapped in JssmError, strengthen this to instanceof
+  // JssmError.
+  test('Creating an error from the class throws a real Error', () => {
 
-    expect( () => {
-      try {
-        const _foo = sm`a -FAIL> b;`;
-      } catch (e) {
-        expect(e instanceof JssmError).toBe(true);
-      }
-    })
+    let caught: unknown;
+    try { const _foo = sm`a -FAIL> b;`; } catch (error) { caught = error; }
+    expect(caught instanceof Error).toBe(true);
 
   } );
 
 
   test('Creating an error from the machine makes a JssmError', () => {
 
-    expect( () => {
-      try {
-        const foo = jssm.from('a->b;');
-        foo.state_for('c');
-      } catch (e) {
-        expect(e instanceof JssmError).toBe(true);
-      }
-    })
+    let caught: unknown;
+    try {
+      const foo = jssm.from('a->b;');
+      foo.state_for('c');
+    } catch (error) { caught = error; }
+    expect(caught instanceof JssmError).toBe(true);
 
   } );
 
@@ -71,7 +72,7 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
-  test('Creating an error from the machine has the complex message as its emit', () => {
+  test('Creating an error from a named instance prefixes the instance name onto its emit', () => {
 
     expect( () => {
       const _foo = jssm.from(`a -> b;`, { instance_name: 'doug' });
@@ -93,7 +94,7 @@ describe('Basic hooks on API callpoint', () => {
   test('the duplicate-edge error is a JssmError (#673)', () => {
 
     let caught: unknown;
-    try { const _m = sm`a -> b; a -> b;`; } catch (e) { caught = e; }
+    try { const _m = sm`a -> b; a -> b;`; } catch (error) { caught = error; }
     expect(caught instanceof JssmError).toBe(true);
 
   } );
@@ -109,13 +110,9 @@ describe('Basic hooks on API callpoint', () => {
 
   test('Creating an error has undefined for a state when appropriate', () => {
 
-    expect( () => {
-      try {
-        const _foo = sm`a -FAIL> b;`;
-      } catch (e) {
-        expect(e.state).toBe(undefined)
-      }
-    })
+    let caught: unknown;
+    try { const _foo = sm`a -FAIL> b;`; } catch (error) { caught = error; }
+    expect((caught as JssmError).state).toBe(undefined);
 
   } );
 

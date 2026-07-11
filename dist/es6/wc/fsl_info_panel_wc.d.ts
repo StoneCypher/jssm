@@ -29,7 +29,6 @@ export interface LastTransition {
  * Display-only: it never drives the machine. It binds by walking up to the
  * host via {@link closest_wc} (which matches both the canonical `fsl-instance`
  * and the deprecated `jssm-instance` host tags), so it works under either.
- *
  * @element fsl-info-panel
  * @cssproperty [--fsl-info-panel-gap=0.25rem] - Vertical gap between rows.
  */
@@ -70,14 +69,12 @@ export declare class FslInfoPanel extends LitElement {
      * re-render. Called once on bind and again on every transition. The bound
      * host is passed in by the caller (which already holds a non-null reference),
      * so no re-null-check is needed here.
-     *
      * @param host - The bound parent host whose machine to snapshot.
      */
     private _refresh;
     /**
      * Lit render method. Shows a placeholder until the panel has bound to a host
      * machine; thereafter a labeled grid of the live snapshot.
-     *
      * @returns A Lit `TemplateResult` for the panel.
      */
     render(): TemplateResult;

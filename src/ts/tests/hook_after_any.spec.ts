@@ -19,7 +19,7 @@ import { sm, from as sm_from } from '../jssm';
 
 
 const delay = (time: number = 100) =>
-  new Promise( handler => setTimeout(handler, time) );
+  new Promise( resolve => setTimeout(resolve, time) );
 
 
 
@@ -67,7 +67,7 @@ describe('fsl#1299 — hook_after_any', () => {
 
   test('receives the machine data in its context', async () => {
     const m = sm_from(`a after 2ms -> b;`, { data: 7 });
-    let seen: any = null;   // eslint-disable-line @typescript-eslint/no-explicit-any
+    let seen: any = null;    
     m.hook_after_any(ctx => { seen = ctx; });
     await delay();
     expect(seen.data).toBe(7);

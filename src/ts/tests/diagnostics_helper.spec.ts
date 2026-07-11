@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 // The helper is pure (no imports of its own); inject the TS-source parse/compile.
 import { diagnosticsFor } from '../../../sketch/cm6-editor/diagnostics.mjs';

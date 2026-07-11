@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; exp: FslExpor
   host.setAttribute('fsl', fsl);
   const exp = document.createElement('fsl-export') as FslExport;
   exp.setAttribute('slot', 'export');
-  host.appendChild(exp);
-  document.body.appendChild(host);
+  host.append(exp);
+  document.body.append(host);
   await host.updateComplete;
   await exp.updateComplete;
   return { host, exp };
@@ -28,7 +28,7 @@ describe('<fsl-export>', () => {
   it('emits dot / json / fsl content from the host machine', async () => {
     const { host, exp } = await withHost("A 'go' -> B;");
     const got: Array<{ format: FslExportFormat; content: string }> = [];
-    exp.addEventListener('fsl-export', e => got.push((e as CustomEvent).detail));
+    exp.addEventListener('fsl-export', e => { got.push((e as CustomEvent).detail); });
 
     btn(exp, 'DOT').click();
     btn(exp, 'JSON').click();
@@ -44,7 +44,7 @@ describe('<fsl-export>', () => {
 
   it('emits nothing when standalone (no fsl-instance ancestor)', async () => {
     const exp = document.createElement('fsl-export') as FslExport;
-    document.body.appendChild(exp);
+    document.body.append(exp);
     await exp.updateComplete;
     let fired = false;
     exp.addEventListener('fsl-export', () => { fired = true; });

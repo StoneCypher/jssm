@@ -28,11 +28,9 @@ type DecKind = typeof KINDS[number];
  *  seed determining the value so two calls with the same args
  *  produce identical syntax.  Used by the property-based tests to
  *  build random decoration sequences deterministically.
- *
  *  @param   kind  Decoration kind: `after`, `action`, `prob`, or `desc`.
  *  @param   seed  Positive integer used to derive a deterministic value.
  *  @returns       FSL syntax for a single decoration of `kind`.
- *
  *  @example
  *    deco_string('prob',   42)    // → '42%'
  *    deco_string('after',   5)    // → 'after 6s'
@@ -42,10 +40,14 @@ type DecKind = typeof KINDS[number];
 function deco_string(kind: DecKind, seed: number): string {
 
   switch (kind) {
-    case 'after':  return `after ${1 + (seed % 9)}s`;
-    case 'action': return `'evt${seed}'`;
-    case 'prob':   return `${1 + (seed % 99)}%`;
-    case 'desc':   return `{ arc_label : note${seed}; }`;
+    case 'after': {  return `after ${1 + (seed % 9)}s`;
+    }
+    case 'action': { return `'evt${seed}'`;
+    }
+    case 'prob': {   return `${1 + (seed % 99)}%`;
+    }
+    case 'desc': {   return `{ arc_label : note${seed}; }`;
+    }
   }
 
 }
@@ -56,11 +58,9 @@ function deco_string(kind: DecKind, seed: number): string {
  *  Seeded Fisher-Yates shuffle.  Uses `jssm.gen_splitmix32` so a
  *  given seed always produces the same permutation — necessary for
  *  fast-check's deterministic shrinking.
- *
  *  @param   arr   Array to shuffle.  Not mutated.
  *  @param   seed  Non-negative integer.
  *  @returns       A new array with the same contents in a permuted order.
- *
  *  @example
  *    shuffle(['a','b','c','d'], 0)   // → e.g. ['c','a','d','b']
  *    shuffle(['a','b','c','d'], 0)   // → same as above (deterministic)
@@ -68,7 +68,7 @@ function deco_string(kind: DecKind, seed: number): string {
 function shuffle<T>(arr: readonly T[], seed: number): T[] {
 
   const rng = jssm.gen_splitmix32(seed >>> 0);
-  const out = arr.slice();
+  const out = [...arr];
 
   for (let i = out.length - 1; i > 0; --i) {
     // gen_splitmix32 returns a float in [0, 1); the index must be
@@ -76,8 +76,10 @@ function shuffle<T>(arr: readonly T[], seed: number): T[] {
     // index, so `out[j]` was always `undefined` and every "shuffle" collapsed
     // to `[out[0], undefined, …]` — the order-invariance tests below were
     // silently degenerate.  (Found by the §6 dragon tier, 2026-07-05.)
-    const j = Math.floor(rng() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
+    const j    = Math.floor(rng() * (i + 1));
+    const tmp  = out[i];
+    out[i]     = out[j];
+    out[j]     = tmp;
   }
 
   return out;
@@ -95,8 +97,8 @@ describe('Arrow decorations parse order-invariantly (pre-arrow position)', () =>
      fc.assert(
        fc.property(
          fc.array(fc.integer({ min: 1, max: 10_000 }), { minLength: 4, maxLength: 4 }),  // four value seeds
-         fc.integer({ min: 0, max: 0xffffffff }),                                         // permutation seed 1
-         fc.integer({ min: 0, max: 0xffffffff }),                                         // permutation seed 2
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                         // permutation seed 1
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                         // permutation seed 2
          (vals, s1, s2) => {
            const decos = KINDS.map((k, i) => deco_string(k, vals[i]));
            const fsl1  = `a ${shuffle(decos, s1).join(' ')} -> b;`;
@@ -122,8 +124,8 @@ describe('Arrow decorations parse order-invariantly (post-arrow position)', () =
      fc.assert(
        fc.property(
          fc.array(fc.integer({ min: 1, max: 10_000 }), { minLength: 4, maxLength: 4 }),
-         fc.integer({ min: 0, max: 0xffffffff }),
-         fc.integer({ min: 0, max: 0xffffffff }),
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),
          (vals, s1, s2) => {
            const decos = KINDS.map((k, i) => deco_string(k, vals[i]));
            const fsl1  = `a -> ${shuffle(decos, s1).join(' ')} b;`;
@@ -150,10 +152,10 @@ describe('Arrow decorations parse order-invariantly on both sides simultaneously
        fc.property(
          fc.array(fc.integer({ min: 1, max: 10_000 }), { minLength: 4, maxLength: 4 }),  // pre-arrow value seeds
          fc.array(fc.integer({ min: 1, max: 10_000 }), { minLength: 4, maxLength: 4 }),  // post-arrow value seeds
-         fc.integer({ min: 0, max: 0xffffffff }),                                        // pre-arrow permutation seed 1
-         fc.integer({ min: 0, max: 0xffffffff }),                                        // post-arrow permutation seed 1
-         fc.integer({ min: 0, max: 0xffffffff }),                                        // pre-arrow permutation seed 2
-         fc.integer({ min: 0, max: 0xffffffff }),                                        // post-arrow permutation seed 2
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                        // pre-arrow permutation seed 1
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                        // post-arrow permutation seed 1
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                        // pre-arrow permutation seed 2
+         fc.integer({ min: 0, max: 0xFF_FF_FF_FF }),                                        // post-arrow permutation seed 2
          (pre_vals, post_vals, pre_s1, post_s1, pre_s2, post_s2) => {
            const pre  = KINDS.map((k, i) => deco_string(k, pre_vals[i]));
            const post = KINDS.map((k, i) => deco_string(k, post_vals[i]));
@@ -238,8 +240,9 @@ describe('shuffle helper is a real permutation', () => {
     for (let seed = 0; seed < 50; seed++) {
       const out = shuffle(base, seed);
       expect(out).toHaveLength(base.length);
-      expect(out.some((x) => x === undefined)).toBe(false);
-      expect([...out].sort()).toEqual([...base].sort());
+      expect(out.includes(undefined)).toBe(false);
+      const lexi = (a: string, b: string) => (a < b ? -1 : (a > b ? 1 : 0));
+      expect([...out].sort(lexi)).toEqual([...base].sort(lexi));
       if (out.join('') !== base.join('')) saw_reorder = true;
     }
 

@@ -13,19 +13,19 @@ import { test_range_with } from './unicode.uspec-driver';
 // items inside a state declaration.  As String positions, only `"` and `\`
 // need skipping.
 
-const string_skips = ['"', '\\'];
+const string_skips = new Set(['"', '\\']);
 
 const image_url_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(string_skips.includes(cp))) {
+  if (!(string_skips.has(cp))) {
 
     let ast;
 
     try {
       ast = parse(`state s: { image: "${cp}"; url: "${cp}"; }; s -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

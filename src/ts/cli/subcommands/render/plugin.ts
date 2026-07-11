@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import { basename, dirname, extname, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { basename, dirname, extname, join } from 'node:path';
 import { parseFslArgs } from '../../cli-utils.js';
 import { render } from './render.js';
 import type { RenderTarget, RenderOptions } from '../../types.js';
@@ -42,7 +42,7 @@ const writeStderr = (s: string): void => { process.stderr.write(s); };
 const printErr = (msg: string, path?: string, line?: number): void => {
   writeStderr(`fsl-render: error: ${msg}\n`);
   if (path) {
-    const loc = line !== undefined ? `  at ${path} line ${line}` : `  at ${path}`;
+    const loc = line === undefined ? `  at ${path}` : `  at ${path} line ${line}`;
     writeStderr(loc + '\n');
   }
 };
@@ -54,10 +54,8 @@ const printErr = (msg: string, path?: string, line?: number): void => {
  *
  * Returns an exit code; never throws to the caller and never calls
  * `process.exit()` directly (per the plugin contract).
- *
  * @param argv - Args after the subcommand name (e.g. `['m.fsl', '--target=svg']`)
  * @returns 0 on success, 1 on user error, 2 on internal error
- *
  * @example
  *   const code = await cli(['traffic-light.fsl', '--stdout']);
  *   // code === 0, SVG written to stdout
@@ -69,8 +67,8 @@ export async function cli(argv: string[]): Promise<number> {
   let parsed: ReturnType<typeof parseFslArgs>;
   try {
     parsed = parseFslArgs(argv, SPEC);
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
@@ -126,8 +124,8 @@ export async function cli(argv: string[]): Promise<number> {
     let fsl: string;
     try {
       fsl = path === '-' ? await readStream(process.stdin) : await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       return 1;
     }
     const inputLabel = path === '-' ? '<stdin>' : path;
@@ -163,8 +161,8 @@ export async function cli(argv: string[]): Promise<number> {
     let fsl: string;
     try {
       fsl = await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       worstCode = Math.max(worstCode, 1);
       continue;
     }
@@ -194,11 +192,11 @@ async function renderOne(
     const data: string | Uint8Array = r.kind === 'text' ? r.content : Buffer.from(r.buffer);
     await fs.writeFile(out.outputPath, data);
     return 0;
-  } catch (e) {
-    if (e instanceof RenderError) {
-      printErr(e.message, label, e.line);
+  } catch (error) {
+    if (error instanceof RenderError) {
+      printErr(error.message, label, error.line);
     } else {
-      printErr(`${(e as Error).message ?? String(e)}`, label);
+      printErr((error as Error).message ?? String(error), label);
     }
     return 1;
   }

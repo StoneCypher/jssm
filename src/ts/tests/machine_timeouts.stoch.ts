@@ -25,9 +25,7 @@ const RUNS = 60;
  *  A fake timer registry standing in for setTimeout/clearTimeout.  Records
  *  every scheduled `(callback, delay)` under an incrementing handle and
  *  remembers which handles were cleared.
- *
  *  @returns  The injectable sources plus inspection helpers.
- *
  *  @example
  *    const timers = fake_timers();
  *    const machine = jssm.from('a after 5s -> b;  a -> b;', {
@@ -56,7 +54,7 @@ function fake_timers() {
     },
 
     /** Live (scheduled, not yet cleared or fired) timers. */
-    pending: () => [...scheduled.entries()],
+    pending: () => [...scheduled],
 
     /** Fire one live timer by handle, removing it first like a real timeout. */
     fire: (handle: number) => {
@@ -77,7 +75,6 @@ function fake_timers() {
 /**
  *  Builds a two-state machine with an `after` edge from the start, plus
  *  the manual edge `after` requires to also exist for the timed hop.
- *
  *  @param ms  The declared delay in milliseconds.
  *  @returns   The FSL source.
  */

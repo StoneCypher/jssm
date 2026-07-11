@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import * as fc   from 'fast-check';
 import * as jssm from '../jssm';
@@ -45,7 +45,7 @@ describe('dragon §3: out-of-range octal / binary digits reject at any position'
         fc.nat(),
         fc.constantFrom(8, 9),
         (digits, pos, bad) => {
-          const arr = digits.slice();
+          const arr = [...digits];
           arr[pos % arr.length] = bad;                       // inject an out-of-range octal digit
           expect(() => parse_prop_default('0o' + arr.join(''))).toThrow();
         }
@@ -61,7 +61,7 @@ describe('dragon §3: out-of-range octal / binary digits reject at any position'
         fc.nat(),
         fc.integer({ min: 2, max: 9 }),
         (digits, pos, bad) => {
-          const arr = digits.slice();
+          const arr = [...digits];
           arr[pos % arr.length] = bad;
           expect(() => parse_prop_default('0b' + arr.join(''))).toThrow();
         }
@@ -94,7 +94,7 @@ describe('dragon §3: large hex parses exactly (no 32-bit truncation)', () => {
         fc.array(fc.constantFrom(...'0123456789abcdef'.split('')), { minLength: 1, maxLength: 13 }),
         (arr) => {
           const hex = arr.join('');
-          expect(parse_prop_default('0x' + hex)).toBe(parseInt(hex, 16));
+          expect(parse_prop_default('0x' + hex)).toBe(Number.parseInt(hex, 16));
         }
       ),
       { numRuns: RUNS }
@@ -155,7 +155,7 @@ describe('dragon §3: word constants are case-sensitive', () => {
         fc.array(fc.boolean(), { minLength: 8, maxLength: 8 }),   // per-char upper flag for i-n-f-i-n-i-t-y
         (flags) => {
           const base = 'infinity';
-          const cased = base.split('').map((c, i) => (flags[i] ? c.toUpperCase() : c)).join('');
+          const cased = base.split('').map((c, i) => (flags[i] === true ? c.toUpperCase() : c)).join('');
           fc.pre(cased !== 'Infinity');                            // skip the one valid spelling
           expect(() => parse_prop_default(cased)).toThrow();
         }

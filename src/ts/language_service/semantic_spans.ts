@@ -19,8 +19,10 @@ const LOC_KEYS = new Set(['loc', 'value_loc', 'name_loc', 'from_loc', 'to_loc',
 /** State-declaration item keys whose value is an enum lacking a value-precise loc. */
 const ENUM_VALUE_KEYS = new Set(['shape']);
 
-/** Locate a value substring inside a node's full-statement `loc` span. The
- *  value always appears in its own declaration, so the search always hits. */
+/**
+ * Locate a value substring inside a node's full-statement `loc` span. The
+ *  value always appears in its own declaration, so the search always hits.
+ */
 function valueSpanWithin(text: string, loc: { start: { offset: number }; end: { offset: number } },
                         value: string): { from: number; to: number } {
   const idx = text.slice(loc.start.offset, loc.end.offset).lastIndexOf(value);
@@ -57,16 +59,16 @@ function collect(node: unknown, text: string, out: SemanticSpan[]): void {
   // the group's own NAME is deliberately not a state span either.
   if (n.key === 'named_list') {
     const members = Array.isArray(n.value) ? n.value : [n.value];
-    members.forEach((member: unknown, i: number) => {
+    for (const [i, member] of (members as unknown[]).entries()) {
       const m    = member as string | { kind: string; name: string };
       const name = typeof m === 'string' ? m
-                 : m.kind === 'state'    ? m.name
-                 : null;
+                 : (m.kind === 'state'    ? m.name
+                 : null);
       if (name !== null) {
         const at = n.value_locs[i];
         out.push({ from: at.start.offset, to: at.end.offset, kind: 'state', value: name });
       }
-    });
+    }
   }
 
   // hook declarations (`on enter x do 'act';`): a plain-label subject is a
@@ -77,8 +79,8 @@ function collect(node: unknown, text: string, out: SemanticSpan[]): void {
     out.push({ from: n.subject_loc.start.offset, to: n.subject_loc.end.offset, kind: 'state', value: n.subject });
   }
 
-  for (const key of Object.keys(n)) {
-    if (!LOC_KEYS.has(key)) { collect(n[key], text, out); }
+  for (const [key, child] of Object.entries(n)) {
+    if (!LOC_KEYS.has(key)) { collect(child, text, out); }
   }
 }
 
@@ -90,11 +92,9 @@ function collect(node: unknown, text: string, out: SemanticSpan[]): void {
  * but not `&group` subjects). Every state span's `value` is the parser's
  * resolved name (unquoted, unescaped), while `from`/`to` cover the source
  * spelling including any quotes.
- *
  * @example
  *   fslSemanticSpans('state s : { color: crimson; };')
  *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
- *
  * @example
  *   fslSemanticSpans('&G : [a b];\na -> b;')
  *     .filter(s => s.kind === 'state').length;   // => 4 (two members + two endpoints)

@@ -2,10 +2,8 @@
  *  Minimal GIF-variant LZW decoder for round-trip testing.  Written from the
  *  GIF89a specification, intentionally independent of the encoder under test
  *  so encode→decode equality is real verification.
- *
  *  @param data - Raw LZW bytes as produced by the encoder (no GIF sub-blocking).
  *  @param min_code_size - The palette bit width the stream was encoded with (2..8).
- *
  *  @example
  *  lzw_decode(lzw_encode(new Uint8Array([0, 1, 0]), 2), 2);  // Uint8Array [0, 1, 0]
  */
@@ -42,12 +40,9 @@ export function lzw_decode(data: Uint8Array, min_code_size: number): Uint8Array 
     if (code === eoi) { break; }
     if (code === clear) { reset_dict(); prev = null; continue; }
 
-    let entry: number[];
-    if (code < dict.length && dict[code] !== undefined) {
-      entry = dict[code]!;
-    } else {
-      entry = [...prev!, prev![0]!];       // the KwKwK case
-    }
+    const entry: number[] = (code < dict.length && dict[code] !== undefined)
+      ? dict[code]!
+      : [...prev!, prev![0]!];             // the KwKwK case
     out.push(...entry);
 
     if (prev !== null) {
@@ -73,7 +68,6 @@ export interface DecodedGif {
  *  Minimal GIF89a reader for round-trip testing: global color table, Netscape
  *  loop extension, GCE delays, one image block per frame.  Written from the
  *  spec, independent of the encoder under test.
- *
  *  @example
  *  const gif = decode_gif(encode_gif([{ rgba: new Uint8Array([255,0,0,255]), width: 1, height: 1 }]));
  *  gif.frames.length;  // 1
@@ -134,11 +128,11 @@ export function decode_gif(bytes: Uint8Array): DecodedGif {
         throw new Error(`frame ${frames.length}: expected ${fw * fh} pixels, got ${indices.length}`);
       }
       const rgb = new Uint8Array(indices.length * 3);
-      indices.forEach((idx, i) => {
+      for (const [i, idx] of indices.entries()) {
         rgb[i * 3]     = gct[idx * 3]!;
         rgb[i * 3 + 1] = gct[idx * 3 + 1]!;
         rgb[i * 3 + 2] = gct[idx * 3 + 2]!;
-      });
+      }
       frames.push({ delay_cs, rgb });
       continue;
     }

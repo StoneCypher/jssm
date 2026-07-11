@@ -1,7 +1,9 @@
 
-const { spawnSync }    = require('child_process'),
-      { readFileSync } = require('fs');
+const { readFileSync } = require('fs');
 
+// release-only tooling; chalk isn't a package.json dep because this script only
+// runs in the CI release environment, which provides it
+// eslint-disable-next-line n/no-extraneous-require
 const chalk             = require('chalk'),
       { TwitterClient } = require('twitter-api-client');
 

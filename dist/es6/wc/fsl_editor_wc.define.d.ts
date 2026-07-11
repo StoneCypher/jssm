@@ -1,2 +1,1 @@
-import { FslEditor } from './fsl_editor_wc.js';
-export { FslEditor };
+export { FslEditor } from './fsl_editor_wc.js';

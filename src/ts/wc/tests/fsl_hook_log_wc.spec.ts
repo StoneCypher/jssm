@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; log: FslHookL
   host.setAttribute('fsl', fsl);
   const log = document.createElement('fsl-hook-log') as FslHookLog;
   log.setAttribute('slot', 'hook-log');
-  host.appendChild(log);
-  document.body.appendChild(host);
+  host.append(log);
+  document.body.append(host);
   await host.updateComplete;
   await log.updateComplete;
   return { host, log };
@@ -37,7 +37,7 @@ describe('<fsl-hook-log>', () => {
 
   it('renders empty when standalone (no fsl-instance ancestor)', async () => {
     const log = document.createElement('fsl-hook-log') as FslHookLog;
-    document.body.appendChild(log);
+    document.body.append(log);
     await log.updateComplete;
     expect(log.shadowRoot!.querySelector('.empty')).not.toBeNull();
     log.remove();

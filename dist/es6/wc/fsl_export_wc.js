@@ -8,7 +8,6 @@ import { machine_to_dot } from '../jssm_viz.js';
  * content }`; the embedder decides what to do with it (copy, download, show).
  * Formats: Graphviz `dot` (via `machine_to_dot`), `json` (the machine's
  * `serialize()`), and `fsl` (the source). Standalone is inert.
- *
  * @element fsl-export
  * @csspart export - The button row.
  * @fires {CustomEvent<{format: FslExportFormat, content: string}>} fsl-export
@@ -45,7 +44,8 @@ export class FslExport extends LitElement {
         <button class="btn" @click=${() => this._emit('dot')}>DOT</button>
         <button class="btn" @click=${() => this._emit('json')}>JSON</button>
         <button class="btn" @click=${() => this._emit('fsl')}>FSL</button>
-      </div>`;
+      </div>
+    `;
     }
 }
 FslExport.styles = css `

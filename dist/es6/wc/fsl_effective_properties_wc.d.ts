@@ -21,7 +21,6 @@ export interface JssmInstanceHost extends HTMLElement {
  * v1 shows the FSL `property` bag (`machine.props()`). The render-time visual
  * style resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline
  * concern and is not surfaced here.
- *
  * @element fsl-effective-properties
  * @cssproperty [--fsl-effective-properties-gap=0.25rem] - Gap between rows.
  */
@@ -52,14 +51,12 @@ export declare class FslEffectiveProperties extends LitElement {
     /**
      * Read the resolved property bag (`machine.props()`) into reactive entries,
      * triggering a re-render.
-     *
      * @param host - The bound parent host whose machine to snapshot.
      */
     private _refresh;
     /**
      * Lit render method. Placeholder until bound; an empty-state message when the
      * machine declares no properties; otherwise a name → value grid.
-     *
      * @returns A Lit `TemplateResult` for the panel.
      */
     render(): TemplateResult;

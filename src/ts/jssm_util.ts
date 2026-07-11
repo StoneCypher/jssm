@@ -88,9 +88,8 @@ const array_box_if_string = n =>
  */
 
 // this is explicitly about other peoples' data, so it has to be weakly typed
-/* eslint-disable flowtype/no-weak-types */
 
-const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability', rng: JssmRng): any => {
+const weighted_rand_select = (options: Array<any>, probability_property: string = 'probability', rng: JssmRng): any => {
 
   if (!Array.isArray(options)) {
     throw new TypeError('options must be a non-empty array of objects');
@@ -100,7 +99,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
     throw new TypeError('options must be a non-empty array of objects');
   }
 
-  if (!(typeof options[0] === 'object')) {
+  if (typeof options[0] !== 'object') {
     throw new TypeError('options must be a non-empty array of objects');
   }
 
@@ -112,7 +111,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   const named: boolean = probability_property === 'probability';
 
   let prob_sum: number = 0;
-  for (const opt of options) {                       // eslint-disable-line fp/no-loops
+  for (const opt of options) {
     const p = named ? opt.probability : opt[probability_property];
     prob_sum += (p === undefined) ? 1 : p;
   }
@@ -124,7 +123,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
 
   // advance past each element whose running sum is <= rnd; the element that
   // pushes the sum over rnd is the selection
-  while (cursor < options.length) {                  // eslint-disable-line fp/no-loops
+  while (cursor < options.length) {
     const p = named ? options[cursor].probability : options[cursor][probability_property];
     cursor_sum += (p === undefined) ? 1 : p;
     ++cursor;
@@ -135,7 +134,6 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
 
 };
 
-/* eslint-enable flowtype/no-weak-types */
 
 
 
@@ -156,7 +154,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
 
 function seq(n: number): number[] {
 
-  if (!(Number.isInteger(n))) {
+  if (!(Number.isSafeInteger(n))) {
     throw new TypeError('seq/1 takes a non-negative integer n as an argument');
   }
 
@@ -176,6 +174,28 @@ function seq(n: number): number[] {
 
 /*******
  *
+ *  Comparator reproducing `Array.prototype.sort`'s default ordering (compare
+ *  as strings), so histogram key order stays byte-identical to the historic
+ *  comparator-free sort — that ordering is observable to every iterating
+ *  caller.
+ *
+ *  ```typescript
+ *  [10, 9, 1].sort(default_lexicographic);  // [1, 10, 9], as with plain .sort()
+ *  ```
+ *
+ */
+
+const default_lexicographic = (a: any, b: any): number => {
+  const sa = String(a), sb = String(b);
+  return sa < sb ? -1 : (sa > sb ? 1 : 0);
+};
+
+
+
+
+
+/*******
+ *
  *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
  *  with deep equality; will fail for complex contents, as such.
  *
@@ -187,7 +207,7 @@ function seq(n: number): number[] {
  *
  */
 
-const histograph: Function = (ar : any[]): Map<any, number> => { // eslint-disable-line flowtype/no-weak-types
+const histograph = (ar : any[]): Map<any, number> => {
 
   // one counting pass, then a sort over only the k distinct keys — previously
   // this copied and sorted all n elements (O(n log n) plus a transient array)
@@ -195,13 +215,14 @@ const histograph: Function = (ar : any[]): Map<any, number> => { // eslint-disab
   // comparator, exactly as before) is preserved because it is observable to
   // every iterating caller.
   const counts: Map<any, number> = new Map();
-  for (const v of ar) {                                // eslint-disable-line fp/no-loops
+  for (const v of ar) {
     const c = counts.get(v);
     counts.set(v, c === undefined ? 1 : c + 1);
   }
 
   const out: Map<any, number> = new Map();
-  for (const k of [...counts.keys()].sort()) {         // eslint-disable-line fp/no-loops
+  const sorted_keys = [...counts.keys()].sort(default_lexicographic);
+  for (const k of sorted_keys) {
     out.set(k, counts.get(k));
   }
 
@@ -237,10 +258,10 @@ const histograph: Function = (ar : any[]): Map<any, number> => { // eslint-disab
  *
  */
 
-const weighted_sample_select: Function = (n: number, options: Array<any>, probability_property: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_sample_select = (n: number, options: Array<any>, probability_property: string, rng?: JssmRng): Array<any> => // TODO FIXME no any
 
     seq(n)
-      .map( (_i): any =>   // TODO FIXME eslint-disable-line flowtype/no-weak-types
+      .map( (_i): any =>   // TODO FIXME
         weighted_rand_select(options, probability_property, rng)
       );
 
@@ -276,21 +297,22 @@ const weighted_sample_select: Function = (n: number, options: Array<any>, probab
  *
  */
 
-const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Map<any, number> => { // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_histo_key = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Map<any, number> => { // TODO FIXME no any
 
   // draw and count in one loop: previously this built four n-length transient
   // arrays (seq, the sample map, the extract map, and histograph's sort copy).
   // RNG draw order is identical — n sequential weighted_rand_select calls —
   // and the sorted-key Map ordering matches histograph's output exactly.
   const counts: Map<any, number> = new Map();
-  for (let i = 0; i < n; i++) {                        // eslint-disable-line fp/no-loops
+  for (let i = 0; i < n; i++) {
     const key = weighted_rand_select(opts, prob_prop, rng)[extract];
     const c   = counts.get(key);
     counts.set(key, c === undefined ? 1 : c + 1);
   }
 
   const out: Map<any, number> = new Map();
-  for (const k of [...counts.keys()].sort()) {         // eslint-disable-line fp/no-loops
+  const sorted_keys = [...counts.keys()].sort(default_lexicographic);
+  for (const k of sorted_keys) {
     out.set(k, counts.get(k));
   }
 
@@ -350,24 +372,25 @@ function name_bind_prop_and_state(prop: string, state: string): string {
  *
  */
 
-function gen_splitmix32(a? : number | undefined) {
+function gen_splitmix32(a? : number  ) {
 
   if (a === undefined) {
-    a = new Date().getTime();
+    a = Date.now();
   }
 
   return function() {
 
-    a |= 0;
-    a  = a + 0x9e3779b9 | 0;
+    a = Math.trunc(a);
+    // eslint-disable-next-line unicorn/prefer-math-trunc -- | 0 is the PRNG's 32-bit wrap; Math.trunc breaks SplitMix32
+    a  = a + 0x9E_37_79_B9 | 0;
 
     let t = a ^ a >>> 16;
-        t = Math.imul(t, 0x21f0aaad);
+        t = Math.imul(t, 0x21_F0_AA_AD);
 
-        t = t ^ t >>> 15;
-        t = Math.imul(t, 0x735a2d97);
+        t ^= t >>> 15;
+        t = Math.imul(t, 0x73_5A_2D_97);
 
-    return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+    return ((t ^ (t >>> 15)) >>> 0) / 4_294_967_296;
 
   }
 
@@ -437,33 +460,29 @@ function find_repeated<T>(arr: T[]): [T, number][] {
 
   const uniqued = unique<T>(arr);
 
-  if (uniqued.length !== arr.length) {
-
-    const residue_keys = new Map();
-
-    arr.forEach(k =>
-      residue_keys.set(
-        k,
-        residue_keys.has(k)
-          ? (residue_keys.get(k)+1)
-          : 1
-      )
-    );
-
-    uniqued.forEach(k =>
-      residue_keys.set(
-        k,
-        residue_keys.get(k) - 1
-      )
-    );
-
-    return [ ... residue_keys.entries() ]
-             .filter( (e) => ( (e[1] > 0) && (!(Number.isNaN(e[0]))) ) )
-             .map( (e) => [e[0], e[1]+1] );
-
-  } else {
+  if (uniqued.length === arr.length) {
     return [];
   }
+
+  const residue_keys = new Map();
+
+  for (const k of arr) residue_keys.set(
+      k,
+      residue_keys.has(k)
+        ? (residue_keys.get(k)+1)
+        : 1
+    )
+  ;
+
+  for (const k of uniqued) residue_keys.set(
+      k,
+      residue_keys.get(k) - 1
+    )
+  ;
+
+  return [ ... residue_keys ]
+           .filter( (e) => ( (e[1] > 0) && (!(Number.isNaN(e[0]))) ) )
+           .map( (e) => [e[0], e[1]+1] );
 
 }
 
@@ -499,6 +518,7 @@ export {
   seq,
   unique, find_repeated,
   arr_uniq_p,
+  default_lexicographic,
   histograph, weighted_histo_key,
   weighted_rand_select, weighted_sample_select,
   array_box_if_string,

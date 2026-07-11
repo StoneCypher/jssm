@@ -6,7 +6,6 @@ import { LitElement, type TemplateResult } from 'lit';
  * {@link FslSimulation.interval} ms and stops automatically when the machine
  * reaches a terminal state (no legal actions). Standalone (no host ancestor)
  * the controls are disabled.
- *
  * @element fsl-simulation
  * @csspart sim - The control row.
  * @attr {number} interval - Auto-step period in milliseconds (default 600).

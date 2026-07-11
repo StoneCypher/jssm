@@ -1,7 +1,6 @@
 import { FslInstance } from './fsl_instance_wc.js';
 /**
  * Thin subclass so `<jssm-instance>` registers under a distinct constructor.
- *
  * @deprecated The `jssm-*` tag and the `JssmInstance` class alias are
  * deprecated since v5 in favor of the canonical `<fsl-instance>` /
  * {@link FslInstance}, for fsl.tools brand alignment. They remain functional
@@ -16,4 +15,5 @@ declare global {
         'jssm-instance': JssmInstance;
     }
 }
-export { FslInstance, JssmInstance };
+export { JssmInstance };
+export { FslInstance } from './fsl_instance_wc.js';

@@ -6,6 +6,9 @@ import { FslThemes }          from '../jssm_types';
 import type { JssmTheme }     from '../jssm_types';
 import { theme_mapping }      from '../jssm_theme';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -62,7 +65,7 @@ describe('Multiple themes', () => {
   test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
     expect( sm`theme: [ocean modern]; a->b;`.themes ).toStrictEqual(['ocean','modern']) );
 
-  test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
+  test(`Theme "[ocean modern]" applies the dominant theme's background color`, () =>
     expect( sm`theme: [ocean modern]; a->b;`.style_for('a').backgroundColor ).toBe('deepskyblue') );
 
   test('Fake theme throws at the parser level', () =>
@@ -77,7 +80,7 @@ describe('Multiple themes', () => {
 describe('Check theme registration', () => {
 
   test('FslThemes list matches sm``.all_themes(), post-sort', () =>
-    expect( sm`a->b;`.all_themes().sort() ).toStrictEqual([... FslThemes].sort()) );
+    expect( sm`a->b;`.all_themes().sort(code_unit_compare) ).toStrictEqual([... FslThemes].sort(code_unit_compare)) );
 
 });
 
@@ -121,13 +124,15 @@ describe('fsl#1328 — grammar and theme_mapping agree', () => {
   test('`theme: none;` is rejected by the parser', () =>
     expect( () => { const _foo = sm`theme: none; a -> b;`; } ).toThrow() );
 
-  FslThemes.forEach(themeName =>
+  for (const themeName of FslThemes) {
     test(`FslTheme "${themeName}" resolves to a defined theme_mapping entry`, () =>
-      expect( theme_mapping.get(themeName) ).toBeDefined() ) );
+      expect( theme_mapping.get(themeName) ).toBeDefined() );
+  }
 
-  FslThemes.forEach(themeName =>
+  for (const themeName of FslThemes) {
     test(`FslTheme "${themeName}" parses and lands in machine.themes`, () =>
-      expect( sm`theme: ${themeName}; a -> b;`.themes ).toStrictEqual([themeName]) ) );
+      expect( sm`theme: ${themeName}; a -> b;`.themes ).toStrictEqual([themeName]) );
+  }
 
 });
 

@@ -4,7 +4,6 @@
  *  highlighting, animated walk GIFs, and a whole-document Markdown
  *  transformer — plus the reusable primitives behind them (GIF89a encoder,
  *  walk planner, SVG patching).
- *
  *  @see render_fence_html
  *  @see transform_markdown
  */

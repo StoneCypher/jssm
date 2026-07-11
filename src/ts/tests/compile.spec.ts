@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm     from '../jssm';
 import { JssmError } from '../jssm_error';
@@ -27,7 +27,7 @@ describe('compile/1', () => {
   });
 
   describe('template tokens', () => {
-    const a_through_e_token_str = `a->${'b'}->c->${'d'}->e;`;
+    const a_through_e_token_str = `a->b->c->d->e;`;
     test('doesn\'t throw', () => expect( () => {
       jssm.compile(jssm.parse(a_through_e_token_str));
     }).not.toThrow() );
@@ -104,7 +104,7 @@ describe('error catchery', () => {
 
   describe('unknown state property', () => {
     test('throws', () => expect( () => {
-      sm`a->b; c: { foo: red; };`;
+      const _foo = sm`a->b; c: { foo: red; };`;
     } ).toThrow() );
   });
 

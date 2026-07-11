@@ -206,16 +206,16 @@ describe('build_shootout: renderQuickTab', () => {
   it('lists every library as a row with one cell per machine plus an Avg column', async () => {
     const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
     const md = renderQuickTab(machines, entries);
-    for (const slug of Object.keys(machines)) {
-      const colHead = machines[slug].title.split(' ')[0];
+    for (const machine of Object.values(machines)) {
+      const colHead = machine.title.split(' ', 1)[0];
       expect(md).toContain(colHead);
     }
     expect(md).toContain('Avg');
     const libs = new Set<string>(entries.map(e => e.library.name));
     for (const lib of libs) {
       // The lib name appears in some cell — either plain or wrapped in <fail>
-      const escaped = lib.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(`(\\| ${escaped} \\|)|(<fail>${escaped}</fail>)`);
+      const escaped = lib.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+      const re = new RegExp(String.raw`(\| ${escaped} \|)|(<fail>${escaped}</fail>)`);
       expect(md).toMatch(re);
     }
   });
@@ -264,7 +264,7 @@ describe('build_shootout: renderMachineSection', () => {
     const { renderMachineSection } = await import('../../buildjs/build_shootout.mjs');
     const md = renderMachineSection('toggle', machines.toggle, entries);
     expect(md).toMatch(/^## Toggle machine/m);
-    expect(md).toContain(machines.toggle.blurb.split('\n')[0]);
+    expect(md).toContain(machines.toggle.blurb.split('\n', 1)[0]);
     expect(md).toMatch(/\| lib \| length \|/);
     const toggleEntries = entries.filter(e => e.machine === 'toggle');
     for (const e of toggleEntries) {

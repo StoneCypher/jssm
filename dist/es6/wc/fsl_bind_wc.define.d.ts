@@ -1,7 +1,6 @@
 import { FslBind } from './fsl_bind_wc.js';
 /**
  * Thin subclass so `<jssm-bind>` registers under a distinct constructor.
- *
  * @deprecated The `jssm-*` tag and the `JssmBind` class alias are deprecated
  * since v5 in favor of the canonical `<fsl-bind>` / {@link FslBind}, for
  * fsl.tools brand alignment. They remain functional but are slated for
@@ -16,4 +15,5 @@ declare global {
         'jssm-bind': JssmBind;
     }
 }
-export { FslBind, JssmBind };
+export { JssmBind };
+export { FslBind } from './fsl_bind_wc.js';

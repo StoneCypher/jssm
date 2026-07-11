@@ -30,7 +30,7 @@ const edge_label_test = (idx: number): boolean => {
 
       try {
         ast = parse(`a { ${key}: ${cp}; } -> b;`);
-      } catch (e) {
+      } catch {
         throw new Error(`Broke on ${idx} "${cp}" for ${key}`);
       }
 

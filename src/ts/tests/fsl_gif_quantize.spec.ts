@@ -13,12 +13,12 @@ describe('quantize', () => {
     const red_idx = q.indices[0]!;
     expect(q.indices[2]).toBe(red_idx);
     expect(q.indices[1]).not.toBe(red_idx);
-    expect([...q.palette.slice(red_idx * 3, red_idx * 3 + 3)]).toEqual([255, 0, 0]);
+    expect([...q.palette.subarray(red_idx * 3, red_idx * 3 + 3)]).toEqual([255, 0, 0]);
   });
 
   it('composites alpha over white', () => {
     const q = quantize(px([0, 0, 0, 0]));                 // fully transparent black
-    expect([...q.palette.slice(0, 3)]).toEqual([255, 255, 255]);
+    expect([...q.palette.subarray(0, 3)]).toEqual([255, 255, 255]);
   });
 
   it('reduces >max_colors inputs to at most max_colors, mapping to nearby colors', () => {

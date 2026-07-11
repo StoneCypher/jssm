@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -100,7 +100,7 @@ describe('cycle strategies', () => {
     test(`${label} (strategy ${str})`, () =>
       expect( jssm.parse(str) ).toEqual(v) );
 
-  testdata.map( ([ label, code, res ]) => is_v(label, code, res) );
+  for (const [ label, code, res ] of testdata) { is_v(label, code, res); }
 
   test.todo('cycle full parses');
 

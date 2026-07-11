@@ -34,10 +34,8 @@ const RUNS = 100;
 /**
  *  Parse a single `& name : value ;` named-list source and return
  *  the parsed term.
- *
  *  @param  src  The full named-list source, terminator included.
  *  @returns     The named_list AST node at `tree[0]`.
- *
  *  @example
  *    parse_named_list('&n : [a b];')  // → {key:'named_list', name:'n', value:['a','b']}
  *    parse_named_list('&n : a;')      // → {key:'named_list', name:'n', value:'a'}
@@ -142,7 +140,7 @@ describe('§11 NamedList — Label equivalence among list members', () => {
           // it as an atom or a quoted string.  Final array of
           // canonical names should always match `bodies`.
           const members = bodies.map((b, i) =>
-            quoted_flags[i % quoted_flags.length] ? `"${b}"` : b
+            quoted_flags[i % quoted_flags.length] === true ? `"${b}"` : b
           );
           const src = `&n : [${members.join(' ')}];`;
           expect(parse_named_list(src).value).toEqual(bodies);

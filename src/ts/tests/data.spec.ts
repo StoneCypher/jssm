@@ -234,7 +234,7 @@ describe('Assert that hooks and data interact in correct ordering', () => {
 
   // ... and that enter overrides them all correctly
 
-  test('data overrides: enter overrides by_type_forced', () => {
+  test('data overrides: enter overrides by_type_standard', () => {
     const m1 = jssm.from("a 'shoo' -> b;", { data: 'initial', history: 3 });
     m1.hook_standard_transition( () => { return { pass: true, data: 'hook hst wins' } } )
     m1.hook_entry('b', () => { return { pass: true, data: 'hook hen wins' } } );
@@ -242,7 +242,7 @@ describe('Assert that hooks and data interact in correct ordering', () => {
     expect(m1.data()).toBe('hook hen wins');
   });
 
-  test('data overrides: enter overrides by_type_forced', () => {
+  test('data overrides: enter overrides by_type_main', () => {
     const m1 = jssm.from("a 'shoo' => b;", { data: 'initial', history: 3 });
     m1.hook_main_transition( () => { return { pass: true, data: 'hook hmt wins' } } )
     m1.hook_entry('b', () => { return { pass: true, data: 'hook hen wins' } } );

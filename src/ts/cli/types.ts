@@ -5,7 +5,6 @@
  * `--target` enum derive from it, so a new target is declared in exactly one
  * place.  Future targets (mermaid, plantuml, scxml, ascii, fsl) land here in
  * v0.2+.
- *
  * @example
  * RENDER_TARGETS.includes('gif' as RenderTarget);  // true
  */

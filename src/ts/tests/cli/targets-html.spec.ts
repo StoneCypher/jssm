@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { htmlTarget } from '../../cli/subcommands/render/targets/html';
 
 const trafficLight = readFileSync(

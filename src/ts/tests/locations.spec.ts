@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 import type { FslSourceLocation, JssmStateDeclarationRule } from '../jssm_types';
@@ -63,9 +63,9 @@ describe('parser source locations — other top-level nodes', () => {
     const node = tree[0] as { value: string[]; value_locs?: FslSourceLocation[] };
     expect(node.value_locs).toBeDefined();
     expect(node.value_locs!.length).toBe(node.value.length);
-    node.value.forEach((member, i) => {
+    for (const [i, member] of node.value.entries()) {
       expect(slice(src, node.value_locs![i]!)).toBe(member);
-    });
+    }
   });
 
   test('hook declaration state subject carries a subject_loc; group-ref subject does not', () => {

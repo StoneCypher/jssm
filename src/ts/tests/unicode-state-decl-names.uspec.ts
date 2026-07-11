@@ -22,7 +22,7 @@ const state_decl_test = (idx: number): boolean => {
 
     try {
       ast = parse(`state ${cp}: { color: red; };`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jv   from '../jssm_viz';
 import * as jssm from '../jssm';

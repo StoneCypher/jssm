@@ -16,7 +16,7 @@ describe('.allows_override', () => {
   });
 
   test('2 undefined in code, missing in config reads out false', () => {
-    const machine = jssm.from(`a -> b;`, { });
+    const machine = jssm.from(`a -> b;`, {});
     expect(machine.allows_override).toBe(false);
   });
 
@@ -43,7 +43,7 @@ describe('.allows_override', () => {
   });
 
   test('7 allowed in code, missing in config reads out true', () => {
-    const machine = jssm.from(`allows_override: true; a -> b;`, { });
+    const machine = jssm.from(`allows_override: true; a -> b;`, {});
     expect(machine.allows_override).toBe(true);
   });
 
@@ -70,7 +70,7 @@ describe('.allows_override', () => {
   });
 
   test('12 disallowed in code, missing in config reads out false', () => {
-    const machine = jssm.from(`allows_override: false; a -> b;`, { });
+    const machine = jssm.from(`allows_override: false; a -> b;`, {});
     expect(machine.allows_override).toBe(false);
   });
 
@@ -128,7 +128,7 @@ describe('.config_allows_override', () => {
   });
 
   test('19 config field missing', () => {
-    const machine = jssm.from(`a -> b;`, { });
+    const machine = jssm.from(`a -> b;`, {});
     expect(machine.config_allows_override).toBe(undefined);
   });
 

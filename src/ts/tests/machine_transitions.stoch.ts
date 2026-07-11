@@ -5,6 +5,9 @@ import * as jssm from '../jssm';
 
 import { chain_plan_arb, ring_plan_arb } from './stoch_helpers';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -156,11 +159,9 @@ describe('actions over an action-labelled ring', () => {
    *  Builds a ring machine whose every edge carries a distinct action name:
    *  `s0 'act0' -> s1 'act1' -> ... -> s(k-1) 'act(k-1)' -> s0`, expressed
    *  as separate statements.  Returns the names and parallel action list.
-   *
    *  @param k  Ring size (number of states).
    *  @returns  State names, action names (`actions[i]` exits `names[i]`),
    *            and the FSL source.
-   *
    *  @example
    *    action_ring(2)
    *    // { names: ['st0','st1'], actions: ['act0','act1'],
@@ -168,8 +169,8 @@ describe('actions over an action-labelled ring', () => {
    */
   function action_ring(k: number): { names: string[], actions: string[], fsl: string } {
 
-    const names   = [...new Array(k).keys()].map( i => `st${i}` ),
-          actions = [...new Array(k).keys()].map( i => `act${i}` );
+    const names   = Array.from({length: k}, (_, index) => index).map( i => `st${i}` ),
+          actions = Array.from({length: k}, (_, index) => index).map( i => `act${i}` );
 
     const fsl = names
       .map( (n, i) => `${n} '${actions[i]}' -> ${names[(i + 1) % k]};` )
@@ -200,8 +201,9 @@ describe('actions over an action-labelled ring', () => {
 
             // exactly one action is available here
             expect(machine.actions()).toEqual([actions[here]]);
-            actions.forEach( (act, i) =>
-              expect(machine.valid_action(act)).toBe(i === here) );
+            for (const [i, act] of actions.entries()) {
+              expect(machine.valid_action(act)).toBe(i === here);
+            }
 
             // the wrong action is refused without moving
             const wrong = actions[(here + 1) % k];
@@ -252,9 +254,9 @@ describe('actions over an action-labelled ring', () => {
           const { names, actions, fsl } = action_ring(k);
           const machine                 = jssm.from(fsl);
 
-          actions.forEach( (act, i) => {
+          for (const [i, act] of actions.entries()) {
             expect(machine.list_states_having_action(act)).toEqual([names[i]]);
-          });
+          }
 
           expect(machine.list_exit_actions(names[0])).toEqual([actions[0]]);
 
@@ -300,7 +302,7 @@ describe('probabilistic walks over ring plans', () => {
 
           expect(walk.length).toBe(n + 1);
           expect(walk[0]).toBe(names[0]);
-          expect(walk[walk.length - 1]).toBe(machine.state());
+          expect(walk.at(-1)).toBe(machine.state());
 
           for (let i = 0; i + 1 < walk.length; ++i) {
             expect(declared.has(`${walk[i]}|${walk[i + 1]}`)).toBe(true);
@@ -401,7 +403,7 @@ describe('probability-weighted branching', () => {
           const exits   = machine.probable_exits_for('aa');
 
           expect(exits.length).toBe(2);
-          expect(exits.map( e => e.to ).sort()).toEqual(['bb', 'cc']);
+          expect(exits.map( e => e.to ).sort(code_unit_compare)).toEqual(['bb', 'cc']);
           expect(machine.probabilistic_transition()).toBe(true);
 
         }

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 /**
  * Parse-level grammar tests for the "Overlapping State Groups" feature

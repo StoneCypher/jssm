@@ -3,11 +3,16 @@
 // the component can wire a "load into editor" button.
 /** Parse a fenced-code info string like `fsl {teaches: x, run: true}`. */
 export function parseFenceInfo(info) {
-    var _a, _b;
-    const m = /^(\S+)\s*(?:\{([^}]*)\})?/.exec(info.trim());
-    const lang = (_a = m === null || m === void 0 ? void 0 : m[1]) !== null && _a !== void 0 ? _a : '';
+    var _a, _b, _c;
+    // Two-step scan (first token, then an optional immediately-following {...}
+    // block) rather than one regex, so no quantifier ambiguity exists between
+    // the token and the brace block (regexp/no-super-linear-backtracking).
+    const trimmed = info.trim();
+    const lang = (_b = (_a = /^\S+/.exec(trimmed)) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : '';
+    const braced = /^\{([^}]*)\}/.exec(trimmed.slice(lang.length).trimStart());
     const attrs = {};
-    for (const pair of ((_b = m === null || m === void 0 ? void 0 : m[2]) !== null && _b !== void 0 ? _b : '').split(',')) {
+    const pairs = ((_c = braced === null || braced === void 0 ? void 0 : braced[1]) !== null && _c !== void 0 ? _c : '').split(',');
+    for (const pair of pairs) {
         const kv = pair.split(':');
         if (kv.length < 2) {
             continue;
@@ -15,7 +20,7 @@ export function parseFenceInfo(info) {
         const k = kv[0].trim();
         const raw = kv.slice(1).join(':').trim();
         if (k) {
-            attrs[k] = raw === 'true' ? true : raw === 'false' ? false : raw;
+            attrs[k] = raw === 'true' ? true : (raw === 'false' ? false : raw);
         }
     }
     return { lang, attrs };
@@ -38,7 +43,31 @@ export const FSL_COLOR_KEYS = new Set([
     'color', 'text-color', 'background-color', 'border-color', 'edge-color',
 ]);
 /** Whether `text` is a bare FSL identifier (so it can be an attribute key). */
-const isIdentifier = (text) => /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text);
+const isIdentifier = (text) => /^[A-Z_][\w-]*$/i.test(text);
+/**
+ * Retro-tag the identifier token immediately preceding a `:` as an attribute
+ * `key` (skipping whitespace runs; keywords keep their class). Returns whether
+ * that key is a color key, i.e. whether the next value token should be tagged
+ * `color`. Extracted from the `tokenizeFsl` scanner loop.
+ * @param toks - The token list built so far; mutated in place.
+ * @returns `true` when the tagged key is one of {@link FSL_COLOR_KEYS}.
+ * @see tokenizeFsl
+ */
+function tagKeyBeforeColon(toks) {
+    for (let j = toks.length - 1; j >= 0; j--) {
+        if (/^\s+$/.test(toks[j].text)) {
+            continue;
+        } // skip whitespace before the colon
+        if (toks[j].cls === null && isIdentifier(toks[j].text)) {
+            toks[j].cls = 'key';
+            if (FSL_COLOR_KEYS.has(toks[j].text)) {
+                return true;
+            }
+        }
+        break; // only the immediately-preceding token
+    }
+    return false;
+}
 /**
  * Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,
  * regex-driven scanner — never parses, so it cannot throw on malformed input.
@@ -49,23 +78,20 @@ const isIdentifier = (text) => /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text);
  * unless it is already a `keyword`), and the value token after a color key's
  * colon — or any hex literal — is tagged `color`. The context never spans a
  * `;`, so a value can't leak past its statement.
- *
  * @example
  *   tokenizeFsl('s : { background-color: pink; }')
  *     .filter(t => t.cls).map(t => [t.cls, t.text]);
  *   // includes ['key','background-color'] and ['color','pink']
  */
 export function tokenizeFsl(src) {
+    var _a;
     const toks = [];
     let p = 0;
     let expectColorValue = false; // the next value token is the value of a color key
     while (p < src.length) {
         const rest = src.slice(p);
         let m;
-        if ((m = /^\/\/[^\n]*/.exec(rest))) {
-            toks.push({ cls: 'comment', text: m[0] });
-        }
-        else if ((m = /^\/\*[\s\S]*?\*\//.exec(rest))) {
+        if ((_a = (m = /^\/\/[^\n]*/.exec(rest))) !== null && _a !== void 0 ? _a : (m = /^\/\*[\s\S]*?\*\//.exec(rest))) {
             toks.push({ cls: 'comment', text: m[0] });
         }
         else if ((m = /^"[^"]*"/.exec(rest))) {
@@ -77,14 +103,14 @@ export function tokenizeFsl(src) {
         else if ((m = /^(?:<?[-=~]+>|[←→↔⇒⇐⇔↦])/.exec(rest))) {
             toks.push({ cls: 'arrow', text: m[0] });
         }
-        else if ((m = /^#[0-9A-Fa-f]{3,8}\b/.exec(rest))) {
+        else if ((m = /^#[0-9A-F]{3,8}\b/i.exec(rest))) {
             toks.push({ cls: 'color', text: m[0] });
             expectColorValue = false;
         }
         else if ((m = /^\d+(?:\.\d+)*%?/.exec(rest))) {
             toks.push({ cls: 'number', text: m[0] });
         }
-        else if ((m = /^[A-Za-z_][A-Za-z0-9_-]*/.exec(rest))) {
+        else if ((m = /^[A-Z_][\w-]*/i.exec(rest))) {
             const id = m[0];
             const cls = FSL_KEYWORDS.has(id) ? 'keyword' : (expectColorValue ? 'color' : null);
             expectColorValue = false; // any identifier consumes the pending value slot
@@ -93,17 +119,8 @@ export function tokenizeFsl(src) {
         else {
             const ch = src[p];
             if (ch === ':') {
-                for (let j = toks.length - 1; j >= 0; j--) {
-                    if (/^\s+$/.test(toks[j].text)) {
-                        continue;
-                    } // skip whitespace before the colon
-                    if (toks[j].cls === null && isIdentifier(toks[j].text)) {
-                        toks[j].cls = 'key';
-                        if (FSL_COLOR_KEYS.has(toks[j].text)) {
-                            expectColorValue = true;
-                        }
-                    }
-                    break; // only the immediately-preceding token
+                if (tagKeyBeforeColon(toks)) {
+                    expectColorValue = true;
                 }
             }
             else if (ch === ';') {
@@ -154,7 +171,7 @@ export function renderMarkdown(md) {
             const { lang, attrs } = parseFenceInfo(fence[1]);
             const buf = [];
             i++;
-            while (i < lines.length && !/^```/.test(lines[i])) {
+            while (i < lines.length && !lines[i].startsWith('```')) {
                 buf.push(lines[i]);
                 i++;
             }
@@ -170,13 +187,16 @@ export function renderMarkdown(md) {
             }
             continue;
         }
-        const head = /^(#{1,3})\s+(.*)$/.exec(line);
+        // `(\S.*|)` (not `.*`) so the heading-text capture cannot trade characters
+        // with the preceding `\s+` (regexp/no-super-linear-backtracking); the empty
+        // alternative keeps the group defined for text-free headings, as before.
+        const head = /^(#{1,3})\s+(\S.*|)$/.exec(line);
         if (head) {
             out.push(`<h${head[1].length}>${inline(head[2])}</h${head[1].length}>`);
             i++;
             continue;
         }
-        if (/^---+\s*$/.test(line)) {
+        if (/^-{3,}\s*$/.test(line)) {
             out.push('<hr>');
             i++;
             continue;
@@ -204,7 +224,7 @@ export function renderMarkdown(md) {
             continue;
         }
         const para = [];
-        while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,3}\s|```|\s*[-*]\s|\s*\d+\.\s|---+\s*$)/.test(lines[i])) {
+        while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(?:#{1,3}\s|```|\s*[-*]\s|\s*\d+\.\s|-{3,}\s*$)/.test(lines[i])) {
             para.push(lines[i]);
             i++;
         }

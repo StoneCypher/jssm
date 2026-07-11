@@ -20,7 +20,6 @@ import type { Diagnostic } from './types.js';
 /**
  * Parse then compile `text`, returning a list of diagnostics — empty when the
  * machine parses and compiles cleanly.
- *
  * @example
  *   fslDiagnostics('a -> b;');            // => []
  *   fslDiagnostics('a -> ;')[0].severity; // => 'error'

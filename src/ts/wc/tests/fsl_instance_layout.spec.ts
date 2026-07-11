@@ -14,17 +14,17 @@ async function mount(fsl: string, layout?: string): Promise<FslInstance> {
   const el = document.createElement('fsl-instance') as FslInstance;
   el.setAttribute('fsl', fsl);
   if (layout) { el.setAttribute('layout', layout); }
-  document.body.appendChild(el);
+  document.body.append(el);
   await el.updateComplete;
   return el;
 }
 
 function mode(el: FslInstance): string | null {
-  return el.shadowRoot!.querySelector('.workbench')?.getAttribute('data-mode') ?? null;
+  return el.shadowRoot!.querySelector('.workbench')?.dataset.mode ?? null;
 }
 
 // jsdom defaults to 1024x768 (landscape); restore it after tests that resize.
-afterEach(() => { (window as { innerWidth: number }).innerWidth = 1024; (window as { innerHeight: number }).innerHeight = 768; });
+afterEach(() => { (globalThis as { innerWidth: number }).innerWidth = 1024; (globalThis as { innerHeight: number }).innerHeight = 768; });
 
 describe('split_ratio', () => {
   it('returns the percent of a coordinate within the container', () => {
@@ -78,12 +78,14 @@ describe('fsl-instance layout modes', () => {
     expect(root.querySelector('.pane.viz')!.hasAttribute('hidden')).toBe(false);
     expect(root.querySelector('.pane.editor')!.hasAttribute('hidden')).toBe(true);
 
+    // eslint-disable-next-line unicorn/prefer-scoped-selector -- jsdom (nwsapi) does not match `:scope` inside a ShadowRoot; prefixing returns nothing and changes behavior
     (root.querySelectorAll('.tabbar button')[1] as HTMLButtonElement).click();   // "Code"
     await el.updateComplete;
     expect(root.querySelector('.pane.editor')!.hasAttribute('hidden')).toBe(false);
     expect(root.querySelector('.pane.viz')!.hasAttribute('hidden')).toBe(true);
 
-    (root.querySelectorAll('.tabbar button')[0] as HTMLButtonElement).click();   // back to "Graph"
+    // eslint-disable-next-line unicorn/prefer-scoped-selector -- jsdom (nwsapi) does not match `:scope` inside a ShadowRoot; prefixing returns nothing and changes behavior
+    (root.querySelector('.tabbar button') as HTMLButtonElement).click();   // back to "Graph"
     await el.updateComplete;
     expect(root.querySelector('.pane.viz')!.hasAttribute('hidden')).toBe(false);
     expect(root.querySelector('.pane.editor')!.hasAttribute('hidden')).toBe(true);
@@ -117,6 +119,7 @@ describe('fsl-instance layout modes', () => {
     document.dispatchEvent(ptr('pointermove', 0, 40));
     document.dispatchEvent(ptr('pointerup'));
     await el.updateComplete;
+    expect(mode(el)).toBe('tb');
     el.remove();
   });
 
@@ -124,23 +127,23 @@ describe('fsl-instance layout modes', () => {
     const el = await mount('A -> B;', 'auto');
     expect(mode(el)).toBe('lr');                         // 1024x768 → side-by-side
 
-    (window as { innerWidth: number }).innerWidth = 500;
-    (window as { innerHeight: number }).innerHeight = 900;
-    window.dispatchEvent(new Event('resize'));
+    (globalThis as { innerWidth: number }).innerWidth = 500;
+    (globalThis as { innerHeight: number }).innerHeight = 900;
+    dispatchEvent(new Event('resize'));
     await el.updateComplete;
     expect(mode(el)).toBe('tb');                         // tall → stacked
 
     el.setAttribute('layout', 'lr');                     // leaving auto removes the listener
     await el.updateComplete;
     expect(mode(el)).toBe('lr');
-    window.dispatchEvent(new Event('resize'));           // now a no-op
+    dispatchEvent(new Event('resize'));           // now a no-op
     el.remove();
   });
 
   it('removes the auto resize listener on disconnect', async () => {
     const el = await mount('A -> B;', 'auto');
     el.remove();                                          // disconnect while still auto
-    window.dispatchEvent(new Event('resize'));            // must not throw / touch the detached el
+    dispatchEvent(new Event('resize'));            // must not throw / touch the detached el
     expect(el.isConnected).toBe(false);
   });
 });

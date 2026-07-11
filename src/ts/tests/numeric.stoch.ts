@@ -37,10 +37,8 @@ const RUNS = 100;
  *  `default_value` field.  Used by the JsNumericLiteral group of
  *  tests because PropertyVal is the only top-level grammar surface
  *  that accepts the full numeric vocabulary.
- *
  *  @param  literal  FSL source text of a single numeric literal.
  *  @returns         The parsed `default_value` (number, null, etc.).
- *
  *  @example
  *    parse_prop_default('42')      // → 42
  *    parse_prop_default('0xFF')    // → 255
@@ -59,7 +57,6 @@ function parse_prop_default(literal: string): unknown {
 /**
  *  Parse `a <n>% -> b;` and return the AST's `r_probability` field
  *  from the resulting transition.
- *
  *  @param  n  Numeric literal as a number or pre-formatted string.
  *  @returns   The parsed probability value.
  */
@@ -76,7 +73,6 @@ function parse_probability(n: number | string): unknown {
  *  Parse `a after <n>[ <unit>] -> b;` and return the AST's `r_after`
  *  field from the resulting transition.  When `unit` is omitted, the
  *  grammar treats the bare number as seconds (×1000 into the AST).
- *
  *  @param  n     Numeric literal as a number or pre-formatted string.
  *  @param  unit  Optional time-unit suffix (ms, s, min, h, day, week, etc.).
  *  @returns      The parsed duration value (milliseconds).
@@ -94,7 +90,6 @@ function parse_after(n: number | string, unit?: string): unknown {
 /**
  *  Parse `fsl_version: <major>.<minor>.<patch>;` and return the
  *  AST's SemVer value object.
- *
  *  @param  major  Major version component (non-negative integer).
  *  @param  minor  Minor version component (non-negative integer).
  *  @param  patch  Patch version component (non-negative integer).
@@ -117,7 +112,7 @@ describe('Hexadecimal integer parsing (0x / 0X prefix)', () => {
 
      fc.assert(
        fc.property(
-         fc.integer({ min: 0, max: 0x7fffffff }),
+         fc.integer({ min: 0, max: 0x7F_FF_FF_FF }),
          fc.boolean(),   // false = "0x" lowercase prefix; true = "0X" uppercase prefix
          (n, upper_prefix) => {
            const literal = (upper_prefix ? '0X' : '0x') + n.toString(16);
@@ -135,7 +130,7 @@ describe('Hexadecimal integer parsing (0x / 0X prefix)', () => {
      expect(parse_prop_default('0xff')).toBe(255);
      expect(parse_prop_default('0Xff')).toBe(255);
      expect(parse_prop_default('0XFF')).toBe(255);
-     expect(parse_prop_default('0xAbCdEf')).toBe(0xabcdef);
+     expect(parse_prop_default('0xAbCdEf')).toBe(0xAB_CD_EF);
 
   });
 
@@ -151,7 +146,7 @@ describe('Octal integer parsing (0o / 0O prefix)', () => {
 
      fc.assert(
        fc.property(
-         fc.integer({ min: 0, max: 0o7777777 }),
+         fc.integer({ min: 0, max: 0o777_7777 }),
          fc.boolean(),
          (n, upper_prefix) => {
            const literal = (upper_prefix ? '0O' : '0o') + n.toString(8);
@@ -188,7 +183,7 @@ describe('Binary integer parsing (0b / 0B prefix)', () => {
 
      fc.assert(
        fc.property(
-         fc.integer({ min: 0, max: 0xffffff }),
+         fc.integer({ min: 0, max: 0xFF_FF_FF }),
          fc.boolean(),
          (n, upper_prefix) => {
            const literal = (upper_prefix ? '0B' : '0b') + n.toString(2);
@@ -285,7 +280,7 @@ describe('Word-form numeric constants (finite values)', () => {
   test('Phi and its aliases all return the golden ratio', () => {
 
      for (const alias of ['Phi', '𝜑', '𝜙', 'ϕ', 'φ']) {
-       expect(parse_prop_default(alias)).toBeCloseTo(1.6180339887498948);
+       expect(parse_prop_default(alias)).toBeCloseTo(1.618033988749895);
      }
 
   });
@@ -392,7 +387,7 @@ describe('ArrowProbability (NonNegNumber as percent)', () => {
          fc.integer({ min: 0, max: 10_000 }),  // x.xx with 2 decimal places
          (n) => {
            const literal = (n / 100).toFixed(2);
-           expect(parse_probability(literal)).toBeCloseTo(parseFloat(literal));
+           expect(parse_probability(literal)).toBeCloseTo(Number(literal));
          }
        ),
        { numRuns: RUNS }

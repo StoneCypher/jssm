@@ -289,7 +289,7 @@ describe('machine_comment', () => {
 describe('machine_definition', () => {
 
   test('url', () =>
-    expect( () => { const _foo = sm`machine_definition: http://google.com/ ; a->b;`; })
+    expect( () => { const _foo = sm`machine_definition: https://google.com/ ; a->b;`; })
       .not.toThrow() );
 
   test('url botched', () =>
@@ -297,8 +297,8 @@ describe('machine_definition', () => {
       .toThrow() );
 
   test('retval correct', () =>
-    expect(sm`machine_definition: http://google.com/ ; a->b;`.machine_definition() )
-      .toBe("http://google.com/") );
+    expect(sm`machine_definition: https://google.com/ ; a->b;`.machine_definition() )
+      .toBe("https://google.com/") );
 
 });
 

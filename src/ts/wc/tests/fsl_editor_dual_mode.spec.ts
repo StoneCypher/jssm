@@ -15,8 +15,8 @@ describe('<fsl-editor> dual-mode (bound to <fsl-instance>)', () => {
     host.setAttribute('fsl', "A 'go' -> B;");
     const ed = document.createElement('fsl-editor') as FslEditor;
     ed.setAttribute('slot', 'editor');
-    host.appendChild(ed);
-    document.body.appendChild(host);
+    host.append(ed);
+    document.body.append(host);
     await host.updateComplete;
     await ed.updateComplete;
 
@@ -36,9 +36,9 @@ describe('<fsl-editor> dual-mode (bound to <fsl-instance>)', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     const ed = document.createElement('fsl-editor') as FslEditor;
     ed.setAttribute('slot', 'editor');
-    host.appendChild(ed);
-    host.appendChild(document.createTextNode("M 'go' -> N;"));   // host builds from text content
-    document.body.appendChild(host);
+    host.append(ed);
+    host.append(document.createTextNode("M 'go' -> N;"));   // host builds from text content
+    document.body.append(host);
     await host.updateComplete;
     await ed.updateComplete;
 

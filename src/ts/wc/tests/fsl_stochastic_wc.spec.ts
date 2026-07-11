@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; panel: FslSto
   host.setAttribute('fsl', fsl);
   const panel = document.createElement('fsl-stochastic') as FslStochastic;
   panel.setAttribute('slot', 'stochastic');
-  host.appendChild(panel);
-  document.body.appendChild(host);
+  host.append(panel);
+  document.body.append(host);
   await host.updateComplete;
   await panel.updateComplete;
   return { host, panel };
@@ -22,7 +22,7 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; panel: FslSto
 
 async function withStandalone(): Promise<FslStochastic> {
   const panel = document.createElement('fsl-stochastic') as FslStochastic;
-  document.body.appendChild(panel);
+  document.body.append(panel);
   await panel.updateComplete;
   return panel;
 }
@@ -31,7 +31,7 @@ describe('<fsl-stochastic>', () => {
 
   it('disables Run when standalone (no host)', async () => {
     const panel = document.createElement('fsl-stochastic') as FslStochastic;
-    document.body.appendChild(panel);
+    document.body.append(panel);
     await panel.updateComplete;
     const run = panel.shadowRoot!.querySelector<HTMLButtonElement>('.run')!;
     expect(run.disabled).toBe(true);
@@ -86,7 +86,7 @@ describe('<fsl-stochastic>', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', `editor: { panels: [stochastic]; }; a 'go' -> b;`);
     host.setAttribute('panel-mode', 'request');
-    document.body.appendChild(host);
+    document.body.append(host);
     await host.updateComplete;
     const section = host.shadowRoot!.querySelector('.stochastic') as HTMLElement;
     expect(section).not.toBeNull();
@@ -96,7 +96,7 @@ describe('<fsl-stochastic>', () => {
   it('host hides the stochastic slot by default when not requested', async () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', `a 'go' -> b;`);
-    document.body.appendChild(host);
+    document.body.append(host);
     await host.updateComplete;
     const section = host.shadowRoot!.querySelector('.stochastic') as HTMLElement;
     expect(section).not.toBeNull();
@@ -168,7 +168,7 @@ describe('<fsl-stochastic>', () => {
   it('play() uses synchronous fallback when requestAnimationFrame is absent', async () => {
     // Covers the else branch of schedule() at line 136 (fn() direct call)
     const { panel } = await withHost(`a 'go' -> b 'go' -> c;`);
-    const origRaf = (globalThis as any).requestAnimationFrame;
+    const origRaf = requestAnimationFrame;
     (globalThis as any).requestAnimationFrame = undefined;
     try {
       panel.runs = 5;
@@ -198,7 +198,7 @@ describe('<fsl-stochastic>', () => {
     panel.runs = 200;
 
     const pending: Array<(t: number) => void> = [];
-    const origRaf = (globalThis as any).requestAnimationFrame;
+    const origRaf = requestAnimationFrame;
     (globalThis as any).requestAnimationFrame = (fn: (t: number) => void) => { pending.push(fn); return 0; };
 
     try {
@@ -253,7 +253,7 @@ describe('<fsl-stochastic>', () => {
     // Covers line 200 else branch: void this.play()
     // Use synchronous fallback so play() completes immediately inside _togglePlay
     const { panel } = await withHost(`a 'go' -> b 'go' -> c;`);
-    const origRaf = (globalThis as any).requestAnimationFrame;
+    const origRaf = requestAnimationFrame;
     (globalThis as any).requestAnimationFrame = undefined;
     try {
       panel.runs = 5;

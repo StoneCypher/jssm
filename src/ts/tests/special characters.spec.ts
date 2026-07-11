@@ -12,10 +12,10 @@ import { sm } from '../jssm';
 // were once disabled; the parser itself has always accepted these characters
 // (see grammar rule `Unescaped = [\x00-\x21...]`, which includes \t \n \v \r).
 const SpecialCharacters: ReadonlyArray<readonly [string, string]> = [
-  ['tab (\\t)',             '\t'],
-  ['newline (\\n)',         '\n'],
-  ['vertical tab (\\v)',    '\v'],
-  ['carriage return (\\r)', '\r']
+  [String.raw`tab (\t)`,             '\t'],
+  [String.raw`newline (\n)`,         '\n'],
+  [String.raw`vertical tab (\v)`,    '\v'],
+  [String.raw`carriage return (\r)`, '\r']
 ];
 
 

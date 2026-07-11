@@ -10,7 +10,7 @@ async function make(open: boolean, heading?: string): Promise<FslHelp> {
   const el = document.createElement('fsl-help') as FslHelp;
   el.open = open;
   if (heading !== undefined) { el.heading = heading; }
-  document.body.appendChild(el);
+  document.body.append(el);
   await el.updateComplete;
   return el;
 }

@@ -20,7 +20,6 @@ export interface RawHookContext {
  * `<jssm-hook kind="...">`.  Mirrors jssm's pre-transition hook kinds;
  * post-transition and "everything" variants are intentionally left out of
  * v1 of the declarative tag.
- *
  * @see {@link Machine.set_hook}
  */
 export type FslHookKind =
@@ -65,7 +64,6 @@ const VALID_KINDS: ReadonlySet<string> = new Set<FslHookKind>([
  * defers to the underlying machine rather than reading a snapshot so it
  * works inside `entry`/`exit` hooks where `from`/`to` differ from the
  * machine's stored `_state` at hook time.
- *
  * @example
  *   function incr(m) {
  *     m.data = (m.data ?? 0) + 1;
@@ -114,7 +112,6 @@ export type JssmHookRegistry = FslHookRegistry;
  *
  * The `machine` parameter is used only for `state()`, so unit tests can
  * substitute any object with a `state(): unknown` method.
- *
  * @param ctx     - Raw hook context passed by jssm.
  * @param machine - The owning machine; used for the `state()` accessor.
  * @returns A proxy object suitable for passing to a user handler.
@@ -126,7 +123,7 @@ export function make_hook_proxy<TData = unknown>(
 
   return {
     get data(): TData {
-      return ctx.data as TData;
+      return ctx.data;
     },
     set data(next: TData) {
       ctx.data = next;
@@ -141,6 +138,7 @@ export function make_hook_proxy<TData = unknown>(
       return ctx.action;
     },
     state(): string {
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string -- `machine` is deliberately duck-typed `state(): unknown` so tests can stub it (see docblock); real machines return string, and String() is the documented normalization
       return String(machine.state());
     },
   };
@@ -157,7 +155,6 @@ export function make_hook_proxy<TData = unknown>(
  *
  * Prepends a `//# sourceURL=` comment so devtools surface a meaningful name
  * in stack traces instead of `anonymous`.
- *
  * @param body     - Trimmed textContent of the `<jssm-hook>` element.
  * @param debug_id - Identifier appended to the synthetic sourceURL.
  * @returns The compiled handler.
@@ -177,7 +174,6 @@ export function compile_inline_body<TData = unknown>(
  * Resolve a `handler="name"` attribute to a callable by consulting first the
  * optional in-WC registry, then `globalThis[name]`.  Throws a clear error if
  * neither resolves.
- *
  * @param name     - The handler name from the `handler=""` attribute.
  * @param registry - Optional in-WC registry to consult first.
  * @returns The resolved handler.
@@ -191,7 +187,7 @@ export function resolve_named_handler<TData = unknown>(
   if (registry !== undefined) {
     const registered = registry.get(name);
     if (registered !== undefined) {
-      return registered as FslHookUserHandler<TData>;
+      return registered;
     }
   }
 
@@ -210,14 +206,13 @@ export function resolve_named_handler<TData = unknown>(
  * Validate and normalize a `<jssm-hook kind="...">` value, defaulting to
  * `"hook"` when the attribute is absent.  Throws on unknown kinds rather
  * than silently doing nothing later.
- *
  * @param raw - The raw attribute value, or null if not present.
  * @returns The normalized {@link JssmHookKind}.
  * @throws Error - On an unknown kind.
  */
 export function normalize_hook_kind(raw: string | null | undefined): FslHookKind {
 
-  if (raw === null || raw === undefined || raw === '') {
+  if (!raw) {   // null, undefined, and '' — the only falsy values of this type
     return 'hook';
   }
 
@@ -262,7 +257,6 @@ export type JssmHookInstallSpec = FslHookInstallSpec;
  * `from`/`to` for `kind="hook"`) are NOT validated here — `set_hook` will
  * throw with its own clear errors on missing pieces, which keeps the
  * error surface single-sourced.
- *
  * @param el       - The `<jssm-hook>` element to parse.
  * @param debug_id - Identifier used in the inline body's sourceURL.
  * @param registry - Optional in-WC registry of named handlers.
@@ -291,9 +285,9 @@ export function parse_hook_element(
     );
   }
 
-  const user_handler: FslHookUserHandler<unknown> = handler_attr !== null
-    ? resolve_named_handler(handler_attr, registry)
-    : compile_inline_body(body_text, debug_id);
+  const user_handler: FslHookUserHandler<unknown> = handler_attr === null
+    ? compile_inline_body(body_text, debug_id)
+    : resolve_named_handler(handler_attr, registry);
 
   const kind = normalize_hook_kind(el.getAttribute('kind'));
 
@@ -316,7 +310,6 @@ export function parse_hook_element(
  * Any non-`false` return — including `undefined`, `true`, or an arbitrary
  * object — allows the transition.  This matches the contract spelled out
  * in the issue (#641): "return false cancels; anything else allows".
- *
  * @param spec    - The parsed install spec carrying the user handler.
  * @param machine - The owning machine; used by the proxy's `state()`.
  * @returns A wrapped handler suitable for `set_hook`.
@@ -354,7 +347,6 @@ export function wrap_user_handler(
  * Return type is `unknown` because jssm's `HookDescription` is a
  * discriminated union and our runtime-discriminator value can't be tracked
  * by TypeScript across the build.  The WC casts at the `set_hook` call site.
- *
  * @param spec    - The parsed install spec.
  * @param wrapped - The wrapped (friendly-proxy) handler from {@link wrap_user_handler}.
  * @returns A descriptor object for `set_hook`/`remove_hook`.

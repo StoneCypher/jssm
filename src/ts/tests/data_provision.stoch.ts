@@ -30,7 +30,7 @@ const value_arb = fc.oneof(
   fc.constant(false),
   fc.constant(0),
   fc.constant(''),
-  fc.constant(Number.NaN),
+  fc.constant(NaN),
   fc.integer(),
   fc.string(),
   fc.double(),
