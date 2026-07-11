@@ -3,7 +3,6 @@
  * module. Re-exports every chrome/panel widget class so a bundler consumer can
  * `import { FslToolbar, … } from 'jssm/wc/widgets'`. For tag registration use
  * the sibling `widgets.define` entry (or the per-widget `*.define` modules).
- *
  * @see FslToolbar
  */
 export { FslToolbar } from './fsl_toolbar_wc.js';

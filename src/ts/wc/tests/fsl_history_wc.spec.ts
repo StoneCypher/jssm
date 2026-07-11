@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; hist: FslHist
   host.setAttribute('fsl', fsl);
   const hist = document.createElement('fsl-history') as FslHistory;
   hist.setAttribute('slot', 'history');
-  host.appendChild(hist);
-  document.body.appendChild(host);
+  host.append(hist);
+  document.body.append(host);
   await host.updateComplete;
   await hist.updateComplete;
   return { host, hist };
@@ -46,7 +46,7 @@ describe('<fsl-history>', () => {
 
   it('renders empty when standalone (no fsl-instance ancestor)', async () => {
     const hist = document.createElement('fsl-history') as FslHistory;
-    document.body.appendChild(hist);
+    document.body.append(hist);
     await hist.updateComplete;
     expect(hist.shadowRoot!.querySelector('.empty')).not.toBeNull();
     hist.remove();

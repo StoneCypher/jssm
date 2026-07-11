@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -12,6 +12,7 @@ describe('stripe strategies', () => {
 
 
   const is_v = (str, v) =>
+    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
     test(str, () =>
       expect( jssm.parse(str) ).toEqual(v)
     );

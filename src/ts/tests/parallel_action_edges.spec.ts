@@ -1,5 +1,8 @@
 
 import * as jssm from '../jssm';
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 const sm = jssm.sm;
 
 
@@ -36,12 +39,12 @@ describe('parallel action edges (#325, #531)', () => {
   });
 
   test('list_exit_actions reports both actions', () =>
-    expect(sm`a 'f' -> c; a 'g' -> c;`.list_exit_actions('a').sort()).toEqual(['f', 'g']) );
+    expect(sm`a 'f' -> c; a 'g' -> c;`.list_exit_actions('a').sort(code_unit_compare)).toEqual(['f', 'g']) );
 
   test('edges_between returns both parallel edges', () => {
     const between = sm`a 'f' -> c; a 'g' -> c;`.edges_between('a', 'c');
     expect(between.length).toBe(2);
-    expect(between.map(e => e.action).sort()).toEqual(['f', 'g']);
+    expect(between.map(e => e.action).sort(code_unit_compare)).toEqual(['f', 'g']);
   });
 
   test('lookup_transition_for resolves to the first-declared edge', () =>

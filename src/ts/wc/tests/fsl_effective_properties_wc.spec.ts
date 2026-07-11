@@ -16,8 +16,8 @@ function mount_with_host(fsl: string): { host: FslInstance; panel: FslEffectiveP
   const host  = document.createElement('fsl-instance') as FslInstance;
   host.setAttribute('fsl', fsl);
   const panel = document.createElement('fsl-effective-properties') as FslEffectiveProperties;
-  host.appendChild(panel);
-  document.body.appendChild(host);
+  host.append(panel);
+  document.body.append(host);
   return { host, panel };
 }
 
@@ -43,7 +43,7 @@ describe('FslEffectiveProperties display', () => {
     const text = panel.shadowRoot!.textContent!;
     expect(text).toContain('color');
     expect(text).toContain('grey');   // default resolves at state 'a'
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('re-resolves through the override chain after a transition', async () => {
@@ -56,56 +56,56 @@ describe('FslEffectiveProperties display', () => {
     const text = panel.shadowRoot!.textContent!;
     expect(text).toContain('blue');
     expect(text).not.toContain('grey');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('shows an empty-state message when the machine declares no properties', async () => {
     const { host, panel } = mount_with_host("a 'go' -> b;");
     await settle(panel);
     expect(panel.shadowRoot!.textContent!.toLowerCase()).toContain('no properties');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('renders a placeholder when there is no parent fsl-instance host', async () => {
     const panel = document.createElement('fsl-effective-properties') as FslEffectiveProperties;
-    document.body.appendChild(panel);
+    document.body.append(panel);
     await settle(panel);
     expect(panel.shadowRoot!.textContent!.toLowerCase()).toContain('no fsl-instance');
-    document.body.removeChild(panel);
+    panel.remove();
   });
 
   it('releases its machine subscription on disconnect', async () => {
     const { host, panel } = mount_with_host(COLOR_FSL);
     await settle(panel);
 
-    host.removeChild(panel);
+    panel.remove();
     host.do('go');                     // host moves to b (blue)
     await settle(panel);
 
     // Detached before the transition: still shows grey, not blue.
     expect(panel.shadowRoot!.textContent).toContain('grey');
     expect(panel.shadowRoot!.textContent).not.toContain('blue');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('does not bind if disconnected before the whenDefined microtask resolves', async () => {
     const { host, panel } = mount_with_host(COLOR_FSL);
-    host.removeChild(panel);
+    panel.remove();
     await settle(panel);
     expect(panel.shadowRoot!.textContent!.toLowerCase()).toContain('no fsl-instance');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('binds to a jssm-instance host too (closest_wc matches both prefixes)', async () => {
     const host  = document.createElement('jssm-instance') as FslInstance;
     host.setAttribute('fsl', COLOR_FSL);
     const panel = document.createElement('fsl-effective-properties') as FslEffectiveProperties;
-    host.appendChild(panel);
-    document.body.appendChild(host);
+    host.append(panel);
+    document.body.append(host);
     await settle(panel);
 
     expect(panel.shadowRoot!.textContent).toContain('grey');
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });

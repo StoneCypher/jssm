@@ -44,7 +44,7 @@ function collectBundleSizes(files, readFile = require('fs').readFileSync) {
   const out  = {};
   for (const file of files) {
     let buf;
-    try { buf = readFile(file); } catch (e) { continue; }
+    try { buf = readFile(file); } catch { continue; }
     out[path.basename(file)] = measureBundle(buf);
   }
   return out;

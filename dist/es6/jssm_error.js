@@ -32,17 +32,15 @@ class JssmError extends Error {
             ? { requested_state: undefined, source_location: undefined }
             : JEEI;
         const follow_ups = [];
-        if (machine) {
-            if (machine.state() !== undefined) {
-                follow_ups.push(`at "${machine.state()}"`);
-            }
+        if (machine && machine.state() !== undefined) {
+            follow_ups.push(`at "${machine.state()}"`);
         }
         if (requested_state !== undefined) {
             follow_ups.push(`requested "${requested_state}"`);
         }
-        const complex_msg = `${((machine === null || machine === void 0 ? void 0 : machine.instance_name()) !== undefined)
-            ? `[[${machine.instance_name()}]]: `
-            : ''}${message}${follow_ups.length
+        const complex_msg = `${((machine === null || machine === void 0 ? void 0 : machine.instance_name()) === undefined)
+            ? ''
+            : `[[${machine.instance_name()}]]: `}${message}${follow_ups.length > 0
             ? ` (${follow_ups.join(', ')})`
             : ''}`;
         super(complex_msg);

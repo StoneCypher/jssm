@@ -1,8 +1,8 @@
 
 import * as fc from 'fast-check';
 
-import { promises as fs } from 'fs';
-import { join, basename } from 'path';
+import { promises as fs } from 'node:fs';
+import { join, basename } from 'node:path';
 
 import { cli } from '../cli/subcommands/render/plugin';
 
@@ -27,7 +27,9 @@ let scratch: string;
 
 beforeAll(async () => {
   await fs.mkdir('build', { recursive: true });
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- vitest beforeAll is the only place suite-scoped state can be initialized asynchronously
   scratch = await fs.mkdtemp(join('build', 'stoch-render-'));
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- vitest beforeAll is the only place suite-scoped state can be initialized asynchronously
   scratch = join(process.cwd(), scratch);
 });
 
@@ -39,7 +41,6 @@ afterAll(async () => {
 
 /**
  *  Captures a writable stream's output while `fn` runs.
- *
  *  @param stream  `process.stdout` or `process.stderr`.
  *  @param fn      The action to run while capturing.
  *  @returns       The action's result and captured text.
@@ -70,7 +71,6 @@ async function capturing<T>(
 
 /**
  *  Writes a fixture .fsl file into the scratch directory.
- *
  *  @param name     Base name without extension.
  *  @param content  FSL text.
  *  @returns        Absolute path to the file.
@@ -159,9 +159,11 @@ describe('single-input renders', () => {
 
           expect(result).toBe(0);
 
-          if (target === 'svg')  { expect(text).toContain('<svg'); }
-          if (target === 'dot')  { expect(text).toContain('digraph'); }
-          if (target === 'html') { expect(text).toContain('<!DOCTYPE html>'); }
+          switch (target) {
+            case 'svg':  { expect(text).toContain('<svg');            break; }
+            case 'dot':  { expect(text).toContain('digraph');         break; }
+            case 'html': { expect(text).toContain('<!DOCTYPE html>'); break; }
+          }
 
         }
       ),
@@ -182,7 +184,7 @@ describe('single-input renders', () => {
 
           expect(await cli([file, `--target=${target}`])).toBe(0);
 
-          const sibling = file.replace(/\.fsl$/, `.${target}`);
+          const sibling = file.replace(/\.fsl$/, () => `.${target}`);
           const written = await fs.readFile(sibling, 'utf8');
           expect(written.length).toBeGreaterThan(0);
 
@@ -259,8 +261,8 @@ describe('multi-input renders', () => {
           await fs.mkdir(out_dir, { recursive: true });
 
           const files: string[] = [];
-          for (let i = 0; i < goods.length; ++i) {
-            files.push(await fsl_fixture(`batch-${run_id}-${i}`, goods[i] ? GOOD_FSL : BAD_FSL));
+          for (const [i, good] of goods.entries()) {
+            files.push(await fsl_fixture(`batch-${run_id}-${i}`, good ? GOOD_FSL : BAD_FSL));
           }
 
           const { result } = await capturing(process.stderr, () => cli([...files, '--target=dot', '--out-dir', out_dir]));
@@ -268,12 +270,14 @@ describe('multi-input renders', () => {
           const any_bad = goods.some( g => !g );
           expect(result).toBe(any_bad ? 1 : 0);
 
-          for (let i = 0; i < goods.length; ++i) {
+          for (const [i, good] of goods.entries()) {
 
             const expected_out = join(out_dir, `batch-${run_id}-${i}.dot`);
-            const exists = await fs.access(expected_out).then( () => true, () => false );
 
-            expect(exists).toBe(goods[i]);   // good inputs land, bad ones leave nothing
+            let exists = true;
+            try { await fs.access(expected_out); } catch { exists = false; }
+
+            expect(exists).toBe(good);   // good inputs land, bad ones leave nothing
 
           }
 

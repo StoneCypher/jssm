@@ -25,7 +25,6 @@ import { reorder_svg_layers } from './svg_layers.js';
  * normalize_viz_error('bare string failure');
  * // => { message: 'bare string failure', location: undefined }
  * ```
- *
  * @param e The thrown value to normalize.
  * @returns A `{ message, location }` object suitable for use as the
  * `detail` of a `viz-error` `CustomEvent`.
@@ -36,9 +35,11 @@ export function normalize_viz_error(e) {
         const raw_message = rec.message;
         const message = (typeof raw_message === 'string' && raw_message.length > 0)
             ? raw_message
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string -- intentional last-resort coercion: Error/JssmError throws stringify meaningfully, and '[object Object]' is the accepted fallback for exotic message-less objects
             : String(e);
         return { message, location: rec.location };
     }
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- unreachable for objects: the typeof-object branch above returns, so `e` is a primitive (or function) here and String() is meaningful
     return { message: String(e), location: undefined };
 }
 /**
@@ -54,7 +55,6 @@ export function normalize_viz_error(e) {
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
- *
  * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
@@ -92,7 +92,6 @@ export class FslViz extends LitElement {
      * `engine` change — but only in standalone mode.  In nested mode the
      * `fsl` attribute is ignored; renders are driven by the parent machine's
      * transition events instead.
-     *
      * @param changed - Map of changed reactive properties supplied by Lit.
      */
     willUpdate(changed) {
@@ -101,12 +100,12 @@ export class FslViz extends LitElement {
             // parent's transition events.  `engine` changes still re-render
             // because they apply to whichever source is in use.
             if (changed.has('engine')) {
-                this._rerenderFromHostMachine();
+                void this._rerenderFromHostMachine();
             }
             return;
         }
         if (changed.has('fsl') || changed.has('engine')) {
-            this._renderSvg();
+            void this._renderSvg();
         }
     }
     /**
@@ -129,7 +128,6 @@ export class FslViz extends LitElement {
         // attribute is almost certainly a bug.  Warn but proceed — the parent
         // owns the machine.
         if (typeof this.fsl === 'string' && this.fsl.trim().length > 0) {
-            // eslint-disable-next-line no-console
             console.warn('<fsl-viz>: `fsl` ignored when nested inside <fsl-instance>; parent owns the machine');
         }
         this._parent_host = host;
@@ -145,14 +143,14 @@ export class FslViz extends LitElement {
             }
             let sub;
             try {
-                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+                sub = host.machine.on('transition', () => { void this._rerenderFromHostMachine(); });
             }
-            catch (e) {
+            catch (error) {
                 // The parent existed but its machine wasn't ready / threw.  Emit
                 // a viz-error so the consumer learns about it instead of silently
                 // showing nothing.
                 this.dispatchEvent(new CustomEvent('viz-error', {
-                    detail: normalize_viz_error(e),
+                    detail: normalize_viz_error(error),
                     bubbles: true,
                     composed: true,
                 }));
@@ -163,13 +161,14 @@ export class FslViz extends LitElement {
             // rebuild): the old subscription is on a dead machine object.
             const on_rebuild = () => {
                 sub();
-                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+                sub = host.machine.on('transition', () => { void this._rerenderFromHostMachine(); });
                 this._parent_sub = sub;
-                this._rerenderFromHostMachine();
+                void this._rerenderFromHostMachine();
             };
             host.addEventListener('fsl-machine-rebuilt', on_rebuild);
             this._host_unbind = () => { host.removeEventListener('fsl-machine-rebuilt', on_rebuild); };
-            this._rerenderFromHostMachine();
+            void this._rerenderFromHostMachine();
+            return;
         });
     }
     /**
@@ -195,7 +194,6 @@ export class FslViz extends LitElement {
      * {@link machine_to_svg_string} pipeline and commits the result to
      * `_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the
      * SVG.
-     *
      * @returns A promise that resolves once the render attempt has finished.
      */
     async _rerenderFromHostMachine() {
@@ -211,10 +209,10 @@ export class FslViz extends LitElement {
                 this._svg = reorder_svg_layers(result);
             }
         }
-        catch (e) {
+        catch (error) {
             this._svg = '';
             this.dispatchEvent(new CustomEvent('viz-error', {
-                detail: normalize_viz_error(e),
+                detail: normalize_viz_error(error),
                 bubbles: true,
                 composed: true,
             }));
@@ -225,7 +223,6 @@ export class FslViz extends LitElement {
      * `fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a
      * `viz-error` `CustomEvent` on failure. Guards against stale results
      * when `fsl` changes mid-flight.
-     *
      * @returns A promise that resolves once the render attempt has finished.
      */
     async _renderSvg() {
@@ -241,10 +238,10 @@ export class FslViz extends LitElement {
                 this._svg = reorder_svg_layers(result);
             }
         }
-        catch (e) {
+        catch (error) {
             this._svg = '';
             this.dispatchEvent(new CustomEvent('viz-error', {
-                detail: normalize_viz_error(e),
+                detail: normalize_viz_error(error),
                 bubbles: true,
                 composed: true,
             }));
@@ -258,7 +255,6 @@ export class FslViz extends LitElement {
      * sanitized SVG. `unsafeHTML` is required because Lit's template-literal
      * interpolation otherwise escapes the markup as text. The directive name
      * makes the trust boundary explicit at the call site.
-     *
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.
      */
     render() {
@@ -279,7 +275,6 @@ export class FslViz extends LitElement {
      * viz.highlightTrace(['a', 'b']);
      * viz.clearHighlights();   // back to the default rendering
      * ```
-     *
      * @see highlightTrace
      */
     clearHighlights() {
@@ -291,7 +286,7 @@ export class FslViz extends LitElement {
             return;
         }
         // Remove the inline styles that override the SVG presentation attributes.
-        const elements = container.querySelectorAll('.node, .edge, .node *, .edge *');
+        const elements = container.querySelectorAll(':scope .node, :scope .edge, :scope .node *, :scope .edge *');
         elements.forEach(el => {
             el.style.removeProperty('fill');
             el.style.removeProperty('stroke');
@@ -312,13 +307,11 @@ export class FslViz extends LitElement {
      * // Highlight a -> b -> c in green, without dimming the rest:
      * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
      * ```
-     *
      * @param trace   Ordered state names describing the path (e.g.
      *                `['A', 'B', 'C']`). Consecutive pairs select the edges
      *                `A->B` and `B->C`. An empty array is a no-op.
      * @param options Highlight styling; see {@link HighlightOptions}. Defaults
      *                to crimson with off-trace fading enabled.
-     *
      * @see clearHighlights
      * @see HighlightOptions
      */
@@ -332,7 +325,7 @@ export class FslViz extends LitElement {
         }
         this.clearHighlights();
         const color = options.color || '#b71c1c'; // default: a distinct crimson
-        const fadeOthers = options.fadeOthers !== false; // default: true
+        const fadeOthers = options.fadeOthers !== false; // default: true — undefined must fade
         const targetNodes = new Set();
         const targetEdges = new Set();
         for (let i = 0; i < trace.length; i++) {

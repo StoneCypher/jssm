@@ -26,7 +26,6 @@ interface FslEditorHost extends HTMLElement { fsl: string; }
  * each toggleable via a `no-*` attribute. Light/dark via the reflected `theme`
  * attribute (which also drives the `--fsl-*` token defaults). White-labeled
  * through the shared appearance contract. Emits `change` on user edits.
- *
  * @element fsl-editor
  * @fires {CustomEvent<FslEditorChangeDetail>} change - On every user edit (not on programmatic `fsl` writes).
  * @csspart editor - The CodeMirror editor container.
@@ -109,7 +108,7 @@ export class FslEditor extends LitElement {
    * property, so later property changes reconfigure just that slice.
    */
   protected firstUpdated(): void {
-    const parent = this.renderRoot.querySelector('[part="editor"]') as HTMLElement;
+    const parent = this.renderRoot.querySelector('[part="editor"]');
     this._view = new EditorView({
       state: EditorState.create({
         doc: this.fsl,
@@ -139,7 +138,7 @@ export class FslEditor extends LitElement {
   /** Reflect a genuine user edit back to the `fsl` property + `change` event. */
   private _onDocChanged(): void {
     if (this._applyingProp) { return; }
-    const text = this._view!.state.doc.toString();
+    const text = this._view.state.doc.toString();
     this.fsl = text;
     this.dispatchEvent(new CustomEvent<FslEditorChangeDetail>('change', {
       detail: { fsl: text }, bubbles: true, composed: true,
@@ -162,10 +161,10 @@ export class FslEditor extends LitElement {
 
   /** Apply an external `fsl` write to the document, guarding the echo. */
   private _syncDoc(): void {
-    const cur = this._view!.state.doc.toString();
+    const cur = this._view.state.doc.toString();
     if (cur === this.fsl) { return; }
     this._applyingProp = true;
-    this._view!.dispatch({ changes: { from: 0, to: cur.length, insert: this.fsl } });
+    this._view.dispatch({ changes: { from: 0, to: cur.length, insert: this.fsl } });
     this._applyingProp = false;
   }
 

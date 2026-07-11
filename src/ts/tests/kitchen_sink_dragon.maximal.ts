@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import * as jssm           from '../jssm';
 import * as fc             from 'fast-check';
@@ -110,7 +110,7 @@ function run_case(shouldHalt: boolean, gen_seed: number): DragonCase {
   let machine;
   try {
     machine = jssm.from(machine_string);
-  } catch (e) {
+  } catch {
     throw new Error(`dragon find: parse failed (gen_seed=${gen_seed}, shouldHalt=${shouldHalt}): \`${machine_string}\``);
   }
 
@@ -118,7 +118,7 @@ function run_case(shouldHalt: boolean, gen_seed: number): DragonCase {
       halted      = true;
 
   let exits = machine.list_exits();
-  while (exits.length) {
+  while (exits.length > 0) {
     if (walk_length <= 0) { halted = false; break; }   // never reached a sink
     machine.force_transition(choose(exits));
     --walk_length;
@@ -132,7 +132,7 @@ function run_case(shouldHalt: boolean, gen_seed: number): DragonCase {
 describe('kitchen-sink dragon', () => {
 
   it('random graphs halt iff they are semi-stars (fast-check, 100 runs)', () => {
-    fc.assert(
+    expect(() => fc.assert(
       fc.property(
         fc.boolean(),
         fc.nat(),
@@ -147,7 +147,7 @@ describe('kitchen-sink dragon', () => {
         }
       ),
       { numRuns: 100 }
-    );
+    )).not.toThrow();
   });
 
 });

@@ -1,3 +1,4 @@
+import { JssmRng } from './jssm_types.js';
 /*******
  *
  *  Predicate for validating an array for uniqueness.  Returns `true` when
@@ -62,7 +63,7 @@ declare const array_box_if_string: (n: any) => any;
  *  @throws {TypeError} If `options` is not a non-empty array of objects.
  *
  */
-declare const weighted_rand_select: Function;
+declare const weighted_rand_select: (options: Array<any>, probability_property: string, rng: JssmRng) => any;
 /*******
  *
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
@@ -78,6 +79,19 @@ declare const weighted_rand_select: Function;
 declare function seq(n: number): number[];
 /*******
  *
+ *  Comparator reproducing `Array.prototype.sort`'s default ordering (compare
+ *  as strings), so histogram key order stays byte-identical to the historic
+ *  comparator-free sort — that ordering is observable to every iterating
+ *  caller.
+ *
+ *  ```typescript
+ *  [10, 9, 1].sort(default_lexicographic);  // [1, 10, 9], as with plain .sort()
+ *  ```
+ *
+ */
+declare const default_lexicographic: (a: any, b: any) => number;
+/*******
+ *
  *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
  *  with deep equality; will fail for complex contents, as such.
  *
@@ -88,7 +102,7 @@ declare function seq(n: number): number[];
  *  ```
  *
  */
-declare const histograph: Function;
+declare const histograph: (ar: any[]) => Map<any, number>;
 /*******
  *
  *  Draws `n` weighted random samples from an array of objects.  Each draw is
@@ -112,7 +126,7 @@ declare const histograph: Function;
  *  @returns An array of `n` independently selected items.
  *
  */
-declare const weighted_sample_select: Function;
+declare const weighted_sample_select: (n: number, options: Array<any>, probability_property: string, rng?: JssmRng) => Array<any>;
 /*******
  *
  *  Draws `n` weighted random samples, extracts a named key from each, and
@@ -140,7 +154,7 @@ declare const weighted_sample_select: Function;
  *  @returns A `Map` from extracted key values to their occurrence counts.
  *
  */
-declare const weighted_histo_key: Function;
+declare const weighted_histo_key: (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng) => Map<any, number>;
 /*******
  *
  *  Internal method generating composite keys for the hook lookup map by
@@ -168,7 +182,7 @@ declare function name_bind_prop_and_state(prop: string, state: string): string;
  *  Replaces the Mulberry generator, which was found to have problems
  *
  */
-declare function gen_splitmix32(a?: number | undefined): () => number;
+declare function gen_splitmix32(a?: number): () => number;
 /*******
  *
  *  Reduces an array to its unique contents.  Compares with `===` and makes no
@@ -220,4 +234,4 @@ declare function find_repeated<T>(arr: T[]): [T, number][];
  *
  */
 declare function sleep(ms: number): Promise<unknown>;
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };
+export { seq, unique, find_repeated, arr_uniq_p, default_lexicographic, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };

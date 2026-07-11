@@ -3,13 +3,16 @@ import { sm } from '../jssm.js';
 import { fsl_to_svg_string, state_svg_label_texts } from '../jssm_viz.js';
 import { extract_state_fills, patch_state_fill } from '../fsl_svg_patch.js';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 describe('extract_state_fills / patch_state_fill', () => {
 
   it('keys a multi-line label by all its <text> lines joined, not just the first', async () => {
     // graphviz splits a `\n`-bearing label into one <text> per line; reading
     // only the first would key on a truncated string. The full display text is
     // the lines joined by '\n' — exactly what state_svg_label_texts derives.
-    const svg   = await fsl_to_svg_string('state a: { label: "Line One\\nLine Two"; }; a -> b;');
+    const svg   = await fsl_to_svg_string(String.raw`state a: { label: "Line One\nLine Two"; }; a -> b;`);
     const fills = extract_state_fills(svg);
     expect(fills.has('Line One\nLine Two')).toBe(true);
     expect(fills.has('Line One')).toBe(false);
@@ -25,7 +28,7 @@ describe('extract_state_fills / patch_state_fill', () => {
     // SVG — for plain labels, group chips, and wrapped multi-line labels alike.
     for (const src of [
       '&g1 : [a b]; &g2 : [a]; &g3 : [b]; a -> b;',        // both a,b carry a chip
-      'state a: { label: "Line One\\nLine Two"; }; a -> b;', // a wraps to two <text> lines
+      String.raw`state a: { label: "Line One\nLine Two"; }; a -> b;`, // a wraps to two <text> lines
       'Red -> Green;',                                      // plain names, no groups
     ]) {
       const svg    = await fsl_to_svg_string(src);
@@ -40,7 +43,7 @@ describe('extract_state_fills / patch_state_fill', () => {
   it('finds every state of a real render, each with a fill', async () => {
     const svg = await fsl_to_svg_string('A -> B; B -> C;');
     const fills = extract_state_fills(svg);
-    expect([...fills.keys()].sort()).toEqual(['A', 'B', 'C']);
+    expect([...fills.keys()].sort(code_unit_compare)).toEqual(['A', 'B', 'C']);
     for (const fill of fills.values()) { expect(fill).toMatch(/^(#|none|rgb|url|[a-z])/); }
   });
 
@@ -54,7 +57,7 @@ describe('extract_state_fills / patch_state_fill', () => {
 
     // Regression: SHAPE_FILL_RE must not widen to match text-element fills.
     // Extract the text element's fill from both to verify it remains unchanged.
-    const textFillRe = /<text[^>]*\bfill="([^"]*)"/;
+    const textFillRe = /<text[^>]+\bfill="([^"]*)"/;
     const beforeFill = textFillRe.exec(svg)?.[1];
     const afterFill = textFillRe.exec(patched)?.[1];
     expect(afterFill).toBe(beforeFill);
@@ -87,7 +90,7 @@ describe('extract_state_fills / patch_state_fill', () => {
   it('distinguishes states whose names collide under lowercasing (title keying would fail)', async () => {
     const svg   = await fsl_to_svg_string('AA -> aa;');
     const fills = extract_state_fills(svg);
-    expect([...fills.keys()].sort()).toEqual(['AA', 'aa']);
+    expect([...fills.keys()].sort(code_unit_compare)).toEqual(['AA', 'aa']);
     const patched = patch_state_fill(svg, 'AA', '#00ff00');
     const after   = extract_state_fills(patched);
     expect(after.get('AA')).toBe('#00ff00');

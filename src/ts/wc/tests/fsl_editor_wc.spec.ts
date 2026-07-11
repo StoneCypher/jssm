@@ -10,7 +10,7 @@ beforeAll(() => {
 async function make(setup?: (el: FslEditor) => void): Promise<FslEditor> {
   const el = document.createElement('fsl-editor') as FslEditor;
   setup?.(el);
-  document.body.appendChild(el);
+  document.body.append(el);
   await el.updateComplete;
   return el;
 }
@@ -77,7 +77,7 @@ describe('<fsl-editor> standalone', () => {
 
   it('disconnect before first render is a no-op (view never created)', () => {
     const el = document.createElement('fsl-editor') as FslEditor;
-    document.body.appendChild(el);
+    document.body.append(el);
     el.remove();                // synchronous: firstUpdated never ran
     expect(el.view).toBeNull();
   });

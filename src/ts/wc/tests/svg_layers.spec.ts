@@ -25,10 +25,10 @@ describe('reorder_svg_layers', () => {
     const tags = childTags(out);
 
     // the edge label is hoisted out of the edge group to the very top
-    expect(tags[tags.length - 1]).toBe('text');
+    expect(tags.at(-1)).toBe('text');
     const doc = new DOMParser().parseFromString(out, 'image/svg+xml');
-    expect(doc.querySelector('g.edge > text')).toBeNull();      // no longer inside the edge
-    expect(doc.querySelector('g.graph > text')!.textContent).toBe('go');
+    expect(doc.querySelector(':scope g.edge > text')).toBeNull();      // no longer inside the edge
+    expect(doc.querySelector(':scope g.graph > text')!.textContent).toBe('go');
 
     // back-to-front order
     const i = (t: string): number => tags.indexOf(t);
@@ -49,7 +49,7 @@ describe('reorder_svg_layers', () => {
       '<g class="edge"><path d="M0,0"/><text>x</text></g>' +
       '</g></svg>';
     const tags = childTags(reorder_svg_layers(noBg));
-    expect(tags[tags.length - 1]).toBe('text');               // label still on top
+    expect(tags.at(-1)).toBe('text');               // label still on top
     expect(tags).not.toContain('polygon');
   });
 

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 /**
  * Regression suite for StoneCypher/fsl#358 -- `edge_color` shouldn't be

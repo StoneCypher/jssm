@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { resolve, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join } from 'node:path';
 import { cli } from '../../cli/subcommands/render/plugin';
 
 const fixturesDir = resolve(__dirname, 'fixtures/machines');
@@ -110,7 +110,7 @@ describe('fsl-render plugin cli()', () => {
   });
 
   it('reads FSL from piped stdin when no input path is given', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from('a -> b;\n'), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -136,7 +136,7 @@ describe('fsl-render plugin cli()', () => {
   });
 
   it('treats path "-" as stdin', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from('a -> b;\n'), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -168,7 +168,7 @@ describe('fsl-render plugin cli()', () => {
 
   it('single input that cannot be read returns 1 with cannot-read error', async () => {
     const bogus = process.platform === 'win32'
-      ? 'C:\\no\\such\\dir\\nope.fsl'
+      ? String.raw`C:\no\such\dir\nope.fsl`
       : '/no/such/dir/nope.fsl';
     const code = await cli([bogus]);
     expect(code).toBe(1);
@@ -188,7 +188,7 @@ describe('fsl-render plugin cli()', () => {
     // Cover the `if (path === '-') return renderOne(..., { stdout: true });`
     // single-input fallback in plugin.ts. Differs from the existing
     // `treats path "-" as stdin` test which passes --stdout explicitly.
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from('a -> b;\n'), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -205,7 +205,9 @@ describe('fsl-render plugin cli()', () => {
     // Set up OffscreenCanvas/Image so PNG rendering succeeds in-process
     // (avoids the resvg-wasm path that's already covered by other tests).
     // Importantly, this exercises the renderOne stdout+raster branch.
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- OffscreenCanvas does not exist in Node; a bare identifier read throws ReferenceError
     const realOffscreen = (globalThis as any).OffscreenCanvas;
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- Image does not exist in Node; a bare identifier read throws ReferenceError
     const realImage     = (globalThis as any).Image;
     (globalThis as any).Image = class FakeImage {
       src = '';
@@ -297,9 +299,10 @@ describe('fsl-render plugin cli()', () => {
   it('readStream handles an immediately-closed stdin (no chunks yielded)', async () => {
     // Exercises the "for await yields nothing" path in readStream — the
     // existing stdin tests all yield at least one chunk.
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
+      // eslint-disable-next-line unicorn/no-this-outside-of-class -- Node's Readable invokes read() with the stream as `this`; that context is the API
       new Readable({ read() { this.push(null); } }),
       { isTTY: false },
     );
@@ -333,7 +336,9 @@ describe('fsl-render plugin cli()', () => {
   it('--target=png with -o writes raster bytes to that file', async () => {
     // Covers the raster branch of `r.kind === 'text' ? r.content : Buffer.from(r.buffer)`
     // in renderOne (the outputPath case, not the stdout case).
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- OffscreenCanvas does not exist in Node; a bare identifier read throws ReferenceError
     const realOffscreen = (globalThis as any).OffscreenCanvas;
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- Image does not exist in Node; a bare identifier read throws ReferenceError
     const realImage     = (globalThis as any).Image;
     (globalThis as any).Image = class FakeImage {
       src = '';
@@ -371,10 +376,11 @@ describe('fsl-render plugin cli()', () => {
     // the ternary takes the `Buffer.isBuffer(chunk) ? chunk` left arm.
     // (Readable.from(string) actually emits string chunks in objectMode,
     // so it covers the right arm — we need this one for the left.)
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
       new Readable({
+        // eslint-disable-next-line unicorn/no-this-outside-of-class -- Node's Readable invokes read() with the stream as `this`; that context is the API
         read() { this.push(Buffer.from('a -> b;\n')); this.push(null); },
       }),
       { isTTY: false },
@@ -392,11 +398,12 @@ describe('fsl-render plugin cli()', () => {
   it('readStream wraps string chunks into Buffer (Buffer.from branch)', async () => {
     // Cover the ternary `Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)`
     // in readStream. A Readable in objectMode emits raw string chunks.
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
       new Readable({
         objectMode: true,
+        // eslint-disable-next-line unicorn/no-this-outside-of-class -- Node's Readable invokes read() with the stream as `this`; that context is the API
         read() { this.push('a -> b;\n'); this.push(null); },
       }),
       { isTTY: false },

@@ -13,7 +13,7 @@ describe('encode_gif', () => {
   it('emits GIF89a magic and a trailer', () => {
     const gif = encode_gif([{ rgba: solid(2, 2, 255, 0, 0), width: 2, height: 2 }]);
     expect(String.fromCharCode(...gif.slice(0, 6))).toBe('GIF89a');
-    expect(gif[gif.length - 1]).toBe(0x3B);
+    expect(gif.at(-1)).toBe(0x3B);
   });
 
   it('round-trips two frames pixel-exactly for small palettes', () => {
@@ -25,8 +25,8 @@ describe('encode_gif', () => {
     expect(gif.height).toBe(2);
     expect(gif.frames.length).toBe(2);
     expect(gif.frames[0]!.delay_cs).toBe(25);
-    expect([...gif.frames[0]!.rgb.slice(0, 3)]).toEqual([255, 0, 0]);
-    expect([...gif.frames[1]!.rgb.slice(0, 3)]).toEqual([0, 0, 255]);
+    expect([...gif.frames[0]!.rgb.subarray(0, 3)]).toEqual([255, 0, 0]);
+    expect([...gif.frames[1]!.rgb.subarray(0, 3)]).toEqual([0, 0, 255]);
   });
 
   it('loops forever by default (Netscape loop 0)', () => {
@@ -35,8 +35,8 @@ describe('encode_gif', () => {
   });
 
   it('round-trips stochastic multi-color frames within palette tolerance', () => {
-    let seed = 0xBEEF;
-    const rand = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed; };
+    let seed = 0xBE_EF;
+    const rand = (): number => { seed = (seed * 1_103_515_245 + 12_345) & 0x7F_FF_FF_FF; return seed; };
     for (let trial = 0; trial < 5; ++trial) {
       const w = 2 + (rand() % 12), h = 2 + (rand() % 12);
       const frame_count = 1 + (rand() % 4);
@@ -51,11 +51,12 @@ describe('encode_gif', () => {
       expect(decoded.frames.length, `trial ${trial}`).toBe(frame_count);
       // seeded colors stay within one ≤256 union palette for this seed, so
       // frame 0 decodes exactly (asserted below)
-      const f0 = frames[0]!.rgba;
-      decoded.frames[0]!.rgb.forEach((v, i) => {
+      const f0       = frames[0]!.rgba;
+      const rgb_out  = decoded.frames[0]!.rgb;
+      for (const [i, v] of rgb_out.entries()) {
         const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
         expect(Math.abs(v - f0[rgba_i]!), `trial ${trial} byte ${i}`).toBeLessThanOrEqual(0);
-      });
+      }
     }
   });
 
@@ -94,7 +95,7 @@ describe('encode_gif', () => {
   it('covers palette matching where later entries improve on earlier ones', () => {
     // Build a frame with multiple distinct colors to ensure a multi-entry palette
     const buf = new Uint8Array(12 * 4);
-    buf.set([255, 0, 0, 255], 0 * 4);     // red
+    buf.set([255, 0, 0, 255], 0);         // red
     buf.set([0, 255, 0, 255], 1 * 4);     // green
     buf.set([0, 0, 255, 255], 2 * 4);     // blue
     buf.set([255, 128, 0, 255], 3 * 4);   // orange
@@ -110,7 +111,7 @@ describe('encode_gif', () => {
 
     // Second frame with colors that may not be first in palette order
     const buf2 = new Uint8Array(12 * 4);
-    buf2.set([0, 0, 255, 255], 0 * 4);    // blue (not first color)
+    buf2.set([0, 0, 255, 255], 0);        // blue (not first color)
     buf2.set([0, 255, 0, 255], 1 * 4);    // green
     buf2.set([255, 0, 0, 255], 2 * 4);    // red
     buf2.set([128, 128, 128, 255], 3 * 4);
@@ -128,14 +129,16 @@ describe('encode_gif', () => {
     const decoded = decode_gif(gif);
     expect(decoded.frames.length).toBe(2);
     // all colors fit one ≤256 union palette, so every frame decodes exactly
-    decoded.frames[0]!.rgb.forEach((v, i) => {
+    const rgb_frame_0 = decoded.frames[0]!.rgb;
+    const rgb_frame_1 = decoded.frames[1]!.rgb;
+    for (const [i, v] of rgb_frame_0.entries()) {
       const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
       expect(v).toBe(buf[rgba_i]!);
-    });
-    decoded.frames[1]!.rgb.forEach((v, i) => {
+    }
+    for (const [i, v] of rgb_frame_1.entries()) {
       const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
       expect(v).toBe(buf2[rgba_i]!);
-    });
+    }
   });
 
   it('is deterministic and grows its output buffer past the initial 1KB', () => {
@@ -147,7 +150,7 @@ describe('encode_gif', () => {
     const spread = (w: number, h: number, phase: number): Uint8Array => {
       const b = new Uint8Array(w * h * 4);
       for (let i = 0; i < w * h; ++i) {
-        b.set([(i * 97 + phase) & 0xff, (i * 57 + phase) & 0xff, (i * 29 + phase) & 0xff, 255], i * 4);
+        b.set([(i * 97 + phase) & 0xFF, (i * 57 + phase) & 0xFF, (i * 29 + phase) & 0xFF, 255], i * 4);
       }
       return b;
     };

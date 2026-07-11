@@ -28,8 +28,8 @@ describe('lzw_encode', () => {
   });
 
   it('round-trips randomly, stochastically (seeded)', () => {
-    let seed = 0xC0FFEE;
-    const rand = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed; };
+    let seed = 0xC0_FF_EE;
+    const rand = (): number => { seed = (seed * 1_103_515_245 + 12_345) & 0x7F_FF_FF_FF; return seed; };
     for (let trial = 0; trial < 20; ++trial) {
       const n = 1 + (rand() % 5000);
       const alphabet_bits = 2 + (rand() % 7);          // 2..8

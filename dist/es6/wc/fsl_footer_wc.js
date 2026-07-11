@@ -25,7 +25,6 @@ function plural(n, word) {
  * `fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A
  * default slot carries embedder status. Standalone (no `<fsl-instance>`
  * ancestor) it renders just the slot.
- *
  * @element fsl-footer
  * @csspart bar - The footer bar container.
  * @slot - Trailing custom status, right-aligned.
@@ -80,15 +79,17 @@ export class FslFooter extends LitElement {
             this._host = null;
         }
     }
-    /** Recompute the machine-derived counts: local transitions out of the current
+    /**
+     * Recompute the machine-derived counts: local transitions out of the current
      *  state, and the global action / action-start / transition totals. Only
-     *  called while a host is attached, so `_host` is non-null here. */
+     *  called while a host is attached, so `_host` is non-null here.
+     */
     _syncMachine() {
         var _a;
         const host = this._host;
         const current = (_a = host.getAttribute('current-state')) !== null && _a !== void 0 ? _a : '';
         const edges = host.machine.list_edges();
-        this._transitions = edges.filter(e => String(e.from) === current).length;
+        this._transitions = edges.filter(e => e.from === current).length;
         const actionEdges = edges.filter(e => typeof e.action === 'string');
         this._gStarts = actionEdges.length;
         this._gActions = new Set(actionEdges.map(e => e.action)).size;
@@ -102,7 +103,8 @@ export class FslFooter extends LitElement {
         ${this._complete ? html `<span class="badge">complete</span>` : ''}
         <span class="spacer"></span>
         <slot></slot>
-      </div>`;
+      </div>
+    `;
     }
 }
 FslFooter.styles = css `

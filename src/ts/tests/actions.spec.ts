@@ -1,7 +1,10 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 
 const sm = jssm.sm;
 
@@ -162,7 +165,7 @@ describe('When states don\'t have actions', () => {
   const m = sm`a 'foo' -> b; a 'bar' -> c; b -> c;`;
 
   test('a has two actions', () =>
-    expect( m.actions('a').sort() )
+    expect( m.actions('a').sort(code_unit_compare) )
       .toStrictEqual(['bar', 'foo']) );
 
   test('b has zero actions', () =>

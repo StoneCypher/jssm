@@ -1,8 +1,8 @@
 
 import * as fc from 'fast-check';
 
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 
 import { rasterize } from '../cli/subcommands/render/rasterize';
 import { invokeBySpawn, dispatch } from '../cli/dispatcher';
@@ -30,7 +30,6 @@ type BlobCall = { type?: string, quality?: number, width: number, height: number
  *  Installs fake `OffscreenCanvas` / `Image` globals that record the
  *  canvas dimensions and convertToBlob options of every render, returning
  *  fixed bytes.  Returns the call log and an uninstaller.
- *
  *  @param nat_w  The fake image's natural width.
  *  @param nat_h  The fake image's natural height.
  *  @returns      The recorded calls and a restore function.
@@ -185,7 +184,7 @@ describe('rasterize via the OffscreenCanvas path', () => {
   test('OffscreenCanvas present without an Image constructor raises the unsupported error', async () => {
 
     const g = globalThis as Record<string, unknown>;
-    g.OffscreenCanvas = class { };
+    g.OffscreenCanvas = class {};
 
     try {
       await expect(rasterize(TINY_SVG, 'png', {})).rejects.toThrow(/Image constructor/);

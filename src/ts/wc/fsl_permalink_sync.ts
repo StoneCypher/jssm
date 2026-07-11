@@ -20,7 +20,6 @@ type SyncHost = ReactiveControllerHost & HTMLElement & { fsl: string };
  *
  * Echo guard: `_last` holds the segment most recently read or written, so a
  * restore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.
- *
  * @example
  * // In an element's constructor:
  * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit
@@ -45,19 +44,19 @@ export class FslPermalinkSync implements ReactiveController {
     if (this.key === null) { return; }
     void this._restore();
     this.host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
-    window.addEventListener('hashchange', this._onHashChange);
+    addEventListener('hashchange', this._onHashChange);
   }
 
   hostDisconnected(): void {
     if (this.key === null) { return; }
     this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
-    window.removeEventListener('hashchange', this._onHashChange);
+    removeEventListener('hashchange', this._onHashChange);
     if (this._timer !== undefined) { clearTimeout(this._timer); this._timer = undefined; }
   }
 
   /** Read our segment and, if new, push it into the host (overriding declared source). */
   private async _restore(): Promise<void> {
-    const segment = read_fragment_param(location.hash, this.key!);
+    const segment = read_fragment_param(location.hash, this.key);
     if (segment === null || segment === this._last) { return; }
     try {
       const fsl = await decode_machine(segment);
@@ -85,7 +84,7 @@ export class FslPermalinkSync implements ReactiveController {
       const segment = await encode_machine(this.host.fsl);
       if (segment === this._last) { return; }
       this._last = segment;
-      const fragment = set_fragment_param(location.hash, this.key!, segment);
+      const fragment = set_fragment_param(location.hash, this.key, segment);
       history.replaceState(history.state, '', `#${fragment}`);
     } catch {
       // No compression support: skip the write rather than throw.

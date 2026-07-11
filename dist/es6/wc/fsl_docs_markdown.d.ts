@@ -28,7 +28,6 @@ export interface FslToken {
  * unless it is already a `keyword`), and the value token after a color key's
  * colon — or any hex literal — is tagged `color`. The context never spans a
  * `;`, so a value can't leak past its statement.
- *
  * @example
  *   tokenizeFsl('s : { background-color: pink; }')
  *     .filter(t => t.cls).map(t => [t.cls, t.text]);

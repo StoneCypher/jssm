@@ -39,7 +39,6 @@ import { JssmInstance } from '../fsl_instance_wc';
  * Children are built via a `<template>` element rather than directly
  * assigning a string, which keeps the test's markup expressive without
  * routing through an `innerHTML` setter on the host element.
- *
  * @param markup - HTML fragment placed inside the host before connection.
  * @param fsl - FSL source supplied via the `fsl` attribute.
  * @returns The connected, typed host element.
@@ -49,8 +48,8 @@ function build_host(markup: string, fsl: string): JssmInstance {
   el.setAttribute('fsl', fsl);
   const tpl = document.createElement('template');
   tpl.innerHTML = markup;
-  el.appendChild(tpl.content);
-  document.body.appendChild(el);
+  el.append(tpl.content);
+  document.body.append(el);
   return el;
 }
 
@@ -66,7 +65,7 @@ describe('inline data-jssm-action form', () => {
     (host.querySelector('#tick') as HTMLButtonElement).click();
 
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('honors a custom data-jssm-event attribute (change instead of click)', () => {
@@ -81,7 +80,7 @@ describe('inline data-jssm-action form', () => {
     sel.dispatchEvent(new Event('change'));
 
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('respects data-jssm-from-state and skips dispatch when state mismatches', () => {
@@ -103,7 +102,7 @@ describe('inline data-jssm-action form', () => {
     (host.querySelector('#reset') as HTMLButtonElement).click();
     expect(host.state()).toBe('idle');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('passes the source property to action() via data-jssm-from-property', () => {
@@ -122,7 +121,7 @@ describe('inline data-jssm-action form', () => {
     expect(host.state()).toBe('set');
     // The action's data argument flows through to machine.data().
     expect(host.machine.data()).toBe('hello');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('calls e.preventDefault() when data-jssm-prevent-default is present', () => {
@@ -144,7 +143,7 @@ describe('inline data-jssm-action form', () => {
 
     expect(ev.defaultPrevented).toBe(true);
     expect(host.state()).toBe('done');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('calls e.stopPropagation() when data-jssm-stop-propagation is present', () => {
@@ -164,7 +163,7 @@ describe('inline data-jssm-action form', () => {
 
     expect(outer_received).toBe(false);
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });
@@ -180,7 +179,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
 
     (host.querySelector('#btn') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('honors a custom event attribute on the tag form', () => {
@@ -193,7 +192,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     (host.querySelector('#i') as HTMLInputElement)
       .dispatchEvent(new Event('change'));
     expect(host.state()).toBe('done');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('respects from-state on the tag form', () => {
@@ -209,7 +208,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     host.do('set');
     (host.querySelector('#r') as HTMLButtonElement).click();
     expect(host.state()).toBe('idle');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('passes data via from-property on the tag form', () => {
@@ -226,7 +225,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
 
     expect(host.state()).toBe('done');
     expect(host.machine.data()).toBe('payload');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('calls preventDefault/stopPropagation on the tag form when configured', () => {
@@ -248,7 +247,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     expect(ev.defaultPrevented).toBe(true);
     expect(outer_received).toBe(false);
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('wires multiple source elements when the selector matches more than one', () => {
@@ -267,7 +266,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     (buttons[1] as HTMLButtonElement).click();
     expect(host.state()).toBe('Off');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('skips malformed fsl-action tags missing required attributes without throwing', () => {
@@ -282,7 +281,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     // The host should still be functional and the inline button must still fire.
     (host.querySelector('#b') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('does not wire [data-jssm-action] descendants of a <fsl-action> tag', () => {
@@ -308,7 +307,7 @@ describe('dedicated <fsl-action> tag form (canonical)', () => {
     (host.querySelector('#x') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });
@@ -324,7 +323,7 @@ describe('<jssm-action> synonym coverage', () => {
 
     (host.querySelector('#btn-syn') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('mixed-prefix: <fsl-action> and <jssm-action> siblings both fire', () => {
@@ -341,7 +340,7 @@ describe('<jssm-action> synonym coverage', () => {
     expect(host.state()).toBe('On');
     (host.querySelector('#jssm-btn') as HTMLButtonElement).click();
     expect(host.state()).toBe('Off');
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('does not wire [data-jssm-action] descendants of a <jssm-action> synonym tag', () => {
@@ -358,7 +357,7 @@ describe('<jssm-action> synonym coverage', () => {
 
     (host.querySelector('#x2') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });
@@ -372,7 +371,7 @@ describe('listener cleanup on disconnect', () => {
     );
     const btn = host.querySelector('#b') as HTMLButtonElement;
 
-    document.body.removeChild(host);
+    host.remove();
 
     // After disconnect, the host's machine is still around (we hold the ref),
     // but the listener must be gone — so the click should NOT cause an
@@ -393,7 +392,7 @@ describe('listener cleanup on disconnect', () => {
     );
     const btn = host.querySelector('#b') as HTMLButtonElement;
 
-    document.body.removeChild(host);
+    host.remove();
 
     const before = host.state();
     btn.click();

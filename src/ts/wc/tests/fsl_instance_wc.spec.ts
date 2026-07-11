@@ -67,7 +67,7 @@ describe('resolve_fsl_source', () => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = 'Red -> Green;';
-    host.appendChild(script);
+    host.append(script);
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBe('Red -> Green;');
     expect(r.provided_count).toBe(1);
@@ -88,11 +88,11 @@ describe('resolve_fsl_source', () => {
     // Build DOM via createElement/textContent rather than innerHTML so the
     // construction itself doesn't depend on HTML parsing.
     const host = document.createElement('div');
-    host.appendChild(document.createTextNode('   X -> Y;   '));
+    host.append(document.createTextNode('   X -> Y;   '));
     const hook = document.createElement('jssm-hook');
     hook.textContent = 'handlerName';
-    host.appendChild(hook);
-    host.appendChild(document.createTextNode('   '));
+    host.append(hook);
+    host.append(document.createTextNode(' '.repeat(3)));
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBe('X -> Y;');
     expect(r.error).toBeUndefined();
@@ -101,11 +101,11 @@ describe('resolve_fsl_source', () => {
   it('strips <fsl-*> companion-tag children from the textContent channel', () => {
     // prefix-agnostic stripping: <fsl-hook> must also be excluded.
     const host = document.createElement('div');
-    host.appendChild(document.createTextNode('   P -> Q;   '));
+    host.append(document.createTextNode('   P -> Q;   '));
     const hook = document.createElement('fsl-hook');
     hook.textContent = 'handlerName';
-    host.appendChild(hook);
-    host.appendChild(document.createTextNode('   '));
+    host.append(hook);
+    host.append(document.createTextNode(' '.repeat(3)));
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBe('P -> Q;');
     expect(r.error).toBeUndefined();
@@ -115,10 +115,10 @@ describe('resolve_fsl_source', () => {
     // The filter that drops <fsl-*>/<jssm-*> tags has a false branch for any
     // other descendant: that contribution must remain in the assembled FSL text.
     const host = document.createElement('div');
-    host.appendChild(document.createTextNode('M -> N'));
+    host.append(document.createTextNode('M -> N'));
     const span = document.createElement('span');
     span.textContent = ';';
-    host.appendChild(span);
+    host.append(span);
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBe('M -> N;');
     expect(r.error).toBeUndefined();
@@ -137,7 +137,7 @@ describe('resolve_fsl_source', () => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = 'Red -> Green;';
-    host.appendChild(script);
+    host.append(script);
     const r = resolve_fsl_source(host, 'Off -> On;');
     expect(r.fsl).toBeUndefined();
     expect(r.provided_count).toBe(2);
@@ -161,7 +161,7 @@ describe('resolve_fsl_source', () => {
     const panel = document.createElement('div');
     panel.setAttribute('slot', 'actions');
     panel.innerHTML = '<button>Enable</button><button>Next</button>';
-    host.appendChild(panel);
+    host.append(panel);
     const r = resolve_fsl_source(host, 'Off -> On;');   // only the fsl attribute counts
     expect(r.fsl).toBe('Off -> On;');
     expect(r.provided_count).toBe(1);
@@ -172,9 +172,9 @@ describe('resolve_fsl_source', () => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = 'A -> B;';
-    host.appendChild(script);
+    host.append(script);
     // Add some extra text content after the script element.
-    host.appendChild(document.createTextNode(' E -> F;'));
+    host.append(document.createTextNode(' E -> F;'));
     const r = resolve_fsl_source(host, 'C -> D;');
     expect(r.fsl).toBeUndefined();
     expect(r.provided_count).toBe(3);
@@ -187,7 +187,7 @@ describe('resolve_fsl_source', () => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = '   \n   ';
-    host.appendChild(script);
+    host.append(script);
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBeUndefined();
     expect(r.provided_count).toBe(0);
@@ -196,7 +196,7 @@ describe('resolve_fsl_source', () => {
 
   it('treats a whitespace-only fsl attribute as empty', () => {
     const host = document.createElement('div');
-    const r = resolve_fsl_source(host, '   ');
+    const r = resolve_fsl_source(host, ' '.repeat(3));
     expect(r.fsl).toBeUndefined();
     expect(r.provided_count).toBe(0);
     expect(r.error).toBe('no FSL source');
@@ -220,7 +220,7 @@ describe('resolve_fsl_source', () => {
     script.setAttribute('type', 'text/fsl');
     // Patch the textContent accessor on the actual instance to be null.
     Object.defineProperty(script, 'textContent', { get: () => null, configurable: true });
-    host.appendChild(script);
+    host.append(script);
     const r = resolve_fsl_source(host, '');
     expect(r.fsl).toBeUndefined();
     expect(r.error).toBe('no FSL source');
@@ -235,7 +235,6 @@ describe('resolve_fsl_source', () => {
  * thrown value so a test can assert against its message.  The captured
  * error's default handling is suppressed so vitest doesn't flag it as
  * an uncaught exception.
- *
  * @param fn - Function that triggers the throwing connection.
  * @returns The captured Error (or `null` if nothing was thrown).
  */
@@ -245,11 +244,11 @@ function capture_connection_error(fn: () => void): Error | null {
     e.preventDefault();
     captured = e.error instanceof Error ? e.error : new Error(String(e.message));
   };
-  window.addEventListener('error', handler);
+  addEventListener('error', handler);
   try {
     fn();
   } finally {
-    window.removeEventListener('error', handler);
+    removeEventListener('error', handler);
   }
   return captured;
 }
@@ -259,7 +258,7 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
   it('throws on connect when no FSL source is provided', () => {
     const err = capture_connection_error(() => {
       const el = document.createElement('fsl-instance');
-      document.body.appendChild(el);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/no FSL source/);
@@ -272,8 +271,8 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
       const script = document.createElement('script');
       script.setAttribute('type', 'text/fsl');
       script.textContent = 'Red -> Green;';
-      el.appendChild(script);
-      document.body.appendChild(el);
+      el.append(script);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/use exactly one source/);
@@ -282,12 +281,12 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
   it('constructs a machine from the fsl attribute and exposes it', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'Off -> On;');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.machine).toBeDefined();
     expect(el.state()).toBe('Off');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('constructs a machine from a <script type="text/fsl"> child', () => {
@@ -295,28 +294,28 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = 'Red -> Green;';
-    el.appendChild(script);
-    document.body.appendChild(el);
+    el.append(script);
+    document.body.append(el);
 
     expect(el.state()).toBe('Red');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('constructs a machine from textContent', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.textContent = 'Alpha -> Beta;';
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.state()).toBe('Alpha');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('drives transitions via host.do() and reflects updated state', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On 'flip' -> Off;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.state()).toBe('Off');
     expect(el.getAttribute('current-state')).toBe('Off');
@@ -326,13 +325,13 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     expect(el.state()).toBe('On');
     expect(el.getAttribute('current-state')).toBe('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('returns false from host.do() when the action is illegal', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     // After flipping to On, On has no exits.  A second flip must fail.
     el.do('flip');
@@ -340,34 +339,34 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     const ok = el.do('flip');
     expect(ok).toBe(false);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('moves via host.transition() (legal) and host.force_transition() (forced)', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "A 'go' -> B; A ~> C;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.transition('B')).toBe(true);   // legal edge A -> B
     expect(el.state()).toBe('B');
 
     const el2 = document.createElement('fsl-instance') as FslInstance;
     el2.setAttribute('fsl', "A 'go' -> B; A ~> C;");
-    document.body.appendChild(el2);
+    document.body.append(el2);
 
     expect(el2.transition('C')).toBe(false);        // A ~> C is forced-only
     expect(el2.state()).toBe('A');
     expect(el2.force_transition('C')).toBe(true);   // force succeeds
     expect(el2.state()).toBe('C');
 
-    document.body.removeChild(el);
-    document.body.removeChild(el2);
+    el.remove();
+    el2.remove();
   });
 
   it('reflects legal-actions, terminal, and complete host attributes', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.getAttribute('legal-actions')).toContain('flip');
     // Off is not terminal/complete; On (after flipping) becomes terminal.
@@ -377,13 +376,13 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     expect(el.state()).toBe('On');
     expect(el.hasAttribute('terminal')).toBe(true);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('sets the --current-state CSS custom property on the host', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     // jsdom exposes inline style.getPropertyValue.
     expect(el.style.getPropertyValue('--current-state')).toBe('Off');
@@ -391,7 +390,7 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     el.do('flip');
     expect(el.style.getPropertyValue('--current-state')).toBe('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('throws when machine is accessed before connection', () => {
@@ -402,8 +401,8 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
   it('cleans up on disconnect without throwing', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'A -> B;');
-    document.body.appendChild(el);
-    expect(() => document.body.removeChild(el)).not.toThrow();
+    document.body.append(el);
+    expect(() => { el.remove(); }).not.toThrow();
   });
 
 });
@@ -413,23 +412,23 @@ describe('jssm-instance synonym lifecycle', () => {
   it('constructs a working machine via the jssm-instance synonym tag', () => {
     const el = document.createElement('jssm-instance') as FslInstance;
     el.setAttribute('fsl', 'Off -> On;');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.machine).toBeDefined();
     expect(el.state()).toBe('Off');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('drives transitions via jssm-instance synonym', () => {
     const el = document.createElement('jssm-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'go' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
 
     expect(el.do('go')).toBe(true);
     expect(el.state()).toBe('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
 });
@@ -439,7 +438,7 @@ describe('FslInstance shadow DOM', () => {
   it('renders the named slots and the state-specific slot', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     const sr = el.shadowRoot!;
@@ -457,13 +456,13 @@ describe('FslInstance shadow DOM', () => {
     // State-specific slot targets the current state.
     expect(html_str).toContain('name="state-Off"');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('reflects the theme property so its built-in palette can drive the suite', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     expect(el.theme).toBe('light');                  // default
@@ -471,14 +470,14 @@ describe('FslInstance shadow DOM', () => {
     await (el as any).updateComplete;
     expect(el.getAttribute('theme')).toBe('dark');   // reflected to the attribute
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('shows and hides panels via togglePanel / setPanelHidden', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "A 'go' -> B;");
     el.setAttribute('layout', 'rl');
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     // aux panels (everything but viz/editor) start hidden by default; toggling
@@ -519,13 +518,13 @@ describe('FslInstance shadow DOM', () => {
     expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(true);
     expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('resolves panel visibility by mode: hide / show / default / request', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "A 'go' -> B;");
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     // default control mode: only viz + editor show
@@ -564,7 +563,7 @@ describe('FslInstance shadow DOM', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "editor: { panels: [history]; }; A 'go' -> B;");
     el.panelMode = 'request';
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     expect(el.requestedPanels).toEqual(['history']);
@@ -578,18 +577,18 @@ describe('FslInstance shadow DOM', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.data = seed;
     el.setAttribute('fsl', "A 'go' -> B;");
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     expect(el.machine.data()).toEqual(seed);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('updates the state-specific slot name after a transition', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     expect(el.shadowRoot!.innerHTML).toContain('name="state-Off"');
@@ -600,13 +599,13 @@ describe('FslInstance shadow DOM', () => {
     expect(el.shadowRoot!.innerHTML).toContain('name="state-On"');
     expect(el.shadowRoot!.innerHTML).not.toContain('name="state-Off"');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('shows fallback placeholder content when slots are empty', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'A -> B;');
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as any).updateComplete;
 
     const html_str = el.shadowRoot!.innerHTML;
@@ -614,7 +613,7 @@ describe('FslInstance shadow DOM', () => {
     expect(html_str).toContain('fsl-instance');
     expect(html_str).toContain('no viz configured');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('renders the placeholder state slot name before connection', () => {
@@ -644,13 +643,13 @@ describe('mixed-prefix companion discovery', () => {
     // Use a named handler on globalThis so the inline resolver can find it.
     (globalThis as any)['_test_mixed_prefix_handler'] = () => { fired = true; };
     on_el.setAttribute('handler', '_test_mixed_prefix_handler');
-    el.appendChild(on_el);
+    el.append(on_el);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     el.do('go');
     expect(fired).toBe(true);
 
-    document.body.removeChild(el);
+    el.remove();
     delete (globalThis as any)['_test_mixed_prefix_handler'];
   });
 
@@ -663,7 +662,7 @@ describe('mixed-prefix companion discovery', () => {
 function mount_instance(fsl: string): FslInstance {
   const el = document.createElement('fsl-instance') as FslInstance;
   el.setAttribute('fsl', fsl);
-  document.body.appendChild(el);
+  document.body.append(el);
   return el;
 }
 
@@ -672,7 +671,7 @@ describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
   it('dispatches a composed, bubbling fsl-transition with from/to/action detail', async () => {
     const el = mount_instance("Off 'flip' -> On;");
     const seen: CustomEvent[] = [];
-    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+    el.addEventListener('fsl-transition', e => { seen.push(e as CustomEvent); });
 
     el.do('flip');
     await el.updateComplete;
@@ -685,7 +684,7 @@ describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
     expect(e.detail.to).toBe('On');
     expect(e.detail.action).toBe('flip');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('paints the new state to host attributes before the fsl-transition handler runs', async () => {
@@ -701,14 +700,14 @@ describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
     // Ordering guarantee (#639): mechanism 1 reflection precedes mechanism 4 dispatch.
     expect(state_in_handler).toBe('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('also dispatches fsl-exit and fsl-entry on a transition', async () => {
     const el = mount_instance("Off 'flip' -> On;");
     const names: string[] = [];
-    el.addEventListener('fsl-exit',  () => names.push('exit'));
-    el.addEventListener('fsl-entry', () => names.push('entry'));
+    el.addEventListener('fsl-exit',  () => { names.push('exit'); });
+    el.addEventListener('fsl-entry', () => { names.push('entry'); });
 
     el.do('flip');
     await el.updateComplete;
@@ -716,13 +715,13 @@ describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
     expect(names).toContain('exit');
     expect(names).toContain('entry');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('re-emits even when the machine is driven directly via host.machine.action()', async () => {
     const el = mount_instance("Off 'flip' -> On;");
     const seen: CustomEvent[] = [];
-    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+    el.addEventListener('fsl-transition', e => { seen.push(e as CustomEvent); });
 
     el.machine.action('flip');   // bypasses host.do()
     await el.updateComplete;
@@ -730,15 +729,15 @@ describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
     expect(seen).toHaveLength(1);
     expect(seen[0]!.detail.to).toBe('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('stops dispatching after the host is disconnected', async () => {
     const el = mount_instance("Off 'flip' -> On 'flip' -> Off;");
     const seen: CustomEvent[] = [];
-    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+    el.addEventListener('fsl-transition', e => { seen.push(e as CustomEvent); });
 
-    document.body.removeChild(el);   // disconnectedCallback unsubscribes
+    el.remove();   // disconnectedCallback unsubscribes
     el.machine.action('flip');       // machine still alive, WC detached
     await Promise.resolve();
 
@@ -753,7 +752,7 @@ describe('FslInstance default-template slots (S2)', () => {
     const el = mount_instance('A -> B;');
     await el.updateComplete;
 
-    const slot_names = Array.from(el.shadowRoot!.querySelectorAll('slot'))
+    const slot_names = [...el.shadowRoot!.querySelectorAll('slot')]
       .map(s => s.getAttribute('name'));
 
     for (const name of ['history', 'data-inspector', 'hook-log',
@@ -761,7 +760,7 @@ describe('FslInstance default-template slots (S2)', () => {
       expect(slot_names).toContain(name);
     }
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
 });
@@ -772,7 +771,7 @@ describe('FslInstance theming', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'a -> b;');
     for (const [k, v] of Object.entries(attrs)) { el.setAttribute(k, v); }
-    document.body.appendChild(el);
+    document.body.append(el);
     return el;
   };
   const surface = (el: FslInstance): string => el.style.getPropertyValue('--fsl-color-surface').trim();
@@ -782,7 +781,7 @@ describe('FslInstance theming', () => {
     await el.updateComplete;
     expect(surface(el)).toBe('#ffffff');
     expect(el.getAttribute('resolved-theme')).toBe('light');
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('applies the dark variant when theme=dark', async () => {
@@ -790,7 +789,7 @@ describe('FslInstance theming', () => {
     await el.updateComplete;
     expect(surface(el)).toBe('#1e1e22');
     expect(el.getAttribute('resolved-theme')).toBe('dark');
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('applies a named theme and falls back to Default for an unknown name', async () => {
@@ -800,7 +799,7 @@ describe('FslInstance theming', () => {
     el.themeName = 'Nonexistent';
     await el.updateComplete;
     expect(surface(el)).toBe('#ffffff');               // unknown name → Default light
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it("drives a slotted editor's theme to the resolved variant", async () => {
@@ -809,18 +808,18 @@ describe('FslInstance theming', () => {
     const ed = document.createElement('div');
     ed.setAttribute('slot', 'editor');
     (ed as unknown as { theme: string }).theme = 'unset';
-    el.appendChild(ed);
+    el.append(ed);
     el.theme = 'dark';                                 // updated → _applyTheme drives the editor
     await el.updateComplete;
     expect((ed as unknown as { theme: string }).theme).toBe('dark');
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('resolves system mode from the OS and re-applies on OS change (mocked matchMedia)', async () => {
     let prefersDark = true;
     let osHandler: (() => void) | undefined;
-    const original = window.matchMedia;
-    window.matchMedia = ((q: string) => ({
+    const original = matchMedia;
+    globalThis.matchMedia = ((q: string) => ({
       get matches() { return prefersDark; },
       media: q,
       addEventListener: (_e: string, h: () => void) => { osHandler = h; },
@@ -844,8 +843,8 @@ describe('FslInstance theming', () => {
     await el.updateComplete;
     expect(el.getAttribute('resolved-theme')).toBe('dark');
 
-    document.body.removeChild(el);
-    window.matchMedia = original;
+    el.remove();
+    globalThis.matchMedia = original;
   });
 
 });
@@ -860,9 +859,9 @@ describe('FslInstance permalink restore', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.id = 'mach';
     el.setAttribute('fsl', 'Left -> Right;');        // declared source — should be overridden
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
-    await new Promise(r => setTimeout(r, 20));
+    await new Promise(resolve => setTimeout(resolve, 20));
 
     expect(el.fsl).toBe('Up -> Down;');
 
@@ -877,9 +876,9 @@ describe('FslInstance permalink restore', () => {
 
     const el = document.createElement('fsl-instance') as FslInstance;
     el.id = 'solo';                                // no fsl/script/text — the URL is the only source
-    document.body.appendChild(el);                 // must NOT throw despite no declared source
+    document.body.append(el);                 // must NOT throw despite no declared source
     await el.updateComplete;
-    await new Promise(r => setTimeout(r, 20));      // restore + deferred build
+    await new Promise(resolve => setTimeout(resolve, 20));      // restore + deferred build
 
     expect(el.fsl).toBe('Up -> Down;');
     expect(el.machine.state()).toBe('Up');         // the deferred build produced a live machine
@@ -894,7 +893,7 @@ describe('FslInstance permalink restore', () => {
     const err = capture_connection_error(() => {
       const el = document.createElement('fsl-instance') as FslInstance;
       el.id = 'absent';                            // a key, but no #absent= segment and no declared source
-      document.body.appendChild(el);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/no FSL source/);
@@ -908,9 +907,9 @@ describe('FslInstance permalink restore', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.id = 'act';
     const btn = document.createElement('button');
-    btn.setAttribute('data-jssm-action', 'go');
-    el.appendChild(btn);
-    document.body.appendChild(el);                 // deferred — _machine still undefined
+    btn.dataset.jssmAction = 'go';
+    el.append(btn);
+    document.body.append(el);                 // deferred — _machine still undefined
 
     // Fire the wired action during the restore window: it must be a no-op, not a
     // throw through the `machine` getter.

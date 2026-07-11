@@ -59,7 +59,6 @@ const RUNS = 100;
  *
  *  Callers know which shape they expect and read the appropriate
  *  fields.
- *
  *  @param  src  Full config statement, terminator included.
  *  @returns     The config AST node.
  */

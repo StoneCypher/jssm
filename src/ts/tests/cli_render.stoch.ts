@@ -134,7 +134,7 @@ describe('raster targets through resvg-wasm', () => {
           const buf = await pngTarget(GOOD_FSL, { width });
 
           // PNG signature: 89 50 4E 47 0D 0A 1A 0A
-          expect([...buf.slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+          expect([...buf.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
           expect(png_width(buf)).toBe(width);
 
         }
@@ -148,7 +148,7 @@ describe('raster targets through resvg-wasm', () => {
 
     const buf = await pngTarget(GOOD_FSL, { scale: 100 });
 
-    expect([...buf.slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect([...buf.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
     expect(png_width(buf)).toBeGreaterThan(0);
 
   });
@@ -224,7 +224,7 @@ describe('renderSet error isolation', () => {
 
           expect(results.length).toBe(goods.length);
 
-          results.forEach( (item, i) => {
+          for (const [i, item] of results.entries()) {
 
             expect(item.index).toBe(i);
             expect(item.ok).toBe(goods[i]);
@@ -235,7 +235,7 @@ describe('renderSet error isolation', () => {
               expect(item.error).toBeInstanceOf(Error);
             }
 
-          });
+          }
 
         }
       ),

@@ -187,8 +187,8 @@ describe('install_bindings', () => {
 
           const host = document.createElement('div');
           const span = document.createElement('span');
-          span.setAttribute('data-jssm-bind', 'state');
-          host.appendChild(span);
+          span.dataset.jssmBind = 'state';
+          host.append(span);
 
           const unsubs = install_bindings(host, machine);
 
@@ -200,7 +200,7 @@ describe('install_bindings', () => {
           }
 
           const frozen_at = span.textContent;
-          unsubs.forEach( u => u() );
+          for (const u of unsubs) { u(); }
           machine.transition(steps % 2 === 0 ? 'ib' : 'ia');
           expect(span.textContent).toBe(frozen_at);   // no longer live
 
@@ -223,12 +223,12 @@ describe('install_bindings', () => {
           const host = document.createElement('div');
           const target = document.createElement('p');
           target.className = cls;
-          host.appendChild(target);
+          host.append(target);
 
           const bind = document.createElement('fsl-bind');
           bind.setAttribute('selector', `.${cls}`);
           bind.setAttribute('source', 'state');
-          host.appendChild(bind);
+          host.append(bind);
 
           install_bindings(host, machine);
           expect(target.textContent).toBe('ia');
@@ -236,13 +236,13 @@ describe('install_bindings', () => {
           const broken = document.createElement('div');
           const tag = document.createElement('jssm-bind');
           tag.setAttribute('source', 'state');
-          broken.appendChild(tag);
+          broken.append(tag);
           expect(() => install_bindings(broken, machine)).toThrow(/selector/);
 
           const broken2 = document.createElement('div');
           const tag2 = document.createElement('jssm-bind');
           tag2.setAttribute('selector', 'p');
-          broken2.appendChild(tag2);
+          broken2.append(tag2);
           expect(() => install_bindings(broken2, machine)).toThrow(/source/);
 
         }
@@ -260,17 +260,17 @@ describe('install_bindings', () => {
 
 describe('hook element parsing and wrapping', () => {
 
-  const HOOK_KINDS = [
+  const HOOK_KINDS = new Set([
     'hook', 'named', 'any transition', 'standard transition', 'main transition',
     'forced transition', 'entry', 'exit', 'any action', 'global action'
-  ];
+  ]);
 
   test('normalize_hook_kind passes valid kinds, defaults blanks, rejects junk', () => {
 
     fc.assert(
       fc.property(
         fc.constantFrom(...HOOK_KINDS),
-        word.filter( w => !HOOK_KINDS.includes(w) ),
+        word.filter( w => !HOOK_KINDS.has(w) ),
         (kind, junk) => {
 
           expect(normalize_hook_kind(kind)).toBe(kind);
@@ -351,10 +351,14 @@ describe('hook element parsing and wrapping', () => {
           const user = (m: { data: number }) => {
             m.data = data_out;
             switch (result_kind) {
-              case 'false':     return false;
-              case 'true':      return true;
-              case 'undefined': return undefined;
-              default:          return { arbitrary: 'thing' };
+              case 'false': {     return false;
+              }
+              case 'true': {      return true;
+              }
+              case 'undefined': { return;
+              }
+              default: {          return { arbitrary: 'thing' };
+              }
             }
           };
 

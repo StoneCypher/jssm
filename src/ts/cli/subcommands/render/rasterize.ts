@@ -27,10 +27,8 @@ const DEFAULT_SCALE_ZOOM = 3;
  * Resolve `opts.scale` (a percentage, where 100 is the default) to a zoom
  * multiple of the SVG's natural size. Applied when neither `width` nor
  * `height` is given.
- *
  * @param opts - raster options; only `scale` is consulted
  * @returns the zoom multiple (e.g. scale 100 -> 3, scale 200 -> 6)
- *
  * @example
  *   zoomFor({ scale: 200 })  // 6
  *   zoomFor({})              // 3
@@ -44,10 +42,8 @@ function zoomFor(opts: RasterOptions): number {
  * `height` fit the render to an exact pixel extent; otherwise `scale`
  * (default 100%) applies a uniform zoom. `width` wins over `height`, which
  * wins over `scale` — the CLI keeps them mutually exclusive regardless.
- *
  * @param opts - raster sizing options
  * @returns a resvg `fitTo` object
- *
  * @example
  *   resvgFitTo({ width: 800 })  // { mode: 'width', value: 800 }
  *   resvgFitTo({})              // { mode: 'zoom', value: 3 }
@@ -64,7 +60,6 @@ function resvgFitTo(opts: RasterOptions): { mode: string; value: number } {
  * Feature-detects `OffscreenCanvas` at call time: if present, uses the
  * native Canvas path (browsers, Deno, Bun, mobile WebViews, etc.); otherwise
  * loads `@resvg/resvg-wasm` and renders via that.
- *
  * @param svg - SVG source string
  * @param target - 'png' or 'jpeg'
  * @param opts.width - Fit output to this pixel width
@@ -75,7 +70,6 @@ function resvgFitTo(opts: RasterOptions): { mode: string; value: number } {
  * @returns Uint8Array of rasterized bytes
  * @throws RasterizationUnsupportedError if neither backend is available
  * @throws RenderError on backend failures
- *
  * @example
  *   const png = await rasterize(svgString, 'png', { scale: 100 });
  *   await writeFile('out.png', png);
@@ -85,6 +79,10 @@ export async function rasterize(
   target: RasterTarget,
   opts: RasterOptions = {},
 ): Promise<Uint8Array> {
+  // `typeof`, not a bare reference: OffscreenCanvas is not declared at all in
+  // Node, so a direct read throws ReferenceError (spec-proven; the rule's
+  // preferred form crashes the wasm fallback path).
+  // eslint-disable-next-line unicorn/no-typeof-undefined
   if (typeof OffscreenCanvas !== 'undefined') {
     return rasterizeViaCanvas(svg, target, opts);
   }
@@ -95,20 +93,22 @@ export async function rasterize(
  *  Load an SVG into a sized OffscreenCanvas and draw it: the shared front
  *  half of both Canvas-backend rasterizers.  Sizing follows rasterize()'s
  *  documented precedence (width > height > scale-zoom).
- *
  *  @internal
  */
 async function loadAndSizeCanvas(
   svg: string,
   opts: RasterOptions,
 ): Promise<{ canvas: any; ctx: any; width: number; height: number }> {
-  const encoded = (typeof btoa !== 'undefined')
-    ? btoa(unescape(encodeURIComponent(svg)))
-    : Buffer.from(svg, 'utf8').toString('base64');
+  const encoded = (typeof btoa === 'undefined')
+    ? Buffer.from(svg, 'utf8').toString('base64')
+    : btoa(unescape(encodeURIComponent(svg)));
   const url = `data:image/svg+xml;base64,${encoded}`;
 
+  // Read off globalThis, not as a bare identifier: `Image` is not declared in
+  // Node, so a direct read throws ReferenceError instead of yielding undefined.
+  // eslint-disable-next-line unicorn/no-unnecessary-global-this
   const ImageCtor: typeof Image = (globalThis as any).Image;
-  if (typeof ImageCtor === 'undefined') {
+  if (ImageCtor === undefined) {
     throw new RasterizationUnsupportedError('OffscreenCanvas present but Image constructor is not');
   }
 
@@ -117,7 +117,7 @@ async function loadAndSizeCanvas(
   if (typeof (img as any).decode === 'function') {
     await (img as any).decode();
   } else {
-    await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('image load failed')); });
+    await new Promise<void>((resolve, reject) => { img.addEventListener('load', () => resolve()); img.addEventListener('error', () => reject(new Error('image load failed'))); });
   }
 
   const natW = (img as any).width  ?? 800;
@@ -127,17 +127,17 @@ async function loadAndSizeCanvas(
   if (opts.width !== undefined) {
     width  = opts.width;
     height = Math.round(width * natH / natW);
-  } else if (opts.height !== undefined) {
-    height = opts.height;
-    width  = Math.round(height * natW / natH);
-  } else {
+  } else if (opts.height === undefined) {
     const zoom = zoomFor(opts);
     width  = Math.round(natW * zoom);
     height = Math.round(natH * zoom);
+  } else {
+    height = opts.height;
+    width  = Math.round(height * natW / natH);
   }
 
   const canvas = new OffscreenCanvas(width, height);
-  const ctx = canvas.getContext('2d') as any;
+  const ctx = canvas.getContext('2d');
   if (!ctx) throw new RenderError('failed to acquire 2d canvas context');
   ctx.drawImage(img as any, 0, 0, width, height);
 
@@ -163,16 +163,16 @@ async function rasterizeViaCanvas(
 // this on the imported namespace itself: ES module namespace objects are
 // sealed by spec and reject property mutation. Jest's CJS-style import
 // proxy hid this; vitest's real ESM imports surface it as TypeError.
-let wasmInited = false;
+// Held in a const container so functions mutate a property, not a
+// top-level binding.
+const wasm_state = { inited: false };
 
 /**
  * Load `@resvg/resvg-wasm` and initialize its wasm runtime, exactly once per
  * process. Shared by every resvg-backed rasterization path so the module
  * import and `initWasm` bootstrap live in one place.
- *
  * @returns the loaded `@resvg/resvg-wasm` module namespace
  * @throws RasterizationUnsupportedError if the package cannot be loaded
- *
  * @example
  *   const { Resvg } = await resvgModule();
  */
@@ -180,24 +180,24 @@ async function resvgModule(): Promise<any> {
   let mod: any;
   try {
     mod = await import('@resvg/resvg-wasm');
-  } catch (e) {
+  } catch {
     throw new RasterizationUnsupportedError(
       `PNG/JPEG in this runtime requires @resvg/resvg-wasm; install with: npm install @resvg/resvg-wasm`
     );
   }
 
-  if (typeof mod.initWasm === 'function' && !wasmInited) {
+  if (typeof mod.initWasm === 'function' && !wasm_state.inited) {
     try {
-      const { readFileSync } = await import('fs');
-      const { resolve } = await import('path');
-      const { createRequire } = await import('module');
+      const { readFileSync } = await import('node:fs');
+      const { resolve } = await import('node:path');
+      const { createRequire } = await import('node:module');
       const req = createRequire(import.meta.url);
       const wasmPath = resolve(req.resolve('@resvg/resvg-wasm'), '../index_bg.wasm');
       const wasmBuffer = readFileSync(wasmPath);
       await mod.initWasm(wasmBuffer);
-      wasmInited = true;
-    } catch (e) {
-      wasmInited = true;
+      wasm_state.inited = true;
+    } catch {
+      wasm_state.inited = true;
     }
   }
 
@@ -257,7 +257,6 @@ export interface RgbaRaster {
  * Same backend selection and sizing semantics as {@link rasterize}:
  * feature-detects `OffscreenCanvas` at call time, falling back to
  * `@resvg/resvg-wasm` when it is absent.
- *
  * @param svg - SVG source string
  * @param opts.width - Fit output to this pixel width
  * @param opts.height - Fit output to this pixel height (ignored if `width` set)
@@ -267,11 +266,12 @@ export interface RgbaRaster {
  *   top-to-bottom, four bytes per pixel in R, G, B, A order
  * @throws RasterizationUnsupportedError if neither backend is available
  * @throws RenderError on backend failures
- *
  * @example
  *   const { rgba, width, height } = await rasterizeRgba(svgString, { scale: 100 });
  */
 export async function rasterizeRgba(svg: string, opts: RasterOptions = {}): Promise<RgbaRaster> {
+  // `typeof`, not a bare reference: see rasterize() above.
+  // eslint-disable-next-line unicorn/no-typeof-undefined
   if (typeof OffscreenCanvas !== 'undefined') {
     return rgbaViaCanvas(svg, opts);
   }
@@ -308,11 +308,11 @@ async function rgbaViaResvgWasm(svg: string, opts: RasterOptions): Promise<RgbaR
     // Canvas backend via getImageData) is straight RGBA — un-premultiply.
     // Measured 2026-07-02: 50%-opacity #ff0000 arrives as r=128,a=128.
     for (let i = 0; i < rgba.length; i += 4) {
-      const a = rgba[i + 3]!;
+      const a = rgba[i + 3];
       if (a !== 0 && a !== 255) {
-        rgba[i]     = Math.min(255, Math.round(rgba[i]!     * 255 / a));
-        rgba[i + 1] = Math.min(255, Math.round(rgba[i + 1]! * 255 / a));
-        rgba[i + 2] = Math.min(255, Math.round(rgba[i + 2]! * 255 / a));
+        rgba[i]     = Math.min(255, Math.round(rgba[i]     * 255 / a));
+        rgba[i + 1] = Math.min(255, Math.round(rgba[i + 1] * 255 / a));
+        rgba[i + 2] = Math.min(255, Math.round(rgba[i + 2] * 255 / a));
       }
     }
 

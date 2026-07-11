@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { renderSet } from '../../cli/subcommands/render/renderSet';
 
 const trafficLight = readFileSync(resolve(__dirname, 'fixtures/machines/traffic-light.fsl'), 'utf8');

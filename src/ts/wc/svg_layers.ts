@@ -8,10 +8,8 @@
  *
  * Each edge's label text is hoisted out of its edge group to the very top.
  * Markup that isn't graphviz output (no `g.graph`) is returned untouched.
- *
  * @param svg - SVG markup from the viz pipeline (`machine_to_svg_string`, etc.).
  * @returns The reordered SVG markup; identical input for non-graphviz SVG.
- *
  * @example
  * // <g class="graph"><polygon/>…<g class="node"/><g class="edge"><path/><text/></g></g>
  * // becomes: <g class="graph"><polygon/><g class="edge"><path/></g><g class="node"/><text/></g>
@@ -28,15 +26,15 @@ export function reorder_svg_layers(svg: string): string {
   // Hoist every edge's label out of its group so it lands on the top layer.
   const labels: Element[] = [];
   for (const edge of edges) {
-    for (const text of [...edge.querySelectorAll(':scope > text')]) { labels.push(text); }
+    for (const text of edge.querySelectorAll(':scope > text')) { labels.push(text); }
   }
 
   // appendChild moves a node to the end (top of the stack), so appending in
   // back-to-front order yields: background, edges, nodes, labels.
-  if (background !== null) { graph.appendChild(background); }
-  for (const edge of edges)   { graph.appendChild(edge); }
-  for (const node of nodes)   { graph.appendChild(node); }
-  for (const label of labels) { graph.appendChild(label); }
+  if (background !== null) { graph.append(background); }
+  for (const edge of edges)   { graph.append(edge); }
+  for (const node of nodes)   { graph.append(node); }
+  for (const label of labels) { graph.append(label); }
 
   return new XMLSerializer().serializeToString(doc);
 }

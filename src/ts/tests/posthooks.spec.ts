@@ -92,7 +92,7 @@ describe('Basic posthooks on API callpoint', () => {
 
 
 
-describe('Basic posthooks on API callpoint', () => {
+describe('Posthook handlers fire on API callpoint', () => {
 
 
 
@@ -773,7 +773,7 @@ describe('Post everything hook', () => {
 
     foo.transition('b');
 
-    expect(order[order.length - 1]).toBe('post_everything');
+    expect(order.at(-1)).toBe('post_everything');
     expect(order.length).toBe(3);
 
   });
@@ -848,7 +848,7 @@ describe('Post everything hook', () => {
     foo.action('go');
 
     expect(order[0]).toBe('pre_post');
-    expect(order[order.length - 1]).toBe('post');
+    expect(order.at(-1)).toBe('post');
     expect(order.length).toBe(5);
 
   });

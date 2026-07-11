@@ -1,7 +1,10 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 
 const sm = jssm.sm;
 
@@ -34,7 +37,7 @@ describe('list_exit_actions on actionless states (StoneCypher/fsl#1326)', () => 
     const m = sm`a 'foo' -> b; a 'bar' -> c; b -> c;`;
 
     test('a (with two actions) returns both action names', () =>
-      expect( m.list_exit_actions('a').slice().sort() )
+      expect( [...m.list_exit_actions('a')].sort(code_unit_compare) )
         .toStrictEqual(['bar', 'foo']) );
 
     test('b (plain -> exit only, no action) returns [] and does not throw', () =>

@@ -1,8 +1,8 @@
 
 import * as fc from 'fast-check';
 
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { join } from 'node:path';
 
 import {
   findPluginOnPath, isInProcessEligible, invokeInProcess, dispatch
@@ -33,14 +33,18 @@ const word = fc.stringOf(
 
 
 
-/** Per-suite scratch root under the project's build/ directory (the house
+/**
+ * Per-suite scratch root under the project's build/ directory (the house
  *  location for temporary files); `node_modules` in the path satisfies the
- *  in-process eligibility heuristic for fixture plugins. */
+ *  in-process eligibility heuristic for fixture plugins.
+ */
 let scratch: string;
 
 beforeAll(async () => {
   await fs.mkdir('build', { recursive: true });
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- vitest beforeAll is the only place suite-scoped state can be initialized asynchronously
   scratch = await fs.mkdtemp(join('build', 'stoch-dispatch-'));
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- vitest beforeAll is the only place suite-scoped state can be initialized asynchronously
   scratch = join(process.cwd(), scratch);
   await fs.mkdir(join(scratch, 'node_modules'), { recursive: true });
 });
@@ -54,7 +58,6 @@ afterAll(async () => {
 /**
  *  Captures everything written to a writable stream's `write` while `fn`
  *  runs, restoring the original writer afterward.
- *
  *  @param stream  `process.stdout` or `process.stderr`.
  *  @param fn      The (possibly async) action to run while capturing.
  *  @returns       The action's result and the captured text.
@@ -172,7 +175,6 @@ describe('invokeInProcess', () => {
   /**
    *  Writes a `.cjs` plugin fixture under the scratch node_modules and
    *  returns its absolute path.
-   *
    *  @param source  Module source; should set `module.exports` to a cli fn.
    *  @returns       Path to the written fixture.
    */

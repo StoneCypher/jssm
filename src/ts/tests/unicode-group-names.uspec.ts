@@ -23,7 +23,7 @@ const group_name_test = (idx: number): boolean => {
 
     try {
       ast = parse(`&${cp}: [a b]; a -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

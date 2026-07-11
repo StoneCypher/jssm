@@ -86,31 +86,33 @@ Red -> Green;
 /**
  * The \`fsl-export-system-prompt\` plugin entry point. Exported as \`cli(argv)\` so the
  * dispatcher can invoke it in-process; also called by the binary
- * (\`fsl-export-system-prompt.ts\`) which adds the shebang.
- *
+ * (\`fsl-export-system-prompt.ts\`) which adds the shebang. The work is
+ * synchronous — the prompt is a static string — but the exported contract
+ * stays \`Promise<number>\` to match every other plugin \`cli()\`, via explicit
+ * \`Promise.resolve\` rather than \`async\` (there is nothing to await).
  * @param argv - Args after the subcommand name
  * @returns 0 on success, 1 on user error, 2 on internal error
  */
-export async function cli(argv: string[]): Promise<number> {
+export function cli(argv: string[]): Promise<number> {
   let parsed: ReturnType<typeof parseFslArgs>;
   try {
     parsed = parseFslArgs(argv, SPEC);
-  } catch (e) {
-    printErr((e as Error).message);
-    return 1;
+  } catch (error) {
+    printErr((error as Error).message);
+    return Promise.resolve(1);
   }
 
   if (parsed.flags.help) {
     writeStdout(parsed.helpText() + '\n');
-    return 0;
+    return Promise.resolve(0);
   }
   if (parsed.flags.version) {
     writeStdout('fsl-export-system-prompt ' + getVersion() + '\n');
-    return 0;
+    return Promise.resolve(0);
   }
 
   // Output the system prompt
   writeStdout(SYSTEM_PROMPT.trim() + '\n');
 
-  return 0;
+  return Promise.resolve(0);
 }

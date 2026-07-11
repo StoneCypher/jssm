@@ -7,7 +7,6 @@ export type FslExportFormat = 'dot' | 'json' | 'fsl';
  * content }`; the embedder decides what to do with it (copy, download, show).
  * Formats: Graphviz `dot` (via `machine_to_dot`), `json` (the machine's
  * `serialize()`), and `fsl` (the source). Standalone is inert.
- *
  * @element fsl-export
  * @csspart export - The button row.
  * @fires {CustomEvent<{format: FslExportFormat, content: string}>} fsl-export

@@ -6,7 +6,7 @@ import { JssmError }                                    from './jssm_error.js';
 
 
 
-/* eslint-disable complexity */
+ 
 
 /*********
  *
@@ -25,17 +25,19 @@ import { JssmError }                                    from './jssm_error.js';
 
 function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
-  switch (String(arrow)) {
+  switch (arrow as string) {
 
     case '->': case '→':
     case '=>': case '⇒':
-    case '~>': case '↛':
+    case '~>': case '↛': {
       return 'right';
+ }
 
     case '<-': case '←':
     case '<=': case '⇐':
-    case '<~': case '↚':
+    case '<~': case '↚': {
       return 'left';
+ }
 
     case '<->': case '↔':
     case '<-=>': case '←⇒': case '←=>': case '<-⇒':
@@ -47,23 +49,25 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
     case '<~>': case '↮':
     case '<~->': case '↚→': case '↚->': case '<~→':
-    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
+    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒': {
       return 'both';
+ }
 
-    default:
+    default: {
       throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
 
   }
 
 }
 
-/* eslint-enable complexity */
+ 
 
 
 
 
 
-/* eslint-disable complexity */
+ 
 
 /*********
  *
@@ -85,45 +89,50 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
 function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
 
-  switch (String(arrow)) {
+  switch (arrow as string) {
 
     case '->': case '→':
     case '=>': case '⇒':
-    case '~>': case '↛':
+    case '~>': case '↛': {
       return 'none';
+ }
 
     case '<-': case '←':
     case '<->': case '↔':
     case '<-=>': case '←⇒': case '←=>': case '<-⇒':
-    case '<-~>': case '←↛': case '←~>': case '<-↛':
+    case '<-~>': case '←↛': case '←~>': case '<-↛': {
       return 'legal';
+ }
 
     case '<=': case '⇐':
     case '<=>': case '⇔':
     case '<=->': case '⇐→': case '⇐->': case '<=→':
-    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛':
+    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛': {
       return 'main';
+ }
 
     case '<~': case '↚':
     case '<~>': case '↮':
     case '<~->': case '↚→': case '↚->': case '<~→':
-    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
+    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒': {
       return 'forced';
+ }
 
-    default:
+    default: {
       throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
 
   }
 
 }
 
-/* eslint-enable complexity */
+ 
 
 
 
 
 
-/* eslint-disable complexity */
+ 
 
 /*********
  *
@@ -145,39 +154,44 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
 
 function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
-  switch (String(arrow)) {
+  switch (arrow as string) {
 
     case '<-': case '←':
     case '<=': case '⇐':
-    case '<~': case '↚':
+    case '<~': case '↚': {
       return 'none';
+ }
 
     case '->': case '→':
     case '<->': case '↔':
     case '<=->': case '⇐→': case '⇐->': case '<=→':
-    case '<~->': case '↚→': case '↚->': case '<~→':
+    case '<~->': case '↚→': case '↚->': case '<~→': {
       return 'legal';
+ }
 
     case '=>': case '⇒':
     case '<=>': case '⇔':
     case '<-=>': case '←⇒': case '←=>': case '<-⇒':
-    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
+    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒': {
       return 'main';
+ }
 
     case '~>': case '↛':
     case '<~>': case '↮':
     case '<-~>': case '←↛': case '←~>': case '<-↛':
-    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛':
+    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛': {
       return 'forced';
+ }
 
-    default:
+    default: {
       throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
 
   }
 
 }
 
-/* eslint-enable complexity */
+ 
 
 
 

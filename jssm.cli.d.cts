@@ -5,7 +5,6 @@
  * `--target` enum derive from it, so a new target is declared in exactly one
  * place.  Future targets (mermaid, plantuml, scxml, ascii, fsl) land here in
  * v0.2+.
- *
  * @example
  * RENDER_TARGETS.includes('gif' as RenderTarget);  // true
  */
@@ -81,7 +80,6 @@ declare class RasterizationUnsupportedError extends RenderError {
  * Returns a discriminated union: `kind: 'text'` for SVG / DOT / HTML, and
  * `kind: 'raster'` for PNG / JPEG / GIF. Use `kind` to narrow before
  * accessing `content` or `buffer`.
- *
  * @param fsl - FSL source text
  * @param opts.target - Output format ('svg' | 'dot' | 'png' | 'jpeg' | 'html' | 'gif')
  * @param opts.width - Fit raster output to this pixel width (raster only)
@@ -93,7 +91,6 @@ declare class RasterizationUnsupportedError extends RenderError {
  * @returns RenderResult, discriminated by `kind`
  * @throws RenderError on parse, render, or target-dispatch failures
  * @throws RasterizationUnsupportedError on raster targets where no backend exists
- *
  * @example
  *   const r = await render(fslText, { target: 'svg' });
  *   if (r.kind === 'text') console.log(r.content);
@@ -115,11 +112,9 @@ type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
  * Render multiple FSL source strings in parallel, returning one result
  * per input. Errors are captured per-input rather than aborting the whole
  * batch: callers can inspect which inputs succeeded and which failed.
- *
  * @param inputs - Array of FSL source strings
  * @param opts - Render options applied to every input
  * @returns Array of per-input results, same length and order as `inputs`
- *
  * @example
  *   const results = await renderSet([fsl1, fsl2], { target: 'svg' });
  *   for (const item of results) {
@@ -158,14 +153,11 @@ interface ParseResult<S extends ParseSpec> {
  *   -b               boolean short flag
  *   --               terminate flag parsing; remaining args are positional
  *   -                positional (stdin sentinel)
- *
  * @param argv - The argument array to parse (e.g. process.argv.slice(2))
  * @param spec - The flag specification describing accepted flags, their types, and defaults
  * @returns A ParseResult containing positional args, parsed flag values, and a helpText() generator
- *
  * @throws Error if an unknown flag is seen, an enum value mismatches,
  *   or a numeric flag receives a non-numeric value.
- *
  * @example
  * ```ts
  * const spec = {

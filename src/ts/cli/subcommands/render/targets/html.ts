@@ -1,6 +1,7 @@
 import { svgTarget } from './svg.js';
 import { RenderError } from '../../../types.js';
 
+// .replace with /g, not .replaceAll: the cli typecheck lib is pre-es2021
 const escapeHtml = (s: string): string => s
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -13,12 +14,10 @@ const escapeHtml = (s: string): string => s
  *
  * The page is intentionally minimal: a `<title>`, basic centering, and the
  * SVG. Designed for "render and email this" or "open in a browser" workflows.
- *
  * @param fsl - FSL source text
  * @param opts.title - Optional document title; defaults to "FSL Machine"
  * @returns HTML document text
  * @throws RenderError if the FSL fails to parse or render
- *
  * @example
  *   const html = await htmlTarget("a -> b;", { title: "My Machine" });
  *   // html starts with: <!DOCTYPE html>...<title>My Machine</title>...
@@ -28,8 +27,8 @@ export async function htmlTarget(fsl: string, opts: { title?: string } = {}): Pr
   let svg: string;
   try {
     svg = await svgTarget(fsl);
-  } catch (e) {
-    throw e instanceof RenderError ? e : new RenderError(`HTML render failed: ${String(e)}`);
+  } catch (error) {
+    throw error instanceof RenderError ? error : new RenderError(`HTML render failed: ${String(error)}`);
   }
 
   return `<!DOCTYPE html>

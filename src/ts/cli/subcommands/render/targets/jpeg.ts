@@ -7,7 +7,6 @@ import { rasterize } from '../rasterize.js';
  * JPEG output requires an OffscreenCanvas-capable runtime (browser, Deno,
  * Bun, mobile WebViews). The resvg-wasm fallback used in Node does not
  * produce JPEG in v1; use PNG in those environments.
- *
  * @param fsl - FSL source text
  * @param opts.width - Fit to this pixel width
  * @param opts.height - Fit to this pixel height (ignored if `width` set)
@@ -16,7 +15,6 @@ import { rasterize } from '../rasterize.js';
  * @returns Uint8Array of JPEG bytes
  * @throws RenderError if rendering fails at any layer
  * @throws RasterizationUnsupportedError on runtimes without OffscreenCanvas
- *
  * @example
  *   const jpeg = await jpegTarget(fslString, { scale: 200, quality: 90 });
  */

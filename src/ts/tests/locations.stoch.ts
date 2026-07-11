@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import * as fc   from 'fast-check';
 import * as jssm from '../jssm';
@@ -14,10 +14,8 @@ const RUNS = 100;
  *  Type guard: returns true when `v` looks like a `FslSourceLocation`
  *  (has `start.offset` and `end.offset` as numbers).  Uses `unknown`
  *  + field checks so no `any` is needed.
- *
  *  @param  v  Value to test.
  *  @returns   True iff `v` is a well-shaped source span.
- *
  *  @example
  *    isLoc({ start: { offset: 0, line: 1, column: 1 },
  *            end:   { offset: 3, line: 1, column: 4 } }) // → true
@@ -37,11 +35,9 @@ const isLoc = (v: unknown): v is { start: { offset: number }, end: { offset: num
  *  Recursively walks a parse-tree value and calls `check` for every
  *  field named `loc` or ending in `_loc` that satisfies {@link isLoc}.
  *  All other object/array values are descended into.
- *
  *  @param  node   The value to walk (array, object, or primitive).
  *  @param  len    Byte length of the source string — passed through to `check`.
  *  @param  check  Callback invoked for each found location span.
- *
  *  @see isLoc
  */
 const walk = (
@@ -49,7 +45,7 @@ const walk = (
   len   : number,
   check : (loc: { start: { offset: number }, end: { offset: number } }) => void
 ): void => {
-  if (Array.isArray(node)) { node.forEach(n => walk(n, len, check)); return; }
+  if (Array.isArray(node)) { for (const n of node) { walk(n, len, check); } return; }
   if (node && typeof node === 'object') {
     for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
       if ((k === 'loc' || k.endsWith('_loc')) && isLoc(v)) { check(v); }

@@ -5,8 +5,8 @@
  *  the fix for one specific bug so it can't silently come back.
  */
 
-import * as fs   from 'fs';
-import * as path from 'path';
+import * as fs   from 'node:fs';
+import * as path from 'node:path';
 import * as jssm from '../jssm';
 
 
@@ -115,7 +115,7 @@ describe('grammar regression / bug 3 — dead Whitespace rule removed', () => {
     // Match a top-level rule definition: `Whitespace` at column 0 followed
     // by an `=` on a continuation line.  Avoids matching the live `WS`
     // rule or any incidental occurrence of the word "whitespace".
-    expect(peg).not.toMatch(/^Whitespace\s*\n\s*=/m);
+    expect(peg).not.toMatch(/^Whitespace[\t\v\f\r \u{A0}\u{1680}\u{2000}-\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{FEFF}]*\n\s*=/mu);
   });
 
   test('the live WS rule is still present (sanity check)', () => {

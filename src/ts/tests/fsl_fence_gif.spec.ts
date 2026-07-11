@@ -67,7 +67,7 @@ describe('render_fence_html with gif format', () => {
     // vi.stubGlobal does not remove an existing global; delete it directly
     // to force the `typeof Buffer` check down the btoa path (mirrors the
     // Buffer-fallback precedent in fsl_fence_render.spec.ts's png test).
-    const realBuffer = (globalThis as any).Buffer;
+    const realBuffer = Buffer;
     delete (globalThis as any).Buffer;
     try {
       const html = await render_fence_html('A => B => A;', 'fsl gif');

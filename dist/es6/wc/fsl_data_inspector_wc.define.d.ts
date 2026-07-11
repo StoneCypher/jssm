@@ -1,2 +1,1 @@
-import { FslDataInspector } from './fsl_data_inspector_wc.js';
-export { FslDataInspector };
+export { FslDataInspector } from './fsl_data_inspector_wc.js';

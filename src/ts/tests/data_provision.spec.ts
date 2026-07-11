@@ -110,7 +110,7 @@ describe('fsl#1264 — explicit data provision vs omission', () => {
 
     test('override with explicit undefined fires data-change to undefined', () => {
       const m = sm_from(`allows_override: true; a -> b;`, { data: 9 });
-      let received: any = null;   // eslint-disable-line @typescript-eslint/no-explicit-any
+      let received: any = null;    
       m.on('data-change', e => { received = e; });
       m.override('b', undefined);
       expect(received.cause).toBe('override');
@@ -145,7 +145,7 @@ describe('fsl#1264 — explicit data provision vs omission', () => {
 
     test('set_data fires data-change with cause set_data', () => {
       const m = sm_from(`a -> b;`, { data: 1 });
-      let received: any = null;   // eslint-disable-line @typescript-eslint/no-explicit-any
+      let received: any = null;    
       m.on('data-change', e => { received = e; });
       m.set_data(5);
       expect(received.cause).toBe('set_data');
@@ -186,14 +186,14 @@ describe('fsl#935 — hook complex results carry falsy data faithfully', () => {
     [ 'empty string', ''     ],
   ];
 
-  falsies.forEach( ([label, value]) => {
+  for (const [label, value] of falsies) {
     test(`any-transition hook assigning ${label} commits exactly`, () => {
       const m = sm_from(`a -> b;`, { data: 'seed' });
       m.hook_any_transition(() => ({ pass: true, data: value }));
       expect(m.go('b')).toBe(true);
       expect(m.data()).toBe(value);
     });
-  });
+  }
 
   test('specific edge hook assigning undefined commits exactly', () => {
     const m = sm_from(`a -> b;`, { data: 'seed' });

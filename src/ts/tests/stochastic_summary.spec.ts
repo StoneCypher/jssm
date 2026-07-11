@@ -83,7 +83,7 @@ describe('stochastic_summary', () => {
     const m = sm`a 'go' -> b 'go' -> a;`;
     const seed_before  = m.rng_seed;
     const state_before = m.state();
-    m.stochastic_summary({ runs: 10, max_steps: 5, seed: 12345 });
+    m.stochastic_summary({ runs: 10, max_steps: 5, seed: 12_345 });
     expect(m.rng_seed).toBe(seed_before);
     expect(m.state()).toBe(state_before);
   });
@@ -125,7 +125,7 @@ describe('stochastic_runs seeding', () => {
 
   it('leaves the machine reseeded (documented side effect; not restored)', () => {
     const m = sm`a 'go' -> b 'go' -> a;`;
-    [...m.stochastic_runs({ runs: 2, max_steps: 5, seed: 7 })];
+    const _consumed = [...m.stochastic_runs({ runs: 2, max_steps: 5, seed: 7 })];
     expect(m.rng_seed).toBe(7);
   });
 

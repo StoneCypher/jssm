@@ -11,7 +11,6 @@ type RasterTarget = 'png' | 'jpeg';
  * Feature-detects `OffscreenCanvas` at call time: if present, uses the
  * native Canvas path (browsers, Deno, Bun, mobile WebViews, etc.); otherwise
  * loads `@resvg/resvg-wasm` and renders via that.
- *
  * @param svg - SVG source string
  * @param target - 'png' or 'jpeg'
  * @param opts.width - Fit output to this pixel width
@@ -22,7 +21,6 @@ type RasterTarget = 'png' | 'jpeg';
  * @returns Uint8Array of rasterized bytes
  * @throws RasterizationUnsupportedError if neither backend is available
  * @throws RenderError on backend failures
- *
  * @example
  *   const png = await rasterize(svgString, 'png', { scale: 100 });
  *   await writeFile('out.png', png);
@@ -41,7 +39,6 @@ export interface RgbaRaster {
  * Same backend selection and sizing semantics as {@link rasterize}:
  * feature-detects `OffscreenCanvas` at call time, falling back to
  * `@resvg/resvg-wasm` when it is absent.
- *
  * @param svg - SVG source string
  * @param opts.width - Fit output to this pixel width
  * @param opts.height - Fit output to this pixel height (ignored if `width` set)
@@ -51,7 +48,6 @@ export interface RgbaRaster {
  *   top-to-bottom, four bytes per pixel in R, G, B, A order
  * @throws RasterizationUnsupportedError if neither backend is available
  * @throws RenderError on backend failures
- *
  * @example
  *   const { rgba, width, height } = await rasterizeRgba(svgString, { scale: 100 });
  */

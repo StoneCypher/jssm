@@ -32,7 +32,7 @@ describe('seq/1 over wrong sizes', () => {
   });
 
   test(`Infinite sizes must throw`, () => {
-    expect(() => jssm.seq(Number.POSITIVE_INFINITY as any)).toThrow();
+    expect(() => jssm.seq(Infinity as any)).toThrow();
   });
 
   test(`Non-numeric sizes must throw`, () => {

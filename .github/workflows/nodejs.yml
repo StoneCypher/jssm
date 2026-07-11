@@ -546,9 +546,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: npm
-    - name: npm install, build, and test (trimmed; full bundles+minify covered by pr-check and full-build)
+    # Runtime-only (no vet): these legs verify the LIBRARY across Node
+    # versions and platforms. The eslint-10 lint stack (unicorn 71 etc.)
+    # requires Node >=22 and crashes on the 20.x floor leg; linting is
+    # engine-independent anyway, so it runs once on the Node 24 jobs
+    # (test-pr / test-main-full) instead.
+    - name: npm install, build, and test (runtime-only; vet runs on the Node 24 jobs)
       run: |
-        npm install && npm run ci_test
+        npm install && npm run ci_test_runtime
       env:
         CI: true
     - name: Coveralls GitHub Action

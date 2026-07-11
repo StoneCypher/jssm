@@ -30,10 +30,8 @@ const RUNS = 100;
 /**
  *  Parse a one-line transition `a <arrow> b;` and return the
  *  canonicalised arrow kind at `tree[0].se.kind`.
- *
  *  @param  arrow_src  The raw arrow source, e.g. `'->'`, `'↔'`, `'<-=>'`.
  *  @returns           The canonical ASCII kind string the parser stored.
- *
  *  @example
  *    parse_arrow_kind('->')   // → '->'
  *    parse_arrow_kind('↔')    // → '<->'  (Unicode canonicalised to ASCII)

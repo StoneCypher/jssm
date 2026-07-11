@@ -41,7 +41,7 @@ describe('Constants test lists', () => {
     [ 'FlowDirections', FlowDirections ]
   ];
 
-  testdata.map(datum => {
+  for (const datum of testdata) {
 
     test(`List "${datum[0]}" is an array`, () =>
       expect( Array.isArray(datum[1]) ).toBe(true) );
@@ -50,7 +50,7 @@ describe('Constants test lists', () => {
       expect( datum[1].length > 1 ).toBe(true) );
 
     test(`List "${datum[0]}" contains no null, undefined, or holes`, () =>
-      // eslint-disable-next-line no-eq-null, eqeqeq
+       
       expect( datum[1].length == null ).toBe(false) );  // LEAVE THIS DOUBLE-EQUALS
 
     test(`List "${datum[0]}" contains no empty strings`, () =>
@@ -61,7 +61,7 @@ describe('Constants test lists', () => {
       expect( datum[1].length ).toBe(deduped.length);
     });
 
-  });
+  }
 
 });
 

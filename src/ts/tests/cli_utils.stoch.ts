@@ -45,23 +45,25 @@ const word = fc.stringOf(
 /**
  *  Renders one flag assignment as argv tokens, in one of its equivalent
  *  spellings.
- *
  *  @param long   The long flag name.
  *  @param short  The short flag character.
  *  @param value  The value to pass (already stringified).
  *  @param form   Which spelling to use, 0-3.
  *  @returns      The argv tokens for this assignment.
- *
  *  @example
  *    render_flag('alpha', 'a', 'x', 0)  // ['--alpha=x']
  *    render_flag('alpha', 'a', 'x', 3)  // ['-ax']
  */
 function render_flag(long: string, short: string, value: string, form: number): string[] {
   switch (form) {
-    case 0:  return [`--${long}=${value}`];
-    case 1:  return [`--${long}`, value];
-    case 2:  return [`-${short}`, value];
-    default: return [`-${short}${value}`];
+    case 0: {  return [`--${long}=${value}`];
+    }
+    case 1: {  return [`--${long}`, value];
+    }
+    case 2: {  return [`-${short}`, value];
+    }
+    default: { return [`-${short}${value}`];
+    }
   }
 }
 
@@ -196,7 +198,7 @@ describe('rejections', () => {
 
     fc.assert(
       fc.property(
-        word.filter( w => !(w in spec.flags) ),
+        word.filter( w => !Object.hasOwn(spec.flags, w) ),
         (name) => {
           expect(() => parseFslArgs([`--${name}`], spec)).toThrow(`unknown flag: --${name}`);
         }

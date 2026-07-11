@@ -636,12 +636,12 @@ describe('hook-registration / hook-removal events', () => {
       { kind: 'post everything',                                                 handler: noop }
     ];
 
-    descs.forEach(d => {
+    for (const d of descs) {
       m.set_hook(d);
       expect(m.remove_hook(d)).toBe(true);
       // second removal returns false: covers the "already empty" branches
       expect(m.remove_hook(d)).toBe(false);
-    });
+    }
   });
 
   test('remove_hook throws on unknown kind', () => {
@@ -694,7 +694,7 @@ describe('timeout event', () => {
     const m = sm_from(`a after 10ms -> b;`);
     let received: any = null;
     m.on('timeout', e => { received = e; });
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
     expect(received).not.toBeNull();
     expect(received.from).toBe('a');
     expect(received.to).toBe('b');

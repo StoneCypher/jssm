@@ -30,11 +30,9 @@ const RUNS = 100;
 /**
  *  Parse `a after N<unit> -> b;` and return the canonical r_after
  *  value (always milliseconds).
- *
  *  @param  value      Numeric quantity (no sign — NonNegNumber).
  *  @param  unit_src   Optional unit alias string.  Empty/omit for bare-number.
  *  @returns           Milliseconds the parser computed.
- *
  *  @example
  *    parse_after(5, 's')   // → 5000
  *    parse_after(5)         // → 5000 (bare = seconds)

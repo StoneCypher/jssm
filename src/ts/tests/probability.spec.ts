@@ -1,9 +1,12 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
 const sm = jssm.sm;
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 
 
 
@@ -173,7 +176,7 @@ describe('probable_exits_for filters by probability data (StoneCypher/fsl#1325)'
     // every legal exit so that weighted_rand_select gives them equal weight.
     const m = sm`a -> b; a -> c;`;
     const exits = m.probable_exits_for('a');
-    const targets = exits.map(e => e.to).sort();
+    const targets = exits.map(e => e.to).sort(code_unit_compare);
 
     expect(exits.length).toBe(2);
     expect(targets).toEqual(['b', 'c']);
@@ -225,7 +228,7 @@ describe('probable_exits_for filters by probability data (StoneCypher/fsl#1325)'
 
     const m = sm`a 10% -> b; a 90% -> c; a -> d;`;
     const exits = m.probable_exits_for('a');
-    const targets = exits.map(e => e.to).sort();
+    const targets = exits.map(e => e.to).sort(code_unit_compare);
 
     expect(targets).toEqual(['b', 'c']);
     expect(exits.every(e => typeof e.probability === 'number')).toBe(true);
@@ -304,7 +307,7 @@ describe('random seed', () => {
     // Run N probabilistic transitions with a known seed
     const N = 20;
 
-    m.rng_seed = 12345;
+    m.rng_seed = 12_345;
     const run1: string[] = [];
     for (let i = 0; i < N; i++) {
       m.force_transition('a');
@@ -313,7 +316,7 @@ describe('random seed', () => {
     }
 
     // Reset to same seed and repeat
-    m.rng_seed = 12345;
+    m.rng_seed = 12_345;
     const run2: string[] = [];
     for (let i = 0; i < N; i++) {
       m.force_transition('a');

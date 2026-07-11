@@ -287,10 +287,10 @@ describe('dist/wc/widgets.define.js — registration entry point', () => {
 
   it('registers all eight new canonical tags', () => {
     const built = readFileSync(define_path, 'utf8');
-    for (const tag of ['fsl-toolbar', 'fsl-footer', 'fsl-help', 'fsl-history',
-      'fsl-data-inspector', 'fsl-hook-log', 'fsl-simulation', 'fsl-export']) {
-      expect(built, tag).toContain(tag);
-    }
+    const tags  = ['fsl-toolbar', 'fsl-footer', 'fsl-help', 'fsl-history',
+      'fsl-data-inspector', 'fsl-hook-log', 'fsl-simulation', 'fsl-export'];
+    const missing = tags.filter(tag => !built.includes(tag));
+    expect(missing).toEqual([]);
   });
 
   it('imports the class build rather than re-inlining the eight widgets', () => {

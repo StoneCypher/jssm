@@ -76,13 +76,13 @@ export const ENUM_KEYWORDS = new Set([
 ]);
 /** Custom token-type string emitted for deprecated keywords; mapped in `tokenTable`. */
 const DEPRECATED_TOKEN = 'fslDeprecatedKeyword';
-const ARROWS = /^(?:<-=>|<-~>|<=->|<=~>|<~->|<~=>|<->|<=>|<~>|->|<-|=>|<=|~>|<~|↔|←|→|⇔|⇐|⇒|↮|↚|↛)/;
+const ARROWS = /^(?:<-=>|<-~>|<=->|<=~>|<~->|<~=>|<->|<=>|<~>|->|<-|=>|<=|~>|<~|[↔←→⇔⇐⇒↮↚↛])/;
 const COMPARATORS = /^(?:>=|<=|>|<)/;
 // Mirrors the grammar's AtomFirstLetter / AtomLetter rules (fsl_parser.peg:263-267).
 // The high-unicode tail is the range U+0080..U+FFFF (escaped below). The
 // original sketch anchored the range at the comma, wrongly swallowing { } ; : |.
-const ATOM_START = /[0-9a-zA-Z._!$^*?,\u0080-\uFFFF]/;
-const ATOM_BODY = /[0-9a-zA-Z.+_^()*&$#@!?,\u0080-\uFFFF]/;
+const ATOM_START = /[\w.!$^*?,\u{80}-\u{FFFF}]/u;
+const ATOM_BODY = /[\w.+^()*&$#@!?,\u{80}-\u{FFFF}]/u;
 /**
  * The StreamLanguage tokenizer for FSL. Classifies each token into a standard
  * CodeMirror highlight name, or {@link DEPRECATED_TOKEN} (mapped through
@@ -128,7 +128,7 @@ export const fslStreamParser = {
         if (stream.match(/^\d+(?:\.\d+)*/)) {
             return 'number';
         }
-        if (stream.match(/^&[A-Za-z_]\w*/)) {
+        if (stream.match(/^&[A-Z_]\w*/i)) {
             return 'variableName.special';
         }
         // Invariant: the loop guards `!eol` and `eatSpace()` returned false above,
@@ -138,13 +138,11 @@ export const fslStreamParser = {
             let tok = '';
             let next = stream.peek();
             while (next !== undefined) {
-                if (ATOM_BODY.test(next)) {
-                    tok += stream.next();
-                }
-                else if (next === '-' && ATOM_BODY.test(stream.string.slice(stream.pos + 1, stream.pos + 2))) {
-                    // An interior hyphen (between word chars) joins a compound key like
-                    // `background-color`; a trailing one (before `>` of `->`, or at EOL)
-                    // does not. `slice` yields '' past the end, so no nullish branch.
+                // An interior hyphen (between word chars) joins a compound key like
+                // `background-color`; a trailing one (before `>` of `->`, or at EOL)
+                // does not. `slice` yields '' past the end, so no nullish branch.
+                const interior_hyphen = next === '-' && ATOM_BODY.test(stream.string.slice(stream.pos + 1, stream.pos + 2));
+                if (ATOM_BODY.test(next) || interior_hyphen) {
                     tok += stream.next();
                 }
                 else {
@@ -166,7 +164,7 @@ export const fslStreamParser = {
             }
             return 'variableName';
         }
-        if (stream.match(/^[\[\]{}()]/)) {
+        if (stream.match(/^[[\]{}()]/)) {
             return 'bracket';
         }
         if (stream.match(/^[;:,|]/)) {
@@ -197,9 +195,7 @@ export const fslHighlightStyle = HighlightStyle.define([
 ]);
 /**
  * CodeMirror 6 `LanguageSupport` for FSL. Drop into an editor's `extensions`.
- *
  * @returns A `LanguageSupport` extension for FSL highlighting.
- *
  * @example
  *   import { EditorView, basicSetup } from 'codemirror';
  *   import { fsl } from 'jssm/cm6';

@@ -19,21 +19,21 @@ import { test_range_with } from './unicode.uspec-driver';
 // and so tested bare atoms, not strings; the quoted-string path went
 // unexercised despite the filename.)
 
-const string_skips = ['"', '\\'];
+const string_skips = new Set(['"', '\\']);
 
 const string_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(string_skips.includes(cp))) {
+  if (!(string_skips.has(cp))) {
 
     let left_test, middle_test, right_test;
 
     try {
-      left_test   = sm`"${cp}" -> target;`,
-      middle_test = sm`source -> "${cp}" -> target;`,
+      left_test   = sm`"${cp}" -> target;`;
+      middle_test = sm`source -> "${cp}" -> target;`;
       right_test  = sm`source -> "${cp}";`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

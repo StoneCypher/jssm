@@ -6,7 +6,6 @@ import type { JssmStochasticMode } from '../jssm_types.js';
  * host's `.fsl` source (never touching the live machine) and renders
  * aggregate run statistics in-panel.  Standalone (no host) the controls are
  * disabled.
- *
  * @element fsl-stochastic
  * @csspart controls - The control row.
  * @fires fsl-stochastic-complete - CustomEvent<JssmStochasticSummary> after a run.
@@ -42,7 +41,6 @@ export declare class FslStochastic extends LitElement {
      *
      * Falls back to immediate (synchronous chunk) scheduling under jsdom where
      * `requestAnimationFrame` is undefined.
-     *
      * @example
      * panel.runs = 100;
      * await panel.play(); // resolves when all 100 runs are done
@@ -51,7 +49,6 @@ export declare class FslStochastic extends LitElement {
     /**
      * Fold accumulated counters into a rendered summary. Shared by {@link play}
      * for incremental rendering during animation.
-     *
      * @param state_visits     - Accumulated visit counts per state name.
      * @param edge_traversals  - Accumulated traversal counts per edge key.
      * @param path_lengths     - Lengths of completed (terminated) paths.

@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; sim: FslSimul
   host.setAttribute('fsl', fsl);
   const sim = document.createElement('fsl-simulation') as FslSimulation;
   sim.setAttribute('slot', 'simulation');
-  host.appendChild(sim);
-  document.body.appendChild(host);
+  host.append(sim);
+  document.body.append(host);
   await host.updateComplete;
   await sim.updateComplete;
   return { host, sim };
@@ -68,7 +68,7 @@ describe('<fsl-simulation>', () => {
 
   it('no-ops and shows idle when standalone (no fsl-instance ancestor)', async () => {
     const sim = document.createElement('fsl-simulation') as FslSimulation;
-    document.body.appendChild(sim);
+    document.body.append(sim);
     await sim.updateComplete;
     expect(sim.shadowRoot!.querySelector('.count')!.classList.contains('idle')).toBe(true);
 
