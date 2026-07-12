@@ -1,2 +1,10 @@
+machine_name    : "ATM tutorial 2 - insert card";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+
+
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 EjectCardAndReset -> EmptyWaiting;

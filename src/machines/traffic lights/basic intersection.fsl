@@ -1,3 +1,10 @@
+machine_name    : "Basic intersection";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+
 
 Off -> Rn_Re;
 

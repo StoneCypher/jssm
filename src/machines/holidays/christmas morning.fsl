@@ -1,0 +1,49 @@
+machine_name    : "Christmas Morning";
+machine_version : 1.0.0;
+
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+machine_comment : "Anticipation, negotiation, frenzy, wrapping-paper aftermath. Strength arrows model parental resistance; probability arrows model the frenzy. See also 'trick or treat.fsl'.";
+
+graph_layout    : dot;
+
+
+
+// 5am. Nobody is asleep anymore.
+
+"Sound Asleep" 'was that sleigh bells? no, the furnace' -> "Wide Awake at 5am";
+
+// The strong path is waking the parents; sneaking downstairs is the
+// unlikely path, and it never works anyway.
+
+"Wide Awake at 5am" 'wake the parents' => "Parental Negotiation";
+"Wide Awake at 5am" 'sneak downstairs' ~> "Caught Shaking Boxes";
+
+"Caught Shaking Boxes" 'sent back upstairs' -> "Wide Awake at 5am";
+
+// Parents hold the line exactly as long as the coffee takes.
+
+"Parental Negotiation" 'coffee achieved'       => "Stockings First";
+"Parental Negotiation" 'resistance collapses'  ~> "Present Frenzy";
+
+"Stockings First" 'okay, NOW presents' -> "Present Frenzy";
+
+// The frenzy is a weighted loop: there is always another present,
+// until suddenly there isn't.
+
+"Present Frenzy" 60% -> "Present Frenzy";
+"Present Frenzy" 25% -> "Wrapping Paper Everywhere";
+"Present Frenzy" 15% -> "Batteries Not Included";
+
+"Batteries Not Included" 'raid the TV remote' -> "Present Frenzy";
+
+// Aftermath.
+
+"Wrapping Paper Everywhere" 'the big cleanup' -> "Pancake Breakfast";
+
+"Pancake Breakfast" 'food coma'                        => "Everyone Naps";
+"Pancake Breakfast" 'assemble the 900 piece playset'   ~> "Dad vs The Instructions";
+
+"Dad vs The Instructions" 'concede with dignity' -> "Everyone Naps";

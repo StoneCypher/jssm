@@ -1,0 +1,107 @@
+machine_name      : "NSA Job Application Flowchart";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+
+machine_reference : [ "https://github.com/StoneCypher/fsl/issues/518" ];
+machine_comment   : "SECRET.  Memorandum for all recruitment officers, for use in the selection of agents.  The (humorous) NSA job application flowchart, transcribed from the classic image.";
+
+start_states      : [Start];
+end_states        : [ "REJECT"
+  "Suck up"
+  "Amateur"
+  "Forward to FBI recruitment"
+  "Forward to CIA recruitment"
+  "Too old-school. REJECT"
+  "Child's play"
+  "HIRE as AGENT"
+  "MANAGEMENT MATERIAL" ];
+
+
+
+Start => "Q. If you were building a fence, would you make it solid,\n or would you leave small spaces which you could peer through?";
+
+"Q. If you were building a fence, would you make it solid,\n or would you leave small spaces which you could peer through?"
+  'Solid'  -> "REJECT";
+"Q. If you were building a fence, would you make it solid,\n or would you leave small spaces which you could peer through?"
+  'Spaces' -> "REJECT";
+"Q. If you were building a fence, would you make it solid,\n or would you leave small spaces which you could peer through?"
+  'Solid fence, but monitor neighbor with hidden cameras' => "Q. Search engine of choice?";
+
+"Q. Search engine of choice?" 'Google or Bing'            -> "REJECT";
+"Q. Search engine of choice?" 'Holding out for XKeyScore' -> "Suck up";
+"Q. Search engine of choice?" 'My friends\' email accounts' => "Q. Favorite movie villain?";
+
+"Q. Favorite movie villain?" 'Darth Vader'     -> "Amateur";
+"Q. Favorite movie villain?" 'Hannibal Lecter' -> "Forward to FBI recruitment";
+"Q. Favorite movie villain?" 'Erin Brockovich' => "Q. Favorite Game of Thrones character?";
+
+"Q. Favorite Game of Thrones character?" 'Ned Stark'  -> "REJECT";
+"Q. Favorite Game of Thrones character?" 'Arya Stark' -> "Forward to CIA recruitment";
+"Q. Favorite Game of Thrones character?" 'The Spider' => "Q. If your water pipe had a leak, you would...";
+
+"Q. If your water pipe had a leak, you would..." 'Blog about the water damage'      -> "REJECT";
+"Q. If your water pipe had a leak, you would..." 'Hire a plumber and fix the leak'  -> "Too old-school. REJECT";
+"Q. If your water pipe had a leak, you would..." 'Hire a "cleaner" and eliminate the water pipe'
+  => "Q. If you were assigned to follow someone and track\n their every movement, what's the best way?";
+
+"Q. If you were assigned to follow someone and track\n their every movement, what's the best way?"
+  'Watch outside their house from a car'    -> "Too old-school. REJECT";
+"Q. If you were assigned to follow someone and track\n their every movement, what's the best way?"
+  'Use electronic devices like GPS trackers' -> "Child's play";
+"Q. If you were assigned to follow someone and track\n their every movement, what's the best way?"
+  'Friend them on Facebook'                  => "HIRE as AGENT";
+"Q. If you were assigned to follow someone and track\n their every movement, what's the best way?"
+  'These questions are a waste of time, you already know everything about me'
+  ~> "MANAGEMENT MATERIAL";
+
+
+
+state Start : {
+  shape            : octagon;
+  background-color : limegreen;
+  text-color       : white;
+};
+
+state "REJECT" : {
+  shape            : octagon;
+  background-color : indianred;
+  text-color       : white;
+};
+
+state "Suck up" : {
+  shape            : octagon;
+  background-color : indianred;
+  text-color       : white;
+};
+
+state "Amateur" : {
+  shape            : octagon;
+  background-color : indianred;
+  text-color       : white;
+};
+
+state "Too old-school. REJECT" : {
+  shape            : octagon;
+  background-color : indianred;
+  text-color       : white;
+};
+
+state "Child's play" : {
+  shape            : octagon;
+  background-color : indianred;
+  text-color       : white;
+};
+
+state "HIRE as AGENT" : {
+  shape            : star;
+  background-color : gold;
+};
+
+state "MANAGEMENT MATERIAL" : {
+  shape            : star;
+  background-color : gold;
+};
