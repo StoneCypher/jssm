@@ -143,6 +143,11 @@ export default tseslint.config(
       'unicorn/prefer-string-replace-all'   : 'off',
       'unicorn/prefer-at'                   : 'off',
 
+      //  Promise.withResolvers is es2024 (Node >= 22); the CI matrix still
+      //  carries a Node 20 leg, so this rule is a floor-raiser too — its
+      //  autofix broke the Node 20 leg on jssm#939
+      'unicorn/prefer-promise-with-resolvers': 'off',
+
       //  charCodeAt→codePointAt changes surrogate-pair behavior, which the
       //  unicode suites pin; that conversion deserves its own pass under the
       //  full unicode gauntlet, not a ride-along on a lint chore

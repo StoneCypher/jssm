@@ -46,10 +46,15 @@ interface Deferred<T> {
   resolve: (value: T) => void;
 }
 
-/** Create a deferred promise for deterministic async race tests. */
+/**
+ * Create a deferred promise for deterministic async race tests.
+ *  Promise.withResolvers is ES2024 (Node >= 22); the CI matrix still runs a
+ *  Node 20 leg, so extract the resolver the ES6 way instead.
+ */
 const deferred = <T>(): Deferred<T> => {
-  const { promise, resolve } = Promise.withResolvers<T>();
-  return { promise, resolve };
+  let resolver!: (value: T) => void;
+  const promise = new Promise<T>(resolve => { resolver = resolve; });
+  return { promise, resolve: resolver };
 };
 
 beforeEach(async () => {
