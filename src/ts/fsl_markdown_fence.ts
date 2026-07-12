@@ -20,13 +20,25 @@ export type FenceDimensionUnit = 'px' | 'percent';
 /** A parsed `width=`/`height=` value with its unit. */
 export interface FenceDimension { value: number; unit: FenceDimensionUnit; }
 
-/** The fully-parsed, validated description of one FSL Markdown fence block. */
+/**
+ *  The fully-parsed, validated description of one FSL Markdown fence block.
+ *
+ *  Sizing semantics: `width`/`height` (from `width=`/`height=` tokens) are
+ *  *exact* dimensions — the host renders the block at that size.
+ *  `max_width`/`max_height` (from `max-width=`/`max-height=` tokens) are
+ *  *upper bounds* on natural sizing — the block renders at its natural size
+ *  but is capped on that axis.  When both an exact and a max token are given
+ *  for the same axis, the exact dimension wins and the cap is moot.  All four
+ *  are `null` when their token is absent.
+ */
 export interface FenceDescriptor {
   parts       : FencePart[];
   ide         : boolean;
   format      : FenceImageFormat;
   width       : FenceDimension | null;
   height      : FenceDimension | null;
+  max_width   : FenceDimension | null;
+  max_height  : FenceDimension | null;
   interactive : boolean;
   notes       : string[];
 }
@@ -71,7 +83,7 @@ const INTERACTIVE_PARTS: ReadonlySet<FencePart> =
 /**
  *  Parse a dimension value like `300`, `120px`, or `100%` into a
  *  {@link FenceDimension}.  A bare number is pixels.
- *  @param raw The value portion of a `width=`/`height=` token.
+ *  @param raw The value portion of a `width=`/`height=`/`max-width=`/`max-height=` token.
  *  @returns The parsed dimension, or `null` if malformed.
  *  @example parse_dimension('300')  // => { value: 300, unit: 'px' }
  *  @example parse_dimension('100%') // => { value: 100, unit: 'percent' }
@@ -90,13 +102,18 @@ const IDE_LAYOUT: readonly FencePart[] =
 /**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
- *  classified as parts, image formats, the `ide` macro, or `width`/`height`
- *  options.  Unrecognized or conflicting tokens are dropped and recorded in
+ *  classified as parts, image formats, the `ide` macro, or the dimension
+ *  options `width`/`height` (exact size) and `max-width`/`max-height`
+ *  (upper bounds on natural size — see {@link FenceDescriptor} for the
+ *  precedence rule when both appear on one axis).  All four dimension tokens
+ *  share one value syntax: a bare number (pixels), `<n>px`, or `<n>%`.
+ *  Unrecognized or conflicting tokens are dropped and recorded in
  *  `notes` rather than throwing, so a host can render forward-compatibly.
  *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
  *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
  *  @example parse_fence_info('fsl').parts // => ['image', 'code']
  *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ *  @example parse_fence_info('fsl image max-width=300 max-height=50%').max_width // => { value: 300, unit: 'px' }
  */
 export function parse_fence_info(info: string): FenceDescriptor {
   const tokens = info.trim().split(/\s+/).filter(Boolean);
@@ -107,9 +124,15 @@ export function parse_fence_info(info: string): FenceDescriptor {
 
   let format     : FenceImageFormat = 'svg';
   let format_set = false;
-  let width  : FenceDimension | null = null;
-  let height : FenceDimension | null = null;
-  let ide    = false;
+  let ide        = false;
+
+  // the four dimension tokens share one assignment path, keyed by token name
+  const dims : Record<'width' | 'height' | 'max-width' | 'max-height', FenceDimension | null> = {
+    'width'      : null,
+    'height'     : null,
+    'max-width'  : null,
+    'max-height' : null,
+  };
 
   for (const arg of args) {
     if (arg === 'ide') { ide = true; continue; }
@@ -125,14 +148,13 @@ export function parse_fence_info(info: string): FenceDescriptor {
       if (!parts.includes('image')) { parts.push('image'); }
       continue;
     }
-    if (arg.startsWith('width=') || arg.startsWith('height=')) {
+    if (arg.startsWith('width=') || arg.startsWith('height=') || arg.startsWith('max-width=') || arg.startsWith('max-height=')) {
       const eq  = arg.indexOf('=');
-      const key = arg.slice(0, eq);
+      const key = arg.slice(0, eq) as 'width' | 'height' | 'max-width' | 'max-height';
       const raw = arg.slice(eq + 1);
       const dim = parse_dimension(raw);
-      if (dim === null)          { notes.push(`invalid ${key} value "${raw}" ignored`); }
-      else if (key === 'width')  { width  = dim; }
-      else                       { height = dim; }
+      if (dim === null) { notes.push(`invalid ${key} value "${raw}" ignored`); }
+      else              { dims[key] = dim; }
       continue;
     }
     notes.push(`unknown token "${arg}" ignored`);
@@ -157,8 +179,10 @@ export function parse_fence_info(info: string): FenceDescriptor {
     parts,
     ide,
     format,
-    width,
-    height,
+    width      : dims.width,
+    height     : dims.height,
+    max_width  : dims['max-width'],
+    max_height : dims['max-height'],
     interactive,
     notes
   };

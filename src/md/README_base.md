@@ -327,6 +327,7 @@ That decision shows up everywhere downstream:
 - [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
 - [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
 - [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) - DSL reference for people already comfortable with state machines
+- [Styling nodes and graphs](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Styling.md) - the built-in named color themes and how to select them from FSL source, code, Markdown fences, the CLI, and web components
 - [Catalog of example machines](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/ExampleMachines.md) - comparison table of worked examples (light switch, traffic light, intersection, vending machine, more)
 - [Generated API reference](https://stonecypher.github.io/jssm/docs/) - full surface, generated from the TypeScript source
 

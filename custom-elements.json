@@ -4489,6 +4489,11 @@
               "description": "Minimum height of the rendered SVG container.",
               "name": "--jssm-viz-min-height",
               "default": "100px"
+            },
+            {
+              "description": "Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.",
+              "name": "--jssm-viz-max-height",
+              "default": "none"
             }
           ],
           "members": [
@@ -4610,7 +4615,7 @@
                   "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   * "
                 }
               ],
-              "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` (the state name) and edges by\r\nthe `from->to` title Graphviz emits, applying inline style overrides so\r\nthe highlight composes over — and is reversible against — the default\r\nrendering (see clearHighlights, which this calls first). No-ops\r\nwhen detached, before the first render, or given an empty trace.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n```"
+              "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` and edges by the `from->to`\r\ntitle Graphviz emits, applying inline style overrides so the highlight\r\ncomposes over — and is reversible against — the default rendering (see\r\nclearHighlights, which this calls first). No-ops when detached,\r\nbefore the first render, or given an empty trace.\r\n\r\nBecause dot generation slugs state names into node identifiers (fsl#1935\r\n— `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name\r\nis matched in **both** its raw form and its slugged form, using the same\r\n`slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,\r\n`'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore\r\nboth work. Names whose slug is empty (e.g. `'!!!'`, which renders under\r\nan indexed `node-N` title) are only matchable by passing that literal\r\n`node-N` title.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n\r\n// Display-form names match their slugged titles:\r\nviz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm\r\n```"
             }
           ],
           "events": [
@@ -4969,6 +4974,14 @@
           "declaration": {
             "name": "FslStochastic",
             "module": "./fsl_stochastic_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslInfoPanel",
+          "declaration": {
+            "name": "FslInfoPanel",
+            "module": "./fsl_info_panel_wc.js"
           }
         }
       ]

@@ -320,6 +320,66 @@ async function settle_viz(el: HTMLElement): Promise<void> {
   await (el as any).updateComplete;
 }
 
+describe('FslViz sizing constraints (#1934)', () => {
+
+  // jsdom performs no layout, so the honest jsdom-side assertions are:
+  // (a) the component's stylesheet carries the max-bound rules and the
+  //     custom-property seam that make an auto-height host under an external
+  //     max-height keep its svg bounded, and
+  // (b) the rendered <svg> receives no inline pixel sizing that would defeat
+  //     those CSS rules, and keeps the viewBox that makes a capped viewport
+  //     letterbox instead of distort.
+  // The real layout behavior is asserted in the Playwright e2e suite
+  // (src/ts/e2e/viz_sizing.spec.ts), which measures bounding boxes in a real
+  // Chromium.
+
+  it('stylesheet exposes the --jssm-viz-max-height seam on the host', () => {
+    const sheet = String(FslVizBase.styles);
+    expect(sheet).toContain('max-height: var(--jssm-viz-max-height, none)');
+    // The pre-existing min-height seam must survive alongside it.
+    expect(sheet).toContain('min-height: var(--jssm-viz-min-height, 100px)');
+  });
+
+  it('stylesheet threads the max-height cap down to the svg via inherit', () => {
+    const sheet = String(FslVizBase.styles);
+    // Both the .container and the svg inherit the host's cap — that chain is
+    // what keeps the svg bounded when percentage heights collapse to auto.
+    const inherits = sheet.match(/max-height:\s*inherit/g) ?? [];
+    expect(inherits.length).toBeGreaterThanOrEqual(2);
+    expect(sheet).toContain('max-width: 100%');
+  });
+
+  it('rendered svg carries no inline sizing and keeps its viewBox', async () => {
+    const el = document.createElement('fsl-viz');
+    document.body.append(el);
+
+    el.fsl = 'Off -> On;';
+    await (el as any).updateComplete;
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await (el as any).updateComplete;
+
+    // chained single-segment queries: jsdom does not support :scope from a
+    // shadow root, and a bare descendant selector trips prefer-scoped-selector
+    const container = el.shadowRoot!.querySelector('.container');
+    const svg       = container === null ? null : container.querySelector('svg');
+    expect(svg).not.toBeNull();
+
+    // No inline style sizing — inline styles would outrank the stylesheet's
+    // max-bounds and reintroduce the escape.
+    expect(svg!.style.width).toBe('');
+    expect(svg!.style.height).toBe('');
+    expect(svg!.style.maxHeight).toBe('');
+
+    // The viewBox (plus Graphviz's default preserveAspectRatio) is what lets
+    // a max-height-capped viewport letterbox cleanly; reorder_svg_layers must
+    // not have stripped it.
+    expect(svg!.hasAttribute('viewBox')).toBe(true);
+
+    el.remove();
+  });
+
+});
+
 describe('FslViz parent-context binding', () => {
 
   it('binds to parent <fsl-instance> machine and renders the parent\'s states', async () => {

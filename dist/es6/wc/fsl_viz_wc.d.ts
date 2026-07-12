@@ -72,6 +72,7 @@ export declare function normalize_viz_error(e: unknown): JssmVizErrorDetail;
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 export declare class FslViz extends LitElement {
@@ -175,15 +176,27 @@ export declare class FslViz extends LitElement {
      * Programmatically highlights one execution trace (a path of state names)
      * through the rendered graph, optionally fading everything off the path.
      *
-     * Matches nodes by their Graphviz `<title>` (the state name) and edges by
-     * the `from->to` title Graphviz emits, applying inline style overrides so
-     * the highlight composes over — and is reversible against — the default
-     * rendering (see {@link clearHighlights}, which this calls first). No-ops
-     * when detached, before the first render, or given an empty trace.
+     * Matches nodes by their Graphviz `<title>` and edges by the `from->to`
+     * title Graphviz emits, applying inline style overrides so the highlight
+     * composes over — and is reversible against — the default rendering (see
+     * {@link clearHighlights}, which this calls first). No-ops when detached,
+     * before the first render, or given an empty trace.
+     *
+     * Because dot generation slugs state names into node identifiers (fsl#1935
+     * — `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name
+     * is matched in **both** its raw form and its slugged form, using the same
+     * `slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,
+     * `'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore
+     * both work. Names whose slug is empty (e.g. `'!!!'`, which renders under
+     * an indexed `node-N` title) are only matchable by passing that literal
+     * `node-N` title.
      *
      * ```typescript
      * // Highlight a -> b -> c in green, without dimming the rest:
      * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+     *
+     * // Display-form names match their slugged titles:
+     * viz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm
      * ```
      * @param trace   Ordered state names describing the path (e.g.
      *                `['A', 'B', 'C']`). Consecutive pairs select the edges

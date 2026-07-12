@@ -2767,6 +2767,7 @@ export { transfer_state_properties, Machine, deserialize, compareVersions, sm, f
 export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
 export type { FencePart, FenceImageFormat, FenceDimensionUnit, FenceDimension, FenceDescriptor } from './fsl_markdown_fence';
 export { FslDirections } from './jssm_types.js';
+export type { JssmParseOptions } from './jssm_types.js';
 export { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
 export { compile, wrap_parse as parse, make } from './jssm_compiler.js';
 export { unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32 } from './jssm_util.js';

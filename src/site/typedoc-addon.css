@@ -14,39 +14,81 @@
 
 pre { border-radius: 0.3em; }
 
-@media (prefers-color-scheme: light) {
+/* theme variables (fsl#1185)
 
-  :root                    { --color-background: #def; }
+   typedoc's theme picker stamps <html> with data-theme="light" or "dark";
+   picking "OS" stamps data-theme="os", which matches neither selector and
+   falls through to prefers-color-scheme.  these colors used to live in bare
+   prefers-color-scheme media blocks, so they tracked the OS and ignored the
+   picker — a dark OS plus a "Light" picker setting left the comparison and
+   shootout tables black-on-dark against a white page.  the four-block
+   cascade below mirrors typedoc's own (node_modules/typedoc/static/style.css):
+   light defaults, an OS-dark media override, then data-theme overrides that
+   trump both.  dark chrome values delegate to typedoc's own variables so the
+   dark look stays exactly typedoc-default there */
 
-  body .tsd-page-title     { background-color: #bdf; }
-  body .tsd-page-toolbar   { background-color: #acf; border-bottom-color: #9be; }
-  body .with-border-bottom { background-color: #acf; border-color: #9be; }
-
-  html body .tsd-panel table td,
-  html body .tsd-panel table th { border-color: #9be; }
-
-  html body .tsd-panel table tr                 { background-color: #def;    }
-  html body .tsd-panel table tr:nth-child(even) { background-color: #d0e0f0; }
-  html body .tsd-panel table tr th              { background-color: #bdf;    }
-
-  fail { font-style: italic; color: #b00; }
-
+:root {
+  --color-background:    #def;      /* typedoc's page background, tinted */
+  --jssm-title-bg:       #bdf;
+  --jssm-toolbar-bg:     #acf;
+  --jssm-toolbar-border: #9be;
+  --jssm-table-border:   #9be;
+  --jssm-table-row:      #def;
+  --jssm-table-row-alt:  #d0e0f0;
+  --jssm-table-th:       #bdf;
+  --jssm-fail:           #b00;
 }
-
-
 
 @media (prefers-color-scheme: dark) {
-
-  fail { font-style: italic; color: #f66; }
-
-  html body .tsd-panel table td,
-  html body .tsd-panel table th { border-color: #335; }
-
-  html body .tsd-panel table tr                 { background-color: #445; }
-  html body .tsd-panel table tr:nth-child(even) { background-color: #446; }
-  html body .tsd-panel table tr th              { background-color: #335; }
-
+  :root {
+    --color-background:    var(--dark-color-background);
+    --jssm-title-bg:       transparent;
+    --jssm-toolbar-bg:     var(--color-background-secondary);
+    --jssm-toolbar-border: var(--color-accent);
+    --jssm-table-border:   #335;
+    --jssm-table-row:      #445;
+    --jssm-table-row-alt:  #446;
+    --jssm-table-th:       #335;
+    --jssm-fail:           #f66;
+  }
 }
+
+:root[data-theme="light"] {
+  --color-background:    #def;
+  --jssm-title-bg:       #bdf;
+  --jssm-toolbar-bg:     #acf;
+  --jssm-toolbar-border: #9be;
+  --jssm-table-border:   #9be;
+  --jssm-table-row:      #def;
+  --jssm-table-row-alt:  #d0e0f0;
+  --jssm-table-th:       #bdf;
+  --jssm-fail:           #b00;
+}
+
+:root[data-theme="dark"] {
+  --color-background:    var(--dark-color-background);
+  --jssm-title-bg:       transparent;
+  --jssm-toolbar-bg:     var(--color-background-secondary);
+  --jssm-toolbar-border: var(--color-accent);
+  --jssm-table-border:   #335;
+  --jssm-table-row:      #445;
+  --jssm-table-row-alt:  #446;
+  --jssm-table-th:       #335;
+  --jssm-fail:           #f66;
+}
+
+body .tsd-page-title     { background-color: var(--jssm-title-bg); }
+body .tsd-page-toolbar   { background-color: var(--jssm-toolbar-bg); border-bottom-color: var(--jssm-toolbar-border); }
+body .with-border-bottom { background-color: var(--jssm-toolbar-bg); border-color: var(--jssm-toolbar-border); }
+
+html body .tsd-panel table td,
+html body .tsd-panel table th { border-color: var(--jssm-table-border); }
+
+html body .tsd-panel table tr                 { background-color: var(--jssm-table-row);     }
+html body .tsd-panel table tr:nth-child(even) { background-color: var(--jssm-table-row-alt); }
+html body .tsd-panel table tr th              { background-color: var(--jssm-table-th);      }
+
+fail { font-style: italic; color: var(--jssm-fail); }
 
 
 

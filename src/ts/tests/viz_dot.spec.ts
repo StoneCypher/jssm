@@ -251,9 +251,123 @@ describe('configure() input validation', () => {
       .toThrow(/must be a constructor/);
   });
 
+  test('throws on a viz engine without a callable renderString', () => {
+    expect(() => jv.configure({ viz: {} as any }))
+      .toThrow(/renderString/);
+  });
+
+  test('throws on a viz engine whose renderString is not a function', () => {
+    expect(() => jv.configure({ viz: { renderString: 'nope' } as any }))
+      .toThrow(/renderString/);
+  });
+
   test('no-op for empty options object', () => {
     expect(() => jv.configure({}))
       .not.toThrow();
+  });
+
+});
+
+
+
+// NOTE: these injections deliberately come last in the file — configure({ viz })
+// is last-call-wins with no un-set, so the injected fakes stay live for the
+// rest of the module's lifetime.  Nothing after this point may render through
+// the default @viz-js/viz engine.
+describe('configure({ viz }) engine injection', () => {
+
+  test('an injected fake engine receives the dot and its svg is returned', async () => {
+
+    const calls: Array<{ dot: string, opts: any }> = [];
+    const fake = {
+      renderString: (dot: string, opts?: any) => {
+        calls.push({ dot, opts });
+        return '<svg data-fake="a"/>';
+      }
+    };
+
+    jv.configure({ viz: fake });
+
+    const dot_src = 'digraph G { a -> b; }';
+    const svg     = await jv.dot_to_svg(dot_src);
+
+    expect(svg).toBe('<svg data-fake="a"/>');
+    expect(calls).toHaveLength(1);
+    expect(calls[0].dot).toBe(dot_src);
+    expect(calls[0].opts).toMatchObject({ format: 'svg' });
+
+  });
+
+  test('fsl_to_svg_string routes through the injected engine, end to end', async () => {
+
+    const seen: string[] = [];
+    const fake = {
+      renderString: (dot: string) => { seen.push(dot); return '<svg data-fake="fsl"/>'; }
+    };
+
+    jv.configure({ viz: fake });
+
+    const svg = await jv.fsl_to_svg_string('alpha -> beta;');
+
+    expect(svg).toBe('<svg data-fake="fsl"/>');
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toMatch(/^digraph G \{/);   // real compiled dot, not a canned string
+    expect(seen[0]).toMatch(/"alpha"/);
+    expect(seen[0]).toMatch(/"beta"/);
+
+  });
+
+  test('the engine render option is forwarded to the injected engine', async () => {
+
+    const opts_seen: any[] = [];
+    const fake = {
+      renderString: (_dot: string, opts?: any) => { opts_seen.push(opts); return '<svg/>'; }
+    };
+
+    jv.configure({ viz: fake });
+    await jv.fsl_to_svg_string('a -> b;', { engine: 'neato' });
+
+    expect(opts_seen[0]).toMatchObject({ format: 'svg', engine: 'neato' });
+
+  });
+
+  test('a promise-returning renderString (asm.js viz.js style) is awaited', async () => {
+
+    const fake = {
+      renderString: async (_dot: string) => '<svg data-fake="async"/>'
+    };
+
+    jv.configure({ viz: fake });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="async"/>');
+
+  });
+
+  test('last call wins: a second injected engine replaces the first', async () => {
+
+    const first  = { renderString: () => '<svg data-fake="first"/>'  };
+    const second = { renderString: () => '<svg data-fake="second"/>' };
+
+    jv.configure({ viz: first  });
+    jv.configure({ viz: second });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="second"/>');
+
+  });
+
+  test('an omitted viz key leaves the injected engine in place (no un-set)', async () => {
+
+    const sticky = { renderString: () => '<svg data-fake="sticky"/>' };
+
+    jv.configure({ viz: sticky });
+    jv.configure({});
+    jv.configure({ viz: undefined });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="sticky"/>');
+
   });
 
 });

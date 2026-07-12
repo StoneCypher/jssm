@@ -75,6 +75,7 @@ The class export has no side effects — importing it does not register any tag.
 | Property | Default | Description |
 |---|---|---|
 | `--jssm-viz-min-height` | `100px` | Minimum height of the rendered SVG container. |
+| `--jssm-viz-max-height` | `none` | Maximum height of the control; the rendered SVG stays bounded within it, aspect preserved (letterboxed). Setting `max-height` on the host from outside works identically. |
 
 ## Methods — programmatic trace highlighting
 
@@ -82,7 +83,7 @@ The class export has no side effects — importing it does not register any tag.
 
 | Method | Description |
 |---|---|
-| `highlightTrace(trace, options?)` | Highlights the path named by `trace` — an ordered array of state names (e.g. `['a', 'b', 'c']`), whose consecutive pairs select the edges `a→b` and `b→c`. By default everything off the path is dimmed. An empty `trace` is a no-op. |
+| `highlightTrace(trace, options?)` | Highlights the path named by `trace` — an ordered array of state names (e.g. `['a', 'b', 'c']`), whose consecutive pairs select the edges `a→b` and `b→c`. Names are matched in both display form and slugged form (`'Wrong Pin'` finds the node rendered as `wrong-pin`), using the same slugging the renderer uses. By default everything off the path is dimmed. An empty `trace` is a no-op. |
 | `clearHighlights()` | Removes all highlighting, restoring the default rendering. |
 
 `options` is a `HighlightOptions` object:
@@ -224,6 +225,10 @@ sub-components: `title`, `viz`, `editor`, `toolbar`, `actions`, `info-panel`, `h
 `data-inspector`, `hook-log`, `effective-properties`, `simulation`, `export`, and `footer`. Empty
 slots render nothing (a couple carry a faint placeholder), so a bare
 `<fsl-instance fsl="…">` still renders as something.
+
+## Design principles — content-conditional controls
+
+A widget control may default itself off based on what the loaded machine contains — a forced-transition button on a machine with no forced transitions has nothing useful to do, and starting it disabled is good manners. What it must never do is lock the human out: **content-conditional defaults are fine; content-conditional lockouts are not.** Any control that disables itself from machine contents must remain overridable by the person at the keyboard, because the machine's contents can change (an edit away in the editor) and because the human may know something the heuristic doesn't. Disabled-with-no-override is the defect. The one place a hard disable is acceptable is an editor-less embedding, where the machine is immutable for the life of the mount — there, no human action can ever make the control meaningful. No currently-shipped control is content-conditional; this rule governs the ones that come later.
 
 ## See also
 

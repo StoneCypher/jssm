@@ -16,11 +16,48 @@ import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from '
  */
 type RenderGroups = 'cluster' | 'chips' | 'off';
 /**
- *  Inject runtime configuration for jssm/viz.  Currently only accepts a
- *  custom `DOMParser` constructor for use by `*_svg_element` functions in
- *  environments that do not provide one globally (e.g. Node + jsdom).
+ *  The Graphviz engine surface jssm/viz actually consumes: one ready-to-use
+ *  object with a `renderString(dot, options)` method.  This is the contract
+ *  for {@link configure}`({ viz })` injection — a *direct adapter*, not a
+ *  factory: the caller instantiates (and, if needed, awaits) their engine
+ *  themselves, then hands over the finished object.  `renderString` receives
+ *  the dot source and an options object whose members jssm/viz uses are
+ *  `format` (always `'svg'`) and `engine` (a Graphviz layout engine name,
+ *  when the caller of a render function supplied one); it may return the
+ *  output string synchronously (like `@viz-js/viz`) or as a promise (like
+ *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
  *
- *  Idempotent — last call wins.  No-op if called with no recognized keys.
+ *  ```typescript
+ *  import { instance } from '@viz-js/viz';
+ *  configure({ viz: await instance() });   // the default engine, injected by hand
+ *  ```
+ *  @see configure
+ */
+type VizEngine = {
+    renderString: (dot: string, options?: {
+        format?: string;
+        engine?: string;
+    }) => string | Promise<string>;
+};
+/**
+ *  Inject runtime configuration for jssm/viz — a custom `DOMParser`
+ *  constructor for the `*_svg_element` functions, a replacement Graphviz
+ *  engine for every render path, or both.
+ *
+ *  Each key is handled independently.  Idempotent — last call wins per key;
+ *  an omitted (or `undefined`) key leaves any earlier injection for that key
+ *  in place, so neither injection can be un-set.  No-op if called with no
+ *  recognized keys.
+ *
+ *  Precedence differs by key, on purpose:
+ *
+ *  - `DOMParser` is a *fallback* — `globalThis.DOMParser` (browsers, jsdom
+ *    test environments) still wins when present.
+ *  - `viz` is an *override* — once injected it is used for every render, and
+ *    the default `@viz-js/viz` import is never even attempted.  This is what
+ *    lets WASM-hostile environments (strict-CSP webviews such as VS Code's
+ *    markdown preview) supply an asm.js Graphviz build at runtime, without
+ *    bundler aliasing.  See {@link VizEngine} for the exact contract.
  *
  *  ```typescript
  *  // Node, with jsdom:
@@ -30,13 +67,27 @@ type RenderGroups = 'cluster' | 'chips' | 'off';
  *  configure({ DOMParser: new JSDOM().window.DOMParser });
  *  const el = await fsl_to_svg_element('a -> b;');
  *  ```
+ *
+ *  ```typescript
+ *  // strict-CSP webview, with an asm.js Graphviz:
+ *  import { configure, fsl_to_svg_string } from 'jssm/viz';
+ *
+ *  configure({ viz: my_asm_graphviz });  // anything with renderString(dot, opts)
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  ```
  *  @param opts Configuration overrides.
  *  @param opts.DOMParser Constructor compatible with the WHATWG `DOMParser`
  *  interface.  Used as a fallback when `globalThis.DOMParser` is undefined.
+ *  @param opts.viz A ready-to-use Graphviz engine implementing
+ *  {@link VizEngine} (`renderString(dot, opts)`).  Overrides the default
+ *  `@viz-js/viz` engine for all subsequent renders.
  *  @throws {JssmError} if `DOMParser` is provided and is not a constructor.
+ *  @throws {JssmError} if `viz` is provided and lacks a callable `renderString`.
+ *  @see VizEngine
  */
 declare function configure(opts: {
     DOMParser?: typeof globalThis.DOMParser;
+    viz?: VizEngine;
 }): void;
 /**
  *  Look up a color from the default viz palette by key, returning empty
@@ -94,9 +145,14 @@ declare function undoublequote(txt: string): string;
  *  slug_for('!!!');          // ''
  *  slug_for('  Foo  Bar  '); // 'foo-bar'
  *  ```
+ *  Exported so consumers which must match rendered SVG node `<title>`s back
+ *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
+ *  the *same* function the dot generator used, rather than a drifting copy.
+ *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
+ *  @see slug_states
  *  @internal
  */
 declare function slug_for(state: string): string;
@@ -534,9 +590,10 @@ declare function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts?: VizRenderOpts
  */
 declare function fsl_to_dot(fsl: string, opts?: VizRenderOpts): string;
 /**
- *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
- *  underlying viz instance is lazy-initialized on first call and cached for
- *  the lifetime of the module.
+ *  Render a graphviz dot source string to SVG using `@viz-js/viz`, or the
+ *  engine injected via {@link configure}`({ viz })` when one is set.  The
+ *  default viz instance is lazy-initialized on first call and cached for
+ *  the lifetime of the module; an injected engine bypasses it entirely.
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
@@ -593,8 +650,8 @@ declare function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts?: VizRe
  *  @deprecated Use {@link machine_to_dot} instead.
  */
 declare function dot<T>(machine: jssm.Machine<T>): string;
-export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, state_svg_label_texts, };
-export type { VizRenderOpts, RenderGroups };
+export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, state_svg_label_texts, slug_for, };
+export type { VizRenderOpts, RenderGroups, VizEngine };
 /** @internal */
 export declare const _test: {
     doublequote: typeof doublequote;
