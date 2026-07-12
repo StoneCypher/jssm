@@ -353,11 +353,11 @@
               "description": "A JSON string (typically `JSON.stringify(value, null, 2)`)."
             }
           ],
-          "description": "Split a pretty-printed JSON string into classified tokens for syntax\nhighlighting. A quoted run is a `key` when the next non-space character is\n`:`, otherwise a `string`; `true`/`false` are `bool`, `null` is `null`,\nnumbers are `number`, and everything between (braces, commas, whitespace) is\n`plain`. Driven by the text, not a JSON parse, so it never throws."
+          "description": "Split a pretty-printed JSON string into classified tokens for syntax\r\nhighlighting. A quoted run is a `key` when the next non-space character is\r\n`:`, otherwise a `string`; `true`/`false` are `bool`, `null` is `null`,\r\nnumbers are `number`, and everything between (braces, commas, whitespace) is\r\n`plain`. Driven by the text, not a JSON parse, so it never throws."
         },
         {
           "kind": "class",
-          "description": "`<fsl-data-inspector>` — a syntax-highlighted view of a parent\n`<fsl-instance>`'s extended-state data. Re-reads `host.machine.data()` on the\nhost's transition / data-change / rebuild DOM events. The panel is bounded and\nscrolls internally (a self-contained vertical column). Renders `no data` when\nthe machine carries none; standalone (no host) renders empty.",
+          "description": "`<fsl-data-inspector>` — a syntax-highlighted view of a parent\r\n`<fsl-instance>`'s extended-state data. Re-reads `host.machine.data()` on the\r\nhost's transition / data-change / rebuild DOM events. The panel is bounded and\r\nscrolls internally (a self-contained vertical column). Renders `no data` when\r\nthe machine carries none; standalone (no host) renders empty.",
           "name": "FslDataInspector",
           "cssParts": [
             {
@@ -770,7 +770,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-editor>` — a CodeMirror-based FSL editor web component.\n\nBatteries-included: FSL highlighting (`jssm/cm6`), linting, a semantic\noverlay (color chips / state & enum marks), and context-aware completion —\neach toggleable via a `no-*` attribute. Light/dark via the reflected `theme`\nattribute (which also drives the `--fsl-*` token defaults). White-labeled\nthrough the shared appearance contract. Emits `change` on user edits.",
+          "description": "`<fsl-editor>` — a CodeMirror-based FSL editor web component.\r\n\r\nBatteries-included: FSL highlighting (`jssm/cm6`), linting, a semantic\r\noverlay (color chips / state & enum marks), and context-aware completion —\r\neach toggleable via a `no-*` attribute. Light/dark via the reflected `theme`\r\nattribute (which also drives the `--fsl-*` token defaults). White-labeled\r\nthrough the shared appearance contract. Emits `change` on user edits.",
           "name": "FslEditor",
           "cssParts": [
             {
@@ -1119,7 +1119,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-export>` — export buttons for a parent `<fsl-instance>`. Each produces a\nstring from the host's machine and fires `fsl-export` with `{ format,\ncontent }`; the embedder decides what to do with it (copy, download, show).\nFormats: Graphviz `dot` (via `machine_to_dot`), `json` (the machine's\n`serialize()`), and `fsl` (the source). Standalone is inert.",
+          "description": "`<fsl-export>` — export buttons for a parent `<fsl-instance>`. Each produces a\r\nstring from the host's machine and fires `fsl-export` with `{ format,\r\ncontent }`; the embedder decides what to do with it (copy, download, show).\r\nFormats: Graphviz `dot` (via `machine_to_dot`), `json` (the machine's\r\n`serialize()`), and `fsl` (the source). Standalone is inert.",
           "name": "FslExport",
           "cssParts": [
             {
@@ -1337,7 +1337,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-help>` — a documentation drawer shell: a titled, scrollable panel with\na close button and a default slot for content (typically foldable\n`<details>` sections). Presentational and self-contained — it owns no machine\nbinding. The reflected `open` attribute drives visibility, so embedders can\nanimate it (e.g. a width transition on the host) purely from CSS.",
+          "description": "`<fsl-help>` — a documentation drawer shell: a titled, scrollable panel with\r\na close button and a default slot for content (typically foldable\r\n`<details>` sections). Presentational and self-contained — it owns no machine\r\nbinding. The reflected `open` attribute drives visibility, so embedders can\r\nanimate it (e.g. a width transition on the host) purely from CSS.",
           "name": "FslHelp",
           "cssParts": [
             {
@@ -1446,7 +1446,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-history>` — the visited-state timeline for a parent `<fsl-instance>`.\n\nListens to the host's `fsl-transition` DOM events (re-emitted once per\ntransition, #639) and records the host's reflected `current-state`, so it\ncaptures every transition and survives a live machine rebuild without a\nmachine subscription. Standalone (no host ancestor) renders empty.",
+          "description": "`<fsl-history>` — the visited-state timeline for a parent `<fsl-instance>`.\r\n\r\nListens to the host's `fsl-transition` DOM events (re-emitted once per\r\ntransition, #639) and records the host's reflected `current-state`, so it\r\ncaptures every transition and survives a live machine rebuild without a\r\nmachine subscription. Standalone (no host ancestor) renders empty.",
           "name": "FslHistory",
           "cssParts": [
             {
@@ -1499,7 +1499,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-hook-log>` — a running log of a parent `<fsl-instance>`'s machine\nevents, listening to the host's re-emitted `fsl-*` DOM events (#639). Keeps\nthe most recent MAX_ENTRIES. Standalone (no host ancestor) is empty.",
+          "description": "`<fsl-hook-log>` — a running log of a parent `<fsl-instance>`'s machine\r\nevents, listening to the host's re-emitted `fsl-*` DOM events (#639). Keeps\r\nthe most recent MAX_ENTRIES. Standalone (no host ancestor) is empty.",
           "name": "FslHookLog",
           "cssParts": [
             {
@@ -3069,7 +3069,7 @@
               }
             }
           ],
-          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\n`/`→`_`, and trailing `=` padding stripped."
+          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\r\n`/`→`_`, and trailing `=` padding stripped."
         },
         {
           "kind": "function",
@@ -3128,7 +3128,7 @@
               }
             }
           ],
-          "description": "Inverse of deflate_raw, reading the stream in chunks and aborting once\nthe inflated output would exceed MAX_PERMALINK_INFLATE_BYTES (a\ndecompression-bomb guard — see that constant)."
+          "description": "Inverse of deflate_raw, reading the stream in chunks and aborting once\r\nthe inflated output would exceed MAX_PERMALINK_INFLATE_BYTES (a\r\ndecompression-bomb guard — see that constant)."
         },
         {
           "kind": "function",
@@ -3146,7 +3146,7 @@
               }
             }
           ],
-          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\nbytes (scheme `0`)."
+          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\r\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\r\nbytes (scheme `0`)."
         },
         {
           "kind": "function",
@@ -3164,7 +3164,7 @@
               }
             }
           ],
-          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\nto FSL. Async because inflate is async."
+          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\r\nto FSL. Async because inflate is async."
         },
         {
           "kind": "function",
@@ -3218,7 +3218,7 @@
               }
             }
           ],
-          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\n`value`, preserving every other segment and its order; appends if absent."
+          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\r\n`value`, preserving every other segment and its order; appends if absent."
         },
         {
           "kind": "function",
@@ -3236,7 +3236,7 @@
               }
             }
           ],
-          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\n`id`, else `null` (does not participate in URL sync). The single source of\nthis rule, shared by the toolbar export and the sync controller."
+          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\r\n`id`, else `null` (does not participate in URL sync). The single source of\r\nthis rule, shared by the toolbar export and the sync controller."
         },
         {
           "kind": "function",
@@ -3275,7 +3275,7 @@
               }
             }
           ],
-          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\ntests."
+          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\r\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\r\ntests."
         },
         {
           "kind": "function",
@@ -3554,7 +3554,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-simulation>` — a random-walk driver for a parent `<fsl-instance>`.\n\n`Step` fires one uniformly-random legal action; `Play` auto-steps every\nFslSimulation.interval ms and stops automatically when the machine\nreaches a terminal state (no legal actions). Standalone (no host ancestor)\nthe controls are disabled.",
+          "description": "`<fsl-simulation>` — a random-walk driver for a parent `<fsl-instance>`.\r\n\r\n`Step` fires one uniformly-random legal action; `Play` auto-steps every\r\nFslSimulation.interval ms and stops automatically when the machine\r\nreaches a terminal state (no legal actions). Standalone (no host ancestor)\r\nthe controls are disabled.",
           "name": "FslSimulation",
           "cssParts": [
             {
@@ -3676,7 +3676,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\nhost's `.fsl` source (never touching the live machine) and renders\naggregate run statistics in-panel.  Standalone (no host) the controls are\ndisabled.",
+          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\r\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\r\nhost's `.fsl` source (never touching the live machine) and renders\r\naggregate run statistics in-panel.  Standalone (no host) the controls are\r\ndisabled.",
           "name": "FslStochastic",
           "cssParts": [
             {
@@ -3763,7 +3763,7 @@
             {
               "kind": "field",
               "name": "play",
-              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\n\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\n`requestAnimationFrame` is undefined."
+              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\r\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\r\n\r\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\r\n`requestAnimationFrame` is undefined."
             },
             {
               "kind": "method",
@@ -3825,7 +3825,7 @@
                   "description": "The effective RNG seed used for this batch."
                 }
               ],
-              "description": "Fold accumulated counters into a rendered summary. Shared by play\nfor incremental rendering during animation."
+              "description": "Fold accumulated counters into a rendered summary. Shared by play\r\nfor incremental rendering during animation."
             },
             {
               "kind": "field",
@@ -4661,7 +4661,7 @@
               "description": "SVG markup from the viz pipeline (`machine_to_svg_string`, etc.)."
             }
           ],
-          "description": "Reorder a graphviz-rendered SVG's paint stack so action labels can't be\npainted over by edges. Graphviz interleaves nodes and edges and keeps each\nedge's label `<text>` inside the edge group, so a later edge can draw over an\nearlier edge's label. This lifts the layers into a clean back-to-front order:\n\n  background → edges → nodes → action (edge) labels\n\nEach edge's label text is hoisted out of its edge group to the very top.\nMarkup that isn't graphviz output (no `g.graph`) is returned untouched."
+          "description": "Reorder a graphviz-rendered SVG's paint stack so action labels can't be\r\npainted over by edges. Graphviz interleaves nodes and edges and keeps each\r\nedge's label `<text>` inside the edge group, so a later edge can draw over an\r\nearlier edge's label. This lifts the layers into a clean back-to-front order:\r\n\r\n  background → edges → nodes → action (edge) labels\r\n\r\nEach edge's label text is hoisted out of its edge group to the very top.\r\nMarkup that isn't graphviz output (no `g.graph`) is returned untouched."
         }
       ],
       "exports": [
@@ -4703,7 +4703,7 @@
               "description": "The suffix to match after the prefix (e.g. `\"viz\"`)."
             }
           ],
-          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\n(case-insensitive)."
+          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\r\n(case-insensitive)."
         },
         {
           "kind": "function",
@@ -4729,7 +4729,7 @@
               "description": "The suffix to match (e.g. `\"instance\"`)."
             }
           ],
-          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
+          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\r\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
         },
         {
           "kind": "function",
@@ -4769,7 +4769,7 @@
               "description": "Constructor to register under `synonym_tag`\r\n  (must be a distinct class from `CanonicalClass`)."
             }
           ],
-          "description": "Registers a canonical custom-element tag and its synonym tag.\n\n`customElements.define` requires a distinct constructor per tag name, so\ncallers pass the canonical class and a thin subclass for the synonym.\nThe function is idempotent: if either tag is already registered it skips\nthat `define` call rather than throwing."
+          "description": "Registers a canonical custom-element tag and its synonym tag.\r\n\r\n`customElements.define` requires a distinct constructor per tag name, so\r\ncallers pass the canonical class and a thin subclass for the synonym.\r\nThe function is idempotent: if either tag is already registered it skips\r\nthat `define` call rather than throwing."
         },
         {
           "kind": "function",
@@ -4795,7 +4795,7 @@
               "description": "Constructor to register under `canonical_tag`."
             }
           ],
-          "description": "Registers a single canonical `fsl-*` custom-element tag, with no `jssm-*`\nsynonym.\n\nThis is the registration path for **new** web components.  The `jssm-*`\nprefix is a deprecated backward-compatibility alias retained only for the\ncomponents that shipped under that name (`<jssm-viz>`, `<jssm-instance>`,\n`<jssm-bind>`); new components are `fsl-*`-only for fsl.tools brand\nalignment, and the legacy synonyms are slated for removal in v6.  Use\ndefine_with_synonym only when maintaining one of those pre-existing\ndual-named components.\n\nIdempotent: skips the `define` call when the tag is already registered."
+          "description": "Registers a single canonical `fsl-*` custom-element tag, with no `jssm-*`\r\nsynonym.\r\n\r\nThis is the registration path for **new** web components.  The `jssm-*`\r\nprefix is a deprecated backward-compatibility alias retained only for the\r\ncomponents that shipped under that name (`<jssm-viz>`, `<jssm-instance>`,\r\n`<jssm-bind>`); new components are `fsl-*`-only for fsl.tools brand\r\nalignment, and the legacy synonyms are slated for removal in v6.  Use\r\ndefine_with_synonym only when maintaining one of those pre-existing\r\ndual-named components.\r\n\r\nIdempotent: skips the `define` call when the tag is already registered."
         }
       ],
       "exports": [
