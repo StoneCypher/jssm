@@ -1,4 +1,4 @@
-import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
+import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmParseOptions, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
 /*********
  *
  *  Returns the source span of the `n`-th parse-tree node (1-based) matching
@@ -123,14 +123,31 @@ declare function makeTransition<StateType, mDT>(this_se: JssmCompileSe<StateType
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @typeParam StateType The type of state names in the resulting tree; the
+ *                       grammar itself always produces `string`s, so only
+ *                       override this when threading a caller's own state
+ *                       naming through to {@link compile}.
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
+ *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance.  Pass
+ *  @param options Things to control about the parse.  Pass
  *                 `{ locations: true }` to enable opt-in source location
- *                 tracking on every AST node.
+ *                 tracking on every AST node.  When omitted, an empty options
+ *                 object is passed through to the parser.
+ *
+ *  @returns The machine's intermediate representation: a flat
+ *           {@link JssmParseTree} with one node per top-level FSL statement.
+ *
+ *  @throws {SyntaxError} The generated PEG.js parser's `SyntaxError` when
+ *                        `input` is not valid FSL.
+ *
+ *  @see {@link compile}
+ *  @see {@link make}
+ *  @see {@link JssmParseOptions}
  *
  */
-declare function wrap_parse(input: string, options?: object): any;
+declare function wrap_parse<StateType = string, mDT = unknown>(input: string, options?: JssmParseOptions): JssmParseTree<StateType, mDT>;
 /*********
  *
  *  Builds the ordered {@link JssmGroupRegistry} from every `named_list` node

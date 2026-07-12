@@ -309,6 +309,32 @@ type FslSourceLocation = {
     end: FslSourcePoint;
 };
 /**
+ *  Options accepted by the FSL parser and its {@link wrap_parse} wrapper
+ *  (exported from the package as `parse`).  Exists so the two-argument parse
+ *  call is typed against what the parser actually reads, instead of a bare
+ *  `object`.
+ *
+ *  - `locations` — when `true`, the grammar attaches a `loc` field of type
+ *    {@link FslSourceLocation} (plus curated `*_loc` token sub-spans) to every
+ *    AST node.  When absent or `false`, the tree is byte-for-byte identical to
+ *    the historical location-free output.
+ *
+ *  - `startRule` — honored by the generated PEG.js boilerplate, which throws
+ *    on any rule name it doesn't expose.  This grammar exposes only its
+ *    default rule, `Document`, so the field is only useful for explicitness.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ *  @see FslSourceLocation
+ */
+type JssmParseOptions = {
+    locations?: boolean;
+    startRule?: 'Document';
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -1357,13 +1383,25 @@ interface FenceDimension {
     value: number;
     unit: FenceDimensionUnit;
 }
-/** The fully-parsed, validated description of one FSL Markdown fence block. */
+/**
+ *  The fully-parsed, validated description of one FSL Markdown fence block.
+ *
+ *  Sizing semantics: `width`/`height` (from `width=`/`height=` tokens) are
+ *  *exact* dimensions — the host renders the block at that size.
+ *  `max_width`/`max_height` (from `max-width=`/`max-height=` tokens) are
+ *  *upper bounds* on natural sizing — the block renders at its natural size
+ *  but is capped on that axis.  When both an exact and a max token are given
+ *  for the same axis, the exact dimension wins and the cap is moot.  All four
+ *  are `null` when their token is absent.
+ */
 interface FenceDescriptor {
     parts: FencePart[];
     ide: boolean;
     format: FenceImageFormat;
     width: FenceDimension | null;
     height: FenceDimension | null;
+    max_width: FenceDimension | null;
+    max_height: FenceDimension | null;
     interactive: boolean;
     notes: string[];
 }
@@ -1381,13 +1419,18 @@ declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
 /**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
- *  classified as parts, image formats, the `ide` macro, or `width`/`height`
- *  options.  Unrecognized or conflicting tokens are dropped and recorded in
+ *  classified as parts, image formats, the `ide` macro, or the dimension
+ *  options `width`/`height` (exact size) and `max-width`/`max-height`
+ *  (upper bounds on natural size — see {@link FenceDescriptor} for the
+ *  precedence rule when both appear on one axis).  All four dimension tokens
+ *  share one value syntax: a bare number (pixels), `<n>px`, or `<n>%`.
+ *  Unrecognized or conflicting tokens are dropped and recorded in
  *  `notes` rather than throwing, so a host can render forward-compatibly.
  *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
  *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
  *  @example parse_fence_info('fsl').parts // => ['image', 'code']
  *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ *  @example parse_fence_info('fsl image max-width=300 max-height=50%').max_width // => { value: 300, unit: 'px' }
  */
 declare function parse_fence_info(info: string): FenceDescriptor;
 
@@ -1523,14 +1566,31 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @typeParam StateType The type of state names in the resulting tree; the
+ *                       grammar itself always produces `string`s, so only
+ *                       override this when threading a caller's own state
+ *                       naming through to {@link compile}.
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
+ *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance.  Pass
+ *  @param options Things to control about the parse.  Pass
  *                 `{ locations: true }` to enable opt-in source location
- *                 tracking on every AST node.
+ *                 tracking on every AST node.  When omitted, an empty options
+ *                 object is passed through to the parser.
+ *
+ *  @returns The machine's intermediate representation: a flat
+ *           {@link JssmParseTree} with one node per top-level FSL statement.
+ *
+ *  @throws {SyntaxError} The generated PEG.js parser's `SyntaxError` when
+ *                        `input` is not valid FSL.
+ *
+ *  @see {@link compile}
+ *  @see {@link make}
+ *  @see {@link JssmParseOptions}
  *
  */
-declare function wrap_parse(input: string, options?: object): any;
+declare function wrap_parse<StateType = string, mDT = unknown>(input: string, options?: JssmParseOptions): JssmParseTree<StateType, mDT>;
 /*********
  *
  *  Compile a machine's JSON intermediate representation to a config object.  If
@@ -4737,4 +4797,4 @@ declare function compareVersions(v1: string, v2: string): number;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
 export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, parse_fence_info, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
-export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart };
+export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions };

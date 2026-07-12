@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>fsl-viz #1934 sizing e2e fixture</title>
+
+    <!--
+      #1934 fixture: two standalone auto-height <fsl-viz> elements rendering a
+      deliberately tall machine, one capped by a plain external `max-height`
+      on the host, the other by the `--jssm-viz-max-height` custom-property
+      seam. Same serving contract as the sibling fixtures — the e2e harness
+      serves the REPO ROOT, and this import map resolves the viz bundle's
+      externals to /node_modules and /dist.
+    -->
+    <script type="importmap">
+    {
+      "imports": {
+        "jssm/viz":                 "/dist/jssm_viz.mjs",
+        "@viz-js/viz":              "/node_modules/@viz-js/viz/dist/viz.js",
+        "lit":                      "/node_modules/lit/index.js",
+        "lit/":                     "/node_modules/lit/",
+        "lit-html":                 "/node_modules/lit-html/lit-html.js",
+        "lit-html/":                "/node_modules/lit-html/",
+        "lit-element/":             "/node_modules/lit-element/",
+        "@lit/reactive-element":    "/node_modules/@lit/reactive-element/reactive-element.js",
+        "@lit/reactive-element/":   "/node_modules/@lit/reactive-element/"
+      }
+    }
+    </script>
+
+    <style>
+      body    { margin: 1em; }
+      fsl-viz { width: 40em; }
+
+      /* The bug shape (#1934): the host's height stays auto (content-driven);
+         only an external max-height caps it. Pre-fix, the svg's percentage
+         height collapsed and it escaped the cap at its fallback size. */
+      #capped     { max-height: 240px; }
+
+      /* Same cap through the custom-property seam instead. */
+      #var-capped { --jssm-viz-max-height: 240px; }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- A long vertical chain lays out far taller than 240px under dot. -->
+    <fsl-viz id="capped"     fsl="a -> b -> c -> d -> e -> f -> g -> h -> i -> j;"></fsl-viz>
+    <fsl-viz id="var-capped" fsl="a -> b -> c -> d -> e -> f -> g -> h -> i -> j;"></fsl-viz>
+
+    <script type="module">
+
+      import '/dist/wc/viz.define.js';
+
+      await customElements.whenDefined('fsl-viz');
+
+      const els = [document.getElementById('capped'), document.getElementById('var-capped')];
+      await Promise.all(els.map(el => el.updateComplete));
+
+      // The svg arrives asynchronously (WASM Graphviz render); wait for both.
+      while (!els.every(el => el.shadowRoot && el.shadowRoot.querySelector('svg'))) {
+        await new Promise(r => setTimeout(r, 50));
+      }
+
+      // Let layout settle before the spec measures bounding boxes.
+      await document.fonts.ready;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      window.__fixture_ready = true;
+
+    </script>
+
+  </body>
+</html>

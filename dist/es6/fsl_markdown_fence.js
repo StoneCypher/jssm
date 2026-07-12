@@ -42,7 +42,7 @@ const INTERACTIVE_PARTS = new Set(['editor', 'actions', 'toolbar', 'info-panel']
 /**
  *  Parse a dimension value like `300`, `120px`, or `100%` into a
  *  {@link FenceDimension}.  A bare number is pixels.
- *  @param raw The value portion of a `width=`/`height=` token.
+ *  @param raw The value portion of a `width=`/`height=`/`max-width=`/`max-height=` token.
  *  @returns The parsed dimension, or `null` if malformed.
  *  @example parse_dimension('300')  // => { value: 300, unit: 'px' }
  *  @example parse_dimension('100%') // => { value: 100, unit: 'percent' }
@@ -60,13 +60,18 @@ const IDE_LAYOUT = ['title', 'image', 'actions', 'info-panel', 'toolbar', 'edito
 /**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
- *  classified as parts, image formats, the `ide` macro, or `width`/`height`
- *  options.  Unrecognized or conflicting tokens are dropped and recorded in
+ *  classified as parts, image formats, the `ide` macro, or the dimension
+ *  options `width`/`height` (exact size) and `max-width`/`max-height`
+ *  (upper bounds on natural size — see {@link FenceDescriptor} for the
+ *  precedence rule when both appear on one axis).  All four dimension tokens
+ *  share one value syntax: a bare number (pixels), `<n>px`, or `<n>%`.
+ *  Unrecognized or conflicting tokens are dropped and recorded in
  *  `notes` rather than throwing, so a host can render forward-compatibly.
  *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
  *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
  *  @example parse_fence_info('fsl').parts // => ['image', 'code']
  *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ *  @example parse_fence_info('fsl image max-width=300 max-height=50%').max_width // => { value: 300, unit: 'px' }
  */
 export function parse_fence_info(info) {
     const tokens = info.trim().split(/\s+/).filter(Boolean);
@@ -75,9 +80,14 @@ export function parse_fence_info(info) {
     const notes = [];
     let format = 'svg';
     let format_set = false;
-    let width = null;
-    let height = null;
     let ide = false;
+    // the four dimension tokens share one assignment path, keyed by token name
+    const dims = {
+        'width': null,
+        'height': null,
+        'max-width': null,
+        'max-height': null,
+    };
     for (const arg of args) {
         if (arg === 'ide') {
             ide = true;
@@ -103,7 +113,7 @@ export function parse_fence_info(info) {
             }
             continue;
         }
-        if (arg.startsWith('width=') || arg.startsWith('height=')) {
+        if (arg.startsWith('width=') || arg.startsWith('height=') || arg.startsWith('max-width=') || arg.startsWith('max-height=')) {
             const eq = arg.indexOf('=');
             const key = arg.slice(0, eq);
             const raw = arg.slice(eq + 1);
@@ -111,11 +121,8 @@ export function parse_fence_info(info) {
             if (dim === null) {
                 notes.push(`invalid ${key} value "${raw}" ignored`);
             }
-            else if (key === 'width') {
-                width = dim;
-            }
             else {
-                height = dim;
+                dims[key] = dim;
             }
             continue;
         }
@@ -140,8 +147,10 @@ export function parse_fence_info(info) {
         parts,
         ide,
         format,
-        width,
-        height,
+        width: dims.width,
+        height: dims.height,
+        max_width: dims['max-width'],
+        max_height: dims['max-height'],
         interactive,
         notes
     };

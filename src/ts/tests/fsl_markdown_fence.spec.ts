@@ -91,6 +91,58 @@ describe('parse_fence_info/1 — dimensions', () => {
   });
 });
 
+describe('parse_fence_info/1 — max dimensions', () => {
+  it('max-width bare number is px', () =>
+    expect(parse_fence_info('fsl image max-width=300').max_width).toEqual({ value: 300, unit: 'px' }));
+  it('max-width explicit px', () =>
+    expect(parse_fence_info('fsl image max-width=640px').max_width).toEqual({ value: 640, unit: 'px' }));
+  it('max-height percent', () =>
+    expect(parse_fence_info('fsl image max-height=50%').max_height).toEqual({ value: 50, unit: 'percent' }));
+  it('both max axes independently', () => {
+    const d = parse_fence_info('fsl image max-width=300 max-height=50%');
+    expect(d.max_width).toEqual({ value: 300, unit: 'px' });
+    expect(d.max_height).toEqual({ value: 50, unit: 'percent' });
+  });
+  it('max tokens do not populate the exact fields', () => {
+    const d = parse_fence_info('fsl image max-width=300 max-height=200');
+    expect(d.width).toBeNull();
+    expect(d.height).toBeNull();
+  });
+  it('exact and max tokens coexist on the same axis, both carried', () => {
+    const d = parse_fence_info('fsl image width=200 max-width=300');
+    expect(d.width).toEqual(    { value: 200, unit: 'px' });
+    expect(d.max_width).toEqual({ value: 300, unit: 'px' });
+  });
+  it('exact and max tokens coexist across axes', () => {
+    const d = parse_fence_info('fsl image width=640 max-height=75%');
+    expect(d.width).toEqual(     { value: 640, unit: 'px' });
+    expect(d.max_height).toEqual({ value: 75, unit: 'percent' });
+    expect(d.height).toBeNull();
+    expect(d.max_width).toBeNull();
+  });
+  it('invalid max-width is ignored with a note', () => {
+    const d = parse_fence_info('fsl image max-width=banana');
+    expect(d.max_width).toBeNull();
+    expect(d.notes.some(n => /invalid/i.test(n) && /max-width/.test(n))).toBe(true);
+  });
+  it('empty-value max-height= is invalid and noted, max_height stays null', () => {
+    const d = parse_fence_info('fsl image max-height=');
+    expect(d.max_height).toBeNull();
+    expect(d.notes.some(n => /invalid/i.test(n) && /max-height/.test(n))).toBe(true);
+  });
+  it('a max token is not reported as an unknown token', () => {
+    const d = parse_fence_info('fsl image max-width=300');
+    expect(d.notes.some(n => /unknown/i.test(n))).toBe(false);
+  });
+  it('unset max dimensions are present as null fields', () => {
+    const d = parse_fence_info('fsl image');
+    expect('max_width'  in d).toBe(true);
+    expect('max_height' in d).toBe(true);
+    expect(d.max_width).toBeNull();
+    expect(d.max_height).toBeNull();
+  });
+});
+
 const IDE_PARTS = ['title','image','actions','info-panel','toolbar','editor','footer'];
 
 describe('parse_fence_info/1 — ide macro', () => {

@@ -626,6 +626,15 @@ jobs:
       run: |
         npm run attw
 
+    # Declaration-surface parity gate (fsl#1940): the paired root .d.cts /
+    # .d.ts twins (jssm, jssm_viz, cli) must export identical name sets.
+    # attw passes when each surface is self-consistent; only this
+    # cross-surface name-set diff catches one fork of a pair silently
+    # dropping an export the other keeps.
+    - name: declaration parity gate
+      run: |
+        npm run decl_parity
+
     # Surface the build's line-count report in the run summary (fsl#986).
     - name: CLOC report to job summary
       run: |

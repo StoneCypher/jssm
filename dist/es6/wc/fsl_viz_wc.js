@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html, css } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
+import { fsl_to_svg_string, machine_to_svg_string, slug_for } from '../jssm_viz.js';
 import { closest_wc } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 /**
@@ -57,6 +57,7 @@ export function normalize_viz_error(e) {
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 export class FslViz extends LitElement {
@@ -297,15 +298,27 @@ export class FslViz extends LitElement {
      * Programmatically highlights one execution trace (a path of state names)
      * through the rendered graph, optionally fading everything off the path.
      *
-     * Matches nodes by their Graphviz `<title>` (the state name) and edges by
-     * the `from->to` title Graphviz emits, applying inline style overrides so
-     * the highlight composes over — and is reversible against — the default
-     * rendering (see {@link clearHighlights}, which this calls first). No-ops
-     * when detached, before the first render, or given an empty trace.
+     * Matches nodes by their Graphviz `<title>` and edges by the `from->to`
+     * title Graphviz emits, applying inline style overrides so the highlight
+     * composes over — and is reversible against — the default rendering (see
+     * {@link clearHighlights}, which this calls first). No-ops when detached,
+     * before the first render, or given an empty trace.
+     *
+     * Because dot generation slugs state names into node identifiers (fsl#1935
+     * — `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name
+     * is matched in **both** its raw form and its slugged form, using the same
+     * `slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,
+     * `'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore
+     * both work. Names whose slug is empty (e.g. `'!!!'`, which renders under
+     * an indexed `node-N` title) are only matchable by passing that literal
+     * `node-N` title.
      *
      * ```typescript
      * // Highlight a -> b -> c in green, without dimming the rest:
      * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+     *
+     * // Display-form names match their slugged titles:
+     * viz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm
      * ```
      * @param trace   Ordered state names describing the path (e.g.
      *                `['A', 'B', 'C']`). Consecutive pairs select the edges
@@ -328,10 +341,26 @@ export class FslViz extends LitElement {
         const fadeOthers = options.fadeOthers !== false; // default: true — undefined must fade
         const targetNodes = new Set();
         const targetEdges = new Set();
-        for (let i = 0; i < trace.length; i++) {
-            targetNodes.add(trace[i]);
+        // fsl#1935: dot generation slugs state names for node identity (see
+        // slug_for in jssm_viz.ts), so rendered <title>s carry 'wrong-pin', not
+        // 'Wrong Pin'. Match each trace name in both raw and slugged forms; for
+        // names already in slug form the two coincide, preserving old behavior.
+        const title_forms_of = (name) => {
+            const slug = slug_for(name);
+            return (slug !== '' && slug !== name) ? [name, slug] : [name];
+        };
+        for (const [i, name] of trace.entries()) {
+            const from_forms = title_forms_of(name);
+            for (const form of from_forms) {
+                targetNodes.add(form);
+            }
             if (i < trace.length - 1) {
-                targetEdges.add(`${trace[i]}->${trace[i + 1]}`);
+                const to_forms = title_forms_of(trace[i + 1]);
+                for (const from_form of from_forms) {
+                    for (const to_form of to_forms) {
+                        targetEdges.add(`${from_form}->${to_form}`);
+                    }
+                }
             }
         }
         const allNodes = container.querySelectorAll('.node');
@@ -381,10 +410,18 @@ FslViz.styles = css `
     :host {
       display: block;
       min-height: var(--jssm-viz-min-height, 100px);
+      /* #1934: embedder sizing seam — cap the control via the custom property
+         (or plain external max-height on the host) without shadow surgery. */
+      max-height: var(--jssm-viz-max-height, none);
     }
     .container {
       width: 100%;
       height: 100%;
+      /* #1934: when the host's height is auto (content-driven under an
+         external max-height cap), the percentage heights below collapse to
+         auto and stop constraining anything. Inheriting the host's computed
+         max-height re-threads the cap down to the svg. */
+      max-height: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -395,6 +432,14 @@ FslViz.styles = css `
          the 90% box centered in the flex container yields the 5% inset. */
       width: 90%;
       height: 90%;
+      /* #1934: with an auto-height host the 90% height collapses and the svg
+         falls back to ratio-derived (or intrinsic pt) sizing, which can run
+         far past an external max-height on the host. The inherited cap keeps
+         that fallback bounded; Graphviz SVGs carry viewBox + the default
+         preserveAspectRatio, so the capped viewport letterboxes cleanly
+         instead of distorting. */
+      max-width: 100%;
+      max-height: inherit;
     }
 
     /* Smoothly animate the inline style overrides applied by highlightTrace()

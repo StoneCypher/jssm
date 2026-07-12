@@ -520,6 +520,36 @@ type FslSourceLocation = { start: FslSourcePoint, end: FslSourcePoint };
 
 
 /**
+ *  Options accepted by the FSL parser and its {@link wrap_parse} wrapper
+ *  (exported from the package as `parse`).  Exists so the two-argument parse
+ *  call is typed against what the parser actually reads, instead of a bare
+ *  `object`.
+ *
+ *  - `locations` — when `true`, the grammar attaches a `loc` field of type
+ *    {@link FslSourceLocation} (plus curated `*_loc` token sub-spans) to every
+ *    AST node.  When absent or `false`, the tree is byte-for-byte identical to
+ *    the historical location-free output.
+ *
+ *  - `startRule` — honored by the generated PEG.js boilerplate, which throws
+ *    on any rule name it doesn't expose.  This grammar exposes only its
+ *    default rule, `Document`, so the field is only useful for explicitness.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ *  @see FslSourceLocation
+ */
+type JssmParseOptions = {
+
+  locations? : boolean,
+  startRule? : 'Document'
+
+};
+
+
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -1679,6 +1709,7 @@ export {
     JssmGenericMachine,
 
   JssmParseTree,
+    JssmParseOptions,
     JssmCompileSe,
     JssmCompileSeStart,
     JssmCompileRule,

@@ -211,6 +211,121 @@ describe('FslViz programmatic graph highlighter', () => {
 
   });
 
+  // fsl#1935 regression: dot generation slugs state names (slug_for:
+  // lowercase, non-alphanumeric runs to '-', trim), so a machine declared as
+  // `Red -> Green;` renders <title>red</title> / <title>green</title>.
+  // highlightTrace must accept the display-form names the caller actually
+  // has, matching them against the slugged titles — while names already in
+  // slug form keep working unchanged.
+
+  test('#1935: display-form names match their slugged titles (nodes and edges)', async () => {
+
+    const el = await renderViz('Red -> Green; Red -> Blue;');
+
+    try {
+      el.highlightTrace(['Red', 'Green']);
+
+      // The machine renders under slugged titles; sanity-check that premise
+      // so this test cannot silently pass against raw titles.
+      expect(groupByTitle(el, '.node', 'Red')).toBeUndefined();
+      expect(groupByTitle(el, '.node', 'red')).toBeDefined();
+
+      for (const slug of ['red', 'green']) {
+        const node  = groupByTitle(el, '.node', slug)!;
+        const shape = node.querySelector('polygon, ellipse, path') as SVGElement;
+        expect(shape.style.stroke).toBe(CRIMSON);
+        expect((node as SVGElement).style.opacity).toBe('');
+      }
+
+      const edge = groupByTitle(el, '.edge', 'red->green')!;
+      expect((edge.querySelector('path') as SVGElement).style.stroke).toBe(CRIMSON);
+
+      // Off-trace state and edge still fade.
+      expect((groupByTitle(el, '.node', 'blue') as SVGElement).style.opacity).toBe('0.2');
+      expect((groupByTitle(el, '.edge', 'red->blue') as SVGElement).style.opacity).toBe('0.2');
+    } finally {
+      el.remove();
+    }
+
+  });
+
+  test('#1935: names with spaces match their hyphenated slugs', async () => {
+
+    const el = await renderViz('"Wrong Pin" -> "Right Pin"; "Wrong Pin" -> "Alarm Bell";');
+
+    try {
+      el.highlightTrace(['Wrong Pin', 'Right Pin']);
+
+      const wrong = groupByTitle(el, '.node', 'wrong-pin')!;
+      const right = groupByTitle(el, '.node', 'right-pin')!;
+      expect((wrong.querySelector('polygon, ellipse, path') as SVGElement).style.stroke).toBe(CRIMSON);
+      expect((right.querySelector('polygon, ellipse, path') as SVGElement).style.stroke).toBe(CRIMSON);
+
+      const edge = groupByTitle(el, '.edge', 'wrong-pin->right-pin')!;
+      expect((edge.querySelector('path') as SVGElement).style.stroke).toBe(CRIMSON);
+
+      expect((groupByTitle(el, '.node', 'alarm-bell') as SVGElement).style.opacity).toBe('0.2');
+    } finally {
+      el.remove();
+    }
+
+  });
+
+  test('#1935: unicode names match their slugs (non-ascii characters collapse to hyphens)', async () => {
+
+    // slug_for('Röd') === 'r-d', slug_for('Grön') === 'gr-n'.
+    const el = await renderViz('Röd -> Grön;');
+
+    try {
+      el.highlightTrace(['Röd']);
+
+      const rod = groupByTitle(el, '.node', 'r-d')!;
+      expect((rod.querySelector('polygon, ellipse, path') as SVGElement).style.stroke).toBe(CRIMSON);
+      expect((groupByTitle(el, '.node', 'gr-n') as SVGElement).style.opacity).toBe('0.2');
+    } finally {
+      el.remove();
+    }
+
+  });
+
+  test('#1935: slug-form input keeps working, including against a display-form machine', async () => {
+
+    const el = await renderViz('Red -> Green;');
+
+    try {
+      // The caller passes the slugs directly (the pre-fix workaround); the
+      // fix must not break it.
+      el.highlightTrace(['red', 'green']);
+
+      const red  = groupByTitle(el, '.node', 'red')!;
+      const edge = groupByTitle(el, '.edge', 'red->green')!;
+      expect((red.querySelector('polygon, ellipse, path') as SVGElement).style.stroke).toBe(CRIMSON);
+      expect((edge.querySelector('path') as SVGElement).style.stroke).toBe(CRIMSON);
+    } finally {
+      el.remove();
+    }
+
+  });
+
+  test('#1935: a name whose slug is empty is harmless and matches nothing', async () => {
+
+    const el = await renderViz('Red -> Green;');
+
+    try {
+      // slug_for('!!!') === '' — such names render under indexed node-N
+      // titles, unpredictable from the name alone, so they simply don't
+      // match. The rest of the trace still highlights.
+      expect(() => el.highlightTrace(['!!!', 'Red'])).not.toThrow();
+
+      const red = groupByTitle(el, '.node', 'red')!;
+      expect((red.querySelector('polygon, ellipse, path') as SVGElement).style.stroke).toBe(CRIMSON);
+      expect((groupByTitle(el, '.node', 'green') as SVGElement).style.opacity).toBe('0.2');
+    } finally {
+      el.remove();
+    }
+
+  });
+
   test('tolerates nodes and edges whose <title> is missing or empty', async () => {
 
     const el = await renderViz(FORK_FSL);

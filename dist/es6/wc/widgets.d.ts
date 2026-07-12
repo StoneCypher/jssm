@@ -15,3 +15,4 @@ export { FslHookLog } from './fsl_hook_log_wc.js';
 export { FslSimulation } from './fsl_simulation_wc.js';
 export { FslExport } from './fsl_export_wc.js';
 export { FslStochastic } from './fsl_stochastic_wc.js';
+export { FslInfoPanel } from './fsl_info_panel_wc.js';

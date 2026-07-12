@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.162.12",
+  "version": "5.162.13",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -234,6 +234,7 @@
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "ci_test_runtime": "npm run make_ci && npm run vitest",
     "attw": "attw --pack .",
+    "decl_parity": "node src/buildjs/decl_parity.cjs",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
