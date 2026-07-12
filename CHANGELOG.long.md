@@ -22,6 +22,26 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 11, 2026 4:33:11 PM
+
+Commit [8c2013b22fe908babacb225e1e87c394ca7d117c](https://github.com/StoneCypher/jssm/commit/8c2013b22fe908babacb225e1e87c394ca7d117c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(pkg): attw and commitlint gates, CLOC step summary, publish-manifest trace tests (5.162.9)
+  * - attw: npm run attw plus .attw.json carrying the three by-design bundle-shape exemptions; runs on the main full-build CI leg
+- commitlint: config-conventional with house relaxations (140-char headers, no body caps, subject-case off); PR-only CI job lints the PR commit range
+- src/buildjs/cloc_summary_md.cjs renders the tracked cloc reports into the GitHub Step Summary on the main full-build leg
+- src/ts/tests/published_files.spec.ts traces package.json files[] and the main/module/browser/types entry points against dist; skips itself on ci-lite trees
+- the trace caught dist/deno/README.md surviving only as a git-committed fossil (produced solely by the last build stage); make_deno now seeds it at bundle time and the readme stage still refreshes it
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 11, 2026 3:03:22 PM
 
 Commit [8f53d19d7941ef333c9ca2dcbfbd86997442e07a](https://github.com/StoneCypher/jssm/commit/8f53d19d7941ef333c9ca2dcbfbd86997442e07a)

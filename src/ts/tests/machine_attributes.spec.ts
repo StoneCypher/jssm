@@ -453,6 +453,25 @@ describe('machine_license', () => {
     expect( () => { const _ = sm`machine_license: bob; a->b;`; })
       .not.toThrow() );
 
+  // PEG choice commits on its first match, so without a word-boundary guard a
+  // bare token like 'MIT' would eat the prefix of a longer label and kill the
+  // parse; these pin that atoms extending a known license token stay labels
+  describe('atoms extending a known license token', () => {
+
+    test('MITalike parses as the whole label', () =>
+      expect( sm`machine_license: MITalike; a->b;`.machine_license() )
+        .toBe("MITalike") );
+
+    test('Unknowable parses as the whole label', () =>
+      expect( sm`machine_license: Unknowable; a->b;`.machine_license() )
+        .toBe("Unknowable") );
+
+    test('GPLish parses as the whole label', () =>
+      expect( sm`machine_license: GPLish; a->b;`.machine_license() )
+        .toBe("GPLish") );
+
+  });
+
   test('single quoted string', () =>
     expect( () => { const _ = sm`machine_license: "bo b"; a->b;`; })
       .not.toThrow() );
