@@ -759,7 +759,7 @@ type JssmStochasticRun = {
   states     : Array<string>,   // states visited, including the start state
   edges      : Array<string>,   // "from→to" keys traversed, in order
   length     : number,          // number of transitions taken (states.length - 1)
-  terminated : boolean,         // true if it reached a terminal, false if step-capped
+  terminated : boolean,         // true if it started at or reached a terminal within the cap
 };
 
 /** Aggregate statistics over a stochastic run batch. */

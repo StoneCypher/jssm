@@ -32,6 +32,36 @@ describe('stochastic_runs generator', () => {
     expect(r.states).toEqual(['b']);
   });
 
+  it('recognizes a terminal start even when the step cap is zero', () => {
+    const m = sm`a 'go' -> b;`;
+    m.transition('b');
+
+    const [r] = [...m.stochastic_runs({ runs: 1, max_steps: 0, seed: 1 })];
+
+    expect(r).toEqual({ states: ['b'], edges: [], length: 0, terminated: true });
+  });
+
+  it('keeps a nonterminal zero-step run capped', () => {
+    const m = sm`a 'go' -> b;`;
+
+    const [r] = [...m.stochastic_runs({ runs: 1, max_steps: 0, seed: 1 })];
+
+    expect(r).toEqual({ states: ['a'], edges: [], length: 0, terminated: false });
+  });
+
+  it('recognizes a terminal reached on the final permitted step', () => {
+    const m = sm`a 'go' -> b;`;
+
+    const [r] = [...m.stochastic_runs({ runs: 1, max_steps: 1, seed: 1 })];
+
+    expect(r).toEqual({
+      states: ['a', 'b'],
+      edges: ['a→b'],
+      length: 1,
+      terminated: true,
+    });
+  });
+
 });
 
 describe('stochastic_summary', () => {
@@ -58,6 +88,17 @@ describe('stochastic_summary', () => {
     expect(s.terminal_reached).toBe(0);
     expect(s.capped).toBe(10);
     expect(s.terminal_reached! + s.capped!).toBe(s.runs);
+  });
+
+  it('montecarlo: records zero-length terminal starts as reached', () => {
+    const m = sm`a 'go' -> b;`;
+    m.transition('b');
+
+    const s = m.stochastic_summary({ runs: 3, max_steps: 0, seed: 1 });
+
+    expect(s.terminal_reached).toBe(3);
+    expect(s.capped).toBe(0);
+    expect(s.path_lengths).toEqual([0, 0, 0]);
   });
 
   it('steady_state: omits montecarlo-only fields and uses one walk', () => {

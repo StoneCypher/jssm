@@ -59,4 +59,28 @@ describe('stochastic_summary properties', () => {
     }));
   });
 
+  /**
+   * At a zero-step cap, topology alone decides the outcome: a chain's
+   * initial state is capped because it has an exit, while its final state is
+   * already terminal and therefore completes with a zero-length path.
+   */
+  it('zero-step runs distinguish nonterminal and terminal starts', () => {
+    fc.assert(fc.property(chain_plan_arb, fc.boolean(), ({ fsl, names }, start_at_terminal) => {
+      const machine = sm`${fsl}`;
+
+      if (start_at_terminal) {
+        for (const next of names.slice(1)) {
+          expect(machine.transition(next)).toBe(true);
+        }
+      }
+
+      const [run] = [...machine.stochastic_runs({ runs: 1, max_steps: 0 })];
+
+      expect(run.states).toEqual([machine.state()]);
+      expect(run.edges).toEqual([]);
+      expect(run.length).toBe(0);
+      expect(run.terminated).toBe(start_at_terminal);
+    }));
+  });
+
 });
