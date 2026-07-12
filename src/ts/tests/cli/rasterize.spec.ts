@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { rasterize, rasterizeRgba } from '../../cli/subcommands/render/rasterize';
 import { svgTarget } from '../../cli/subcommands/render/targets/svg';
 import { bundledFontBytes } from '../../cli/subcommands/render/bundled-font';
@@ -30,7 +30,7 @@ describe('rasterize', () => {
       const svg = await svgTarget(trafficLight);
       const buf = await rasterize(svg, 'png');
       expect(buf.length).toBeGreaterThan(0);
-      expect(Array.from(buf.subarray(0, 8))).toEqual(PNG_MAGIC);
+      expect([...buf.subarray(0, 8)]).toEqual(PNG_MAGIC);
     });
 
     it('--width fits the PNG to the requested pixel width', async () => {
@@ -200,7 +200,7 @@ describe('rasterize', () => {
       }));
       const { rasterize: mockedRasterize } = await import('../../cli/subcommands/render/rasterize');
       const buf = await mockedRasterize('<svg/>', 'png', { width: 100 });
-      expect(Array.from(buf.subarray(0, 4))).toEqual([0x89, 0x50, 0x4E, 0x47]);
+      expect([...buf.subarray(0, 4)]).toEqual([0x89, 0x50, 0x4E, 0x47]);
       expect(renderedFree).toHaveBeenCalledTimes(1);
       expect(resvgFree).toHaveBeenCalledTimes(1);
     });
@@ -230,7 +230,9 @@ describe('rasterize', () => {
 
   describe('Browser path (OffscreenCanvas, mocked)', () => {
 
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- OffscreenCanvas does not exist in Node; a bare identifier read throws ReferenceError
     const realOffscreen = (globalThis as any).OffscreenCanvas;
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- Image does not exist in Node; a bare identifier read throws ReferenceError
     const realImage = (globalThis as any).Image;
 
     // Records the dimensions the most recent OffscreenCanvas was built with.
@@ -285,7 +287,7 @@ describe('rasterize', () => {
       const svg = await svgTarget(trafficLight);
       const buf = await rasterize(svg, 'png', { width: 200 });
       expect(canvasDims).toBeDefined();
-      expect(Array.from(buf.subarray(0, 8))).toEqual(PNG_MAGIC);
+      expect([...buf.subarray(0, 8)]).toEqual(PNG_MAGIC);
     });
 
     it('--width sizes the canvas to the requested width, height by aspect ratio', async () => {
@@ -324,31 +326,31 @@ describe('rasterize', () => {
         .rejects.toBeInstanceOf(RasterizationUnsupportedError);
     });
 
-    it('falls back to onload event when Image lacks decode()', async () => {
+    it('falls back to the load event when Image lacks decode()', async () => {
       installOffscreenCanvas();
       (globalThis as any).Image = class FakeImage {
         src = '';
         width = 100;
         height = 60;
         // No decode method on purpose
-        set onload(fn: () => void) { setImmediate(fn); }
+        addEventListener(type: string, fn: () => void) {
+          if (type === 'load') { setImmediate(fn); }
+        }
       };
       const svg = await svgTarget(trafficLight);
       const buf = await rasterize(svg, 'png', { width: 200 });
-      expect(Array.from(buf.subarray(0, 8))).toEqual(PNG_MAGIC);
+      expect([...buf.subarray(0, 8)]).toEqual(PNG_MAGIC);
     });
 
-    it('rejects when Image lacks decode() and fires onerror', async () => {
+    it('rejects when Image lacks decode() and fires the error event', async () => {
       installOffscreenCanvas();
       (globalThis as any).Image = class FakeImage {
         src = '';
         width = 100;
         height = 60;
-        _onerror: (() => void) | null = null;
-        set onerror(fn: () => void) { this._onerror = fn; }
-        set onload(_: () => void) {
-          // Trigger onerror once both handlers have been wired up by rasterize.
-          setImmediate(() => { if (this._onerror) this._onerror(); });
+        addEventListener(type: string, fn: () => void) {
+          // Fire the error handler once it is wired up by rasterize.
+          if (type === 'error') { setImmediate(fn); }
         }
       };
       const svg = await svgTarget(trafficLight);
@@ -398,7 +400,7 @@ describe('rasterize', () => {
       };
       const svg = await svgTarget(trafficLight);
       const buf = await rasterize(svg, 'jpeg', { width: 200 }); // no quality
-      expect(Array.from(buf.subarray(0, 2))).toEqual([0xFF, 0xD8]);
+      expect([...buf.subarray(0, 2)]).toEqual([0xFF, 0xD8]);
       expect(capturedQuality).toBe(0.85); // 85 default / 100
     });
 
@@ -408,12 +410,12 @@ describe('rasterize', () => {
       // vi.stubGlobal does NOT remove an existing global (vitest implementation
       // detail) — directly delete to force the typeof check to take the Buffer
       // fallback path.
-      const realBtoa = (globalThis as any).btoa;
+      const realBtoa = btoa;
       (globalThis as any).btoa = undefined;
       try {
         const svg = await svgTarget(trafficLight);
         const buf = await rasterize(svg, 'png', { width: 200 });
-        expect(Array.from(buf.subarray(0, 8))).toEqual(PNG_MAGIC);
+        expect([...buf.subarray(0, 8)]).toEqual(PNG_MAGIC);
       } finally {
         (globalThis as any).btoa = realBtoa;
       }
@@ -459,31 +461,31 @@ describe('rasterize', () => {
           .rejects.toBeInstanceOf(RasterizationUnsupportedError);
       });
 
-      it('falls back to onload event when Image lacks decode()', async () => {
+      it('falls back to the load event when Image lacks decode()', async () => {
         installOffscreenCanvas();
         (globalThis as any).Image = class FakeImage {
           src = '';
           width = 100;
           height = 60;
           // No decode method on purpose
-          set onload(fn: () => void) { setImmediate(fn); }
+          addEventListener(type: string, fn: () => void) {
+            if (type === 'load') { setImmediate(fn); }
+          }
         };
         const svg = await svgTarget(trafficLight);
         const { rgba } = await rasterizeRgba(svg, { width: 200 });
         expect(rgba.length).toBeGreaterThan(0);
       });
 
-      it('rejects when Image lacks decode() and fires onerror', async () => {
+      it('rejects when Image lacks decode() and fires the error event', async () => {
         installOffscreenCanvas();
         (globalThis as any).Image = class FakeImage {
           src = '';
           width = 100;
           height = 60;
-          _onerror: (() => void) | null = null;
-          set onerror(fn: () => void) { this._onerror = fn; }
-          set onload(_: () => void) {
-            // Trigger onerror once both handlers have been wired up by rasterizeRgba.
-            setImmediate(() => { if (this._onerror) this._onerror(); });
+          addEventListener(type: string, fn: () => void) {
+            // Fire the error handler once it is wired up by rasterizeRgba.
+            if (type === 'error') { setImmediate(fn); }
           }
         };
         const svg = await svgTarget(trafficLight);
@@ -517,7 +519,7 @@ describe('rasterize', () => {
       it('falls back to Buffer-based base64 when btoa is undefined', async () => {
         installOffscreenCanvas();
         installImage(100, 60);
-        const realBtoa = (globalThis as any).btoa;
+        const realBtoa = btoa;
         (globalThis as any).btoa = undefined;
         try {
           const svg = await svgTarget(trafficLight);
@@ -538,7 +540,7 @@ describe('rasterize', () => {
       const bytes = bundledFontBytes();
       expect(bytes.length).toBeGreaterThan(1000);
       // sfnt version for a TrueType-outline font is 0x00010000.
-      expect(Array.from(bytes.subarray(0, 4))).toEqual([0x00, 0x01, 0x00, 0x00]);
+      expect([...bytes.subarray(0, 4)]).toEqual([0x00, 0x01, 0x00, 0x00]);
     });
 
     it('decodes once and returns the same cached buffer', () => {

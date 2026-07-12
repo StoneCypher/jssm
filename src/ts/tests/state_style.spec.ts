@@ -21,6 +21,7 @@ describe('State style', () => {
 
   Shapes.map(shape => {
 
+    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
     describe(shape, () => {
 
       test(`can set regular state to ${shape}`, () =>

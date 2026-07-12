@@ -15,7 +15,6 @@ import { sm, STOCHASTIC_DEFAULT_RUNS, STOCHASTIC_DEFAULT_MAX_STEPS } from '../js
  * host's `.fsl` source (never touching the live machine) and renders
  * aggregate run statistics in-panel.  Standalone (no host) the controls are
  * disabled.
- *
  * @element fsl-stochastic
  * @csspart controls - The control row.
  * @fires fsl-stochastic-complete - CustomEvent<JssmStochasticSummary> after a run.
@@ -64,7 +63,6 @@ export class FslStochastic extends LitElement {
          *
          * Falls back to immediate (synchronous chunk) scheduling under jsdom where
          * `requestAnimationFrame` is undefined.
-         *
          * @example
          * panel.runs = 100;
          * await panel.play(); // resolves when all 100 runs are done
@@ -183,7 +181,6 @@ export class FslStochastic extends LitElement {
     /**
      * Fold accumulated counters into a rendered summary. Shared by {@link play}
      * for incremental rendering during animation.
-     *
      * @param state_visits     - Accumulated visit counts per state name.
      * @param edge_traversals  - Accumulated traversal counts per edge key.
      * @param path_lengths     - Lengths of completed (terminated) paths.
@@ -211,13 +208,14 @@ export class FslStochastic extends LitElement {
     }
     _bars() {
         const frac = this._summary.state_visit_fraction;
-        const rows = [...frac.entries()].sort((a, b) => b[1] - a[1]);
+        const rows = [...frac].sort((a, b) => b[1] - a[1]);
         return html `${rows.map(([name, f]) => html `
       <div class="bar-row">
         <span>${name}</span>
         <span class="track"><span class="bar" style="width:${(f * 100).toFixed(1)}%"></span></span>
         <span>${(f * 100).toFixed(1)}%</span>
-      </div>`)}`;
+      </div>
+    `)}`;
     }
     _panes() {
         const s = this._summary;
@@ -229,7 +227,8 @@ export class FslStochastic extends LitElement {
         <div><strong>State visits</strong></div>
         ${this._bars()}
         ${mc ? html `<div>Reached terminal: ${reached}% · Hit cap: ${capped}%</div>` : html `<div class="muted">steady-state distribution</div>`}
-      </div>`;
+      </div>
+    `;
     }
     render() {
         const disabled = this._host === null;
@@ -248,7 +247,8 @@ export class FslStochastic extends LitElement {
         <button class="btn" ?disabled=${disabled} @click=${this._togglePlay}>${this._playing ? 'Pause' : 'Play'}</button>
       </div>
       ${this._error ? html `<div class="error">${this._error}</div>` : ''}
-      ${this._summary && !this._error ? this._panes() : html `<div class="panes muted">No run yet.</div>`}`;
+      ${this._summary && !this._error ? this._panes() : html `<div class="panes muted">No run yet.</div>`}
+    `;
     }
 }
 FslStochastic.styles = css `

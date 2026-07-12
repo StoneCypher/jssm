@@ -12,7 +12,7 @@ describe('fsl_fence_lang/1', () => {
   it('is case-insensitive', () => expect(fsl_fence_lang('FSL svg')).toBe('fsl'));
   it('canonicalizes JSSM to jssm', () => expect(fsl_fence_lang('JSSM')).toBe('jssm'));
   it('rejects other languages', () => expect(fsl_fence_lang('mermaid')).toBe(null));
-  it('rejects empty', () => expect(fsl_fence_lang('   ')).toBe(null));
+  it('rejects empty', () => expect(fsl_fence_lang(' '.repeat(3))).toBe(null));
 });
 
 describe('parse_fence_info/1 — parts and defaults', () => {

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -153,7 +153,7 @@ test.todo('Not sure why these were commented out tbh');
 describe('error catchery', () => {
 
   test('repeated declaration throws', () =>
-    expect( () => { const _mach1 = sm`state c: { color: red; }; state c: { color: red; }; a -> b;`; } )  // eslint-disable-line no-unused-vars
+    expect( () => { const _mach1 = sm`state c: { color: red; }; state c: { color: red; }; a -> b;`; } )   
       .toThrow()
   );
 

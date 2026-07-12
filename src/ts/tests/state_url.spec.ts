@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 /**
  *  Tests for the per-state `url:` declaration introduced for

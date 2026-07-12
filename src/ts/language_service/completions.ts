@@ -62,7 +62,6 @@ function valueItemsFor(key: string): CompletionItem[] | null {
 
 /**
  * Completions for the caret at `offset` in `text`.
- *
  * @example
  *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
  */
@@ -71,16 +70,16 @@ export function fslCompletions(text: string, offset: number): CompletionItem[] {
   const before = text.slice(lineStart, offset);
 
   // VALUE position: `<key> : <typed>`
-  const valueMatch = /([A-Za-z_][\w-]*)\s*:\s*([\w-]*)$/.exec(before);
+  const valueMatch = /([A-Z_][\w-]*)\s*:\s*[\w-]*$/i.exec(before);
   if (valueMatch) {
     return valueItemsFor(valueMatch[1]) ?? [];
   }
 
   // KEY position: line start (or after `{`/`;`), then an optional partial word.
-  const keyMatch = /(?:^|[{;])\s*([A-Za-z_][\w-]*)?$/.exec(before);
+  const keyMatch = /(?:^|[{;])\s*(?:[A-Z_][\w-]*)?$/i.exec(before);
   if (keyMatch) {
     const pre = text.slice(0, offset);
-    const depth = (pre.match(/{/g) || []).length - (pre.match(/}/g) || []).length;
+    const depth = (pre.match(/\{/g) || []).length - (pre.match(/\}/g) || []).length;
     const keys = depth > 0 ? BLOCK_KEYS : TOP_LEVEL_KEYS;
     return keys.map(k => item(k, 'key'));
   }

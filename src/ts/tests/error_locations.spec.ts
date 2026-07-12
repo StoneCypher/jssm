@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import { JssmError } from '../jssm_error';
 import { parse }   from '../fsl_parser';
@@ -9,8 +9,8 @@ const slice = (src: string, loc: any) => src.slice(loc.start.offset, loc.end.off
 const compileErr = (src: string, located: boolean) => {
   try {
     compile(parse(src, located ? { locations: true } : {}) as any);
-  } catch (e) {
-    return e as any;
+  } catch (error) {
+    return error as any;
   }
   throw new Error('expected compile to throw');
 };

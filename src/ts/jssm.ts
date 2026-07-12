@@ -20,6 +20,7 @@ import {
   JssmEditorConfig,
   JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
+  JssmParsedSemver,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
@@ -29,7 +30,7 @@ import {
   JssmArrowKind,
   JssmSerialization,
   JssmPropertyDefinition,
-  FslDirection, FslDirections, FslTheme,
+  FslDirection,  FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
   HookPhase, HookTarget, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
@@ -43,8 +44,8 @@ import {
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
-import { compile, make, makeTransition, wrap_parse,
+
+import {  make, makeTransition, 
          transitive_members, membership_distance }            from './jssm_compiler.js';
 import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
@@ -54,13 +55,13 @@ import { theme_mapping, base_theme }                          from './jssm_theme
 
 import {
   seq,
-  unique, find_repeated,
-  weighted_rand_select, weighted_sample_select,
-  histograph, weighted_histo_key,
+   
+  weighted_rand_select, 
+  histograph, 
   array_box_if_string,
   name_bind_prop_and_state,
   gen_splitmix32,
-  sleep
+  
 } from './jssm_util.js';
 
 import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
@@ -96,6 +97,7 @@ const hook_required_fields: Record<HookDescription<unknown>['kind'], ReadonlyArr
   'entry'                    : ['to'],
   'exit'                     : ['from'],
   'after'                    : ['from'],
+  'after any'                : [],
   'post hook'                : ['from', 'to'],
   'post named'               : ['from', 'to', 'action'],
   'post global action'       : ['action'],
@@ -121,7 +123,7 @@ const hook_spatial_fields = ['from', 'to', 'action'] as const;
 
 
 import { parse }               from './fsl_parser.js';
-import { version, build_time } from './version.js';    // replaced from package.js in build
+import { version,  } from './version.js';    // replaced from package.js in build
 import { JssmError }           from './jssm_error.js';
 
 
@@ -132,7 +134,6 @@ import { JssmError }           from './jssm_error.js';
  *  Internal record holding a single registered event subscription: the
  *  handler, its optional filter, and a flag for `once` semantics.  Not
  *  exported.
- *
  *  @internal
  */
 type JssmEventEntry<mDT, Ev extends JssmEventName> = {
@@ -159,22 +160,34 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
     switch (d.key) {
 
-      case 'shape'            : state_decl.shape           = d.value; break;
-      case 'color'            : state_decl.color           = d.value; break;
-      case 'corners'          : state_decl.corners         = d.value; break;
-      case 'line-style'       : state_decl.lineStyle       = d.value; break;
+      case 'shape'            : { state_decl.shape           = d.value; break;
+      }
+      case 'color'            : { state_decl.color           = d.value; break;
+      }
+      case 'corners'          : { state_decl.corners         = d.value; break;
+      }
+      case 'line-style'       : { state_decl.lineStyle       = d.value; break;
+      }
 
-      case 'text-color'       : state_decl.textColor       = d.value; break;
-      case 'background-color' : state_decl.backgroundColor = d.value; break;
-      case 'state-label'      : state_decl.stateLabel      = d.value; break;
-      case 'border-color'     : state_decl.borderColor     = d.value; break;
+      case 'text-color'       : { state_decl.textColor       = d.value; break;
+      }
+      case 'background-color' : { state_decl.backgroundColor = d.value; break;
+      }
+      case 'state-label'      : { state_decl.stateLabel      = d.value; break;
+      }
+      case 'border-color'     : { state_decl.borderColor     = d.value; break;
+      }
 
-      case 'image'            : state_decl.image           = d.value; break;
-      case 'url'              : state_decl.url             = d.value; break;
+      case 'image'            : { state_decl.image           = d.value; break;
+      }
+      case 'url'              : { state_decl.url             = d.value; break;
+      }
 
-      case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
+      case 'state_property'   : { state_decl.property        = { name: d.name, value: d.value }; break;
+      }
 
-      default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
+      default: { throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
+      }
 
     }
 
@@ -212,24 +225,122 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
  *  state_style_condense(undefined);
  *  // => {}
  *  ```
- *
  *  @param jssk The list of style keys to condense.  `undefined` is accepted
  *  and yields an empty config.
- *
  *  @param machine Optional `Machine` reference, used only so that any
  *  {@link JssmError} thrown can point at the offending machine in its
  *  diagnostic message.
- *
  *  @returns A `JssmStateConfig` object containing every key from `jssk`
  *  remapped into its camelCase field.
- *
  *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
  *  element is not an object, if the same key appears more than once, or if a
  *  key is not one of the recognized style names.
- *
  *  @internal
- *
  */
+
+/**
+ *
+ *  Applies one parsed state-style key/value pair onto a condensing
+ *  {@link JssmStateConfig}, remapping the kebab-case FSL key to its camelCase
+ *  field and rejecting redefinition.  Exists as the switch body of
+ *  {@link state_style_condense}, one call per list element.
+ *
+ *  ```typescript
+ *  const cfg = {};
+ *  apply_state_style_key(cfg, { key: 'color', value: 'red' });  // cfg.color === 'red'
+ *  ```
+ *  @throws {JssmError} If the key was already set, or is not a recognized
+ *  style name.
+ *  @see state_style_condense
+ *  @internal
+ */
+
+function apply_state_style_key(state_style: JssmStateConfig, key: JssmStateStyleKeyList[number], machine?: any): void {
+
+  switch (key.key) {
+
+    case 'shape': {
+      if (state_style.shape !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
+      }
+      state_style.shape = key.value;
+      return;
+    }
+
+    case 'color': {
+      if (state_style.color !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
+      }
+      state_style.color = key.value;
+      return;
+    }
+
+    case 'text-color': {
+      if (state_style.textColor !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
+      }
+      state_style.textColor = key.value;
+      return;
+    }
+
+    case 'corners': {
+      if (state_style.corners !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
+      }
+      state_style.corners = key.value;
+      return;
+    }
+
+    case 'line-style': {
+      if (state_style.lineStyle !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
+      }
+      state_style.lineStyle = key.value;
+      return;
+    }
+
+    case 'background-color': {
+      if (state_style.backgroundColor !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
+      }
+      state_style.backgroundColor = key.value;
+      return;
+    }
+
+    case 'state-label': {
+      if (state_style.stateLabel !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
+      }
+      state_style.stateLabel = key.value;
+      return;
+    }
+
+    case 'border-color': {
+      if (state_style.borderColor !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
+      }
+      state_style.borderColor = key.value;
+      return;
+    }
+
+    case 'url': {
+      if (state_style.url !== undefined) {
+        throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
+      }
+      state_style.url = (key as any).value;
+      return;
+    }
+
+    default: {
+      // TODO do that <never> trick to assert this list is complete
+      throw new JssmError(machine, `unknown state style key in condense: ${(key as any).key}`);
+    }
+
+  }
+
+}
+
+
 
 function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig {
 
@@ -237,84 +348,15 @@ function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmS
 
   if (Array.isArray(jssk)) {
 
-    jssk.forEach( (key, i) => {
+    for (const [i, key] of jssk.entries()) {
 
       if (typeof key !== 'object') {
         throw new JssmError(machine, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
       }
 
-      switch (key.key) {
+      apply_state_style_key(state_style, key, machine);
 
-        case 'shape':
-          if (state_style.shape !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
-          }
-          state_style.shape = key.value;
-          break;
-
-        case 'color':
-          if (state_style.color !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
-          }
-          state_style.color = key.value;
-          break;
-
-        case 'text-color':
-          if (state_style.textColor !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
-          }
-          state_style.textColor = key.value;
-          break;
-
-        case 'corners':
-          if (state_style.corners !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
-          }
-          state_style.corners = key.value;
-          break;
-
-        case 'line-style':
-          if (state_style.lineStyle !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
-          }
-          state_style.lineStyle = key.value;
-          break;
-
-        case 'background-color':
-          if (state_style.backgroundColor !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
-          }
-          state_style.backgroundColor = key.value;
-          break;
-
-        case 'state-label':
-          if (state_style.stateLabel !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
-          }
-          state_style.stateLabel = key.value;
-          break;
-
-        case 'border-color':
-          if (state_style.borderColor !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
-          }
-          state_style.borderColor = key.value;
-          break;
-
-        case 'url':
-          if (state_style.url !== undefined) {
-            throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
-          }
-          state_style.url = (key as any).value;
-          break;
-
-        default:
-          // TODO do that <never> trick to assert this list is complete
-          throw new JssmError(machine, `unknown state style key in condense: ${(key as any).key}`);
-
-      }
-
-    });
+    }
 
   } else if (jssk === undefined) {
     // do nothing, undefined is legal and means we should return the empty container above
@@ -366,11 +408,11 @@ function merge_state_config(base: JssmStateConfig, over: JssmStateConfig): JssmS
 
   const merged: JssmStateConfig = { ...base };
 
-  Object.keys(over).forEach(key => {
-    if (over[key] !== undefined) {
-      merged[key] = over[key];
+  for (const [key, value] of Object.entries(over)) {
+    if (value !== undefined) {
+      merged[key] = value;
     }
-  });
+  }
 
   return merged;
 
@@ -428,8 +470,8 @@ function find_connected_components<mDT>(
     adj.set(name, new Set());
   }
   for (const edge of edges) {
-    adj.get(edge.from)!.add(edge.to);
-    adj.get(edge.to)!.add(edge.from);
+    adj.get(edge.from).add(edge.to);
+    adj.get(edge.to).add(edge.from);
   }
 
   const visited : Set<StateType>             = new Set();
@@ -443,18 +485,19 @@ function find_connected_components<mDT>(
     const queue     : Array<StateType> = [start];
     visited.add(start);
 
+    const enqueue_unvisited = (neighbor: StateType): void => {
+      if (visited.has(neighbor)) { return; }
+      visited.add(neighbor);
+      queue.push(neighbor);
+    };
+
     // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
     // worst case; reading by cursor keeps it O(V + E)
     let head = 0;
     while (head < queue.length) {
       const node      = queue[head++];
       component.push(node);
-      for (const neighbor of adj.get(node)!) {
-        if (!visited.has(neighbor)) {
-          visited.add(neighbor);
-          queue.push(neighbor);
-        }
-      }
+      for (const neighbor of adj.get(node)) { enqueue_unvisited(neighbor); }
     }
 
     result.push(component);
@@ -475,12 +518,11 @@ export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
  *  Default time / timeout sources, hoisted to module scope so machines that
  *  don't override them (nearly all) share three singletons instead of
  *  allocating three fresh closures per construction.
- *
  *  @internal
  */
-const DEFAULT_TIME_SOURCE          = (): number => new Date().getTime();
-const DEFAULT_TIMEOUT_SOURCE       = (f: Function, a: number) => setTimeout(f, a);
-const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number) => clearTimeout(h);
+const DEFAULT_TIME_SOURCE          = (): number => Date.now();
+const DEFAULT_TIMEOUT_SOURCE       = (f: () => void, a: number): number => setTimeout(f, a) as unknown as number;
+const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number): void => clearTimeout(h);
 
 
 
@@ -490,14 +532,14 @@ class Machine<mDT> {
 
 
   _state                  : StateType;
-  _states                 : Map<StateType, JssmGenericState>;
-  _edges                  : Array< JssmTransition<StateType, mDT> >;
-  _edge_map               : Map<StateType, Map<StateType, number>>;
-  _outbound_edge_ids      : Map<StateType, Array<number>>;   // from -> [edgeIds]; lets edges_between filter only that state's exits instead of the whole _edges array
-  _named_transitions      : Map<StateType, number>;
-  _actions                : Map<StateType, Map<StateType, number>>;
-  _reverse_actions        : Map<StateType, Map<StateType, number>>;
-  _reverse_action_targets : Map<StateType, Map<StateType, number>>;
+  #states                 : Map<StateType, JssmGenericState>;
+  #edges                  : Array< JssmTransition<StateType, mDT> >;
+  #edge_map               : Map<StateType, Map<StateType, number>>;
+  #outbound_edge_ids      : Map<StateType, Array<number>>;   // from -> [edgeIds]; lets edges_between filter only that state's exits instead of the whole _edges array
+  #named_transitions      : Map<StateType, number>;
+  #actions                : Map<StateType, Map<StateType, number>>;
+  #reverse_actions        : Map<StateType, Map<StateType, number>>;
+  #reverse_action_targets : Map<StateType, Map<StateType, number>>;
 
   // Interned-id machinery (lever 1 of the interning perf trail).  Additive
   // numeric mirrors of the hot-path string maps; every string map above stays
@@ -525,11 +567,11 @@ class Machine<mDT> {
   _machine_language?      : string;
   _machine_license?       : string;
   _machine_name?          : string;
-  _machine_version?       : string;
+  _machine_version?       : JssmParsedSemver;
   _npm_name?              : string;
   _default_size?          : JssmDefaultSize;
-  _fsl_version?           : string;
-  _raw_state_declaration? : Array<Object>;
+  _fsl_version?           : JssmParsedSemver;
+  _raw_state_declaration? : Array<object>;
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
 
   _data? : mDT;
@@ -576,6 +618,7 @@ class Machine<mDT> {
   _entry_hooks              : Map<number, HookHandler<mDT>>;
   _exit_hooks               : Map<number, HookHandler<mDT>>;
   _after_hooks              : Map<string, HookHandler<mDT>>;
+  _after_any_hook           : HookHandler<mDT> | undefined;
   _global_action_hooks      : Map<number, HookHandler<mDT>>;
   _any_action_hook          : HookHandler<mDT> | undefined;
   _standard_transition_hook : HookHandler<mDT> | undefined;
@@ -667,8 +710,8 @@ class Machine<mDT> {
 
   _after_mapping : Map<string, [string, number]>;
 
-  _timeout_source       : ( Function, number ) => number;
-  _clear_timeout_source : ( h ) => void;
+  _timeout_source       : ( f: () => void, a: number ) => number;
+  _clear_timeout_source : ( h: number ) => void;
   _timeout_handle       : number | undefined;
   _timeout_target       : string | undefined;
   _timeout_target_time  : number | undefined;
@@ -724,7 +767,7 @@ class Machine<mDT> {
     property_definition,
     state_property,
     fsl_version,
-    dot_preamble              = undefined,
+    dot_preamble,
     arrange_declaration       = [],
     arrange_start_declaration = [],
     arrange_end_declaration   = [],
@@ -766,15 +809,15 @@ class Machine<mDT> {
 
     this._instance_name = instance_name;
 
-    this._states                 = new Map();
+    this.#states                 = new Map();
     this._state_declarations     = new Map();
-    this._edges                  = [];
-    this._edge_map               = new Map();
-    this._outbound_edge_ids      = new Map();
-    this._named_transitions      = new Map();
-    this._actions                = new Map();
-    this._reverse_actions        = new Map();
-    this._reverse_action_targets = new Map();   // todo
+    this.#edges                  = [];
+    this.#edge_map               = new Map();
+    this.#outbound_edge_ids      = new Map();
+    this.#named_transitions      = new Map();
+    this.#actions                = new Map();
+    this.#reverse_actions        = new Map();
+    this.#reverse_action_targets = new Map();   // todo
 
     this._state_interner         = new Interner();
     this._action_interner        = new Interner();
@@ -828,6 +871,7 @@ class Machine<mDT> {
     this._entry_hooks              = new Map();
     this._exit_hooks               = new Map();
     this._after_hooks              = new Map();
+    this._after_any_hook           = undefined;
     this._global_action_hooks      = new Map();
     this._any_action_hook          = undefined;
     this._standard_transition_hook = undefined;
@@ -849,6 +893,7 @@ class Machine<mDT> {
     this._allow_islands          = allow_islands ?? true;
     this._editor_config          = editor_config;
 
+    // tri-state: undefined is a legal, distinct value here — do not truthy-collapse
     if ( (allows_override === false) && (config_allows_override === true) ) {
       throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
     }
@@ -925,16 +970,16 @@ class Machine<mDT> {
     this._state_to_groups = new Map();
     {
       const memo: Map<string, string[]> = new Map();
-      this._group_order.forEach((group_name: string) => {
-        transitive_members(this._group_registry, group_name, memo).forEach((member: string) => {
+      for (const group_name of this._group_order) {
+        for (const member of transitive_members(this._group_registry, group_name, memo)) {
           let bucket: Set<string> | undefined = this._state_to_groups.get(member);
           if (bucket === undefined) {
             bucket = new Set();
             this._state_to_groups.set(member, bucket);
           }
           bucket.add(group_name);
-        });
-      });
+        }
+      }
     }
 
     this._static_state_config_cache = new Map();
@@ -944,7 +989,7 @@ class Machine<mDT> {
 
     this._state_labels                  = new Map();
 
-    this._rng_seed                      = rng_seed ?? new Date().getTime();
+    this._rng_seed                      = rng_seed ?? Date.now();
     this._rng                           = gen_splitmix32(this._rng_seed);
 
     this._timeout_source                = timeout_source ?? DEFAULT_TIMEOUT_SOURCE;
@@ -968,7 +1013,7 @@ class Machine<mDT> {
 
     // consolidate the state declarations
     if (state_declaration) {
-      state_declaration.map((state_decl: JssmStateDeclaration) => {
+      for (const state_decl of state_declaration as JssmStateDeclaration[]) {
 
         if (this._state_declarations.has(state_decl.state)) { // no repeats
           throw new JssmError(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
@@ -976,15 +1021,14 @@ class Machine<mDT> {
 
         this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
 
-      });
+      }
     }
 
 
     // walk the decls for labels; aggregate them when found
-    [... this._state_declarations].map(sd => {
+    for (const [key, decl] of this._state_declarations) {
 
-      const [key, decl] = sd,
-            labelled    = decl.declarations.filter(d => d.key === 'state-label');
+      const labelled = decl.declarations.filter(d => d.key === 'state-label');
 
       if (labelled.length > 1) {
         throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
@@ -994,7 +1038,7 @@ class Machine<mDT> {
         this._state_labels.set(key, labelled[0].value);
       }
 
-    });
+    }
 
 
 
@@ -1024,13 +1068,13 @@ class Machine<mDT> {
       if ( tr.to   === undefined ) { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
+      let cursor_from: JssmGenericState | undefined = this.#states.get(tr.from);
       if (cursor_from === undefined) {
         cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
         this._new_state(cursor_from);
       }
 
-      let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
+      let cursor_to: JssmGenericState | undefined = this.#states.get(tr.to);
       if (cursor_to === undefined) {
         cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
         this._new_state(cursor_to);
@@ -1059,7 +1103,7 @@ class Machine<mDT> {
       // (#325/#531).
       const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
       if (!edge_exempt) {
-        const slot: string = tr.action ? tr.action : '';
+        const slot: string = tr.action || '';
         if (slots.has(slot)) {
           throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
             + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
@@ -1068,17 +1112,16 @@ class Machine<mDT> {
       }
 
       // add the edge; note its id
-      this._edges.push(tr);
-      const thisEdgeId: number = this._edges.length - 1;
+      this.#edges.push(tr);
+      const thisEdgeId: number = this.#edges.length - 1;
       if (tr.forced_only) { this._has_forced_transitions = true; }
 
       // guard against repeating a transition name
       if (tr.name) {
-        if (this._named_transitions.has(tr.name)) {
+        if (this.#named_transitions.has(tr.name)) {
           throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
-        } else {
-          this._named_transitions.set(tr.name, thisEdgeId);
         }
+        this.#named_transitions.set(tr.name, thisEdgeId);
       }
 
       // set up the after mapping, if any
@@ -1087,10 +1130,10 @@ class Machine<mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      let from_mapping: Map<StateType, number> | undefined = this._edge_map.get(tr.from);
+      let from_mapping: Map<StateType, number> | undefined = this.#edge_map.get(tr.from);
       if (from_mapping === undefined) {
         from_mapping = new Map();
-        this._edge_map.set(tr.from, from_mapping);
+        this.#edge_map.set(tr.from, from_mapping);
       }
 
       // first-declared wins: when several edges share a (from, to) pair (parallel
@@ -1118,10 +1161,10 @@ class Machine<mDT> {
       // is fine for lookup_transition_for but loses information for edges_between when several
       // edges share endpoints across distinct actions.  This index preserves every edge id and
       // lets edges_between scan only one state's exits, not all of _edges.
-      let outbound: Array<number> = this._outbound_edge_ids.get(tr.from);
+      let outbound: Array<number> = this.#outbound_edge_ids.get(tr.from);
       if (!outbound) {
         outbound = [];
-        this._outbound_edge_ids.set(tr.from, outbound);
+        this.#outbound_edge_ids.set(tr.from, outbound);
       }
       outbound.push(thisEdgeId);
 
@@ -1130,24 +1173,23 @@ class Machine<mDT> {
 
 
         // forward mapping first by action name
-        let actionMap: Map<StateType, number> = this._actions.get(tr.action);
+        let actionMap: Map<StateType, number> = this.#actions.get(tr.action);
         if (!(actionMap)) {
           actionMap = new Map();
-          this._actions.set(tr.action, actionMap);
+          this.#actions.set(tr.action, actionMap);
         }
 
         if (actionMap.has(tr.from)) {
           throw new JssmError(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
-        } else {
-          actionMap.set(tr.from, thisEdgeId);
         }
+        actionMap.set(tr.from, thisEdgeId);
 
 
         // reverse mapping first by state origin name
-        let rActionMap: Map<StateType, number> = this._reverse_actions.get(tr.from);
+        let rActionMap: Map<StateType, number> = this.#reverse_actions.get(tr.from);
         if (!(rActionMap)) {
           rActionMap = new Map();
-          this._reverse_actions.set(tr.from, rActionMap);
+          this.#reverse_actions.set(tr.from, rActionMap);
         }
 
         // no need to test for reverse mapping pre-presence;
@@ -1160,8 +1202,8 @@ class Machine<mDT> {
 
 
         // reverse mapping first by state target name
-        if (!(this._reverse_action_targets.has(tr.to))) {
-          this._reverse_action_targets.set(tr.to, new Map());
+        if (!(this.#reverse_action_targets.has(tr.to))) {
+          this.#reverse_action_targets.set(tr.to, new Map());
         }
 
         /* todo comeback
@@ -1184,26 +1226,26 @@ class Machine<mDT> {
 
     if (Array.isArray(property_definition)) {
 
-      property_definition.forEach(pr => {
+      for (const pr of property_definition) {
 
         this._property_keys.add(pr.name);
 
-        if (pr.hasOwnProperty('default_value')) {
+        if (Object.prototype.hasOwnProperty.call(pr, 'default_value')) {
           this._default_properties.set(pr.name, pr.default_value);
         }
 
-        if (pr.hasOwnProperty('required') && (pr.required === true)) {
+        if (Object.prototype.hasOwnProperty.call(pr, 'required') && (pr.required === true)) {
           this._required_properties.add(pr.name);
         }
 
-      });
+      }
 
     }
 
 
     if (Array.isArray(state_property)) {
 
-      state_property.forEach(sp => {
+      for (const sp of state_property) {
 
         this._state_properties.set(sp.name, sp.default_value);
 
@@ -1224,7 +1266,7 @@ class Machine<mDT> {
           this._state_property_first_state.set(j_property, j_state);
         }
 
-      });
+      }
 
     }
 
@@ -1232,7 +1274,7 @@ class Machine<mDT> {
     // set initial state either from the specified or the start state list.  validate admission behavior.
     if (initial_state) {
 
-      if (! (this._states.has(initial_state)) ) {
+      if (! (this.#states.has(initial_state)) ) {
         throw new JssmError(this, `requested start state ${initial_state} does not exist`);
       }
 
@@ -1241,12 +1283,11 @@ class Machine<mDT> {
       }
 
       this._state    = initial_state;
-      this._state_id = this._state_interner.intern(this._state);
 
     } else {
       this._state    = start_states[0];
-      this._state_id = this._state_interner.intern(this._state);
     }
+    this._state_id = this._state_interner.intern(this._state);
 
 
     // done building, do checks
@@ -1271,12 +1312,12 @@ class Machine<mDT> {
       if (this._default_properties.has(dp_key)) {
         throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
       }
-      all_states_for_props.forEach(s => {
+      for (const s of all_states_for_props) {
         const bound_name = name_bind_prop_and_state(dp_key, s);
         if (!(this._state_properties.has(bound_name))) {
           throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
         }
-      });
+      }
     });
 
     // assert chosen starting state is valid
@@ -1285,20 +1326,20 @@ class Machine<mDT> {
     }
 
     // assert all starting states are valid
-    start_states.forEach( (ss, ssi) => {
+    for (const [ssi, ss] of start_states.entries()) {
       if (!(this.has_state(ss))) {
         throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
       }
-    });
+    }
 
     // assert chosen starting state is valid
-    if (!( start_states.length === this._start_states.size )) {
+    if ( start_states.length !== this._start_states.size ) {
       throw new JssmError(this, `Start states cannot be repeated`);
     }
 
     // assert connectivity constraints imposed by allow_islands
     if (this._allow_islands !== true) {
-      const components = find_connected_components(this._states, this._edges);
+      const components = find_connected_components(this.#states, this.#edges);
       if (this._allow_islands === false) {
         if (components.length > 1) {
           throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
@@ -1318,15 +1359,15 @@ class Machine<mDT> {
     this._created = this._time_source();
     this.auto_set_state_timeout();
 
-    [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration].forEach(
-      (declaration: StateType[][]) => declaration.forEach( (arrange_pair: StateType[]) =>
-        arrange_pair.forEach( (possibleState: StateType) => {
-          if (!(this._states.has(possibleState))) {
+    for (const declaration of [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration]) {
+      for (const arrange_pair of declaration) {
+        for (const possibleState of arrange_pair) {
+          if (!(this.#states.has(possibleState))) {
             throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
           }
-        })
-      )
-    );
+        }
+      }
+    }
 
   }
 
@@ -1344,11 +1385,11 @@ class Machine<mDT> {
 
   _new_state(state_config: JssmGenericState): StateType {
 
-    if (this._states.has(state_config.name)) {
+    if (this.#states.has(state_config.name)) {
       throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
     }
 
-    this._states.set(state_config.name, state_config);
+    this.#states.set(state_config.name, state_config);
     this._state_interner.intern(state_config.name);
     return state_config.name;
 
@@ -1474,6 +1515,61 @@ class Machine<mDT> {
 
 
 
+  /*********
+   *
+   *  Replace the machine's data in place, without a transition.  This is the
+   *  practical way to assign any value — including `undefined`, `null`, or
+   *  `false` — outside a hook's complex return, closing the gap where an
+   *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
+   *  a `data-change` event with cause `'set_data'` when the value actually
+   *  changes; unlike {@link override} it requires no `allows_override`
+   *  config, because it never moves the state.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const lswitch = jssm.from('on <=> off;', {data: 1});
+   *  console.log( lswitch.data() );              // 1
+   *
+   *  lswitch.set_data(2);
+   *  console.log( lswitch.data() );              // 2
+   *
+   *  lswitch.set_data(undefined);
+   *  console.log( lswitch.data() );              // undefined
+   *  ```
+   *
+   *  @typeParam mDT The type of the machine data member; usually omitted
+   *
+   *  @param newData The value to install as the machine's data.
+   *
+   *  @returns The machine, for chaining.
+   *
+   *  @see Machine.data
+   *  @see override
+   *
+   */
+
+  set_data(newData: mDT): Machine<mDT> {
+
+    const oldData = this._data;
+    this._data    = newData;
+
+    if (oldData !== newData) {
+      this.#fire('data-change', {
+        from     : this._state,
+        to       : this._state,
+        old_data : oldData,
+        new_data : newData,
+        cause    : 'set_data'
+      });
+    }
+
+    return this;
+
+  }
+
+
+
   /**
    *  The machine's current data by REFERENCE — no clone.  The public
    *  {@link Machine.data} contract is a deep clone per call (a mutation
@@ -1489,9 +1585,7 @@ class Machine<mDT> {
    *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
    *  m._data_ref().a.b;   // 1, zero-copy
    *  ```
-   *
    *  @returns The live data value; treat as read-only.
-   *
    *  @see Machine.data
    *  @internal
    */
@@ -1533,12 +1627,8 @@ class Machine<mDT> {
     if (this._state_properties.has(bound_name)) {
       return this._state_properties.get(bound_name);
 
-    } else if (this._default_properties.has(name)) {
-      return this._default_properties.get(name);
-
-    } else {
-      return undefined;
     }
+    return this._default_properties.has(name) ? this._default_properties.get(name) : undefined;
 
   }
 
@@ -1575,12 +1665,12 @@ class Machine<mDT> {
     if (this._state_properties.has(bound_name)) {
       return this._state_properties.get(bound_name);
 
-    } else if (this._default_properties.has(name)) {
+    }
+    if (this._default_properties.has(name)) {
       return this._default_properties.get(name);
 
-    } else {
-      throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
     }
+    throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
 
   }
 
@@ -1632,10 +1722,8 @@ class Machine<mDT> {
   props(): object {
 
     const ret: object = {};
-    this.known_props().forEach(
-      p =>
-        ret[p] = this.prop(p)
-    );
+    for (const p of this.known_props()) ret[p] = this.prop(p)
+    ;
 
     return ret;
 
@@ -1893,7 +1981,7 @@ class Machine<mDT> {
    *
    */
 
-  serialize(comment?: string | undefined): JssmSerialization<mDT> {
+  serialize(comment?: string  ): JssmSerialization<mDT> {
 
     return {
 
@@ -1913,7 +2001,8 @@ class Machine<mDT> {
 
 
 
-  /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
+  /**
+   * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
    *  FSL `graph_layout` directive.
    *  @returns The layout string, or the default if not set.
    */
@@ -1921,7 +2010,8 @@ class Machine<mDT> {
     return this._graph_layout;
   }
 
-  /** Get the Graphviz DOT preamble string, injected before the graph body
+  /**
+   * Get the Graphviz DOT preamble string, injected before the graph body
    *  during visualization.  Set via the FSL `dot_preamble` directive.
    *  @returns The preamble string.
    */
@@ -1929,7 +2019,8 @@ class Machine<mDT> {
     return this._dot_preamble;
   }
 
-  /** Get the consolidated `transition: {}` default-config block: the ordered,
+  /**
+   * Get the consolidated `transition: {}` default-config block: the ordered,
    *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
    *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
    *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
@@ -1940,7 +2031,6 @@ class Machine<mDT> {
    *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
    *  // [ { key: 'color', value: '#0000ffff' } ]
    *  ```
-   *
    *  @returns The transition-config item list, or `undefined` if the machine
    *  declared no `transition: {}` block.
    *  @see default_graph_config
@@ -1949,7 +2039,8 @@ class Machine<mDT> {
     return this._default_transition_config;
   }
 
-  /** Get the consolidated `graph: {}` default-config block: the ordered,
+  /**
+   * Get the consolidated `graph: {}` default-config block: the ordered,
    *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
    *  compiler folds the deprecated top-level graph keywords
    *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
@@ -1963,7 +2054,6 @@ class Machine<mDT> {
    *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
    *  // [ { key: 'background-color', value: '#ffffffff' } ]
    *  ```
-   *
    *  @returns The graph-config item list, or `undefined` if the machine has no
    *  graph config (no `graph: {}` block and no deprecated graph keyword).
    *  @see default_transition_config
@@ -1974,35 +2064,40 @@ class Machine<mDT> {
 
 
 
-  /** Get the machine's author list.  Set via the FSL `machine_author` directive.
+  /**
+   * Get the machine's author list.  Set via the FSL `machine_author` directive.
    *  @returns An array of author name strings.
    */
   machine_author(): Array<string> {
     return this._machine_author;
   }
 
-  /** Get the machine's comment string.  Set via the FSL `machine_comment` directive.
+  /**
+   * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
    *  @returns The comment string.
    */
   machine_comment(): string {
     return this._machine_comment;
   }
 
-  /** Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
+  /**
+   * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
    *  @returns An array of contributor name strings.
    */
   machine_contributor(): Array<string> {
     return this._machine_contributor;
   }
 
-  /** Get the machine's definition string.  Set via the FSL `machine_definition` directive.
+  /**
+   * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
    *  @returns The definition string.
    */
   machine_definition(): string {
     return this._machine_definition;
   }
 
-  /** Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
+  /**
+   * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
    *  `machine_language` directive, which accepts a language name or code, or a
    *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
    *  values resolve to `undefined`.
@@ -2013,26 +2108,27 @@ class Machine<mDT> {
     return this._machine_language;
   }
 
-  /** Get the machine's license string.  Set via the FSL `machine_license` directive.
+  /**
+   * Get the machine's license string.  Set via the FSL `machine_license` directive.
    *  @returns The license string.
    */
   machine_license(): string {
     return this._machine_license;
   }
 
-  /** Get the machine's name.  Set via the FSL `machine_name` directive.
+  /**
+   * Get the machine's name.  Set via the FSL `machine_name` directive.
    *  @returns The machine name string.
    */
   machine_name(): string {
     return this._machine_name;
   }
 
-  /** The editor/panel defaults declared in the FSL `editor: {}` block, or
+  /**
+   * The editor/panel defaults declared in the FSL `editor: {}` block, or
    *  `undefined` when none was given.  Read by the all-widgets web control
    *  (fsl#1334) — `panels` drives `request` panel mode.
-   *
    *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
-   *
    *  @example
    *    const m = sm`editor: { panels: [history]; }; a -> b;`;
    *    m.editor_config();  // => { panels: ['history'] }
@@ -2041,7 +2137,8 @@ class Machine<mDT> {
     return this._editor_config;
   }
 
-  /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+  /**
+   * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
    *  Returns `undefined` when not present.
    *  @returns The npm package name string, or `undefined`.
    *  @see machine_name
@@ -2050,7 +2147,8 @@ class Machine<mDT> {
     return this._npm_name;
   }
 
-  /** Get the render-size hint for the machine's visualization.  Set via the
+  /**
+   * Get the render-size hint for the machine's visualization.  Set via the
    *  FSL `default_size` directive.  Returns `undefined` when not present.
    *
    *  The three FSL forms each produce a different subset of fields:
@@ -2060,7 +2158,6 @@ class Machine<mDT> {
    *  - `default_size: height 600;` → `{ height: 600 }`
    *
    *  This is a hint, not a hard constraint.  Renderers may ignore it.
-   *
    *  @returns The size-hint object, or `undefined` if not set.
    *  @see npm_name
    */
@@ -2068,21 +2165,32 @@ class Machine<mDT> {
     return this._default_size;
   }
 
-  /** Get the machine's version string.  Set via the FSL `machine_version` directive.
-   *  @returns The version string.
+  /**
+   * Get the machine's declared version, parsed.  Set via the FSL
+   *  `machine_version` directive, which takes a semver triple; the parser
+   *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
+   *  exact source text in `full`.  Returns `undefined` when the directive
+   *  was not given.
+   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+   *  @example
+   *    const m = sm`machine_version: 1.2.3; a -> b;`;
+   *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+   *  @see fsl_version
    */
-  machine_version(): string {
+  machine_version(): JssmParsedSemver | undefined {
     return this._machine_version;
   }
 
-  /** Get the raw state declaration objects as parsed from the FSL source.
+  /**
+   * Get the raw state declaration objects as parsed from the FSL source.
    *  @returns An array of raw state declaration objects.
    */
-  raw_state_declarations(): Array<Object> {
+  raw_state_declarations(): Array<object> {
     return this._raw_state_declaration;
   }
 
-  /** Get the processed state declaration for a specific state.
+  /**
+   * Get the processed state declaration for a specific state.
    *  @param which - The state to look up.
    *  @returns The {@link JssmStateDeclaration} for the given state.
    */
@@ -2090,23 +2198,34 @@ class Machine<mDT> {
     return this._state_declarations.get(which);
   }
 
-  /** Get all processed state declarations as a Map.
+  /**
+   * Get all processed state declarations as a Map.
    *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
    */
   state_declarations(): Map<StateType, JssmStateDeclaration> {
     return this._state_declarations;
   }
 
-  /** Get the FSL language version this machine was compiled under.
-   *  @returns The FSL version string.
+  /**
+   * Get the FSL language version this machine declares, parsed.  Set via
+   *  the FSL `fsl_version` directive, which takes a semver triple; the
+   *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
+   *  the exact source text in `full`.  Returns `undefined` when the
+   *  directive was not given.
+   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+   *  @example
+   *    const m = sm`fsl_version: 1.0.0; a -> b;`;
+   *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
+   *  @see machine_version
    */
-  fsl_version(): string {
+  fsl_version(): JssmParsedSemver | undefined {
     return this._fsl_version;
   }
 
 
 
-  /** Get the complete internal state of the machine as a serializable
+  /**
+   * Get the complete internal state of the machine as a serializable
    *  structure.  Includes actions, edges, edge map, named transitions,
    *  reverse actions, current state, and states map.
    *  @returns A {@link JssmMachineInternalState} snapshot.
@@ -2117,14 +2236,14 @@ class Machine<mDT> {
 
       internal_state_impl_version : 1,
 
-      actions                     : this._actions,
-      edge_map                    : this._edge_map,
-      edges                       : this._edges,
-      named_transitions           : this._named_transitions,
-      reverse_actions             : this._reverse_actions,
+      actions                     : this.#actions,
+      edge_map                    : this.#edge_map,
+      edges                       : this.#edges,
+      named_transitions           : this.#named_transitions,
+      reverse_actions             : this.#reverse_actions,
       // reverse_action_targets : this._reverse_action_targets,
       state                       : this._state,
-      states                      : this._states
+      states                      : this.#states
 
     };
 
@@ -2153,27 +2272,27 @@ class Machine<mDT> {
    */
 
   states(): Array<StateType> {
-    return Array.from(this._states.keys());
+    return [...this.#states.keys()];
   }
 
 
 
 
 
-  /** Get the internal state descriptor for a given state name.
+  /**
+   * Get the internal state descriptor for a given state name.
    *  @param whichState - The state to look up.
    *  @returns The {@link JssmGenericState} descriptor.
    *  @throws {JssmError} If the state does not exist.
    */
   state_for(whichState: StateType): JssmGenericState {
 
-    const state: JssmGenericState = this._states.get(whichState);
+    const state: JssmGenericState = this.#states.get(whichState);
 
     if (state) {
       return state;
-    } else {
-      throw new JssmError(this, 'No such state', { requested_state: whichState });
     }
+    throw new JssmError(this, 'No such state', { requested_state: whichState });
 
   }
 
@@ -2203,7 +2322,7 @@ class Machine<mDT> {
    */
 
   has_state(whichState: StateType): boolean {
-    return this._states.get(whichState) !== undefined;
+    return this.#states.has(whichState);
   }
 
 
@@ -2247,32 +2366,36 @@ class Machine<mDT> {
    */
 
   list_edges(): Array<JssmTransition<StateType, mDT>> {
-    return this._edges;
+    return this.#edges;
   }
 
-  /** Get the map of named transitions (transitions with explicit names).
+  /**
+   * Get the map of named transitions (transitions with explicit names).
    *  @returns A `Map` from transition name to edge index.
    */
   list_named_transitions(): Map<StateType, number> {
-    return this._named_transitions;
+    return this.#named_transitions;
   }
 
-  /** List all distinct action names defined anywhere in the machine.
+  /**
+   * List all distinct action names defined anywhere in the machine.
    *  @returns An array of action name strings.
    */
   list_actions(): Array<StateType> {
-    return Array.from(this._actions.keys());
+    return [...this.#actions.keys()];
   }
 
-  /** Whether any actions are defined on this machine.
+  /**
+   * Whether any actions are defined on this machine.
    *  @returns `true` if the machine has at least one action.
    */
   get uses_actions(): boolean {
     // Map.size answers emptiness without materializing the key list
-    return this._actions.size > 0;
+    return this.#actions.size > 0;
   }
 
-  /** Whether any forced (`~>`) transitions exist in this machine.
+  /**
+   * Whether any forced (`~>`) transitions exist in this machine.
    *  @returns `true` if at least one forced transition is defined.
    */
   get uses_forced_transitions(): boolean {
@@ -2327,32 +2450,26 @@ class Machine<mDT> {
 
   get allows_override(): JssmAllowsOverride {
 
+    // tri-state throughout: undefined is a legal, distinct value for both
+    // fields — literal comparisons are semantics, not style
+
     // code false?  config true, throw.  config false, false.  config undefined, false.
     if (this._code_allows_override === false) {
       /* istanbul ignore next */
       if (this._config_allows_override === true) {
         /* istanbul ignore next */
         throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
-      } else {
-        return false;
       }
+      return false;
     }
 
     // code true?  config true, true.  config false, false.  config undefined, true.
     if (this._code_allows_override === true) {
-      if (this._config_allows_override === false) {
-        return false;
-      } else {
-        return true;
-      }
+      return this._config_allows_override !== false;
     }
 
     // code must be undefined.  config false, false.  config true, true.  config undefined, false.
-    if (this._config_allows_override === true) {
-      return true;
-    } else {
-      return false;
-    }
+    return this._config_allows_override === true;
 
   }
 
@@ -2378,19 +2495,19 @@ class Machine<mDT> {
 
 
 
-  /** List all available theme names.
+  /**
+   * List all available theme names.
    *  @returns An array of theme name strings.
    */
   all_themes(): FslTheme[] {
     return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
   }
 
-  /** List the character ranges accepted by the FSL grammar in any but the
+  /**
+   * List the character ranges accepted by the FSL grammar in any but the
    *  first position of a state name (atom).  Each entry is an inclusive
    *  `{from, to}` range of single Unicode characters.
-   *
    *  @returns An array of `{from, to}` inclusive character ranges.
-   *
    *  @example
    *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
@@ -2400,12 +2517,11 @@ class Machine<mDT> {
     return state_name_chars;
   }
 
-  /** List the character ranges accepted by the FSL grammar in the first
+  /**
+   * List the character ranges accepted by the FSL grammar in the first
    *  position of a state name (atom).  Narrower than
    *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
-   *
    *  @returns An array of `{from, to}` inclusive character ranges.
-   *
    *  @example
    *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
@@ -2415,12 +2531,11 @@ class Machine<mDT> {
     return state_name_first_chars;
   }
 
-  /** List the character ranges accepted inside a single-quoted FSL action
+  /**
+   * List the character ranges accepted inside a single-quoted FSL action
    *  label without escaping.  Space is allowed; the apostrophe `'` is
    *  explicitly excluded since it terminates the label.
-   *
    *  @returns An array of `{from, to}` inclusive character ranges.
-   *
    *  @example
    *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
@@ -2431,7 +2546,8 @@ class Machine<mDT> {
     return action_label_chars;
   }
 
-  /** Get the active theme(s) for this machine.  Always stored as an array
+  /**
+   * Get the active theme(s) for this machine.  Always stored as an array
    *  internally; the union return type exists for setter compatibility.
    *  @returns The current theme or array of themes.
    */
@@ -2439,18 +2555,34 @@ class Machine<mDT> {
     return this._themes;     // constructor sets this to "default" otherwise
   }
 
-  /** Set the active theme(s).  Accepts a single theme name or an array.
+  /**
+   * Set the active theme(s).  Accepts a single theme name or an array.
+   *  Also drops every memoized static state config, so styles resolved
+   *  before the change re-resolve under the new theme stack.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.style_for('b');                 // resolved under the default theme
+   *  m.themes = 'ocean';
+   *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
+   *  ```
+   *
    *  @param to - A theme name or array of theme names to apply.
+   *
+   *  @see resolve_state_config
    */
   set themes(to: FslTheme | FslTheme[]) {
-    if (typeof to === 'string') {
-      this._themes = [to];
-    } else {
-      this._themes = to;
-    }
+    this._themes = typeof to === 'string' ? [to] : to;
+    // Themes feed tier 1 (and the per-kind/hooked theme layers) of
+    // resolve_state_config's cascade, whose static resolution is memoized
+    // per state.  Invalidate the memo so a theme assigned after a style has
+    // been computed is not shadowed by the old theme's cached resolution —
+    // the same rule set_hook / remove_hook apply for the hooked layer.
+    this._static_state_config_cache.clear();
   }
 
-  /** Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
+  /**
+   * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
    *  Set via the FSL `flow` directive.
    *  @returns The current flow direction.
    */
@@ -2460,7 +2592,8 @@ class Machine<mDT> {
 
 
 
-  /** Look up a transition's edge index by source and target state names.
+  /**
+   * Look up a transition's edge index by source and target state names.
    *  @param from - Source state name.
    *  @param to   - Target state name.
    *  @returns The edge index in the edges array, or `undefined` if no
@@ -2468,26 +2601,23 @@ class Machine<mDT> {
    */
   get_transition_by_state_names(from: StateType, to: StateType): number {
 
-    const emg: Map<StateType, number> = this._edge_map.get(from);
+    const emg: Map<StateType, number> = this.#edge_map.get(from);
 
-    if (emg) {
-      return emg.get(to);
-    } else {
-      return undefined;
-    }
+    return emg ? emg.get(to) : undefined;
 
   }
 
 
 
-  /** Look up the full transition object for a given source→target pair.
+  /**
+   * Look up the full transition object for a given source→target pair.
    *  @param from - Source state name.
    *  @param to   - Target state name.
    *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
    */
   lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT> {
     const id: number = this.get_transition_by_state_names(from, to);
-    return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
+    return ((id === undefined) || (id === null)) ? undefined : this.#edges[id];
   }
 
 
@@ -2548,7 +2678,7 @@ class Machine<mDT> {
 
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
 
-    const guaranteed = (this._states.get(whichState) ?? { from: undefined });
+    const guaranteed = (this.#states.get(whichState) ?? { from: undefined });
     return guaranteed.from ?? [];
 
   }
@@ -2581,7 +2711,7 @@ class Machine<mDT> {
 
   list_exits(whichState: StateType = this.state()): Array<StateType> {
 
-    const guaranteed = (this._states.get(whichState) ?? { to: undefined });
+    const guaranteed = (this.#states.get(whichState) ?? { to: undefined });
     return guaranteed.to ?? [];
 
   }
@@ -2590,7 +2720,8 @@ class Machine<mDT> {
 
 
 
-  /** Get the transitions available from a state for use by the probabilistic
+  /**
+   * Get the transitions available from a state for use by the probabilistic
    *  walk system.
    *
    *  If any exit declares a `probability`, only those probability-bearing
@@ -2603,7 +2734,6 @@ class Machine<mDT> {
    *  Fixes StoneCypher/fsl#1325, in which the function previously returned
    *  every exit unconditionally — including forced-only exits and exits
    *  with no `probability`, which distorted the weighted distribution.
-   *
    *  @param whichState - The state to inspect.
    *  @returns An array of {@link JssmTransition} edges exiting the state,
    *  filtered as described above.  May be empty.
@@ -2611,7 +2741,7 @@ class Machine<mDT> {
    */
   probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
 
-    const wstate: JssmGenericState = this._states.get(whichState);
+    const wstate: JssmGenericState = this.#states.get(whichState);
     if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     // single pass over the state's exits, replacing the old map -> filter ->
@@ -2625,14 +2755,14 @@ class Machine<mDT> {
     // lookup_transition_for.  wstate.to is non-empty only when at least one
     // outbound edge exists, and every outbound edge creates the from-side
     // mapping at construction — so emg is defined whenever the loop runs.
-    const emg: Map<StateType, number> = this._edge_map.get(whichState);
+    const emg: Map<StateType, number> = this.#edge_map.get(whichState);
 
     for (const ws of wstate.to) {
 
       // wstate.to is built from the same edge set _edge_map indexes, so the
       // per-target get cannot miss; the guard mirrors the old defensive
       // .filter(Boolean) and is equally unreachable.
-      const edge: JssmTransition<StateType, mDT> = this._edges[ emg.get(ws) ];
+      const edge: JssmTransition<StateType, mDT> = this.#edges[ emg.get(ws) ];
       /* v8 ignore next */
       if (!edge) { continue; }
 
@@ -2652,40 +2782,89 @@ class Machine<mDT> {
 
   }
 
-  /** Take a single random transition from the current state, weighted by
+  /**
+   * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
+   *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
+   *  selectable weight is zero, because weighted selection over an all-zero
+   *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
+   *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+   *  An empty pool is not this guard's concern (terminality is handled by the
+   *  callers) and passes through untouched.
+   *
+   *  ```typescript
+   *  const m = sm`a 0% -> b; a 0% -> c;`;
+   *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
+   *  ```
+   *  @param whichState - The state the pool exits from, named in the error.
+   *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
+   *  @throws {JssmError} If the pool is non-empty and every candidate edge
+   *  has probability 0 — including the case where explicit `0%` edges
+   *  excluded their unweighted sibling edges from the candidate pool.
+   *  @see probable_exits_for
+   */
+  private _assert_selectable_exit_pool(whichState: StateType, exits: Array<JssmTransition<StateType, mDT>>): void {
+
+    if (exits.length === 0) { return; }
+
+    let total: number = 0;
+    for (const e of exits) {
+      total += (e.probability === undefined) ? 1 : e.probability;
+    }
+
+    if (total > 0) { return; }
+
+    throw new JssmError(this,
+      `Cannot randomly select an exit from state ${JSON.stringify(whichState)}: every candidate edge has probability 0%.  Note that an explicit 0% edge excludes unweighted sibling edges from the candidate pool (StoneCypher/fsl#1248)`
+    );
+
+  }
+
+  /**
+   * Take a single random transition from the current state, weighted by
    *  edge probabilities.
    *  @returns `true` if a transition was taken, `false` otherwise.
+   *  @throws {JssmError} If the candidate exit pool is non-empty but its
+   *  total weight is zero — every candidate declares `0%` — per
+   *  StoneCypher/fsl#1248.
    */
   probabilistic_transition(): boolean {
-    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(this.probable_exits_for(this.state()), undefined, this._rng);
+    const exits: Array<JssmTransition<StateType, mDT>> = this.probable_exits_for(this.state());
+    this._assert_selectable_exit_pool(this.state(), exits);
+    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(exits, undefined, this._rng);
     return this.transition(selected.to);
   }
 
-  /** Take `n` consecutive probabilistic transitions and return the sequence
+  /**
+   * Take `n` consecutive probabilistic transitions and return the sequence
    *  of states visited (before each transition).
    *  @param n - Number of steps to walk.
    *  @returns An array of state names visited during the walk.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
    */
   probabilistic_walk(n: number): Array<StateType> {
-    return seq(n)
+    return [...seq(n)
       .map((): StateType => {
         const state_was: StateType = this.state();
         this.probabilistic_transition();
         return state_was;
-      })
-      .concat([this.state()]);
+      }), this.state()];
   }
 
-  /** Take `n` probabilistic steps and return a histograph of how many times
+  /**
+   * Take `n` probabilistic steps and return a histograph of how many times
    *  each state was visited.
    *  @param n - Number of steps to walk.
    *  @returns A `Map` from state name to visit count.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
    */
   probabilistic_histo_walk(n: number): Map<StateType, number> {
     return histograph(this.probabilistic_walk(n));
   }
 
-  /** One non-destructive weighted-random walk over the graph from `start`.
+  /**
+   * One non-destructive weighted-random walk over the graph from `start`.
    *
    *  Reads the graph and advances the PRNG only — it never calls
    *  {@link Machine.transition}, so it fires no hooks, mutates no machine
@@ -2707,6 +2886,9 @@ class Machine<mDT> {
    *    the derived arrays — RNG draw order is untouched, so seeded walks
    *    reproduce exactly.
    *  @returns The {@link JssmStochasticRun} for this walk.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight — see
+   *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
    */
   private _stochastic_one_walk(
     start     : StateType,
@@ -2721,6 +2903,7 @@ class Machine<mDT> {
     let exits = exit_memo.get(cur);
     if (exits === undefined) {
       exits = this.probable_exits_for(cur);
+      this._assert_selectable_exit_pool(cur, exits);
       exit_memo.set(cur, exits);
     }
     let terminated: boolean = exits.length === 0;
@@ -2733,6 +2916,7 @@ class Machine<mDT> {
       exits = exit_memo.get(cur);
       if (exits === undefined) {
         exits = this.probable_exits_for(cur);
+        this._assert_selectable_exit_pool(cur, exits);
         exit_memo.set(cur, exits);
       }
       terminated = exits.length === 0;
@@ -2742,7 +2926,8 @@ class Machine<mDT> {
 
   }
 
-  /** Lazily yield one {@link JssmStochasticRun} at a time.
+  /**
+   * Lazily yield one {@link JssmStochasticRun} at a time.
    *
    *  In `montecarlo` mode (default) yields `runs` independent walks from the
    *  current state, each ending at a terminal or after `max_steps`.  In
@@ -2755,10 +2940,9 @@ class Machine<mDT> {
    *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
    *  {@link Machine.stochastic_summary}, the generator does NOT restore the
    *  prior seed afterward — a direct caller's machine is left reseeded.
-   *
    *  @param opts - {@link JssmStochasticOptions}.
+   *  @yields One {@link JssmStochasticRun} per completed walk.
    *  @returns A generator of per-run results.
-   *
    *  @example
    *  const m = sm`a 'go' -> b 'go' -> c;`;
    *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
@@ -2786,7 +2970,8 @@ class Machine<mDT> {
 
 
 
-  /** Run many weighted-random walks and return aggregate statistics.
+  /**
+   * Run many weighted-random walks and return aggregate statistics.
    *
    *  Honors `%` transition probabilities (via the existing probabilistic
    *  machinery).  Non-destructive: the machine's current state and
@@ -2801,16 +2986,13 @@ class Machine<mDT> {
    *
    *  Timing (`after`) decorations and data-guard conditions are not modeled
    *  by this sampler; it walks the probabilistic graph topology.
-   *
    *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
    *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
    *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
    *  @returns A {@link JssmStochasticSummary}.
-   *
    *  @see Machine.stochastic_runs
    *  @see Machine.probabilistic_walk
    *  @see Machine.editor_config
-   *
    *  @example
    *  const m = sm`a 'go' -> b 'go' -> c;`;
    *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
@@ -2833,7 +3015,8 @@ class Machine<mDT> {
         runs             = 0;
 
     try {
-      for (const run of this.stochastic_runs({ ...opts, mode })) {
+      const run_stream = this.stochastic_runs({ ...opts, mode });
+      for (const run of run_stream) {
         runs += 1;
         for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
         for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
@@ -2910,17 +3093,15 @@ class Machine<mDT> {
 
   actions(whichState: StateType = this.state()): Array<StateType> {
 
-    const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
+    const wstate: Map<StateType, number> = this.#reverse_actions.get(whichState);
 
     if (wstate) {
-      return Array.from(wstate.keys());
-    } else {
-      if (this.has_state(whichState)) {
-        return [];
-      } else {
-        throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-      }
+      return [...wstate.keys()];
     }
+    if (this.has_state(whichState)) {
+      return [];
+    }
+    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
   }
 
 
@@ -2952,13 +3133,12 @@ class Machine<mDT> {
 
   list_states_having_action(whichState: StateType): Array<StateType> {
 
-    const wstate: Map<StateType, number> = this._actions.get(whichState);
+    const wstate: Map<StateType, number> = this.#actions.get(whichState);
 
     if (wstate) {
-      return Array.from(wstate.keys());
-    } else {
-      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+      return [...wstate.keys()];
     }
+    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
 
   }
 
@@ -2976,17 +3156,16 @@ class Machine<mDT> {
     }
   */
 
-  /** List all action names available as exits from a given state.
+  /**
+   * List all action names available as exits from a given state.
    *
    *  Returns the empty array (does not throw) when `whichState` exists but has
    *  no action-named exits — including terminal states, states whose only
    *  exits are plain `->` transitions, and states in machines that use no
    *  actions at all.  Only nonexistent states cause a throw.
-   *
    *  @param whichState - The state to inspect.  Defaults to the current state.
    *  @returns An array of action name strings, possibly empty.
    *  @throws {JssmError} If the state does not exist.
-   *
    *  @example
    *    const m = sm`a 'go' -> b; b -> c;`;
    *    m.list_exit_actions('a');  // => ['go']
@@ -2996,7 +3175,7 @@ class Machine<mDT> {
    */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
 
-    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
+    const ra_base: Map<StateType, number> = this.#reverse_actions.get(whichState);
 
     if (!(ra_base)) {
       if (this.has_state(whichState)) {
@@ -3008,7 +3187,7 @@ class Machine<mDT> {
     // `_reverse_actions` is keyed by edge.from (see its population), so every
     // action stored under whichState belongs to whichState by construction — no
     // from-filter is needed, and the keys are exactly the exit actions.
-    return Array.from(ra_base.keys());
+    return [...ra_base.keys()];
 
   }
 
@@ -3016,13 +3195,14 @@ class Machine<mDT> {
 
 
 
-  /** List all action exits from a state with their probabilities.
+  /**
+   * List all action exits from a state with their probabilities.
    *  @param whichState - The state to inspect.  Defaults to the current state.
    *  @returns An array of `{ action, probability }` objects.
    *  @throws {JssmError} If the state does not exist.
    */
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
-    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
+    const ra_base: Map<StateType, number> = this.#reverse_actions.get(whichState);
     if (!(ra_base)) {
       if (this.has_state(whichState)) {
         return [];
@@ -3037,7 +3217,7 @@ class Machine<mDT> {
     ra_base.forEach((edgeId: number, action: StateType) => {
       exits.push({
         action,
-        probability: this._edges[edgeId].probability
+        probability: this.#edges[edgeId].probability
       });
     });
 
@@ -3046,7 +3226,8 @@ class Machine<mDT> {
 
 
 
-  /** Check whether a state has no incoming transitions (unreachable after start).
+  /**
+   * Check whether a state has no incoming transitions (unreachable after start).
    *  @param whichState - The state to check.
    *  @returns `true` if the state has zero entrances.
    *  @throws {JssmError} If the state does not exist.
@@ -3056,7 +3237,8 @@ class Machine<mDT> {
     return this.list_entrances(whichState).length === 0;
   }
 
-  /** Check whether any state in the machine is unenterable.
+  /**
+   * Check whether any state in the machine is unenterable.
    *  @returns `true` if at least one state has no incoming transitions.
    */
   has_unenterables(): boolean {
@@ -3065,14 +3247,16 @@ class Machine<mDT> {
 
 
 
-  /** Check whether the current state is terminal (has no exits).
+  /**
+   * Check whether the current state is terminal (has no exits).
    *  @returns `true` if the current state has zero exits.
    */
   is_terminal(): boolean {
     return this.state_is_terminal(this.state());
   }
 
-  /** Check whether a specific state is terminal (has no exits).
+  /**
+   * Check whether a specific state is terminal (has no exits).
    *  @param whichState - The state to check.
    *  @returns `true` if the state has zero exits.
    *  @throws {JssmError} If the state does not exist.
@@ -3082,7 +3266,8 @@ class Machine<mDT> {
     return this.list_exits(whichState).length === 0;
   }
 
-  /** Check whether any state in the machine is terminal.
+  /**
+   * Check whether any state in the machine is terminal.
    *  @returns `true` if at least one state has no exits.
    */
   has_terminals(): boolean {
@@ -3160,7 +3345,7 @@ class Machine<mDT> {
    */
 
   groupsOf(state: StateType): Set<string> {
-    return new Set(this._state_to_groups.get(state) ?? []);
+    return new Set(this._state_to_groups.get(state));
   }
 
 
@@ -3234,25 +3419,28 @@ class Machine<mDT> {
 
 
 
-  /** Check whether the current state is complete (every exit has an action).
+  /**
+   * Check whether the current state is complete (every exit has an action).
    *  @returns `true` if the current state is complete.
    */
   is_complete(): boolean {
     return this.state_is_complete(this.state());
   }
 
-  /** Check whether a specific state is complete (every exit has an action).
+  /**
+   * Check whether a specific state is complete (every exit has an action).
    *  @param whichState - The state to check.
    *  @returns `true` if the state is complete.
    *  @throws {JssmError} If the state does not exist.
    */
   state_is_complete(whichState: StateType): boolean {
-    const wstate: JssmGenericState = this._states.get(whichState);
+    const wstate: JssmGenericState = this.#states.get(whichState);
     if (wstate) { return wstate.complete; }
-    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
+    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
   }
 
-  /** Check whether any state in the machine is complete.
+  /**
+   * Check whether any state in the machine is complete.
    *  @returns `true` if at least one state is complete.
    */
   has_completes(): boolean {
@@ -3281,14 +3469,12 @@ class Machine<mDT> {
    *  const off = m.on('transition', () => {});
    *  off();  // unsubscribe
    *  ```
-   *
-   *  @typeParam Ev      The event name (drives the detail type).
+   *  @template Ev      The event name (drives the detail type).
    *  @param name        The event name to subscribe to.
    *  @param handler     The handler invoked on each matching delivery.  The
    *                     three-argument `(name, filter, handler)` form inserts a
    *                     filter object before the handler (see the example above).
    *  @returns A function that unsubscribes when called.
-   *
    *  @see Machine.off
    *  @see Machine.once
    */
@@ -3299,7 +3485,7 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return this._subscribe(name, filterOrFn, maybeFn, false);
+    return this.#subscribe(name, filterOrFn, maybeFn, false);
   }
 
 
@@ -3312,15 +3498,13 @@ class Machine<mDT> {
    *  ```typescript
    *  m.once('terminal', e => console.log(`done at ${e.state}`));
    *  ```
-   *
-   *  @typeParam Ev      The event name.
+   *  @template Ev      The event name.
    *  @param name        The event name.
    *  @param handler     The handler invoked on the first matching delivery.  The
    *                     three-argument `(name, filter, handler)` form inserts a
    *                     filter object before the handler (same shapes as `on`).
    *  @returns A function that unsubscribes early if called before the
    *           handler has fired.
-   *
    *  @see Machine.on
    *  @see Machine.off
    */
@@ -3331,7 +3515,7 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return this._subscribe(name, filterOrFn, maybeFn, true);
+    return this.#subscribe(name, filterOrFn, maybeFn, true);
   }
 
 
@@ -3348,7 +3532,6 @@ class Machine<mDT> {
    *  m.off('transition', fn);  // true
    *  m.off('transition', fn);  // false
    *  ```
-   *
    *  @param name    The event name.
    *  @param handler The handler reference to remove.
    *  @returns `true` if removed, `false` if no match was registered.
@@ -3358,7 +3541,7 @@ class Machine<mDT> {
     if (set === undefined) { return false; }
     for (const entry of set) {
       if (entry.handler === handler) {
-        this._unsubscribe_entry(set, entry);
+        this.#unsubscribe_entry(set, entry);
         return true;
       }
     }
@@ -3371,12 +3554,11 @@ class Machine<mDT> {
    *  only when the entry was actually present, so calling a stale unsubscribe
    *  closure (or removing an already-fired `once` entry) is idempotent and
    *  cannot drive the count negative.
-   *
    *  @param set   The per-event-name subscription set.
    *  @param entry The entry to remove.
    *  @internal
    */
-  _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void {
+  #unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void {
     if (set.delete(entry)) { this._event_listener_count--; }
   }
 
@@ -3386,10 +3568,9 @@ class Machine<mDT> {
    *  Shared registration core used by {@link Machine.on} and
    *  {@link Machine.once}.  Normalizes the optional filter argument and
    *  installs the entry into the per-event subscription set.
-   *
    *  @internal
    */
-  _subscribe<Ev extends JssmEventName>(
+  #subscribe<Ev extends JssmEventName>(
     name: Ev,
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn: JssmEventHandler<mDT, Ev> | undefined,
@@ -3401,10 +3582,10 @@ class Machine<mDT> {
 
     if (typeof filterOrFn === 'function') {
       filter  = undefined;
-      handler = filterOrFn as JssmEventHandler<mDT, Ev>;
+      handler = filterOrFn;
     } else {
       filter  = filterOrFn;
-      handler = maybeFn as JssmEventHandler<mDT, Ev>;
+      handler = maybeFn;
     }
 
     if (typeof handler !== 'function') {
@@ -3421,7 +3602,7 @@ class Machine<mDT> {
     set.add(entry);
     this._event_listener_count++;
 
-    return () => { this._unsubscribe_entry(set!, entry); };
+    return () => { this.#unsubscribe_entry(set, entry); };
   }
 
 
@@ -3431,15 +3612,13 @@ class Machine<mDT> {
    *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
    *  {@link _fire} can share identical behavior between the size-1 fast-path
    *  and the general snapshotted loop.
-   *
    *  @param entry  - The subscriber descriptor to invoke.
    *  @param set    - The live Set that owns `entry`; needed for once-removal.
    *  @param name   - The event name being dispatched (used in error re-fires).
    *  @param detail - The event payload forwarded to the handler.
-   *
    *  @internal
    */
-  _fire_one<Ev extends JssmEventName>(
+  #fire_one<Ev extends JssmEventName>(
     entry  : JssmEventEntry<mDT, Ev>,
     set    : Set<JssmEventEntry<any, any>>,
     name   : Ev,
@@ -3448,34 +3627,34 @@ class Machine<mDT> {
 
     // filter check
     if (entry.filter !== undefined) {
-      for (const k of Object.keys(entry.filter)) {
-        if ((entry.filter as any)[k] !== (detail as any)[k]) { return; }
+      for (const [k, v] of Object.entries(entry.filter)) {
+        if (v !== (detail as any)[k]) { return; }
       }
     }
 
     // once removal happens BEFORE invocation so a throwing handler still
     // gets removed and so re-entrant `on` calls during the handler see
     // the post-removal state.
-    if (entry.once) { this._unsubscribe_entry(set, entry); }
+    if (entry.once) { this.#unsubscribe_entry(set, entry); }
 
     try {
       entry.handler(detail);
-    } catch (err) {
+    } catch (error) {
       if (name === 'error' || this._firing_error) {
         // surface to stderr as a last resort but never recurse;
         // `console` is in the JS standard library and present in every
         // supported runtime, so guarding it would just add an untestable
         // branch.  See #638.
-        // eslint-disable-next-line no-console
-        console.error(err);
+         
+        console.error(error);
       } else {
         this._firing_error = true;
         try {
-          this._fire('error', {
-            error         : err,
+          this.#fire('error', {
+            error         : error,
             source_event  : name,
             source_detail : detail,
-            handler       : entry.handler as unknown as Function
+            handler       : entry.handler
           });
         } finally {
           this._firing_error = false;
@@ -3501,7 +3680,6 @@ class Machine<mDT> {
    *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
    *  local first — equivalent to a 1-element snapshot but allocation-free.
    *  The general path still snapshots for re-entrancy safety.
-   *
    *  @internal
    */
   /**
@@ -3512,7 +3690,6 @@ class Machine<mDT> {
    *  previously paid for the exit/entry/data-change detail allocations on
    *  every transition.  Read at fire time, so a listener installed by a
    *  pre-hook is still seen (#671).
-   *
    *  @param name The event name to probe.
    *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
    *  least one handler.
@@ -3522,16 +3699,15 @@ class Machine<mDT> {
    *  machine._has_subscribers('transition');  // true
    *  machine._has_subscribers('exit');        // false
    *  ```
-   *
    *  @see Machine._fire
    *  @internal
    */
-  _has_subscribers(name: JssmEventName): boolean {
+  #has_subscribers(name: JssmEventName): boolean {
     const set = this._event_handlers.get(name);
-    return (set !== undefined) && (set.size !== 0);
+    return (set !== undefined) && (set.size > 0);
   }
 
-  _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
+  #fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
 
     const set = this._event_handlers.get(name);
     if (set === undefined || set.size === 0) { return; }
@@ -3541,21 +3717,22 @@ class Machine<mDT> {
     // stable reference.  Behaviorally identical to a 1-element snapshot.
     if (set.size === 1) {
       const only = set.values().next().value as JssmEventEntry<mDT, Ev>;
-      this._fire_one(only, set, name, detail);
+      this.#fire_one(only, set, name, detail);
       return;
     }
 
     // General path: snapshot so handlers can `off()` mid-loop without
     // disturbing iteration.
-    const entries = Array.from(set);
+    const entries = [...set];
     for (const entry of entries) {
-      this._fire_one(entry, set, name, detail);
+      this.#fire_one(entry, set, name, detail);
     }
   }
 
 
 
-  /** Low-level hook registration.  Installs a handler described by a
+  /**
+   * Low-level hook registration.  Installs a handler described by a
    *  {@link HookDescription} into the appropriate internal map.  Prefer the
    *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
    *  calling this directly.
@@ -3568,17 +3745,15 @@ class Machine<mDT> {
    *  kind — present when required, absent otherwise.  This turns a mis-shaped
    *  descriptor into a thrown error instead of a silently dead hook keyed on
    *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
-   *
    *  @param HookDesc - The descriptor about to be registered.
    *  @throws JssmError if the kind is unknown, the handler is not a function, a
    *          required field is missing, or an inapplicable field is present.
-   *
    *  @example
    *    const m = sm`a -> b;`;
    *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
    *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
    */
-  _validate_hook_description(HookDesc: HookDescription<mDT>): void {
+  #validate_hook_description(HookDesc: HookDescription<mDT>): void {
 
     const required: ReadonlyArray<'from' | 'to' | 'action'> | undefined =
       hook_required_fields[HookDesc.kind];
@@ -3592,12 +3767,15 @@ class Machine<mDT> {
     }
 
     for (const field of hook_spatial_fields) {
-      const needed  = required.includes(field);
-      const present = (HookDesc as Record<string, unknown>)[field] !== undefined;
-      if (needed && !present) {
-        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+      const needed = required.includes(field);
+      const value  = (HookDesc as Record<string, unknown>)[field];
+      // a required spatial field must be a usable key: a non-empty string.
+      // presence alone isn't enough — `action: false` or `from: ''` would
+      // register a hook nothing can ever fire (fsl#653, fsl#659)
+      if (needed && ((typeof value !== 'string') || (value === ''))) {
+        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}' to be a non-empty string`);
       }
-      if (!needed && present) {
+      if (!needed && (value !== undefined)) {
         throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
       }
     }
@@ -3607,7 +3785,7 @@ class Machine<mDT> {
 
   set_hook(HookDesc: HookDescription<mDT>) {
 
-    this._validate_hook_description(HookDesc);
+    this.#validate_hook_description(HookDesc);
 
     switch (HookDesc.kind) {
 
@@ -3639,57 +3817,73 @@ class Machine<mDT> {
         break;
       }
 
-      case 'global action':
+      case 'global action': {
         this._global_action_hooks.set( this._action_interner.intern(HookDesc.action), HookDesc.handler );
         this._has_hooks               = true;
         this._has_global_action_hooks = true;
         break;
+      }
 
-      case 'any action':
+      case 'any action': {
         this._any_action_hook = HookDesc.handler;
         this._has_hooks = true;
         break;
+      }
 
-      case 'standard transition':
+      case 'standard transition': {
         this._standard_transition_hook = HookDesc.handler;
         this._has_transition_hooks     = true;
         this._has_hooks                = true;
         break;
+      }
 
-      case 'main transition':
+      case 'main transition': {
         this._main_transition_hook = HookDesc.handler;
         this._has_transition_hooks = true;
         this._has_hooks            = true;
         break;
+      }
 
-      case 'forced transition':
+      case 'forced transition': {
         this._forced_transition_hook = HookDesc.handler;
         this._has_transition_hooks   = true;
         this._has_hooks              = true;
         break;
+      }
 
-      case 'any transition':
+      case 'any transition': {
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
         break;
+      }
 
-      case 'entry':
+      case 'entry': {
         this._entry_hooks.set( this._state_interner.intern(HookDesc.to), HookDesc.handler );
         this._has_hooks       = true;
         this._has_entry_hooks = true;
         break;
+      }
 
-      case 'exit':
+      case 'exit': {
         this._exit_hooks.set( this._state_interner.intern(HookDesc.from), HookDesc.handler );
         this._has_hooks      = true;
         this._has_exit_hooks = true;
         break;
+      }
 
-      case 'after':
+      case 'after': {
         this._after_hooks.set( HookDesc.from, HookDesc.handler );
         this._has_hooks       = true;
         this._has_after_hooks = true;
         break;
+      }
+
+      case 'after any': {
+        this._after_any_hook  = HookDesc.handler;
+        this._has_hooks       = true;
+        this._has_after_hooks = true;
+        break;
+      }
 
 
       case 'post hook': {
@@ -3717,71 +3911,83 @@ class Machine<mDT> {
         break;
       }
 
-      case 'post global action':
+      case 'post global action': {
         this._post_global_action_hooks.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_post_hooks               = true;
         this._has_post_global_action_hooks = true;
         break;
+      }
 
-      case 'post any action':
+      case 'post any action': {
         this._post_any_action_hook = HookDesc.handler;
         this._has_post_hooks       = true;
         break;
+      }
 
-      case 'post standard transition':
+      case 'post standard transition': {
         this._post_standard_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks     = true;
         this._has_post_hooks                = true;
         break;
+      }
 
-      case 'post main transition':
+      case 'post main transition': {
         this._post_main_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks = true;
         this._has_post_hooks            = true;
         break;
+      }
 
-      case 'post forced transition':
+      case 'post forced transition': {
         this._post_forced_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks   = true;
         this._has_post_hooks              = true;
         break;
+      }
 
-      case 'post any transition':
+      case 'post any transition': {
         this._post_any_transition_hook = HookDesc.handler;
         this._has_post_hooks           = true;
         break;
+      }
 
-      case 'post entry':
+      case 'post entry': {
         this._post_entry_hooks.set(this._state_interner.intern(HookDesc.to), HookDesc.handler);
         this._has_post_entry_hooks = true;
         this._has_post_hooks       = true;
         break;
+      }
 
-      case 'post exit':
+      case 'post exit': {
         this._post_exit_hooks.set(this._state_interner.intern(HookDesc.from), HookDesc.handler);
         this._has_post_exit_hooks = true;
         this._has_post_hooks      = true;
         break;
+      }
 
-      case 'pre everything':
+      case 'pre everything': {
         this._pre_everything_hook = HookDesc.handler;
         this._has_hooks           = true;
         break;
+      }
 
-      case 'everything':
+      case 'everything': {
         this._everything_hook = HookDesc.handler;
         this._has_hooks       = true;
         break;
+      }
 
-      case 'pre post everything':
+      case 'pre post everything': {
         this._pre_post_everything_hook = HookDesc.handler;
         this._has_post_hooks           = true;
         break;
+      }
 
-      case 'post everything':
+      case 'post everything': {
         this._post_everything_hook = HookDesc.handler;
         this._has_post_hooks       = true;
         break;
+      }
 
       // No default: `_validate_hook_description` above rejects any unknown kind
       // before we reach here, so the switch is exhaustive over the known kinds.
@@ -3796,7 +4002,7 @@ class Machine<mDT> {
     this._static_state_config_cache.clear();
 
     // fire the registration event for inspector tools (#638)
-    this._fire('hook-registration', { description: HookDesc });
+    this.#fire('hook-registration', { description: HookDesc });
   }
 
 
@@ -3818,7 +4024,6 @@ class Machine<mDT> {
    *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
    *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
    *  ```
-   *
    *  @param HookDesc - A hook descriptor identifying the hook to remove.
    *  @returns `true` if a hook was removed, `false` otherwise.
    */
@@ -3852,25 +4057,30 @@ class Machine<mDT> {
         break;
       }
 
-      case 'any action':
+      case 'any action': {
         if (this._any_action_hook !== undefined) { this._any_action_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'standard transition':
+      case 'standard transition': {
         if (this._standard_transition_hook !== undefined) { this._standard_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'main transition':
+      case 'main transition': {
         if (this._main_transition_hook !== undefined) { this._main_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'forced transition':
+      case 'forced transition': {
         if (this._forced_transition_hook !== undefined) { this._forced_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'any transition':
+      case 'any transition': {
         if (this._any_transition_hook !== undefined) { this._any_transition_hook = undefined; removed = true; }
         break;
+      }
 
       case 'entry': {
         const tid = this._state_interner.id_of(HookDesc.to);
@@ -3884,9 +4094,15 @@ class Machine<mDT> {
         break;
       }
 
-      case 'after':
+      case 'after': {
         removed = this._after_hooks.delete(HookDesc.from);
         break;
+      }
+
+      case 'after any': {
+        if (this._after_any_hook !== undefined) { this._after_any_hook = undefined; removed = true; }
+        break;
+      }
 
       case 'post hook': {
         const fid = this._state_interner.id_of(HookDesc.from),
@@ -3910,25 +4126,30 @@ class Machine<mDT> {
         break;
       }
 
-      case 'post any action':
+      case 'post any action': {
         if (this._post_any_action_hook !== undefined) { this._post_any_action_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'post standard transition':
+      case 'post standard transition': {
         if (this._post_standard_transition_hook !== undefined) { this._post_standard_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'post main transition':
+      case 'post main transition': {
         if (this._post_main_transition_hook !== undefined) { this._post_main_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'post forced transition':
+      case 'post forced transition': {
         if (this._post_forced_transition_hook !== undefined) { this._post_forced_transition_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'post any transition':
+      case 'post any transition': {
         if (this._post_any_transition_hook !== undefined) { this._post_any_transition_hook = undefined; removed = true; }
         break;
+      }
 
       case 'post entry': {
         const tid = this._state_interner.id_of(HookDesc.to);
@@ -3942,24 +4163,29 @@ class Machine<mDT> {
         break;
       }
 
-      case 'pre everything':
+      case 'pre everything': {
         if (this._pre_everything_hook !== undefined) { this._pre_everything_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'everything':
+      case 'everything': {
         if (this._everything_hook !== undefined) { this._everything_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'pre post everything':
+      case 'pre post everything': {
         if (this._pre_post_everything_hook !== undefined) { this._pre_post_everything_hook = undefined; removed = true; }
         break;
+      }
 
-      case 'post everything':
+      case 'post everything': {
         if (this._post_everything_hook !== undefined) { this._post_everything_hook = undefined; removed = true; }
         break;
+      }
 
-      default:
+      default: {
         throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+      }
 
     }
 
@@ -3967,7 +4193,7 @@ class Machine<mDT> {
       // See set_hook: the hooked-state styling layer depends on which states
       // carry hooks, so removing one can change a state's composed style.
       this._static_state_config_cache.clear();
-      this._fire('hook-removal', { description: HookDesc });
+      this.#fire('hook-removal', { description: HookDesc });
     }
 
     return removed;
@@ -3975,7 +4201,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on a specific edge.  Fires before
+  /**
+   * Register a pre-transition hook on a specific edge.  Fires before
    *  transitioning from `from` to `to`.  If the handler returns `false`, the
    *  transition is blocked.
    *
@@ -3983,7 +4210,6 @@ class Machine<mDT> {
    *  const m = sm`a -> b -> c;`;
    *  m.hook('a', 'b', () => console.log('a->b'));
    *  ```
-   *
    *  @param from    - Source state name.
    *  @param to      - Target state name.
    *  @param handler - Callback invoked before the transition.
@@ -3998,7 +4224,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on a specific action-labeled edge.
+  /**
+   * Register a pre-transition hook on a specific action-labeled edge.
    *  @param from    - Source state name.
    *  @param to      - Target state name.
    *  @param action  - The action label that triggers this hook.
@@ -4014,7 +4241,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any edge triggered by a specific action.
+  /**
+   * Register a pre-transition hook on any edge triggered by a specific action.
    *  @param action  - The action name to hook.
    *  @param handler - Callback invoked before any transition with this action.
    *  @returns `this` for chaining.
@@ -4028,7 +4256,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any action-driven transition.
+  /**
+   * Register a pre-transition hook on any action-driven transition.
    *  @param handler - Callback invoked before any action transition.
    *  @returns `this` for chaining.
    */
@@ -4041,7 +4270,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any standard (`->`) transition.
+  /**
+   * Register a pre-transition hook on any standard (`->`) transition.
    *  @param handler - Callback invoked before any legal transition.
    *  @returns `this` for chaining.
    */
@@ -4054,7 +4284,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any main-path (`=>`) transition.
+  /**
+   * Register a pre-transition hook on any main-path (`=>`) transition.
    *  @param handler - Callback invoked before any main transition.
    *  @returns `this` for chaining.
    */
@@ -4067,7 +4298,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any forced (`~>`) transition.
+  /**
+   * Register a pre-transition hook on any forced (`~>`) transition.
    *  @param handler - Callback invoked before any forced transition.
    *  @returns `this` for chaining.
    */
@@ -4080,7 +4312,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook on any transition regardless of kind.
+  /**
+   * Register a pre-transition hook on any transition regardless of kind.
    *  @param handler - Callback invoked before every transition.
    *  @returns `this` for chaining.
    */
@@ -4093,7 +4326,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a hook that fires when entering a specific state.
+  /**
+   * Register a hook that fires when entering a specific state.
    *  @param to      - The state being entered.
    *  @param handler - Callback invoked on entry.
    *  @returns `this` for chaining.
@@ -4107,7 +4341,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a hook that fires when leaving a specific state.
+  /**
+   * Register a hook that fires when leaving a specific state.
    *  @param from    - The state being exited.
    *  @param handler - Callback invoked on exit.
    *  @returns `this` for chaining.
@@ -4121,7 +4356,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a hook that fires when a state's `after` timer elapses — the
+  /**
+   * Register a hook that fires when a state's `after` timer elapses — the
    *  delay-over companion to `a after 5s -> b;` style time transitions.  It
    *  does NOT fire when the state is entered or left by ordinary dispatch;
    *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
@@ -4132,7 +4368,6 @@ class Machine<mDT> {
    *                   timed transition is taken; informational — its outcome
    *                   cannot reject the transition.
    *  @returns `this` for chaining.
-   *
    *  @example
    *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
    *    let calls = 0;
@@ -4142,7 +4377,6 @@ class Machine<mDT> {
    *    // ordinary dispatch never fires it; only the timer elapsing does:
    *    calls;  // => 0
    *    m.clear_state_timeout();
-   *
    *  @see hook_entry
    *  @see hook_exit
    *  @see set_state_timeout
@@ -4156,9 +4390,44 @@ class Machine<mDT> {
 
 
 
+  /**
+   * Register a hook that fires when ANY state's `after` timer elapses — the
+   *  whole-machine companion to {@link hook_after}, mirroring how
+   *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
+   *  state also has a specific {@link hook_after}, the specific hook fires
+   *  first and this one fires second; a specific after hook firing always
+   *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
+   *  `hook_after` it is informational — its outcome cannot reject the timed
+   *  transition — and it does NOT fire on ordinary dispatch.
+   *  @param handler - Callback invoked whenever any `after` timer fires, just
+   *                   before the timed transition is taken.
+   *  @returns `this` for chaining.
+   *  @example
+   *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+   *    let calls = 0;
+   *    m.hook_after_any(() => { calls += 1; });
+   *    m.go('c');
+   *    m.go('a');
+   *    // ordinary dispatch never fires it; only a timer elapsing does:
+   *    calls;  // => 0
+   *    m.clear_state_timeout();
+   *  @see hook_after
+   *  @see hook_any_transition
+   *  @see set_state_timeout
+   */
+  hook_after_any(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'after any', handler });
+    return this;
+
+  }
 
 
-  /** Post-transition hook on a specific edge.  Fires after the transition
+
+
+
+  /**
+   * Post-transition hook on a specific edge.  Fires after the transition
    *  from `from` to `to` has completed.  Cannot block the transition.
    *  @param from    - Source state name.
    *  @param to      - Target state name.
@@ -4174,7 +4443,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on a specific action-labeled edge.
+  /**
+   * Post-transition hook on a specific action-labeled edge.
    *  @param from    - Source state name.
    *  @param to      - Target state name.
    *  @param action  - The action label.
@@ -4190,7 +4460,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any edge triggered by a specific action.
+  /**
+   * Post-transition hook on any edge triggered by a specific action.
    *  @param action  - The action name.
    *  @param handler - Callback invoked after any transition with this action.
    *  @returns `this` for chaining.
@@ -4204,7 +4475,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any action-driven transition.
+  /**
+   * Post-transition hook on any action-driven transition.
    *  @param handler - Callback invoked after any action transition.
    *  @returns `this` for chaining.
    */
@@ -4217,7 +4489,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any standard (`->`) transition.
+  /**
+   * Post-transition hook on any standard (`->`) transition.
    *  @param handler - Callback invoked after any legal transition.
    *  @returns `this` for chaining.
    */
@@ -4230,7 +4503,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any main-path (`=>`) transition.
+  /**
+   * Post-transition hook on any main-path (`=>`) transition.
    *  @param handler - Callback invoked after any main transition.
    *  @returns `this` for chaining.
    */
@@ -4243,7 +4517,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any forced (`~>`) transition.
+  /**
+   * Post-transition hook on any forced (`~>`) transition.
    *  @param handler - Callback invoked after any forced transition.
    *  @returns `this` for chaining.
    */
@@ -4256,7 +4531,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook on any transition regardless of kind.
+  /**
+   * Post-transition hook on any transition regardless of kind.
    *  @param handler - Callback invoked after every transition.
    *  @returns `this` for chaining.
    */
@@ -4269,7 +4545,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook that fires after entering a specific state.
+  /**
+   * Post-transition hook that fires after entering a specific state.
    *  @param to      - The state that was entered.
    *  @param handler - Callback invoked after entry.
    *  @returns `this` for chaining.
@@ -4283,7 +4560,8 @@ class Machine<mDT> {
 
 
 
-  /** Post-transition hook that fires after leaving a specific state.
+  /**
+   * Post-transition hook that fires after leaving a specific state.
    *  @param from    - The state that was exited.
    *  @param handler - Callback invoked after exit.
    *  @returns `this` for chaining.
@@ -4297,7 +4575,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook that fires **before** all other pre-hooks
+  /**
+   * Register a pre-transition hook that fires **before** all other pre-hooks
    *  on every transition.  If the handler returns `false`, the transition is
    *  blocked.  The handler receives an {@link EverythingHookContext} whose
    *  `hook_name` is `'pre everything'`.
@@ -4309,7 +4588,6 @@ class Machine<mDT> {
    *    return true;
    *  });
    *  ```
-   *
    *  @param handler - Callback invoked before all other pre-hooks.
    *  @returns `this` for chaining.
    */
@@ -4322,7 +4600,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a pre-transition hook that fires **after** all other pre-hooks
+  /**
+   * Register a pre-transition hook that fires **after** all other pre-hooks
    *  on every transition.  If the handler returns `false`, the transition is
    *  blocked.  The handler receives an {@link EverythingHookContext} whose
    *  `hook_name` is `'everything'`.
@@ -4334,7 +4613,6 @@ class Machine<mDT> {
    *    return true;
    *  });
    *  ```
-   *
    *  @param handler - Callback invoked after all other pre-hooks.
    *  @returns `this` for chaining.
    */
@@ -4347,7 +4625,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a post-transition hook that fires **after** all other
+  /**
+   * Register a post-transition hook that fires **after** all other
    *  post-hooks on every transition.  Cannot block the transition.  The
    *  handler receives an {@link EverythingHookContext} whose `hook_name` is
    *  `'post everything'`.
@@ -4358,7 +4637,6 @@ class Machine<mDT> {
    *    console.log(`${hook_name} fired`);
    *  });
    *  ```
-   *
    *  @param handler - Callback invoked after all other post-hooks.
    *  @returns `this` for chaining.
    */
@@ -4371,7 +4649,8 @@ class Machine<mDT> {
 
 
 
-  /** Register a post-transition hook that fires **before** all other
+  /**
+   * Register a post-transition hook that fires **before** all other
    *  post-hooks on every transition.  Cannot block the transition.  The
    *  handler receives an {@link EverythingHookContext} whose `hook_name` is
    *  `'pre post everything'`.
@@ -4382,7 +4661,6 @@ class Machine<mDT> {
    *    console.log(`${hook_name} fired`);
    *  });
    *  ```
-   *
    *  @param handler - Callback invoked before all other post-hooks.
    *  @returns `this` for chaining.
    */
@@ -4397,25 +4675,23 @@ class Machine<mDT> {
 
 
 
-  /** Get the current RNG seed used for probabilistic transitions.
+  /**
+   * Get the current RNG seed used for probabilistic transitions.
    *  @returns The numeric seed value.
    */
   get rng_seed(): number {
     return this._rng_seed;
   }
 
-  /** Set the RNG seed.  Pass `undefined` to reseed from the current time.
+  /**
+   * Set the RNG seed.  Pass `undefined` to reseed from the current time.
    *  Resets the internal PRNG so subsequent probabilistic operations use the
    *  new seed.
    *  @param to - The seed value, or `undefined` for time-based seeding.
    */
   set rng_seed(to: number | undefined) {
 
-    if (typeof to === 'undefined') {
-      this._rng_seed = new Date().getTime();
-    } else {
-      this._rng_seed = to;
-    }
+    this._rng_seed = to === undefined ? Date.now() : to;
 
     this._rng = gen_splitmix32(this._rng_seed);
 
@@ -4431,7 +4707,8 @@ class Machine<mDT> {
 
 
 
-  /** Get all edges between two states (there can be multiple with
+  /**
+   * Get all edges between two states (there can be multiple with
    *  different actions).
    *  @param from - Source state name.
    *  @param to   - Target state name.
@@ -4453,10 +4730,10 @@ class Machine<mDT> {
     // edges and returns [] immediately.
     const to_id = this._state_interner.id_of(to);
     if (to_id === undefined) { return []; }
-    const outbound: Array<number> = this._outbound_edge_ids.get(from) ?? [];
+    const outbound: Array<number> = this.#outbound_edge_ids.get(from) ?? [];
     const result: JssmTransition<StateType, mDT>[] = [];
     for (const edgeId of outbound) {
-      if (this._edge_to_ids[edgeId] === to_id) { result.push(this._edges[edgeId]); }
+      if (this._edge_to_ids[edgeId] === to_id) { result.push(this.#edges[edgeId]); }
     }
     return result;
   }
@@ -4465,7 +4742,13 @@ class Machine<mDT> {
 
   /*********
    *
-   *  Replace the current state and data with no regard to the graph.
+   *  Replace the current state — and, when a data argument is provided, the
+   *  data — with no regard to the graph.
+   *
+   *  The data argument is arity-detected: omitting it preserves the current
+   *  data, while explicitly passing `undefined` really sets the data to
+   *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
+   *  argument silently cleared the data.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -4481,26 +4764,40 @@ class Machine<mDT> {
    *  console.log( machine.state() );    // 'a'
    *  ```
    *
+   *  @param newState The state to teleport to; must exist in the graph.
+   *
+   *  @param newData Replacement data.  Omit to keep the current data; pass
+   *  `undefined` explicitly to clear it.
+   *
+   *  @throws {JssmError} If the machine's config does not set
+   *  `allows_override: true`, or if `newState` does not exist.
+   *
+   *  @see set_data
+   *
    */
 
-  override(newState: StateType, newData?: mDT | undefined) {
+  override(newState: StateType, newData?: mDT  ) {
+
+    // arity, not undefined-comparison: an omitted argument preserves the
+    // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
+    const dataProvided = arguments.length >= 2;
 
     if (this.allows_override) {
 
-      if (this._states.has(newState)) {
+      if (this.#states.has(newState)) {
         const fromState = this._state;
         const oldData   = this._data;
         this._state    = newState;
         this._state_id = this._state_interner.intern(newState);
-        this._data  = newData;
-        this._fire('override', {
+        if (dataProvided) { this._data = newData; }
+        this.#fire('override', {
           from     : fromState,
           to       : newState,
           old_data : oldData,
-          new_data : newData
+          new_data : this._data
         });
-        if (oldData !== newData) {
-          this._fire('data-change', {
+        if (dataProvided && (oldData !== newData)) {
+          this.#fire('data-change', {
             from     : fromState,
             to       : newState,
             old_data : oldData,
@@ -4510,7 +4807,7 @@ class Machine<mDT> {
         }
         // An override is still a real state change that may cross group/state
         // boundaries, so its boundary-hook actions fire too (depth-bounded).
-        this._fire_boundary_actions(fromState, newState);
+        this.#fire_boundary_actions(fromState, newState);
       } else {
         throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
       }
@@ -4550,7 +4847,7 @@ class Machine<mDT> {
    *
    */
 
-  _fire_hook_rejection(
+  #fire_hook_rejection(
     hook_name : string,
     fromState : StateType,
     newState  : StateType,
@@ -4559,7 +4856,7 @@ class Machine<mDT> {
     newData   : mDT | undefined,
     wasForced : boolean
   ): void {
-    this._fire('rejection', {
+    this.#fire('rejection', {
       from      : fromState,
       to        : newState,
       action    : fromAction,
@@ -4621,7 +4918,7 @@ class Machine<mDT> {
    *
    */
 
-  _fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
+  #fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
 
     // Nothing crosses a boundary when the state name is unchanged.
     if (prev_state === next_state) { return; }
@@ -4650,20 +4947,24 @@ class Machine<mDT> {
 
     // Exits: groups left (in prev but not next), then the plain prev state.
     for (const group of prev_groups) {
-      if (!next_groups.has(group)) {
-        const label: string | undefined = this._group_hooks.get(group)?.onExit;
-        if (label !== undefined) { labels.push(label); }
+      if (next_groups.has(group)) {
+      	continue;
       }
+
+      const label: string | undefined = this._group_hooks.get(group)?.onExit;
+      if (label !== undefined) { labels.push(label); }
     }
     const prev_state_exit: string | undefined = this._state_hooks.get(prev_state)?.onExit;
     if (prev_state_exit !== undefined) { labels.push(prev_state_exit); }
 
     // Enters: groups entered (in next but not prev), then the plain next state.
     for (const group of next_groups) {
-      if (!prev_groups.has(group)) {
-        const label: string | undefined = this._group_hooks.get(group)?.onEnter;
-        if (label !== undefined) { labels.push(label); }
+      if (prev_groups.has(group)) {
+      	continue;
       }
+
+      const label: string | undefined = this._group_hooks.get(group)?.onEnter;
+      if (label !== undefined) { labels.push(label); }
     }
     const next_state_enter: string | undefined = this._state_hooks.get(next_state)?.onEnter;
     if (next_state_enter !== undefined) { labels.push(next_state_enter); }
@@ -4723,6 +5024,13 @@ class Machine<mDT> {
    *  `newStateOrAction` is an action name and the target state is looked up
    *  via the current action edge.
    *
+   *  @param dataProvided `true` when the caller explicitly supplied a data
+   *  argument — even an explicitly-`undefined` one, which commits `undefined`
+   *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
+   *  is preserved.  The public wrappers derive this from call arity; the
+   *  default reproduces the old `!== undefined` inference for any direct
+   *  callers.
+   *
    *  @returns `true` if the transition was valid and every hook passed;
    *  `false` if the transition was invalid or any hook rejected.
    *
@@ -4730,7 +5038,7 @@ class Machine<mDT> {
    *
    */
 
-  transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
+  transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided: boolean = newData !== undefined): boolean {
 
 
     let valid      : boolean               = false,
@@ -4738,7 +5046,7 @@ class Machine<mDT> {
         newState   : StateType,
         newStateId : number                = NaN,
         actionId   : number                = NaN,
-        fromAction : StateType | undefined = undefined;
+        fromAction : StateType | undefined;
 
     if (wasForced) {
       // numeric inline of valid_force_transition: any existing edge
@@ -4760,7 +5068,7 @@ class Machine<mDT> {
       const aid    = this._action_interner.id_of(newStateOrAction);
       const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
       if (edgeId !== undefined) {
-        const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
+        const edge: JssmTransition<StateType, mDT> = this.#edges[edgeId];
         valid      = true;
         trans_type = edge.kind;
         newState   = edge.to;
@@ -4774,7 +5082,7 @@ class Machine<mDT> {
       // be forced_only (truthiness, matching the old refusal exactly)
       const to_id  = this._state_interner.id_of(newStateOrAction);
       const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
-      if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
+      if ((edgeId !== undefined) && (!(this.#edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
           // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
           // both first-declared-wins for parallel (from, to) pairs (see the
@@ -4784,7 +5092,7 @@ class Machine<mDT> {
           // Direct read replaces the O(out-degree) object-deref scan; the
           // first-declared-kind semantics are pinned by the parallel-edge
           // transition-kind hook spec.  #735
-          trans_type = this._edges[edgeId].kind;
+          trans_type = this.#edges[edgeId].kind;
         }
         valid      = true;
         newState   = newStateOrAction;
@@ -4816,16 +5124,15 @@ class Machine<mDT> {
           trans_type
         }
       : undefined;
-    const hook_args = hook_args_obj as NonNullable<typeof hook_args_obj>;
+    const hook_args = hook_args_obj;
 
     // 'action' event fires when an action is attempted, regardless of whether
     // it ultimately succeeds — matches the issue spec for observation events.
     // Gated on live listener count so we skip the detail-object allocation
     // when nothing is subscribed.  Gate is read at fire time, so a listener
     // registered inside a pre-hook still receives the event.  #671
-    if (wasAction) {
-      if (this._event_listener_count !== 0) {
-        this._fire('action', {
+    if (wasAction && this._event_listener_count !== 0) {
+        this.#fire('action', {
           action    : newStateOrAction,
           from      : this._state,
           to        : newState,
@@ -4833,7 +5140,6 @@ class Machine<mDT> {
           next_data : newData
         });
       }
-    }
 
     // Captured pre-transition source state so 'data-change' detail and similar
     // events can name where we came from.  fromStateId mirrors it for the
@@ -4860,19 +5166,19 @@ class Machine<mDT> {
         // 0. pre everything hook (fires before all other pre-hooks)
         if (this._pre_everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._pre_everything_hook, { ...hook_args, hook_name: 'pre everything' });
-          if (outcome.pass === false) { this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         if (wasAction) {
           // 1a. any action hook
           const outcome = abstract_hook_step(this._any_action_hook, hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           // 1b. global specific action hook
           const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
-          if (outcome2.pass === false) { this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome2.pass) { this.#fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome2)) { data_changed = true; }
         }
 
@@ -4886,14 +5192,14 @@ class Machine<mDT> {
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
           const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 4. exit hook
         if (this._has_exit_hooks) {
           const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
@@ -4902,19 +5208,17 @@ class Machine<mDT> {
         const pre_pair_id = pair_key(this._state_id, newStateId);
 
         // 5. named transition / action hook
-        if (this._has_named_hooks) {
-          if (wasAction) {
+        if (this._has_named_hooks && wasAction) {
 
             // Numeric pair probe, then the action id captured at dispatch (#729).
             const byPair = this._named_hooks.get(pre_pair_id);
             const nh     = byPair === undefined ? undefined : byPair.get(actionId);
             const outcome = abstract_hook_step(nh, hook_args);
 
-            if (outcome.pass === false) { this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+            if (!outcome.pass) { this.#fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
             if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           }
-        }
 
         // 6. regular hook
         if (this._has_basic_hooks) {
@@ -4923,45 +5227,52 @@ class Machine<mDT> {
           const h = this._hooks.get(pre_pair_id);
           const outcome = abstract_hook_step(h, hook_args);
 
-          if (outcome.pass === false) { this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         }
 
         // 7. edge type hook
 
-        // 7a. standard transition hook
-        if (trans_type === 'legal') {
-          const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
-        }
+        switch (trans_type) {
 
-        // 7b. main type hook
-        if (trans_type === 'main') {
-          const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
-        }
+          // 7a. standard transition hook
+          case 'legal': {
+            const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
+            if (!outcome.pass) { this.#fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+            break;
+          }
 
-        // 7c. forced transition hook
-        if (trans_type === 'forced') {
-          const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+          // 7b. main type hook
+          case 'main': {
+            const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
+            if (!outcome.pass) { this.#fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+            break;
+          }
+
+          // 7c. forced transition hook
+          case 'forced': {
+            const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
+            if (!outcome.pass) { this.#fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+            break;
+          }
+
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
           const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
-          if (outcome.pass === false) { this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 9. everything hook (fires after all other pre-hooks)
         if (this._everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._everything_hook, { ...hook_args, hook_name: 'everything' });
-          if (outcome.pass === false) { this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this.#fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
@@ -4976,7 +5287,7 @@ class Machine<mDT> {
 
         if (data_changed) {
           this._data = hook_args.data;
-        } else if (newData !== undefined) {
+        } else if (dataProvided) {
           this._data = newData;
         }
 
@@ -4994,9 +5305,9 @@ class Machine<mDT> {
         this._state    = newState;
         this._state_id = newStateId;
 
-        // TODO known bug: this gives no way to set data to undefined
-        //   see https://github.com/StoneCypher/fsl/issues/1264
-        if (newData !== undefined) {
+        // provision is detected by caller arity, so an explicit `undefined`
+        // commits while an omitted argument preserves (StoneCypher/fsl#1264)
+        if (dataProvided) {
           this._data = newData;
         }
 
@@ -5011,7 +5322,7 @@ class Machine<mDT> {
       // when nothing is subscribed.  A listener still receives the event
       // because the gate is read at fire time.  #671
       if (this._event_listener_count !== 0) {
-        this._fire('rejection', {
+        this.#fire('rejection', {
           from      : fromState,
           to        : newStateOrAction,   // we never resolved a real target
           action    : fromAction,
@@ -5059,15 +5370,13 @@ class Machine<mDT> {
       const post_pair_id = pair_key(fromStateId, newStateId);
 
       // 5. named transition / action hook
-      if (this._has_post_named_hooks) {
-        if (wasAction) {
+      if (this._has_post_named_hooks && wasAction) {
           // Numeric pair probe, then the action id captured at dispatch (#729).
           const byPair = this._post_named_hooks.get(post_pair_id);
           const pnh    = byPair === undefined ? undefined : byPair.get(actionId);
 
           if (pnh !== undefined) { pnh(hook_args); }
         }
-      }
 
       // 6. regular hook
       if (this._has_post_basic_hooks) {
@@ -5079,25 +5388,19 @@ class Machine<mDT> {
       // 7. edge type hook
 
       // 7a. standard transition hook
-      if (trans_type === 'legal') {
-        if (this._post_standard_transition_hook !== undefined) {
+      if (trans_type === 'legal' && this._post_standard_transition_hook !== undefined) {
           this._post_standard_transition_hook(hook_args);
         }
-      }
 
       // 7b. main type hook
-      if (trans_type === 'main') {
-        if (this._post_main_transition_hook !== undefined) {
+      if (trans_type === 'main' && this._post_main_transition_hook !== undefined) {
           this._post_main_transition_hook(hook_args);
         }
-      }
 
       // 7c. forced transition hook
-      if (trans_type === 'forced') {
-        if (this._post_forced_transition_hook !== undefined) {
+      if (trans_type === 'forced' && this._post_forced_transition_hook !== undefined) {
           this._post_forced_transition_hook(hook_args);
         }
-      }
 
       // 8. entry hook
       if (this._has_post_entry_hooks) {
@@ -5127,16 +5430,16 @@ class Machine<mDT> {
       // listening only to 'transition' previously paid for the exit/entry/
       // data-change/terminal/complete allocations _fire then discarded.
       // Gates read at fire time, like the outer count, preserving #671.
-      if (this._has_subscribers('exit')) {
-        this._fire('exit', {
+      if (this.#has_subscribers('exit')) {
+        this.#fire('exit', {
           state  : fromState,
           to     : newState,
           action : fromAction,
           data   : newData_after
         });
       }
-      if (this._has_subscribers('transition')) {
-        this._fire('transition', {
+      if (this.#has_subscribers('transition')) {
+        this.#fire('transition', {
           from       : fromState,
           to         : newState,
           action     : fromAction,
@@ -5146,16 +5449,16 @@ class Machine<mDT> {
           forced     : wasForced
         });
       }
-      if (this._has_subscribers('entry')) {
-        this._fire('entry', {
+      if (this.#has_subscribers('entry')) {
+        this.#fire('entry', {
           state  : newState,
           from   : fromState,
           action : fromAction,
           data   : newData_after
         });
       }
-      if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
-        this._fire('data-change', {
+      if ((oldData !== newData_after) && this.#has_subscribers('data-change')) {
+        this.#fire('data-change', {
           from     : fromState,
           to       : newState,
           action   : fromAction,
@@ -5168,12 +5471,12 @@ class Machine<mDT> {
       // here, and the public state_is_terminal / state_is_complete pair would
       // each redo has_state plus its own map walk.  Same predicates:
       // terminal = no exits, complete = the constructor-set flag.  #735
-      const new_state_rec: JssmGenericState = this._states.get(newState);
-      if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
-        this._fire('terminal', { state: newState, data: newData_after });
+      const new_state_rec: JssmGenericState = this.#states.get(newState);
+      if ((new_state_rec.to.length === 0) && this.#has_subscribers('terminal')) {
+        this.#fire('terminal', { state: newState, data: newData_after });
       }
-      if (new_state_rec.complete && this._has_subscribers('complete')) {
-        this._fire('complete', { state: newState, data: newData_after });
+      if (new_state_rec.complete && this.#has_subscribers('complete')) {
+        this.#fire('complete', { state: newState, data: newData_after });
       }
     }
 
@@ -5181,7 +5484,7 @@ class Machine<mDT> {
     // state is committed and after the observation events, matching the
     // statechart "exits before enters" convention.  Cascades are depth-bounded
     // inside the helper.
-    this._fire_boundary_actions(fromState, newState);
+    this.#fire_boundary_actions(fromState, newState);
 
     // possibly re-establish new 'after' clause
     this.auto_set_state_timeout();
@@ -5194,7 +5497,8 @@ class Machine<mDT> {
 
 
 
-  /** If the current state has an `after` timeout configured, schedule it.
+  /**
+   * If the current state has an `after` timeout configured, schedule it.
    *  Called internally after each transition.
    */
   auto_set_state_timeout(): void {
@@ -5353,7 +5657,9 @@ class Machine<mDT> {
    */
 
   action(actionName: StateType, newData?: mDT): boolean {
-    return this.transition_impl(actionName, newData, false, true);
+    // arity, not undefined-comparison: an explicit `undefined` is a real
+    // data assignment (StoneCypher/fsl#1264)
+    return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
   }
 
 
@@ -5594,8 +5900,8 @@ class Machine<mDT> {
     // actions) and, for edges, by `pair_key(from_id, to_id)`.  Decode each key
     // back to its original name so the registry speaks states/actions, never
     // ids.  The lone exception is `_after_hooks`, deliberately string-keyed.
-    const state_name  = (id: number): StateType => this._state_interner.name_of(id)  as StateType;
-    const action_name = (id: number): string    => this._action_interner.name_of(id) as string;
+    const state_name  = (id: number): StateType => this._state_interner.name_of(id);
+    const action_name = (id: number): string    => this._action_interner.name_of(id);
 
     // edge tables: pair_key(from_id, to_id) -> handler
     const push_edges = (
@@ -5642,7 +5948,7 @@ class Machine<mDT> {
       phase : HookPhase
     ): void => {
       table.forEach((_handler, state) => {
-        entries.push({ kind, phase, target: { scope: 'state', state: state as unknown as StateType } });
+        entries.push({ kind, phase, target: { scope: 'state', state: state } });
       });
     };
 
@@ -5695,6 +6001,7 @@ class Machine<mDT> {
     push_global(this._main_transition_hook,     'main transition',     'pre');
     push_global(this._forced_transition_hook,   'forced transition',   'pre');
     push_global(this._any_transition_hook,      'any transition',      'pre');
+    push_global(this._after_any_hook,           'after any',           'pre');
     push_global(this._pre_everything_hook,      'pre everything',      'pre');
     push_global(this._everything_hook,          'everything',          'pre');
 
@@ -5716,7 +6023,7 @@ class Machine<mDT> {
 
     // FSL boundary hooks (post-commit): group and plain-state subjects
     push_boundary(this._group_hooks, 'group enter', 'group exit', (group) => ({ scope: 'group', group }));
-    push_boundary(this._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state as unknown as StateType }));
+    push_boundary(this._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state }));
 
     return entries;
 
@@ -5954,16 +6261,16 @@ class Machine<mDT> {
    *
    */
 
-  _resolved_themes(): JssmBaseTheme[] {
+  #resolved_themes(): JssmBaseTheme[] {
 
     const themes: JssmBaseTheme[] = [];
 
-    this._themes.forEach(th => {
+    for (const th of this._themes) {
       const theme_impl = theme_mapping.get(th);
       if (theme_impl !== undefined) {
         themes.push(theme_impl);
       }
-    });
+    }
 
     return themes.reverse();
 
@@ -5988,7 +6295,7 @@ class Machine<mDT> {
    *
    */
 
-  _individual_state_config(state: StateType): JssmStateConfig {
+  #individual_state_config(state: StateType): JssmStateConfig {
 
     const decl: JssmStateDeclaration = this._state_declarations.get(state);
 
@@ -6030,7 +6337,7 @@ class Machine<mDT> {
    *
    */
 
-  _groups_by_depth(state: StateType): string[] {
+  #groups_by_depth(state: StateType): string[] {
 
     const containing: string[] = [ ...this.groupsOf(state) ];
 
@@ -6091,17 +6398,17 @@ class Machine<mDT> {
    *
    */
 
-  _compose_state_config(state: StateType, active: boolean): JssmStateConfig {
+  #compose_state_config(state: StateType, active: boolean): JssmStateConfig {
 
-    const themes: JssmBaseTheme[] = this._resolved_themes();
+    const themes: JssmBaseTheme[] = this.#resolved_themes();
 
     let acc: JssmStateConfig = {};
 
     // tier 1 — theme defaults (base, then selected themes)
     acc = merge_state_config(acc, base_theme.state);
-    themes.forEach(theme => {
+    for (const theme of themes) {
       if (theme.state) { acc = merge_state_config(acc, theme.state); }
-    });
+    }
 
     // tier 2 — default_state_config (implicit root over all states)
     acc = merge_state_config(acc, this._state_style);
@@ -6112,26 +6419,26 @@ class Machine<mDT> {
     // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
     if (this.state_has_hooks(state)) {
       acc = merge_state_config(acc, base_theme.hooked);
-      themes.forEach(theme => { if (theme.hooked) { acc = merge_state_config(acc, theme.hooked); } });
+      for (const theme of themes) { if (theme.hooked) { acc = merge_state_config(acc, theme.hooked); } }
       acc = merge_state_config(acc, this._hooked_state_style);
     }
 
     // tier 3 — static per-kind defaults, selected by structural kind
     if (this.state_is_terminal(state)) {
       acc = merge_state_config(acc, base_theme.terminal);
-      themes.forEach(theme => { if (theme.terminal) { acc = merge_state_config(acc, theme.terminal); } });
+      for (const theme of themes) { if (theme.terminal) { acc = merge_state_config(acc, theme.terminal); } }
       acc = merge_state_config(acc, this._terminal_state_style);
     }
 
     if (this.is_start_state(state)) {
       acc = merge_state_config(acc, base_theme.start);
-      themes.forEach(theme => { if (theme.start) { acc = merge_state_config(acc, theme.start); } });
+      for (const theme of themes) { if (theme.start) { acc = merge_state_config(acc, theme.start); } }
       acc = merge_state_config(acc, this._start_state_style);
     }
 
     if (this.is_end_state(state)) {
       acc = merge_state_config(acc, base_theme.end);
-      themes.forEach(theme => { if (theme.end) { acc = merge_state_config(acc, theme.end); } });
+      for (const theme of themes) { if (theme.end) { acc = merge_state_config(acc, theme.end); } }
       acc = merge_state_config(acc, this._end_state_style);
     }
 
@@ -6139,17 +6446,17 @@ class Machine<mDT> {
     // per-state block still wins (preserving the historical layer order).
     if (active) {
       acc = merge_state_config(acc, base_theme.active);
-      themes.forEach(theme => { if (theme.active) { acc = merge_state_config(acc, theme.active); } });
+      for (const theme of themes) { if (theme.active) { acc = merge_state_config(acc, theme.active); } }
     }
 
     // tier 4 — group metadata, outer→inner (inner / nearest group wins)
-    this._groups_by_depth(state).forEach((group_name: string) => {
+    for (const group_name of this.#groups_by_depth(state)) {
       const group_cfg: JssmStateConfig | undefined = this._group_metadata.get(group_name);
       if (group_cfg !== undefined) { acc = merge_state_config(acc, group_cfg); }
-    });
+    }
 
     // tier 5 — per-state `state foo : { … }`
-    acc = merge_state_config(acc, this._individual_state_config(state));
+    acc = merge_state_config(acc, this.#individual_state_config(state));
 
     return acc;
 
@@ -6166,8 +6473,12 @@ class Machine<mDT> {
    *  For any state OTHER than the current one, this returns the memoized static
    *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
    *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-   *  per-state config.  The cache is keyed by state and never invalidated, since
-   *  those tiers do not depend on which state is current.
+   *  per-state config.  The cache is keyed by state; those tiers do not depend
+   *  on which state is current, so it survives transitions, but the mutable
+   *  cascade inputs each clear it when they change — hook registration and
+   *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
+   *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
+   *  per-kind theme layers).
    *
    *  For the machine's CURRENTLY-occupied state the result is recomputed each
    *  call (never cached) and additionally carries the dynamic `active_state`
@@ -6200,7 +6511,7 @@ class Machine<mDT> {
     // The current state carries the dynamic active layers and is recomputed
     // each call so the overlay tracks transitions; it is never memoized.
     if (this.state() === state) {
-      const acc: JssmStateConfig = this._compose_state_config(state, true);
+      const acc: JssmStateConfig = this.#compose_state_config(state, true);
       // tier 6 — user active_state overlay, on top of per-state config.
       return merge_state_config(acc, this._active_state_style);
     }
@@ -6209,7 +6520,7 @@ class Machine<mDT> {
     const cached: JssmStateConfig | undefined = this._static_state_config_cache.get(state);
     if (cached !== undefined) { return cached; }
 
-    const resolved: JssmStateConfig = this._compose_state_config(state, false);
+    const resolved: JssmStateConfig = this.#compose_state_config(state, false);
     this._static_state_config_cache.set(state, resolved);
     return resolved;
 
@@ -6284,7 +6595,7 @@ class Machine<mDT> {
    */
 
   do(actionName: StateType, newData?: mDT): boolean {
-    return this.transition_impl(actionName, newData, false, true);
+    return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
   }
 
 
@@ -6324,7 +6635,7 @@ class Machine<mDT> {
    */
 
   transition(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, false, false);
+    return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
   }
 
 
@@ -6354,7 +6665,7 @@ class Machine<mDT> {
    */
 
   go(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, false, false);
+    return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
   }
 
 
@@ -6388,14 +6699,15 @@ class Machine<mDT> {
    */
 
   force_transition(newState: StateType, newData?: mDT): boolean {
-    return this.transition_impl(newState, newData, true, false);
+    return this.transition_impl(newState, newData, true, false, arguments.length >= 2);
   }
 
 
 
 
 
-  /** Get the edge index for an action from the current state.
+  /**
+   * Get the edge index for an action from the current state.
    *  Interned dispatch: resolves via the numeric (action, from) index —
    *  unknown action names miss without throwing.
    *  @param action - The action name.
@@ -6408,7 +6720,8 @@ class Machine<mDT> {
       : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
   }
 
-  /** Get the full transition object for an action from the current state.
+  /**
+   * Get the full transition object for an action from the current state.
    *  @param action - The action name.
    *  @returns The {@link JssmTransition} object.
    *  @throws {JssmError} If the action is not available from the current state.
@@ -6416,10 +6729,11 @@ class Machine<mDT> {
   current_action_edge_for(action: StateType): JssmTransition<StateType, mDT> {
     const idx: number = this.current_action_for(action);
     if ((idx === undefined) || (idx === null)) { throw new JssmError(this, `No such action ${JSON.stringify(action)}`); }
-    return this._edges[idx];
+    return this.#edges[idx];
   }
 
-  /** Check whether an action is available from the current state.
+  /**
+   * Check whether an action is available from the current state.
    *  @param action   - The action name to check.
    *  @param _newData - Reserved for future data validation.
    *  @returns `true` if the action can be taken.
@@ -6430,7 +6744,8 @@ class Machine<mDT> {
     return this.current_action_for(action) !== undefined;
   }
 
-  /** Check whether a transition to a given state is legal (non-forced) from
+  /**
+   * Check whether a transition to a given state is legal (non-forced) from
    *  the current state.
    *  @param newState - The target state.
    *  @param _newData - Reserved for future data validation.
@@ -6448,7 +6763,8 @@ class Machine<mDT> {
 
   }
 
-  /** Check whether a forced transition to a given state exists from the
+  /**
+   * Check whether a forced transition to a given state exists from the
    *  current state.
    *  @param newState - The target state.
    *  @param _newData - Reserved for future data validation.
@@ -6460,7 +6776,8 @@ class Machine<mDT> {
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
-  /** Get the instance name of this machine, if one was assigned at creation.
+  /**
+   * Get the instance name of this machine, if one was assigned at creation.
    *  @returns The instance name string, or `undefined`.
    */
   instance_name(): string | undefined {
@@ -6469,21 +6786,24 @@ class Machine<mDT> {
 
 
 
-  /** Get the creation date of this machine as a `Date` object.
+  /**
+   * Get the creation date of this machine as a `Date` object.
    *  @returns A `Date` representing when the machine was created.
    */
   get creation_date(): Date {
     return new Date(Math.floor( this.creation_timestamp ));
   }
 
-  /** Get the creation timestamp (milliseconds since epoch).
+  /**
+   * Get the creation timestamp (milliseconds since epoch).
    *  @returns The timestamp as a number.
    */
   get creation_timestamp(): number {
     return this._created;
   }
 
-  /** Get the timestamp when construction began (before parsing).
+  /**
+   * Get the timestamp when construction began (before parsing).
    *  @returns The start-of-construction timestamp as a number.
    */
   get create_start_time(): number {
@@ -6492,7 +6812,8 @@ class Machine<mDT> {
 
 
 
-  /** Schedule an automatic transition to `next_state` after `after_time`
+  /**
+   * Schedule an automatic transition to `next_state` after `after_time`
    *  milliseconds.  Only one timeout may be active at a time.
    *  @param next_state - The state to transition to when the timer fires.
    *  @param after_time - Delay in milliseconds.
@@ -6519,9 +6840,12 @@ class Machine<mDT> {
         if (this._has_after_hooks) {
           const ah = this._after_hooks.get(from_state);
           if (ah !== undefined) { ah({ data: this._data, next_data: this._data }); }
+          // a specific after hook firing implies the any-after hook fires too,
+          // afterward; and it also fires alone (StoneCypher/fsl#1299)
+          if (this._after_any_hook !== undefined) { this._after_any_hook({ data: this._data, next_data: this._data }); }
         }
 
-        this._fire('timeout', { from: from_state, to: next_state, after_time });
+        this.#fire('timeout', { from: from_state, to: next_state, after_time });
 
         this.go(next_state);
       },
@@ -6537,7 +6861,8 @@ class Machine<mDT> {
 
 
 
-  /** Cancel any pending state timeout.  Safe to call when no timeout is active.
+  /**
+    Cancel any pending state timeout.  Safe to call when no timeout is active.
    */
   clear_state_timeout() {
 
@@ -6555,7 +6880,8 @@ class Machine<mDT> {
 
 
 
-  /** Get the configured `after` timeout for a given state, if any.
+  /**
+   * Get the configured `after` timeout for a given state, if any.
    *  @param which_state - The state to look up.
    *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
    *  is configured for that state.
@@ -6566,30 +6892,32 @@ class Machine<mDT> {
 
 
 
-  /** Get the configured `after` timeout for the current state, if any.
+  /**
+   * Get the configured `after` timeout for the current state, if any.
    *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
    */
   current_state_timeout(): [StateType, number] | undefined {
-    return (this._timeout_target !== undefined)
-      ? [ this._timeout_target, this._timeout_target_time ]
-      : undefined;
+    return (this._timeout_target === undefined)
+      ? undefined
+      : [ this._timeout_target, this._timeout_target_time ];
   }
 
 
 
-  /** Convenience method to create a new machine from a tagged template literal.
+  /**
+   * Convenience method to create a new machine from a tagged template literal.
    *  Equivalent to calling the top-level `sm` function.
    *  @param template_strings - The template string array.
    *  @param remainder        - Interpolated values.
    *  @returns A new {@link Machine} instance.
    */
-  /* eslint-disable no-use-before-define */
-  /* eslint-disable class-methods-use-this */
+   
+   
   sm(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
     return sm(template_strings, ...remainder);
   }
-  /* eslint-enable class-methods-use-this */
-  /* eslint-enable no-use-before-define */
+   
+   
 
 
 }
@@ -6634,10 +6962,10 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
     // in general avoiding `arguments` is smart.  however with the template
     // string notation, as designed, it's not really worth the hassle
 
-    /* eslint-disable prefer-rest-params */
+     
     (acc, val, idx): string =>
       `${acc}${remainder[idx - 1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
-    /* eslint-enable  prefer-rest-params */
+     
 
   )));
 
@@ -6670,18 +6998,18 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *
  */
 
-function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<StateType, mDT> > | undefined): Machine<mDT> {
+function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<StateType, mDT> >  ): Machine<mDT> {
 
   const to_decorate = make<StateType, mDT>( MachineAsString );
 
   if (ExtraConstructorFields !== undefined) {
-    Object.keys(ExtraConstructorFields).map(key => {
+    for (const [key, value] of Object.entries(ExtraConstructorFields)) {
       if (key === 'allows_override') {
-        to_decorate['config_allows_override'] = ExtraConstructorFields['allows_override'];
+        to_decorate['config_allows_override'] = ExtraConstructorFields.allows_override;
       } else {
-        to_decorate[key] = ExtraConstructorFields[key];
+        to_decorate[key] = value;
       }
-    });
+    }
   }
 
   return new Machine<mDT>( to_decorate );
@@ -6709,26 +7037,16 @@ function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< Js
  *  is_hook_complex_result(null);                           // false
  *  is_hook_complex_result({ other: 'thing' });             // false
  *  ```
- *
- *  @typeParam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr The value to test.
- *
  *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
  *  `false` otherwise.  When `true`, TypeScript narrows `hr` to
  *  `HookComplexResult<mDT>`.
- *
  */
 
 function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> {
 
-  if (hr !== null && typeof hr === 'object') {
-    if (typeof (hr as any).pass === 'boolean') {
-      return true;
-    }
-  }
-
-  return false;
+  return hr !== null && typeof hr === 'object' && typeof (hr as any).pass === 'boolean';
 
 }
 
@@ -6753,18 +7071,14 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
  *  const changed = _update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
  *  // changed === true, args.data === 'new'
  *  ```
- *
  *  @param hook_args  The shared hook-argument object for the current
  *    transition.  Mutated in-place when the result carries `data`.
  *  @param res        The normalised complex result returned by
  *    {@link abstract_hook_step} or {@link abstract_everything_hook_step}.
- *
  *  @returns `true` if `res` contained a `data` property (i.e. the hook
  *    mutated the machine's data); `false` otherwise.
- *
  *  @see Machine.transition_impl
  *  @see abstract_hook_step
- *
  */
 
 function _update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookComplexResult<mDT>): boolean {
@@ -6804,16 +7118,11 @@ function _update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookComplexR
  *  is_hook_rejection({ pass: true });  // false (pass)
  *  is_hook_rejection({ pass: false }); // true  (reject)
  *  ```
- *
- *  @typeParam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr A hook result of any legal shape.
- *
  *  @returns `true` if the hook rejected the transition; `false` if it passed.
- *
  *  @throws {TypeError} If `hr` is not a recognized hook result shape (for
  *  example, a number or a plain object without a `pass` field).
- *
  */
 
 function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
@@ -6847,16 +7156,13 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
  *  returning `{ pass, data, ... }`) still pass through untouched.  #705
  *  _update_hook_fields additionally identity-checks HOOK_PASSED to skip its
  *  own-property probe on the common no-op outcome.
- *
  *  @see abstract_hook_step
  *  @see abstract_everything_hook_step
- *
  *  @internal
- *
  */
 
-const HOOK_PASSED   : HookComplexResult<any> = Object.freeze({ pass: true  });   // eslint-disable-line @typescript-eslint/no-explicit-any
-const HOOK_REJECTED : HookComplexResult<any> = Object.freeze({ pass: false });   // eslint-disable-line @typescript-eslint/no-explicit-any
+const HOOK_PASSED   : HookComplexResult<any> = Object.freeze({ pass: true  });    
+const HOOK_REJECTED : HookComplexResult<any> = Object.freeze({ pass: false });    
 
 
 
@@ -6880,57 +7186,48 @@ const HOOK_REJECTED : HookComplexResult<any> = Object.freeze({ pass: false });  
  *  - a complex result object → returned as-is
  *
  *  Anything else is a programmer error and throws.
- *
- *  @typeParam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param maybe_hook The hook handler to call, or `undefined` for the
  *  "no hook installed" case.
- *
  *  @param hook_args The context object passed to the hook.  Includes the
  *  current and proposed state, current and proposed data, action name, and
  *  transition kind.
- *
  *  @returns A {@link HookComplexResult} describing whether the hook passed
  *  and, optionally, any data replacements it requested.
- *
  *  @throws {TypeError} If the hook returns a value that is not one of the
  *  legal shapes listed above.
- *
  *  @internal
- *
  */
 
 function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
 
-  if (maybe_hook !== undefined) {
-
-    const result = maybe_hook(hook_args);
-
-    if (result === undefined) {
-      return HOOK_PASSED;
-    }
-
-    if (result === true) {
-      return HOOK_PASSED;
-    }
-
-    if (result === false) {
-      return HOOK_REJECTED;
-    }
-
-    if (result === null) {
-      return HOOK_REJECTED;
-    }
-
-    if (is_hook_complex_result<mDT>(result)) {
-      return result;
-    }
-
-    throw new TypeError(`Unknown hook result type ${result}`);
-
-  } else {
+  if (maybe_hook === undefined) {
     return HOOK_PASSED;
   }
+
+  const result = maybe_hook(hook_args);
+
+  if (result === undefined) {
+    return HOOK_PASSED;
+  }
+
+  if (result === true) {
+    return HOOK_PASSED;
+  }
+
+  if (result === false) {
+    return HOOK_REJECTED;
+  }
+
+  if (result === null) {
+    return HOOK_REJECTED;
+  }
+
+  if (is_hook_complex_result<mDT>(result)) {
+    return result;
+  }
+
+  throw new TypeError(`Unknown hook result type ${String(result)}`);
 
 }
 
@@ -6953,55 +7250,46 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
  *  - `undefined` or `true` → `{ pass: true }`
  *  - `false` or `null`     → `{ pass: false }`
  *  - a complex result      → returned as-is
- *
- *  @typeParam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param maybe_hook The everything-hook handler, or `undefined` when none
  *  is installed.
- *
  *  @param hook_args The everything-hook context object.  Differs from a
  *  normal hook context in that it also includes `hook_name`.
- *
  *  @returns A {@link HookComplexResult} describing whether the hook passed
  *  and any data replacements it requested.
- *
  *  @throws {TypeError} If the hook returns a value outside the legal shapes.
- *
  *  @internal
- *
  */
 
 function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT> {
 
-  if (maybe_hook !== undefined) {
-
-    const result = maybe_hook(hook_args);
-
-    if (result === undefined) {
-      return HOOK_PASSED;
-    }
-
-    if (result === true) {
-      return HOOK_PASSED;
-    }
-
-    if (result === false) {
-      return HOOK_REJECTED;
-    }
-
-    if (result === null) {
-      return HOOK_REJECTED;
-    }
-
-    if (is_hook_complex_result<mDT>(result)) {
-      return result;
-    }
-
-    throw new TypeError(`Unknown hook result type ${result}`);
-
-  } else {
+  if (maybe_hook === undefined) {
     return HOOK_PASSED;
   }
+
+  const result = maybe_hook(hook_args);
+
+  if (result === undefined) {
+    return HOOK_PASSED;
+  }
+
+  if (result === true) {
+    return HOOK_PASSED;
+  }
+
+  if (result === false) {
+    return HOOK_REJECTED;
+  }
+
+  if (result === null) {
+    return HOOK_REJECTED;
+  }
+
+  if (is_hook_complex_result<mDT>(result)) {
+    return result;
+  }
+
+  throw new TypeError(`Unknown hook result type ${String(result)}`);
 
 }
 
@@ -7017,32 +7305,24 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
  * numeric identifiers numerically and below alphanumeric ones, alphanumeric
  * identifiers in ASCII order, and a shorter identifier set precedes a longer
  * one that it prefixes.
- *
  * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
  * @param {string} v2 - Second version string (e.g., "5.103.1")
- *
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.103.1");  // => 1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "6.0.0");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.104.2");  // => 0
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
@@ -7081,14 +7361,14 @@ function compareVersions(v1: string, v2: string): number {
 
   for (let i = 0; i < Math.max(ids1.length, ids2.length); i++) {
 
-    const id1 = ids1[i],
-          id2 = ids2[i];
-
+    const id1 = ids1[i];
     if (id1 === undefined) { return -1; }  // shorter identifier set precedes
+
+    const id2 = ids2[i];
     if (id2 === undefined) { return  1; }
 
-    const n1 = /^[0-9]+$/.test(id1)? Number(id1) : undefined,
-          n2 = /^[0-9]+$/.test(id2)? Number(id2) : undefined;
+    const n1 = /^\d+$/.test(id1)? Number(id1) : undefined,
+          n2 = /^\d+$/.test(id2)? Number(id2) : undefined;
 
     if (n1 !== undefined && n2 !== undefined) {
       if (n1 !== n2) { return n1 - n2; }
@@ -7112,16 +7392,11 @@ function compareVersions(v1: string, v2: string): number {
  * This function recreates a machine from a serialization object, restoring its
  * state, data, and history. For security and compatibility reasons, it will
  * refuse to deserialize data from future versions of the library.
- *
- * @typeParam mDT - The type of the machine data member
- *
+ * @template mDT - The type of the machine data member
  * @param {string} machine_string - The FSL string defining the machine structure
  * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
- *
  * @returns {Machine<mDT>} - The restored machine instance
- *
  * @throws {Error} If the serialization is from a future version
- *
  * @example
  * import { from, deserialize } from 'jssm';
  * const machine    = from("a -> b;");
@@ -7144,9 +7419,8 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
   machine._state    = ser.state;
   machine._state_id = machine._state_interner.id_of(ser.state) ?? NaN;
 
-  ser.history.forEach( history_item =>
-    machine._history.push(history_item)
-  );
+  for (const history_item of ser.history) machine._history.push(history_item)
+  ;
 
   return machine;
 
@@ -7158,8 +7432,8 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
 
 export {
 
-  version,
-    build_time,
+  
+    
 
   transfer_state_properties,
 
@@ -7167,29 +7441,29 @@ export {
   deserialize,
   compareVersions,
 
-  make,
-  wrap_parse as parse,
-  compile,
+  
+  
+  
 
   sm,
   from,
 
-  arrow_direction,
-  arrow_left_kind,
-  arrow_right_kind,
+  
+  
+  
 
   // WHARGARBL TODO these should be exported to a utility library
-  seq,
-  unique,
-  find_repeated,
-  weighted_rand_select,
-  histograph,
-  weighted_sample_select,
-  weighted_histo_key,
-  gen_splitmix32,
-  sleep,
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-  constants,
+  
 
   shapes,
   gviz_shapes,
@@ -7206,7 +7480,7 @@ export {
 
   state_style_condense,
 
-  FslDirections
+  
 //  FslThemes
 
 };
@@ -7223,3 +7497,10 @@ export type {
   FenceDimension,
   FenceDescriptor
 } from './fsl_markdown_fence';
+
+export {FslDirections} from './jssm_types.js';
+export {arrow_direction, arrow_left_kind, arrow_right_kind} from './jssm_arrow.js';
+export {compile, wrap_parse as parse, make} from './jssm_compiler.js';
+export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32} from './jssm_util.js';
+export {build_time, version} from './version.js';
+export * as constants from './jssm_constants.js';

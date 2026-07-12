@@ -13,11 +13,9 @@ import type { SemanticSpan } from './types.js';
  * but not `&group` subjects). Every state span's `value` is the parser's
  * resolved name (unquoted, unescaped), while `from`/`to` cover the source
  * spelling including any quotes.
- *
  * @example
  *   fslSemanticSpans('state s : { color: crimson; };')
  *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
- *
  * @example
  *   fslSemanticSpans('&G : [a b];\na -> b;')
  *     .filter(s => s.kind === 'state').length;   // => 4 (two members + two endpoints)

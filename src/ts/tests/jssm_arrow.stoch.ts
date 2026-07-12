@@ -56,11 +56,9 @@ const kind_arb = fc.constantFrom(...KINDS);
  *  and right kind characters.  Same-kind arrows have exactly two spellings
  *  (collapsed ASCII like `<->`, single glyph like `↔`); mixed-kind arrows
  *  have four (each side independently ASCII or unicode).
- *
  *  @param lc  Left kind character: `-`, `=`, or `~`.
  *  @param rc  Right kind character: `-`, `=`, or `~`.
  *  @returns   All equivalent spellings of the arrow.
- *
  *  @example
  *    spellings_of('-', '=')  // ['<-=>', '←⇒', '←=>', '<-⇒']
  *    spellings_of('-', '-')  // ['<->', '↔']
@@ -81,13 +79,12 @@ function spellings_of(lc: string, rc: string): string[] {
 
 
 /** The complete arrow vocabulary, used to filter the fuzz rejection test. */
-const ALL_ARROWS = new Set<string>(
-  KINDS.flatMap( l =>
+const ALL_ARROWS = new Set<string>([
+  ...KINDS.flatMap( l =>
     KINDS.flatMap( r => spellings_of(l.ch, r.ch) )
-  ).concat(
-    KINDS.flatMap( k => [ `${k.ch}>`, UNICODE_RIGHT[k.ch], `<${k.ch}`, UNICODE_LEFT[k.ch] ] )
-  )
-);
+  ),
+  ...KINDS.flatMap( k => [ `${k.ch}>`, UNICODE_RIGHT[k.ch], `<${k.ch}`, UNICODE_LEFT[k.ch] ] ),
+]);
 
 
 

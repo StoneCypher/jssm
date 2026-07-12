@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jv   from '../jssm_viz';
 import * as jssm from '../jssm';
@@ -294,8 +294,8 @@ describe('state names containing double-quotes produce valid DOT (fsl#474)', () 
   // The node label must escape them, or the DOT is unbalanced and crashes the
   // graphviz/emscripten renderer.
   test('embedded quotes in a state name are escaped in the node label', () => {
-    const dot = jv.fsl_to_dot(`start -> "say \\"hi\\"";`);
-    expect(dot).toContain('label="say \\"hi\\""');     // escaped form present
+    const dot = jv.fsl_to_dot(String.raw`start -> "say \"hi\"";`);
+    expect(dot).toContain(String.raw`label="say \"hi\""`);     // escaped form present
     expect(dot).not.toContain('label="say "hi""');     // broken unbalanced form absent
   });
 

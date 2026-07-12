@@ -12,7 +12,6 @@
  *  This is the integration point for the five pieces built ahead of it — the
  *  fence-info parser, the viz pipeline, the rasterizer, the SVG fill
  *  extractor, and the editor-parity highlighter.
- *
  *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
  */
 import { sm, parse_fence_info, fsl_fence_lang } from './jssm.js';
@@ -53,12 +52,10 @@ const note_comment = (note) => `<!-- fsl-fence: ${escape_html(note)} -->`;
  *  `label_texts` comes from {@link state_svg_label_texts} (the viz's own label
  *  builder) and `fills`'s keys are read straight off the SVG, so group chips
  *  and multi-line labels are handled without either side drifting.
- *
  *  @param label_texts - State name → its rendered SVG label text, from
  *  `state_svg_label_texts`.
  *  @param fills - SVG-label-keyed fills, from `extract_state_fills`.
  *  @returns Fills re-keyed by state name; states with no matching fill are omitted.
- *
  *  @internal
  */
 function state_colors_by_name(label_texts, fills) {
@@ -79,12 +76,10 @@ const INTERACTIVE_PARTS = new Set(['editor', 'actions', 'info-panel', 'toolbar']
  *  editor-parity code highlighting whose state names carry the diagram's own
  *  node colors.  Invalid FSL renders a visible error box — this function
  *  never throws for bad machine source.
- *
  *  @param source - The FSL machine source (fence body).
  *  @param info - The fence info string (e.g. `'fsl image code width=300'`).
  *  @param opts.inline_colors - Whether code spans carry inline diagram colors (default true).
  *  @returns The rendered `<div class="fsl-fence">…</div>` markup.
- *
  *  @example
  *  await render_fence_html('Red => Green => Red;', 'fsl');
  *  // '<div class="fsl-fence" …><svg…/svg><pre class="fsl-code">…</pre></div>'
@@ -96,7 +91,7 @@ export async function render_fence_html(source, info, opts = {}) {
     try {
         machine = sm `${source}`;
     }
-    catch (e) {
+    catch (error) {
         // Every `throw` reachable from `sm()` — the PEG grammar in fsl_parser.ts
         // (peg$SyntaxError subclasses Error), jssm_compiler.ts, and jssm.ts —
         // constructs an Error subclass (JssmError/TypeError/RangeError/Error);
@@ -104,7 +99,7 @@ export async function render_fence_html(source, info, opts = {}) {
         // unreachable through this call, audited across every throw site in
         // src/ts.
         /* v8 ignore next */
-        const message = e instanceof Error ? e.message : String(e);
+        const message = error instanceof Error ? error.message : String(error);
         return wrap(desc, [error_box(source, message)]);
     }
     const svg = await fsl_to_svg_string(source);
@@ -141,8 +136,8 @@ export async function render_fence_html(source, info, opts = {}) {
 /** The sized wrapper div. @internal */
 function wrap(desc, chunks) {
     const styles = [
-        dim_css(desc.width) !== '' ? `width:${dim_css(desc.width)}` : '',
-        dim_css(desc.height) !== '' ? `height:${dim_css(desc.height)}` : '',
+        dim_css(desc.width) === '' ? '' : `width:${dim_css(desc.width)}`,
+        dim_css(desc.height) === '' ? '' : `height:${dim_css(desc.height)}`,
     ].filter(Boolean).join(';');
     const style_attr = styles === '' ? '' : ` style="${styles}"`;
     return `<div class="fsl-fence"${style_attr}>${chunks.join('')}</div>`;
@@ -154,15 +149,15 @@ async function image_html(source, svg, desc) {
     }
     if (desc.format === 'gif') {
         const gif_bytes = await render_fence_gif(source, {});
-        const gif_b64 = (typeof Buffer !== 'undefined')
-            ? Buffer.from(gif_bytes).toString('base64')
-            : btoa(String.fromCharCode(...gif_bytes));
+        const gif_b64 = (typeof Buffer === 'undefined')
+            ? btoa(String.fromCharCode(...gif_bytes))
+            : Buffer.from(gif_bytes).toString('base64');
         return `<img class="fsl-image" src="data:image/gif;base64,${gif_b64}" alt="FSL state machine walk"/>`;
     }
     const bytes = await rasterize(svg, desc.format, {});
-    const b64 = (typeof Buffer !== 'undefined')
-        ? Buffer.from(bytes).toString('base64')
-        : btoa(String.fromCharCode(...bytes));
+    const b64 = (typeof Buffer === 'undefined')
+        ? btoa(String.fromCharCode(...bytes))
+        : Buffer.from(bytes).toString('base64');
     return `<img class="fsl-image" src="data:image/${desc.format};base64,${b64}" alt="FSL state machine"/>`;
 }
 /**
@@ -171,11 +166,9 @@ async function image_html(source, svg, desc) {
  *  Each fence is isolated — a broken machine becomes its own error box and
  *  the rest of the document still renders.  Backtick fences of length ≥3
  *  are recognized; tilde fences are out of scope (v1, spec §9).
- *
  *  @param markdown - The full Markdown document source.
  *  @param opts.inline_colors - Whether code spans carry inline diagram colors (default true).
  *  @returns The document with every `fsl`/`jssm` fence replaced by rendered HTML.
- *
  *  @example
  *  await transform_markdown('# Doc\n\n```fsl\na -> b;\n```\n');
  *  // '# Doc\n\n<div class="fsl-fence">…</div>\n'
@@ -185,7 +178,12 @@ export async function transform_markdown(markdown, opts = {}) {
     const out = [];
     let i = 0;
     while (i < lines.length) {
-        const open = lines[i].match(/^(`{3,})(.*)$/);
+        // Same language as /^(`{3,})(.*)$/ — the info part may not begin with a
+        // backtick (the greedy tick run owns those) or a line terminator (`.`
+        // never matched one) — restated so the tick run and the info text cannot
+        // exchange characters, which the old form let an all-backtick line
+        // exploit into polynomial backtracking.
+        const open = lines[i].match(/^(`{3,})((?:[^`\n\r\u{2028}\u{2029}].*)?)$/u);
         if (open === null) {
             out.push(lines[i]);
             i += 1;
@@ -195,7 +193,7 @@ export async function transform_markdown(markdown, opts = {}) {
         const info = open[2].trim();
         const body = [];
         let j = i + 1;
-        const close_re = new RegExp('^`{' + ticks.length + ',}\\s*$');
+        const close_re = new RegExp('^`{' + ticks.length + String.raw `,}\s*$`);
         while (j < lines.length && !close_re.test(lines[j])) {
             body.push(lines[j]);
             j += 1;
@@ -217,7 +215,6 @@ export async function transform_markdown(markdown, opts = {}) {
  *  every-edge tour.  Graphviz lays the machine out ONCE; each frame patches
  *  one state's fill in the SVG string and rasterizes — identical geometry
  *  across frames, no layout jitter.
- *
  *  @param source - The FSL machine source.
  *  @param opts.delay_cs - Per-frame delay in centiseconds (default 70).
  *  @param opts.loop - Netscape loop count, 0 = forever (default 0).
@@ -225,14 +222,11 @@ export async function transform_markdown(markdown, opts = {}) {
  *  @param opts.scale - Raster zoom percentage, 100 = 3× natural size (default 100).
  *  @param opts.highlight_fill - Fill painted on the walked state (default '#ff9930').
  *  @returns The encoded GIF89a bytes.
- *
  *  @throws {JssmError} on invalid FSL (programmatic callers want exceptions;
  *  the HTML renderers catch and box instead).
- *
  *  @example
  *  const gif = await render_fence_gif('Red => Green => Yellow => Red;');
  *  // Uint8Array starting "GIF89a", three frames, looping forever
- *
  *  @see plan_walk
  *  @see encode_gif
  */

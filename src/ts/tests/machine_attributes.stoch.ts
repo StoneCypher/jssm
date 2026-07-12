@@ -32,10 +32,8 @@ const RUNS = 100;
 /**
  *  Parse a single attribute declaration and return the term at
  *  `tree[0]`.
- *
  *  @param  src  Full attribute source, terminator included.
  *  @returns     Attribute AST node.
- *
  *  @example
  *    parse_attr('machine_name: Foo;')   // → {key:'machine_name', value:'Foo'}
  *    parse_attr('fsl_version: 1.2.3;')  // → {key:'fsl_version', value:{major:1, ...}}
@@ -290,10 +288,10 @@ describe('§9 MachineAttribute — machine_definition (URL value)', () => {
   // `machine_attributes.spec.ts`) is to write `<url> ;` with WS
   // before the terminator.
 
-  test('`http://google.com/` URL parses with key=machine_definition', () => {
-    const node = parse_attr('machine_definition: http://google.com/ ;');
+  test('`https://google.com/` URL parses with key=machine_definition', () => {
+    const node = parse_attr('machine_definition: https://google.com/ ;');
     expect(node.key  ).toBe('machine_definition');
-    expect(node.value).toBe('http://google.com/');
+    expect(node.value).toBe('https://google.com/');
   });
 
   test('`https://example.com/foo` URL parses', () => {

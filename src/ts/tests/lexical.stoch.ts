@@ -38,11 +38,9 @@ const WS_CHARS = [' ', '\t', '\r', '\n', '\v'] as const;
  *  Parse a one-line FSL document of shape `${lhs} -> ${rhs};` and
  *  return its parse tree.  The from-label is `tree[0].from` and the
  *  to-label is `tree[0].se.to`.
- *
  *  @param  lhs  Source of the left-hand label (atom or quoted string).
  *  @param  rhs  Source of the right-hand label.
  *  @returns     Parse tree array of one transition term.
- *
  *  @example
  *    parse_transition('a',     'b')      // → [{key:'transition', from:'a', se:{kind:'->', to:'b'}}]
  *    parse_transition('"foo"', '"bar"')  // → [{key:'transition', from:'foo', se:{kind:'->', to:'bar'}}]
@@ -59,10 +57,8 @@ function parse_transition(lhs: string, rhs: string): Array<{ from: string; se: {
  *  Parse a transition with a pre-arrow action label and return the
  *  action.  `a 'evt' -> b;` stores the action at `tree[0].se.r_action`
  *  per the grammar's pre-arrow / post-arrow naming convention.
- *
  *  @param  action_literal  The raw `'...'`-quoted source (caller supplies the quotes and any escapes).
  *  @returns                The canonicalised action string.
- *
  *  @example
  *    parse_pre_arrow_action(`'evt'`)        // → 'evt'
  *    parse_pre_arrow_action(`'a\\nb'`)      // → 'a\nb'
@@ -80,7 +76,6 @@ function parse_pre_arrow_action(action_literal: string): string {
  *  Generate the FSL source for a String literal containing the given
  *  raw chars (no escapes performed — caller is responsible for any
  *  pre-escaping).  Equivalent to `"${body}"`.
- *
  *  @param  body  Inner string content, already escape-encoded.
  *  @returns      Source text including the surrounding quotes.
  */
@@ -93,7 +88,6 @@ function quote_string(body: string): string {
 /**
  *  Generate the FSL source for an ActionLabel containing the given
  *  raw chars (no escapes performed).  Equivalent to `'${body}'`.
- *
  *  @param  body  Inner action-label content, already escape-encoded.
  *  @returns      Source text including the surrounding single quotes.
  */
@@ -107,7 +101,6 @@ function quote_action(body: string): string {
  *  Build a random run of whitespace characters drawn from
  *  `WS_CHARS`.  Used by injection-based tests that prove a parse is
  *  invariant under arbitrary WS at joinable positions.
- *
  *  @returns  fast-check Arbitrary that yields a string of 0–8 WS chars.
  */
 function ws_run_arb(): fc.Arbitrary<string> {
@@ -285,9 +278,9 @@ describe('§2 LineComment — terminators', () => {
    *  so the comment can't self-terminate inside its random body.
    */
   const body_arb = fc.string({ minLength: 0, maxLength: 30 })
-    .filter(s => ![...s].some(c => c === '\n' || c === '\r' || c === '\u2028' || c === '\u2029'));
+    .filter(s => [...s].every(c => !['\n', '\r', '\u{2028}', '\u{2029}'].includes(c)));
 
-  test('LF (\\n) ends the line comment', () => {
+  test('LF (U+000A) ends the line comment', () => {
 
     fc.assert(
       fc.property(body_arb, (body) => {
@@ -298,7 +291,7 @@ describe('§2 LineComment — terminators', () => {
 
   });
 
-  test('CR (\\r) ends the line comment', () => {
+  test('CR (U+000D) ends the line comment', () => {
 
     fc.assert(
       fc.property(body_arb, (body) => {
@@ -313,7 +306,7 @@ describe('§2 LineComment — terminators', () => {
 
     fc.assert(
       fc.property(body_arb, (body) => {
-        expect(jssm.parse(`//${body}\u2028a->b;`)).toEqual(BASE);
+        expect(jssm.parse(`//${body}\u{2028}a->b;`)).toEqual(BASE);
       }),
       { numRuns: RUNS }
     );
@@ -324,7 +317,7 @@ describe('§2 LineComment — terminators', () => {
 
     fc.assert(
       fc.property(body_arb, (body) => {
-        expect(jssm.parse(`//${body}\u2029a->b;`)).toEqual(BASE);
+        expect(jssm.parse(`//${body}\u{2029}a->b;`)).toEqual(BASE);
       }),
       { numRuns: RUNS }
     );
@@ -355,15 +348,15 @@ describe('§2 String — single-char escape vocabulary', () => {
   // and read the canonicalised label at `tree[0].from`.
 
   const escape_table: Array<[string, string]> = [
-    ['\\"',  '"'  ],
+    [String.raw`\"`,  '"'  ],
     ['\\\\', '\\' ],
-    ['\\/',  '/'  ],
-    ['\\b',  '\b' ],
-    ['\\f',  '\f' ],
-    ['\\n',  '\n' ],
-    ['\\r',  '\r' ],
-    ['\\t',  '\t' ],
-    ['\\v',  '\v' ],
+    [String.raw`\/`,  '/'  ],
+    [String.raw`\b`,  '\b' ],
+    [String.raw`\f`,  '\f' ],
+    [String.raw`\n`,  '\n' ],
+    [String.raw`\r`,  '\r' ],
+    [String.raw`\t`,  '\t' ],
+    [String.raw`\v`,  '\v' ],
   ];
 
   for (const [escape_src, expected_char] of escape_table) {
@@ -377,15 +370,15 @@ describe('§2 String — single-char escape vocabulary', () => {
 
 
 
-describe('§2 String — \\uXXXX unicode escape', () => {
+describe('§2 String — uXXXX unicode escape form', () => {
 
   // \uXXXX with four hex digits maps to the BMP code point parseInt(hex, 16).
 
-  test('Random four-hex-digit \\u escapes decode to the matching code point', () => {
+  test('Random four-hex-digit unicode escapes decode to the matching code point', () => {
 
     fc.assert(
       fc.property(
-        fc.integer(0x0020, 0xfffd)
+        fc.integer(0x00_20, 0xFF_FD)
           // Excluded: code points that have other roles in the grammar's
           // unescaped class (`"` at 0x22, `\` at 0x5C) -- we still test
           // those via the canonical escape table above, but excluding
@@ -393,7 +386,7 @@ describe('§2 String — \\uXXXX unicode escape', () => {
           .filter(cp => cp !== 0x22 && cp !== 0x5C),
         (cp) => {
           const hex     = cp.toString(16).padStart(4, '0');
-          const tree    = parse_transition(quote_string(`x\\u${hex}y`), 'b');
+          const tree    = parse_transition(quote_string(String.raw`x\u${hex}y`), 'b');
           expect(tree[0].from).toBe(`x${String.fromCharCode(cp)}y`);
         }
       ),
@@ -439,7 +432,7 @@ describe('§2 String — unescaped body round-trip', () => {
     fc.assert(
       fc.property(
         fc.array(
-          fc.integer(0x0080, 0xfffd).filter(cp => cp !== 0x2028 && cp !== 0x2029),
+          fc.integer(0x00_80, 0xFF_FD).filter(cp => cp !== 0x20_28 && cp !== 0x20_29),
           { minLength: 1, maxLength: 10 }
         ),
         (cps) => {
@@ -466,15 +459,15 @@ describe('§2 ActionLabel — single-char escape vocabulary', () => {
   // decoration `a '<literal>' -> b;`.
 
   const escape_table: Array<[string, string]> = [
-    ["\\'",  "'"  ],
+    [String.raw`\'`,  "'"  ],
     ['\\\\', '\\' ],
-    ['\\/',  '/'  ],
-    ['\\b',  '\b' ],
-    ['\\f',  '\f' ],
-    ['\\n',  '\n' ],
-    ['\\r',  '\r' ],
-    ['\\t',  '\t' ],
-    ['\\v',  '\v' ],
+    [String.raw`\/`,  '/'  ],
+    [String.raw`\b`,  '\b' ],
+    [String.raw`\f`,  '\f' ],
+    [String.raw`\n`,  '\n' ],
+    [String.raw`\r`,  '\r' ],
+    [String.raw`\t`,  '\t' ],
+    [String.raw`\v`,  '\v' ],
   ];
 
   for (const [escape_src, expected_char] of escape_table) {
@@ -488,19 +481,19 @@ describe('§2 ActionLabel — single-char escape vocabulary', () => {
 
 
 
-describe('§2 ActionLabel — \\uXXXX unicode escape', () => {
+describe('§2 ActionLabel — uXXXX unicode escape form', () => {
 
-  test('Random four-hex-digit \\u escapes decode to the matching code point', () => {
+  test('Random four-hex-digit unicode escapes decode to the matching code point', () => {
 
     fc.assert(
       fc.property(
-        fc.integer(0x0020, 0xfffd)
+        fc.integer(0x00_20, 0xFF_FD)
           // Excluded: `'` at 0x27 and `\` at 0x5C — these have escape
           // forms tested in the canonical table above.
           .filter(cp => cp !== 0x27 && cp !== 0x5C),
         (cp) => {
           const hex    = cp.toString(16).padStart(4, '0');
-          const action = parse_pre_arrow_action(quote_action(`x\\u${hex}y`));
+          const action = parse_pre_arrow_action(quote_action(String.raw`x\u${hex}y`));
           expect(action).toBe(`x${String.fromCharCode(cp)}y`);
         }
       ),
@@ -524,7 +517,7 @@ describe('§2 ActionLabel — unescaped body round-trip', () => {
    *  labels — tighter than String's 0x00 start).
    */
   const body_arb = fc.string({ minLength: 0, maxLength: 20 })
-    .filter(s => !s.includes("'") && !s.includes('\\') && ![...s].some(c => c.charCodeAt(0) < 0x20));
+    .filter(s => !s.includes("'") && !s.includes('\\') && [...s].every(c => c.charCodeAt(0) >= 0x20));
 
   test('Random unescaped action-label body round-trips through r_action', () => {
 
@@ -564,10 +557,10 @@ describe('§2 Atom — AtomFirstLetter character class', () => {
 
     fc.assert(
       fc.property(
-        fc.integer(0x80, 0xfffd)
+        fc.integer(0x80, 0xFF_FD)
           // Skip line terminators and the standard non-character
           // codepoints that aren't legal in source.
-          .filter(cp => cp !== 0x2028 && cp !== 0x2029),
+          .filter(cp => cp !== 0x20_28 && cp !== 0x20_29),
         (cp) => {
           const c    = String.fromCharCode(cp);
           const tree = parse_transition(c, 'b');
@@ -707,7 +700,6 @@ describe('§2 LabelList — bracketed list shapes', () => {
    *  Parse `start_states : <list_src>;` and return the parsed list.
    *  The vehicle is config-block-driven because that's the cleanest
    *  surface that exposes a LabelList directly in the AST.
-   *
    *  @param  list_src  Source text of the list, including brackets.
    *  @returns          Array of label strings as canonicalised by the parser.
    */

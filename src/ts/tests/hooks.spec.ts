@@ -607,7 +607,7 @@ test('All-transition hook rejection prevents subsequent hooks', () => {
 
 
 
-describe('Basic hooks on API callpoint', () => {
+describe('Hook handlers fire on API callpoint', () => {
 
 
 
@@ -780,7 +780,7 @@ describe('Basic hooks on fluent API', () => {
           handler2 = jest.fn(x => true),
           handler3 = jest.fn(x => true);
 
-    let state_ex = undefined;
+    let state_ex;
 
     expect( () => {
 
@@ -901,10 +901,10 @@ describe('After hook callback', () => {
 
   test('Callback fires', async () => {
 
-    let hook_fired: false | Object = false;
+    let hook_fired: false | object = false;
 
     const foo = jssm.from('a after 0.01s -> b;', { data: 'foo' });
-    foo.hook_after( 'a', (res: Object) => { hook_fired = res; } );
+    foo.hook_after( 'a', (res: object) => { hook_fired = res; } );
     expect(foo.state()).toBe('a');
 
     await jssm.sleep(1000);
@@ -975,7 +975,7 @@ describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
         non_action    = ['basic', 'entry', 'exit', 'any', 'standard', 'main', /* 'forced', */ 'any_transition'], // TODO main, forced
-        action_driven = ['action', 'gl_action', 'any_action'],
+        action_driven = new Set(['action', 'gl_action', 'any_action']),
         matrix_hook   = [... non_action, ... action_driven],
 
         plans         = [];
@@ -1020,48 +1020,40 @@ describe('Hooks can change data (full matrix)', () => {
   };
 
 
-  matrix_priors.forEach(usePrior =>
-
-    // good rules - senders - cause the change
-    matrix_hook.forEach( (good, g) => {
+  for (const usePrior of matrix_priors) for (const [g, good] of matrix_hook.entries()) {
 
       plans.push({ use_prior: usePrior, setter: good, blocker: undefined, g, b: undefined });
 
       // bad rules - blockers - block the change
-      matrix_hook.forEach( (bad, b) => {
+      blocker_loop: for (const [b, bad] of matrix_hook.entries()) {
 
         // TODO - temporarily skip blocked-by-main and blocked-by-forced
-        if (bad === 'main')   { return; }
-        if (bad === 'forced') { return; }
+        if (bad === 'main')   { continue blocker_loop; }
+        if (bad === 'forced') { continue blocker_loop; }
 
         // single edge machines can't have both standard-and-main,
         // standard-and-forced, or main-and-forced in the same edge.  therefore
         // if the sender is one, don't test the other two (but do still test
         // self collision
-        if (good === 'standard') { if ((bad === 'main')     || (bad === 'forced')) { return; } }
-        if (good === 'main')     { if ((bad === 'standard') || (bad === 'forced')) { return; } }
-        if (good === 'forced')   { if ((bad === 'standard') || (bad === 'main')  ) { return; } }
-
-        let should_push = true;
+        if (good === 'standard' && ((bad === 'main')     || (bad === 'forced'))) { continue blocker_loop; }
+        if (good === 'main')     { if ((bad === 'standard') || (bad === 'forced')) { continue blocker_loop; } }
+        else if (good === 'forced' && ((bad === 'standard') || (bad === 'main')  )) { continue blocker_loop; }
 
         // if the sender isn't action driven, the blocker can't be either,
         // because the blocking event won't occur
-        if ( (!(action_driven.includes(good))) && action_driven.includes(bad) ) {
-          should_push = false;
-        }
+        const should_push = action_driven.has(good) || (!(action_driven.has(bad)));
 
         if (should_push) {
           plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
         }
 
-      });
+      }
 
       // now execute the plans (steeples evil fingers)
-      plans.forEach(({ use_prior, setter, blocker, b, g }) => {
+      for (const { use_prior, setter, blocker, b, g } of plans) {
 
         let wwo,
-            ctx,
-            arrow;
+            ctx;
 
         if (use_prior) {
           ctx = { data: 'original value' };
@@ -1071,15 +1063,7 @@ describe('Hooks can change data (full matrix)', () => {
           wwo = "without";
         }
 
-        switch (setter) {
-
-          case 'main':
-            arrow = '=>'; break;
-
-          default:
-            arrow = '->'; break;
-
-        }
+        const arrow = (setter === 'main') ? '=>' : '->';
 
         const foo = jssm.from(`a 'foo' ${arrow} b;`, ctx);
 
@@ -1093,7 +1077,7 @@ describe('Hooks can change data (full matrix)', () => {
 
         // what do we do to actually trigger it?  depends on if we are testing
         // an action trigger or a transition trigger
-        if (action_driven.includes(setter)) {
+        if (action_driven.has(setter)) {
           foo.action('foo');
         } else {
           foo.transition('b');
@@ -1114,10 +1098,10 @@ describe('Hooks can change data (full matrix)', () => {
             expect( foo.data() ).toBe('creation value') );
         }
 
-      });
+      }
 
-    })
-  );
+    }
+  
 
 });
 
@@ -1497,7 +1481,7 @@ describe('abstract_everything_hook_step', () => {
   });
 
   test('generates pass for function returning undefined', () => {
-    const fn = jest.fn( () => undefined );
+    const fn = jest.fn( () => {} );
     expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
       .toStrictEqual({ pass: true });
     expect(fn).toHaveBeenCalled();

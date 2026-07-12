@@ -50,11 +50,11 @@ describe('after mapping lifecycle', () => {
 
 test('custom timeout sources', () => {
 
-  const timeout_source       = (f: Function, a: number) => setTimeout(f, a),
+  const timeout_source       = (f: () => void, a: number) => setTimeout(f, a),
         clear_timeout_source = (h: number) => clearTimeout(h);
 
   const m = sm_from(`a after 20s -> b;`, { timeout_source, clear_timeout_source });
-  expect(m.current_state_timeout()).toStrictEqual(['b', 20000]);
+  expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);
 
   m.clear_state_timeout();
   expect(m.current_state_timeout()).toBe(undefined)
@@ -72,7 +72,7 @@ test('custom timeout sources', () => {
 
 const delay = (time: number = 1000) =>
 
-  new Promise( handler => setTimeout(handler, time) );
+  new Promise( resolve => setTimeout(resolve, time) );
 
 
 
@@ -217,18 +217,14 @@ describe('after mapping general topics', () => {
 
     test('due to machine', () => {
       const m = sm`a after 1 -> b;`;
-      try {
-        expect( () => m.set_state_timeout('b', 10) ).toThrow();
-      } catch (e) {} finally {}
+      expect( () => m.set_state_timeout('b', 10) ).toThrow();
       m.clear_state_timeout();
     });
 
     test('due to api', () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 10);
-      try {
-        expect( () => m.set_state_timeout('b', 10) ).toThrow();
-      } catch (e) {} finally {}
+      expect( () => m.set_state_timeout('b', 10) ).toThrow();
       m.clear_state_timeout();
     });
 

@@ -18,7 +18,7 @@ beforeAll(() => { if (!customElements.get('fsl-docs')) { customElements.define('
 
 async function mount(): Promise<FslDocs> {
   const el = document.createElement('fsl-docs') as FslDocs;
-  document.body.appendChild(el);
+  document.body.append(el);
   await el.updateComplete;
   return el;
 }
@@ -29,7 +29,9 @@ describe('fsl_docs_wc — page-less feature fallbacks', () => {
     (el as unknown as { _view: string })._view = 'index';
     await el.updateComplete;
     const root = el.shadowRoot!;
+    // eslint-disable-next-line unicorn/prefer-scoped-selector -- jsdom (nwsapi) does not match `:scope` inside a ShadowRoot; prefixing returns null and changes behavior
     expect(root.querySelector('.nav [data-page]')).toBeNull();           // no link rendered
+    // eslint-disable-next-line unicorn/prefer-scoped-selector -- jsdom (nwsapi) does not match `:scope` inside a ShadowRoot; prefixing returns null and changes behavior
     expect(root.querySelector('.nav span')?.textContent).toContain('Orphan Feature');
   });
 
@@ -40,6 +42,7 @@ describe('fsl_docs_wc — page-less feature fallbacks', () => {
     s._query = 'findme';
     await el.updateComplete;
     const root = el.shadowRoot!;
+    // eslint-disable-next-line unicorn/prefer-scoped-selector -- jsdom (nwsapi) does not match `:scope` inside a ShadowRoot; prefixing returns null and changes behavior
     expect(root.querySelector('.nav [data-page]')).toBeNull();
     expect(root.textContent).toContain('Orphan Feature');
   });

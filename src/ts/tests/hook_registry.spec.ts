@@ -3,6 +3,9 @@ import { sm }            from '../jssm';
 import { theme_mapping } from '../jssm_theme';
 import type { JssmTheme, HookRegistryEntry } from '../jssm_types';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -533,7 +536,7 @@ describe('hook_registry — type-surface sanity', () => {
     m.post_hook('a', 'b', () => true);
 
     const reg: HookRegistryEntry[] = m.hook_registry();
-    const scopes = reg.map(e => e.target.scope).sort();
+    const scopes = reg.map(e => e.target.scope).sort(code_unit_compare);
     expect(scopes).toStrictEqual(['action', 'edge', 'global', 'state']);
     expect(reg.every(e => e.phase === 'pre' || e.phase === 'post')).toBe(true);
   });

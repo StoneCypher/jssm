@@ -2,6 +2,8 @@
 
 `Warning: Deno support is newly underway.  The local instructions work.  Module publishing stuff has to be fixed.`
 
+(Looking for a different environment?  See {@page Environments_Browser.md the browser page}.)
+
 Deno does not require installation.  (However, if you're going to alter the library and submit a PR, installing in NPM then running `npm run build` is necessary.)
 
 In Deno, it is generally preferred to load modules from the official module system.  However, you can also load from a local build (which can be useful if you're modifying the library,) or from the Github repo directly.

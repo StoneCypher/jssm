@@ -102,7 +102,7 @@ describe('fslSemanticSpans', () => {
     const hit = fslSemanticSpans(doc)
       .find(s => s.kind === 'state' && s.value === 'a"b');
     expect(hit).toBeDefined();
-    expect(doc.slice(hit!.from, hit!.to)).toBe('"a\\"b"');
+    expect(doc.slice(hit!.from, hit!.to)).toBe(String.raw`"a\"b"`);
   });
 
   it('is unfooled by member text recurring in a trailing comment', () => {
@@ -118,7 +118,7 @@ describe('fslSemanticSpans', () => {
     const in_hook = fslSemanticSpans(doc)
       .find(s => s.kind === 'state' && s.value === 'x"y' && s.from > doc.indexOf('\n'));
     expect(in_hook).toBeDefined();
-    expect(doc.slice(in_hook!.from, in_hook!.to)).toBe('"x\\"y"');
+    expect(doc.slice(in_hook!.from, in_hook!.to)).toBe(String.raw`"x\"y"`);
   });
 
   it('spans state members of a mixed list but not its nest/spread group refs', () => {
@@ -126,8 +126,8 @@ describe('fslSemanticSpans', () => {
     const first_line = doc.indexOf('\n');
     const in_decl = fslSemanticSpans(doc)
       .filter(s => s.kind === 'state' && s.to <= first_line);
-    expect(in_decl.map(s => s.value).sort()).toEqual(['alpha', 'beta']);
-    expect(in_decl.map(s => doc.slice(s.from, s.to)).sort()).toEqual(['alpha', 'beta']);
+    expect(in_decl.map(s => s.value).sort((a, b) => a.localeCompare(b))).toEqual(['alpha', 'beta']);
+    expect(in_decl.map(s => doc.slice(s.from, s.to)).sort((a, b) => a.localeCompare(b))).toEqual(['alpha', 'beta']);
   });
 
   it('does not mark a hook group-ref subject as a state', () => {

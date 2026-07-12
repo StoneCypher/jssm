@@ -13,9 +13,9 @@ import { test_range_with, atom_skips } from './unicode.uspec-driver';
 // by the list name whose `value` is the array of names.
 
 const list_forms = [
-  { src: `${'X'} -> b; start_states: [X];`,    key: 'start_states'   },
-  { src: `b -> ${'X'}; end_states: [X];`,      key: 'end_states'     },
-  { src: `${'X'} -> b; failed_outputs: [X];`,  key: 'failed_outputs' }
+  { src: `X -> b; start_states: [X];`,    key: 'start_states'   },
+  { src: `b -> X; end_states: [X];`,      key: 'end_states'     },
+  { src: `X -> b; failed_outputs: [X];`,  key: 'failed_outputs' }
 ];
 
 const config_list_test = (idx: number): boolean => {
@@ -32,7 +32,7 @@ const config_list_test = (idx: number): boolean => {
 
       try {
         ast = parse(src);
-      } catch (e) {
+      } catch {
         throw new Error(`Broke on ${idx} "${cp}" for ${form.key}`);
       }
 

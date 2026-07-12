@@ -5,7 +5,7 @@ describe('editor: {} config block (fsl#1334)', () => {
 
   it('exposes both keys via editor_config()', () => {
     const m = sm`editor: { stochastic_run_count: 100000; panels: [simulation history]; }; a 'go' -> b;`;
-    expect(m.editor_config()).toEqual({ stochastic_run_count: 100000, panels: ['simulation', 'history'] });
+    expect(m.editor_config()).toEqual({ stochastic_run_count: 100_000, panels: ['simulation', 'history'] });
   });
 
   it('parses a panels-only block', () => {

@@ -87,7 +87,7 @@ function kindSupported(desc) {
     if (typeof m.set_hook !== 'function') { return false; }
     m.set_hook(desc);
     return true;
-  } catch (_e) {
+  } catch {
     return false;
   }
 }

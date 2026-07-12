@@ -10,7 +10,8 @@ describe('jssm/fence barrel', () => {
       'highlight_fsl_runs', 'highlight_fsl_html',
       'extract_state_fills', 'patch_state_fill',
     ]) {
-      expect(typeof (fence as Record<string, unknown>)[name], name).toBe('function');
+      // the [name, typeof] tuple keeps the export's name visible in the failure diff
+      expect([name, typeof (fence as Record<string, unknown>)[name]]).toEqual([name, 'function']);
     }
   });
 

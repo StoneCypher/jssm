@@ -20,10 +20,8 @@ const ACTION_EVENTS = ['fsl-transition', 'fsl-machine-rebuilt'];
  * appear, and each group is omitted when empty, so a self-loop-only state shows
  * just its actions and a terminal state shows `no actions available`. Standalone
  * (no host ancestor) renders empty.
- *
  * @element fsl-actions
  * @csspart actions - The container.
- *
  * @example
  * // For `A 'x' -> B; A 'y' => C; A ~> D;` while in A:
  * //   Actions:      [ x ] [ y ]
@@ -73,7 +71,7 @@ export class FslActions extends LitElement {
             if (e.from !== current || e.to === current) {
                 continue;
             } // only non-self exits from here
-            const to = String(e.to);
+            const to = e.to;
             if (e.main_path) {
                 main.add(to);
             }
@@ -102,8 +100,10 @@ export class FslActions extends LitElement {
         }
         else {
             host.transition(to);
-        } }}>→ ${to}</button>`)}
-      </div>`;
+        } }}>→ ${to}</button>
+        `)}
+      </div>
+    `;
     }
     render() {
         const host = this._host;
@@ -120,12 +120,15 @@ export class FslActions extends LitElement {
           <div class="group">
             <div class="label">Actions</div>
             ${this._actions.map(a => html `
-              <button class="act" @click=${() => host.do(a)}>${a}</button>`)}
-          </div>`}
+              <button class="act" @click=${() => host.do(a)}>${a}</button>
+            `)}
+          </div>
+        `}
         ${this._group(host, 'Main', this._main, false)}
         ${this._group(host, 'Transitions', this._regular, false)}
         ${this._group(host, 'Forced', this._forced, true)}
-      </div>`;
+      </div>
+    `;
     }
 }
 FslActions.styles = css `

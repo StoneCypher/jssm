@@ -41,7 +41,7 @@ function fslCompletionSource(context) {
     const before = line.text.slice(0, context.pos - line.from);
     const typed = /([\w-]*)$/.exec(before)[1];
     const items = fslCompletions(context.state.doc.toString(), context.pos);
-    if (!items.length) {
+    if (items.length === 0) {
         return null;
     }
     return {
@@ -169,11 +169,9 @@ const fslTokens = css `
 /**
  * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
  * (case-insensitive).
- *
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
  * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
- *
  * @example
  * wc_suffix_matches('FSL-VIZ', 'viz');   // true
  * wc_suffix_matches('jssm-viz', 'viz');  // true
@@ -183,15 +181,12 @@ const fslTokens = css `
 /**
  * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
  * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
- *
  * @param el     - The element to start the search from.
  * @param suffix - The suffix to match (e.g. `"instance"`).
  * @returns The closest matching ancestor element, or `null`.
- *
  * @example
  * // <fsl-instance><div id="k"></div></fsl-instance>
  * closest_wc(document.getElementById('k'), 'instance'); // <fsl-instance>
- *
  * @see wc_suffix_matches
  */
 function closest_wc(el, suffix) {
@@ -212,7 +207,6 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
  * each toggleable via a `no-*` attribute. Light/dark via the reflected `theme`
  * attribute (which also drives the `--fsl-*` token defaults). White-labeled
  * through the shared appearance contract. Emits `change` on user edits.
- *
  * @element fsl-editor
  * @fires {CustomEvent<FslEditorChangeDetail>} change - On every user edit (not on programmatic `fsl` writes).
  * @csspart editor - The CodeMirror editor container.

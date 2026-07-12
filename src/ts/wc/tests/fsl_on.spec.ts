@@ -74,7 +74,7 @@ describe('parse_jssm_on_element', () => {
     const el = document.createElement('fsl-on');
     el.setAttribute('event', 'transition');
     el.setAttribute('handler', 'logStep');
-    el.setAttribute('name', '   ');
+    el.setAttribute('name', ' '.repeat(3));
     const parsed = parse_jssm_on_element(el);
     expect(parsed.name).toBeUndefined();
   });
@@ -159,7 +159,7 @@ describe('parse_jssm_on_element', () => {
 
   it('throws when event attribute is whitespace-only', () => {
     const el = document.createElement('fsl-on');
-    el.setAttribute('event', '   ');
+    el.setAttribute('event', ' '.repeat(3));
     el.setAttribute('handler', 'h');
     expect(() => parse_jssm_on_element(el)).toThrow(/missing required `event`/);
   });
@@ -201,7 +201,7 @@ describe('parse_jssm_on_element', () => {
   it('treats a whitespace-only handler attribute as not supplied', () => {
     const el = document.createElement('fsl-on');
     el.setAttribute('event', 'transition');
-    el.setAttribute('handler', '   ');
+    el.setAttribute('handler', ' '.repeat(3));
     // Whitespace handler + no body = neither form, which throws.
     expect(() => parse_jssm_on_element(el)).toThrow(/must specify handler/);
   });
@@ -236,13 +236,13 @@ describe('resolve_named_handler', () => {
   });
 
   it('resolves from the registry first', () => {
-    const fn = () => undefined;
+    const fn = () => {};
     jssm_handler_registry.set('reg_handler', fn);
     expect(resolve_named_handler('reg_handler')).toBe(fn);
   });
 
   it('falls back to globalThis if the registry has no entry', () => {
-    const fn = () => undefined;
+    const fn = () => {};
     (globalThis as Record<string, unknown>).__jssm_on_test_handler = fn;
     expect(resolve_named_handler('__jssm_on_test_handler')).toBe(fn);
   });
@@ -294,11 +294,11 @@ function capture_connection_error(fn: () => void): Error | null {
     e.preventDefault();
     captured = e.error instanceof Error ? e.error : new Error(String(e.message));
   };
-  window.addEventListener('error', handler);
+  addEventListener('error', handler);
   try {
     fn();
   } finally {
-    window.removeEventListener('error', handler);
+    removeEventListener('error', handler);
   }
   return captured;
 }
@@ -330,14 +330,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     const on_el = document.createElement('fsl-on');
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', 'onAnyTransition');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     step(host, 'go');
     expect(fired).toBe(2);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -349,14 +349,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     const on_el = document.createElement('fsl-on');
     on_el.setAttribute('event', 'transition');
     on_el.textContent = '(globalThis).inlineCounter += 1;';
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     step(host, 'go');
     expect((globalThis as Record<string, unknown>).inlineCounter).toBe(2);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -368,8 +368,8 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
       on_el.setAttribute('event', 'transition');
       on_el.setAttribute('handler', 'foo');
       on_el.textContent = 'console.log(e);';
-      host.appendChild(on_el);
-      document.body.appendChild(host);
+      host.append(on_el);
+      document.body.append(host);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/handler="name" OR inline body/);
@@ -383,8 +383,8 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
       const on_el = document.createElement('fsl-on');
       on_el.setAttribute('event', 'no-such-event');
       on_el.setAttribute('handler', 'foo');
-      host.appendChild(on_el);
-      document.body.appendChild(host);
+      host.append(on_el);
+      document.body.append(host);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/unknown event/);
@@ -403,14 +403,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('event', 'entry');
     on_el.setAttribute('state', 'paid');
     on_el.setAttribute('handler', 'onEntryPaid');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'pay');    // entry: paid    — should fire
     step(host, 'ship');   // entry: shipped — should NOT fire
     expect(seen).toEqual(['paid']);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -426,14 +426,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('event', 'exit');
     on_el.setAttribute('state', 'paid');
     on_el.setAttribute('handler', 'onExitPaid');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'pay');    // exit: cart    — should NOT fire
     step(host, 'ship');   // exit: paid    — should fire
     expect(seen).toEqual(['paid']);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -449,15 +449,15 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('from', 'red');
     on_el.setAttribute('handler', 'onLeaveRed');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go'); // red -> green   — fire
     step(host, 'go'); // green -> yellow — skip
     step(host, 'go'); // yellow -> red   — skip (entering red is not leaving)
     expect(seen).toEqual([{ from: 'red', to: 'green' }]);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -476,8 +476,8 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('to', 'green');
     on_el.setAttribute('handler', 'onReachGreen');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go'); // red -> green   — fire
     step(host, 'go'); // green -> blue  — skip
@@ -487,7 +487,7 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
       { from: 'blue', to: 'green' }
     ]);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -504,15 +504,15 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('from', 'red');
     on_el.setAttribute('to', 'green');
     on_el.setAttribute('handler', 'onEdge');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go'); // red -> green   — fire
     step(host, 'go'); // green -> yellow — skip
     step(host, 'go'); // yellow -> red   — skip
     expect(seen).toEqual([{ from: 'red', to: 'green' }]);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -525,14 +525,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     const on_el = document.createElement('fsl-on');
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', 'onAnyTransition');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     step(host, 'go');
     expect(count).toBe(2);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -547,14 +547,14 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', 'onTerminal');
     on_el.toggleAttribute('once', true);
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     step(host, 'go');
     expect(count).toBe(1);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -567,8 +567,8 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     const on_el = document.createElement('fsl-on');
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', 'onAnyTransition');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     expect(fired).toBe(1);
@@ -576,7 +576,7 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     // Capture the raw machine BEFORE disconnect so we can poke it after.
     const machine = host.machine;
 
-    document.body.removeChild(host);
+    host.remove();
 
     // After disconnect, driving the machine directly must NOT call the
     // handler — the unsubscribe ran in disconnectedCallback.
@@ -590,22 +590,22 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     // the host through connect → disconnect.  The disconnect must not
     // surface the throw.
     let bad_unsub_called = false;
-    (globalThis as Record<string, unknown>).badOnce = () => undefined;
+    (globalThis as Record<string, unknown>).badOnce = () => {};
 
     const host = document.createElement('jssm-instance') as JssmInstance;
     host.setAttribute('fsl', 'a -> b;');
     const on_el = document.createElement('fsl-on');
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', 'badOnce');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     // Swap in a throwing unsubscribe behind the host's back so we can
     // exercise the try/catch in disconnectedCallback.
     const list = (host as unknown as { _on_unsubscribes: Array<() => void> })._on_unsubscribes;
     list[0] = () => { bad_unsub_called = true; throw new Error('boom'); };
 
-    expect(() => document.body.removeChild(host)).not.toThrow();
+    expect(() => { host.remove(); }).not.toThrow();
     expect(bad_unsub_called).toBe(true);
   });
 
@@ -620,21 +620,21 @@ describe('<fsl-on> integration with <jssm-instance> (canonical)', () => {
     const on1 = document.createElement('fsl-on');
     on1.setAttribute('event', 'transition');
     on1.textContent = '(globalThis).multiCounter1 += 1;';
-    host.appendChild(on1);
+    host.append(on1);
 
     const on2 = document.createElement('fsl-on');
     on2.setAttribute('event', 'transition');
     on2.textContent = '(globalThis).multiCounter2 += 1;';
-    host.appendChild(on2);
+    host.append(on2);
 
-    document.body.appendChild(host);
+    document.body.append(host);
     step(host, 'go');
     step(host, 'go');
 
     expect((globalThis as Record<string, unknown>).multiCounter1).toBe(2);
     expect((globalThis as Record<string, unknown>).multiCounter2).toBe(2);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });
@@ -658,13 +658,13 @@ describe('<jssm-on> synonym coverage', () => {
     const on_el = document.createElement('jssm-on');
     on_el.setAttribute('event', 'transition');
     on_el.setAttribute('handler', '__jssm_on_syn_handler');
-    host.appendChild(on_el);
-    document.body.appendChild(host);
+    host.append(on_el);
+    document.body.append(host);
 
     step(host, 'go');
     expect(fired).toBe(1);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 
@@ -680,21 +680,21 @@ describe('<jssm-on> synonym coverage', () => {
     const fsl_el = document.createElement('fsl-on');
     fsl_el.setAttribute('event', 'transition');
     fsl_el.setAttribute('handler', '__fsl_counter');
-    host.appendChild(fsl_el);
+    host.append(fsl_el);
 
     const jssm_el = document.createElement('jssm-on');
     jssm_el.setAttribute('event', 'transition');
     jssm_el.setAttribute('handler', '__jssm_counter');
-    host.appendChild(jssm_el);
+    host.append(jssm_el);
 
-    document.body.appendChild(host);
+    document.body.append(host);
     step(host, 'go');
     step(host, 'go');
 
     expect(fsl_count).toBe(2);
     expect(jssm_count).toBe(2);
 
-    document.body.removeChild(host);
+    host.remove();
 
     delete (globalThis as Record<string, unknown>).__fsl_counter;
     delete (globalThis as Record<string, unknown>).__jssm_counter;

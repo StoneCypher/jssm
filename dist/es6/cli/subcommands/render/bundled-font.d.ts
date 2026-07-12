@@ -4,9 +4,7 @@
  *
  * Decoded once on first call and cached; the same buffer is returned on every
  * subsequent call (resvg treats it as read-only).
- *
  * @returns the decoded TrueType font bytes
- *
  * @example
  *   new Resvg(svg, { font: { fontBuffers: [bundledFontBytes()] } });
  */

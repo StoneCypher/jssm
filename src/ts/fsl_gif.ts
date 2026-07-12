@@ -2,10 +2,10 @@ import { JssmError } from './jssm_error.js';
 
 /** Composite one RGBA pixel over white and pack as 0xRRGGBB. @internal */
 function packed_over_white(rgba: Uint8Array, pixel: number): number {
-  const a = rgba[pixel * 4 + 3]! / 255;
-  const r = Math.round(rgba[pixel * 4]!     * a + 255 * (1 - a));
-  const g = Math.round(rgba[pixel * 4 + 1]! * a + 255 * (1 - a));
-  const b = Math.round(rgba[pixel * 4 + 2]! * a + 255 * (1 - a));
+  const a = rgba[pixel * 4 + 3] / 255;
+  const r = Math.round(rgba[pixel * 4]     * a + 255 * (1 - a));
+  const g = Math.round(rgba[pixel * 4 + 1] * a + 255 * (1 - a));
+  const b = Math.round(rgba[pixel * 4 + 2] * a + 255 * (1 - a));
   return (r << 16) | (g << 8) | b;
 }
 
@@ -26,16 +26,13 @@ export interface Quantized {
  *  `max_colors` or fewer distinct colors they are preserved exactly;
  *  otherwise a median-cut partition supplies the palette and each pixel maps
  *  to its box's weighted-average color.
- *
  *  @param rgba - Straight RGBA bytes; length must be a multiple of 4.
  *  @param max_colors - Palette ceiling, 2..256.
- *
  *  @throws {JssmError} when `rgba.length` is not a multiple of 4.
  *  @throws {JssmError} when `max_colors` is outside 2..256 — above 256 the
  *  palette index no longer fits the `Uint8Array` indices this module packs
  *  into GIF codes (silent index corruption instead of a clear failure);
  *  below 2 there is no palette to quantize into.
- *
  *  @example
  *  const q = quantize(new Uint8Array([255,0,0,255, 0,255,0,255]));
  *  q.palette_count;  // 2
@@ -63,7 +60,7 @@ export function quantize(rgba: Uint8Array, max_colors: number = 256): Quantized 
 
   const { palette, palette_count, index_of } = palette_from_histogram(histogram, max_colors);
   const indices = new Uint8Array(pixel_count);
-  for (let i = 0; i < pixel_count; ++i) { indices[i] = index_of.get(packed[i]!)!; }
+  for (let i = 0; i < pixel_count; ++i) { indices[i] = index_of.get(packed[i])!; }
   return { palette, palette_count, indices };
 
 }
@@ -75,14 +72,11 @@ export function quantize(rgba: Uint8Array, max_colors: number = 256): Quantized 
  *  one buffer first.  Iterating frames in order reproduces the exact key/count
  *  sequence a concatenated buffer would yield, so the resulting palette is
  *  byte-identical to quantizing the concatenation.
- *
  *  @param rgba - Straight RGBA bytes; length must be a multiple of 4.
  *  @param histogram - Packed 0xRRGGBB key → count, mutated in place.
- *
  *  @example
  *  const h = new Map<number, number>();
  *  accumulate_histogram(new Uint8Array([255,0,0,255]), h);  // h: { 0xff0000 => 1 }
- *
  *  @internal
  */
 function accumulate_histogram(rgba: Uint8Array, histogram: Map<number, number>): void {
@@ -102,7 +96,6 @@ interface PaletteBuild { palette: Uint8Array; palette_count: number; index_of: M
  *  insertion order); otherwise a median-cut partition supplies the palette.
  *  Returned alongside the palette is `index_of`, mapping each source color key
  *  to its palette slot, so callers can translate their own pixels.
- *
  *  @internal
  */
 function palette_from_histogram(histogram: Map<number, number>, max_colors: number): PaletteBuild {
@@ -110,12 +103,12 @@ function palette_from_histogram(histogram: Map<number, number>, max_colors: numb
   if (distinct.length <= max_colors) {
     const index_of = new Map<number, number>();
     const palette  = new Uint8Array(distinct.length * 3);
-    distinct.forEach((key, i) => {
+    for (const [i, key] of distinct.entries()) {
       index_of.set(key, i);
-      palette[i * 3]     = (key >> 16) & 0xff;
-      palette[i * 3 + 1] = (key >> 8)  & 0xff;
-      palette[i * 3 + 2] = key         & 0xff;
-    });
+      palette[i * 3]     = (key >> 16) & 0xFF;
+      palette[i * 3 + 1] = (key >> 8)  & 0xFF;
+      palette[i * 3 + 2] = key         & 0xFF;
+    }
     return { palette, palette_count: distinct.length, index_of };
   }
   return median_cut_palette(histogram, max_colors);
@@ -126,9 +119,9 @@ type CutBox = number[];
 
 /** Channel extractors for packed 0xRRGGBB keys. @internal */
 const CHANNELS: ReadonlyArray<(key: number) => number> = [
-  key => (key >> 16) & 0xff,
-  key => (key >> 8)  & 0xff,
-  key =>  key        & 0xff,
+  key => (key >> 16) & 0xFF,
+  key => (key >> 8)  & 0xFF,
+  key =>  key        & 0xFF,
 ];
 
 /**
@@ -137,7 +130,6 @@ const CHANNELS: ReadonlyArray<(key: number) => number> = [
  *  exist, then averages each box into a palette entry.  Returns the palette and
  *  the color→slot map only; per-pixel indices are the caller's concern (the
  *  animation encoder maps each frame separately, so it never needs them here).
- *
  *  @internal
  */
 function median_cut_palette(histogram: Map<number, number>, max_colors: number): PaletteBuild {
@@ -147,44 +139,44 @@ function median_cut_palette(histogram: Map<number, number>, max_colors: number):
   while (boxes.length < max_colors) {
     // pick the box with the widest single-channel range
     let best_box = -1, best_range = -1, best_channel = 0;
-    boxes.forEach((box, bi) => {
-      if (box.length < 2) { return; }
-      CHANNELS.forEach((ch, ci) => {
+    pick_box: for (const [bi, box] of boxes.entries()) {
+      if (box.length < 2) { continue pick_box; }
+      for (const [ci, ch] of CHANNELS.entries()) {
         let lo = 256, hi = -1;
         for (const key of box) { const v = ch(key); if (v < lo) { lo = v; } if (v > hi) { hi = v; } }
         if (hi - lo > best_range) { best_range = hi - lo; best_box = bi; best_channel = ci; }
-      });
-    });
+      }
+    }
 
-    const box = boxes[best_box]!;
-    const ch  = CHANNELS[best_channel]!;
+    const box = boxes[best_box];
+    const ch  = CHANNELS[best_channel];
     box.sort((a, b) => ch(a) - ch(b));
 
-    const total = box.reduce((sum, key) => sum + histogram.get(key)!, 0);
+    const total = box.reduce((sum, key) => sum + histogram.get(key), 0);
     let acc = 0, split = 1;
-    for (let i = 0; i < box.length - 1; ++i) {
-      acc += histogram.get(box[i]!)!;
-      if (acc * 2 >= total) { split = i + 1; break; }
+    find_split: for (let i = 0; i < box.length - 1; ++i) {
+      acc += histogram.get(box[i]);
+      if (acc * 2 >= total) { split = i + 1; break find_split; }
     }
     boxes.splice(best_box, 1, box.slice(0, split), box.slice(split));
   }
 
   const palette  = new Uint8Array(boxes.length * 3);
   const index_of = new Map<number, number>();
-  boxes.forEach((box, bi) => {
+  for (const [bi, box] of boxes.entries()) {
     let r = 0, g = 0, b = 0, n = 0;
     for (const key of box) {
-      const count = histogram.get(key)!;
-      r += ((key >> 16) & 0xff) * count;
-      g += ((key >> 8)  & 0xff) * count;
-      b += ( key        & 0xff) * count;
+      const count = histogram.get(key);
+      r += ((key >> 16) & 0xFF) * count;
+      g += ((key >> 8)  & 0xFF) * count;
+      b += ( key        & 0xFF) * count;
       n += count;
       index_of.set(key, bi);
     }
     palette[bi * 3]     = Math.round(r / n);
     palette[bi * 3 + 1] = Math.round(g / n);
     palette[bi * 3 + 2] = Math.round(b / n);
-  });
+  }
 
   return { palette, palette_count: boxes.length, index_of };
 
@@ -195,10 +187,8 @@ function median_cut_palette(histogram: Map<number, number>, max_colors: number):
  *  from `min_code_size + 1` up to the format's 12-bit ceiling, resets the
  *  dictionary when full, terminates with EOI, and packs codes LSB-first.
  *  Returns raw compressed bytes; the caller wraps them in GIF data sub-blocks.
- *
  *  @param indices - Palette indices, each `< 2^min_code_size`.
  *  @param min_code_size - Bits needed for the palette (2..8 for GIF).
- *
  *  @example
  *  lzw_encode(new Uint8Array([0, 0, 1]), 2);  // Uint8Array of packed codes
  */
@@ -218,7 +208,7 @@ export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Arr
     bit_acc |= code << bit_count;
     bit_count += code_size;
     while (bit_count >= 8) {
-      bytes.push(bit_acc & 0xff);
+      bytes.push(bit_acc & 0xFF);
       bit_acc >>= 8;
       bit_count -= 8;
     }
@@ -226,9 +216,9 @@ export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Arr
 
   emit(clear);
 
-  let prefix = indices[0]!;
+  let prefix = indices[0];
   for (let i = 1; i < indices.length; ++i) {
-    const k   = indices[i]!;
+    const k   = indices[i];
     const key = (prefix << 8) | k;
     const hit = dict.get(key);
     if (hit !== undefined) {
@@ -253,7 +243,7 @@ export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Arr
 
   emit(prefix);
   emit(eoi);
-  if (bit_count > 0) { bytes.push(bit_acc & 0xff); }
+  if (bit_count > 0) { bytes.push(bit_acc & 0xFF); }
 
   return new Uint8Array(bytes);
 
@@ -277,14 +267,11 @@ export interface GifOptions {
  *  palette, so every frame is pixel-exact while the union stays within 256
  *  distinct colors.  Frames must share dimensions.  No transparency,
  *  full-frame disposal — simple and correct first.
- *
  *  @param frames - At least one frame; all with identical width/height and
  *  `rgba.length === 4 · width · height`.
- *
  *  @throws {JssmError} on zero frames, a zero-width or zero-height frame,
  *  mismatched dimensions, or an rgba buffer whose length contradicts its
  *  stated dimensions.
- *
  *  @example
  *  const red = { rgba: new Uint8Array([255,0,0,255]), width: 1, height: 1 };
  *  const gif = encode_gif([red], { delay_cs: 50 });
@@ -295,7 +282,7 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   if (frames.length === 0) {
     throw new JssmError(undefined, 'encode_gif: at least one frame is required');
   }
-  const { width, height } = frames[0]!;
+  const { width, height } = frames[0];
   if (width === 0 || height === 0) {
     // A 0×0 (or 0×h / w×0) frame passes the `4·w·h === rgba.length` check with
     // an empty buffer, then reaches lzw_encode where `indices[0]!` coerces
@@ -340,14 +327,14 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
       const key = packed_over_white(rgba, i);
       const hit = palette_cache.get(key);
       if (hit !== undefined) { out[i] = hit; continue; }
-      const r = (key >> 16) & 0xff;
-      const g = (key >> 8)  & 0xff;
-      const b = key         & 0xff;
+      const r = (key >> 16) & 0xFF;
+      const g = (key >> 8)  & 0xFF;
+      const b = key         & 0xFF;
       let best = 0, best_d = Infinity;
       for (let p = 0; p < palette_count; ++p) {
-        const dr = r - palette[p * 3]!;
-        const dg = g - palette[p * 3 + 1]!;
-        const db = b - palette[p * 3 + 2]!;
+        const dr = r - palette[p * 3];
+        const dg = g - palette[p * 3 + 1];
+        const db = b - palette[p * 3 + 2];
         const d  = dr * dr + dg * dg + db * db;
         if (d < best_d) { best_d = d; best = p; }
       }
@@ -362,17 +349,19 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   let out = new Uint8Array(1024);
   let len = 0;
   const need = (extra: number): void => {
-    if (len + extra > out.length) {
-      const bigger = new Uint8Array(Math.max(out.length * 2, len + extra));
-      bigger.set(out.subarray(0, len));
-      out = bigger;
+    if (len + extra <= out.length) {
+    	return;
     }
+
+    const bigger = new Uint8Array(Math.max(out.length * 2, len + extra));
+    bigger.set(out.subarray(0, len));
+    out = bigger;
   };
   const push = (...vals: number[]): void => {
     need(vals.length);
-    for (let k = 0; k < vals.length; ++k) { out[len++] = vals[k]! & 0xff; }
+    for (const val of vals) { out[len++] = val & 0xFF; }
   };
-  const push_u16 = (v: number): void => { push(v & 0xff, (v >> 8) & 0xff); };
+  const push_u16 = (v: number): void => { push(v & 0xFF, (v >> 8) & 0xFF); };
 
   // header + logical screen descriptor
   push(0x47, 0x49, 0x46, 0x38, 0x39, 0x61);                  // "GIF89a"
@@ -383,7 +372,7 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   // global color table, padded to 2^gct_bits entries
   for (let p = 0; p < gct_size; ++p) {
     if (p < palette_count) {
-      push(palette[p * 3]!, palette[p * 3 + 1]!, palette[p * 3 + 2]!);
+      push(palette[p * 3], palette[p * 3 + 1], palette[p * 3 + 2]);
     } else {
       push(0, 0, 0);
     }
@@ -394,14 +383,14 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
   push(...'NETSCAPE2.0'.split('').map(c => c.charCodeAt(0)));
   push(0x03, 0x01); push_u16(loop); push(0x00);
 
-  for (let fi = 0; fi < frames.length; ++fi) {
+  for (const frame of frames) {
     // graphics control extension: disposal 1 (leave in place), no transparency
     push(0x21, 0xF9, 0x04, 0x04); push_u16(delay_cs); push(0x00, 0x00);
 
     // image descriptor: full frame, no local color table
     push(0x2C); push_u16(0); push_u16(0); push_u16(width); push_u16(height); push(0x00);
 
-    const indices     = map_to_palette(frames[fi]!.rgba);
+    const indices     = map_to_palette(frame.rgba);
     const packed_lzw  = lzw_encode(indices, min_code_size);
 
     push(min_code_size);

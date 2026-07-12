@@ -41,7 +41,6 @@ const lc_fragment = fc.stringOf(
  *  Fragments get an index suffix so names are distinct; raw pairs are
  *  folded modulo the state count, oriented/filtered by `shape_edge`, and
  *  deduplicated against the backbone and each other.
- *
  *  @param bases       Name fragments, one per state.
  *  @param raw_extras  Unconstrained index pairs to shape into extra edges.
  *  @param backbone    Edge indices every plan must contain (chain or ring).
@@ -75,7 +74,7 @@ function assemble_plan(
 
   }
 
-  const edges = backbone.concat(extra)
+  const edges = [...backbone, ...extra]
     .map( ([a, b]): [string, string] => [names[a], names[b]] );
 
   const fsl = edges.map( ([f, t]) => `${f} -> ${t};` ).join('  ');
@@ -92,7 +91,6 @@ function assemble_plan(
  *  jumps.  Because every edge goes strictly forward, the machine is a DAG,
  *  `names[0]` is the start state and never a target, and the last state is
  *  always terminal.
- *
  *  @example
  *    fc.assert(fc.property(chain_plan_arb, ({ fsl, names }) => {
  *      expect(jssm.from(fsl).state()).toBe(names[0]);
@@ -127,7 +125,6 @@ const chain_plan_arb: fc.Arbitrary<MachinePlan> = fc.tuple(
  *  direction, no self loops).  Every state always has at least one exit and
  *  at least one entrance, and the whole machine is strongly connected — so
  *  probabilistic walks can run forever without stranding.
- *
  *  @example
  *    fc.assert(fc.property(ring_plan_arb, ({ fsl }) => {
  *      expect(() => jssm.from(fsl).probabilistic_walk(50)).not.toThrow();

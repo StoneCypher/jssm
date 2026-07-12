@@ -1,0 +1,12 @@
+{
+  /* Lint-only TypeScript project: gives typescript-eslint type information for
+     EVERYTHING under src/ts (including tests, which the build tsconfig omits),
+     without changing what tsc actually compiles. Never used for emit. */
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "src/ts/**/*.ts"
+  ]
+}

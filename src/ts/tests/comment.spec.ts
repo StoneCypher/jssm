@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -12,12 +12,14 @@ describe('block strategies', () => {
   const AtoB    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
 
         is_AB   = str =>
+                    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                     test(str, () => expect(jssm.parse(str)).toEqual(AtoB) ),
 
         ABCD    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}},
                    {"key": "transition", "from": "c", "se": {"kind": "->","to": "d"}}],
 
         is_ABCD = str =>
+                    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                     test(str, () => expect(jssm.parse(str)).toEqual(ABCD) );
 
   describe('empty block comments in left middle', () => {
@@ -86,12 +88,14 @@ describe('line strategies', () => {
   const AtoB    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
 
         is_AB   = str =>
+                    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                     test(str, () => expect(jssm.parse(str)).toEqual(AtoB) ),
 
         ABCD    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}},
                    {"key": "transition", "from": "c", "se": {"kind": "->","to": "d"}}],
 
         is_ABCD = str =>
+                    // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                     test(str, () => expect(jssm.parse(str)).toEqual(ABCD) );
 
   describe('empty line comments at end', () => {
@@ -144,6 +148,7 @@ describe('comment equivalence guards (#676)', () => {
 
   const AtoB  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}];
   const is_AB = (str: string) =>
+                  // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                   test(JSON.stringify(str), () => expect(jssm.parse(str)).toEqual(AtoB));
 
   describe('block comment body spanning newlines', () => {
@@ -162,8 +167,8 @@ describe('comment equivalence guards (#676)', () => {
   });
 
   describe('u2028 / u2029 terminate a line comment', () => {
-    const U2028 = String.fromCharCode(0x2028);
-    const U2029 = String.fromCharCode(0x2029);
+    const U2028 = String.fromCharCode(0x20_28);
+    const U2029 = String.fromCharCode(0x20_29);
     is_AB('// hello' + U2028 + 'a->b;');
     is_AB('// hello' + U2029 + 'a->b;');
   });

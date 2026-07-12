@@ -11,7 +11,7 @@ import {
 
 function mount(doc: string, ext: Extension): EditorView {
   const parent = document.createElement('div');
-  document.body.appendChild(parent);
+  document.body.append(parent);
   return new EditorView({ state: EditorState.create({ doc, extensions: [ext] }), parent });
 }
 function ctxFor(doc: string): CompletionContext {
@@ -69,12 +69,14 @@ describe('semantic overlay adapter', () => {
       marks.push({ cls: spec.class, style: spec.attributes.style });
       cursor.next();
     }
-    for (const mark of marks.filter(m => m.cls === 'fsl-color')) {
+    for (const mark of marks) {
+      if (mark.cls !== 'fsl-color') { continue; }
       expect(mark.style).toContain('--fsl-chip:');
     }
     // state spans carry AST-resolved name values since the fence work, but a
     // name must never become a chip paint — this pins the kind gate.
-    for (const mark of marks.filter(m => m.cls === 'fsl-state')) {
+    for (const mark of marks) {
+      if (mark.cls !== 'fsl-state') { continue; }
       expect(mark.style).toBeUndefined();
     }
     expect(marks.some(m => m.cls === 'fsl-color')).toBe(true);

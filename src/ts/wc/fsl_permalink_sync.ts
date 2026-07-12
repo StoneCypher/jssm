@@ -30,7 +30,6 @@ type ObservedSegment = string | null | typeof UNOBSERVED_SEGMENT;
  * or source write invalidates all older work, and disconnecting invalidates all
  * work. This gives cross-direction latest-operation-wins semantics without
  * allowing unrelated hash changes to cancel valid writes.
- *
  * @example
  * // In an element's constructor:
  * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit
@@ -59,7 +58,7 @@ export class FslPermalinkSync implements ReactiveController {
     if (this.key === null) { return; }
     void this._restore();
     this.host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
-    window.addEventListener('hashchange', this._onHashChange);
+    addEventListener('hashchange', this._onHashChange);
   }
 
   /** Invalidate work, forget observations, detach listeners, and cancel timers. */
@@ -69,7 +68,7 @@ export class FslPermalinkSync implements ReactiveController {
     this._observed = UNOBSERVED_SEGMENT;
     if (this.key !== null) {
       this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
-      window.removeEventListener('hashchange', this._onHashChange);
+      removeEventListener('hashchange', this._onHashChange);
     }
     if (this._timer !== undefined) { clearTimeout(this._timer); this._timer = undefined; }
   }
@@ -82,7 +81,7 @@ export class FslPermalinkSync implements ReactiveController {
    * awaiting it, even when a corresponding hashchange handler is still queued.
    */
   private async _restore(): Promise<void> {
-    const key = this.key!;
+    const key = this.key;
     const segment = read_fragment_param(location.hash, key);
     if (segment === this._observed) { return; }
     this._observed = segment;
@@ -122,7 +121,7 @@ export class FslPermalinkSync implements ReactiveController {
    * successful write becomes the current observation, preventing echo work.
    */
   private async _write(revision: number): Promise<void> {
-    const key = this.key!;
+    const key = this.key;
     const fsl = this.host.fsl;
     const observed = this._observed;
     try {

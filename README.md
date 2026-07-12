@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.162.5 at 7/10/2026, 7:49:54 AM
+* Generated for version 5.162.11 at 7/12/2026, 8:54:54 AM
 
 -->
-# jssm 5.162.5
+# jssm 5.162.11
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -333,7 +333,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  8,033 tests at 100.0% line coverage
+  library.**  8,623 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -346,6 +346,7 @@ That decision shows up everywhere downstream:
 
 - [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) - conceptual intro for newcomers
 - [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
+- [Using jssm in the browser](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Environments_Browser.md) - script tags, CDN, native ES modules, bundlers, and web components
 - [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
 - [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
 - [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) - DSL reference for people already comfortable with state machines
@@ -466,11 +467,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***8,033 tests***, run 83,174 times.
+***8,623 tests***, run 97,921 times.
 
-- 7,274 specs with 100.0% coverage
-- 759 fuzz tests with 48.0% coverage
-- 10,711 TypeScript lines - 0.7 tests per line, 7.8 generated tests per line
+- 7,721 specs with 100.0% coverage
+- 902 fuzz tests with 56.6% coverage
+- 10,907 TypeScript lines - 0.8 tests per line, 9.0 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

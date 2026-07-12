@@ -1,0 +1,7 @@
+{
+  "ignoreRules": [
+    "no-resolution",
+    "untyped-resolution",
+    "cjs-resolves-to-esm"
+  ]
+}

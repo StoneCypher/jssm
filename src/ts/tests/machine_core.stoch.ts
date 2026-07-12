@@ -5,6 +5,9 @@ import * as jssm from '../jssm';
 
 import { chain_plan_arb } from './stoch_helpers';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -26,11 +29,9 @@ const RUNS = 60;
 /**
  *  Computes the declared outgoing targets for one state from a plan's edge
  *  list, preserving declaration order.
- *
  *  @param edges  The plan's complete directed edge list.
  *  @param from   The source state to filter on.
  *  @returns      Every declared `to` for that source.
- *
  *  @example
  *    targets_of([['a','b'], ['a','c'], ['b','c']], 'a')  // ['b', 'c']
  */
@@ -42,11 +43,9 @@ const targets_of = (edges: [string, string][], from: string): string[] =>
 /**
  *  Computes the declared inbound sources for one state from a plan's edge
  *  list, preserving declaration order.
- *
  *  @param edges  The plan's complete directed edge list.
  *  @param to     The target state to filter on.
  *  @returns      Every declared `from` into that target.
- *
  *  @example
  *    sources_of([['a','b'], ['a','c'], ['b','c']], 'c')  // ['a', 'b']
  */
@@ -56,7 +55,7 @@ const sources_of = (edges: [string, string][], to: string): string[] =>
 
 
 /** Sorted-copy helper so set-style comparisons read cleanly. */
-const sorted = (arr: string[]): string[] => [...arr].sort();
+const sorted = (arr: string[]): string[] => [...arr].sort(code_unit_compare);
 
 
 
@@ -227,7 +226,7 @@ describe('terminality, enterability, and finality over chain plans', () => {
         ({ names, fsl }) => {
 
           const machine = jssm.from(fsl);
-          const last    = names[names.length - 1];
+          const last    = names.at(-1);
 
           for (const name of names) {
             expect(machine.state_is_terminal(name)).toBe(name === last);
@@ -451,7 +450,7 @@ describe('serialize / deserialize round-trip', () => {
           const machine = jssm.from(fsl);
           const ser     = machine.serialize();
 
-          const major   = Number(jssm.version.split('.')[0]) + bump;
+          const major   = Number(jssm.version.split('.', 1)[0]) + bump;
           ser.jssm_version = `${major}.0.0`;
 
           expect(() => jssm.deserialize(fsl, ser)).toThrow(/future version/);

@@ -43,7 +43,7 @@ describe('render_fence_html', () => {
   it('a multi-line-label state still carries its diagram color in code (multi-<text> keying)', async () => {
     // The label wraps to two <text> elements; keying on the first line only
     // ("Line One") would never match the full display text.
-    const html = await render_fence_html('state a: { label: "Line One\\nLine Two"; }; a -> b;', 'fsl code');
+    const html = await render_fence_html(String.raw`state a: { label: "Line One\nLine Two"; }; a -> b;`, 'fsl code');
     expect(html).toContain('data-state="a"');
     expect(html).toMatch(/data-state="a" style="color:[^"]+"/);
   });
@@ -94,7 +94,7 @@ describe('render_fence_html', () => {
     // vi.stubGlobal does not remove an existing global; delete it directly
     // to force the `typeof Buffer` check down the btoa path (mirrors the
     // precedent in tests/cli/rasterize.spec.ts's btoa/Buffer fallback test).
-    const realBuffer = (globalThis as any).Buffer;
+    const realBuffer = Buffer;
     delete (globalThis as any).Buffer;
     try {
       const html = await render_fence_html('a -> b;', 'fsl png');

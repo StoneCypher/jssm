@@ -1,3 +1,11 @@
+machine_name    : "ATM tutorial 8 - can withdraw money";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+
+
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;

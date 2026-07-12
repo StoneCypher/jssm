@@ -1131,18 +1131,21 @@ Config "configuration"
 
 
 
+// each bare token carries !AtomLetter: PEG choice commits on first match, so
+// without the boundary 'MIT' would eat the prefix of a label like MITalike
+// and the parse would die instead of falling through to Label
 LicenseOrLabelOrList
-  = 'MIT'
-  / 'BSD 2-clause'
-  / 'BSD 3-clause'
-  / 'Apache 2.0'
-  / 'Mozilla 2.0'
-  / 'Public domain'
-  / 'GPL v2'
-  / 'GPL v3'
-  / 'LGPL v2.1'
-  / 'LGPL v3.0'
-  / 'Unknown'
+  = $('MIT'           !AtomLetter)
+  / $('BSD 2-clause'  !AtomLetter)
+  / $('BSD 3-clause'  !AtomLetter)
+  / $('Apache 2.0'    !AtomLetter)
+  / $('Mozilla 2.0'   !AtomLetter)
+  / $('Public domain' !AtomLetter)
+  / $('GPL v2'        !AtomLetter)
+  / $('GPL v3'        !AtomLetter)
+  / $('LGPL v2.1'     !AtomLetter)
+  / $('LGPL v3.0'     !AtomLetter)
+  / $('Unknown'       !AtomLetter)
   / Label
   / LabelList;
 

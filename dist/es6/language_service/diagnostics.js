@@ -29,7 +29,6 @@ function range_from(loc, text) {
 /**
  * Parse then compile `text`, returning a list of diagnostics — empty when the
  * machine parses and compiles cleanly.
- *
  * @example
  *   fslDiagnostics('a -> b;');            // => []
  *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
@@ -41,8 +40,8 @@ export function fslDiagnostics(text) {
     try {
         tree = wrap_parse(text, { locations: true });
     }
-    catch (err) {
-        const e = err;
+    catch (error) {
+        const e = error;
         return [{ range: range_from(e.location, text), severity: 'error', message: e.message }];
     }
     try {
@@ -52,8 +51,8 @@ export function fslDiagnostics(text) {
         // accepted as valid.
         new Machine(config);
     }
-    catch (err) {
-        const e = err;
+    catch (error) {
+        const e = error;
         return [{ range: range_from(e.source_location, text), severity: 'error', message: e.message }];
     }
     return [];

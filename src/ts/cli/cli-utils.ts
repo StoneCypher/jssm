@@ -31,14 +31,11 @@ export interface ParseResult<S extends ParseSpec> {
  *   -b               boolean short flag
  *   --               terminate flag parsing; remaining args are positional
  *   -                positional (stdin sentinel)
- *
  * @param argv - The argument array to parse (e.g. process.argv.slice(2))
  * @param spec - The flag specification describing accepted flags, their types, and defaults
  * @returns A ParseResult containing positional args, parsed flag values, and a helpText() generator
- *
  * @throws Error if an unknown flag is seen, an enum value mismatches,
  *   or a numeric flag receives a non-numeric value.
- *
  * @example
  * ```ts
  * const spec = {
@@ -64,12 +61,12 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
     if (fs.short) shortMap[fs.short] = name;
   }
 
-  const isBoolean = (name: string): boolean => spec.flags[name]?.boolean === true;
+  const isBoolean = (name: string): boolean => spec.flags[name]?.boolean;
   const flagType  = (name: string): FlagType => {
     // Callers only invoke this for non-boolean flags (boolean flags are
     // handled inline in the argv loop and never reach `coerce`), so the
     // `fs.boolean` check that used to live here is unreachable.
-    const fs = spec.flags[name]!;
+    const fs = spec.flags[name];
     return fs.type ?? 'string';
   };
 
@@ -78,7 +75,7 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
     if (t === 'number') {
       const n = Number(raw);
       if (Number.isNaN(n)) {
-        throw new Error(`flag --${name} requires a number, got: ${raw}`);
+        throw new TypeError(`flag --${name} requires a number, got: ${raw}`);
       }
       return n;
     }
@@ -99,18 +96,19 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
 
     if (a.startsWith('--')) {
       const eq = a.indexOf('=');
-      const name = eq >= 0 ? a.slice(2, eq) : a.slice(2);
-      if (!(name in spec.flags)) throw new Error(`unknown flag: --${name}`);
+      const name = eq === -1 ? a.slice(2) : a.slice(2, eq);
+      // pre-es2022 cli lib: no Object.hasOwn
+      if (!Object.prototype.hasOwnProperty.call(spec.flags, name)) throw new Error(`unknown flag: --${name}`);
       if (isBoolean(name)) {
         flags[name] = true;
         i++;
-      } else if (eq >= 0) {
-        flags[name] = coerce(name, a.slice(eq + 1));
-        i++;
-      } else {
+      } else if (eq === -1) {
         if (i + 1 >= argv.length) throw new Error(`flag --${name} requires a value`);
         flags[name] = coerce(name, argv[i + 1]);
         i += 2;
+      } else {
+        flags[name] = coerce(name, a.slice(eq + 1));
+        i++;
       }
       continue;
     }
@@ -147,16 +145,15 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
   }
 
   const helpText = (): string => {
-    const lines: string[] = [];
-    lines.push('Usage:');
-    lines.push('  ' + spec.usage);
-    lines.push('');
-    lines.push('Options:');
+    const lines: string[] = [ 'Usage:', '  ' + spec.usage, '', 'Options:'];
     for (const [name, fs] of Object.entries(spec.flags)) {
-      const short = fs.short ? `-${fs.short}, ` : '    ';
+      const short = fs.short ? `-${fs.short}, ` : ' '.repeat(4);
       const longPart = `--${name}`;
-      const arg = fs.boolean ? '' : (fs.enum ? ` ${fs.enum.join('|')}` : (fs.type === 'number' ? ' N' : ' VALUE'));
-      const defStr = fs.default !== undefined ? ` (default: ${fs.default})` : '';
+      let arg = ' VALUE';
+      if      (fs.boolean)           { arg = ''; }
+      else if (fs.enum)              { arg = ` ${fs.enum.join('|')}`; }
+      else if (fs.type === 'number') { arg = ' N'; }
+      const defStr = fs.default === undefined ? '' : ` (default: ${fs.default})`;
       lines.push(`  ${short}${longPart}${arg}${defStr}`);
     }
     return lines.join('\n');

@@ -13,7 +13,7 @@ import { test_range_with, atom_skips } from './unicode.uspec-driver';
 // set (atoms reject more characters than strings).  Verified at the parse-AST
 // level: a `{ key: 'state_property', name, value }` item.
 
-const string_skips = ['"', '\\'];
+const string_skips = new Set(['"', '\\']);
 
 const property_test = (idx: number): boolean => {
 
@@ -24,7 +24,7 @@ const property_test = (idx: number): boolean => {
     let ast;
     try {
       ast = parse(`state s: { property: ${cp} "v"; }; s -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke (name) on ${idx} "${cp}"`);
     }
     expect( ast[0].value[0].key  ).toBe('state_property');
@@ -32,11 +32,11 @@ const property_test = (idx: number): boolean => {
   }
 
   // string property value (String)
-  if (!(string_skips.includes(cp))) {
+  if (!(string_skips.has(cp))) {
     let ast;
     try {
       ast = parse(`state s: { property: p "${cp}"; }; s -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke (value) on ${idx} "${cp}"`);
     }
     expect( ast[0].value[0].value ).toBe(cp);

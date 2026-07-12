@@ -20,7 +20,6 @@ const SECTIONS = [
  * curriculum (Getting Started / About State Machines / Tutorials / Example
  * Machines / Index / Search), a markdown page renderer, and "load into editor"
  * for tagged FSL examples. Content-only; slot it into `<fsl-help>`.
- *
  * @element fsl-docs
  * @fires {CustomEvent<FslDocsLoadExampleDetail>} load-example - When a fence's "Load into editor" is clicked.
  */
@@ -61,16 +60,19 @@ export class FslDocs extends LitElement {
         return html `
       <nav class="crumb"><span>Docs</span></nav>
       <ul class="nav">${SECTIONS.map(([id, label]) => html `
-        <li><a data-section=${id} @click=${() => id === 'index' ? this._go('index') : id === 'search' ? this._go('search') : this._go('pages', id)}>${label}</a></li>`)}</ul>`;
+        <li><a data-section=${id} @click=${() => id === 'index' ? this._go('index') : (id === 'search' ? this._go('search') : this._go('pages', id))}>${label}</a></li>
+      `)}</ul>
+    `;
     }
     _renderPages() {
         const label = this._sectionLabel(this._section);
         const list = this._pagesIn(this._section);
         return html `
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>${label}</span></nav>
-      <ul class="nav">${list.length
+      <ul class="nav">${list.length > 0
             ? list.map(p => html `<li><a data-page=${p.id} @click=${() => this._go('page', this._section, p.id)}>${p.title}</a></li>`)
-            : html `<li class="empty">No pages yet.</li>`}</ul>`;
+            : html `<li class="empty">No pages yet.</li>`}</ul>
+    `;
     }
     _renderPage() {
         const p = DOCS_PAGES.find(x => x.id === this._pageId);
@@ -85,19 +87,30 @@ export class FslDocs extends LitElement {
             if (e.target.classList.contains('docs-load-example')) {
                 this._loadExample(e);
             }
-        }}>${unsafeHTML(this._withButtons(renderMarkdown(p.body)))}</article>`;
+        }}>${unsafeHTML(this._withButtons(renderMarkdown(p.body)))}</article>
+    `;
     }
     /** Append a "Load into editor" button to every runnable fsl fence. */
     _withButtons(htmlStr) {
-        return htmlStr.replace(/(<pre data-fsl-example[^>]*data-run="true"[^>]*>[\s\S]*?<\/pre>)/g, (m) => m.replace('</pre>', '<button class="docs-load-example">Load into editor</button></pre>'));
+        return htmlStr.replace(/<pre data-fsl-example[^>]*data-run="true"[^>]*>[\s\S]*?<\/pre>/g, (m) => m.replace('</pre>', '<button class="docs-load-example">Load into editor</button></pre>'));
     }
     render() {
         switch (this._view) {
-            case 'pages': return this._renderPages();
-            case 'page': return this._renderPage();
-            case 'index': return this._renderIndex();
-            case 'search': return this._renderSearch();
-            default: return this._renderSections();
+            case 'pages': {
+                return this._renderPages();
+            }
+            case 'page': {
+                return this._renderPage();
+            }
+            case 'index': {
+                return this._renderIndex();
+            }
+            case 'search': {
+                return this._renderSearch();
+            }
+            default: {
+                return this._renderSections();
+            }
         }
     }
     _renderIndex() {
@@ -109,14 +122,16 @@ export class FslDocs extends LitElement {
         }
         return html `
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Index</span></nav>
-      ${Object.keys(bySurface).sort().map(surface => html `
+      ${Object.keys(bySurface).sort((a, b) => a.localeCompare(b)).map(surface => html `
         <h3>${surface}</h3>
         <ul class="nav">${[...bySurface[surface]].sort((a, b) => a.title.localeCompare(b.title)).map(f => {
             const pg = teachesOf(f.id);
             return html `<li>${pg
                 ? html `<a data-page=${pg.id} @click=${() => this._go('page', pg.section, pg.id)}>${f.title}</a>`
                 : html `<span>${f.title}</span>`}</li>`;
-        })}</ul>`)}`;
+        })}</ul>
+      `)}
+    `;
     }
     _renderSearch() {
         const q = this._query.trim().toLowerCase();
@@ -135,11 +150,12 @@ export class FslDocs extends LitElement {
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Search</span></nav>
       <input class="search-input" type="search" placeholder="Search the docs…"
         .value=${this._query} @input=${(e) => { this._query = e.target.value; }}>
-      <ul class="nav">${hits.length
+      <ul class="nav">${hits.length > 0
             ? hits.map(h => html `<li>${h.page
                 ? html `<a data-page=${h.page} @click=${() => { const p = DOCS_PAGES.find(x => x.id === h.page); this._go('page', p.section, p.id); }}>${h.title}</a>`
                 : html `<span>${h.title}</span>`} <em>${h.kind}</em></li>`)
-            : (q ? html `<li class="empty">No matches.</li>` : html ``)}</ul>`;
+            : (q ? html `<li class="empty">No matches.</li>` : html ``)}</ul>
+    `;
     }
 }
 FslDocs.styles = css `

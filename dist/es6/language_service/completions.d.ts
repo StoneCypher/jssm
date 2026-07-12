@@ -8,7 +8,6 @@
 import type { CompletionItem } from './types.js';
 /**
  * Completions for the caret at `offset` in `text`.
- *
  * @example
  *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
  */

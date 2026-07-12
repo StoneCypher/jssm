@@ -1,4 +1,4 @@
- /* eslint-disable max-len */
+  
 
 import * as jssm from '../jssm';
 

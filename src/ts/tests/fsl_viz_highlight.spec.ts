@@ -2,16 +2,16 @@
  * @vitest-environment jsdom
  */
 
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 // jsdom does not expose TextDecoder / TextEncoder; @viz-js/viz (the WebAssembly
 // Graphviz loader behind a real <fsl-viz> render) needs them. Copy the Node
 // built-ins onto globalThis before any test renders.
 beforeAll(() => {
-  if (typeof globalThis.TextDecoder === 'undefined') {
+  if (globalThis.TextDecoder === undefined) {
     (globalThis as any).TextDecoder = TextDecoder;
   }
-  if (typeof globalThis.TextEncoder === 'undefined') {
+  if (globalThis.TextEncoder === undefined) {
     (globalThis as any).TextEncoder = TextEncoder;
   }
 });
@@ -41,7 +41,6 @@ const CRIMSON  = '#b71c1c';   // highlightTrace's documented default colour
 
 /**
  *  Polls `predicate` every 25ms until it is true or the timeout elapses.
- *
  *  @param predicate   Checked repeatedly.
  *  @param timeout_ms  Hard cap before giving up.
  *  @returns           Whether the predicate became true in time.
@@ -59,13 +58,12 @@ async function eventually(predicate: () => boolean, timeout_ms = 10_000): Promis
 /**
  *  Creates a standalone `<fsl-viz>`, renders `fsl`, and resolves once the
  *  SVG is present in the shadow root. The caller owns teardown.
- *
  *  @param fsl  FSL source to render.
  *  @returns    The connected element with a rendered SVG.
  */
 async function renderViz(fsl: string): Promise<FslViz> {
   const el = document.createElement('fsl-viz') as FslViz;
-  document.body.appendChild(el);
+  document.body.append(el);
   el.fsl = fsl;
   const ready = await eventually(() => (el.shadowRoot?.innerHTML ?? '').includes('<svg'));
   expect(ready).toBe(true);
@@ -75,7 +73,6 @@ async function renderViz(fsl: string): Promise<FslViz> {
 
 /**
  *  Finds a rendered `.node` / `.edge` group by its decoded Graphviz title.
- *
  *  @param el        The rendered element.
  *  @param selector  `.node` or `.edge`.
  *  @param title     Decoded title to match (e.g. `'a'`, or `'a->b'`).
@@ -83,9 +80,9 @@ async function renderViz(fsl: string): Promise<FslViz> {
  */
 function groupByTitle(el: FslViz, selector: string, title: string): Element | undefined {
   const container = el.shadowRoot!.querySelector('.container')!;
-  return Array.from(container.querySelectorAll(selector)).find(g => {
+  return [...container.querySelectorAll(selector)].find(g => {
     const raw = g.querySelector('title')?.textContent ?? '';
-    return raw.replace(/&#45;/g, '-').replace(/&gt;/g, '>') === title;
+    return raw.replaceAll('&#45;', '-').replaceAll('&gt;', '>') === title;
   });
 }
 
@@ -124,7 +121,7 @@ describe('FslViz programmatic graph highlighter', () => {
       expect((groupByTitle(el, '.edge', 'a->c') as SVGElement).style.opacity).toBe('0.2');
       expect((groupByTitle(el, '.edge', 'b->c') as SVGElement).style.opacity).toBe('0.2');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });
@@ -144,7 +141,7 @@ describe('FslViz programmatic graph highlighter', () => {
       expect((groupByTitle(el, '.node', 'c') as SVGElement).style.opacity).toBe('');
       expect((groupByTitle(el, '.edge', 'b->c') as SVGElement).style.opacity).toBe('');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });
@@ -166,7 +163,7 @@ describe('FslViz programmatic graph highlighter', () => {
       expect((groupByTitle(el, '.node', 'c') as SVGElement).style.opacity).toBe('');
       expect((groupByTitle(el, '.edge', 'a->b')!.querySelector('polygon') as SVGElement).style.fill).toBe('');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });
@@ -181,7 +178,7 @@ describe('FslViz programmatic graph highlighter', () => {
       expect(shapeA.style.stroke).toBe('');
       expect((groupByTitle(el, '.node', 'c') as SVGElement).style.opacity).toBe('');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });
@@ -209,7 +206,7 @@ describe('FslViz programmatic graph highlighter', () => {
       expect(() => el.highlightTrace(['a', 'b'])).not.toThrow();
       expect(() => el.clearHighlights()).not.toThrow();
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });
@@ -220,8 +217,8 @@ describe('FslViz programmatic graph highlighter', () => {
 
     try {
       const container = el.shadowRoot!.querySelector('.container')!;
-      const nodes = Array.from(container.querySelectorAll('.node'));
-      const edges = Array.from(container.querySelectorAll('.edge'));
+      const nodes = [...container.querySelectorAll('.node')];
+      const edges = [...container.querySelectorAll('.edge')];
 
       // One node and one edge with the <title> element removed entirely
       // (the titleEl-is-null path), and another of each with an empty title
@@ -234,7 +231,7 @@ describe('FslViz programmatic graph highlighter', () => {
 
       expect(() => el.highlightTrace(['a', 'b'])).not.toThrow();
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
 
   });

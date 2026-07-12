@@ -29,10 +29,10 @@ const error_message_test = (idx: number): boolean => {
 
   try {
     base.state_for(cp);
-  } catch (e) {
+  } catch (error) {
     threw = true;
-    expect( e.requested_state      ).toBe(cp);
-    expect( e.message.includes(cp) ).toBe(true);
+    expect( error.requested_state      ).toBe(cp);
+    expect( error.message.includes(cp) ).toBe(true);
   }
 
   expect( threw ).toBe(true);

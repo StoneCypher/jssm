@@ -1,0 +1,44 @@
+machine_name      : "USB 2.0 Device States";
+machine_version   : 1.0.0;
+machine_reference : ["https://docs.oracle.com/cd/E18752_01/html/816-4854/usb-43.html"
+                     "https://www.usb.org/document-library/usb-20-specification"];
+machine_comment   : "The USB 2.0 chapter 9 device state model, as mirrored by the Solaris USBA client driver documentation: a device is attached, powered, reset to Default, given an address, then configured; any powered state may suspend after 3ms of bus idle and resume back to where it was, and losing port power or being unplugged unwinds the whole ladder.";
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+graph_layout      : dot;
+
+
+
+// the enumeration ladder (the happy path)
+
+Detached 'hub port attach'            -> Attached;
+Attached 'port powered'               => Powered;
+Powered  'bus reset'                  => Default;
+Default  'SET_ADDRESS'                => Address;
+Address  'SET_CONFIGURATION non-zero' => Configured;
+
+// deconfiguration and re-enumeration
+
+Configured 'SET_CONFIGURATION 0' -> Address;
+Address    'bus reset'           ~> Default;
+Configured 'bus reset'           ~> Default;
+
+// suspend after 3ms of bus idle; resume (or remote wakeup) returns
+// the device to the state it suspended from
+
+Powered    'bus idle 3ms' ~> SuspendedPowered    'resume signaling' -> Powered;
+Default    'bus idle 3ms' ~> SuspendedDefault    'resume signaling' -> Default;
+Address    'bus idle 3ms' ~> SuspendedAddress    'resume signaling' -> Address;
+Configured 'bus idle 3ms' ~> SuspendedConfigured 'resume signaling' -> Configured;
+
+// losing port power drops the device back to merely Attached
+
+[Powered Default Address Configured] 'hub port power loss' ~> Attached;
+
+// unplugging ends everything, from anywhere
+
+[Attached Powered Default Address Configured
+ SuspendedPowered SuspendedDefault SuspendedAddress SuspendedConfigured] 'detach' ~> Detached;

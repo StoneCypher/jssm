@@ -8,7 +8,6 @@ export interface FslDocsLoadExampleDetail {
  * curriculum (Getting Started / About State Machines / Tutorials / Example
  * Machines / Index / Search), a markdown page renderer, and "load into editor"
  * for tagged FSL examples. Content-only; slot it into `<fsl-help>`.
- *
  * @element fsl-docs
  * @fires {CustomEvent<FslDocsLoadExampleDetail>} load-example - When a fence's "Load into editor" is clicked.
  */

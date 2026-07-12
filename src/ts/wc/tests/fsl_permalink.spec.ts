@@ -17,14 +17,15 @@ describe('fsl_permalink codec', () => {
       "Green 'next' -> Yellow 'next' -> Red 'next' -> Green;\nRed ~> Off;".repeat(5),
     ]) {
       const seg = await encode_machine(fsl);
-      expect(seg).toMatch(/^[01][A-Za-z0-9_-]*$/);          // scheme tag + URL-safe alphabet
+      expect(seg).toMatch(/^[01][\w-]*$/);          // scheme tag + URL-safe alphabet
       expect(await decode_machine(seg)).toBe(fsl);
     }
   });
 
   it('tags long input compressed (1) and never grows a short one past raw', async () => {
     const big = "Green 'next' -> Yellow 'next' -> Red 'next' -> Green;\nRed ~> Off;".repeat(5);
-    expect((await encode_machine(big))[0]).toBe('1');
+    const tagged = await encode_machine(big);
+    expect(tagged[0]).toBe('1');
     const small = await encode_machine('a -> b;');
     expect(small[0]).toBe('0');                              // raw beat deflate on a tiny string
   });

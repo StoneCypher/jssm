@@ -14,6 +14,9 @@ import {
 
 import { wc_suffix_matches, closest_wc, define_with_synonym } from '../wc/wc_tag_helpers';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -36,7 +39,7 @@ const word = fc.stringOf(
 
 /** Randomly flips each character's case in a string. */
 const mixed_case = (s: string, flips: boolean[]): string =>
-  [...s].map( (ch, i) => (flips[i % flips.length] ? ch.toUpperCase() : ch) ).join('');
+  [...s].map( (ch, i) => (flips[i % flips.length] === true ? ch.toUpperCase() : ch) ).join('');
 
 
 
@@ -81,18 +84,18 @@ describe('wc_tag_helpers', () => {
           let cursor: Element = ancestor;
           for (let i = 0; i < depth; ++i) {
             const wrapper = document.createElement('div');
-            cursor.appendChild(wrapper);
+            cursor.append(wrapper);
             cursor = wrapper;
           }
 
           const leaf = document.createElement('span');
-          cursor.appendChild(leaf);
+          cursor.append(leaf);
 
           expect(closest_wc(leaf, 'instance')).toBe(ancestor);
 
           // a leaf with no matching ancestor resolves to null
           const orphan = document.createElement('span');
-          document.createElement('div').appendChild(orphan);
+          document.createElement('div').append(orphan);
           expect(closest_wc(orphan, 'instance')).toBe(null);
 
         }
@@ -143,7 +146,6 @@ describe('parse_jssm_on_element', () => {
 
   /**
    *  Builds a `<jssm-on>` element from parts.
-   *
    *  @param attrs  Attributes to set (null values skipped).
    *  @param body   Optional text content.
    *  @returns      The constructed element.
@@ -174,8 +176,8 @@ describe('parse_jssm_on_element', () => {
           const el = jssm_on({
             event,
             handler,
-            ...(once ? { once: '' } : {}),
-            ...(name !== undefined ? { name } : {})
+            ...(once && { once: '' }),
+            ...((name !== undefined) && { name })
           });
 
           const parsed = parse_jssm_on_element(el);
@@ -334,11 +336,11 @@ describe('resolve_fsl_source channel arithmetic', () => {
             const script = document.createElement('script');
             script.setAttribute('type', 'text/fsl');
             script.textContent = `${fsl_s} -> b;`;
-            host.appendChild(script);
+            host.append(script);
           }
 
           if (use_text) {
-            host.appendChild(document.createTextNode(`  ${fsl_t} -> c;  `));
+            host.append(document.createTextNode(`  ${fsl_t} -> c;  `));
           }
 
           const attr_val = use_attr ? `${fsl_a} -> a;` : '';
@@ -350,8 +352,8 @@ describe('resolve_fsl_source channel arithmetic', () => {
           if (provided === 1) {
             expect(resolved.error).toBe(undefined);
             const expected = use_attr ? `${fsl_a} -> a;`
-                           : use_script ? `${fsl_s} -> b;`
-                           :              `${fsl_t} -> c;`;
+                           : (use_script ? `${fsl_s} -> b;`
+                           :              `${fsl_t} -> c;`);
             expect(resolved.fsl).toBe(expected);
           } else {
             expect(resolved.fsl).toBe(undefined);
@@ -374,11 +376,11 @@ describe('resolve_fsl_source channel arithmetic', () => {
         (state, noise, companion_tag) => {
 
           const host = document.createElement('div');
-          host.appendChild(document.createTextNode(` ${state} -> b; `));
+          host.append(document.createTextNode(` ${state} -> b; `));
 
           const companion = document.createElement(companion_tag);
           companion.textContent = noise;
-          host.appendChild(companion);
+          host.append(companion);
 
           const resolved = resolve_fsl_source(host, '');
 
@@ -403,14 +405,13 @@ describe('FslInstance lifecycle over random machines', () => {
   /**
    *  Builds a connected `<fsl-instance>` for an action ring
    *  `s0 'a0' -> s1 'a1' -> ... -> s0` and waits for its first render.
-   *
    *  @param k  Ring size.
    *  @returns  The element, state names, and action names.
    */
   async function connected_ring(k: number) {
 
-    const names   = [...new Array(k).keys()].map( i => `ws${i}` ),
-          actions = [...new Array(k).keys()].map( i => `wa${i}` );
+    const names   = Array.from({length: k}, (_, index) => index).map( i => `ws${i}` ),
+          actions = Array.from({length: k}, (_, index) => index).map( i => `wa${i}` );
 
     const fsl = names
       .map( (n, i) => `${n} '${actions[i]}' -> ${names[(i + 1) % k]};` )
@@ -418,7 +419,7 @@ describe('FslInstance lifecycle over random machines', () => {
 
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', fsl);
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
 
     return { el, names, actions };
@@ -436,10 +437,10 @@ describe('FslInstance lifecycle over random machines', () => {
 
           try {
             expect(el.state()).toBe(names[0]);
-            expect(el.machine.states().sort()).toEqual([...names].sort());
+            expect(el.machine.states().sort(code_unit_compare)).toEqual([...names].sort(code_unit_compare));
             expect(el.getAttribute('current-state')).toBe(names[0]);
           } finally {
-            document.body.removeChild(el);
+            el.remove();
           }
 
         }
@@ -478,7 +479,7 @@ describe('FslInstance lifecycle over random machines', () => {
             }
 
           } finally {
-            document.body.removeChild(el);
+            el.remove();
           }
 
         }
@@ -503,7 +504,7 @@ describe('FslInstance lifecycle over random machines', () => {
             expect(el.hasAttribute('terminal')).toBe(false);
             expect(el.hasAttribute('complete')).toBe(false);
           } finally {
-            document.body.removeChild(el);
+            el.remove();
           }
 
         }

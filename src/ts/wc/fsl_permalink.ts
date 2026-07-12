@@ -11,7 +11,6 @@
 
 /**
  * Default fragment key for the single-machine case (back-compat with 5.150).
- *
  * @example
  * DEFAULT_PERMALINK_KEY; // 'm'
  */
@@ -20,7 +19,6 @@ export const DEFAULT_PERMALINK_KEY = 'm';
 /**
  * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
  * `/`→`_`, and trailing `=` padding stripped.
- *
  * @example
  * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
  */
@@ -32,7 +30,6 @@ export function bytes_to_base64url(bytes: Uint8Array): string {
 
 /**
  * Inverse of {@link bytes_to_base64url}.
- *
  * @example
  * new TextDecoder().decode(base64url_to_bytes("YQ")); // "a"
  */
@@ -47,7 +44,6 @@ export function base64url_to_bytes(text: string): Uint8Array {
 
 /**
  * DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`.
- *
  * @example
  * await deflate_raw(new TextEncoder().encode("aaaaaaaa")); // shorter Uint8Array of raw DEFLATE bytes
  */
@@ -75,9 +71,7 @@ export const MAX_PERMALINK_INFLATE_BYTES = 5 * 1024 * 1024;
  * Inverse of {@link deflate_raw}, reading the stream in chunks and aborting once
  * the inflated output would exceed {@link MAX_PERMALINK_INFLATE_BYTES} (a
  * decompression-bomb guard — see that constant).
- *
  * @throws RangeError when the inflated output exceeds the cap.
- *
  * @example
  * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
  */
@@ -115,7 +109,6 @@ export async function inflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
  * Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).
  * DEFLATE is used (scheme `1`) only when it is strictly shorter than the raw
  * bytes (scheme `0`).
- *
  * @example
  * await encode_machine("a -> b;"); // "0YSAtPiBiOw"
  */
@@ -129,7 +122,6 @@ export async function encode_machine(fsl: string): Promise<string> {
 /**
  * Inverse of {@link encode_machine}: decode a `<scheme><payload>` segment back
  * to FSL. Async because inflate is async.
- *
  * @example
  * await decode_machine("0YSAtPiBiOw"); // "a -> b;"
  */
@@ -140,8 +132,10 @@ export async function decode_machine(segment: string): Promise<string> {
   return new TextDecoder().decode(plain);
 }
 
-/** `decodeURIComponent` that returns its input untouched on a malformed escape,
- *  so a hand-mangled fragment never throws out of {@link read_fragment_param}. */
+/**
+ * `decodeURIComponent` that returns its input untouched on a malformed escape,
+ *  so a hand-mangled fragment never throws out of {@link read_fragment_param}.
+ */
 function safe_decode(text: string): string {
   try { return decodeURIComponent(text); } catch { return text; }
 }
@@ -163,9 +157,7 @@ function fragment_pairs(hash: string): Array<[string, string]> {
 
 /**
  * Read one segment's value out of a `#a=…&b=…` fragment.
- *
  * @returns The value, or `null` if `key` is absent.
- *
  * @example
  * read_fragment_param('#a=0AAA&b=1BBB', 'b'); // "1BBB"
  */
@@ -177,7 +169,6 @@ export function read_fragment_param(hash: string, key: string): string | null {
 /**
  * Return a new fragment body (no leading `#`) with `key`'s segment set to
  * `value`, preserving every other segment and its order; appends if absent.
- *
  * @example
  * set_fragment_param('#a=0AAA', 'b', '1BBB'); // "a=0AAA&b=1BBB"
  */
@@ -194,7 +185,6 @@ export function set_fragment_param(hash: string, key: string, value: string): st
  * The fragment key an element owns: its `uhash` attribute if set, else its
  * `id`, else `null` (does not participate in URL sync). The single source of
  * this rule, shared by the toolbar export and the sync controller.
- *
  * @example
  * permalink_key_for(el); // "myId"  (when <el id="myId">, no uhash)
  */
@@ -206,12 +196,9 @@ export function permalink_key_for(host: HTMLElement): string | null {
  * A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling
  * machines' segments survive. Browser-defaulted (`location`) but injectable for
  * tests.
- *
  * @returns The absolute URL carrying the merged fragment.
- *
  * @example
  * await permalink_for('a -> b;', 'm', 'https://h/p', ''); // "https://h/p#m=0YSAtPiBiOw"
- *
  * @see fsl_from_permalink
  */
 export async function permalink_for(
@@ -222,18 +209,15 @@ export async function permalink_for(
 ): Promise<string> {
   const segment  = await encode_machine(fsl);
   const fragment = set_fragment_param(currentHash, key, segment);
-  return `${href.split('#')[0]}#${fragment}`;
+  return `${href.split('#', 1)[0]}#${fragment}`;
 }
 
 /**
  * Recover the FSL for `key` from a permalink URL (or bare fragment).
- *
  * @returns The decoded FSL, or `null` when the fragment has no `key` segment
  *          or that segment is present but malformed/undecodable.
- *
  * @example
  * await fsl_from_permalink('https://h/p#m=0YSAtPiBiOw'); // "a -> b;"
- *
  * @see permalink_for
  */
 export async function fsl_from_permalink(

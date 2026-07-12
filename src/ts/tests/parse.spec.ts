@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -17,12 +17,13 @@ describe('parse/1', () => {
           AdBd = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
     const echo_equal = (testt, validator) =>
+      // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
       test(testt, () =>
         expect(jssm.parse(testt))
           .toEqual(validator) );
 
     const ShouldEqualAtoB = ['a->b;', 'a ->b;', 'a-> b;', 'a -> b;', 'a{}->b;', 'a->{}b;', 'a{}->{}b;'];
-    ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
+    for (const p of ShouldEqualAtoB) { echo_equal(p, AtoB); }
 
     echo_equal('a{arc_label:d;}->b;',               AdB);
     echo_equal('a{arc_label:"d";}->b;',             AdB);
@@ -39,12 +40,13 @@ describe('parse/1', () => {
           AdBd = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
     const echo_equal = (testt, validator) =>
+      // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
       test(testt, () =>
         expect(jssm.parse(testt))
           .toEqual(validator) );
 
     const ShouldEqualAtoB = ['a<->b;', 'a <->b;', 'a<-> b;', 'a <-> b;', 'a{}<->b;', 'a<->{}b;', 'a{}<->{}b;'];
-    ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
+    for (const p of ShouldEqualAtoB) { echo_equal(p, AtoB); }
 
     echo_equal('a{arc_label:d;}<->b;',               AdB);
     echo_equal('a{arc_label:"d";}<->b;',             AdB);

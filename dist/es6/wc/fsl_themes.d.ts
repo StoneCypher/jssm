@@ -4,7 +4,6 @@
  * with `system` following the OS `prefers-color-scheme`. The host resolves
  * (theme name × mode) to a palette and writes it as `--fsl-color-*` custom
  * properties, which cascade to every slotted widget.
- *
  * @see resolve_theme_mode
  */
 /** How a theme's light/dark variant is chosen. `system` follows the OS. */
@@ -40,7 +39,6 @@ export declare const BUILTIN_THEMES: ThemeRegistry;
 /**
  * Resolve a `(registry, theme name, variant)` triple to a concrete palette,
  * falling back to the built-in `Default` theme when the name is unknown.
- *
  * @param themes - The registry to look in.
  * @param name - The selected theme name.
  * @param variant - `light` or `dark`.
@@ -50,11 +48,9 @@ export declare function resolve_palette(themes: ThemeRegistry, name: string, var
 /**
  * Resolve a theme mode to a concrete `light`/`dark`. `system` consults the OS
  * preference; `light`/`dark` are returned as-is.
- *
  * @param mode - The selected mode.
  * @param prefers_dark - Whether the OS prefers a dark color scheme.
  * @returns The concrete variant to apply.
- *
  * @example
  * resolve_theme_mode('system', true);  // 'dark'
  * resolve_theme_mode('light', true);   // 'light'
@@ -63,7 +59,6 @@ export declare function resolve_theme_mode(mode: ThemeMode, prefers_dark: boolea
 /**
  * Map a palette to its `--fsl-color-*` custom-property entries, ready to set on
  * an element's style.
- *
  * @param palette - The resolved palette.
  * @returns `[propertyName, value]` pairs, e.g. `['--fsl-color-surface', '#fff']`.
  */

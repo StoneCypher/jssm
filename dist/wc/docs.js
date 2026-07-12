@@ -1750,11 +1750,16 @@ const DOCS_FEATURES = [
 // the component can wire a "load into editor" button.
 /** Parse a fenced-code info string like `fsl {teaches: x, run: true}`. */
 function parseFenceInfo(info) {
-    var _a, _b;
-    const m = /^(\S+)\s*(?:\{([^}]*)\})?/.exec(info.trim());
-    const lang = (_a = m === null || m === void 0 ? void 0 : m[1]) !== null && _a !== void 0 ? _a : '';
+    var _a, _b, _c;
+    // Two-step scan (first token, then an optional immediately-following {...}
+    // block) rather than one regex, so no quantifier ambiguity exists between
+    // the token and the brace block (regexp/no-super-linear-backtracking).
+    const trimmed = info.trim();
+    const lang = (_b = (_a = /^\S+/.exec(trimmed)) === null || _a === void 0 ? void 0 : _a[0]) !== null && _b !== void 0 ? _b : '';
+    const braced = /^\{([^}]*)\}/.exec(trimmed.slice(lang.length).trimStart());
     const attrs = {};
-    for (const pair of ((_b = m === null || m === void 0 ? void 0 : m[2]) !== null && _b !== void 0 ? _b : '').split(',')) {
+    const pairs = ((_c = braced === null || braced === void 0 ? void 0 : braced[1]) !== null && _c !== void 0 ? _c : '').split(',');
+    for (const pair of pairs) {
         const kv = pair.split(':');
         if (kv.length < 2) {
             continue;
@@ -1762,7 +1767,7 @@ function parseFenceInfo(info) {
         const k = kv[0].trim();
         const raw = kv.slice(1).join(':').trim();
         if (k) {
-            attrs[k] = raw === 'true' ? true : raw === 'false' ? false : raw;
+            attrs[k] = raw === 'true' ? true : (raw === 'false' ? false : raw);
         }
     }
     return { lang, attrs };
@@ -1785,7 +1790,31 @@ const FSL_COLOR_KEYS = new Set([
     'color', 'text-color', 'background-color', 'border-color', 'edge-color',
 ]);
 /** Whether `text` is a bare FSL identifier (so it can be an attribute key). */
-const isIdentifier = (text) => /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text);
+const isIdentifier = (text) => /^[A-Z_][\w-]*$/i.test(text);
+/**
+ * Retro-tag the identifier token immediately preceding a `:` as an attribute
+ * `key` (skipping whitespace runs; keywords keep their class). Returns whether
+ * that key is a color key, i.e. whether the next value token should be tagged
+ * `color`. Extracted from the `tokenizeFsl` scanner loop.
+ * @param toks - The token list built so far; mutated in place.
+ * @returns `true` when the tagged key is one of {@link FSL_COLOR_KEYS}.
+ * @see tokenizeFsl
+ */
+function tagKeyBeforeColon(toks) {
+    for (let j = toks.length - 1; j >= 0; j--) {
+        if (/^\s+$/.test(toks[j].text)) {
+            continue;
+        } // skip whitespace before the colon
+        if (toks[j].cls === null && isIdentifier(toks[j].text)) {
+            toks[j].cls = 'key';
+            if (FSL_COLOR_KEYS.has(toks[j].text)) {
+                return true;
+            }
+        }
+        break; // only the immediately-preceding token
+    }
+    return false;
+}
 /**
  * Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,
  * regex-driven scanner — never parses, so it cannot throw on malformed input.
@@ -1796,23 +1825,20 @@ const isIdentifier = (text) => /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text);
  * unless it is already a `keyword`), and the value token after a color key's
  * colon — or any hex literal — is tagged `color`. The context never spans a
  * `;`, so a value can't leak past its statement.
- *
  * @example
  *   tokenizeFsl('s : { background-color: pink; }')
  *     .filter(t => t.cls).map(t => [t.cls, t.text]);
  *   // includes ['key','background-color'] and ['color','pink']
  */
 function tokenizeFsl(src) {
+    var _a;
     const toks = [];
     let p = 0;
     let expectColorValue = false; // the next value token is the value of a color key
     while (p < src.length) {
         const rest = src.slice(p);
         let m;
-        if ((m = /^\/\/[^\n]*/.exec(rest))) {
-            toks.push({ cls: 'comment', text: m[0] });
-        }
-        else if ((m = /^\/\*[\s\S]*?\*\//.exec(rest))) {
+        if ((_a = (m = /^\/\/[^\n]*/.exec(rest))) !== null && _a !== void 0 ? _a : (m = /^\/\*[\s\S]*?\*\//.exec(rest))) {
             toks.push({ cls: 'comment', text: m[0] });
         }
         else if ((m = /^"[^"]*"/.exec(rest))) {
@@ -1824,14 +1850,14 @@ function tokenizeFsl(src) {
         else if ((m = /^(?:<?[-=~]+>|[←→↔⇒⇐⇔↦])/.exec(rest))) {
             toks.push({ cls: 'arrow', text: m[0] });
         }
-        else if ((m = /^#[0-9A-Fa-f]{3,8}\b/.exec(rest))) {
+        else if ((m = /^#[0-9A-F]{3,8}\b/i.exec(rest))) {
             toks.push({ cls: 'color', text: m[0] });
             expectColorValue = false;
         }
         else if ((m = /^\d+(?:\.\d+)*%?/.exec(rest))) {
             toks.push({ cls: 'number', text: m[0] });
         }
-        else if ((m = /^[A-Za-z_][A-Za-z0-9_-]*/.exec(rest))) {
+        else if ((m = /^[A-Z_][\w-]*/i.exec(rest))) {
             const id = m[0];
             const cls = FSL_KEYWORDS.has(id) ? 'keyword' : (expectColorValue ? 'color' : null);
             expectColorValue = false; // any identifier consumes the pending value slot
@@ -1840,17 +1866,8 @@ function tokenizeFsl(src) {
         else {
             const ch = src[p];
             if (ch === ':') {
-                for (let j = toks.length - 1; j >= 0; j--) {
-                    if (/^\s+$/.test(toks[j].text)) {
-                        continue;
-                    } // skip whitespace before the colon
-                    if (toks[j].cls === null && isIdentifier(toks[j].text)) {
-                        toks[j].cls = 'key';
-                        if (FSL_COLOR_KEYS.has(toks[j].text)) {
-                            expectColorValue = true;
-                        }
-                    }
-                    break; // only the immediately-preceding token
+                if (tagKeyBeforeColon(toks)) {
+                    expectColorValue = true;
                 }
             }
             else if (ch === ';') {
@@ -1901,7 +1918,7 @@ function renderMarkdown(md) {
             const { lang, attrs } = parseFenceInfo(fence[1]);
             const buf = [];
             i++;
-            while (i < lines.length && !/^```/.test(lines[i])) {
+            while (i < lines.length && !lines[i].startsWith('```')) {
                 buf.push(lines[i]);
                 i++;
             }
@@ -1917,13 +1934,16 @@ function renderMarkdown(md) {
             }
             continue;
         }
-        const head = /^(#{1,3})\s+(.*)$/.exec(line);
+        // `(\S.*|)` (not `.*`) so the heading-text capture cannot trade characters
+        // with the preceding `\s+` (regexp/no-super-linear-backtracking); the empty
+        // alternative keeps the group defined for text-free headings, as before.
+        const head = /^(#{1,3})\s+(\S.*|)$/.exec(line);
         if (head) {
             out.push(`<h${head[1].length}>${inline(head[2])}</h${head[1].length}>`);
             i++;
             continue;
         }
-        if (/^---+\s*$/.test(line)) {
+        if (/^-{3,}\s*$/.test(line)) {
             out.push('<hr>');
             i++;
             continue;
@@ -1951,7 +1971,7 @@ function renderMarkdown(md) {
             continue;
         }
         const para = [];
-        while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#{1,3}\s|```|\s*[-*]\s|\s*\d+\.\s|---+\s*$)/.test(lines[i])) {
+        while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(?:#{1,3}\s|```|\s*[-*]\s|\s*\d+\.\s|-{3,}\s*$)/.test(lines[i])) {
             para.push(lines[i]);
             i++;
         }
@@ -2014,7 +2034,6 @@ const SECTIONS = [
  * curriculum (Getting Started / About State Machines / Tutorials / Example
  * Machines / Index / Search), a markdown page renderer, and "load into editor"
  * for tagged FSL examples. Content-only; slot it into `<fsl-help>`.
- *
  * @element fsl-docs
  * @fires {CustomEvent<FslDocsLoadExampleDetail>} load-example - When a fence's "Load into editor" is clicked.
  */
@@ -2055,16 +2074,19 @@ class FslDocs extends LitElement {
         return html `
       <nav class="crumb"><span>Docs</span></nav>
       <ul class="nav">${SECTIONS.map(([id, label]) => html `
-        <li><a data-section=${id} @click=${() => id === 'index' ? this._go('index') : id === 'search' ? this._go('search') : this._go('pages', id)}>${label}</a></li>`)}</ul>`;
+        <li><a data-section=${id} @click=${() => id === 'index' ? this._go('index') : (id === 'search' ? this._go('search') : this._go('pages', id))}>${label}</a></li>
+      `)}</ul>
+    `;
     }
     _renderPages() {
         const label = this._sectionLabel(this._section);
         const list = this._pagesIn(this._section);
         return html `
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>${label}</span></nav>
-      <ul class="nav">${list.length
+      <ul class="nav">${list.length > 0
             ? list.map(p => html `<li><a data-page=${p.id} @click=${() => this._go('page', this._section, p.id)}>${p.title}</a></li>`)
-            : html `<li class="empty">No pages yet.</li>`}</ul>`;
+            : html `<li class="empty">No pages yet.</li>`}</ul>
+    `;
     }
     _renderPage() {
         const p = DOCS_PAGES.find(x => x.id === this._pageId);
@@ -2079,19 +2101,30 @@ class FslDocs extends LitElement {
             if (e.target.classList.contains('docs-load-example')) {
                 this._loadExample(e);
             }
-        }}>${unsafeHTML(this._withButtons(renderMarkdown(p.body)))}</article>`;
+        }}>${unsafeHTML(this._withButtons(renderMarkdown(p.body)))}</article>
+    `;
     }
     /** Append a "Load into editor" button to every runnable fsl fence. */
     _withButtons(htmlStr) {
-        return htmlStr.replace(/(<pre data-fsl-example[^>]*data-run="true"[^>]*>[\s\S]*?<\/pre>)/g, (m) => m.replace('</pre>', '<button class="docs-load-example">Load into editor</button></pre>'));
+        return htmlStr.replace(/<pre data-fsl-example[^>]*data-run="true"[^>]*>[\s\S]*?<\/pre>/g, (m) => m.replace('</pre>', '<button class="docs-load-example">Load into editor</button></pre>'));
     }
     render() {
         switch (this._view) {
-            case 'pages': return this._renderPages();
-            case 'page': return this._renderPage();
-            case 'index': return this._renderIndex();
-            case 'search': return this._renderSearch();
-            default: return this._renderSections();
+            case 'pages': {
+                return this._renderPages();
+            }
+            case 'page': {
+                return this._renderPage();
+            }
+            case 'index': {
+                return this._renderIndex();
+            }
+            case 'search': {
+                return this._renderSearch();
+            }
+            default: {
+                return this._renderSections();
+            }
         }
     }
     _renderIndex() {
@@ -2103,14 +2136,16 @@ class FslDocs extends LitElement {
         }
         return html `
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Index</span></nav>
-      ${Object.keys(bySurface).sort().map(surface => html `
+      ${Object.keys(bySurface).sort((a, b) => a.localeCompare(b)).map(surface => html `
         <h3>${surface}</h3>
         <ul class="nav">${[...bySurface[surface]].sort((a, b) => a.title.localeCompare(b.title)).map(f => {
             const pg = teachesOf(f.id);
             return html `<li>${pg
                 ? html `<a data-page=${pg.id} @click=${() => this._go('page', pg.section, pg.id)}>${f.title}</a>`
                 : html `<span>${f.title}</span>`}</li>`;
-        })}</ul>`)}`;
+        })}</ul>
+      `)}
+    `;
     }
     _renderSearch() {
         const q = this._query.trim().toLowerCase();
@@ -2129,11 +2164,12 @@ class FslDocs extends LitElement {
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Search</span></nav>
       <input class="search-input" type="search" placeholder="Search the docs…"
         .value=${this._query} @input=${(e) => { this._query = e.target.value; }}>
-      <ul class="nav">${hits.length
+      <ul class="nav">${hits.length > 0
             ? hits.map(h => html `<li>${h.page
                 ? html `<a data-page=${h.page} @click=${() => { const p = DOCS_PAGES.find(x => x.id === h.page); this._go('page', p.section, p.id); }}>${h.title}</a>`
                 : html `<span>${h.title}</span>`} <em>${h.kind}</em></li>`)
-            : (q ? html `<li class="empty">No matches.</li>` : html ``)}</ul>`;
+            : (q ? html `<li class="empty">No matches.</li>` : html ``)}</ul>
+    `;
     }
 }
 FslDocs.styles = css `

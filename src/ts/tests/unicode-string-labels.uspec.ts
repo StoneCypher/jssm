@@ -17,7 +17,7 @@ const atom_test = (idx: number): boolean => {
 
     try {
       test = sm`source -> target; state source: { label: "${cp}"; };`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

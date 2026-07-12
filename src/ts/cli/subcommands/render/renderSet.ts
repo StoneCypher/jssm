@@ -19,11 +19,9 @@ export type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
  * Render multiple FSL source strings in parallel, returning one result
  * per input. Errors are captured per-input rather than aborting the whole
  * batch: callers can inspect which inputs succeeded and which failed.
- *
  * @param inputs - Array of FSL source strings
  * @param opts - Render options applied to every input
  * @returns Array of per-input results, same length and order as `inputs`
- *
  * @example
  *   const results = await renderSet([fsl1, fsl2], { target: 'svg' });
  *   for (const item of results) {
@@ -40,11 +38,11 @@ export async function renderSet(
       try {
         const result = await render(fsl, opts);
         return { ok: true, index, result };
-      } catch (e) {
+      } catch (error) {
         return {
           ok: false,
           index,
-          error: e as Error,
+          error: error as Error,
         };
       }
     })

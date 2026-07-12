@@ -23,7 +23,7 @@ const hook_test = (idx: number): boolean => {
     try {
       subject_ast = parse(`on enter ${cp} do 'act'; a -> b;`);
       action_ast  = parse(`on enter s do '${cp}'; s -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

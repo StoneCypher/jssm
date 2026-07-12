@@ -124,6 +124,9 @@ function chromiumInstallArgs(platform) {
  * @returns {string} absolute path to the playwright cli.js
  */
 function resolvePlaywrightCli() {
+  // playwright is intentionally not a package.json dep: browsers and the
+  // package are provisioned on demand by the e2e:install path only
+  // eslint-disable-next-line n/no-extraneous-require
   return join(dirname(require.resolve('playwright/package.json')), 'cli.js');
 }
 

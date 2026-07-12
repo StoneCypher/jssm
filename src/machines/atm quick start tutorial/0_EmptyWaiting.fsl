@@ -1,1 +1,9 @@
+machine_name    : "ATM tutorial 0 - empty waiting";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+
+
 EmptyWaiting 'Wait' -> EmptyWaiting;

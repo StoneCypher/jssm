@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -18,12 +18,13 @@ describe('arrow_direction', () => {
                   '<-⇒',  '<-↛',  '<=→',  '<=↛',  '<~→',  '<~⇒'  ],
 
         check  = (lab, dir) =>
+                   // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                    it(lab, () =>
                      expect( jssm.arrow_direction(lab) ).toBe(dir) );
 
-  lefts.map(  e => check(e, 'left')  );
-  rights.map( e => check(e, 'right') );
-  boths.map(  e => check(e, 'both')  );
+  for (const e of lefts)  { check(e, 'left');  }
+  for (const e of rights) { check(e, 'right'); }
+  for (const e of boths)  { check(e, 'both');  }
 
   test.todo('Bunch of commented out tests here, not clear why');
 

@@ -3,7 +3,6 @@
  *  turns a fenced-code-block info string into a {@link FenceDescriptor}.  Hosts
  *  (a VS Code preview plugin, a static-site generator, …) each interpret the
  *  descriptor according to their capabilities.
- *
  *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
  */
 /** A single renderable part of a fence block (stacks in listed order, first on top). */
@@ -31,10 +30,8 @@ export interface FenceDescriptor {
  *  Canonical fence language for an info string, or `null` if the block is not
  *  an FSL fence.  Reads only the first whitespace-delimited token,
  *  case-insensitively.
- *
  *  @param info The full fence info string (everything after the opening fence).
  *  @returns `'fsl'` or `'jssm'` for our fences; `null` otherwise.
- *
  *  @example fsl_fence_lang('fsl image code') // => 'fsl'
  *  @example fsl_fence_lang('JSSM')           // => 'jssm'
  *  @example fsl_fence_lang('mermaid')        // => null
@@ -46,10 +43,8 @@ export declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
  *  classified as parts, image formats, the `ide` macro, or `width`/`height`
  *  options.  Unrecognized or conflicting tokens are dropped and recorded in
  *  `notes` rather than throwing, so a host can render forward-compatibly.
- *
  *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
  *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
- *
  *  @example parse_fence_info('fsl').parts // => ['image', 'code']
  *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
  */

@@ -6,7 +6,6 @@ import { rasterize } from '../rasterize.js';
  *
  * Internally: renders to SVG via `svgTarget`, then rasterizes via the
  * feature-detected `rasterize` function.
- *
  * @param fsl - FSL source text
  * @param opts.width - Fit to this pixel width
  * @param opts.height - Fit to this pixel height (ignored if `width` set)
@@ -14,7 +13,6 @@ import { rasterize } from '../rasterize.js';
  * @returns Uint8Array of PNG bytes
  * @throws RenderError if rendering fails at any layer
  * @throws RasterizationUnsupportedError if no raster backend is available
- *
  * @example
  *   const png = await pngTarget(fslString, { scale: 100 });
  *   await writeFile('out.png', png);

@@ -33,7 +33,7 @@ export function fslCompletionSource(context) {
     const before = line.text.slice(0, context.pos - line.from);
     const typed = /([\w-]*)$/.exec(before)[1];
     const items = fslCompletions(context.state.doc.toString(), context.pos);
-    if (!items.length) {
+    if (items.length === 0) {
         return null;
     }
     return {

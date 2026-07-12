@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 /**
  * Task 2a of the overlapping-state-groups plan: the `transition: {}` and

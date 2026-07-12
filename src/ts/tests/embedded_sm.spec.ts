@@ -27,7 +27,7 @@ const host = sm`x -> y;`;
 
 describe(`Embedded sm parses the same as regular sm, ${testdata.length} items`, () => {
 
-  testdata.map(code => {
+  for (const code of testdata) {
 
     const a = sm`${code}`,
           b = host.sm`${code}`;
@@ -40,12 +40,12 @@ describe(`Embedded sm parses the same as regular sm, ${testdata.length} items`, 
 
     test(`Self-match of \`${code}\``, () => {
 
-      expect( `${a}` )
-        .toStrictEqual( `${b}` );
+      expect( String(a) )
+        .toStrictEqual( String(b) );
 
     });
 
-  });
+  }
 
 });
 

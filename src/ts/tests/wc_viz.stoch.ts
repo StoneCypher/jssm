@@ -24,7 +24,6 @@ import { chain_plan_arb } from './stoch_helpers';
 
 /**
  *  Polls until `predicate` returns true or the timeout elapses.
- *
  *  @param predicate   Checked every 25ms.
  *  @param timeout_ms  Hard cap before returning false.
  *  @returns           Whether the predicate turned true in time.
@@ -56,7 +55,7 @@ describe('FslViz standalone rendering', () => {
         async ({ names, fsl }) => {
 
           const el = document.createElement('fsl-viz') as FslViz;
-          document.body.appendChild(el);
+          document.body.append(el);
 
           try {
 
@@ -73,7 +72,7 @@ describe('FslViz standalone rendering', () => {
             }
 
           } finally {
-            document.body.removeChild(el);
+            el.remove();
           }
 
         }
@@ -91,7 +90,7 @@ describe('FslViz standalone rendering', () => {
         async (junk) => {
 
           const el = document.createElement('fsl-viz') as FslViz;
-          document.body.appendChild(el);
+          document.body.append(el);
 
           try {
 
@@ -109,7 +108,7 @@ describe('FslViz standalone rendering', () => {
             expect(evt.detail.message.length).toBeGreaterThan(0);
 
           } finally {
-            document.body.removeChild(el);
+            el.remove();
           }
 
         }

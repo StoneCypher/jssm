@@ -33,7 +33,6 @@ function range_from(loc: Located | undefined, text: string): Range {
 /**
  * Parse then compile `text`, returning a list of diagnostics — empty when the
  * machine parses and compiles cleanly.
- *
  * @example
  *   fslDiagnostics('a -> b;');            // => []
  *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
@@ -44,8 +43,8 @@ export function fslDiagnostics(text: string): Diagnostic[] {
   let tree: unknown;
   try {
     tree = wrap_parse(text, { locations: true });
-  } catch (err) {
-    const e = err as { location?: Located; message: string };
+  } catch (error) {
+    const e = error as { location?: Located; message: string };
     return [{ range: range_from(e.location, text), severity: 'error', message: e.message }];
   }
   try {
@@ -54,8 +53,8 @@ export function fslDiagnostics(text: string): Diagnostic[] {
     // `required` property missing on some state) are reported, not silently
     // accepted as valid.
     new Machine(config as ConstructorParameters<typeof Machine>[0]);
-  } catch (err) {
-    const e = err as { source_location?: Located; message: string };
+  } catch (error) {
+    const e = error as { source_location?: Located; message: string };
     return [{ range: range_from(e.source_location, text), severity: 'error', message: e.message }];
   }
   return [];

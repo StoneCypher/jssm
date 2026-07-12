@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { render, wrap_gif_error } from '../../cli/subcommands/render/render';
 import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
 import { decode_gif } from '../helpers/gif_decode';
@@ -41,7 +41,7 @@ describe('render', () => {
     expect(r.kind).toBe('raster');
     expect(r.target).toBe('png');
     if (r.kind === 'raster') {
-      expect(Array.from(r.buffer.subarray(0, 8))).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+      expect([...r.buffer.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
     }
   });
 
@@ -50,7 +50,9 @@ describe('render', () => {
     // Without this, the WASM fallback runs and rejects with
     // RasterizationUnsupportedError — exercising the throw branch but not
     // the successful `return { ... }` on the line itself.
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- OffscreenCanvas does not exist in Node; a bare identifier read throws ReferenceError
     const realOffscreen = (globalThis as any).OffscreenCanvas;
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- Image does not exist in Node; a bare identifier read throws ReferenceError
     const realImage     = (globalThis as any).Image;
     (globalThis as any).Image = class FakeImage {
       src = '';
@@ -73,7 +75,7 @@ describe('render', () => {
       expect(r.kind).toBe('raster');
       expect(r.target).toBe('jpeg');
       if (r.kind === 'raster') {
-        expect(Array.from(r.buffer.subarray(0, 2))).toEqual([0xFF, 0xD8]);
+        expect([...r.buffer.subarray(0, 2)]).toEqual([0xFF, 0xD8]);
       }
     } finally {
       (globalThis as any).OffscreenCanvas = realOffscreen;
@@ -125,8 +127,8 @@ describe('wrap_gif_error', () => {
     try {
       wrap_gif_error(original);
       throw new Error('unreachable');
-    } catch (e) {
-      expect(e).toBe(original);
+    } catch (error) {
+      expect(error).toBe(original);
     }
   });
 
@@ -135,10 +137,10 @@ describe('wrap_gif_error', () => {
     try {
       wrap_gif_error(new Error('boom'));
       throw new Error('unreachable');
-    } catch (e) {
-      expect(e).toBeInstanceOf(RenderError);
-      expect(e).not.toBeInstanceOf(RasterizationUnsupportedError);
-      expect((e as Error).message).toContain('boom');
+    } catch (error) {
+      expect(error).toBeInstanceOf(RenderError);
+      expect(error).not.toBeInstanceOf(RasterizationUnsupportedError);
+      expect((error as Error).message).toContain('boom');
     }
   });
 

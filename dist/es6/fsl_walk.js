@@ -11,10 +11,8 @@
  *
  *  This is presentation, not simulation — a tour's consecutive entries need
  *  not be legal transitions, and no machine state is mutated.
- *
  *  @example
  *  plan_walk(sm`Red => Green => Yellow => Red;`);  // ['Red', 'Green', 'Yellow']
- *
  *  @see encode_gif
  */
 export function plan_walk(machine) {

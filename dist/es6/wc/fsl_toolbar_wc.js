@@ -9,7 +9,7 @@ import { property, state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
-import { permalink_for, fsl_from_permalink, permalink_key_for } from './fsl_permalink.js';
+import { permalink_for, permalink_key_for } from './fsl_permalink.js';
 /** Theme modes offered by the Theme pulldown. */
 const THEME_MODES = [
     { value: 'system', label: 'System' },
@@ -27,12 +27,10 @@ const EXPORT_FORMATS = [
 ];
 // The permalink codec lives in its own module (`fsl_permalink.ts`); re-export so
 // existing importers — and the 5.151 toolbar tests — keep resolving these here.
-export { permalink_for, fsl_from_permalink };
 /**
  * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
  * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
  * with a slotted `<fsl-viz>` for the graph.
- *
  * @example
  * embed_snippet_for("a -> b;"); // "<script …instance.js …><fsl-instance>…</fsl-instance>"
  */
@@ -107,7 +105,6 @@ const LAYOUTS = [
  * Layout / Export / Theme pulldowns (the Layout button shows the current
  * layout's icon). Standalone (no host) the host-dependent controls disappear.
  * A trailing slot carries extra buttons.
- *
  * @element fsl-toolbar
  * @csspart toolbar - The bar container.
  * @slot - Trailing custom controls.
@@ -136,18 +133,23 @@ export class FslToolbar extends LitElement {
         super.connectedCallback();
         const host = closest_wc(this, 'instance');
         this._host = host;
+        // eslint-disable-next-line unicorn/require-css-escape -- jsdom provides no CSS global at all and this component must run there; PANELS slot names are static identifiers needing no escaping
         this._present = host === null ? [] : PANELS.filter(p => host.querySelector(`[slot="${p.slot}"]`) !== null);
     }
-    /** Set the theme mode (System/Light/Dark). The host applies the palette + drives
-     *  the editor; the menu stays open so a theme can be picked in the same trip. */
+    /**
+     * Set the theme mode (System/Light/Dark). The host applies the palette + drives
+     *  the editor; the menu stays open so a theme can be picked in the same trip.
+     */
     _setMode(mode) {
         if (this._host !== null) {
             this._host.theme = mode;
         }
         this.requestUpdate();
     }
-    /** Select a named theme from the host's registry. The theme-name buttons only
-     *  render when a host exists, so `_host` is non-null here. */
+    /**
+     * Select a named theme from the host's registry. The theme-name buttons only
+     *  render when a host exists, so `_host` is non-null here.
+     */
     _setThemeName(name) {
         this._host.themeName = name;
         this.requestUpdate();
@@ -158,11 +160,15 @@ export class FslToolbar extends LitElement {
         }
         this._openMenu = '';
     }
-    /** Set the active export destination; the menu stays open so a format can be
-     *  chosen next. */
+    /**
+     * Set the active export destination; the menu stays open so a format can be
+     *  chosen next.
+     */
     _setDest(dest) { this._dest = dest; }
-    /** Emit `fsl-export` with the chosen format's content + the active destination.
-     *  The embedder performs the actual clipboard / file save. */
+    /**
+     * Emit `fsl-export` with the chosen format's content + the active destination.
+     *  The embedder performs the actual clipboard / file save.
+     */
     async _export(format) {
         var _a;
         const host = this._host;
@@ -172,30 +178,39 @@ export class FslToolbar extends LitElement {
             return;
         }
         let content;
-        if (format === 'dot') {
-            content = machine_to_dot(host.machine);
-        }
-        else if (format === 'json') {
-            content = JSON.stringify(host.machine.serialize(), null, 2);
-        }
-        else if (format === 'svg') {
-            content = await machine_to_svg_string(host.machine);
-        }
-        else if (format === 'permalink') {
-            content = await permalink_for(host.fsl, (_a = permalink_key_for(host)) !== null && _a !== void 0 ? _a : undefined);
-        }
-        else if (format === 'embed') {
-            content = embed_snippet_for(host.fsl);
-        }
-        else {
-            content = host.fsl;
+        switch (format) {
+            case 'dot': {
+                content = machine_to_dot(host.machine);
+                break;
+            }
+            case 'json': {
+                content = JSON.stringify(host.machine.serialize(), null, 2);
+                break;
+            }
+            case 'svg': {
+                content = await machine_to_svg_string(host.machine);
+                break;
+            }
+            case 'permalink': {
+                content = await permalink_for(host.fsl, (_a = permalink_key_for(host)) !== null && _a !== void 0 ? _a : undefined);
+                break;
+            }
+            case 'embed': {
+                content = embed_snippet_for(host.fsl);
+                break;
+            }
+            default: {
+                content = host.fsl;
+            }
         }
         this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content, destination }, bubbles: true, composed: true }));
     }
-    /** Fire a workspace-action intent (validate / lint) for the consumer to
+    /**
+     * Fire a workspace-action intent (validate / lint) for the consumer to
      *  fulfill — the toolbar presents the action; the embedder runs it. The
      *  current machine source rides along in the detail as a convenience. The
-     *  buttons only render with a host, so `_host` is non-null here. */
+     *  buttons only render with a host, so `_host` is non-null here.
+     */
     _fireAction(type) {
         this.dispatchEvent(new CustomEvent(type, { detail: { fsl: this._host.fsl }, bubbles: true, composed: true }));
     }
@@ -214,24 +229,30 @@ export class FslToolbar extends LitElement {
         <div class="grp">
           ${host
             ? this._present.map(p => html `
-                <button class="tb icon" aria-pressed=${!host.isPanelHidden(p.slot)} aria-label=${p.label} title=${p.label}
-                        @click=${() => { host.togglePanel(p.slot); this.requestUpdate(); }}>${p.icon}</button>`)
+              <button class="tb icon" aria-pressed=${!host.isPanelHidden(p.slot)} aria-label=${p.label} title=${p.label}
+                      @click=${() => { host.togglePanel(p.slot); this.requestUpdate(); }}>${p.icon}</button>
+            `)
             : ''}
         </div>
         ${host ? html `
           <div class="grp">
             ${this.noValidate ? '' : html `
-              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>`}
+              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>
+            `}
             ${this.noLint ? '' : html `
-              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>`}
-          </div>` : ''}
+              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>
+            `}
+          </div>
+        ` : ''}
         <div class="grp">
           <button class="tb layout" aria-haspopup="true" aria-expanded=${this._openMenu === 'layout'} aria-label="Layout" title="Layout" @click=${() => this._toggleMenu('layout')}>${layoutIcon}<span class="caret">▾</span></button>
           ${this._openMenu === 'layout' ? html `
             <div class="menu" role="menu">
               ${LAYOUTS.map(o => html `
-                <button role="menuitemradio" aria-checked=${layout === o.value} @click=${() => this._setLayout(o.value)}>${o.icon}${o.label}</button>`)}
-            </div>` : ''}
+                <button role="menuitemradio" aria-checked=${layout === o.value} @click=${() => this._setLayout(o.value)}>${o.icon}${o.label}</button>
+              `)}
+            </div>
+          ` : ''}
         </div>
         <div class="grp">
           <button class="tb icon" aria-haspopup="true" aria-expanded=${this._openMenu === 'export'} aria-label="Export" title="Export" @click=${() => this._toggleMenu('export')}>${ICON_EXPORT}</button>
@@ -239,26 +260,33 @@ export class FslToolbar extends LitElement {
             <div class="menu" role="menu">
               <button role="menuitemradio" aria-checked=${this._dest === 'clipboard'} @click=${() => this._setDest('clipboard')}>to clipboard</button>
               ${this.lastDirectory ? html `
-                <button role="menuitemradio" aria-checked=${this._dest === 'lastdir'} @click=${() => this._setDest('lastdir')}>to ${this.lastDirectory}</button>` : ''}
+                <button role="menuitemradio" aria-checked=${this._dest === 'lastdir'} @click=${() => this._setDest('lastdir')}>to ${this.lastDirectory}</button>
+              ` : ''}
               <button role="menuitemradio" aria-checked=${this._dest === 'pick'} @click=${() => this._setDest('pick')}>choose directory…</button>
               <div class="divider" role="separator"></div>
               ${EXPORT_FORMATS.map(f => html `
-                <button role="menuitem" @click=${() => this._export(f.value)}>${f.label}</button>`)}
-            </div>` : ''}
+                <button role="menuitem" @click=${() => this._export(f.value)}>${f.label}</button>
+              `)}
+            </div>
+          ` : ''}
         </div>
         <div class="grp">
           <button class="tb icon" aria-haspopup="true" aria-expanded=${this._openMenu === 'theme'} aria-label="Theme" title="Theme" @click=${() => this._toggleMenu('theme')}>${ICON_THEME}</button>
           ${this._openMenu === 'theme' ? html `
             <div class="menu" role="menu">
               ${THEME_MODES.map(m => html `
-                <button role="menuitemradio" aria-checked=${mode === m.value} @click=${() => this._setMode(m.value)}>${m.label}</button>`)}
+                <button role="menuitemradio" aria-checked=${mode === m.value} @click=${() => this._setMode(m.value)}>${m.label}</button>
+              `)}
               <div class="divider" role="separator"></div>
               ${themeNames.map(n => html `
-                <button role="menuitemradio" aria-checked=${themeName === n} @click=${() => this._setThemeName(n)}>${n}</button>`)}
-            </div>` : ''}
+                <button role="menuitemradio" aria-checked=${themeName === n} @click=${() => this._setThemeName(n)}>${n}</button>
+              `)}
+            </div>
+          ` : ''}
         </div>
         <slot></slot>
-      </div>`;
+      </div>
+    `;
     }
 }
 FslToolbar.styles = css `
@@ -325,3 +353,4 @@ __decorate([
 __decorate([
     property({ type: Boolean, attribute: 'no-lint' })
 ], FslToolbar.prototype, "noLint", void 0);
+export { fsl_from_permalink, permalink_for } from './fsl_permalink.js';

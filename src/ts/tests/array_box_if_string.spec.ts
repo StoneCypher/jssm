@@ -20,10 +20,11 @@ const testData = [
 
 describe('array_box_if_string/1', () => {
 
-  testData.map( ([src, dest]) =>
+  for (const [src, dest] of testData) {
     test(`${JSON.stringify(src)} generates ${JSON.stringify(dest)}`, () =>
       expect( array_box_if_string(src) )
-        .toEqual(dest) ) );
+        .toEqual(dest) );
+  }
 
 });
 

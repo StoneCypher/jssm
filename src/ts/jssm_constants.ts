@@ -11,8 +11,8 @@
  *
  */
 
-export const NegInfinity = Number.NEGATIVE_INFINITY,
-             PosInfinity = Number.POSITIVE_INFINITY,
+export const NegInfinity = -Infinity,
+             PosInfinity = Infinity,
              Epsilon     = Number.EPSILON,
              Pi          = Math.PI,
              E           = Math.E,
@@ -26,8 +26,10 @@ export const NegInfinity = Number.NEGATIVE_INFINITY,
              MinSafeInt  = Number.MIN_SAFE_INTEGER,
              MaxPosNum   = Number.MAX_VALUE,
              MinPosNum   = Number.MIN_VALUE,
-             Phi         = 1.61803398874989484820,
-             EulerC      = 0.57721566490153286060;
+             // written as the exact double each historic longer literal
+             // already rounded to — same bits at runtime
+             Phi         = 1.618033988749895,
+             EulerC      = 0.5772156649015329;
 
 
 
@@ -176,7 +178,6 @@ const named_colors = [
  *  Includes ASCII digits/letters and the symbols
  *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
- *
  *  @example
  *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
@@ -200,7 +201,7 @@ const state_name_chars: ReadonlyArray<{ from: string, to: string }> = Object.fre
   { from: '!',      to: '!'      },
   { from: '?',      to: '?'      },
   { from: ',',      to: ','      },
-  { from: '\u0080', to: '\uFFFF' },
+  { from: '\u{80}', to: '\u{FFFF}' },
 ]);
 
 /**
@@ -210,7 +211,6 @@ const state_name_chars: ReadonlyArray<{ from: string, to: string }> = Object.fre
  *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
  *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
- *
  *  @example
  *  import { state_name_first_chars } from 'jssm';
  *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
@@ -228,7 +228,7 @@ const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Obje
   { from: '*',      to: '*'      },
   { from: '?',      to: '?'      },
   { from: ',',      to: ','      },
-  { from: '\u0080', to: '\uFFFF' },
+  { from: '\u{80}', to: '\u{FFFF}' },
 ]);
 
 /**
@@ -238,7 +238,6 @@ const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Obje
  *  excluded since it terminates the label.
  *
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
- *
  *  @example
  *  import { action_label_chars } from 'jssm';
  *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
@@ -248,7 +247,7 @@ const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Obje
 const action_label_chars: ReadonlyArray<{ from: string, to: string }> = Object.freeze([
   { from: ' ', to: '&' },
   { from: '(', to: '[' },
-  { from: ']', to: '\uFFFF' },
+  { from: ']', to: '\u{FFFF}' },
 ]);
 
 

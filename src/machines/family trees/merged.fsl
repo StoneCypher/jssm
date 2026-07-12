@@ -1,0 +1,21 @@
+machine_name      : "Family Tree - Merged Couples";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+machine_comment   : "Merged variant: each couple flows into a small junction state, which spreads to their children. Same family as the siblings 'equal weight.fsl', 'female oriented.fsl', and 'male oriented.fsl' - the four files differ only in edge treatment.";
+machine_reference : "https://github.com/StoneCypher/fsl/issues/499";
+
+flow              : down;
+
+
+
+// Generation 1: the grandparents, merged through a junction
+
+[Rosalind Edmund] -> "Rosalind & Edmund" -> Marigold;
+
+// Generation 2: the parents, merged through a junction, spreading to generation 3
+
+[Marigold Felix] -> "Marigold & Felix" -> [Clara Oliver June];

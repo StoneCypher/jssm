@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 
 import * as fc   from 'fast-check';
 import * as jssm from '../jssm';
@@ -31,10 +31,14 @@ type DecKind = typeof KINDS[number];
 /** Render one decoration of `kind`, value derived from `seed` (see the stoch twin). */
 function deco_string(kind: DecKind, seed: number): string {
   switch (kind) {
-    case 'after':  return `after ${1 + (seed % 9)}s`;
-    case 'action': return `'evt${seed}'`;
-    case 'prob':   return `${1 + (seed % 99)}%`;
-    case 'desc':   return `{ arc_label : note${seed}; }`;
+    case 'after': {  return `after ${1 + (seed % 9)}s`;
+    }
+    case 'action': { return `'evt${seed}'`;
+    }
+    case 'prob': {   return `${1 + (seed % 99)}%`;
+    }
+    case 'desc': {   return `{ arc_label : note${seed}; }`;
+    }
   }
 }
 
@@ -44,7 +48,6 @@ const WS = [' ', ' ', ' ', '\t', '\r', '\n'] as const;   // space-biased
  *  A seeded inter-decoration gap: always at least one whitespace char (so
  *  adjacent tokens never merge), optionally wrapping a block or line comment
  *  in more whitespace.  Deterministic in `seed` for fast-check shrinking.
- *
  *  @param seed          Non-negative integer driving the choices.
  *  @param allow_comment When true, the gap may embed a `/* *\/` or `//` comment.
  */
@@ -67,7 +70,7 @@ function gap(seed: number, allow_comment: boolean): string {
 /** A distinct-kind subset (length >= 1), each rendered with its own value seed. */
 const kinds_arb = fc.subarray([...KINDS], { minLength: 1 });
 const vals_arb  = fc.array(fc.integer({ min: 1, max: 10_000 }), { minLength: 4, maxLength: 4 });
-const gaps_arb  = fc.array(fc.integer({ min: 0, max: 0xffffffff }), { minLength: 5, maxLength: 5 });
+const gaps_arb  = fc.array(fc.integer({ min: 0, max: 0xFF_FF_FF_FF }), { minLength: 5, maxLength: 5 });
 
 /** Canonical (single-space) rendering of the selected decorations on the pre-arrow side. */
 const canonical = (decos: string[]): string => `a ${decos.join(' ')} -> b;`;
@@ -75,7 +78,7 @@ const canonical = (decos: string[]): string => `a ${decos.join(' ')} -> b;`;
 /** Gap-fuzzed rendering of the same decorations, one seeded gap per boundary. */
 function fuzzed(decos: string[], gap_seeds: number[], allow_comment: boolean): string {
   let s = 'a';
-  decos.forEach((d, i) => { s += gap(gap_seeds[i], allow_comment) + d; });
+  for (const [i, d] of decos.entries()) { s += gap(gap_seeds[i], allow_comment) + d; }
   s += gap(gap_seeds[decos.length], allow_comment) + '-> b;';
   return s;
 }
@@ -187,7 +190,7 @@ describe('dragon §6: malformed decorations are reported, not swallowed', () => 
         (n, with_prefix) => {
           const fsl = with_prefix ? `a after 5s ${n}%% -> b;` : `a ${n}%% -> b;`;
           let threw = false, dup = false;
-          try { jssm.parse(fsl); } catch (e) { threw = true; dup = /duplicate/i.test(String((e as Error).message)); }
+          try { jssm.parse(fsl); } catch (error) { threw = true; dup = /duplicate/i.test(String((error as Error).message)); }
           expect(threw).toBe(true);   // rejected, never silently parsed
           expect(dup).toBe(false);    // a malformation report, not a duplicate misfire
         }

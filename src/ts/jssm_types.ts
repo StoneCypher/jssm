@@ -129,10 +129,33 @@ type JssmAllowIslands = true | false | 'with_start';
  *  - `{ height }` — height-only form (`default_size: height 600;`)
  *
  *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
- *
  *  @see Machine.default_size
  */
 type JssmDefaultSize = { width?: number; height?: number };
+
+
+
+/**
+ *  A parsed semantic-version breakdown, as produced by the FSL parser for
+ *  version-valued directives (`machine_version`, `fsl_version`).  `major`,
+ *  `minor`, and `patch` are the three numeric components; `full` preserves
+ *  the exact source text of the version.  `loc` is present only when the
+ *  source was parsed with `{ locations: true }`.
+ *
+ *  ```typescript
+ *  const m = sm`machine_version: 1.2.3; a -> b;`;
+ *  m.machine_version();  // { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+ *  ```
+ *  @see Machine.machine_version
+ *  @see Machine.fsl_version
+ */
+type JssmParsedSemver = {
+  major : number,
+  minor : number,
+  patch : number,
+  full  : string,
+  loc?  : FslSourceLocation
+};
 
 
 
@@ -174,8 +197,7 @@ type  FslTheme          = typeof FslThemes[number];
  *  and consumed by {@link jssm!deserialize}.  Carries the current state, the
  *  associated machine data, the recent history (subject to the configured
  *  capacity), and metadata to detect version-skew on rehydration.
- *
- *  @typeParam DataType - The type of the user-supplied data payload (`mDT`).
+ *  @template DataType - The type of the user-supplied data payload (`mDT`).
  */
 type JssmSerialization<DataType> = {
 
@@ -205,7 +227,6 @@ type JssmSerialization<DataType> = {
  *  parse('&busy : [a b]; &busy -> idle;')[1].from;
  *  // { key: 'group_ref', name: 'busy' }
  *  ```
- *
  *  @see JssmGroupMemberRef
  *  @see JssmGroupRegistry
  */
@@ -229,7 +250,6 @@ type JssmGroupRef = {
  *  // [ { kind: 'group', name: 'inner', mode: 'nest' },
  *  //   { kind: 'state', name: 'x' } ]
  *  ```
- *
  *  @see JssmGroupRef
  *  @see JssmGroupRegistry
  */
@@ -252,7 +272,6 @@ type JssmGroupMemberRef =
  *  // registry.get('outer') === [ { kind:'group', name:'inner', mode:'nest' },
  *  //                             { kind:'state', name:'c' } ]
  *  ```
- *
  *  @see JssmGroupMemberRef
  */
 type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
@@ -272,7 +291,6 @@ type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
  *  // { key:'hook_decl', event:'enter',
  *  //   subject:{ key:'group_ref', name:'busy' }, action:'log' }
  *  ```
- *
  *  @see JssmGroupRef
  *  @see JssmGroupHooks
  */
@@ -289,7 +307,6 @@ type JssmHookDeclaration = {
  *  Each is optional so a subject may declare only one direction; the compiler
  *  merges an `enter` and an `exit` declaration for the same subject into one
  *  of these.
- *
  *  @see JssmHookDeclaration
  */
 type JssmBoundaryHooks = {
@@ -301,7 +318,6 @@ type JssmBoundaryHooks = {
  *  Maps each group name that has at least one boundary hook to its merged
  *  {@link JssmBoundaryHooks}.  Carried on {@link JssmGenericConfig} for the
  *  runtime to consume; depth-aware firing is a later task.
- *
  *  @see JssmHookDeclaration
  */
 type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
@@ -310,7 +326,6 @@ type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
  *  Maps each plain state name that has at least one boundary hook to its
  *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
  *  {@link JssmGroupHooks}.
- *
  *  @see JssmHookDeclaration
  */
 type JssmStateHooks = Map<string, JssmBoundaryHooks>;
@@ -357,9 +372,8 @@ type JssmTransitionPermitterMaybeArray<DataType> =
  *  per-edge `name`, an action label, a guard `check`, a transition
  *  `probability` for stochastic models, and an `after_time` for timed
  *  transitions.
- *
- *  @typeParam StateType - The state-name type (usually `string`).
- *  @typeParam DataType  - The machine's data payload type (`mDT`).
+ *  @template StateType - The state-name type (usually `string`).
+ *  @template DataType  - The machine's data payload type (`mDT`).
  */
 type JssmTransition<StateType, DataType> = {
 
@@ -599,7 +613,6 @@ type JssmGraphDefaultEdgeColor = { key: 'graph_default_edge_color', value: JssmC
  *  reuses the per-state style items (so `color: red;` works inside a
  *  `transition:` block exactly as inside a `state:` block) plus the
  *  edge-scoped {@link JssmGraphDefaultEdgeColor} default.
- *
  *  @see JssmTransitionConfig
  */
 type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
@@ -615,7 +628,6 @@ type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
  *  const cfg = compile(parse('a -> b; transition: { color: red; };'));
  *  // cfg.default_transition_config === [ { key: 'color', value: '#ff0000ff' } ]
  *  ```
- *
  *  @see JssmGraphConfig
  */
 type JssmTransitionConfig = JssmTransitionStyleKey[];
@@ -628,19 +640,13 @@ type JssmTransitionConfig = JssmTransitionStyleKey[];
  *  legacy parse key so downstream consumers can disambiguate.
  */
 type JssmGraphAliasKey
-  =  { key: 'graph_layout',   value: JssmLayout      }
-  |  { key: 'graph_bg_color', value: JssmColor       }
-  |  { key: 'dot_preamble',   value: string          }
-  |  { key: 'theme',          value: FslTheme | FslTheme[] }
-  |  { key: 'flow',           value: FslDirection    }
-  |  JssmGraphDefaultEdgeColor;
+  =  JssmGraphDefaultEdgeColor | { key: 'graph_layout',   value: JssmLayout      } | { key: 'graph_bg_color', value: JssmColor       } | { key: 'dot_preamble',   value: string          } | { key: 'theme',          value: FslTheme | FslTheme[] } | { key: 'flow',           value: FslDirection    };
 
 /**
  *  A single item inside a `graph: {}` default-config block.  For v1 this
  *  reuses the per-state style items plus the graph-scope alias items
  *  ({@link JssmGraphAliasKey}) folded in from the deprecated top-level
  *  graph keywords.
- *
  *  @see JssmGraphConfig
  */
 type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
@@ -658,7 +664,6 @@ type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
  *  // `background-color` item, so:
  *  // cfg.default_graph_config includes { key: 'background-color', value: '#ffffffff' }
  *  ```
- *
  *  @see JssmTransitionConfig
  */
 type JssmGraphConfig = JssmGraphStyleKey[];
@@ -725,9 +730,8 @@ type JssmTheme = Partial<JssmBaseTheme>;
  *
  *  Most users never construct one of these directly — the `sm` tagged
  *  template literal and {@link from} produce one from FSL source.
- *
- *  @typeParam StateType - The state-name type (usually `string`).
- *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
+ *  @template StateType - The state-name type (usually `string`).
+ *  @template DataType  - The user-supplied data payload type (`mDT`).
  */
 /**
  *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
@@ -797,7 +801,6 @@ type JssmGenericConfig<StateType, DataType> = {
    *
    *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
    *  more than 100 transitions via boundary hooks.
-   *
    *  @see Machine._boundary_depth_limit
    *  @see Machine._fire_boundary_actions
    */
@@ -824,7 +827,7 @@ type JssmGenericConfig<StateType, DataType> = {
   initial_state?                 : StateType,
   start_states_no_enforce?       : boolean,
 
-  state_declaration?             : Object[],
+  state_declaration?             : object[],
   property_definition?           : JssmPropertyDefinition[],
   state_property?                : JssmPropertyDefinition[]
 
@@ -841,12 +844,12 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_language?              : string,   // TODO FIXME COMEBACK
   machine_license?               : string,   // TODO FIXME COMEBACK
   machine_name?                  : string,
-  machine_version?               : string,   // TODO FIXME COMEBACK
+  machine_version?               : JssmParsedSemver,
   npm_name?                      : string,
 
   default_size?                  : JssmDefaultSize,
 
-  fsl_version?                   : string,   // TODO FIXME COMEBACK
+  fsl_version?                   : JssmParsedSemver,
 
   auto_api?                      : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
   instance_name?                 : string | undefined,
@@ -902,7 +905,6 @@ type JssmGenericConfig<StateType, DataType> = {
  *  Internal compiler intermediate: a single aggregated rule produced while
  *  folding a parse tree into a machine configuration.  Not intended for
  *  end-user code.
- *
  *  @internal
  */
 type JssmCompileRule<StateType> = {
@@ -923,7 +925,6 @@ type JssmCompileRule<StateType> = {
  *  arrow with optional per-direction action labels, probabilities, and
  *  after-times.  The recursive `se` field allows the parser to chain
  *  arrows of the form `A -> B -> C`.  Not intended for end-user code.
- *
  *  @internal
  */
 type JssmCompileSe<StateType, mDT> = {
@@ -955,7 +956,6 @@ type JssmCompileSe<StateType, mDT> = {
  *  for non-transition rules (state declarations, property definitions,
  *  machine metadata) via its `key`/`value`/`name`/`state` fields.  Not
  *  intended for end-user code.
- *
  *  @internal
  */
 type JssmCompileSeStart<StateType, DataType> = {
@@ -984,7 +984,6 @@ type JssmCompileSeStart<StateType, DataType> = {
  *  The output shape of the FSL parser: a flat array of
  *  {@link JssmCompileSeStart} entries, one per top-level rule in the
  *  source.  Consumed by the compiler to build a machine configuration.
- *
  *  @internal
  */
 type JssmParseTree<StateType, mDT> =
@@ -1069,6 +1068,11 @@ type ExitHook<mDT> = {
 type AfterHook<mDT> = {
   kind    : 'after',
   from    : string,
+  handler : HookHandler<mDT>
+};
+
+type AfterAnyHook<mDT> = {
+  kind    : 'after any',
   handler : HookHandler<mDT>
 };
 
@@ -1165,8 +1169,8 @@ type PostEverythingHook<mDT> = {
  *
  *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
  *  `'main transition'`, `'forced transition'`, `'any transition'`,
- *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
- *  may return a falsy value to veto a transition.  Post-transition
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`,
+ *  `'after any'`) may return a falsy value to veto a transition.  Post-transition
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
@@ -1182,6 +1186,7 @@ type HookDescription<mDT>
   | EntryHook<mDT>
   | ExitHook<mDT>
   | AfterHook<mDT>
+  | AfterAnyHook<mDT>
   | PostBasicHookDescription<mDT>
   | PostHookDescriptionWithAction<mDT>
   | PostGlobalActionHook<mDT>
@@ -1415,7 +1420,6 @@ type JssmRng = () => number;
  *  All event names that {@link jssm!Machine.on} accepts.  These are observation
  *  events fired by the machine in addition to (not in place of) the hook
  *  system.  Hooks intercept; events observe.
- *
  *  @see Machine.on
  */
 type JssmEventName =
@@ -1530,13 +1534,15 @@ type JssmErrorEventDetail = {
   error          : unknown,
   source_event   : JssmEventName,
   source_detail  : unknown,
-  handler        : Function
+  handler        : JssmEventHandler<unknown, JssmEventName>
 };
 
 /**
  *  Detail payload fired with a `data-change` event.  Fires whenever the
  *  machine's data payload is replaced.  `old_data` is the value before the
- *  change; `new_data` is the value after.
+ *  change; `new_data` is the value after.  `cause` names the API family that
+ *  performed the replacement: a data-bearing `transition`, an `override`, or
+ *  a direct `set_data` call.
  */
 type JssmDataChangeEventDetail<mDT> = {
   from?     : StateType,
@@ -1544,7 +1550,7 @@ type JssmDataChangeEventDetail<mDT> = {
   action?   : StateType,
   old_data  : mDT,
   new_data  : mDT,
-  cause     : 'transition' | 'override'
+  cause     : 'transition' | 'override' | 'set_data'
 };
 
 /**
@@ -1625,16 +1631,16 @@ type JssmEventFilterMap<mDT> = {
 /**
  *  Per-event filter object (as passed to {@link jssm!Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
- *  @typeParam mDT The type of the machine data member.
- *  @typeParam Ev  The event name.
+ *  @template mDT The type of the machine data member.
+ *  @template Ev  The event name.
  */
 type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
 
 /**
  *  Per-event handler signature.  Receives a detail object typed by event
  *  name, so `e.action` (etc.) only exist where they're meaningful.
- *  @typeParam mDT The type of the machine data member.
- *  @typeParam Ev  The event name.
+ *  @template mDT The type of the machine data member.
+ *  @template Ev  The event name.
  */
 type JssmEventHandler<mDT, Ev extends JssmEventName> =
   (detail: JssmEventDetailMap<mDT>[Ev]) => void;
@@ -1706,6 +1712,7 @@ export {
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmDefaultSize,
+  JssmParsedSemver,
 
   JssmGroupRef,
     JssmGroupMemberRef,

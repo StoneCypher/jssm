@@ -9,11 +9,9 @@ export * from './widgets.js';
 /**
  * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
  * (case-insensitive).
- *
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
  * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
- *
  * @example
  * wc_suffix_matches('FSL-VIZ', 'viz');   // true
  * wc_suffix_matches('jssm-viz', 'viz');  // true
@@ -33,14 +31,11 @@ export * from './widgets.js';
  * dual-named components.
  *
  * Idempotent: skips the `define` call when the tag is already registered.
- *
  * @param canonical_tag - The `fsl-*` tag name (e.g. `"fsl-info-panel"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
- *
  * @example
  * class FslInfoPanel extends HTMLElement {}
  * define_canonical('fsl-info-panel', FslInfoPanel);
- *
  * @see define_with_synonym
  */
 function define_canonical(canonical_tag, CanonicalClass) {

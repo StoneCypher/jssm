@@ -6,7 +6,7 @@ beforeAll(() => { if (!customElements.get('fsl-docs')) { customElements.define('
 
 async function mount(): Promise<FslDocs> {
   const el = document.createElement('fsl-docs') as FslDocs;
-  document.body.appendChild(el);
+  document.body.append(el);
   await el.updateComplete;
   return el;
 }

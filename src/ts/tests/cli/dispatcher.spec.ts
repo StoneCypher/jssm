@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { resolve, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join } from 'node:path';
 import {
   findPluginOnPath,
   isInProcessEligible,
@@ -496,7 +496,7 @@ describe('dispatcher: invokeBySpawn error paths', () => {
       // node's spawn emits an 'error' event with ENOENT, which the dispatcher
       // maps to exit 2.
       const bogus = process.platform === 'win32'
-        ? 'C:\\no\\such\\dir\\no-such-binary-xyz.exe'
+        ? String.raw`C:\no\such\dir\no-such-binary-xyz.exe`
         : '/no/such/dir/no-such-binary-xyz';
       const code = await invokeBySpawn(bogus, []);
       expect(code).toBe(2);

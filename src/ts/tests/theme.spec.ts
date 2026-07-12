@@ -6,6 +6,9 @@ import { FslThemes }          from '../jssm_types';
 import type { JssmTheme }     from '../jssm_types';
 import { theme_mapping }      from '../jssm_theme';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -62,7 +65,7 @@ describe('Multiple themes', () => {
   test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
     expect( sm`theme: [ocean modern]; a->b;`.themes ).toStrictEqual(['ocean','modern']) );
 
-  test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
+  test(`Theme "[ocean modern]" applies the dominant theme's background color`, () =>
     expect( sm`theme: [ocean modern]; a->b;`.style_for('a').backgroundColor ).toBe('deepskyblue') );
 
   test('Fake theme throws at the parser level', () =>
@@ -77,7 +80,7 @@ describe('Multiple themes', () => {
 describe('Check theme registration', () => {
 
   test('FslThemes list matches sm``.all_themes(), post-sort', () =>
-    expect( sm`a->b;`.all_themes().sort() ).toStrictEqual([... FslThemes].sort()) );
+    expect( sm`a->b;`.all_themes().sort(code_unit_compare) ).toStrictEqual([... FslThemes].sort(code_unit_compare)) );
 
 });
 
@@ -95,6 +98,44 @@ test('Theme change', () => {
 
   foo.themes = ['ocean', 'default'];
   expect(foo.themes).toStrictEqual(['ocean', 'default']);
+
+});
+
+
+
+
+
+describe('theme change invalidates memoized state configs', () => {
+
+  // Regression pin: `resolve_state_config` memoizes the static tiers per
+  // state, and themes feed tier 1 — so assigning `machine.themes` after a
+  // state's config has already been resolved must not keep serving the
+  // old theme's resolution from the cache.
+
+  test('a style resolved before a theme change re-resolves under the new theme', () => {
+
+    // what the ocean theme resolves to when set from birth
+    const expected = sm`theme: ocean; a -> b -> c;`.style_for('b');
+
+    const changed = sm`a -> b -> c;`;
+    changed.style_for('b');                       // memoizes the default-theme resolution
+    changed.themes = 'ocean';
+
+    expect( changed.style_for('b') ).toStrictEqual(expected);
+
+  });
+
+  test('a style resolved before a theme change back to default matches a never-themed twin', () => {
+
+    const expected = sm`a -> b -> c;`.style_for('b');
+
+    const changed = sm`theme: modern; a -> b -> c;`;
+    changed.style_for('b');                       // memoizes the modern-theme resolution
+    changed.themes = 'default';
+
+    expect( changed.style_for('b') ).toStrictEqual(expected);
+
+  });
 
 });
 
@@ -121,13 +162,15 @@ describe('fsl#1328 — grammar and theme_mapping agree', () => {
   test('`theme: none;` is rejected by the parser', () =>
     expect( () => { const _foo = sm`theme: none; a -> b;`; } ).toThrow() );
 
-  FslThemes.forEach(themeName =>
+  for (const themeName of FslThemes) {
     test(`FslTheme "${themeName}" resolves to a defined theme_mapping entry`, () =>
-      expect( theme_mapping.get(themeName) ).toBeDefined() ) );
+      expect( theme_mapping.get(themeName) ).toBeDefined() );
+  }
 
-  FslThemes.forEach(themeName =>
+  for (const themeName of FslThemes) {
     test(`FslTheme "${themeName}" parses and lands in machine.themes`, () =>
-      expect( sm`theme: ${themeName}; a -> b;`.themes ).toStrictEqual([themeName]) ) );
+      expect( sm`theme: ${themeName}; a -> b;`.themes ).toStrictEqual([themeName]) );
+  }
 
 });
 

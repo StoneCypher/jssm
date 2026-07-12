@@ -26,7 +26,7 @@ class Host extends LitElement {
 }
 if (!customElements.get('plk-host')) { customElements.define('plk-host', Host); }
 
-const tick = (ms = 0): Promise<void> => new Promise(r => setTimeout(r, ms));
+const tick = (ms = 0): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 // Poll until `cond` holds, rather than sleeping a fixed amount. The write path
 // is debounced (300ms) AND then awaits an async encode, so a fixed `tick(350)`
@@ -68,7 +68,7 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', `#k1=${seg}`);
     const el = document.createElement('plk-host') as Host;
     el.id = 'k1'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     await tick(20);                                // let the async restore settle
     expect(el.fsl).toBe('x -> y;');
@@ -128,7 +128,7 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', `#k7=${seg}`);
     const el = document.createElement('plk-host') as Host;
     el.id = 'k7'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);                 // hostConnected → _restore starts (awaits decode)
+    document.body.append(el);                 // hostConnected → _restore starts (awaits decode)
     el.remove();                                   // disconnect before the decode resolves
     await tick(20);                                // let the in-flight decode settle
     expect(el.fsl).toBe('declared -> only;');      // guard dropped it — no mutation of a detached host
@@ -210,7 +210,7 @@ describe('FslPermalinkSync', () => {
     const spy = vi.spyOn(history, 'replaceState');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k4';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     await tick(20);                                // restore settles, _observed = seg
     el.rebuilt();                                  // the rebuild the restore would trigger
@@ -222,7 +222,7 @@ describe('FslPermalinkSync', () => {
   it('cancels a pending write when disconnected before the debounce fires', async () => {
     const el = document.createElement('plk-host') as Host;
     el.id = 'k5'; el.fsl = 'x -> y;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     const spy = vi.spyOn(history, 'replaceState');
     el.rebuilt();                                  // schedule a write (timer starts)
@@ -471,12 +471,12 @@ describe('FslPermalinkSync', () => {
     const spy = vi.spyOn(history, 'replaceState');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k2'; el.fsl = 'p -> q;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     el.rebuilt();
     await waitFor(() => spy.mock.calls.length > 0);  // debounce + async encode; wait for the write, don't race a fixed sleep
     expect(spy).toHaveBeenCalled();
-    const url = spy.mock.calls[spy.mock.calls.length - 1]![2] as string;
+    const url = spy.mock.calls.at(-1)![2] as string;
     expect(url).toContain('other=0ZZZ');           // sibling preserved
     expect(url).toContain('k2=');                  // our segment written
     el.remove();
@@ -485,13 +485,13 @@ describe('FslPermalinkSync', () => {
   it('restores when the fragment changes externally (hashchange)', async () => {
     const el = document.createElement('plk-host') as Host;
     el.id = 'k3'; el.fsl = 'start -> here;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     await tick(20);
 
     const seg = await encode_machine('Up -> Down;');
     history.replaceState(history.state, '', `#k3=${seg}`);
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     await tick(20);
     expect(el.fsl).toBe('Up -> Down;');
     el.remove();
@@ -500,7 +500,7 @@ describe('FslPermalinkSync', () => {
   it('coalesces rapid rebuilds into a single debounced write', async () => {
     const el = document.createElement('plk-host') as Host;
     el.id = 'k6'; el.fsl = 'a -> b;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     const spy = vi.spyOn(history, 'replaceState');
     el.rebuilt();                                  // schedules a write (timer set)
@@ -515,7 +515,7 @@ describe('FslPermalinkSync', () => {
     const spy = vi.spyOn(history, 'replaceState');
     const el = document.createElement('plk-host') as Host;
     el.fsl = 'p -> q;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     el.rebuilt();
     await tick(350);

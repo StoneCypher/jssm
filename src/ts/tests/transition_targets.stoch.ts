@@ -33,10 +33,8 @@ const RUNS = 100;
  *  Parse `a -> <target>;` and return the destination at
  *  `tree[0].se.to`.  Covers all four ArrowTarget shapes through a
  *  single vehicle.
- *
  *  @param  target_src  Source for the destination (Stripe, Cycle, LabelList, or Label).
  *  @returns            The canonical `to` value.
- *
  *  @example
  *    parse_target('+|3')     // → { key:'stripe', value:3 }
  *    parse_target('+1')      // → { key:'cycle',  value:1 }

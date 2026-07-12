@@ -1,5 +1,5 @@
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as fc     from 'fast-check';
 import * as jssm   from '../jssm';
 
@@ -73,7 +73,7 @@ describe('seq/1 over wrong sizes', () => {
 
      fc.assert(
        fc.property(fc.nat(), Size => {
-         const useSize = Number.isInteger(Size)? Size + 0.5 : Size;
+         const useSize = Number.isSafeInteger(Size)? Size + 0.5 : Size;
          expect( () => jssm.seq(useSize) ).toThrow();
        } )
      );
@@ -83,7 +83,7 @@ describe('seq/1 over wrong sizes', () => {
   test(`Negative sizes must throw`, () => {
 
      fc.assert(
-       fc.property(fc.integer(-1 * rand_cap, -1), Size => {
+       fc.property(fc.integer(-rand_cap, -1), Size => {
          expect( () => jssm.seq(Size) ).toThrow();
        } )
      );
@@ -102,7 +102,7 @@ describe('seq/1 over wrong arguments', () => {
 
      fc.assert(
        fc.property(fc.nat(), Size => {
-         const useSize = Number.isInteger(Size)? Size + 0.5 : Size;
+         const useSize = Number.isSafeInteger(Size)? Size + 0.5 : Size;
          expect( () => jssm.seq(useSize) ).toThrow();
        } )
      );
@@ -112,7 +112,7 @@ describe('seq/1 over wrong arguments', () => {
   test(`Negative sizes must throw`, () => {
 
      fc.assert(
-       fc.property(fc.integer(-1 * rand_cap, -1), Size => {
+       fc.property(fc.integer(-rand_cap, -1), Size => {
          expect( () => jssm.seq(Size) ).toThrow();
        } )
      );

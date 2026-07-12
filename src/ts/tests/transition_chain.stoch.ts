@@ -37,7 +37,6 @@ const RUNS = 100;
 
 /**
  *  Parse a transition source and return the parse tree.
- *
  *  @param  src  Full transition source, terminator included.
  *  @returns     The parse tree array.
  */
@@ -53,10 +52,8 @@ function parse_tree(src: string): Array<{ key: string; from: string; se: Record<
  *  Walk a chained Subexp tree, returning the sequence of
  *  `[kind, to]` pairs from outermost to innermost.  Used by the
  *  chain-depth tests so failures show the full path.
- *
  *  @param  se  Outermost se object from `tree[0].se`.
  *  @returns    Ordered list of `[kind, to]` pairs.
- *
  *  @example
  *    // For `a -> b -> c -> d;`:
  *    flatten_chain(tree[0].se) → [['->','b'], ['->','c'], ['->','d']]

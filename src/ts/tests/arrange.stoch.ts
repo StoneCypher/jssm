@@ -30,10 +30,8 @@ const RUNS = 100;
 /**
  *  Parse a single arrange-style declaration source and return the
  *  parsed term at `tree[0]`.
- *
  *  @param  src  Full declaration source, terminator included.
  *  @returns     Arrange AST node.
- *
  *  @example
  *    parse_arrange('arrange [a b];')        // → {key:'arrange_declaration', value:['a','b']}
  *    parse_arrange('arrange-start foo;')    // → {key:'arrange_start_declaration', value:'foo'}
@@ -161,7 +159,7 @@ describe('§12 Arrange — random round-trip across keywords and lists', () => {
         fc.array(fc.boolean(), { minLength: 1, maxLength: 8 }),
         ([keyword, expected_key], bodies, quoted_flags) => {
           const members = bodies.map((b, i) =>
-            quoted_flags[i % quoted_flags.length] ? `"${b}"` : b
+            quoted_flags[i % quoted_flags.length] === true ? `"${b}"` : b
           );
           const src  = `${keyword} [${members.join(' ')}];`;
           const node = parse_arrange(src);

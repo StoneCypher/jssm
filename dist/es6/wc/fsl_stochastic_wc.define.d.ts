@@ -1,2 +1,1 @@
-import { FslStochastic } from './fsl_stochastic_wc.js';
-export { FslStochastic };
+export { FslStochastic } from './fsl_stochastic_wc.js';

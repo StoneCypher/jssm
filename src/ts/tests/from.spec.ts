@@ -26,8 +26,8 @@ describe('Creating with .from', () => {
     a.rng_seed = 1;
     b.rng_seed = 1;
 
-    expect( `${a}` )
-      .toStrictEqual( `${b}` );
+    expect( String(a) )
+      .toStrictEqual( String(b) );
 
   });
 

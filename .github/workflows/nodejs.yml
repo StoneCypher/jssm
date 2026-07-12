@@ -134,7 +134,7 @@ jobs:
 
   unicode-atoms:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -156,7 +156,7 @@ jobs:
 
   unicode-strings:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -178,7 +178,7 @@ jobs:
 
   unicode-atom-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -200,7 +200,7 @@ jobs:
 
   unicode-string-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -222,7 +222,7 @@ jobs:
 
   unicode-actions:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -244,7 +244,7 @@ jobs:
 
   unicode-edge-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -265,7 +265,7 @@ jobs:
 
   unicode-machine-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -286,7 +286,7 @@ jobs:
 
   unicode-error-messages:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -307,7 +307,7 @@ jobs:
 
   unicode-group-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -328,7 +328,7 @@ jobs:
 
   unicode-state-decl-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -349,7 +349,7 @@ jobs:
 
   unicode-hooks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -370,7 +370,7 @@ jobs:
 
   unicode-machine-metadata:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -391,7 +391,7 @@ jobs:
 
   unicode-state-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -412,7 +412,7 @@ jobs:
 
   unicode-image-url:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -433,7 +433,7 @@ jobs:
 
   unicode-arrange:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -454,7 +454,7 @@ jobs:
 
   unicode-config-state-lists:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -475,7 +475,7 @@ jobs:
 
   unicode-config-state-blocks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -496,7 +496,7 @@ jobs:
 
   unicode-viz-dot:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -512,6 +512,31 @@ jobs:
     - name: Check full unicode over viz / dot rendering
       run: |
         npm install && npm run prep && npm run vitest-unicode-viz-dot
+
+
+
+  # Conventional Commits enforcement on the PR's commit range (fsl#1851).
+  # Merge commits are exempt by commitlint's default ignores; the house-style
+  # relaxations (long bodies, proper-noun subjects) live in
+  # commitlint.config.mjs. Installs only the two commitlint packages — the
+  # full dependency tree is not needed to lint commit messages.
+  commitlint:
+
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+    - name: lint PR commit range as Conventional Commits
+      run: |
+        npm install --no-save @commitlint/cli @commitlint/config-conventional && npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
 
 
@@ -546,9 +571,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: npm
-    - name: npm install, build, and test (trimmed; full bundles+minify covered by pr-check and full-build)
+    # Runtime-only (no vet): these legs verify the LIBRARY across Node
+    # versions and platforms. The eslint-10 lint stack (unicorn 71 etc.)
+    # requires Node >=22 and crashes on the 20.x floor leg; linting is
+    # engine-independent anyway, so it runs once on the Node 24 jobs
+    # (test-pr / test-main-full) instead.
+    - name: npm install, build, and test (runtime-only; vet runs on the Node 24 jobs)
       run: |
-        npm install && npm run ci_test
+        npm install && npm run ci_test_runtime
       env:
         CI: true
     - name: Coveralls GitHub Action
@@ -586,6 +616,20 @@ jobs:
         npm install && npm run build
       env:
         CI: true
+
+    # Package-shape gate (fsl#1850): validates that the published package's
+    # types resolve under node10/node16/bundler, CJS and ESM. Runs against
+    # the just-built dist; .attw.json exempts the three by-design classes
+    # (node10 subpath resolution, untyped runtime-only wc/cdn bundles,
+    # ESM-only subpaths) so the remaining rules gate hard.
+    - name: attw package-shape gate
+      run: |
+        npm run attw
+
+    # Surface the build's line-count report in the run summary (fsl#986).
+    - name: CLOC report to job summary
+      run: |
+        node src/buildjs/cloc_summary_md.cjs >> "$GITHUB_STEP_SUMMARY"
 
     # deploy-docs republishes exactly this tree instead of running a second
     # full build per main push; gh-pages therefore serves the same docs/ the
@@ -645,7 +689,7 @@ jobs:
 
   benchmark:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 20

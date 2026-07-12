@@ -1309,7 +1309,7 @@
                   "text": "void"
                 }
               },
-              "description": "Recompute the machine-derived counts: local transitions out of the current\r\nstate, and the global action / action-start / transition totals. Only\r\ncalled while a host is attached, so `_host` is non-null here."
+              "description": "Recompute the machine-derived counts: local transitions out of the current\r\n state, and the global action / action-start / transition totals. Only\r\n called while a host is attached, so `_host` is non-null here."
             }
           ],
           "superclass": {
@@ -2266,7 +2266,7 @@
               "name": "_overrides",
               "privacy": "private",
               "default": "new Map<string, boolean>()",
-              "description": "Per-panel runtime visibility overrides set by the user via the toolbar\r\ntoggles; a slot absent here falls back to its mode-resolved base."
+              "description": "Per-panel runtime visibility overrides set by the user via the toolbar\r\n toggles; a slot absent here falls back to its mode-resolved base."
             },
             {
               "kind": "field",
@@ -2276,7 +2276,7 @@
                 "text": "PanelMode"
               },
               "default": "'default'",
-              "description": "Control-level default PanelMode; panelModes overrides it\r\nper panel. `default` shows only the editor + renderer; every other panel\r\nstarts hidden and is opt-in.",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\n per panel. `default` shows only the editor + renderer; every other panel\r\n starts hidden and is opt-in.",
               "attribute": "panel-mode",
               "reflects": true
             },
@@ -2288,7 +2288,7 @@
                 "text": "Record<string, PanelMode>"
               },
               "default": "{}",
-              "description": "Per-panel PanelMode overrides (slot → mode), each overriding the\r\ncontrol-level panelMode."
+              "description": "Per-panel PanelMode overrides (slot → mode), each overriding the\r\n control-level panelMode."
             },
             {
               "kind": "field",
@@ -2298,7 +2298,7 @@
                 "text": "string[]"
               },
               "default": "[]",
-              "description": "Panels the FSL \"requests\" — the embedder-set stand-in for the\r\neditor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed\r\nhere are shown; others fall back to the default."
+              "description": "Panels the FSL \"requests\" — the embedder-set stand-in for the\r\n editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed\r\n here are shown; others fall back to the default."
             },
             {
               "kind": "field",
@@ -2783,7 +2783,7 @@
                   "text": "void"
                 }
               },
-              "description": "Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine\r\ndeclares `panels`, drive requestedPanels from it so `request` panel\r\nmode honors the source. The embedder's value persists when the FSL is\r\nsilent. Called after each (re)build, with `_machine` freshly assigned."
+              "description": "Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine\r\n declares `panels`, drive requestedPanels from it so `request` panel\r\n mode honors the source. The embedder's value persists when the FSL is\r\n silent. Called after each (re)build, with `_machine` freshly assigned."
             },
             {
               "kind": "method",
@@ -2876,7 +2876,7 @@
                   "description": "True when hook-log + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
                 }
               ],
-              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\nrendered at the top of render. In split mode the `hook-log` (events)\r\nand `data-inspector` panels are lifted out into easing side docks, so\r\n`docked` is true there and they are skipped here to avoid duplicating\r\ntheir slots; `actions` instead lives here as a horizontal bar. The\r\nstate-section + footer stay in render so the dynamic state-slot\r\nname binds at the top level."
+              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\n rendered at the top of render. In split mode the `hook-log` (events)\r\n and `data-inspector` panels are lifted out into easing side docks, so\r\n `docked` is true there and they are skipped here to avoid duplicating\r\n their slots; `actions` instead lives here as a horizontal bar. The\r\n state-section + footer stay in render so the dynamic state-slot\r\n name binds at the top level."
             }
           ],
           "events": [
@@ -2953,7 +2953,7 @@
                 "text": "PanelMode"
               },
               "default": "'default'",
-              "description": "Control-level default PanelMode; panelModes overrides it\r\nper panel. `default` shows only the editor + renderer; every other panel\r\nstarts hidden and is opt-in.",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\n per panel. `default` shows only the editor + renderer; every other panel\r\n starts hidden and is opt-in.",
               "fieldName": "panelMode"
             }
           ],
@@ -4236,7 +4236,7 @@
                   }
                 }
               ],
-              "description": "Set the theme mode (System/Light/Dark). The host applies the palette + drives\r\nthe editor; the menu stays open so a theme can be picked in the same trip."
+              "description": "Set the theme mode (System/Light/Dark). The host applies the palette + drives\r\n the editor; the menu stays open so a theme can be picked in the same trip."
             },
             {
               "kind": "method",
@@ -4255,7 +4255,7 @@
                   }
                 }
               ],
-              "description": "Select a named theme from the host's registry. The theme-name buttons only\r\nrender when a host exists, so `_host` is non-null here."
+              "description": "Select a named theme from the host's registry. The theme-name buttons only\r\n render when a host exists, so `_host` is non-null here."
             },
             {
               "kind": "method",
@@ -4292,7 +4292,7 @@
                   }
                 }
               ],
-              "description": "Set the active export destination; the menu stays open so a format can be\r\nchosen next."
+              "description": "Set the active export destination; the menu stays open so a format can be\r\n chosen next."
             },
             {
               "kind": "method",
@@ -4311,7 +4311,7 @@
                   }
                 }
               ],
-              "description": "Emit `fsl-export` with the chosen format's content + the active destination.\r\nThe embedder performs the actual clipboard / file save."
+              "description": "Emit `fsl-export` with the chosen format's content + the active destination.\r\n The embedder performs the actual clipboard / file save."
             },
             {
               "kind": "method",
@@ -4330,7 +4330,7 @@
                   }
                 }
               ],
-              "description": "Fire a workspace-action intent (validate / lint) for the consumer to\r\nfulfill — the toolbar presents the action; the embedder runs it. The\r\ncurrent machine source rides along in the detail as a convenience. The\r\nbuttons only render with a host, so `_host` is non-null here."
+              "description": "Fire a workspace-action intent (validate / lint) for the consumer to\r\n fulfill — the toolbar presents the action; the embedder runs it. The\r\n current machine source rides along in the detail as a convenience. The\r\n buttons only render with a host, so `_host` is non-null here."
             },
             {
               "kind": "method",
@@ -4396,22 +4396,6 @@
       "exports": [
         {
           "kind": "js",
-          "name": "permalink_for",
-          "declaration": {
-            "name": "permalink_for",
-            "module": "src/ts/wc/fsl_toolbar_wc.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "fsl_from_permalink",
-          "declaration": {
-            "name": "fsl_from_permalink",
-            "module": "src/ts/wc/fsl_toolbar_wc.ts"
-          }
-        },
-        {
-          "kind": "js",
           "name": "embed_snippet_for",
           "declaration": {
             "name": "embed_snippet_for",
@@ -4424,6 +4408,22 @@
           "declaration": {
             "name": "FslToolbar",
             "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "fsl_from_permalink",
+          "declaration": {
+            "name": "fsl_from_permalink",
+            "module": "./fsl_permalink.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_for",
+          "declaration": {
+            "name": "permalink_for",
+            "module": "./fsl_permalink.js"
           }
         }
       ]
@@ -4578,7 +4578,7 @@
                   "type": {
                     "text": "HighlightOptions"
                   },
-                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   *\r\n   * "
+                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   * "
                 }
               ],
               "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` (the state name) and edges by\r\nthe `from->to` title Graphviz emits, applying inline style overrides so\r\nthe highlight composes over — and is reversible against — the default\r\nrendering (see clearHighlights, which this calls first). No-ops\r\nwhen detached, before the first render, or given an empty trace.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n```"

@@ -323,6 +323,7 @@ That decision shows up everywhere downstream:
 
 - [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) - conceptual intro for newcomers
 - [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
+- [Using jssm in the browser](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Environments_Browser.md) - script tags, CDN, native ES modules, bundlers, and web components
 - [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
 - [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
 - [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) - DSL reference for people already comfortable with state machines

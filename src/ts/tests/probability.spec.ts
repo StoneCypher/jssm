@@ -1,9 +1,12 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
 const sm = jssm.sm;
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 
 
 
@@ -173,7 +176,7 @@ describe('probable_exits_for filters by probability data (StoneCypher/fsl#1325)'
     // every legal exit so that weighted_rand_select gives them equal weight.
     const m = sm`a -> b; a -> c;`;
     const exits = m.probable_exits_for('a');
-    const targets = exits.map(e => e.to).sort();
+    const targets = exits.map(e => e.to).sort(code_unit_compare);
 
     expect(exits.length).toBe(2);
     expect(targets).toEqual(['b', 'c']);
@@ -225,7 +228,7 @@ describe('probable_exits_for filters by probability data (StoneCypher/fsl#1325)'
 
     const m = sm`a 10% -> b; a 90% -> c; a -> d;`;
     const exits = m.probable_exits_for('a');
-    const targets = exits.map(e => e.to).sort();
+    const targets = exits.map(e => e.to).sort(code_unit_compare);
 
     expect(targets).toEqual(['b', 'c']);
     expect(exits.every(e => typeof e.probability === 'number')).toBe(true);
@@ -304,7 +307,7 @@ describe('random seed', () => {
     // Run N probabilistic transitions with a known seed
     const N = 20;
 
-    m.rng_seed = 12345;
+    m.rng_seed = 12_345;
     const run1: string[] = [];
     for (let i = 0; i < N; i++) {
       m.force_transition('a');
@@ -313,7 +316,7 @@ describe('random seed', () => {
     }
 
     // Reset to same seed and repeat
-    m.rng_seed = 12345;
+    m.rng_seed = 12_345;
     const run2: string[] = [];
     for (let i = 0; i < N; i++) {
       m.force_transition('a');
@@ -323,6 +326,76 @@ describe('random seed', () => {
 
     // Both runs must be identical, proving the setter regenerated the RNG
     expect(run1).toEqual(run2);
+
+  });
+
+});
+
+
+
+
+
+describe('zero-probability candidate pools throw (StoneCypher/fsl#1248)', () => {
+
+  test('an all-0% pool throws a JssmError naming the state, and does not move', () => {
+
+    const m = sm`a 0% -> b; a 0% -> c; b -> a; c -> a;`;
+
+    expect(() => m.probabilistic_transition())
+      .toThrow(/every candidate edge has probability 0%/);
+    expect(() => m.probabilistic_transition()).toThrow(/"a"/);
+
+    expect(m.state()).toBe('a');
+
+  });
+
+  test('a lone 0% edge that shadowed an unweighted sibling (per #1325) also throws', () => {
+
+    // the probability filter drops the undecorated 'c', leaving only b@0%
+    const m = sm`a 0% -> b; a -> c; b -> a; c -> a;`;
+
+    expect(() => m.probabilistic_transition())
+      .toThrow(/every candidate edge has probability 0%/);
+
+  });
+
+  test('the non-destructive stochastic walk path throws on the same pool', () => {
+
+    const m = sm`a 0% -> b; b -> a;`;
+
+    expect(() => [...m.stochastic_runs({ runs: 1, seed: 1 })])
+      .toThrow(/every candidate edge has probability 0%/);
+
+  });
+
+  test('manual transition through a 0% edge remains legal', () => {
+
+    const m = sm`a 0% -> b; a 0% -> c;`;
+
+    expect(m.valid_transition('b')).toBe(true);
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('b');
+
+  });
+
+  test('a pool with any positive weight does not throw', () => {
+
+    const m = sm`a 0% -> b; a 1% -> c; b -> a; c -> a;`;
+    m.rng_seed = 5;
+
+    expect(m.probabilistic_transition()).toBe(true);
+    expect(m.state()).toBe('c');   // the 0% arm can never be the winner
+
+  });
+
+  test('an empty pool (terminal state) is not the guard\'s concern: walks just terminate', () => {
+
+    const m = sm`a -> b;`;
+    const runs = [...m.stochastic_runs({ runs: 1, seed: 1 })];
+
+    expect(runs.length).toBe(1);
+    expect(runs[0].terminated).toBe(true);
+    expect(runs[0].states).toEqual(['a', 'b']);
 
   });
 

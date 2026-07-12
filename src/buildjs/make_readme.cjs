@@ -4,8 +4,7 @@ const fs = require('fs'),
 
 const pv = JSON.parse( fs.readFileSync('./package.json').toString() ).version;
 
-const wt = JSON.parse( fs.readFileSync('./coverage/cloc/report_wt.json') ),
-      nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
+const nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
 
 const lines = nt['TypeScript'].code;  // TODO add peg once cloc supports it
 

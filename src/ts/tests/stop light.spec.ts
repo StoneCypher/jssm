@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
 
@@ -16,10 +16,10 @@ describe('Simple stop light', () => {
   test('has the right state count', () =>
     expect(r_states.length).toBe(3));
 
-  ['Red', 'Yellow', 'Green'].map(c =>
+  for (const c of ['Red', 'Yellow', 'Green']) {
     test(`has state "${c}"`, () =>
-      expect(r_states.includes(c)).toBe(true))
-  );
+      expect(r_states.includes(c)).toBe(true));
+  }
 
   describe('- `proceed` walkthrough', () => {
 
@@ -42,24 +42,24 @@ describe('Simple stop light', () => {
     test('refuses transition red',          () => expect( light.transition('Red')    ).toBe( false )  );
     test('green still green',               () => expect( light.state()              ).toBe("Green")  );
     test('refuses transition green',        () => expect( light.transition('Green')  ).toBe( false )  );
-    test('green still green',               () => expect( light.state()              ).toBe("Green")  );
+    test('green still green after refusing green', () => expect( light.state()       ).toBe("Green")  );
     test('accepts transition yellow',       () => expect( light.transition('Yellow') ).toBe( true )   );
     test('green now yellow',                () => expect( light.state()              ).toBe("Yellow") );
 
-    test('proceed is true',                 () => expect( light.action('Proceed')    ).toBe( true )   );
+    test('proceed from yellow is true',     () => expect( light.action('Proceed')    ).toBe( true )   );
     test('machine is now red',              () => expect( light.state()              ).toBe("Red")    );
 
     test('refuses transition yellow',       () => expect( light.transition('Yellow') ).toBe( false )  );
-    test('green still green',               () => expect( light.state()              ).toBe("Red")    );
-    test('refuses transition red',          () => expect( light.transition('Red')    ).toBe( false )  );
-    test('green still green',               () => expect( light.state()              ).toBe("Red")    );
+    test('red still red after refusing yellow', () => expect( light.state()          ).toBe("Red")    );
+    test('red refuses transition red',      () => expect( light.transition('Red')    ).toBe( false )  );
+    test('red still red after refusing red', () => expect( light.state()             ).toBe("Red")    );
     test('accepts transition green',        () => expect( light.transition('Green')  ).toBe( true )   );
     test('red now green',                   () => expect( light.state()              ).toBe("Green")  );
 
-    test('proceed is true',                 () => expect( light.action('Proceed')    ).toBe( true )   );
+    test('proceed from green is true',      () => expect( light.action('Proceed')    ).toBe( true )   );
     test('machine is now yellow',           () => expect( light.state()              ).toBe("Yellow") );
-    test('proceed is true',                 () => expect( light.action('Proceed')    ).toBe( true )   );
-    test('machine is now red',              () => expect( light.state()              ).toBe("Red")    );
+    test('proceed from yellow is true again', () => expect( light.action('Proceed')  ).toBe( true )   );
+    test('machine is now red again',        () => expect( light.state()              ).toBe("Red")    );
 
   });
 
@@ -98,20 +98,20 @@ describe('Complex stop light', () => {
   test('has the right state count', () =>
     expect(r_states.length).toBe(4));
 
-  ['red', 'yellow', 'green', 'off'].map(c =>
+  for (const c of ['red', 'yellow', 'green', 'off']) {
     test(`has state "${c}"`, () =>
-      expect(r_states.includes(c)).toBe(true))
-  );
+      expect(r_states.includes(c)).toBe(true));
+  }
 
   const r_names = light2.list_named_transitions();
 
   test('has the right named transition count', () =>
     expect(r_names.size).toBe(4));
 
-  ['turn_on', 'switch_warn', 'switch_halt', 'switch_go'].map(a =>
+  for (const a of ['turn_on', 'switch_warn', 'switch_halt', 'switch_go']) {
     test(`has named transition "${a}"`, () =>
-      expect(r_names.has(a)).toBe(true))
-  );
+      expect(r_names.has(a)).toBe(true));
+  }
 
   test('has the right exit actions for red', () =>
     expect(['power_off', 'proceed']).toEqual(light2.list_exit_actions('red')) );
