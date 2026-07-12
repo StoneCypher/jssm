@@ -2078,6 +2078,12 @@ class Machine {
      *  {@link Machine.transition}, so it fires no hooks, mutates no machine
      *  state, and touches no `data`.  A state with no probabilistic exits
      *  (a terminal, or a forced-only `~>` state) ends the walk.
+     *
+     *  Terminality is checked before the first transition and after every
+     *  transition.  A terminal start therefore completes with length zero even
+     *  when `max_steps` is zero, and a terminal reached on the final permitted
+     *  transition is completed rather than step-capped.
+     *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
      *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
@@ -2096,22 +2102,25 @@ class Machine {
         const states = [start];
         const edges = [];
         let cur = start;
-        let terminated = false;
-        for (let step = 0; step < max_steps; step++) {
-            let exits = exit_memo.get(cur);
+        let exits = exit_memo.get(cur);
+        if (exits === undefined) {
+            exits = this.probable_exits_for(cur);
+            this._assert_selectable_exit_pool(cur, exits);
+            exit_memo.set(cur, exits);
+        }
+        let terminated = exits.length === 0;
+        for (let step = 0; step < max_steps && !terminated; step++) {
+            const selected = weighted_rand_select(exits, undefined, this._rng);
+            edges.push(`${cur}→${selected.to}`);
+            cur = selected.to;
+            states.push(cur);
+            exits = exit_memo.get(cur);
             if (exits === undefined) {
                 exits = this.probable_exits_for(cur);
                 this._assert_selectable_exit_pool(cur, exits);
                 exit_memo.set(cur, exits);
             }
-            if (exits.length === 0) {
-                terminated = true;
-                break;
-            }
-            const selected = weighted_rand_select(exits, undefined, this._rng);
-            edges.push(`${cur}→${selected.to}`);
-            cur = selected.to;
-            states.push(cur);
+            terminated = exits.length === 0;
         }
         return { states, edges, length: states.length - 1, terminated };
     }
@@ -2122,7 +2131,9 @@ class Machine {
      *  current state, each ending at a terminal or after `max_steps`.  In
      *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
      *  is the lazy engine behind {@link Machine.stochastic_summary}; the
-     *  fsl-stochastic panel drives it across animation frames.
+     *  fsl-stochastic panel drives it across animation frames.  A walk already
+     *  at a terminal is reported as terminated with length zero, including when
+     *  `max_steps` is zero.
      *
      *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
      *  {@link Machine.stochastic_summary}, the generator does NOT restore the
@@ -2160,6 +2171,10 @@ class Machine {
      *  never perturbs the live machine.  `montecarlo` mode (default) reports
      *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
      *  mode runs one long walk and omits those fields.
+     *
+     *  Monte-Carlo runs count as `terminal_reached` when they start at a
+     *  terminal or reach one on the final permitted transition.  Terminal
+     *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
      *
      *  Timing (`after`) decorations and data-guard conditions are not modeled
      *  by this sampler; it walks the probabilistic graph topology.

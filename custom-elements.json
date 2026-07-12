@@ -3425,7 +3425,7 @@
         },
         {
           "kind": "class",
-          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\r\non connect and writes back (debounced, via `history.replaceState`) whenever\r\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\r\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\r\n`location`.\r\n\r\nEcho guard: `_last` holds the segment most recently read or written, so a\r\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
+          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\r\non connect and writes back (debounced, via `history.replaceState`) whenever\r\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\r\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\r\n`location`.\r\n\r\nEcho guard: `_observed` holds this connection's current URL segment, including\r\nexplicit absence, so unrelated hash changes and restore→rebuild→write cycles\r\nare no-ops. Async operations share a revision: every observed segment change\r\nor source write invalidates all older work, and disconnecting invalidates all\r\nwork. This gives cross-direction latest-operation-wins semantics without\r\nallowing unrelated hash changes to cancel valid writes.",
           "name": "FslPermalinkSync",
           "members": [
             {
@@ -3449,12 +3449,12 @@
             },
             {
               "kind": "field",
-              "name": "_last",
+              "name": "_observed",
               "type": {
-                "text": "string | null"
+                "text": "ObservedSegment"
               },
               "privacy": "private",
-              "default": "null"
+              "default": "UNOBSERVED_SEGMENT"
             },
             {
               "kind": "field",
@@ -3463,6 +3463,24 @@
                 "text": "ReturnType<typeof setTimeout> | undefined"
               },
               "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_connected",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_revision",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
             },
             {
               "kind": "field",
@@ -3483,7 +3501,8 @@
                 "type": {
                   "text": "void"
                 }
-              }
+              },
+              "description": "Observe the keyed URL segment and attach synchronization listeners."
             },
             {
               "kind": "method",
@@ -3492,7 +3511,8 @@
                 "type": {
                   "text": "void"
                 }
-              }
+              },
+              "description": "Invalidate work, forget observations, detach listeners, and cancel timers."
             },
             {
               "kind": "method",
@@ -3503,7 +3523,7 @@
                   "text": "Promise<void>"
                 }
               },
-              "description": "Read our segment and, if new, push it into the host (overriding declared source)."
+              "description": "Observe this instance's newest segment and push it into the host. A changed\r\nobservation supersedes older restores and writes; an unchanged observation\r\nleaves them valid. Declared source is overridden only when this decode is\r\nstill the latest operation and the actual fragment is unchanged after\r\nawaiting it, even when a corresponding hashchange handler is still queued."
             },
             {
               "kind": "method",
@@ -3513,7 +3533,8 @@
                 "type": {
                   "text": "void"
                 }
-              }
+              },
+              "description": "Debounce the newest rebuild and immediately supersede older restores or writes."
             },
             {
               "kind": "method",
@@ -3524,7 +3545,15 @@
                   "text": "Promise<void>"
                 }
               },
-              "description": "Encode the current source and merge it into the fragment, history-silently."
+              "parameters": [
+                {
+                  "name": "revision",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Encode the scheduled source and merge it into the fragment only when no\r\nnewer source write, observed segment change, or disconnect superseded it.\r\nThe actual fragment must also match the observation captured before the\r\nawait, covering URL changes whose hashchange handler is still queued. A\r\nsuccessful write becomes the current observation, preventing echo work."
             }
           ]
         }

@@ -48,8 +48,7 @@ interface Deferred<T> {
 
 /** Create a deferred promise for deterministic async race tests. */
 const deferred = <T>(): Deferred<T> => {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>(accept => { resolve = accept; });
+  const { promise, resolve } = Promise.withResolvers<T>();
   return { promise, resolve };
 };
 
@@ -86,10 +85,10 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k8=old-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k8'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
 
     history.replaceState(history.state, '', '#k8=new-segment');
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     expect(decode_machine).toHaveBeenCalledTimes(2);
 
     newDecode.resolve('new -> source;');
@@ -111,7 +110,7 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k17=old-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k17'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     expect(decode_machine).toHaveBeenCalledWith('old-segment');
 
     history.replaceState(history.state, '', '#k17=new-segment');
@@ -139,13 +138,13 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k13=same-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k13'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await Promise.resolve();
     expect(el.fsl).toBe('url -> source;');
 
     el.remove();
     el.fsl = 'detached -> edit;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await Promise.resolve();
 
     expect(decode_machine).toHaveBeenCalledTimes(2);
@@ -158,15 +157,15 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k14=returning-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k14'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await Promise.resolve();
     expect(el.fsl).toBe('url -> source;');
 
     history.replaceState(history.state, '', location.pathname);
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     el.fsl = 'local -> edit;';
     history.replaceState(history.state, '', '#k14=returning-segment');
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     await Promise.resolve();
 
     expect(decode_machine).toHaveBeenCalledTimes(2);
@@ -183,16 +182,16 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k15=valid-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k15'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await Promise.resolve();
     expect(el.fsl).toBe('url -> source;');
 
     history.replaceState(history.state, '', '#k15=malformed-segment');
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     await Promise.resolve();
     el.fsl = 'local -> edit;';
     history.replaceState(history.state, '', '#k15=valid-segment');
-    window.dispatchEvent(new Event('hashchange'));
+    dispatchEvent(new Event('hashchange'));
     await Promise.resolve();
 
     expect(vi.mocked(decode_machine).mock.calls.map(([segment]) => segment)).toEqual([
@@ -241,7 +240,7 @@ describe('FslPermalinkSync', () => {
     });
     const el = document.createElement('plk-host') as Host;
     el.id = 'k9';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     vi.useFakeTimers();
 
@@ -279,7 +278,7 @@ describe('FslPermalinkSync', () => {
     });
     const el = document.createElement('plk-host') as Host;
     el.id = 'k16';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     vi.useFakeTimers();
 
@@ -295,7 +294,7 @@ describe('FslPermalinkSync', () => {
       el.rebuilt();
       await vi.advanceTimersByTimeAsync(PERMALINK_WRITE_DEBOUNCE_MS);
       history.replaceState(history.state, '', '#k16=first-segment&other=0ZZZ');
-      window.dispatchEvent(new Event('hashchange'));
+      dispatchEvent(new Event('hashchange'));
 
       secondEncode.resolve('second-segment');
       await Promise.resolve();
@@ -315,7 +314,7 @@ describe('FslPermalinkSync', () => {
     });
     const el = document.createElement('plk-host') as Host;
     el.id = 'k18'; el.fsl = 'local -> source;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     vi.useFakeTimers();
 
@@ -343,7 +342,7 @@ describe('FslPermalinkSync', () => {
     });
     const el = document.createElement('plk-host') as Host;
     el.id = 'k10'; el.fsl = 'pending -> source;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     const spy = vi.spyOn(history, 'replaceState');
     vi.useFakeTimers();
@@ -369,7 +368,7 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#other=0ZZZ');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k19'; el.fsl = 'local -> source;';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     const spy = vi.spyOn(history, 'replaceState');
     vi.useFakeTimers();
@@ -401,7 +400,7 @@ describe('FslPermalinkSync', () => {
     });
     const el = document.createElement('plk-host') as Host;
     el.id = 'k11';
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     vi.useFakeTimers();
 
@@ -412,7 +411,7 @@ describe('FslPermalinkSync', () => {
       expect(encode_machine).toHaveBeenCalledWith('local -> source;');
 
       history.replaceState(history.state, '', '#k11=remote-segment');
-      window.dispatchEvent(new Event('hashchange'));
+      dispatchEvent(new Event('hashchange'));
       expect(decode_machine).toHaveBeenCalledWith('remote-segment');
 
       remoteDecode.resolve('remote -> source;');
@@ -442,7 +441,7 @@ describe('FslPermalinkSync', () => {
     history.replaceState(history.state, '', '#k12=remote-segment');
     const el = document.createElement('plk-host') as Host;
     el.id = 'k12'; el.fsl = 'declared -> only;';
-    document.body.appendChild(el);
+    document.body.append(el);
     expect(decode_machine).toHaveBeenCalledWith('remote-segment');
     vi.useFakeTimers();
 

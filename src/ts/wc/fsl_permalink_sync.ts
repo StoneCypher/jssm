@@ -85,8 +85,9 @@ export class FslPermalinkSync implements ReactiveController {
     const segment = read_fragment_param(location.hash, key);
     if (segment === this._observed) { return; }
     this._observed = segment;
-    const revision = this._revision += 1;
+    this._revision += 1;
     if (segment === null) { return; }
+    const revision = this._revision;
     try {
       const fsl = await decode_machine(segment);
       const currentSegment = read_fragment_param(location.hash, key);
