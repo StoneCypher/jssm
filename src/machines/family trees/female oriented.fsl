@@ -1,0 +1,23 @@
+machine_name      : "Family Tree - Female Oriented";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+machine_comment   : "Female-oriented variant: the mothers' edges are strong (=>) and the fathers' edges are weak (~>), pulling the layout toward the maternal line. Same family as the siblings 'merged.fsl', 'equal weight.fsl', and 'male oriented.fsl' - the four files differ only in edge treatment.";
+machine_reference : "https://github.com/StoneCypher/fsl/issues/499";
+
+flow              : down;
+
+
+
+// Generation 1: the grandparents (Rosalind is the grandmother)
+
+Rosalind => Marigold;
+Edmund   ~> Marigold;
+
+// Generation 2: the parents (Marigold is the mother), spreading to generation 3
+
+Marigold => [Clara Oliver June];
+Felix    ~> [Clara Oliver June];

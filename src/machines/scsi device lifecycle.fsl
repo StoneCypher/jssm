@@ -1,0 +1,68 @@
+machine_name      : "Linux SCSI Device Lifecycle";
+machine_version   : 1.0.0;
+machine_reference : ["https://www.kernel.org/doc/html/latest/driver-api/scsi.html"
+                     "https://elixir.bootlin.com/linux/latest/source/include/scsi/scsi_device.h"
+                     "https://www.spinics.net/lists/linux-scsi/msg172016.html"];
+machine_comment   : "A practical view of a SCSI device's life under the Linux mid layer: the sdev_state lifecycle (created, running, quiesce, block, offline, transport offline, cancel, del) plus the error-handler escalation ladder that a timed-out command drags the device through - retry, abort, LUN reset, target reset, bus reset, host reset - each rung returning to Running on success or escalating on failure, with the device offlined when recovery is exhausted.";
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+graph_layout      : dot;
+
+
+
+// discovery and bringup (the happy path)
+
+Probing 'INQUIRY responds'        => Created;
+Created 'ULD attaches (sd/sr/st)' => Running;
+
+// a device can be blocked before its driver ever attaches
+
+Created      'blocked during scan' -> CreatedBlock;
+CreatedBlock 'unblocked'           -> Created;
+Created      'failed bringup'      ~> Offline;
+
+// power management quiesce
+
+Running 'scsi_device_quiesce'   -> Quiesce;
+Quiesce 'scsi_device_resume'    -> Running;
+Quiesce 'errors while quiesced' ~> Offline;
+
+// temporary blocking by the LLD or transport class
+
+Running 'scsi_internal_device_block' -> Block;
+Block   'unblocked'                  -> Running;
+Block   'unblocked as dead'          ~> Offline;
+
+// going offline and coming back
+
+Running         'excess errors'              ~> Offline;
+Offline         'sysfs: echo running> state' -> Running;
+Running         'transport lost (rport gone)' ~> TransportOffline;
+TransportOffline 'transport restored'         -> Running;
+
+// the error-handler escalation ladder: each rung retries the
+// command on success and climbs on failure
+
+Running      'command times out'         ~> ErrorHandler;
+ErrorHandler 'sense: retryable, requeue' => Running;
+ErrorHandler 'not recoverable'           ~> AbortCommand;
+AbortCommand 'abort succeeds'            => Running;
+AbortCommand 'abort fails'               ~> DeviceReset;
+DeviceReset  'LUN reset succeeds'        => Running;
+DeviceReset  'LUN reset fails'           ~> TargetReset;
+TargetReset  'target reset succeeds'     => Running;
+TargetReset  'target reset fails'        ~> BusReset;
+BusReset     'bus reset succeeds'        => Running;
+BusReset     'bus reset fails'           ~> HostReset;
+HostReset    'host reset succeeds'       => Running;
+HostReset    'recovery exhausted'        ~> Offline;
+
+// teardown: deletion drains in-flight commands, then the device is gone
+
+[Running Quiesce Block Offline TransportOffline] 'user delete / hot unplug' -> Cancel;
+
+Cancel  'in-flight commands drained' => Del;
+Created 'removed before attach'      ~> Del;

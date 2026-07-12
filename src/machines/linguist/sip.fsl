@@ -1,4 +1,4 @@
-machine_name      : "BGP";
+machine_name      : "SIP";
 machine_version   : 1.0.0;
 machine_reference : ["https://www.researchgate.net/figure/221418915_fig2_Figure-2-SIP-finite-state-machine"
                      "https://www.researchgate.net/profile/Henning_Schulzrinne2/publication/221418915/figure/download/fig2/AS:305654611890177@1449885146469/Figure-2-SIP-finite-state-machine.png"];
@@ -6,7 +6,7 @@ machine_reference : ["https://www.researchgate.net/figure/221418915_fig2_Figure-
 machine_author    : "John Haugeland <stonecypher@gmail.com>";
 machine_license   : MIT;
 
-fsl_version       : >= 5.0.0;
+fsl_version       : 5.0.0;
 graph_layout      : dot;
 
 

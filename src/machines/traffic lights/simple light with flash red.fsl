@@ -1,3 +1,11 @@
+machine_name    : "Simple traffic light with flash red";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+
+
 Off 'Start' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 [Red Yellow Green "Flash red"] 'Shut down' ~> Off;
 [Red Yellow Green] 'Flash red' -> "Flash red" 'Proceed' -> "Flash red" 'Normal' -> Red;

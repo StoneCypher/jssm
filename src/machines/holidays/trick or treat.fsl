@@ -1,0 +1,47 @@
+machine_name    : "Trick or Treat";
+machine_version : 1.0.0;
+
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+machine_comment : "One Halloween night, house by house, until the inevitable. Probability-weighted doors, strength-weighted willpower. See also 'christmas morning.fsl'.";
+
+graph_layout    : dot;
+
+
+
+// The doorstep gamble: most doors open, some don't, one has a dog.
+
+"Approach House" 'ring bell' -> "Ring Bell";
+
+"Ring Bell" 70% -> "Door Opens";
+"Ring Bell" 25% -> "No Answer";
+"Ring Bell"  5% -> "Dog Barks";
+
+"Door Opens" 'trick or treat!'            -> "Candy!";
+"No Answer"  'honor bowl, honor optional' -> "Candy!";
+"Dog Barks"  'strategic retreat'          -> "Next House";
+
+"Candy!" 'onward' -> "Next House";
+
+// The night wears on. Mostly you keep going. Mostly.
+
+"Next House" 80% -> "Approach House";
+"Next House" 15% -> "Feet Hurt";
+"Next House"  5% -> "Sugar Crash";
+
+// Willpower, expressed as edge strength: heading home is the likely path,
+// one more street is the unlikely one. Every parent knows both happen.
+
+"Feet Hurt" 'one more street' ~> "Approach House";
+"Feet Hurt" 'head home'       => Home;
+
+// The audit. Also, the toll: parents skim 10%. This is the law.
+
+Home 'dump the pillowcase' -> "Candy Audit";
+
+"Candy Audit" 'eat way too much'   => "Sugar Crash";
+"Candy Audit" 'sensible moderation' ~> Asleep;
+
+"Sugar Crash" 'crash' -> Asleep;
