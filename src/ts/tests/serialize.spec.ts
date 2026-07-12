@@ -402,14 +402,24 @@ describe('Version checking in deserialization', () => {
 
     ser.jssm_version = '999.0.0';
 
+    // Capture rather than assert-inside-catch: `fail()` is a jest global that
+    // vitest does not provide, so the old `fail('Should have thrown an error')`
+    // threw a ReferenceError that its own catch then swallowed and asserted
+    // against.  If deserialize stops throwing, `caught` stays undefined and the
+    // instanceof check below fails loudly.
+    let caught: unknown;
+
     try {
       jssm.deserialize(machine_str, ser);
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error.message).toContain('999.0.0');
-      expect(error.message).toContain(jssm.version);
-      expect(error.message).toContain('Please upgrade jssm');
-    }
+    } catch (error) { caught = error; }
+
+    expect(caught).toBeInstanceOf(Error);
+
+    const message = (caught as Error).message;
+
+    expect(message).toContain('999.0.0');
+    expect(message).toContain(jssm.version);
+    expect(message).toContain('Please upgrade jssm');
 
   });
 

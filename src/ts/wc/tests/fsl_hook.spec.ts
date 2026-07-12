@@ -119,7 +119,10 @@ describe('normalize_hook_kind', () => {
 describe('make_hook_proxy', () => {
 
   it('exposes data with get and set, and reflects writes back to ctx', () => {
-    const ctx: RawHookContext = { data: 1, from: 'a', to: 'b', action: 'flip' };
+    // `RawHookContext.data` is `unknown`; narrowing it to `number` here is what
+    // lets `make_hook_proxy<number>` accept the context while the value stays a
+    // genuine RawHookContext.
+    const ctx: RawHookContext & { data?: number } = { data: 1, from: 'a', to: 'b', action: 'flip' };
     const machine = { state: () => 'a' };
     const p = make_hook_proxy<number>(ctx, machine);
 
@@ -166,7 +169,7 @@ describe('compile_inline_body', () => {
 
   it('compiles a body into a callable that mutates m.data', () => {
     const fn = compile_inline_body<number>('m.data = (m.data ?? 0) + 1;', 't1');
-    const ctx: RawHookContext = { data: 4 };
+    const ctx: RawHookContext & { data?: number } = { data: 4 };
     const p = make_hook_proxy<number>(ctx, { state: () => 'x' });
     fn(p);
     expect(ctx.data).toBe(5);

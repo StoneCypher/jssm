@@ -1717,7 +1717,7 @@ declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType
  *  @throws {TypeError} If `options` is not a non-empty array of objects.
  *
  */
-declare const weighted_rand_select: (options: Array<any>, probability_property: string, rng: JssmRng) => any;
+declare const weighted_rand_select: (options: Array<any>, probability_property?: string, rng?: JssmRng) => any;
 /*******
  *
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.

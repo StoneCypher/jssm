@@ -19,7 +19,7 @@
  *   1  makever, peg                       (write version.ts / fsl_parser — disjoint)
  *   2  typescript, cem, typecheck_cli     (read src, write dist/cem/—; no src writes)
  *   3  doctests                           (writes src/ts/tests/generated — isolated)
- *   4  the 9 rollup bundles + eslint + audit  (read stable dist/es6 + src/ts)
+ *   4  the 9 rollup bundles + eslint + audit + typecheck_tests  (read stable dist/es6 + src/ts)
  *   5  minify + per-bundle terser         (minify rewrites fsl_parser AFTER bundles read it)
  *   6  rm_nonmin                          (removes minify's *.nonmin.js)
  *   7  vitest, changelog
@@ -77,6 +77,9 @@ const FEATURES = {
   make_cli:             { script: 'make_cli',             stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
+  // stage 4, not 2: doctests write src/ts/tests/generated at stage 3, so the
+  // test sources are only stable to read from stage 4 onward
+  typecheck_tests:      { script: 'typecheck_tests',      stages: [4], optional: true, defaultEnabled: true },
 
   // --- Stage 5: minification (after bundles have read fsl_parser) ---
   minify:       { script: 'minify',       stages: [5], optional: true, defaultEnabled: true },

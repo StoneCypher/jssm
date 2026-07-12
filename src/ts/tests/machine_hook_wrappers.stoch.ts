@@ -3,6 +3,8 @@ import * as fc from 'fast-check';
 
 import * as jssm from '../jssm';
 
+import type { HookContext } from '../jssm_types';
+
 
 
 
@@ -34,6 +36,20 @@ const lc_fragment = fc.stringOf(
 const distinct_names = (n: number): fc.Arbitrary<string[]> =>
   fc.array(lc_fragment, { minLength: n, maxLength: n })
     .map( bases => bases.map( (b, i) => `${b}${i}` ) );
+
+/**
+ *  The context object jssm actually hands a hook at dispatch time.  The
+ *  exported `HookContext<mDT>` declares only `data` and `next_data`, but the
+ *  object built in `Machine.transition` also carries the dispatch labels
+ *  `from`, `to` and `action` — which is precisely the surface these tests
+ *  observe.  Declared here as `HookContext` plus the optional labels so the
+ *  spies remain assignable to `HookHandler<mDT>` without a cast.
+ */
+type HookDispatchContext = HookContext<unknown> & {
+  from?   : string,
+  to?     : string,
+  action? : string
+};
 
 /** Calls `set_hook` with a deliberately mis-shaped descriptor, bypassing the compile-time shape. */
 const set_loose_hook = (machine: { set_hook: (d: never) => void }, desc: Record<string, unknown>): void =>
@@ -383,7 +399,7 @@ describe('post-hook wrapper family fires after real dispatch', () => {
         distinct_names(2), lc_fragment,
         ([a, b], act) => {
 
-          type Install = (m: ReturnType<typeof jssm.from>, spy: (ctx: { from?: string, to?: string, action?: string }) => void) => void;
+          type Install = (m: ReturnType<typeof jssm.from>, spy: (ctx: HookDispatchContext) => void) => void;
 
           const rows: ReadonlyArray<[string, Install]> = [
             [ 'post_hook_action',        (m, spy) => { m.post_hook_action(a, b, act, spy); } ],
@@ -397,7 +413,7 @@ describe('post-hook wrapper family fires after real dispatch', () => {
 
             const machine = jssm.from(`${a} '${act}' -> ${b};`);
 
-            const seen: Array<{ from?: string, to?: string, action?: string }> = [];
+            const seen: Array<HookDispatchContext> = [];
             install(machine, ctx => { seen.push(ctx); });
 
             expect(machine.action(act)).toBe(true);

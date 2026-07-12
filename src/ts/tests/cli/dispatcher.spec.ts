@@ -282,6 +282,14 @@ describe('dispatcher: dispatch (orchestrator)', () => {
     expect(stdoutChunks.join('')).toContain('Usage:');
   });
 
+  it('advertises every first-party subcommand that ships as a bin', async () => {
+    const code = await dispatch(['--help']);
+    expect(code).toBe(0);
+    const help = stdoutChunks.join('');
+    expect(help).toContain('render');
+    expect(help).toContain('export-system-prompt');
+  });
+
   it('handles --version on the dispatcher itself', async () => {
     const code = await dispatch(['--version']);
     expect(code).toBe(0);

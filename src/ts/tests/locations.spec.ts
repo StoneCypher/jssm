@@ -60,7 +60,12 @@ describe('parser source locations — other top-level nodes', () => {
   test('named_list node carries per-member value_locs parallel to value', () => {
     const src  = '&group: [a b c]; a -> b;';
     const tree = jssm.parse(src, { locations: true });
-    const node = tree[0] as { value: string[]; value_locs?: FslSourceLocation[] };
+    // `JssmCompileSeStart` declares neither `value_locs` nor a `string[]`-shaped
+    // `value` (its `value` is the loose carrier union shared by every
+    // non-transition rule), so the parse-tree type cannot express the
+    // named_list node this test is asserting on; the double assertion is the
+    // by-hand narrowing, and `value_locs` being defined is itself asserted below.
+    const node = tree[0] as unknown as { value: string[]; value_locs?: FslSourceLocation[] };
     expect(node.value_locs).toBeDefined();
     expect(node.value_locs!.length).toBe(node.value.length);
     for (const [i, member] of node.value.entries()) {
@@ -71,7 +76,10 @@ describe('parser source locations — other top-level nodes', () => {
   test('hook declaration state subject carries a subject_loc; group-ref subject does not', () => {
     const src  = 'a -> b;\non enter b do \'act\';\n&g : [a b];\non exit &g do \'act2\';';
     const tree  = jssm.parse(src, { locations: true });
-    const hooks = tree.filter(n => n.key === 'hook_decl') as
+    // `JssmCompileSeStart` carries no `subject` / `subject_loc` — hook_decl
+    // nodes are a shape the parse-tree type does not describe — so this is the
+    // narrowing the test performs by hand.
+    const hooks = tree.filter(n => n.key === 'hook_decl') as unknown as
       Array<{ subject: unknown; subject_loc?: FslSourceLocation }>;
     expect(hooks.length).toBe(2);
     const [state_hook, group_hook] = hooks;

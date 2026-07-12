@@ -202,7 +202,7 @@ describe('is_hook_rejection normalizes every legal hook result shape', () => {
       fc.property(
         fc.oneof(
           fc.integer(),
-          fc.double({ noNaN: false }),
+          fc.double({ next: true, noNaN: false }),   // `noNaN` is a next-double constraint; without `next: true` fast-check 2's legacy overload silently ignored it and only ever produced [0, 1)
           fc.string(),
           fc.constant(null),
           fc.record({ other: fc.integer() }),   // object without a `pass` field

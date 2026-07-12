@@ -50,8 +50,13 @@ describe('after mapping lifecycle', () => {
 
 test('custom timeout sources', () => {
 
-  const timeout_source       = (f: () => void, a: number) => setTimeout(f, a),
-        clear_timeout_source = (h: number) => clearTimeout(h);
+  // jssm's config types a timer handle as `number` (browser-shaped), but node's
+  // `setTimeout` hands back a `NodeJS.Timeout`.  The library's own default
+  // timeout source resolves that same mismatch the same way — see
+  // DEFAULT_TIMEOUT_SOURCE in src/ts/jssm.ts — so this shim mirrors it, keeping
+  // the real handle (which is what `clearTimeout` here is handed) intact.
+  const timeout_source       = (f: () => void, a: number): number => setTimeout(f, a) as unknown as number,
+        clear_timeout_source = (h: number): void => clearTimeout(h);
 
   const m = sm_from(`a after 20s -> b;`, { timeout_source, clear_timeout_source });
   expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);

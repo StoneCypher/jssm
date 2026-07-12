@@ -1,0 +1,52 @@
+{
+  /* Type-check the test suite.  `noEmit`, so this only ever gates -- it builds nothing.
+     Wired into the build DAG as `typecheck_tests` (stage 4), so `make`, `make_ci` and
+     `build` all run it, which means every PR gates on it.
+
+     Why this file exists: until it did, NO tsconfig included the tests.  tsconfig.json's
+     include is non-recursive (`src/ts/*`), and tsconfig.cli.json explicitly excludes
+     `src/ts/tests/**`.  vitest strips types at transpile time and never checks them, so a
+     test could import a type that did not exist -- or pin a signature that had since
+     changed -- and CI stayed green.  See fsl#1812. */
+
+  "extends": "./tsconfig.json",
+
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+
+    /* es2022 for `.at()`, `replaceAll`, and `Object.hasOwn`, which the suite already uses
+       and which run fine on every supported Node.  The emit target is untouched: nothing
+       is emitted from here. */
+    "lib": ["es2022", "dom", "dom.iterable"],
+
+    /* `vitest/globals` for the bare describe/it/expect the suite is written against.
+       The `jest` global that vitest.setup.ts installs is declared in tests/test_globals.d.ts. */
+    "types": ["node", "vitest/globals"]
+  },
+
+  "include": [
+    "src/ts/**/*"
+  ],
+
+  "exclude": [
+    /* playwright, not vitest: its own runner, its own types */
+    "src/ts/e2e/**/*",
+
+    /* Abandoned scaffolding: extends fast-check's long-removed `NextArbitrary` API, and
+       references an undeclared `T`.  Imported by nothing, runnable by nothing.  It is the
+       file that motivated tsconfig.cli.json's blanket `src/ts/tests/**` exclusion in the
+       first place -- which is how the suite stopped being type-checked at all.  Named
+       explicitly here rather than hidden behind a wildcard.  Delete or revive it; see fsl#1812. */
+    "src/ts/tests/arbitraries.ts",
+
+    /* Doctests are extracted from DocBlock @example bodies, and an example may legitimately
+       demonstrate a call the type system rejects (e.g. #validate_hook_description shows an
+       exit hook mis-keyed with `to`, which is the runtime guard's whole point).  Such an
+       example cannot carry a `@ts-expect-error`, because an `@`-prefixed line inside a
+       JSDoc block starts a NEW JSDoc tag and truncates the @example.  Type-checking these
+       needs extract_examples.cjs to translate a plain `// ts-expect-error` marker into a
+       real directive; until then they are verified by execution (vitest-docs).  See fsl#1812. */
+    "src/ts/tests/generated/**/*"
+  ]
+}

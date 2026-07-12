@@ -19,6 +19,7 @@ describe('weighted_rand_select/2', () => {
 
   test('banana baseline',                () => expect( acc.banana > 3000 ).toBe(true) );
 
+  // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
   test('requires an array',              () => expect( () => jssm.weighted_rand_select( 'not_an_array' )).toThrow() );
   test('requires a non-empty array',    () => expect( () => jssm.weighted_rand_select( [] )).toThrow() );
   test('requires members to be objects', () => expect( () => jssm.weighted_rand_select( ['not_an_obj'] )).toThrow() );

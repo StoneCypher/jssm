@@ -276,9 +276,16 @@ describe('partial and unregistered themes — per-block guard arms', () => {
     active   : ['borderColor', 'probe_active']
   };
 
-  const EMPTY_NAME = 'stoch-probe-empty-theme',
-        PROBE_NAME = 'stoch-probe-partial-theme',
-        BOGUS_NAME = 'stoch-probe-never-registered';
+  // None of these are members of FslTheme, deliberately: EMPTY_NAME and
+  // PROBE_NAME are registered at runtime through `theme_mapping.set` — a
+  // registration path whose keys the closed literal union cannot describe —
+  // and BOGUS_NAME is never registered at all.  They are typed `string` (not
+  // left as literal types) so the `as FslTheme` below are honest downcasts at
+  // the theme_mapping boundary rather than impossible literal-to-literal
+  // conversions.
+  const EMPTY_NAME: string = 'stoch-probe-empty-theme',
+        PROBE_NAME: string = 'stoch-probe-partial-theme',
+        BOGUS_NAME: string = 'stoch-probe-never-registered';
 
   test('a probe theme lands exactly its present+applicable blocks; unregistered names vanish', () => {
 
@@ -321,7 +328,13 @@ describe('partial and unregistered themes — per-block guard arms', () => {
 
             const m = jssm.from(fsl);
             m.hook_entry('st1', () => true);
-            m.themes = [PROBE_NAME, BOGUS_NAME] as FslTheme[];   // the bogus name must contribute nothing
+            // Both names sit outside FslTheme's closed literal union on purpose:
+            // PROBE_NAME is registered at runtime through theme_mapping (a path the
+            // compile-time union cannot express), and BOGUS_NAME is never registered
+            // at all.  The property under test *is* that the unregistered name
+            // contributes nothing, so it must reach the setter unlaundered.
+            // @ts-expect-error deliberately assigning unregistered theme names to prove they vanish
+            m.themes = [PROBE_NAME, BOGUS_NAME];   // the bogus name must contribute nothing
 
             for (const s of names) {
 

@@ -5,6 +5,8 @@ import * as jssm from '../jssm';
 
 import { chain_plan_arb, ring_plan_arb } from './stoch_helpers';
 
+import type { FslTheme } from '../jssm_types';
+
 
 
 
@@ -271,7 +273,10 @@ describe('themes accessor pair', () => {
 
   test('setter wraps a bare string into an array and passes arrays through', () => {
 
-    const theme_arb = fc.constantFrom('default', 'modern', 'ocean', 'plain', 'bold');
+    // these are the five real, registered theme names; the explicit type
+    // argument keeps them at their literal types (fc.constantFrom's inference
+    // widens bare string literals to `string`) so the setter sees FslTheme
+    const theme_arb = fc.constantFrom<FslTheme>('default', 'modern', 'ocean', 'plain', 'bold');
 
     fc.assert(
       fc.property(

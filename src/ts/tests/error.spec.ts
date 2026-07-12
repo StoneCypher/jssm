@@ -108,11 +108,30 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
-  test('Creating an error has undefined for a state when appropriate', () => {
+  // NOTE: this test used to read `(caught as JssmError).state`, which is not a
+  // field JssmError has ever had; the assertion `.toBe(undefined)` therefore
+  // could not fail no matter what the library did.  The real field is
+  // `requested_state`, and it is exercised here in both directions so that the
+  // `undefined` case cannot pass vacuously.
+  test('A JssmError has undefined for requested_state when no state was requested', () => {
 
-    let caught: unknown;
-    try { const _foo = sm`a -FAIL> b;`; } catch (error) { caught = error; }
-    expect((caught as JssmError).state).toBe(undefined);
+    // A duplicate-edge error is raised with no requested state ...
+    let unrequested: unknown;
+    try { const _m = sm`a -> b; a -> b;`; } catch (error) { unrequested = error; }
+
+    expect(unrequested).toBeInstanceOf(JssmError);
+    expect((unrequested as JssmError).requested_state).toBe(undefined);
+
+    // ... whereas a no-such-state error is raised with one, so an
+    // always-undefined `requested_state` would fail this half.
+    let requested: unknown;
+    try {
+      const foo = jssm.from('a->b;');
+      foo.state_for('c');
+    } catch (error) { requested = error; }
+
+    expect(requested).toBeInstanceOf(JssmError);
+    expect((requested as JssmError).requested_state).toBe('c');
 
   } );
 
