@@ -330,3 +330,73 @@ describe('random seed', () => {
   });
 
 });
+
+
+
+
+
+describe('zero-probability candidate pools throw (StoneCypher/fsl#1248)', () => {
+
+  test('an all-0% pool throws a JssmError naming the state, and does not move', () => {
+
+    const m = sm`a 0% -> b; a 0% -> c; b -> a; c -> a;`;
+
+    expect(() => m.probabilistic_transition())
+      .toThrow(/every candidate edge has probability 0%/);
+    expect(() => m.probabilistic_transition()).toThrow(/"a"/);
+
+    expect(m.state()).toBe('a');
+
+  });
+
+  test('a lone 0% edge that shadowed an unweighted sibling (per #1325) also throws', () => {
+
+    // the probability filter drops the undecorated 'c', leaving only b@0%
+    const m = sm`a 0% -> b; a -> c; b -> a; c -> a;`;
+
+    expect(() => m.probabilistic_transition())
+      .toThrow(/every candidate edge has probability 0%/);
+
+  });
+
+  test('the non-destructive stochastic walk path throws on the same pool', () => {
+
+    const m = sm`a 0% -> b; b -> a;`;
+
+    expect(() => [...m.stochastic_runs({ runs: 1, seed: 1 })])
+      .toThrow(/every candidate edge has probability 0%/);
+
+  });
+
+  test('manual transition through a 0% edge remains legal', () => {
+
+    const m = sm`a 0% -> b; a 0% -> c;`;
+
+    expect(m.valid_transition('b')).toBe(true);
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('b');
+
+  });
+
+  test('a pool with any positive weight does not throw', () => {
+
+    const m = sm`a 0% -> b; a 1% -> c; b -> a; c -> a;`;
+    m.rng_seed = 5;
+
+    expect(m.probabilistic_transition()).toBe(true);
+    expect(m.state()).toBe('c');   // the 0% arm can never be the winner
+
+  });
+
+  test('an empty pool (terminal state) is not the guard\'s concern: walks just terminate', () => {
+
+    const m = sm`a -> b;`;
+    const runs = [...m.stochastic_runs({ runs: 1, seed: 1 })];
+
+    expect(runs.length).toBe(1);
+    expect(runs[0].terminated).toBe(true);
+    expect(runs[0].states).toEqual(['a', 'b']);
+
+  });
+
+});

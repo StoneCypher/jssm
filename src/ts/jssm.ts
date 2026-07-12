@@ -20,6 +20,7 @@ import {
   JssmEditorConfig,
   JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
+  JssmParsedSemver,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
@@ -566,10 +567,10 @@ class Machine<mDT> {
   _machine_language?      : string;
   _machine_license?       : string;
   _machine_name?          : string;
-  _machine_version?       : string;
+  _machine_version?       : JssmParsedSemver;
   _npm_name?              : string;
   _default_size?          : JssmDefaultSize;
-  _fsl_version?           : string;
+  _fsl_version?           : JssmParsedSemver;
   _raw_state_declaration? : Array<object>;
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
 
@@ -2165,10 +2166,18 @@ class Machine<mDT> {
   }
 
   /**
-   * Get the machine's version string.  Set via the FSL `machine_version` directive.
-   *  @returns The version string.
+   * Get the machine's declared version, parsed.  Set via the FSL
+   *  `machine_version` directive, which takes a semver triple; the parser
+   *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
+   *  exact source text in `full`.  Returns `undefined` when the directive
+   *  was not given.
+   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+   *  @example
+   *    const m = sm`machine_version: 1.2.3; a -> b;`;
+   *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+   *  @see fsl_version
    */
-  machine_version(): string {
+  machine_version(): JssmParsedSemver | undefined {
     return this._machine_version;
   }
 
@@ -2198,10 +2207,18 @@ class Machine<mDT> {
   }
 
   /**
-   * Get the FSL language version this machine was compiled under.
-   *  @returns The FSL version string.
+   * Get the FSL language version this machine declares, parsed.  Set via
+   *  the FSL `fsl_version` directive, which takes a semver triple; the
+   *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
+   *  the exact source text in `full`.  Returns `undefined` when the
+   *  directive was not given.
+   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+   *  @example
+   *    const m = sm`fsl_version: 1.0.0; a -> b;`;
+   *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
+   *  @see machine_version
    */
-  fsl_version(): string {
+  fsl_version(): JssmParsedSemver | undefined {
     return this._fsl_version;
   }
 
@@ -2540,10 +2557,28 @@ class Machine<mDT> {
 
   /**
    * Set the active theme(s).  Accepts a single theme name or an array.
+   *  Also drops every memoized static state config, so styles resolved
+   *  before the change re-resolve under the new theme stack.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.style_for('b');                 // resolved under the default theme
+   *  m.themes = 'ocean';
+   *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
+   *  ```
+   *
    *  @param to - A theme name or array of theme names to apply.
+   *
+   *  @see resolve_state_config
    */
   set themes(to: FslTheme | FslTheme[]) {
     this._themes = typeof to === 'string' ? [to] : to;
+    // Themes feed tier 1 (and the per-kind/hooked theme layers) of
+    // resolve_state_config's cascade, whose static resolution is memoized
+    // per state.  Invalidate the memo so a theme assigned after a style has
+    // been computed is not shadowed by the old theme's cached resolution —
+    // the same rule set_hook / remove_hook apply for the hooked layer.
+    this._static_state_config_cache.clear();
   }
 
   /**
@@ -2748,12 +2783,54 @@ class Machine<mDT> {
   }
 
   /**
+   * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
+   *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
+   *  selectable weight is zero, because weighted selection over an all-zero
+   *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
+   *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+   *  An empty pool is not this guard's concern (terminality is handled by the
+   *  callers) and passes through untouched.
+   *
+   *  ```typescript
+   *  const m = sm`a 0% -> b; a 0% -> c;`;
+   *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
+   *  ```
+   *  @param whichState - The state the pool exits from, named in the error.
+   *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
+   *  @throws {JssmError} If the pool is non-empty and every candidate edge
+   *  has probability 0 — including the case where explicit `0%` edges
+   *  excluded their unweighted sibling edges from the candidate pool.
+   *  @see probable_exits_for
+   */
+  private _assert_selectable_exit_pool(whichState: StateType, exits: Array<JssmTransition<StateType, mDT>>): void {
+
+    if (exits.length === 0) { return; }
+
+    let total: number = 0;
+    for (const e of exits) {
+      total += (e.probability === undefined) ? 1 : e.probability;
+    }
+
+    if (total > 0) { return; }
+
+    throw new JssmError(this,
+      `Cannot randomly select an exit from state ${JSON.stringify(whichState)}: every candidate edge has probability 0%.  Note that an explicit 0% edge excludes unweighted sibling edges from the candidate pool (StoneCypher/fsl#1248)`
+    );
+
+  }
+
+  /**
    * Take a single random transition from the current state, weighted by
    *  edge probabilities.
    *  @returns `true` if a transition was taken, `false` otherwise.
+   *  @throws {JssmError} If the candidate exit pool is non-empty but its
+   *  total weight is zero — every candidate declares `0%` — per
+   *  StoneCypher/fsl#1248.
    */
   probabilistic_transition(): boolean {
-    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(this.probable_exits_for(this.state()), undefined, this._rng);
+    const exits: Array<JssmTransition<StateType, mDT>> = this.probable_exits_for(this.state());
+    this._assert_selectable_exit_pool(this.state(), exits);
+    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(exits, undefined, this._rng);
     return this.transition(selected.to);
   }
 
@@ -2762,6 +2839,8 @@ class Machine<mDT> {
    *  of states visited (before each transition).
    *  @param n - Number of steps to walk.
    *  @returns An array of state names visited during the walk.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
    */
   probabilistic_walk(n: number): Array<StateType> {
     return [...seq(n)
@@ -2777,6 +2856,8 @@ class Machine<mDT> {
    *  each state was visited.
    *  @param n - Number of steps to walk.
    *  @returns A `Map` from state name to visit count.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
    */
   probabilistic_histo_walk(n: number): Map<StateType, number> {
     return histograph(this.probabilistic_walk(n));
@@ -2799,6 +2880,9 @@ class Machine<mDT> {
    *    the derived arrays — RNG draw order is untouched, so seeded walks
    *    reproduce exactly.
    *  @returns The {@link JssmStochasticRun} for this walk.
+   *  @throws {JssmError} If a visited state's candidate exit pool is
+   *  non-empty but all-zero-weight — see
+   *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
    */
   private _stochastic_one_walk(
     start     : StateType,
@@ -2816,6 +2900,7 @@ class Machine<mDT> {
       let exits = exit_memo.get(cur);
       if (exits === undefined) {
         exits = this.probable_exits_for(cur);
+        this._assert_selectable_exit_pool(cur, exits);
         exit_memo.set(cur, exits);
       }
       if (exits.length === 0) { terminated = true; break; }
@@ -6370,8 +6455,12 @@ class Machine<mDT> {
    *  For any state OTHER than the current one, this returns the memoized static
    *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
    *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-   *  per-state config.  The cache is keyed by state and never invalidated, since
-   *  those tiers do not depend on which state is current.
+   *  per-state config.  The cache is keyed by state; those tiers do not depend
+   *  on which state is current, so it survives transitions, but the mutable
+   *  cascade inputs each clear it when they change — hook registration and
+   *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
+   *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
+   *  per-kind theme layers).
    *
    *  For the machine's CURRENTLY-occupied state the result is recomputed each
    *  call (never cached) and additionally carries the dynamic `active_state`

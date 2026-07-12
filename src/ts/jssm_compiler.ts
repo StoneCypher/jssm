@@ -38,7 +38,8 @@ import {
   JssmStateHooks,
   FslSourceLocation,
   JssmAllowIslands,
-  JssmDefaultSize
+  JssmDefaultSize,
+  JssmParsedSemver
 } from './jssm_types.js';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -78,7 +79,7 @@ function nth_matching_loc<StateType, mDT>(
     }
 
     count++;
-    if (count === n) { return node.loc; }
+    if (count === n) { return node.loc; }
   }
 
   return undefined;
@@ -1313,7 +1314,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     failed_outputs                : Array<StateType>,
     state_config                  : Array<any>,           // TODO COMEBACK no any
     state_declaration             : Array<JssmStateDeclaration>,
-    fsl_version                   : Array<string>,
+    fsl_version                   : Array<JssmParsedSemver>,
     machine_author                : Array<string>,
     machine_comment               : Array<string>,
     machine_contributor           : Array<string>,
@@ -1334,7 +1335,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
     oarrange_declaration          : Array<Array<string>>,
     farrange_declaration          : Array<Array<string>>,
-    machine_version               : Array<string>,        // TODO COMEBACK semver
+    machine_version               : Array<JssmParsedSemver>,
     default_state_config          : Array<JssmStateConfig>,
     default_active_state_config   : Array<JssmStateConfig>,
     default_hooked_state_config   : Array<JssmStateConfig>,
