@@ -105,6 +105,44 @@ test('Theme change', () => {
 
 
 
+describe('theme change invalidates memoized state configs', () => {
+
+  // Regression pin: `resolve_state_config` memoizes the static tiers per
+  // state, and themes feed tier 1 — so assigning `machine.themes` after a
+  // state's config has already been resolved must not keep serving the
+  // old theme's resolution from the cache.
+
+  test('a style resolved before a theme change re-resolves under the new theme', () => {
+
+    // what the ocean theme resolves to when set from birth
+    const expected = sm`theme: ocean; a -> b -> c;`.style_for('b');
+
+    const changed = sm`a -> b -> c;`;
+    changed.style_for('b');                       // memoizes the default-theme resolution
+    changed.themes = 'ocean';
+
+    expect( changed.style_for('b') ).toStrictEqual(expected);
+
+  });
+
+  test('a style resolved before a theme change back to default matches a never-themed twin', () => {
+
+    const expected = sm`a -> b -> c;`.style_for('b');
+
+    const changed = sm`theme: modern; a -> b -> c;`;
+    changed.style_for('b');                       // memoizes the modern-theme resolution
+    changed.themes = 'default';
+
+    expect( changed.style_for('b') ).toStrictEqual(expected);
+
+  });
+
+});
+
+
+
+
+
 /* Regression: fsl#1328 — the grammar formerly listed `none` and lacked
    `plain`, so `theme: plain;` was rejected and `theme: none;` slipped past
    the parser only to vanish at `theme_mapping.get('none') === undefined`.

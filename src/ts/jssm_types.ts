@@ -135,6 +135,30 @@ type JssmDefaultSize = { width?: number; height?: number };
 
 
 
+/**
+ *  A parsed semantic-version breakdown, as produced by the FSL parser for
+ *  version-valued directives (`machine_version`, `fsl_version`).  `major`,
+ *  `minor`, and `patch` are the three numeric components; `full` preserves
+ *  the exact source text of the version.  `loc` is present only when the
+ *  source was parsed with `{ locations: true }`.
+ *
+ *  ```typescript
+ *  const m = sm`machine_version: 1.2.3; a -> b;`;
+ *  m.machine_version();  // { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+ *  ```
+ *  @see Machine.machine_version
+ *  @see Machine.fsl_version
+ */
+type JssmParsedSemver = {
+  major : number,
+  minor : number,
+  patch : number,
+  full  : string,
+  loc?  : FslSourceLocation
+};
+
+
+
 
 
 /**
@@ -820,12 +844,12 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_language?              : string,   // TODO FIXME COMEBACK
   machine_license?               : string,   // TODO FIXME COMEBACK
   machine_name?                  : string,
-  machine_version?               : string,   // TODO FIXME COMEBACK
+  machine_version?               : JssmParsedSemver,
   npm_name?                      : string,
 
   default_size?                  : JssmDefaultSize,
 
-  fsl_version?                   : string,   // TODO FIXME COMEBACK
+  fsl_version?                   : JssmParsedSemver,
 
   auto_api?                      : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
   instance_name?                 : string | undefined,
@@ -1688,6 +1712,7 @@ export {
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmDefaultSize,
+  JssmParsedSemver,
 
   JssmGroupRef,
     JssmGroupMemberRef,
