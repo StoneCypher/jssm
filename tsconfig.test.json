@@ -33,13 +33,6 @@
     /* playwright, not vitest: its own runner, its own types */
     "src/ts/e2e/**/*",
 
-    /* Abandoned scaffolding: extends fast-check's long-removed `NextArbitrary` API, and
-       references an undeclared `T`.  Imported by nothing, runnable by nothing.  It is the
-       file that motivated tsconfig.cli.json's blanket `src/ts/tests/**` exclusion in the
-       first place -- which is how the suite stopped being type-checked at all.  Named
-       explicitly here rather than hidden behind a wildcard.  Delete or revive it; see fsl#1812. */
-    "src/ts/tests/arbitraries.ts",
-
     /* Doctests are extracted from DocBlock @example bodies, and an example may legitimately
        demonstrate a call the type system rejects (e.g. #validate_hook_description shows an
        exit hook mis-keyed with `to`, which is the runtime guard's whole point).  Such an

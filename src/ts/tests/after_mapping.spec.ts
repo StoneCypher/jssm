@@ -75,6 +75,31 @@ test('custom timeout sources', () => {
 
 
 
+// `timeout_source` used to be declared `(Function, number) => number`, in which
+// `Function` and `number` are *parameter names*, not types — so both parameters
+// were silently `any` and the config accepted any two-argument function at all.
+// The @ts-expect-error below is the regression guard: it only holds while the
+// parameters are genuinely typed, and turns into an error the moment they decay
+// back to `any`.
+
+test('a mis-shaped timeout source is rejected by the type', () => {
+
+  const clear_timeout_source = (h: number): void => clearTimeout(h);
+
+  const m = sm_from(`a after 20s -> b;`, {
+    // @ts-expect-error timeout_source takes (fn: () => void, delay_ms: number); a string delay is not a delay
+    timeout_source: (_f: () => void, _delay: string): number => 0,
+    clear_timeout_source
+  });
+
+  expect(m.state()).toBe('a');
+
+});
+
+
+
+
+
 const delay = (time: number = 1000) =>
 
   new Promise( resolve => setTimeout(resolve, time) );

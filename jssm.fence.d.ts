@@ -156,13 +156,6 @@ type JssmColor = string;
  */
 type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
 /**
- *  The set of ASCII arrow tokens recognized by the FSL grammar.  Each arrow
- *  encodes a direction (one-way left/right, or two-way) and a "kind" for
- *  each direction (`-` legal, `=` main path, `~` forced-only).  See the
- *  Language Reference docs for the full semantic table.
- */
-type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
-/**
  * A type teaching Typescript the various supported shapes for nodes, mostly inherited from GraphViz
  */
 type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
@@ -761,8 +754,22 @@ type JssmGenericConfig<StateType, DataType> = {
     state_hooks?: JssmStateHooks;
     rng_seed?: number | undefined;
     time_source?: () => number;
-    timeout_source?: (Function: any, number: any) => number;
-    clear_timeout_source?: (number: any) => void;
+    /**
+     *  Schedules `fn` to run after `delay_ms`, and returns a handle that will be
+     *  handed back to `clear_timeout_source` untouched.  Defaults to `setTimeout`.
+     *
+     *  The handle is typed `number` — the browser shape.  Node's `setTimeout`
+     *  returns a `Timeout` object instead, so a Node-shaped source casts it (as
+     *  jssm's own `DEFAULT_TIMEOUT_SOURCE` does); jssm never inspects the handle,
+     *  it only stores it and gives it back.
+     *
+     *  (Before 5.162.14 these read `(Function, number) => number`, in which
+     *  `Function` and `number` were *parameter names*, not types — so both
+     *  parameters were silently `any`.)
+     */
+    timeout_source?: (fn: () => void, delay_ms: number) => number;
+    /** Cancels a timer previously scheduled by `timeout_source`.  Defaults to `clearTimeout`. */
+    clear_timeout_source?: (handle: number) => void;
 };
 /**
  *  Internal compiler intermediate: one link in a chained transition
@@ -775,7 +782,15 @@ type JssmGenericConfig<StateType, DataType> = {
 type JssmCompileSe<StateType, mDT> = {
     to: StateType;
     se?: JssmCompileSe<StateType, mDT>;
-    kind: JssmArrow;
+    /**
+     *  The arrow token as the parser emitted it.  Deliberately `string` and not
+     *  {@link JssmArrow}: this internal intermediate flows through the whole
+     *  compiler, and threading a 42-member string-literal union through that much
+     *  control-flow analysis overflows `tsc`'s stack (it type-checks standalone
+     *  but dies under `npm run make`).  The value *is* a `JssmArrow` — the two
+     *  places that care re-assert it on the way into the arrow classifiers.
+     */
+    kind: string;
     l_action?: StateType;
     r_action?: StateType;
     l_probability: number;
@@ -1021,10 +1036,33 @@ type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
  *  the payload that will be committed if the transition is accepted —
  *  handlers may inspect or mutate the latter via a
  *  {@link HookComplexResult} return value.
+ *
+ *  The remaining fields describe the transition the hook is firing on.  They
+ *  are optional because a handler is not obliged to care about them, but the
+ *  transition path always supplies all of them; `action` is `undefined` when
+ *  the transition was not driven by an action.
  */
 type HookContext<mDT> = {
     data: mDT;
     next_data: mDT;
+    /** The state being left. */
+    from?: string;
+    /** The state being entered. */
+    to?: string;
+    /** The action that drove the transition, or `undefined` if none did. */
+    action?: string;
+    /** Whether this transition came from `force_transition` rather than `transition`. */
+    forced?: boolean;
+    /**
+     *  Which arrow kind the traversed edge carries — `legal`, `main`, or `forced`.
+     *
+     *  Populated **only when a transition-kind hook is installed** (a standard,
+     *  main, or forced transition hook, or their post- equivalents).  With no such
+     *  hook registered there is nothing to switch on, so jssm skips resolving the
+     *  edge's kind and this is `undefined`.  Install `hook_standard_transition`
+     *  (or a sibling) if a general handler needs to read it.
+     */
+    trans_type?: JssmArrowKind;
 };
 /**
  *  Context object passed to "everything" hooks ({@link EverythingHookHandler}

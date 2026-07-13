@@ -67,9 +67,12 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     if (to === '') {
         throw new JssmError(undefined, 'A state name may not be the empty string (transition target)');
     }
-    const kind = isRight
-        ? arrow_right_kind(this_se.kind)
-        : arrow_left_kind(this_se.kind), 
+    // `this_se.kind` is typed `string` rather than JssmArrow — see the field's own
+    // note in jssm_types.ts.  The classifiers reject anything that isn't a real
+    // arrow, so an unsound value throws here rather than passing silently.
+    const arrow = this_se.kind, kind = isRight
+        ? arrow_right_kind(arrow)
+        : arrow_left_kind(arrow), 
     // action and probability are pre-declared (as after_time always was)
     // so every compiled edge shares ONE hidden class regardless of which
     // optional fields its declaration carries.  The conditional assigns

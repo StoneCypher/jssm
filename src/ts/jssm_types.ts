@@ -51,19 +51,45 @@ type JssmPermitted      = 'required' | 'disallowed';
 type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
 
 /**
- *  The set of ASCII arrow tokens recognized by the FSL grammar.  Each arrow
- *  encodes a direction (one-way left/right, or two-way) and a "kind" for
+ *  Every arrow token recognized by the FSL grammar — all 42 spellings.  Each
+ *  arrow encodes a direction (one-way left/right, or two-way) and a "kind" for
  *  each direction (`-` legal, `=` main path, `~` forced-only).  See the
  *  Language Reference docs for the full semantic table.
+ *
+ *  Every arrow has an ASCII spelling and a unicode spelling, and each half of a
+ *  two-way arrow may be spelled independently, so the two-way arrows also have
+ *  mixed ASCII/unicode spellings (`←=>`, `<-⇒`, and so on).  All of them are
+ *  accepted, by the grammar and by {@link arrow_direction},
+ *  {@link arrow_left_kind}, and {@link arrow_right_kind}.
  */
-type JssmArrow          = '->' | '<-' | '<->' | '<=->' | '<~->'
-                        | '=>' | '<=' | '<=>' | '<-=>' | '<~=>'
-                        | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
-                        // | '⇒'  | '⇐'  | '⇔'  | '⇐→' | '↚→'
-                        // | '→'  | '←'  | '↔'  | '←⇒' | '↚⇒'
-                        // | '↛'  | '↚'  | '↮'  | '←↛' | '⇐↛';
+type JssmArrow          =
 
-// TODO finish the arrow types - unicode *and* mixed
+  // one-way, rightward
+                          '->'   | '→'
+                        | '=>'   | '⇒'
+                        | '~>'   | '↛'
+
+  // one-way, leftward
+                        | '<-'   | '←'
+                        | '<='   | '⇐'
+                        | '<~'   | '↚'
+
+  // two-way, matched kinds
+                        | '<->'  | '↔'
+                        | '<=>'  | '⇔'
+                        | '<~>'  | '↮'
+
+  // two-way, legal left
+                        | '<-=>' | '←⇒'  | '←=>'  | '<-⇒'
+                        | '<-~>' | '←↛'  | '←~>'  | '<-↛'
+
+  // two-way, main-path left
+                        | '<=->' | '⇐→'  | '⇐->'  | '<=→'
+                        | '<=~>' | '⇐↛'  | '⇐~>'  | '<=↛'
+
+  // two-way, forced left
+                        | '<~->' | '↚→'  | '↚->'  | '<~→'
+                        | '<~=>' | '↚⇒'  | '↚=>'  | '<~⇒';
 
 /**
  * A type teaching Typescript the various supported shapes for nodes, mostly inherited from GraphViz
@@ -922,8 +948,24 @@ type JssmGenericConfig<StateType, DataType> = {
   rng_seed?                      : number | undefined,
 
   time_source?                   : () => number,
-  timeout_source?                : (Function, number) => number,
-  clear_timeout_source?          : (number) => void
+
+  /**
+   *  Schedules `fn` to run after `delay_ms`, and returns a handle that will be
+   *  handed back to `clear_timeout_source` untouched.  Defaults to `setTimeout`.
+   *
+   *  The handle is typed `number` — the browser shape.  Node's `setTimeout`
+   *  returns a `Timeout` object instead, so a Node-shaped source casts it (as
+   *  jssm's own `DEFAULT_TIMEOUT_SOURCE` does); jssm never inspects the handle,
+   *  it only stores it and gives it back.
+   *
+   *  (Before 5.162.14 these read `(Function, number) => number`, in which
+   *  `Function` and `number` were *parameter names*, not types — so both
+   *  parameters were silently `any`.)
+   */
+  timeout_source?                : (fn: () => void, delay_ms: number) => number,
+
+  /** Cancels a timer previously scheduled by `timeout_source`.  Defaults to `clearTimeout`. */
+  clear_timeout_source?          : (handle: number) => void
 
 };
 
@@ -961,7 +1003,16 @@ type JssmCompileSe<StateType, mDT> = {
 
   to              : StateType,
   se            ? : JssmCompileSe<StateType, mDT>,
-  kind            : JssmArrow,
+
+  /**
+   *  The arrow token as the parser emitted it.  Deliberately `string` and not
+   *  {@link JssmArrow}: this internal intermediate flows through the whole
+   *  compiler, and threading a 42-member string-literal union through that much
+   *  control-flow analysis overflows `tsc`'s stack (it type-checks standalone
+   *  but dies under `npm run make`).  The value *is* a `JssmArrow` — the two
+   *  places that care re-assert it on the way into the arrow classifiers.
+   */
+  kind            : string,
   l_action      ? : StateType,
   r_action      ? : StateType,
   l_probability   : number,
@@ -1355,10 +1406,35 @@ type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
  *  the payload that will be committed if the transition is accepted —
  *  handlers may inspect or mutate the latter via a
  *  {@link HookComplexResult} return value.
+ *
+ *  The remaining fields describe the transition the hook is firing on.  They
+ *  are optional because a handler is not obliged to care about them, but the
+ *  transition path always supplies all of them; `action` is `undefined` when
+ *  the transition was not driven by an action.
  */
 type HookContext<mDT> = {
-  data      : mDT,
-  next_data : mDT
+  data        : mDT,
+  next_data   : mDT,
+
+  /** The state being left. */
+  from       ?: string,
+  /** The state being entered. */
+  to         ?: string,
+  /** The action that drove the transition, or `undefined` if none did. */
+  action     ?: string,
+  /** Whether this transition came from `force_transition` rather than `transition`. */
+  forced     ?: boolean,
+
+  /**
+   *  Which arrow kind the traversed edge carries — `legal`, `main`, or `forced`.
+   *
+   *  Populated **only when a transition-kind hook is installed** (a standard,
+   *  main, or forced transition hook, or their post- equivalents).  With no such
+   *  hook registered there is nothing to switch on, so jssm skips resolving the
+   *  edge's kind and this is `undefined`.  Install `hook_standard_transition`
+   *  (or a sibling) if a general handler needs to read it.
+   */
+  trans_type ?: JssmArrowKind
 };
 
 /**

@@ -38,18 +38,13 @@ const distinct_names = (n: number): fc.Arbitrary<string[]> =>
     .map( bases => bases.map( (b, i) => `${b}${i}` ) );
 
 /**
- *  The context object jssm actually hands a hook at dispatch time.  The
- *  exported `HookContext<mDT>` declares only `data` and `next_data`, but the
- *  object built in `Machine.transition` also carries the dispatch labels
- *  `from`, `to` and `action` — which is precisely the surface these tests
- *  observe.  Declared here as `HookContext` plus the optional labels so the
- *  spies remain assignable to `HookHandler<mDT>` without a cast.
+ *  The context object jssm hands a hook at dispatch time.  This used to need a
+ *  local intersection type, because the exported `HookContext<mDT>` declared
+ *  only `data` and `next_data` while the dispatched object also carries `from`,
+ *  `to` and `action` — the very surface these tests observe.  `HookContext` now
+ *  declares them, so it is simply the real type.
  */
-type HookDispatchContext = HookContext<unknown> & {
-  from?   : string,
-  to?     : string,
-  action? : string
-};
+type HookDispatchContext = HookContext<unknown>;
 
 /** Calls `set_hook` with a deliberately mis-shaped descriptor, bypassing the compile-time shape. */
 const set_loose_hook = (machine: { set_hook: (d: never) => void }, desc: Record<string, unknown>): void =>

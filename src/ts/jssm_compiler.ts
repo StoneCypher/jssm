@@ -16,6 +16,7 @@ import {
 import {
   JssmTransition,
     JssmTransitions,
+  JssmArrow,
   JssmArrowKind,
   JssmCompileSe,
     JssmCompileSeStart,
@@ -133,9 +134,14 @@ function makeTransition<StateType, mDT>(
   if ((from as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition source)'); }
   if ((to   as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition target)'); }
 
-  const kind: JssmArrowKind = isRight
-                            ? arrow_right_kind(this_se.kind)
-                            : arrow_left_kind(this_se.kind),
+  // `this_se.kind` is typed `string` rather than JssmArrow — see the field's own
+  // note in jssm_types.ts.  The classifiers reject anything that isn't a real
+  // arrow, so an unsound value throws here rather than passing silently.
+  const arrow: JssmArrow = this_se.kind as JssmArrow,
+
+        kind: JssmArrowKind = isRight
+                            ? arrow_right_kind(arrow)
+                            : arrow_left_kind(arrow),
 
         // action and probability are pre-declared (as after_time always was)
         // so every compiled edge shares ONE hidden class regardless of which
