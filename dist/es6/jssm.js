@@ -3790,7 +3790,7 @@ class Machine {
                 this._state = newState;
                 this._state_id = newStateId;
                 if (data_changed) {
-                    this._data = hook_args.data;
+                    this._data = hook_args.next_data;
                 }
                 else if (dataProvided) {
                     this._data = newData;
@@ -5419,12 +5419,23 @@ function _update_hook_fields(hook_args, res) {
     if (Object.prototype.hasOwnProperty.call(res, 'state') && res.state !== undefined) {
         hook_args.to = res.state;
     }
+    // Two channels (StoneCypher/fsl#1948): `data` overrides the value observed by
+    // later hooks in this chain AND is the default committed value; `next_data`
+    // overrides only the committed value.  So `data` sets both, then an explicit
+    // `next_data` overrides the commit channel.  transition_impl commits
+    // hook_args.next_data.  hasOwnProperty (not truthiness) so a falsy override
+    // (false/null/0/''/undefined) still commits (fsl#1264/#935).
+    let changed = false;
     if (Object.prototype.hasOwnProperty.call(res, 'data')) {
         hook_args.data = res.data;
-        hook_args.next_data = res.next_data;
-        return true;
+        hook_args.next_data = res.data;
+        changed = true;
     }
-    return false;
+    if (Object.prototype.hasOwnProperty.call(res, 'next_data')) {
+        hook_args.next_data = res.next_data;
+        changed = true;
+    }
+    return changed;
 }
 /**
  *

@@ -1988,3 +1988,64 @@ describe('a hook complex-result can override the destination state', () => {
   });
 
 });
+
+
+
+
+// Two data channels (fsl#1948): a complex result's `data` overrides what later
+// hooks in the chain observe (and is the default committed value); `next_data`
+// overrides only the committed value.  These were indistinguishable before
+// because every test set data === next_data.
+describe('hook complex-result data vs next_data are distinct channels', () => {
+
+  test('next_data alone is committed', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, next_data: 'NX' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('NX');
+  });
+
+  test('data alone is committed (backward compatible)', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, data: 'CH' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('CH');
+  });
+
+  test('when both are present, next_data wins the commit', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, data: 'CH', next_data: 'NX' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('NX');
+  });
+
+  test('data is observed by a later hook in the same chain', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    let observed: any;
+    m.hook_any_transition(() => ({ pass: true, data: 'INCHAIN' }));   // step 3
+    m.hook_entry('b', (ctx: any) => { observed = ctx.data; return true; });  // step 8
+    expect(m.transition('b')).toBe(true);
+    expect(observed).toBe('INCHAIN');
+    expect(m.data()).toBe('INCHAIN');
+  });
+
+  test('next_data is NOT observed in-chain (commit-only)', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    let observed: any;
+    m.hook_any_transition(() => ({ pass: true, next_data: 'COMMIT' }));   // step 3
+    m.hook_entry('b', (ctx: any) => { observed = ctx.data; return true; });     // step 8
+    expect(m.transition('b')).toBe(true);
+    expect(observed).toBe('orig');
+    expect(m.data()).toBe('COMMIT');
+  });
+
+  test('a falsy next_data still commits (fsl#1264/#935)', () => {
+    for (const v of [false, null, 0, '']) {
+      const m = sm`a => b;`; m.set_data('orig');
+      m.hook_any_transition(() => ({ pass: true, next_data: v }));
+      expect(m.transition('b')).toBe(true);
+      expect(m.data()).toBe(v);
+    }
+  });
+
+});
