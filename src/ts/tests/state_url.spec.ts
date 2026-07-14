@@ -104,3 +104,64 @@ describe('url renders into dot output as URL= attribute', () => {
   });
 
 });
+
+
+
+
+
+// A state url flows through URL= into the rendered SVG's xlink:href, which the
+// <fsl-viz> web component injects into a live DOM.  A javascript:/data:/vbscript:
+// url is therefore a DOM-XSS vector; the render layer must drop unsafe schemes.
+// StoneCypher/fsl#1942
+describe('url is sanitized against script-execution schemes before rendering', () => {
+
+  test('a javascript: url is dropped, emitting no URL= attribute', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "javascript:alert(document.domain)"; }; Foo -> b;`);
+    expect(dot).not.toContain('javascript:');
+    expect(dot).not.toContain('URL=');
+  });
+
+  test('a data: url is dropped', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "data:text/html,<script>alert(1)</script>"; }; Foo -> b;`);
+    expect(dot).not.toContain('data:');
+    expect(dot).not.toContain('URL=');
+  });
+
+  test('a vbscript: url is dropped', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "vbscript:msgbox(1)"; }; Foo -> b;`);
+    expect(dot).not.toContain('vbscript:');
+    expect(dot).not.toContain('URL=');
+  });
+
+  test('control-character obfuscation (a tab inside the scheme) is still dropped', () => {
+    // browsers strip control chars before parsing the scheme, so this is javascript:
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "java\tscript:alert(1)"; }; Foo -> b;`);
+    expect(dot).not.toContain('URL=');
+  });
+
+  test('a leading-whitespace javascript url is dropped', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "   javascript:alert(1)"; }; Foo -> b;`);
+    expect(dot).not.toContain('URL=');
+  });
+
+  test('an https: url is kept', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "https://example.com/x"; }; Foo -> b;`);
+    expect(dot).toContain('URL="https://example.com/x"');
+  });
+
+  test('a mailto: url is kept', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "mailto:a@example.com"; }; Foo -> b;`);
+    expect(dot).toContain('URL="mailto:a@example.com"');
+  });
+
+  test('a schemeless relative url is kept', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "#node1"; }; Foo -> b;`);
+    expect(dot).toContain('URL="#node1"');
+  });
+
+  test('a schemeless path url is kept', () => {
+    const dot = jv.machine_to_dot(sm`state Foo: { url: "/docs/foo"; }; Foo -> b;`);
+    expect(dot).toContain('URL="/docs/foo"');
+  });
+
+});

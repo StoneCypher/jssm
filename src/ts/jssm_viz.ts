@@ -208,6 +208,54 @@ function doublequote(txt: string): string {
 }
 
 
+/**
+ *  URL schemes that are safe to emit into a rendered diagram's `<a xlink:href>`.
+ *  Anything not in this set (notably `javascript:`, `data:`, `vbscript:`) is a
+ *  script-execution vector once the SVG is injected into a live DOM.
+ *  @internal
+ */
+const SAFE_URL_SCHEMES = new Set(['http', 'https', 'mailto', 'ftp', 'ftps', 'tel']);
+
+/**
+ *  Sanitize a state's `url` before it is embedded in DOT (and thence in the
+ *  rendered SVG's `xlink:href`).  A URL with a scheme is kept only when that
+ *  scheme is on the {@link SAFE_URL_SCHEMES} allowlist; a schemeless URL
+ *  (relative path, `#anchor`, query) is always safe and kept as-is.  An unsafe
+ *  URL is dropped (returns `''`) and a warning is emitted, so the diagram still
+ *  renders — just without the dangerous link.
+ *
+ *  Leading ASCII control characters and whitespace are stripped **before**
+ *  inspecting the scheme, because browsers ignore them when parsing a URL — so
+ *  `java\tscript:alert(1)` is recognized and dropped rather than smuggled past.
+ *
+ *  ```typescript
+ *  render_safe_url('https://example.com');       // 'https://example.com'
+ *  render_safe_url('#node');                      // '#node'
+ *  render_safe_url('javascript:alert(1)');        // ''  (dropped + warned)
+ *  ```
+ *  @param raw The raw `url` value from a state's config.
+ *  @returns The original URL if its scheme is safe or absent, otherwise `''`.
+ *  @internal
+ */
+function render_safe_url(raw: string): string {
+  if (!raw) { return ''; }
+
+  // eslint-disable-next-line no-control-regex -- browsers strip these before scheme parsing
+  const stripped = raw.replace(/[\u{0}-\u{20}]+/gu, '');
+  const scheme_match = /^([a-z][a-z0-9+.-]*):/i.exec(stripped);
+
+  if (scheme_match) {
+    const scheme = scheme_match[1].toLowerCase();
+    if (!SAFE_URL_SCHEMES.has(scheme)) {
+      console.warn(`jssm-viz: dropping state url with unsafe scheme "${scheme}:"`);
+      return '';
+    }
+  }
+
+  return raw;
+}
+
+
 
 
 /**
@@ -755,7 +803,7 @@ function state_node_line<T>(u_jssm: jssm.Machine<T>, s: string, state_index: Map
     ['style',     compose_style_string(style)],
     ['fontcolor', style.textColor   || ''],
     ['image',     style.image       || ''],
-    ['URL',       style.url         || ''],
+    ['URL',       render_safe_url(style.url || '')],
     ['fillcolor', fillcolor]
   ]
     .filter(r => r[1])
