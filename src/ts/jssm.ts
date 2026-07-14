@@ -7428,6 +7428,14 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
   machine._state    = ser.state;
   machine._state_id = machine._state_interner.id_of(ser.state) ?? NaN;
 
+  // `from()` armed the *initial* state's `after` timer; the restored state may
+  // differ, so that timer is both a ghost (it targets the wrong state) and a
+  // gap (the restored state's own `after` was never armed).  Clear it and arm
+  // the restored state's timer instead.  clear must precede arm because
+  // set_state_timeout throws if a timer is already pending.  StoneCypher/fsl#1946
+  machine.clear_state_timeout();
+  machine.auto_set_state_timeout();
+
   for (const history_item of ser.history) machine._history.push(history_item)
   ;
 

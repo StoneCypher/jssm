@@ -5676,6 +5676,13 @@ function deserialize(machine_string, ser) {
     const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
     machine._state = ser.state;
     machine._state_id = (_a = machine._state_interner.id_of(ser.state)) !== null && _a !== void 0 ? _a : NaN;
+    // `from()` armed the *initial* state's `after` timer; the restored state may
+    // differ, so that timer is both a ghost (it targets the wrong state) and a
+    // gap (the restored state's own `after` was never armed).  Clear it and arm
+    // the restored state's timer instead.  clear must precede arm because
+    // set_state_timeout throws if a timer is already pending.  StoneCypher/fsl#1946
+    machine.clear_state_timeout();
+    machine.auto_set_state_timeout();
     for (const history_item of ser.history)
         machine._history.push(history_item);
     return machine;
