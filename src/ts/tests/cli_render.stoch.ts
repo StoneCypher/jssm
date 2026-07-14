@@ -3,6 +3,7 @@ import * as fc from 'fast-check';
 
 import { render }     from '../cli/subcommands/render/render';
 import { renderSet }  from '../cli/subcommands/render/renderSet';
+import type { RenderSetItemErr } from '../cli/subcommands/render/renderSet';
 import { svgTarget }  from '../cli/subcommands/render/targets/svg';
 import { dotTarget }  from '../cli/subcommands/render/targets/dot';
 import { htmlTarget } from '../cli/subcommands/render/targets/html';
@@ -232,7 +233,11 @@ describe('renderSet error isolation', () => {
             if (item.ok) {
               expect(item.result.kind).toBe('text');
             } else {
-              expect(item.error).toBeInstanceOf(Error);
+              // The `as RenderSetItemErr` is needed only because the project
+              // pins `strictNullChecks: false`, under which TypeScript will not
+              // narrow the `ok: true | false` boolean-literal discriminant on
+              // the false branch.  Drop it when strict mode lands (fsl#712).
+              expect((item as RenderSetItemErr).error).toBeInstanceOf(Error);
             }
 
           }

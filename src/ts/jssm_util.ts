@@ -89,7 +89,7 @@ const array_box_if_string = n =>
 
 // this is explicitly about other peoples' data, so it has to be weakly typed
 
-const weighted_rand_select = (options: Array<any>, probability_property: string = 'probability', rng: JssmRng): any => {
+const weighted_rand_select = (options: Array<any>, probability_property: string = 'probability', rng?: JssmRng): any => {
 
   if (!Array.isArray(options)) {
     throw new TypeError('options must be a non-empty array of objects');

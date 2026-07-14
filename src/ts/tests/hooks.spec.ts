@@ -1837,3 +1837,98 @@ test('Standard transition hook fires when the taken edge is not the first outbou
   expect(saw).toBe(1);
 
 });
+
+
+
+
+
+// `HookContext` used to declare only `data` and `next_data`, while the runtime
+// has always handed hooks seven fields — and the hook docblocks document
+// `from`/`to`/`action` in their own examples.  Reading `ctx.from` in TypeScript
+// was a compile error on a documented, load-bearing field.  These read the
+// fields off the context with no cast, so if the type ever loses them again,
+// the suite stops compiling.
+
+describe('the hook context carries the transition it fired on', () => {
+
+  test('from, to and action are readable off the context', () => {
+
+    const foo = sm`a 'go' -> b;`;
+    const seen: Array<{ from?: string, to?: string, action?: string }> = [];
+
+    foo.hook_any_transition( ctx => {
+      seen.push({ from: ctx.from, to: ctx.to, action: ctx.action });
+      return true;
+    });
+
+    expect(foo.action('go')).toBe(true);
+    expect(seen).toStrictEqual([{ from: 'a', to: 'b', action: 'go' }]);
+
+  });
+
+  test('action is undefined when no action drove the transition', () => {
+
+    const foo = sm`a -> b;`;
+    const seen: Array<string | undefined> = [];
+
+    foo.hook_any_transition( ctx => { seen.push(ctx.action); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(seen).toStrictEqual([undefined]);
+
+  });
+
+  test('forced reports which door the transition came through', () => {
+
+    const foo = sm`a ~> b; b -> a;`;
+    const forced_flags: Array<boolean | undefined> = [];
+
+    foo.hook_any_transition( ctx => { forced_flags.push(ctx.forced); return true; } );
+
+    // an ordinary transition refuses a forced-only edge, so nothing fires
+    expect(foo.transition('b')).toBe(false);
+    expect(forced_flags).toStrictEqual([]);
+
+    expect(foo.force_transition('b')).toBe(true);
+    expect(forced_flags).toStrictEqual([true]);
+
+    expect(foo.transition('a')).toBe(true);
+    expect(forced_flags).toStrictEqual([true, false]);
+
+  });
+
+  // trans_type is resolved lazily: jssm only looks up the traversed edge's kind
+  // when a transition-KIND hook exists to switch on it.  So the field is present
+  // for a machine that registers one, and elided for a machine that doesn't --
+  // which is exactly why it is declared optional.  Both halves pinned here.
+
+  test('trans_type names the arrow kind when a transition-kind hook is installed', () => {
+
+    const foo = sm`a -> b; b => c; c ~> a;`;
+    const kinds: Array<string | undefined> = [];
+
+    // installing a standard-transition hook is what makes jssm resolve the kind
+    foo.hook_standard_transition( () => true );
+    foo.hook_any_transition( ctx => { kinds.push(ctx.trans_type); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.transition('c')).toBe(true);
+    expect(foo.force_transition('a')).toBe(true);
+
+    expect(kinds).toStrictEqual(['legal', 'main', 'forced']);
+
+  });
+
+  test('trans_type is elided when no transition-kind hook needs it', () => {
+
+    const foo = sm`a -> b;`;
+    const kinds: Array<string | undefined> = [];
+
+    foo.hook_any_transition( ctx => { kinds.push(ctx.trans_type); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(kinds).toStrictEqual([undefined]);
+
+  });
+
+});

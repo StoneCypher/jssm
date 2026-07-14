@@ -95,7 +95,10 @@ describe('dragon §4: non-hex digits are rejected', () => {
         fc.nat(),
         fc.constantFrom(...NON_HEX),
         (len, digits, pos, bad) => {
-          const arr = digits.slice(0, len);
+          // `digits` arrives typed to the hex-digit literal union (HEX_LOWER is
+          // `as const`); the whole point of this property is to seat a NON-hex
+          // character in it, so the working buffer is a plain string[]
+          const arr: string[] = digits.slice(0, len);
           arr[pos % len] = bad;
           expect(() => parse_state_color('#' + arr.join(''))).toThrow();
         }

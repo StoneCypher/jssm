@@ -521,7 +521,9 @@ describe('weighted_rand_select', () => {
 
   test('rejects non-arrays, empty arrays, and non-object members with TypeError', () => {
 
+    // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
     expect(() => weighted_rand_select('not an array')).toThrow(TypeError);
+    // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
     expect(() => weighted_rand_select(7)).toThrow(TypeError);
     expect(() => weighted_rand_select(undefined)).toThrow(TypeError);
     expect(() => weighted_rand_select([])).toThrow(TypeError);
@@ -531,6 +533,7 @@ describe('weighted_rand_select', () => {
       fc.property(
         fc.oneof(fc.string(), fc.integer(), fc.boolean()),
         (not_an_array) => {
+          // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
           expect(() => weighted_rand_select(not_an_array)).toThrow(TypeError);
         }
       ),

@@ -705,7 +705,12 @@ describe('§2 LabelList — bracketed list shapes', () => {
    */
   function parse_start_states(list_src: string): string[] {
 
-    const tree = jssm.parse(`start_states: ${list_src};`) as Array<{ value: string[] }>;
+    // `JssmCompileSeStart['value']` is a loose carrier union
+    // (`string | number | JssmStateDeclarationRule[]`) shared by every
+    // non-transition rule; it does not describe the `string[]` a LabelList
+    // rule actually emits.  The double assertion is the narrowing this test
+    // performs by hand — see the value-shape assertions below.
+    const tree = jssm.parse(`start_states: ${list_src};`) as unknown as Array<{ value: string[] }>;
     return tree[0].value;
 
   }

@@ -97,7 +97,12 @@ function parse_after(n: number | string, unit?: string): unknown {
  */
 function parse_fsl_version(major: number, minor: number, patch: number): { major: number; minor: number; patch: number; full: string } {
 
-  const tree = jssm.parse(`fsl_version: ${major}.${minor}.${patch};`) as Array<{ value: { major: number; minor: number; patch: number; full: string } }>;
+  // `JssmCompileSeStart['value']` is a loose carrier union
+  // (`string | number | JssmStateDeclarationRule[]`) shared by every
+  // non-transition rule; it does not describe the SemVer object the
+  // `fsl_version` rule actually emits.  The double assertion is the
+  // narrowing this test performs by hand.
+  const tree = jssm.parse(`fsl_version: ${major}.${minor}.${patch};`) as unknown as Array<{ value: { major: number; minor: number; patch: number; full: string } }>;
   return tree[0].value;
 
 }

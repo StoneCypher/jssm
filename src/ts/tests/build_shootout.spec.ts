@@ -206,7 +206,10 @@ describe('build_shootout: renderQuickTab', () => {
   it('lists every library as a row with one cell per machine plus an Avg column', async () => {
     const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
     const md = renderQuickTab(machines, entries);
-    for (const machine of Object.values(machines)) {
+    // `machines` is `any` (it comes from an untyped .mjs), and `Object.values`
+    // over `any` falls back to `unknown[]` rather than `any[]`; naming the
+    // element type restores the property access without widening to `any`.
+    for (const machine of Object.values<{ title: string }>(machines)) {
       const colHead = machine.title.split(' ', 1)[0];
       expect(md).toContain(colHead);
     }

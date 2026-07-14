@@ -194,7 +194,8 @@ Usage:
   fsl [--help|--version]
 
 Built-in subcommands (resolved via PATH):
-  render    Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+  render                 Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+  export-system-prompt   Write the FSL system prompt for an LLM to stdout or a file
 
 Discovery:
   Any \`fsl-<name>\` executable on PATH is dispatched when you run

@@ -355,7 +355,13 @@ describe('hook element parsing and wrapping', () => {
               }
               case 'true': {      return true;
               }
-              case 'undefined': { return;
+              // explicit `return undefined` rather than a bare `return;`: this
+              // arm exists to prove an undefined result does NOT cancel, so the
+              // undefined must be a deliberate value, not a fall-off-the-end.
+              // tsc's noImplicitReturns demands the explicit return; unicorn's
+              // no-useless-undefined forbids it.  tsc wins -- it is the gate.
+              // eslint-disable-next-line unicorn/no-useless-undefined
+              case 'undefined': { return undefined;
               }
               default: {          return { arbitrary: 'thing' };
               }

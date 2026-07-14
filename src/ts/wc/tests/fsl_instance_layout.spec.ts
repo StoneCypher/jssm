@@ -20,7 +20,8 @@ async function mount(fsl: string, layout?: string): Promise<FslInstance> {
 }
 
 function mode(el: FslInstance): string | null {
-  return el.shadowRoot!.querySelector('.workbench')?.dataset.mode ?? null;
+  // `dataset` lives on HTMLElement, not the bare Element querySelector infers.
+  return el.shadowRoot!.querySelector<HTMLElement>('.workbench')?.dataset.mode ?? null;
 }
 
 // jsdom defaults to 1024x768 (landscape); restore it after tests that resize.

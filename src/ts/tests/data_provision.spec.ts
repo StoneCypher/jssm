@@ -42,7 +42,10 @@ describe('fsl#1264 — explicit data provision vs omission', () => {
     });
 
     test('do with explicit false sets data to false', () => {
-      const m = sm_from(`a 'step' -> b;`, { data: 'x' });
+      // The data type is declared, not inferred: the machine is seeded with a
+      // string and then handed a boolean on purpose, which is the behavior
+      // under test.  Left to inference, mDT would bind to `string` alone.
+      const m = sm_from<string | boolean>(`a 'step' -> b;`, { data: 'x' });
       expect(m.do('step', false)).toBe(true);
       expect(m.data()).toBe(false);
     });
@@ -136,7 +139,9 @@ describe('fsl#1264 — explicit data provision vs omission', () => {
     });
 
     test('set_data(null) and set_data(false) commit exactly', () => {
-      const m = sm_from(`a -> b;`, { data: 1 });
+      // Declared, not inferred: seeding with a number and then committing null
+      // and false is the point of the test.
+      const m = sm_from<number | boolean | null>(`a -> b;`, { data: 1 });
       m.set_data(null);
       expect(m.data()).toBe(null);
       m.set_data(false);
@@ -188,7 +193,10 @@ describe('fsl#935 — hook complex results carry falsy data faithfully', () => {
 
   for (const [label, value] of falsies) {
     test(`any-transition hook assigning ${label} commits exactly`, () => {
-      const m = sm_from(`a -> b;`, { data: 'seed' });
+      // `value` comes from the `Array<[string, unknown]>` table above, so the
+      // machine's data type is declared as `unknown` rather than inferred as
+      // `string` from the seed; assigning across types is the behavior pinned.
+      const m = sm_from<unknown>(`a -> b;`, { data: 'seed' });
       m.hook_any_transition(() => ({ pass: true, data: value }));
       expect(m.go('b')).toBe(true);
       expect(m.data()).toBe(value);

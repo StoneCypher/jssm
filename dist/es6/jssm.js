@@ -3510,7 +3510,13 @@ class Machine {
      *
      */
     transition_impl(newStateOrAction, newData, wasForced, wasAction, dataProvided = newData !== undefined) {
-        let valid = false, trans_type, newState, newStateId = NaN, actionId = NaN, fromAction;
+        let valid = false, 
+        // deliberately `string`, not `JssmArrowKind`, though only arrow kinds are
+        // ever assigned: declaring this local as the 4-member union makes tsc's
+        // control-flow analysis narrow it across the whole of this (very large)
+        // function, which overflows the checker's stack under `npm run make`.
+        // The union is recovered at the hook boundary below -- see hook_args_obj.
+        trans_type, newState, newStateId = NaN, actionId = NaN, fromAction;
         if (wasForced) {
             // numeric inline of valid_force_transition: any existing edge
             // qualifies, forced or not.  one string probe (the user's target name)
@@ -3582,7 +3588,10 @@ class Machine {
                 to: newState,
                 next_data: newData,
                 forced: wasForced,
-                trans_type
+                // sound: the only values ever assigned to trans_type are an edge's
+                // `kind` and the literal 'forced'.  The local is typed `string` only
+                // to keep tsc's flow analysis off it (see its declaration above).
+                trans_type: trans_type
             }
             : undefined;
         const hook_args = hook_args_obj;
