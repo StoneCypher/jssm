@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import {
   findPluginOnPath,
+  is_safe_subcommand_name,
   isInProcessEligible,
   invokeInProcess,
   invokeBySpawn,
@@ -79,6 +80,63 @@ describe('dispatcher: findPluginOnPath', () => {
     const sep = process.platform === 'win32' ? ';' : ':';
     const found = await findPluginOnPath('foo', `${a}${sep}${b}`);
     expect(found?.startsWith(a)).toBe(true);
+  });
+
+});
+
+
+
+
+
+// A subcommand is interpolated into `fsl-${name}` and path.join()'d against each
+// PATH dir.  Without a name guard, `../../../evil` cancels the fsl- prefix and
+// walks out of PATH, letting the dispatcher spawn an arbitrary executable.
+// StoneCypher/fsl#1943
+describe('dispatcher: subcommand-name safety', () => {
+
+  it('accepts ordinary plugin names', () => {
+    expect(is_safe_subcommand_name('render')).toBe(true);
+    expect(is_safe_subcommand_name('export-system-prompt')).toBe(true);
+    expect(is_safe_subcommand_name('codegen')).toBe(true);
+    expect(is_safe_subcommand_name('a1')).toBe(true);
+    expect(is_safe_subcommand_name('my.plugin')).toBe(true);
+  });
+
+  it('rejects traversal and path-separator names', () => {
+    expect(is_safe_subcommand_name('../../../ls')).toBe(false);
+    expect(is_safe_subcommand_name('..')).toBe(false);
+    expect(is_safe_subcommand_name('../evil')).toBe(false);
+    expect(is_safe_subcommand_name('a/b')).toBe(false);
+    expect(is_safe_subcommand_name(String.raw`a\b`)).toBe(false);
+    expect(is_safe_subcommand_name('a..b')).toBe(false);
+    expect(is_safe_subcommand_name('/abs/path')).toBe(false);
+    expect(is_safe_subcommand_name('')).toBe(false);
+    expect(is_safe_subcommand_name('.hidden')).toBe(false);
+  });
+
+  it('findPluginOnPath refuses a traversal name even when the target file exists', async () => {
+    // plant PATHDIR/bin as the PATH entry and a real executable one level above
+    const root   = await fs.mkdtemp(join(tmpdir(), 'fsl-traversal-'));
+    const binDir = join(root, 'bin');
+    await fs.mkdir(binDir);
+    const planted = join(root, 'PLANTED' + (process.platform === 'win32' ? '.cmd' : ''));
+    await fs.writeFile(planted, '', { mode: 0o755 });
+    // ../../../PLANTED from binDir would resolve to root/PLANTED without the guard
+    const found = await findPluginOnPath('../../../PLANTED', binDir);
+    expect(found).toBeNull();
+  });
+
+  it('dispatch returns 1 with an invalid-name error for a traversal subcommand', async () => {
+    const chunks: string[] = [];
+    const orig = process.stderr.write.bind(process.stderr);
+    process.stderr.write = ((s: string) => { chunks.push(s); return true; }) as typeof process.stderr.write;
+    try {
+      const code = await dispatch(['../../../ls']);
+      expect(code).toBe(1);
+      expect(chunks.join('')).toContain('not a valid subcommand name');
+    } finally {
+      process.stderr.write = orig;
+    }
   });
 
 });

@@ -34,11 +34,38 @@ const PATHEXT    = IS_WINDOWS
  * // found === null                          (if not found)
  * ```
  */
+/**
+ * Whether a subcommand token is a safe plugin name — plain enough that it can
+ * only ever resolve to an `fsl-<name>` file *inside* a PATH directory.
+ *
+ * A name is safe when it is a single filename segment of letters, digits, `.`,
+ * `_`, and `-`, starting with a letter or digit, and containing no `..`.  This
+ * rejects path separators (`/`, `\`) and `..` traversal segments.  Without this
+ * guard a name like `../../../evil` cancels the `fsl-` prefix and walks out of
+ * the PATH directory, so the dispatcher resolves and spawns an arbitrary
+ * executable that is neither `fsl-`-prefixed nor inside PATH
+ * (StoneCypher/fsl#1943).
+ * @param name - The raw subcommand token.
+ * @returns true if `name` is a safe plugin name, false otherwise.
+ * @example
+ * ```ts
+ * is_safe_subcommand_name('render');       // true
+ * is_safe_subcommand_name('export-x');     // true
+ * is_safe_subcommand_name('../../../ls');  // false
+ * is_safe_subcommand_name('a/b');          // false
+ * ```
+ */
+export function is_safe_subcommand_name(name: string): boolean {
+  return /^[a-z0-9][\w.-]*$/i.test(name) && !name.includes('..');
+}
+
 export async function findPluginOnPath(
   subcommand: string,
   pathEnv: string | undefined,
 ): Promise<string | null> {
   if (!pathEnv) return null;
+  // defense in depth: never probe a name that could escape the PATH dir
+  if (!is_safe_subcommand_name(subcommand)) return null;
   const dirs = pathEnv.split(PATH_SEP).filter(d => d.length > 0);
   const baseName = `fsl-${subcommand}`;
   const NODE_EXTS = ['.cjs', '.mjs', '.js'];
@@ -249,6 +276,11 @@ export async function dispatch(argv: string[]): Promise<number> {
     }
     printDispatcherHelp();
     return 0;
+  }
+
+  if (!is_safe_subcommand_name(subcommand)) {
+    process.stderr.write(`fsl: '${subcommand}' is not a valid subcommand name (only letters, digits, '.', '_', and '-' are allowed; no path separators or '..')\n`);
+    return 1;
   }
 
   const pluginPath = await findPluginOnPath(subcommand, process.env.PATH);
