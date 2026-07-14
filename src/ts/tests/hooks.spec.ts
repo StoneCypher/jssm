@@ -1932,3 +1932,59 @@ describe('the hook context carries the transition it fired on', () => {
   });
 
 });
+
+
+
+
+// A pre-hook may redirect the transition destination by returning a complex
+// result with `state`.  It is applied at commit, validated as a real state,
+// last-writer-wins; the committed state + post-hooks/events/after-timer reflect
+// it.  StoneCypher/fsl#1947
+describe('a hook complex-result can override the destination state', () => {
+
+  test('{ pass: true, state } redirects the committed destination', () => {
+    const m = sm`a => b; a => c;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'c' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('c');
+  });
+
+  test('overriding to a nonexistent state throws', () => {
+    const m = sm`a => b;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'nope' }));
+    expect(() => m.transition('b')).toThrow(/not a state in this machine/);
+  });
+
+  test('override to the same state is a no-op', () => {
+    const m = sm`a => b;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'b' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('b');
+  });
+
+  test('override and data both apply', () => {
+    const m = sm`a => b; a => c;`;
+    m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, state: 'c', data: 'changed' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('c');
+    expect(m.data()).toBe('changed');
+  });
+
+  test('a post-hook sees the override as its to', () => {
+    const m = sm`a => b; a => c;`;
+    const seen: Array<string | undefined> = [];
+    m.hook_any_transition(() => ({ pass: true, state: 'c' }));
+    m.post_hook_any_transition((ctx: any) => { seen.push(ctx.to); });
+    expect(m.transition('b')).toBe(true);
+    expect(seen).toStrictEqual(['c']);
+  });
+
+  test('a vetoing hook still blocks even if it carries state', () => {
+    const m = sm`a => b; a => c;`;
+    m.hook_any_transition(() => ({ pass: false, state: 'c' }));
+    expect(m.transition('b')).toBe(false);
+    expect(m.state()).toBe('a');
+  });
+
+});
