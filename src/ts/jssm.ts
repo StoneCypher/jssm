@@ -5160,13 +5160,6 @@ class Machine<mDT> {
 
     if (valid) {
 
-      // once validity is known, clear old 'after' timeout clause.  This must
-      // happen for hook-free machines too: leaving it inside the hooks branch
-      // let a pending 'after' timer survive a manual transition away, firing a
-      // ghost go() later and crashing re-entry to the after-state with
-      // "already timing out".
-      this.clear_state_timeout();
-
       if (this._has_hooks) {
 
         let data_changed = false;
@@ -5494,7 +5487,15 @@ class Machine<mDT> {
     // inside the helper.
     this.#fire_boundary_actions(fromState, newState);
 
-    // possibly re-establish new 'after' clause
+    // Clear the departed state's `after` timer and re-establish the new state's,
+    // now that the transition has actually committed.  This clear runs only on a
+    // successful commit -- a hook that VETOES the transition returns above, so
+    // the machine stays put and its pending `after` timer is preserved
+    // (StoneCypher/fsl#1945).  It still runs for hook-free machines, so a manual
+    // transition away cannot leave a ghost timer to fire a stray go() later
+    // (the fsl#1327 guarantee).  The clear must precede the arm because
+    // set_state_timeout throws if a timer is already pending.
+    this.clear_state_timeout();
     this.auto_set_state_timeout();
 
     return true;
