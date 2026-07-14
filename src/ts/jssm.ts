@@ -5279,6 +5279,21 @@ class Machine<mDT> {
 
         // all hooks passed!  let's now establish the result
 
+        // a hook may have redirected the destination via a complex result's
+        // `state` (carried on hook_args.to).  Apply it now, validating it names
+        // a real state.  Pre-transition hooks (including entry/exit) fired for
+        // the original edge; the committed state and the post-hooks, observation
+        // events, and after-timer all reflect the override.  Last writer wins.
+        // StoneCypher/fsl#1947
+        if (hook_args.to !== newState) {
+          const override_id = this._state_interner.id_of(hook_args.to);
+          if (override_id === undefined) {
+            throw new JssmError(this, `A hook overrode the transition destination to '${hook_args.to}', which is not a state in this machine`);
+          }
+          newState   = hook_args.to;
+          newStateId = override_id;
+        }
+
         if (this._history_length) {
           this._history.shove([ this._state, this._data ]);
         }
@@ -7093,10 +7108,17 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
 function _update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookComplexResult<mDT>): boolean {
   // HOOK_PASSED is the shared frozen outcome for "no hook installed" and for
   // hooks returning true/undefined — the overwhelming majority of the up-to-
-  // ~10 steps per hooked transition.  It can never carry `data` (frozen, built
-  // without one), so one pointer compare replaces the hasOwnProperty
+  // ~10 steps per hooked transition.  It can never carry `data`/`state` (frozen,
+  // built without them), so one pointer compare replaces the hasOwnProperty
   // reflection call for the common case.
   if (res === HOOK_PASSED) { return false; }
+  // a complex result's `state` redirects the transition's destination; carry it
+  // on hook_args.to (the destination field), which transition_impl applies at
+  // commit (last writer wins).  An explicit `state: undefined` is not a
+  // redirect.  StoneCypher/fsl#1947
+  if (Object.prototype.hasOwnProperty.call(res, 'state') && res.state !== undefined) {
+    hook_args.to = res.state;
+  }
   if (Object.prototype.hasOwnProperty.call(res, 'data')) {
     hook_args.data      = res.data;
     hook_args.next_data = res.next_data;
