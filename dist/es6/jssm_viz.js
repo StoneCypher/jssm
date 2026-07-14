@@ -650,15 +650,20 @@ function state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels,
     // `label="Output "foo""` that crashes the graphviz/emscripten renderer.
     // chips are already escaped by label_with_chips.  StoneCypher/fsl#474
     const label = hide_state_labels ? '' : label_with_chips(doublequote(u_jssm.display_text(s)), chips);
+    // Every attribute value is user-controllable (via state config) and is
+    // embedded inside `"…"` in DOT.  `label` was doublequoted above; the rest are
+    // escaped here so a value containing a literal `"` cannot break out of its
+    // attribute and inject arbitrary Graphviz attributes onto the node.
+    // StoneCypher/fsl#1944.  (Backslash escaping is a separate fix, fsl#1951.)
     const features = [
         ['label', label],
-        ['shape', style.shape || ''],
-        ['color', style.borderColor || ''],
-        ['style', compose_style_string(style)],
-        ['fontcolor', style.textColor || ''],
-        ['image', style.image || ''],
-        ['URL', render_safe_url(style.url || '')],
-        ['fillcolor', fillcolor]
+        ['shape', doublequote(style.shape || '')],
+        ['color', doublequote(style.borderColor || '')],
+        ['style', doublequote(compose_style_string(style))],
+        ['fontcolor', doublequote(style.textColor || '')],
+        ['image', doublequote(style.image || '')],
+        ['URL', doublequote(render_safe_url(style.url || ''))],
+        ['fillcolor', doublequote(fillcolor)]
     ]
         .filter(r => r[1])
         .map(r => `${r[0]}="${r[1]}"`)

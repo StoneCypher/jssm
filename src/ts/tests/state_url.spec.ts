@@ -165,3 +165,27 @@ describe('url is sanitized against script-execution schemes before rendering', (
   });
 
 });
+
+
+
+
+// url/image are user-controlled and embedded inside "…" in DOT.  A literal
+// double-quote in the value must be escaped, or it breaks out of the attribute
+// and injects arbitrary Graphviz attributes onto the node.  StoneCypher/fsl#1944
+describe('url/image values are DOT-escaped against attribute injection', () => {
+
+  test('a double-quote in a scheme-safe url is escaped, not attribute-injected', () => {
+    // FSL `\"` decodes to a literal " in the value: https://x/" fillcolor="red
+    const fsl = String.raw`state Foo: { url: "https://x/\" fillcolor=\"red"; }; Foo -> b;`;
+    const dot = jv.machine_to_dot(jssm.from(fsl));
+    expect(dot).not.toContain('fillcolor="red"');
+    expect(dot).toContain(String.raw`\"`);
+  });
+
+  test('a double-quote in image is escaped, not attribute-injected', () => {
+    const fsl = String.raw`state Foo: { image: "a\" width=\"9999"; }; Foo -> b;`;
+    const dot = jv.machine_to_dot(jssm.from(fsl));
+    expect(dot).not.toContain('width="9999"');
+  });
+
+});
