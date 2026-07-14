@@ -462,3 +462,46 @@ describe('after mapping particulars', () => {
 
 
 });
+
+
+
+
+
+// The source state's `after` timer must survive a vetoed transition: the machine
+// stays put, so its pending auto-advance must too.  Previously the timer was
+// cleared before the hook chain ran, so a veto killed it and the state could
+// never time out.  StoneCypher/fsl#1945
+describe('a vetoed transition preserves the source state\'s after timer', () => {
+
+  test('the a->b after timer survives a vetoed a->c transition', () => {
+    const scheduled: number[] = [];
+    const cleared: number[]   = [];
+    const timeout_source       = (_f: () => void, a: number): number => { scheduled.push(a); return scheduled.length; };
+    const clear_timeout_source = (h: number): void => { cleared.push(h); };
+
+    const m = sm_from(`a after 20s -> b;\na -> c;`, { timeout_source, clear_timeout_source });
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);   // armed at construct
+
+    m.hook('a', 'c', () => false);            // veto the a->c edge
+    expect(m.transition('c')).toBe(false);     // valid edge, but vetoed
+    expect(m.state()).toBe('a');               // still in a
+
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);   // timer preserved
+    expect(cleared).toStrictEqual([]);         // nothing was cleared by the veto
+  });
+
+  test('a successful transition still clears the departed timer (fsl#1327 preserved)', () => {
+    const cleared: number[] = [];
+    const timeout_source       = (_f: () => void, _a: number): number => 1;
+    const clear_timeout_source = (h: number): void => { cleared.push(h); };
+
+    const m = sm_from(`a after 20s -> b;\na -> c;`, { timeout_source, clear_timeout_source });
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);
+
+    expect(m.transition('c')).toBe(true);      // manual transition away, no hook
+    expect(m.state()).toBe('c');
+    expect(cleared).toStrictEqual([1]);        // the a->b ghost timer was cleared on commit
+    expect(m.current_state_timeout()).toBe(undefined);   // c has no after
+  });
+
+});
