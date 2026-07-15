@@ -1268,6 +1268,14 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
 declare class Machine<mDT> {
     #private;
     _state: StateType;
+    _states: Map<StateType, JssmGenericState>;
+    _edges: Array<JssmTransition<StateType, mDT>>;
+    _edge_map: Map<StateType, Map<StateType, number>>;
+    _outbound_edge_ids: Map<StateType, Array<number>>;
+    _named_transitions: Map<StateType, number>;
+    _actions: Map<StateType, Map<StateType, number>>;
+    _reverse_actions: Map<StateType, Map<StateType, number>>;
+    _reverse_action_targets: Map<StateType, Map<StateType, number>>;
     _state_interner: Interner;
     _action_interner: Interner;
     _state_id: number;

@@ -1,16 +1,10 @@
 // whargarbl lots of these return arrays could/should be sets
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
-    if (kind === "m") throw new TypeError("Private method is not writable");
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
-    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
-};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Machine_instances, _Machine_states, _Machine_edges, _Machine_edge_map, _Machine_outbound_edge_ids, _Machine_named_transitions, _Machine_actions, _Machine_reverse_actions, _Machine_reverse_action_targets, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_fire_one, _Machine_has_subscribers, _Machine_fire, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_fire_hook_rejection, _Machine_fire_boundary_actions, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
+var _Machine_instances, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_fire_one, _Machine_has_subscribers, _Machine_fire, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_fire_hook_rejection, _Machine_fire_boundary_actions, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
 import { circular_buffer } from 'circular_buffer_js';
 import { make, transitive_members, membership_distance } from './jssm_compiler.js';
 import { theme_mapping, base_theme } from './jssm_theme.js';
@@ -412,26 +406,18 @@ class Machine {
     // whargarbl this badly needs to be broken up, monolith master
     constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         _Machine_instances.add(this);
-        _Machine_states.set(this, void 0);
-        _Machine_edges.set(this, void 0);
-        _Machine_edge_map.set(this, void 0);
-        _Machine_outbound_edge_ids.set(this, void 0); // from -> [edgeIds]; lets edges_between filter only that state's exits instead of the whole _edges array
-        _Machine_named_transitions.set(this, void 0);
-        _Machine_actions.set(this, void 0);
-        _Machine_reverse_actions.set(this, void 0);
-        _Machine_reverse_action_targets.set(this, void 0);
         this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
         this._create_started = this._time_source();
         this._instance_name = instance_name;
-        __classPrivateFieldSet(this, _Machine_states, new Map(), "f");
+        this._states = new Map();
         this._state_declarations = new Map();
-        __classPrivateFieldSet(this, _Machine_edges, [], "f");
-        __classPrivateFieldSet(this, _Machine_edge_map, new Map(), "f");
-        __classPrivateFieldSet(this, _Machine_outbound_edge_ids, new Map(), "f");
-        __classPrivateFieldSet(this, _Machine_named_transitions, new Map(), "f");
-        __classPrivateFieldSet(this, _Machine_actions, new Map(), "f");
-        __classPrivateFieldSet(this, _Machine_reverse_actions, new Map(), "f");
-        __classPrivateFieldSet(this, _Machine_reverse_action_targets, new Map(), "f"); // todo
+        this._edges = [];
+        this._edge_map = new Map();
+        this._outbound_edge_ids = new Map();
+        this._named_transitions = new Map();
+        this._actions = new Map();
+        this._reverse_actions = new Map();
+        this._reverse_action_targets = new Map(); // todo
         this._state_interner = new Interner();
         this._action_interner = new Interner();
         this._state_id = NaN;
@@ -635,12 +621,12 @@ class Machine {
                 throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`);
             }
             // get the cursors.  what a mess
-            let cursor_from = __classPrivateFieldGet(this, _Machine_states, "f").get(tr.from);
+            let cursor_from = this._states.get(tr.from);
             if (cursor_from === undefined) {
                 cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
                 this._new_state(cursor_from);
             }
-            let cursor_to = __classPrivateFieldGet(this, _Machine_states, "f").get(tr.to);
+            let cursor_to = this._states.get(tr.to);
             if (cursor_to === undefined) {
                 cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
                 this._new_state(cursor_to);
@@ -675,27 +661,27 @@ class Machine {
                 slots.add(slot);
             }
             // add the edge; note its id
-            __classPrivateFieldGet(this, _Machine_edges, "f").push(tr);
-            const thisEdgeId = __classPrivateFieldGet(this, _Machine_edges, "f").length - 1;
+            this._edges.push(tr);
+            const thisEdgeId = this._edges.length - 1;
             if (tr.forced_only) {
                 this._has_forced_transitions = true;
             }
             // guard against repeating a transition name
             if (tr.name) {
-                if (__classPrivateFieldGet(this, _Machine_named_transitions, "f").has(tr.name)) {
+                if (this._named_transitions.has(tr.name)) {
                     throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
                 }
-                __classPrivateFieldGet(this, _Machine_named_transitions, "f").set(tr.name, thisEdgeId);
+                this._named_transitions.set(tr.name, thisEdgeId);
             }
             // set up the after mapping, if any
             if (tr.after_time) {
                 this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
-            let from_mapping = __classPrivateFieldGet(this, _Machine_edge_map, "f").get(tr.from);
+            let from_mapping = this._edge_map.get(tr.from);
             if (from_mapping === undefined) {
                 from_mapping = new Map();
-                __classPrivateFieldGet(this, _Machine_edge_map, "f").set(tr.from, from_mapping);
+                this._edge_map.set(tr.from, from_mapping);
             }
             // first-declared wins: when several edges share a (from, to) pair (parallel
             // action edges, #325), lookup_transition_for resolves to the first one
@@ -720,29 +706,29 @@ class Machine {
             // is fine for lookup_transition_for but loses information for edges_between when several
             // edges share endpoints across distinct actions.  This index preserves every edge id and
             // lets edges_between scan only one state's exits, not all of _edges.
-            let outbound = __classPrivateFieldGet(this, _Machine_outbound_edge_ids, "f").get(tr.from);
+            let outbound = this._outbound_edge_ids.get(tr.from);
             if (!outbound) {
                 outbound = [];
-                __classPrivateFieldGet(this, _Machine_outbound_edge_ids, "f").set(tr.from, outbound);
+                this._outbound_edge_ids.set(tr.from, outbound);
             }
             outbound.push(thisEdgeId);
             // set up the action mapping, so that actions can be looked up by origin
             if (tr.action) {
                 // forward mapping first by action name
-                let actionMap = __classPrivateFieldGet(this, _Machine_actions, "f").get(tr.action);
+                let actionMap = this._actions.get(tr.action);
                 if (!(actionMap)) {
                     actionMap = new Map();
-                    __classPrivateFieldGet(this, _Machine_actions, "f").set(tr.action, actionMap);
+                    this._actions.set(tr.action, actionMap);
                 }
                 if (actionMap.has(tr.from)) {
                     throw new JssmError(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
                 }
                 actionMap.set(tr.from, thisEdgeId);
                 // reverse mapping first by state origin name
-                let rActionMap = __classPrivateFieldGet(this, _Machine_reverse_actions, "f").get(tr.from);
+                let rActionMap = this._reverse_actions.get(tr.from);
                 if (!(rActionMap)) {
                     rActionMap = new Map();
-                    __classPrivateFieldGet(this, _Machine_reverse_actions, "f").set(tr.from, rActionMap);
+                    this._reverse_actions.set(tr.from, rActionMap);
                 }
                 // no need to test for reverse mapping pre-presence;
                 // forward mapping already covers collisions
@@ -751,8 +737,8 @@ class Machine {
                 const action_id = this._action_interner.intern(tr.action);
                 this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
                 // reverse mapping first by state target name
-                if (!(__classPrivateFieldGet(this, _Machine_reverse_action_targets, "f").has(tr.to))) {
-                    __classPrivateFieldGet(this, _Machine_reverse_action_targets, "f").set(tr.to, new Map());
+                if (!(this._reverse_action_targets.has(tr.to))) {
+                    this._reverse_action_targets.set(tr.to, new Map());
                 }
                 /* todo comeback
                    fundamental problem is roActionMap needs to be a multimap
@@ -800,7 +786,7 @@ class Machine {
         }
         // set initial state either from the specified or the start state list.  validate admission behavior.
         if (initial_state) {
-            if (!(__classPrivateFieldGet(this, _Machine_states, "f").has(initial_state))) {
+            if (!(this._states.has(initial_state))) {
                 throw new JssmError(this, `requested start state ${initial_state} does not exist`);
             }
             if ((!(start_states_no_enforce)) && (!(start_states.includes(initial_state)))) {
@@ -855,7 +841,7 @@ class Machine {
         }
         // assert connectivity constraints imposed by allow_islands
         if (this._allow_islands !== true) {
-            const components = find_connected_components(__classPrivateFieldGet(this, _Machine_states, "f"), __classPrivateFieldGet(this, _Machine_edges, "f"));
+            const components = find_connected_components(this._states, this._edges);
             if (this._allow_islands === false) {
                 if (components.length > 1) {
                     throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
@@ -876,7 +862,7 @@ class Machine {
         for (const declaration of [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration]) {
             for (const arrange_pair of declaration) {
                 for (const possibleState of arrange_pair) {
-                    if (!(__classPrivateFieldGet(this, _Machine_states, "f").has(possibleState))) {
+                    if (!(this._states.has(possibleState))) {
                         throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
                     }
                 }
@@ -891,10 +877,10 @@ class Machine {
      *
      */
     _new_state(state_config) {
-        if (__classPrivateFieldGet(this, _Machine_states, "f").has(state_config.name)) {
+        if (this._states.has(state_config.name)) {
             throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
         }
-        __classPrivateFieldGet(this, _Machine_states, "f").set(state_config.name, state_config);
+        this._states.set(state_config.name, state_config);
         this._state_interner.intern(state_config.name);
         return state_config.name;
     }
@@ -1578,14 +1564,14 @@ class Machine {
     machine_state() {
         return {
             internal_state_impl_version: 1,
-            actions: __classPrivateFieldGet(this, _Machine_actions, "f"),
-            edge_map: __classPrivateFieldGet(this, _Machine_edge_map, "f"),
-            edges: __classPrivateFieldGet(this, _Machine_edges, "f"),
-            named_transitions: __classPrivateFieldGet(this, _Machine_named_transitions, "f"),
-            reverse_actions: __classPrivateFieldGet(this, _Machine_reverse_actions, "f"),
+            actions: this._actions,
+            edge_map: this._edge_map,
+            edges: this._edges,
+            named_transitions: this._named_transitions,
+            reverse_actions: this._reverse_actions,
             // reverse_action_targets : this._reverse_action_targets,
             state: this._state,
-            states: __classPrivateFieldGet(this, _Machine_states, "f")
+            states: this._states
         };
     }
     /*********
@@ -1606,7 +1592,7 @@ class Machine {
      *
      */
     states() {
-        return [...__classPrivateFieldGet(this, _Machine_states, "f").keys()];
+        return [...this._states.keys()];
     }
     /**
      * Get the internal state descriptor for a given state name.
@@ -1615,7 +1601,7 @@ class Machine {
      *  @throws {JssmError} If the state does not exist.
      */
     state_for(whichState) {
-        const state = __classPrivateFieldGet(this, _Machine_states, "f").get(whichState);
+        const state = this._states.get(whichState);
         if (state) {
             return state;
         }
@@ -1642,7 +1628,7 @@ class Machine {
      *
      */
     has_state(whichState) {
-        return __classPrivateFieldGet(this, _Machine_states, "f").has(whichState);
+        return this._states.has(whichState);
     }
     /*********
      *
@@ -1680,21 +1666,21 @@ class Machine {
      *
      */
     list_edges() {
-        return __classPrivateFieldGet(this, _Machine_edges, "f");
+        return this._edges;
     }
     /**
      * Get the map of named transitions (transitions with explicit names).
      *  @returns A `Map` from transition name to edge index.
      */
     list_named_transitions() {
-        return __classPrivateFieldGet(this, _Machine_named_transitions, "f");
+        return this._named_transitions;
     }
     /**
      * List all distinct action names defined anywhere in the machine.
      *  @returns An array of action name strings.
      */
     list_actions() {
-        return [...__classPrivateFieldGet(this, _Machine_actions, "f").keys()];
+        return [...this._actions.keys()];
     }
     /**
      * Whether any actions are defined on this machine.
@@ -1702,7 +1688,7 @@ class Machine {
      */
     get uses_actions() {
         // Map.size answers emptiness without materializing the key list
-        return __classPrivateFieldGet(this, _Machine_actions, "f").size > 0;
+        return this._actions.size > 0;
     }
     /**
      * Whether any forced (`~>`) transitions exist in this machine.
@@ -1868,7 +1854,7 @@ class Machine {
      *  such transition exists.
      */
     get_transition_by_state_names(from, to) {
-        const emg = __classPrivateFieldGet(this, _Machine_edge_map, "f").get(from);
+        const emg = this._edge_map.get(from);
         return emg ? emg.get(to) : undefined;
     }
     /**
@@ -1879,7 +1865,7 @@ class Machine {
      */
     lookup_transition_for(from, to) {
         const id = this.get_transition_by_state_names(from, to);
-        return ((id === undefined) || (id === null)) ? undefined : __classPrivateFieldGet(this, _Machine_edges, "f")[id];
+        return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
     }
     /********
      *
@@ -1928,7 +1914,7 @@ class Machine {
      */
     list_entrances(whichState = this.state()) {
         var _a, _b;
-        const guaranteed = ((_a = __classPrivateFieldGet(this, _Machine_states, "f").get(whichState)) !== null && _a !== void 0 ? _a : { from: undefined });
+        const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { from: undefined });
         return (_b = guaranteed.from) !== null && _b !== void 0 ? _b : [];
     }
     /********
@@ -1954,7 +1940,7 @@ class Machine {
      */
     list_exits(whichState = this.state()) {
         var _a, _b;
-        const guaranteed = ((_a = __classPrivateFieldGet(this, _Machine_states, "f").get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
+        const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
     /**
@@ -1977,7 +1963,7 @@ class Machine {
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
-        const wstate = __classPrivateFieldGet(this, _Machine_states, "f").get(whichState);
+        const wstate = this._states.get(whichState);
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
@@ -1990,12 +1976,12 @@ class Machine {
         // lookup_transition_for.  wstate.to is non-empty only when at least one
         // outbound edge exists, and every outbound edge creates the from-side
         // mapping at construction — so emg is defined whenever the loop runs.
-        const emg = __classPrivateFieldGet(this, _Machine_edge_map, "f").get(whichState);
+        const emg = this._edge_map.get(whichState);
         for (const ws of wstate.to) {
             // wstate.to is built from the same edge set _edge_map indexes, so the
             // per-target get cannot miss; the guard mirrors the old defensive
             // .filter(Boolean) and is equally unreachable.
-            const edge = __classPrivateFieldGet(this, _Machine_edges, "f")[emg.get(ws)];
+            const edge = this._edges[emg.get(ws)];
             /* v8 ignore next */
             if (!edge) {
                 continue;
@@ -2298,7 +2284,7 @@ class Machine {
      *
      */
     actions(whichState = this.state()) {
-        const wstate = __classPrivateFieldGet(this, _Machine_reverse_actions, "f").get(whichState);
+        const wstate = this._reverse_actions.get(whichState);
         if (wstate) {
             return [...wstate.keys()];
         }
@@ -2330,7 +2316,7 @@ class Machine {
      *
      */
     list_states_having_action(whichState) {
-        const wstate = __classPrivateFieldGet(this, _Machine_actions, "f").get(whichState);
+        const wstate = this._actions.get(whichState);
         if (wstate) {
             return [...wstate.keys()];
         }
@@ -2363,7 +2349,7 @@ class Machine {
      *    expect(() => m.list_exit_actions('z')).toThrow();
      */
     list_exit_actions(whichState = this.state()) {
-        const ra_base = __classPrivateFieldGet(this, _Machine_reverse_actions, "f").get(whichState);
+        const ra_base = this._reverse_actions.get(whichState);
         if (!(ra_base)) {
             if (this.has_state(whichState)) {
                 return [];
@@ -2382,7 +2368,7 @@ class Machine {
      *  @throws {JssmError} If the state does not exist.
      */
     probable_action_exits(whichState = this.state()) {
-        const ra_base = __classPrivateFieldGet(this, _Machine_reverse_actions, "f").get(whichState);
+        const ra_base = this._reverse_actions.get(whichState);
         if (!(ra_base)) {
             if (this.has_state(whichState)) {
                 return [];
@@ -2395,7 +2381,7 @@ class Machine {
         ra_base.forEach((edgeId, action) => {
             exits.push({
                 action,
-                probability: __classPrivateFieldGet(this, _Machine_edges, "f")[edgeId].probability
+                probability: this._edges[edgeId].probability
             });
         });
         return exits;
@@ -2578,7 +2564,7 @@ class Machine {
      *  @throws {JssmError} If the state does not exist.
      */
     state_is_complete(whichState) {
-        const wstate = __classPrivateFieldGet(this, _Machine_states, "f").get(whichState);
+        const wstate = this._states.get(whichState);
         if (wstate) {
             return wstate.complete;
         }
@@ -3399,11 +3385,11 @@ class Machine {
         if (to_id === undefined) {
             return [];
         }
-        const outbound = (_a = __classPrivateFieldGet(this, _Machine_outbound_edge_ids, "f").get(from)) !== null && _a !== void 0 ? _a : [];
+        const outbound = (_a = this._outbound_edge_ids.get(from)) !== null && _a !== void 0 ? _a : [];
         const result = [];
         for (const edgeId of outbound) {
             if (this._edge_to_ids[edgeId] === to_id) {
-                result.push(__classPrivateFieldGet(this, _Machine_edges, "f")[edgeId]);
+                result.push(this._edges[edgeId]);
             }
         }
         return result;
@@ -3448,7 +3434,7 @@ class Machine {
         // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
         const dataProvided = arguments.length >= 2;
         if (this.allows_override) {
-            if (__classPrivateFieldGet(this, _Machine_states, "f").has(newState)) {
+            if (this._states.has(newState)) {
                 const fromState = this._state;
                 const oldData = this._data;
                 this._state = newState;
@@ -3576,7 +3562,7 @@ class Machine {
             const aid = this._action_interner.id_of(newStateOrAction);
             const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
             if (edgeId !== undefined) {
-                const edge = __classPrivateFieldGet(this, _Machine_edges, "f")[edgeId];
+                const edge = this._edges[edgeId];
                 valid = true;
                 trans_type = edge.kind;
                 newState = edge.to;
@@ -3590,7 +3576,7 @@ class Machine {
             // be forced_only (truthiness, matching the old refusal exactly)
             const to_id = this._state_interner.id_of(newStateOrAction);
             const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
-            if ((edgeId !== undefined) && (!(__classPrivateFieldGet(this, _Machine_edges, "f")[edgeId].forced_only))) {
+            if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
                 if (this._has_transition_hooks || this._has_post_transition_hooks) {
                     // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
                     // both first-declared-wins for parallel (from, to) pairs (see the
@@ -3600,7 +3586,7 @@ class Machine {
                     // Direct read replaces the O(out-degree) object-deref scan; the
                     // first-declared-kind semantics are pinned by the parallel-edge
                     // transition-kind hook spec.  #735
-                    trans_type = __classPrivateFieldGet(this, _Machine_edges, "f")[edgeId].kind;
+                    trans_type = this._edges[edgeId].kind;
                 }
                 valid = true;
                 newState = newStateOrAction;
@@ -4019,7 +4005,7 @@ class Machine {
             // here, and the public state_is_terminal / state_is_complete pair would
             // each redo has_state plus its own map walk.  Same predicates:
             // terminal = no exits, complete = the constructor-set flag.  #735
-            const new_state_rec = __classPrivateFieldGet(this, _Machine_states, "f").get(newState);
+            const new_state_rec = this._states.get(newState);
             if ((new_state_rec.to.length === 0) && __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'terminal')) {
                 __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'terminal', { state: newState, data: newData_after });
             }
@@ -4886,7 +4872,7 @@ class Machine {
         if ((idx === undefined) || (idx === null)) {
             throw new JssmError(this, `No such action ${JSON.stringify(action)}`);
         }
-        return __classPrivateFieldGet(this, _Machine_edges, "f")[idx];
+        return this._edges[idx];
     }
     /**
      * Check whether an action is available from the current state.
@@ -5036,7 +5022,7 @@ class Machine {
         return sm(template_strings, ...remainder);
     }
 }
-_Machine_states = new WeakMap(), _Machine_edges = new WeakMap(), _Machine_edge_map = new WeakMap(), _Machine_outbound_edge_ids = new WeakMap(), _Machine_named_transitions = new WeakMap(), _Machine_actions = new WeakMap(), _Machine_reverse_actions = new WeakMap(), _Machine_reverse_action_targets = new WeakMap(), _Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machine_unsubscribe_entry(set, entry) {
+_Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machine_unsubscribe_entry(set, entry) {
     if (set.delete(entry)) {
         this._event_listener_count--;
     }
