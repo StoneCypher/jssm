@@ -86,6 +86,15 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
     return raw;
   };
 
+  // A value-taking flag consumes the next token, but only if that token could
+  // plausibly be a value.  A `--`-leading next token is another long flag, so a
+  // forgotten value (`--output --stdout`) must report the value as missing
+  // rather than silently swallowing the following option.  Single-`-` tokens
+  // are still accepted so negative-number values (`-3`) keep working, and
+  // `--flag=value` never reaches here.  StoneCypher/fsl#1956
+  const missingValue = (idx: number): boolean =>
+    (idx >= argv.length) || argv[idx].startsWith('--');
+
   let i = 0;
   let positionalOnly = false;
   while (i < argv.length) {
@@ -103,7 +112,7 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
         flags[name] = true;
         i++;
       } else if (eq === -1) {
-        if (i + 1 >= argv.length) throw new Error(`flag --${name} requires a value`);
+        if (missingValue(i + 1)) throw new Error(`flag --${name} requires a value`);
         flags[name] = coerce(name, argv[i + 1]);
         i += 2;
       } else {
@@ -126,7 +135,7 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
         flags[name] = coerce(name, a.slice(2));
         i++;
       } else {
-        if (i + 1 >= argv.length) throw new Error(`flag -${short} requires a value`);
+        if (missingValue(i + 1)) throw new Error(`flag -${short} requires a value`);
         flags[name] = coerce(name, argv[i + 1]);
         i += 2;
       }

@@ -118,4 +118,19 @@ describe('parseFslArgs', () => {
     expect(() => parseFslArgs(['-t'], spec)).toThrow(/flag -t requires a value/i);
   });
 
+  it('does not swallow a following long flag as a missing value (long form)', () => {
+    // `--output --stdout` must not set output to '--stdout' and drop --stdout.
+    expect(() => parseFslArgs(['--output', '--stdout', 'm.fsl'], spec)).toThrow(/flag --output requires a value/i);
+  });
+
+  it('does not swallow a following long flag as a missing value (short form)', () => {
+    expect(() => parseFslArgs(['-o', '--stdout', 'm.fsl'], spec)).toThrow(/flag -o requires a value/i);
+  });
+
+  it('still accepts a negative number as a value', () => {
+    const out = parseFslArgs(['--width', '-3', 'm.fsl'], spec);
+    expect(out.flags.width).toBe(-3);
+    expect(out.positional).toEqual(['m.fsl']);
+  });
+
 });
