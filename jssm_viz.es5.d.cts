@@ -1384,6 +1384,7 @@ declare class Machine<mDT> {
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
+    _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
     constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
@@ -3096,6 +3097,13 @@ declare class Machine<mDT> {
      *
      *  @returns `true` if the transition was valid and every hook passed;
      *  `false` if the transition was invalid or any hook rejected.
+     *
+     *  @throws {JssmError} If called reentrantly from inside a hook that is still
+     *  running in the enclosing transition's pre-commit pipeline — a hook that
+     *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
+     *  and then the outer one would silently discard the inner result, so the
+     *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
+     *  (from a post-hook or the boundary-action cascade) is permitted.
      *
      *  @internal
      *

@@ -584,6 +584,7 @@ class Machine {
         this._event_handlers = new Map();
         this._event_listener_count = 0;
         this._firing_error = false;
+        this._committing_transition = false;
         // Boundary-hook action cascade guard.  Limit defaults to 100 but is
         // configurable via the `boundary_depth_limit` constructor option so tests
         // can tighten the cap and deep pipelines can raise it.
@@ -3522,10 +3523,25 @@ class Machine {
      *  @returns `true` if the transition was valid and every hook passed;
      *  `false` if the transition was invalid or any hook rejected.
      *
+     *  @throws {JssmError} If called reentrantly from inside a hook that is still
+     *  running in the enclosing transition's pre-commit pipeline — a hook that
+     *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
+     *  and then the outer one would silently discard the inner result, so the
+     *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
+     *  (from a post-hook or the boundary-action cascade) is permitted.
+     *
      *  @internal
      *
      */
     transition_impl(newStateOrAction, newData, wasForced, wasAction, dataProvided = newData !== undefined) {
+        // Reject reentry from inside the pre-commit hook pipeline.  Without this, a
+        // hook that itself transitions the machine would commit an inner transition
+        // that this outer, not-yet-committed frame then silently overwrites.  Post-
+        // commit reentry (post-hooks, the boundary-action cascade) is fine: the flag
+        // is already cleared by then.  StoneCypher/fsl#1953
+        if (this._committing_transition) {
+            throw new JssmError(this, 'cannot start a transition from within a transition hook: the enclosing transition has not committed yet, so the inner result would be silently discarded');
+        }
         let valid = false, 
         // deliberately `string`, not `JssmArrowKind`, though only arrow kinds are
         // ever assigned: declaring this local as the 4-member union makes tsc's
@@ -3634,185 +3650,203 @@ class Machine {
         const oldData = this._data;
         if (valid) {
             if (this._has_hooks) {
-                let data_changed = false;
-                // 0. pre everything hook (fires before all other pre-hooks)
-                if (this._pre_everything_hook !== undefined) {
-                    const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                }
-                if (wasAction) {
-                    // 1a. any action hook
-                    const outcome = abstract_hook_step(this._any_action_hook, hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any action', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                    // 1b. global specific action hook
-                    const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
-                    if (!outcome2.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'global action', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome2)) {
-                        data_changed = true;
-                    }
-                }
-                // 2. (removed) After hooks do NOT fire on dispatch.  They are the
-                // `after`-timer's companion (fsl#698: "delay over!") and fire only from
-                // the state-timeout path.  Through v5.143.28 a probe here keyed on
-                // newStateOrAction spuriously fired them on entering the hooked state —
-                // or on a same-named action — making one timer elapse read as two
-                // handler calls (StoneCypher/fsl#1327).
-                // 3. any transition hook
-                if (this._any_transition_hook !== undefined) {
-                    const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any transition', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                }
-                // 4. exit hook
-                if (this._has_exit_hooks) {
-                    const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'exit', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                }
-                // shared by steps 5 and 6: pre-commit, this._state_id is still the
-                // from-state, so both probes key on the same pair; compute it once
-                const pre_pair_id = pair_key(this._state_id, newStateId);
-                // 5. named transition / action hook
-                if (this._has_named_hooks && wasAction) {
-                    // Numeric pair probe, then the action id captured at dispatch (#729).
-                    const byPair = this._named_hooks.get(pre_pair_id);
-                    const nh = byPair === undefined ? undefined : byPair.get(actionId);
-                    const outcome = abstract_hook_step(nh, hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'named', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                }
-                // 6. regular hook
-                if (this._has_basic_hooks) {
-                    // Numeric pair probe (#729); one integer hash replaces two string maps.
-                    const h = this._hooks.get(pre_pair_id);
-                    const outcome = abstract_hook_step(h, hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'hook', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
-                    }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
-                    }
-                }
-                // 7. edge type hook
-                switch (trans_type) {
-                    // 7a. standard transition hook
-                    case 'legal': {
-                        const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
+                // Open the pre-commit window: from here until the commit below, any
+                // reentrant transition_impl call (a hook transitioning the machine)
+                // throws instead of being silently reverted.  The `finally` below closes
+                // it on every exit path; #fire_hook_rejection additionally clears it
+                // before firing the rejection event so a rejection listener may itself
+                // transition.  The pipeline body is intentionally left at its original
+                // indentation to keep this fix's diff focused.  #1953
+                this._committing_transition = true;
+                try {
+                    let data_changed = false;
+                    // 0. pre everything hook (fires before all other pre-hooks)
+                    if (this._pre_everything_hook !== undefined) {
+                        const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
                             data_changed = true;
                         }
-                        break;
                     }
-                    // 7b. main type hook
-                    case 'main': {
-                        const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
+                    if (wasAction) {
+                        // 1a. any action hook
+                        const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'main transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any action', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
                             data_changed = true;
                         }
-                        break;
+                        // 1b. global specific action hook
+                        const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
+                        if (!outcome2.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'global action', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome2)) {
+                            data_changed = true;
+                        }
                     }
-                    // 7c. forced transition hook
-                    case 'forced': {
-                        const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
+                    // 2. (removed) After hooks do NOT fire on dispatch.  They are the
+                    // `after`-timer's companion (fsl#698: "delay over!") and fire only from
+                    // the state-timeout path.  Through v5.143.28 a probe here keyed on
+                    // newStateOrAction spuriously fired them on entering the hooked state —
+                    // or on a same-named action — making one timer elapse read as two
+                    // handler calls (StoneCypher/fsl#1327).
+                    // 3. any transition hook
+                    if (this._any_transition_hook !== undefined) {
+                        const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any transition', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
                             data_changed = true;
                         }
-                        break;
                     }
-                }
-                // 8. entry hook
-                if (this._has_entry_hooks) {
-                    const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'entry', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
+                    // 4. exit hook
+                    if (this._has_exit_hooks) {
+                        const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
+                        if (!outcome.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'exit', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
+                    // shared by steps 5 and 6: pre-commit, this._state_id is still the
+                    // from-state, so both probes key on the same pair; compute it once
+                    const pre_pair_id = pair_key(this._state_id, newStateId);
+                    // 5. named transition / action hook
+                    if (this._has_named_hooks && wasAction) {
+                        // Numeric pair probe, then the action id captured at dispatch (#729).
+                        const byPair = this._named_hooks.get(pre_pair_id);
+                        const nh = byPair === undefined ? undefined : byPair.get(actionId);
+                        const outcome = abstract_hook_step(nh, hook_args);
+                        if (!outcome.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'named', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
-                }
-                // 9. everything hook (fires after all other pre-hooks)
-                if (this._everything_hook !== undefined) {
-                    const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
-                    if (!outcome.pass) {
-                        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'everything', fromState, newState, fromAction, oldData, newData, wasForced);
-                        return false;
+                    // 6. regular hook
+                    if (this._has_basic_hooks) {
+                        // Numeric pair probe (#729); one integer hash replaces two string maps.
+                        const h = this._hooks.get(pre_pair_id);
+                        const outcome = abstract_hook_step(h, hook_args);
+                        if (!outcome.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'hook', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
-                    if (_update_hook_fields(hook_args, outcome)) {
-                        data_changed = true;
+                    // 7. edge type hook
+                    switch (trans_type) {
+                        // 7a. standard transition hook
+                        case 'legal': {
+                            const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
+                            if (!outcome.pass) {
+                                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                                return false;
+                            }
+                            if (_update_hook_fields(hook_args, outcome)) {
+                                data_changed = true;
+                            }
+                            break;
+                        }
+                        // 7b. main type hook
+                        case 'main': {
+                            const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
+                            if (!outcome.pass) {
+                                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'main transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                                return false;
+                            }
+                            if (_update_hook_fields(hook_args, outcome)) {
+                                data_changed = true;
+                            }
+                            break;
+                        }
+                        // 7c. forced transition hook
+                        case 'forced': {
+                            const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
+                            if (!outcome.pass) {
+                                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                                return false;
+                            }
+                            if (_update_hook_fields(hook_args, outcome)) {
+                                data_changed = true;
+                            }
+                            break;
+                        }
                     }
-                }
-                // all hooks passed!  let's now establish the result
-                // a hook may have redirected the destination via a complex result's
-                // `state` (carried on hook_args.to).  Apply it now, validating it names
-                // a real state.  Pre-transition hooks (including entry/exit) fired for
-                // the original edge; the committed state and the post-hooks, observation
-                // events, and after-timer all reflect the override.  Last writer wins.
-                // StoneCypher/fsl#1947
-                if (hook_args.to !== newState) {
-                    const override_id = this._state_interner.id_of(hook_args.to);
-                    if (override_id === undefined) {
-                        throw new JssmError(this, `A hook overrode the transition destination to '${hook_args.to}', which is not a state in this machine`);
+                    // 8. entry hook
+                    if (this._has_entry_hooks) {
+                        const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
+                        if (!outcome.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'entry', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
-                    newState = hook_args.to;
-                    newStateId = override_id;
+                    // 9. everything hook (fires after all other pre-hooks)
+                    if (this._everything_hook !== undefined) {
+                        const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
+                        if (!outcome.pass) {
+                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'everything', fromState, newState, fromAction, oldData, newData, wasForced);
+                            return false;
+                        }
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
+                    }
+                    // all hooks passed!  let's now establish the result
+                    // a hook may have redirected the destination via a complex result's
+                    // `state` (carried on hook_args.to).  Apply it now, validating it names
+                    // a real state.  Pre-transition hooks (including entry/exit) fired for
+                    // the original edge; the committed state and the post-hooks, observation
+                    // events, and after-timer all reflect the override.  Last writer wins.
+                    // StoneCypher/fsl#1947
+                    if (hook_args.to !== newState) {
+                        const override_id = this._state_interner.id_of(hook_args.to);
+                        if (override_id === undefined) {
+                            throw new JssmError(this, `A hook overrode the transition destination to '${hook_args.to}', which is not a state in this machine`);
+                        }
+                        newState = hook_args.to;
+                        newStateId = override_id;
+                    }
+                    if (this._history_length) {
+                        this._history.shove([this._state, this._data]);
+                    }
+                    this._state = newState;
+                    this._state_id = newStateId;
+                    if (data_changed) {
+                        this._data = hook_args.next_data;
+                    }
+                    else if (dataProvided) {
+                        this._data = newData;
+                    }
+                    // success fallthrough to posthooks; intentionally no return here
+                    // look for "posthooks begin here"
                 }
-                if (this._history_length) {
-                    this._history.shove([this._state, this._data]);
+                finally {
+                    // Close the pre-commit window on EVERY exit from the pipeline: normal
+                    // fallthrough after commit, a hook veto's `return false`, the
+                    // destination-override throw, or a user hook throwing.  Post-hooks and
+                    // the boundary-action cascade run after this and may re-enter the
+                    // machine coherently from the committed state.  #1953
+                    this._committing_transition = false;
                 }
-                this._state = newState;
-                this._state_id = newStateId;
-                if (data_changed) {
-                    this._data = hook_args.next_data;
-                }
-                else if (dataProvided) {
-                    this._data = newData;
-                }
-                // success fallthrough to posthooks; intentionally no return here
-                // look for "posthooks begin here"
                 // or without hooks
             }
             else {
@@ -5107,6 +5141,12 @@ _Machine_states = new WeakMap(), _Machine_edges = new WeakMap(), _Machine_edge_m
         }
     }
 }, _Machine_fire_hook_rejection = function _Machine_fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+    // Every hook veto in transition_impl's pre-commit pipeline exits through
+    // here, so this is the single close point for the reentrancy guard on the
+    // rejection path: clear it before firing the event so a `rejection` listener
+    // may itself transition (the outer transition is abandoned, not reverted).
+    // #1953
+    this._committing_transition = false;
     __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'rejection', {
         from: fromState,
         to: newState,
