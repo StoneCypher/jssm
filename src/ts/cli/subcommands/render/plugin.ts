@@ -157,6 +157,12 @@ export async function cli(argv: string[]): Promise<number> {
   }
 
   let worstCode = 0;
+  // The output name is derived from the input's basename only, so two inputs
+  // that share a basename (different directories, or different source
+  // extensions) map to the same file.  Track which source first claimed each
+  // output and refuse a second claim rather than silently overwriting the
+  // first render.  StoneCypher/fsl#1955
+  const claimedBy = new Map<string, string>();
   for (const path of inputs) {
     let fsl: string;
     try {
@@ -167,6 +173,13 @@ export async function cli(argv: string[]): Promise<number> {
       continue;
     }
     const outPath = join(outDir, basename(path, extname(path)) + '.' + extOf(target));
+    const priorSource = claimedBy.get(outPath);
+    if (priorSource !== undefined) {
+      printErr(`refusing to overwrite ${outPath}: both ${priorSource} and ${path} render to it — rename an input or render them in separate --out-dir runs`);
+      worstCode = Math.max(worstCode, 1);
+      continue;
+    }
+    claimedBy.set(outPath, path);
     const code = await renderOne(fsl, path, renderOpts, { outputPath: outPath });
     worstCode = Math.max(worstCode, code);
   }
