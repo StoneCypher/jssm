@@ -130,6 +130,41 @@ describe('fsl-render plugin cli()', () => {
     expect(stderrChunks.join('')).toMatch(/--width, --height, and --scale are mutually exclusive/);
   });
 
+  it('rejects a non-finite --width (Infinity), exit 1', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=png', '--width=Infinity', '--stdout']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/--width must be a positive finite number/);
+  });
+
+  it('rejects a zero --width, exit 1', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=png', '--width=0', '--stdout']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/--width must be a positive/);
+  });
+
+  it('rejects a negative --scale, exit 1', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=png', '--scale=-100', '--stdout']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/--scale must be a positive/);
+  });
+
+  it('rejects an absurdly large --width (OOM guard), exit 1', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=png', '--width=1000000000', '--stdout']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/--width must be a positive finite number no greater than/);
+  });
+
+  it('accepts a valid in-range size flag', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=dot', '--width=400', '--stdout']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toMatch(/digraph/);
+  });
+
   it('reads FSL from piped stdin when no input path is given', async () => {
     const { Readable } = await import('node:stream');
     const realStdin = process.stdin;

@@ -105,6 +105,21 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
+  // A bare Number() coercion rejects only NaN, so Infinity, 0, negatives, and
+  // absurd magnitudes reach the canvas / resvg backend as the fit target and
+  // can OOM or fault the allocation.  Require each size flag to be finite,
+  // positive, and within a sane bound before it leaves the CLI.  #1957
+  const MAX_RENDER_DIMENSION = 100_000;
+  const validSize = (v: number): boolean =>
+    ![ Number.isFinite(v), v > 0, v <= MAX_RENDER_DIMENSION ].includes(false);
+  const sizeChecks: Array<[string, number | undefined]> = [['width', width], ['height', height], ['scale', scale]];
+  for (const [flagName, value] of sizeChecks) {
+    if (value !== undefined && !validSize(value)) {
+      printErr(`--${flagName} must be a positive finite number no greater than ${MAX_RENDER_DIMENSION}`);
+      return 1;
+    }
+  }
+
   const renderOpts: RenderOptions = { target, width, height, scale, quality, delay, maxFrames };
 
   const inputs = parsed.positional;
