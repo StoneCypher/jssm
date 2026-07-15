@@ -521,7 +521,21 @@ export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
  *  @internal
  */
 const DEFAULT_TIME_SOURCE          = (): number => Date.now();
-const DEFAULT_TIMEOUT_SOURCE       = (f: () => void, a: number): number => setTimeout(f, a) as unknown as number;
+const DEFAULT_TIMEOUT_SOURCE       = (f: () => void, a: number): number => {
+  const handle = setTimeout(f, a);
+  // In Node, setTimeout returns a Timeout with .unref(), so a pending `after`
+  // timer does NOT by itself keep the process alive -- an abandoned machine can
+  // be collected and the process can exit instead of hanging until the timer
+  // fires go() on it.  The browser returns a plain number with no such method.
+  // A consumer who wants the timer to hold the loop open can supply their own
+  // timeout_source.  StoneCypher/fsl#1952
+  const maybe_unref = handle as unknown as { unref?: () => void };
+  // The no-unref path is the browser's numeric handle; it can't be reached in
+  // the node-only coverage environment, so the false branch is ignored here.
+  /* v8 ignore next */
+  if (typeof maybe_unref.unref === 'function') { maybe_unref.unref(); }
+  return handle as unknown as number;
+};
 const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number): void => clearTimeout(h);
 
 
