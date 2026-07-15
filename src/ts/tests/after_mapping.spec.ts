@@ -505,3 +505,24 @@ describe('a vetoed transition preserves the source state\'s after timer', () => 
   });
 
 });
+
+
+
+
+
+// The default after-timer must not by itself keep the Node process alive: an
+// abandoned machine with a pending `after` should be collectable and let the
+// process exit, rather than hanging until the timer fires go() on it.  Node's
+// setTimeout returns a Timeout that reports hasRef() === false once unref'd.
+// StoneCypher/fsl#1952
+describe('the default after-timer is unref\'d', () => {
+
+  test('a machine using the default timeout source has an unref\'d pending timer', () => {
+    const m = sm_from('a after 100s -> b;');   // no custom timeout_source -> the default
+    const handle = (m as unknown as { _timeout_handle: { hasRef(): boolean } })._timeout_handle;
+    expect(typeof handle.hasRef).toBe('function');
+    expect(handle.hasRef()).toBe(false);        // unref'd -> does not hold the event loop
+    m.clear_state_timeout();                      // clean up
+  });
+
+});

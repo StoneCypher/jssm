@@ -390,7 +390,23 @@ export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
  *  @internal
  */
 const DEFAULT_TIME_SOURCE = () => Date.now();
-const DEFAULT_TIMEOUT_SOURCE = (f, a) => setTimeout(f, a);
+const DEFAULT_TIMEOUT_SOURCE = (f, a) => {
+    const handle = setTimeout(f, a);
+    // In Node, setTimeout returns a Timeout with .unref(), so a pending `after`
+    // timer does NOT by itself keep the process alive -- an abandoned machine can
+    // be collected and the process can exit instead of hanging until the timer
+    // fires go() on it.  The browser returns a plain number with no such method.
+    // A consumer who wants the timer to hold the loop open can supply their own
+    // timeout_source.  StoneCypher/fsl#1952
+    const maybe_unref = handle;
+    // The no-unref path is the browser's numeric handle; it can't be reached in
+    // the node-only coverage environment, so the false branch is ignored here.
+    /* v8 ignore next */
+    if (typeof maybe_unref.unref === 'function') {
+        maybe_unref.unref();
+    }
+    return handle;
+};
 const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
