@@ -139,26 +139,38 @@ BackTildeArrow "back tilde arrow <~"
 LightFatArrow "light fat arrow <-=>"
   = "<-=>"
   / "←⇒" { return "<-=>"; }
+  / "←=>" { return "<-=>"; }
+  / "<-⇒" { return "<-=>"; }
 
 LightTildeArrow "light tilde arrow <-~>"
   = "<-~>"
   / "←↛" { return "<-~>"; }
+  / "←~>" { return "<-~>"; }
+  / "<-↛" { return "<-~>"; }
 
 FatLightArrow "fat light arrow <=->"
   = "<=->"
   / "⇐→" { return "<=->"; }
+  / "⇐->" { return "<=->"; }
+  / "<=→" { return "<=->"; }
 
 FatTildeArrow "fat tilde arrow <=~>"
   = "<=~>"
   / "⇐↛" { return "<=~>"; }
+  / "⇐~>" { return "<=~>"; }
+  / "<=↛" { return "<=~>"; }
 
 TildeLightArrow "tilde light arrow <~->"
   = "<~->"
   / "↚→" { return "<~->"; }
+  / "↚->" { return "<~->"; }
+  / "<~→" { return "<~->"; }
 
 TildeFatArrow "tilde fat arrow <~=>"
   = "<~=>"
   / "↚⇒" { return "<~=>"; }
+  / "↚=>" { return "<~=>"; }
+  / "<~⇒" { return "<~=>"; }
 
 
 LightArrow "light arrow"

@@ -181,4 +181,53 @@ describe('JssmArrow admits every spelling the classifiers accept', () => {
 
 });
 
+
+
+
+
+// The 12 mixed ascii/unicode two-way arrow spellings are accepted by the
+// classifiers and declared in JssmArrow, but the grammar used to reject them,
+// so `from('a ←=> b;')` threw a SyntaxError.  Each must now parse and compile
+// identically to its pure-ascii spelling.  StoneCypher/fsl#1949
+describe('mixed ascii/unicode arrows parse identically to their ascii form', () => {
+
+  // [mixed spelling, canonical ascii spelling]
+  const mixed: Array<[string, string]> = [
+    ['←=>',  '<-=>'], ['<-⇒', '<-=>'],
+    ['←~>',  '<-~>'], ['<-↛', '<-~>'],
+    ['⇐->',  '<=->'], ['<=→', '<=->'],
+    ['⇐~>',  '<=~>'], ['<=↛', '<=~>'],
+    ['↚->',  '<~->'], ['<~→', '<~->'],
+    ['↚=>',  '<~=>'], ['<~⇒', '<~=>']
+  ];
+
+  for (const [spelling, ascii] of mixed) {
+    test(`${spelling} parses like ${ascii}`, () => {
+      expect(() => jssm.from(`a ${spelling} b;`)).not.toThrow();
+      const m_mixed = jssm.from(`a ${spelling} b;`);
+      const m_ascii = jssm.from(`a ${ascii} b;`);
+      expect(m_mixed.list_edges()).toStrictEqual(m_ascii.list_edges());
+    });
+  }
+
+  test('all 42 arrow spellings parse without throwing', () => {
+    const every: string[] = [
+      '->', '→', '=>', '⇒', '~>', '↛',
+      '<-', '←', '<=', '⇐', '<~', '↚',
+      '<->', '↔', '<=>', '⇔', '<~>', '↮',
+      '<-=>', '←⇒', '←=>', '<-⇒',
+      '<-~>', '←↛', '←~>', '<-↛',
+      '<=->', '⇐→', '⇐->', '<=→',
+      '<=~>', '⇐↛', '⇐~>', '<=↛',
+      '<~->', '↚→', '↚->', '<~→',
+      '<~=>', '↚⇒', '↚=>', '<~⇒'
+    ];
+    expect(every.length).toBe(42);
+    for (const a of every) {
+      expect(() => jssm.from(`a ${a} b;`)).not.toThrow();
+    }
+  });
+
+});
+
 // stochable
