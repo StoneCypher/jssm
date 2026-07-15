@@ -1,0 +1,1130 @@
+{
+  "name": "jssm scaling diagnostic suite",
+  "date": "2026-07-15T15:21:44.302Z",
+  "version": "5.162.30",
+  "results": [
+    {
+      "name": "chain-10 transition()",
+      "ops": 12753600,
+      "margin": 1.06,
+      "percentSlower": 79.23,
+      "allocBytesPerOp": 97.04,
+      "latencyMsMin": 0.007649055453991469,
+      "latencyMsMedian": 0.007726261121267519,
+      "latencyMsMax": 0.010440456886045094,
+      "coldMs": 0.197708,
+      "warmMs": 0.012014,
+      "warmupRatio": 16.456467454636257
+    },
+    {
+      "name": "chain-50 transition()",
+      "ops": 12246800,
+      "margin": 0.1,
+      "percentSlower": 80.06,
+      "allocBytesPerOp": 58.56,
+      "latencyMsMin": 0.008079688426821404,
+      "latencyMsMedian": 0.008154762169568022,
+      "latencyMsMax": 0.00828009671179884,
+      "coldMs": 0.017846,
+      "warmMs": 0.012061,
+      "warmupRatio": 1.4796451372191362
+    },
+    {
+      "name": "chain-200 transition()",
+      "ops": 12126400,
+      "margin": 1.77,
+      "percentSlower": 90.13,
+      "allocBytesPerOp": 57.28,
+      "latencyMsMin": 0.016056789608723542,
+      "latencyMsMedian": 0.016217251443232845,
+      "latencyMsMax": 0.02607138662593347,
+      "coldMs": 0.037816,
+      "warmMs": 0.027417,
+      "warmupRatio": 1.3792902213954845
+    },
+    {
+      "name": "chain-1000 transition()",
+      "ops": 10200000,
+      "margin": 0.74,
+      "percentSlower": 98.34,
+      "allocBytesPerOp": 56.256,
+      "latencyMsMin": 0.09683500193423598,
+      "latencyMsMedian": 0.0974574260915288,
+      "latencyMsMax": 0.12739657833655704,
+      "coldMs": 0.178363,
+      "warmMs": 0.151165,
+      "warmupRatio": 1.1799226011312143
+    },
+    {
+      "name": "dense-10 transition()",
+      "ops": 12758000,
+      "margin": 0.53,
+      "percentSlower": 79.22,
+      "allocBytesPerOp": 96.16,
+      "latencyMsMin": 0.007753433348815606,
+      "latencyMsMedian": 0.007807405325901842,
+      "latencyMsMax": 0.009802444629014397,
+      "coldMs": 0.018525,
+      "warmMs": 0.007533,
+      "warmupRatio": 2.459179609717244
+    },
+    {
+      "name": "dense-50 transition()",
+      "ops": 11328600,
+      "margin": 0.87,
+      "percentSlower": 81.55,
+      "allocBytesPerOp": 58.56,
+      "latencyMsMin": 0.00868793760831889,
+      "latencyMsMedian": 0.008743691681109186,
+      "latencyMsMax": 0.010979472097053727,
+      "coldMs": 0.037246,
+      "warmMs": 0.008454,
+      "warmupRatio": 4.405725100544122
+    },
+    {
+      "name": "dense-200 transition()",
+      "ops": 10744400,
+      "margin": 0.19,
+      "percentSlower": 91.25,
+      "allocBytesPerOp": 57.28,
+      "latencyMsMin": 0.018508492227979276,
+      "latencyMsMedian": 0.018585213651498334,
+      "latencyMsMax": 0.020305496480177845,
+      "coldMs": 0.16327,
+      "warmMs": 0.022375,
+      "warmupRatio": 7.296983240223464
+    },
+    {
+      "name": "hub-50 transition()",
+      "ops": 12471480,
+      "margin": 1.44,
+      "percentSlower": 89.64,
+      "allocBytesPerOp": 57.30612244897959,
+      "latencyMsMin": 0.015516102927580893,
+      "latencyMsMedian": 0.015587011710323576,
+      "latencyMsMax": 0.02723450302571861,
+      "coldMs": 0.033837,
+      "warmMs": 0.015937,
+      "warmupRatio": 2.1231724916860135
+    },
+    {
+      "name": "hub-200 transition()",
+      "ops": 11841694,
+      "margin": 1.17,
+      "percentSlower": 95.15,
+      "allocBytesPerOp": 56.64321608040201,
+      "latencyMsMin": 0.03327009647371922,
+      "latencyMsMedian": 0.03339496937416778,
+      "latencyMsMax": 0.05319620198376916,
+      "coldMs": 5.365338,
+      "warmMs": 0.04112,
+      "warmupRatio": 130.48000972762648
+    },
+    {
+      "name": "hooked-200 transition()",
+      "ops": 6051192,
+      "margin": 1.29,
+      "percentSlower": 97.52,
+      "allocBytesPerOp": 136.643216080402,
+      "latencyMsMin": 0.06459499483870967,
+      "latencyMsMedian": 0.06541043199481865,
+      "latencyMsMax": 0.10843294220665499,
+      "coldMs": 0.083853,
+      "warmMs": 0.064058,
+      "warmupRatio": 1.3090168284991726
+    },
+    {
+      "name": "messy-1000 transition()",
+      "ops": 10756304,
+      "margin": 1.25,
+      "percentSlower": 83.16,
+      "allocBytesPerOp": 58.92307692307692,
+      "latencyMsMin": 0.00955743465800535,
+      "latencyMsMedian": 0.009589277034772642,
+      "latencyMsMax": 0.015824722634967807,
+      "coldMs": 0.029917,
+      "warmMs": 0.013648,
+      "warmupRatio": 2.1920427901524033
+    },
+    {
+      "name": "messy-5000 transition()",
+      "ops": 9363700,
+      "margin": 2.16,
+      "percentSlower": 84.75,
+      "allocBytesPerOp": 58.56,
+      "latencyMsMin": 0.010437501143688917,
+      "latencyMsMedian": 0.010496599812850905,
+      "latencyMsMax": 0.020498322520274486,
+      "coldMs": 0.034337,
+      "warmMs": 0.013621,
+      "warmupRatio": 2.5208868658688792
+    },
+    {
+      "name": "chain-10 action()",
+      "ops": 12247000,
+      "margin": 1.85,
+      "percentSlower": 80.06,
+      "allocBytesPerOp": 100.8,
+      "latencyMsMin": 0.00802908908507223,
+      "latencyMsMedian": 0.00807938683788122,
+      "latencyMsMax": 0.01572146389684814
+    },
+    {
+      "name": "chain-50 action()",
+      "ops": 11779000,
+      "margin": 2.24,
+      "percentSlower": 80.82,
+      "allocBytesPerOp": 58.56,
+      "latencyMsMin": 0.008266304190036293,
+      "latencyMsMedian": 0.008302727482678985,
+      "latencyMsMax": 0.014601862751567139
+    },
+    {
+      "name": "chain-200 action()",
+      "ops": 11332800,
+      "margin": 1.33,
+      "percentSlower": 90.77,
+      "allocBytesPerOp": 57.28,
+      "latencyMsMin": 0.017417646239554316,
+      "latencyMsMedian": 0.017525972318941506,
+      "latencyMsMax": 0.02971146885899352
+    },
+    {
+      "name": "chain-1000 action()",
+      "ops": 10272000,
+      "margin": 1.23,
+      "percentSlower": 98.33,
+      "allocBytesPerOp": 56.256,
+      "latencyMsMin": 0.0961306245210728,
+      "latencyMsMedian": 0.09663512068965517,
+      "latencyMsMax": 0.1566472269503546
+    },
+    {
+      "name": "dense-10 action()",
+      "ops": 12393000,
+      "margin": 1.25,
+      "percentSlower": 79.82,
+      "allocBytesPerOp": 96.24,
+      "latencyMsMin": 0.007971418604651163,
+      "latencyMsMedian": 0.008001832166719696,
+      "latencyMsMax": 0.01297097095837367
+    },
+    {
+      "name": "dense-50 action()",
+      "ops": 10288100,
+      "margin": 1.36,
+      "percentSlower": 83.25,
+      "allocBytesPerOp": 58.56,
+      "latencyMsMin": 0.009596053195560658,
+      "latencyMsMedian": 0.009642858017604287,
+      "latencyMsMax": 0.016304804900459418
+    },
+    {
+      "name": "dense-200 action()",
+      "ops": 8884800,
+      "margin": 0.08,
+      "percentSlower": 92.77,
+      "allocBytesPerOp": 57.28,
+      "latencyMsMin": 0.022262145842596708,
+      "latencyMsMedian": 0.02253047576700756,
+      "latencyMsMax": 0.022676168074699868
+    },
+    {
+      "name": "hub-50 action()",
+      "ops": 12075168,
+      "margin": 2,
+      "percentSlower": 89.97,
+      "allocBytesPerOp": 57.30612244897959,
+      "latencyMsMin": 0.015922054999999997,
+      "latencyMsMedian": 0.015962010000000002,
+      "latencyMsMax": 0.028087475312500002
+    },
+    {
+      "name": "hub-200 action()",
+      "ops": 10954950,
+      "margin": 1.04,
+      "percentSlower": 95.52,
+      "allocBytesPerOp": 56.64321608040201,
+      "latencyMsMin": 0.03599929517638589,
+      "latencyMsMedian": 0.03612554899135447,
+      "latencyMsMax": 0.0547455556621881
+    },
+    {
+      "name": "hooked-200 action()",
+      "ops": 5181960,
+      "margin": 1.04,
+      "percentSlower": 97.88,
+      "allocBytesPerOp": 136.643216080402,
+      "latencyMsMin": 0.07572100453857791,
+      "latencyMsMedian": 0.07646393677279603,
+      "latencyMsMax": 0.116006229390681
+    },
+    {
+      "name": "chain-10 edges_between()",
+      "ops": 118289,
+      "margin": 0.11,
+      "percentSlower": 80.74,
+      "allocBytesPerOp": 357.6,
+      "latencyMsMin": 0.008376606094270751,
+      "latencyMsMedian": 0.008448931439454053,
+      "latencyMsMax": 0.008573378511347405
+    },
+    {
+      "name": "chain-50 edges_between()",
+      "ops": 110195,
+      "margin": 1.52,
+      "percentSlower": 82.05,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.0089303875,
+      "latencyMsMedian": 0.009006750485306957,
+      "latencyMsMax": 0.015862681465821
+    },
+    {
+      "name": "chain-200 edges_between()",
+      "ops": 100714,
+      "margin": 2.59,
+      "percentSlower": 83.6,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.009610975853304286,
+      "latencyMsMedian": 0.009701826978939725,
+      "latencyMsMax": 0.018847967864923747
+    },
+    {
+      "name": "chain-1000 edges_between()",
+      "ops": 86381,
+      "margin": 0.12,
+      "percentSlower": 85.93,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.011428793365134433,
+      "latencyMsMedian": 0.01157711199045967,
+      "latencyMsMax": 0.011774419340849957
+    },
+    {
+      "name": "dense-10 edges_between()",
+      "ops": 98097,
+      "margin": 2.25,
+      "percentSlower": 84.02,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.009957057734421659,
+      "latencyMsMedian": 0.010024299024487359,
+      "latencyMsMax": 0.019508448317068314
+    },
+    {
+      "name": "dense-50 edges_between()",
+      "ops": 50370,
+      "margin": 0.97,
+      "percentSlower": 91.8,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.019645458006279433,
+      "latencyMsMedian": 0.01974412460567823,
+      "latencyMsMax": 0.02883348943661972
+    },
+    {
+      "name": "dense-200 edges_between()",
+      "ops": 16735,
+      "margin": 1.12,
+      "percentSlower": 97.27,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.058930555948174326,
+      "latencyMsMedian": 0.059450963356973995,
+      "latencyMsMax": 0.09314069093406593
+    },
+    {
+      "name": "hub-50 edges_between()",
+      "ops": 70167,
+      "margin": 1.3,
+      "percentSlower": 88.57,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.01405346378439079,
+      "latencyMsMedian": 0.01414818186952838,
+      "latencyMsMax": 0.023299168614948636
+    },
+    {
+      "name": "hub-200 edges_between()",
+      "ops": 29652,
+      "margin": 0.72,
+      "percentSlower": 95.17,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.033361475049900204,
+      "latencyMsMedian": 0.03361702994011976,
+      "latencyMsMax": 0.04588265365853658
+    },
+    {
+      "name": "hooked-200 edges_between()",
+      "ops": 29425,
+      "margin": 0.8,
+      "percentSlower": 95.21,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.03357099061032864,
+      "latencyMsMedian": 0.03384662642521797,
+      "latencyMsMax": 0.0473243104524181
+    },
+    {
+      "name": "messy-1000 edges_between()",
+      "ops": 94842,
+      "margin": 1.35,
+      "percentSlower": 84.55,
+      "allocBytesPerOp": 315.52,
+      "latencyMsMin": 0.01037603411555906,
+      "latencyMsMedian": 0.010453742851508577,
+      "latencyMsMax": 0.017473609411085448
+    },
+    {
+      "name": "messy-5000 edges_between()",
+      "ops": 101841,
+      "margin": 1.17,
+      "percentSlower": 83.41,
+      "allocBytesPerOp": 314.56,
+      "latencyMsMin": 0.009673524146932686,
+      "latencyMsMedian": 0.009752689819131084,
+      "latencyMsMax": 0.015460444890398271
+    },
+    {
+      "name": "chain-10 has_state()",
+      "ops": 614041,
+      "margin": 0.05,
+      "percentSlower": 0,
+      "allocBytesPerOp": 40.64,
+      "latencyMsMin": 0.0016232539347720266,
+      "latencyMsMedian": 0.0016272824542038912,
+      "latencyMsMax": 0.001645264770880728
+    },
+    {
+      "name": "chain-50 has_state()",
+      "ops": 611810,
+      "margin": 0.03,
+      "percentSlower": 0.36,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016293785914391816,
+      "latencyMsMedian": 0.0016340503230116916,
+      "latencyMsMax": 0.001643578976531943
+    },
+    {
+      "name": "chain-200 has_state()",
+      "ops": 594142,
+      "margin": 2.56,
+      "percentSlower": 3.24,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016317060339204176,
+      "latencyMsMedian": 0.0016397568132119195,
+      "latencyMsMax": 0.003055396192156049
+    },
+    {
+      "name": "chain-1000 has_state()",
+      "ops": 602910,
+      "margin": 1.56,
+      "percentSlower": 1.81,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016399160137682348,
+      "latencyMsMedian": 0.0016445574659891822,
+      "latencyMsMax": 0.002990949976600281
+    },
+    {
+      "name": "dense-10 has_state()",
+      "ops": 608899,
+      "margin": 1.77,
+      "percentSlower": 0.84,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016212971150729334,
+      "latencyMsMedian": 0.0016266020504783457,
+      "latencyMsMax": 0.003106643432715552
+    },
+    {
+      "name": "dense-50 has_state()",
+      "ops": 565508,
+      "margin": 0.09,
+      "percentSlower": 7.9,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0017324727235156357,
+      "latencyMsMedian": 0.0017692541328006614,
+      "latencyMsMax": 0.001784891100702576
+    },
+    {
+      "name": "dense-200 has_state()",
+      "ops": 605497,
+      "margin": 1.68,
+      "percentSlower": 1.39,
+      "allocBytesPerOp": 36,
+      "latencyMsMin": 0.0016326147896746402,
+      "latencyMsMedian": 0.0016367913450332917,
+      "latencyMsMax": 0.00304958987064469
+    },
+    {
+      "name": "hub-50 has_state()",
+      "ops": 607472,
+      "margin": 1.52,
+      "percentSlower": 1.07,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.001628616421848028,
+      "latencyMsMedian": 0.001633572549913689,
+      "latencyMsMax": 0.0029123595815610994
+    },
+    {
+      "name": "hub-200 has_state()",
+      "ops": 598946,
+      "margin": 1.29,
+      "percentSlower": 2.46,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016470234205151855,
+      "latencyMsMedian": 0.001654599067791027,
+      "latencyMsMax": 0.0027569762643002245
+    },
+    {
+      "name": "hooked-200 has_state()",
+      "ops": 602410,
+      "margin": 1.57,
+      "percentSlower": 1.89,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0016420526765188834,
+      "latencyMsMedian": 0.0016465546141215105,
+      "latencyMsMax": 0.0029500808709976324
+    },
+    {
+      "name": "messy-1000 has_state()",
+      "ops": 543460,
+      "margin": 0.83,
+      "percentSlower": 11.49,
+      "allocBytesPerOp": 3.52,
+      "latencyMsMin": 0.0018123693093332368,
+      "latencyMsMedian": 0.001829018941726124,
+      "latencyMsMax": 0.0025032713411321573
+    },
+    {
+      "name": "messy-5000 has_state()",
+      "ops": 579213,
+      "margin": 1.68,
+      "percentSlower": 5.67,
+      "allocBytesPerOp": 2.56,
+      "latencyMsMin": 0.0017036071696057739,
+      "latencyMsMedian": 0.0017110784367127389,
+      "latencyMsMax": 0.0031930384065022035
+    },
+    {
+      "name": "chain-10 list_exit_actions()",
+      "ops": 205465,
+      "margin": 2.35,
+      "percentSlower": 66.54,
+      "allocBytesPerOp": 137.92,
+      "latencyMsMin": 0.004779682135013845,
+      "latencyMsMedian": 0.004808136446099494,
+      "latencyMsMax": 0.010697506000705966
+    },
+    {
+      "name": "chain-50 list_exit_actions()",
+      "ops": 195718,
+      "margin": 2.4,
+      "percentSlower": 68.13,
+      "allocBytesPerOp": 98.56,
+      "latencyMsMin": 0.004965623153930024,
+      "latencyMsMedian": 0.004989096456301015,
+      "latencyMsMax": 0.008931509723461194
+    },
+    {
+      "name": "chain-200 list_exit_actions()",
+      "ops": 177542,
+      "margin": 1.95,
+      "percentSlower": 71.09,
+      "allocBytesPerOp": 98.56,
+      "latencyMsMin": 0.005542393976169462,
+      "latencyMsMedian": 0.005578105537676173,
+      "latencyMsMax": 0.01112075559222589
+    },
+    {
+      "name": "chain-1000 list_exit_actions()",
+      "ops": 175269,
+      "margin": 0.12,
+      "percentSlower": 71.46,
+      "allocBytesPerOp": 98.56,
+      "latencyMsMin": 0.005645290599255163,
+      "latencyMsMedian": 0.005703114254709844,
+      "latencyMsMax": 0.005880233269382688
+    },
+    {
+      "name": "dense-10 list_exit_actions()",
+      "ops": 158231,
+      "margin": 1.11,
+      "percentSlower": 74.23,
+      "allocBytesPerOp": 162.56,
+      "latencyMsMin": 0.006251175523952096,
+      "latencyMsMedian": 0.006279803455588822,
+      "latencyMsMax": 0.00978868751954958
+    },
+    {
+      "name": "dense-50 list_exit_actions()",
+      "ops": 62840,
+      "margin": 1.91,
+      "percentSlower": 89.77,
+      "allocBytesPerOp": 482.56,
+      "latencyMsMin": 0.015570320784069695,
+      "latencyMsMedian": 0.015681746110765404,
+      "latencyMsMax": 0.026765585313174946
+    },
+    {
+      "name": "dense-200 list_exit_actions()",
+      "ops": 18620,
+      "margin": 1.19,
+      "percentSlower": 96.97,
+      "allocBytesPerOp": 1682.56,
+      "latencyMsMin": 0.05250476175548589,
+      "latencyMsMedian": 0.05313825809822361,
+      "latencyMsMax": 0.08488592814371257
+    },
+    {
+      "name": "hub-50 list_exit_actions()",
+      "ops": 96420,
+      "margin": 1.41,
+      "percentSlower": 84.3,
+      "allocBytesPerOp": 290.56,
+      "latencyMsMin": 0.01016465992312361,
+      "latencyMsMedian": 0.010285177827230426,
+      "latencyMsMax": 0.017759194915254236
+    },
+    {
+      "name": "hub-200 list_exit_actions()",
+      "ops": 34737,
+      "margin": 0.9,
+      "percentSlower": 94.34,
+      "allocBytesPerOp": 890.56,
+      "latencyMsMin": 0.028241041784302656,
+      "latencyMsMedian": 0.028577725578769055,
+      "latencyMsMax": 0.04087271591672263
+    },
+    {
+      "name": "hooked-200 list_exit_actions()",
+      "ops": 35252,
+      "margin": 1.01,
+      "percentSlower": 94.26,
+      "allocBytesPerOp": 890.56,
+      "latencyMsMin": 0.027823313563975837,
+      "latencyMsMedian": 0.02809884294343767,
+      "latencyMsMax": 0.04250621416803954
+    },
+    {
+      "name": "chain-10 probable_action_exits()",
+      "ops": 114459,
+      "margin": 0.1,
+      "percentSlower": 81.36,
+      "allocBytesPerOp": 488.56,
+      "latencyMsMin": 0.008664803574411224,
+      "latencyMsMedian": 0.008723373893435776,
+      "latencyMsMax": 0.008852941372974779
+    },
+    {
+      "name": "chain-50 probable_action_exits()",
+      "ops": 109396,
+      "margin": 1.4,
+      "percentSlower": 82.18,
+      "allocBytesPerOp": 410.56,
+      "latencyMsMin": 0.00900214581458146,
+      "latencyMsMedian": 0.009070690369036905,
+      "latencyMsMax": 0.015369628897161472
+    },
+    {
+      "name": "chain-200 probable_action_exits()",
+      "ops": 96794,
+      "margin": 2.27,
+      "percentSlower": 84.24,
+      "allocBytesPerOp": 378.56,
+      "latencyMsMin": 0.010010611143695015,
+      "latencyMsMedian": 0.010111305180840665,
+      "latencyMsMax": 0.017920013880742915
+    },
+    {
+      "name": "chain-1000 probable_action_exits()",
+      "ops": 95691,
+      "margin": 2.8,
+      "percentSlower": 84.42,
+      "allocBytesPerOp": 410.72,
+      "latencyMsMin": 0.010147098903251077,
+      "latencyMsMedian": 0.010240513513513514,
+      "latencyMsMax": 0.02114462534273404
+    },
+    {
+      "name": "dense-10 probable_action_exits()",
+      "ops": 33210,
+      "margin": 1.16,
+      "percentSlower": 94.59,
+      "allocBytesPerOp": 730.56,
+      "latencyMsMin": 0.029789080405002978,
+      "latencyMsMedian": 0.02990501578320429,
+      "latencyMsMax": 0.0480794573400251
+    },
+    {
+      "name": "dense-50 probable_action_exits()",
+      "ops": 6447,
+      "margin": 1.14,
+      "percentSlower": 98.95,
+      "allocBytesPerOp": 3368.56,
+      "latencyMsMin": 0.15297409785932722,
+      "latencyMsMedian": 0.15398873394495413,
+      "latencyMsMax": 0.24290205555555558
+    },
+    {
+      "name": "dense-200 probable_action_exits()",
+      "ops": 1513,
+      "margin": 0.83,
+      "percentSlower": 99.75,
+      "allocBytesPerOp": 12356.08,
+      "latencyMsMin": 0.6468451794871795,
+      "latencyMsMedian": 0.6566007388444889,
+      "latencyMsMax": 0.9202257638888889
+    },
+    {
+      "name": "hub-50 probable_action_exits()",
+      "ops": 12706,
+      "margin": 0.3,
+      "percentSlower": 97.93,
+      "allocBytesPerOp": 1886.56,
+      "latencyMsMin": 0.07801027301092044,
+      "latencyMsMedian": 0.07851312276444036,
+      "latencyMsMax": 0.08954057878315133
+    },
+    {
+      "name": "hub-200 probable_action_exits()",
+      "ops": 2862,
+      "margin": 0.99,
+      "percentSlower": 99.53,
+      "allocBytesPerOp": 7922.88,
+      "latencyMsMin": 0.3452632068965517,
+      "latencyMsMedian": 0.34774981379310343,
+      "latencyMsMax": 0.5256545
+    },
+    {
+      "name": "hooked-200 probable_action_exits()",
+      "ops": 3277,
+      "margin": 1.05,
+      "percentSlower": 99.47,
+      "allocBytesPerOp": 7922.88,
+      "latencyMsMin": 0.30225357228915667,
+      "latencyMsMedian": 0.30331556024096384,
+      "latencyMsMax": 0.4690598734939759
+    },
+    {
+      "name": "chain-10 construct()",
+      "ops": 13220,
+      "margin": 7.97,
+      "percentSlower": 97.85,
+      "footprintBytes": -113720,
+      "bytesPerState": -11372,
+      "bytesPerEdge": -11372,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 22,
+      "latencyMsMin": 0.059809709905660376,
+      "latencyMsMedian": 0.06387214740566038,
+      "latencyMsMax": 0.2213358226744186,
+      "parseMs": 0.277424,
+      "constructMs": 0.127173,
+      "buildMs": 0
+    },
+    {
+      "name": "chain-50 construct()",
+      "ops": 4188,
+      "margin": 5.33,
+      "percentSlower": 99.32,
+      "footprintBytes": 193072,
+      "bytesPerState": 3861.44,
+      "bytesPerEdge": 3861.44,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 102,
+      "latencyMsMin": 0.19542963671875,
+      "latencyMsMedian": 0.21596483007812503,
+      "latencyMsMax": 0.41307693725490197,
+      "parseMs": 0.250681,
+      "constructMs": 1.063621,
+      "buildMs": 0.81294
+    },
+    {
+      "name": "chain-200 construct()",
+      "ops": 1067,
+      "margin": 8.81,
+      "percentSlower": 99.83,
+      "footprintBytes": 351224,
+      "bytesPerState": 1756.12,
+      "bytesPerEdge": 1756.12,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 402,
+      "latencyMsMin": 0.6974761428571429,
+      "latencyMsMedian": 0.7843599610389611,
+      "latencyMsMax": 2.2652522727272726,
+      "parseMs": 0.960379,
+      "constructMs": 1.550673,
+      "buildMs": 0.590294
+    },
+    {
+      "name": "chain-1000 construct()",
+      "ops": 223,
+      "margin": 8.84,
+      "percentSlower": 99.96,
+      "footprintBytes": 1113168,
+      "bytesPerState": 1113.168,
+      "bytesPerEdge": 1113.168,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 2002,
+      "latencyMsMin": 3.507426666666667,
+      "latencyMsMedian": 3.883941366666667,
+      "latencyMsMax": 11.683752133333334,
+      "parseMs": 5.155371,
+      "constructMs": 9.500965,
+      "buildMs": 4.345594000000001
+    },
+    {
+      "name": "dense-10 construct()",
+      "ops": 3187,
+      "margin": 5.03,
+      "percentSlower": 99.48,
+      "footprintBytes": 155408,
+      "bytesPerState": 15540.8,
+      "bytesPerEdge": 1726.7555555555555,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 182,
+      "latencyMsMin": 0.2743775956284153,
+      "latencyMsMedian": 0.2923514224104096,
+      "latencyMsMax": 0.5875751256830601,
+      "parseMs": 0.201342,
+      "constructMs": 0.305803,
+      "buildMs": 0.104461
+    },
+    {
+      "name": "dense-50 construct()",
+      "ops": 132,
+      "margin": 3.93,
+      "percentSlower": 99.98,
+      "footprintBytes": 716584,
+      "bytesPerState": 14331.68,
+      "bytesPerEdge": 292.48326530612246,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 4902,
+      "latencyMsMin": 6.9165045,
+      "latencyMsMedian": 7.2726275,
+      "latencyMsMax": 12.797999375,
+      "parseMs": 5.037552,
+      "constructMs": 9.218245,
+      "buildMs": 4.180693
+    },
+    {
+      "name": "dense-200 construct()",
+      "ops": 8,
+      "margin": 6.27,
+      "percentSlower": 100,
+      "footprintBytes": 10677992,
+      "bytesPerState": 53389.96,
+      "bytesPerEdge": 268.291256281407,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 79602,
+      "latencyMsMin": 116.958428,
+      "latencyMsMedian": 124.000496,
+      "latencyMsMax": 174.735736,
+      "parseMs": 89.853218,
+      "constructMs": 142.407195,
+      "buildMs": 52.553977
+    },
+    {
+      "name": "hub-50 construct()",
+      "ops": 2486,
+      "margin": 7.09,
+      "percentSlower": 99.6,
+      "footprintBytes": 192584,
+      "bytesPerState": 3851.68,
+      "bytesPerEdge": 1965.142857142857,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 198,
+      "latencyMsMin": 0.3291350921052632,
+      "latencyMsMedian": 0.35958832,
+      "latencyMsMax": 0.9763964078947368,
+      "parseMs": 0.197933,
+      "constructMs": 0.293706,
+      "buildMs": 0.09577300000000002
+    },
+    {
+      "name": "hub-200 construct()",
+      "ops": 640,
+      "margin": 7.61,
+      "percentSlower": 99.9,
+      "footprintBytes": 454408,
+      "bytesPerState": 2272.04,
+      "bytesPerEdge": 1141.7286432160804,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 798,
+      "latencyMsMin": 1.2705740731707318,
+      "latencyMsMedian": 1.3917759756097563,
+      "latencyMsMax": 4.073702097560976,
+      "parseMs": 0.75568,
+      "constructMs": 1.138309,
+      "buildMs": 0.382629
+    },
+    {
+      "name": "hooked-200 construct()",
+      "ops": 654,
+      "margin": 7.27,
+      "percentSlower": 99.89,
+      "footprintBytes": 441272,
+      "bytesPerState": 2206.36,
+      "bytesPerEdge": 1108.7236180904522,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 1196,
+      "latencyMsMin": 1.2656731162790698,
+      "latencyMsMedian": 1.3807880813953488,
+      "latencyMsMax": 4.452638813953488,
+      "parseMs": 0.755824,
+      "constructMs": 1.103609,
+      "buildMs": 0.347785
+    },
+    {
+      "name": "messy-1000 construct()",
+      "ops": 92,
+      "margin": 7.81,
+      "percentSlower": 99.99,
+      "footprintBytes": 1499048,
+      "bytesPerState": null,
+      "bytesPerEdge": 499.68266666666665,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 6002,
+      "latencyMsMin": 9.383626833333334,
+      "latencyMsMedian": 9.912747,
+      "latencyMsMax": 29.716771333333334,
+      "parseMs": 5.604925,
+      "constructMs": 10.741909,
+      "buildMs": 5.136984
+    },
+    {
+      "name": "messy-5000 construct()",
+      "ops": 16,
+      "margin": 11.5,
+      "percentSlower": 100,
+      "footprintBytes": 7656480,
+      "bytesPerState": null,
+      "bytesPerEdge": 510.432,
+      "mapCount": 26,
+      "setCount": 5,
+      "arrayCount": 9,
+      "containerEntries": 30002,
+      "latencyMsMin": 50.100873,
+      "latencyMsMedian": 51.979885,
+      "latencyMsMax": 135.00464100000002,
+      "parseMs": 35.922768,
+      "constructMs": 47.997738,
+      "buildMs": 12.07497
+    },
+    {
+      "name": "carrying groups n=10",
+      "deltaBytes": 9456,
+      "variantBytes": 112264,
+      "plainBytes": 102808,
+      "samples": 5
+    },
+    {
+      "name": "carrying property n=10",
+      "deltaBytes": -2024,
+      "variantBytes": 100784,
+      "plainBytes": 102808,
+      "samples": 5
+    },
+    {
+      "name": "carrying groups n=200",
+      "deltaBytes": 21016,
+      "variantBytes": 366968,
+      "plainBytes": 345952,
+      "samples": 5
+    },
+    {
+      "name": "carrying property n=200",
+      "deltaBytes": -1208,
+      "variantBytes": 344744,
+      "plainBytes": 345952,
+      "samples": 5
+    }
+  ],
+  "fastest": {
+    "name": "chain-10 has_state()",
+    "index": 34
+  },
+  "slowest": {
+    "name": "dense-200 construct()",
+    "index": 72
+  },
+  "exponents": {
+    "transition()": {
+      "chain": {
+        "exponent": 0.04507727031592132,
+        "r2": 0.7994494223606117,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 0.05777869800240792,
+        "r2": 0.9697062342636518,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.03737860111123507,
+        "r2": 0.9999999999999998,
+        "points": 2
+      },
+      "messy": {
+        "exponent": 0.08614901432746343,
+        "r2": 1,
+        "points": 2
+      }
+    },
+    "action()": {
+      "chain": {
+        "exponent": 0.03732895549460225,
+        "r2": 0.9430228764161163,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 0.11120966813571692,
+        "r2": 0.9993530182783744,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.07023018076451962,
+        "r2": 0.9999999999999998,
+        "points": 2
+      }
+    },
+    "edges_between()": {
+      "chain": {
+        "exponent": 0.06798340315806689,
+        "r2": 0.9688717056330658,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 0.585633405334567,
+        "r2": 0.9664678905927564,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.6213316322996301,
+        "r2": 1.0000000000000002,
+        "points": 2
+      },
+      "messy": {
+        "exponent": -0.04423931103646905,
+        "r2": 1.0000000000000002,
+        "points": 2
+      }
+    },
+    "has_state()": {
+      "chain": {
+        "exponent": 0.005398716558531714,
+        "r2": 0.49546516687824976,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 0.0030436454073808237,
+        "r2": 0.012290731036079488,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.010195987383840649,
+        "r2": 1,
+        "points": 2
+      },
+      "messy": {
+        "exponent": -0.03958784509922332,
+        "r2": 0.9999999999999999,
+        "points": 2
+      }
+    },
+    "list_exit_actions()": {
+      "chain": {
+        "exponent": 0.03749028628110648,
+        "r2": 0.9182249618819044,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 0.7105477264739903,
+        "r2": 0.9852281890579414,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.7364296330647337,
+        "r2": 0.9999999999999998,
+        "points": 2
+      }
+    },
+    "probable_action_exits()": {
+      "chain": {
+        "exponent": 0.042993702683891195,
+        "r2": 0.8977382379875471,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 1.0307184161332812,
+        "r2": 0.9999432715271697,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 1.0752071735370599,
+        "r2": 0.9999999999999998,
+        "points": 2
+      }
+    },
+    "construct()": {
+      "chain": {
+        "exponent": 0.8947628909875743,
+        "r2": 0.9944108020812715,
+        "points": 4
+      },
+      "dense": {
+        "exponent": 1.9981008357399606,
+        "r2": 0.9999604645389768,
+        "points": 3
+      },
+      "hub": {
+        "exponent": 0.9788412430825618,
+        "r2": 0.9999999999999999,
+        "points": 2
+      },
+      "messy": {
+        "exponent": 1.086838977319593,
+        "r2": 1.0000000000000004,
+        "points": 2
+      }
+    }
+  },
+  "bundles": {
+    "jssm.es5.cjs": {
+      "raw": 484474,
+      "gzip": 65566,
+      "brotli": 49615
+    },
+    "jssm.es6.mjs": {
+      "raw": 483499,
+      "gzip": 65428,
+      "brotli": 49534
+    },
+    "jssm.es5.iife.js": {
+      "raw": 484521,
+      "gzip": 65590,
+      "brotli": 49767
+    }
+  },
+  "loadMs": 12.76335,
+  "gc": {
+    "count": 14003,
+    "pauseMs": 18494.368739003563
+  }
+}
