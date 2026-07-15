@@ -741,6 +741,17 @@ class Machine<mDT> {
   _event_listener_count : number;
   _firing_error   : boolean;  // re-entry guard for the `error` event
 
+  // True only while `transition_impl` is inside its pre-commit hook pipeline
+  // (from the first user hook to the state commit).  A user hook that calls
+  // `transition`/`go`/`do`/`action` during this window would complete an inner
+  // transition that the outer, not-yet-committed frame then silently overwrites
+  // -- wrong final state, observation events fired for a state not ended in.
+  // The guard turns that into a clear thrown error.  It is deliberately NOT set
+  // on the hook-free fast path (no user code runs there) and is cleared before
+  // the post-hooks / boundary-action cascade, both of which run after the commit
+  // and may re-enter coherently.  StoneCypher/fsl#1953
+  _committing_transition : boolean;
+
   // Re-entrancy depth of FSL boundary-hook action firing.  A boundary action
   // (`on enter &g do 'X'`) can drive a further transition, which crosses more
   // boundaries, which fires more actions — an unbounded run-to-completion
@@ -1017,6 +1028,7 @@ class Machine<mDT> {
     this._event_handlers                = new Map();
     this._event_listener_count          = 0;
     this._firing_error                  = false;
+    this._committing_transition         = false;
 
     // Boundary-hook action cascade guard.  Limit defaults to 100 but is
     // configurable via the `boundary_depth_limit` constructor option so tests
@@ -4870,6 +4882,12 @@ class Machine<mDT> {
     newData   : mDT | undefined,
     wasForced : boolean
   ): void {
+    // Every hook veto in transition_impl's pre-commit pipeline exits through
+    // here, so this is the single close point for the reentrancy guard on the
+    // rejection path: clear it before firing the event so a `rejection` listener
+    // may itself transition (the outer transition is abandoned, not reverted).
+    // #1953
+    this._committing_transition = false;
     this.#fire('rejection', {
       from      : fromState,
       to        : newState,
@@ -5048,12 +5066,27 @@ class Machine<mDT> {
    *  @returns `true` if the transition was valid and every hook passed;
    *  `false` if the transition was invalid or any hook rejected.
    *
+   *  @throws {JssmError} If called reentrantly from inside a hook that is still
+   *  running in the enclosing transition's pre-commit pipeline — a hook that
+   *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
+   *  and then the outer one would silently discard the inner result, so the
+   *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
+   *  (from a post-hook or the boundary-action cascade) is permitted.
+   *
    *  @internal
    *
    */
 
   transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided: boolean = newData !== undefined): boolean {
 
+    // Reject reentry from inside the pre-commit hook pipeline.  Without this, a
+    // hook that itself transitions the machine would commit an inner transition
+    // that this outer, not-yet-committed frame then silently overwrites.  Post-
+    // commit reentry (post-hooks, the boundary-action cascade) is fine: the flag
+    // is already cleared by then.  StoneCypher/fsl#1953
+    if (this._committing_transition) {
+      throw new JssmError(this, 'cannot start a transition from within a transition hook: the enclosing transition has not committed yet, so the inner result would be silently discarded');
+    }
 
     let valid      : boolean               = false,
         // deliberately `string`, not `JssmArrowKind`, though only arrow kinds are
@@ -5175,6 +5208,16 @@ class Machine<mDT> {
     if (valid) {
 
       if (this._has_hooks) {
+
+        // Open the pre-commit window: from here until the commit below, any
+        // reentrant transition_impl call (a hook transitioning the machine)
+        // throws instead of being silently reverted.  The `finally` below closes
+        // it on every exit path; #fire_hook_rejection additionally clears it
+        // before firing the rejection event so a rejection listener may itself
+        // transition.  The pipeline body is intentionally left at its original
+        // indentation to keep this fix's diff focused.  #1953
+        this._committing_transition = true;
+        try {
 
         let data_changed = false;
 
@@ -5324,6 +5367,14 @@ class Machine<mDT> {
         // success fallthrough to posthooks; intentionally no return here
         // look for "posthooks begin here"
 
+        } finally {
+          // Close the pre-commit window on EVERY exit from the pipeline: normal
+          // fallthrough after commit, a hook veto's `return false`, the
+          // destination-override throw, or a user hook throwing.  Post-hooks and
+          // the boundary-action cascade run after this and may re-enter the
+          // machine coherently from the committed state.  #1953
+          this._committing_transition = false;
+        }
 
       // or without hooks
       } else {
