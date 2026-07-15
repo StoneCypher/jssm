@@ -546,14 +546,21 @@ class Machine<mDT> {
 
 
   _state                  : StateType;
-  #states                 : Map<StateType, JssmGenericState>;
-  #edges                  : Array< JssmTransition<StateType, mDT> >;
-  #edge_map               : Map<StateType, Map<StateType, number>>;
-  #outbound_edge_ids      : Map<StateType, Array<number>>;   // from -> [edgeIds]; lets edges_between filter only that state's exits instead of the whole _edges array
-  #named_transitions      : Map<StateType, number>;
-  #actions                : Map<StateType, Map<StateType, number>>;
-  #reverse_actions        : Map<StateType, Map<StateType, number>>;
-  #reverse_action_targets : Map<StateType, Map<StateType, number>>;
+
+  // PERF: these dispatch-core stores are intentionally underscore-convention,
+  // NOT `#`-private.  They are read on the hot transition path (transition_impl
+  // reads `_edges[edgeId]` on every transition), and V8 `#`-private access is
+  // measurably slower and defeats the monomorphic named-load inline cache this
+  // dispatch is built around.  Privatizing them to `#` in 5.162.8 caused a real
+  // regression (~20%+ on the hot edge read); do not re-privatize them.
+  _states                 : Map<StateType, JssmGenericState>;
+  _edges                  : Array< JssmTransition<StateType, mDT> >;
+  _edge_map               : Map<StateType, Map<StateType, number>>;
+  _outbound_edge_ids      : Map<StateType, Array<number>>;   // from -> [edgeIds]; lets edges_between filter only that state's exits instead of the whole _edges array
+  _named_transitions      : Map<StateType, number>;
+  _actions                : Map<StateType, Map<StateType, number>>;
+  _reverse_actions        : Map<StateType, Map<StateType, number>>;
+  _reverse_action_targets : Map<StateType, Map<StateType, number>>;
 
   // Interned-id machinery (lever 1 of the interning perf trail).  Additive
   // numeric mirrors of the hot-path string maps; every string map above stays
@@ -834,15 +841,15 @@ class Machine<mDT> {
 
     this._instance_name = instance_name;
 
-    this.#states                 = new Map();
+    this._states                 = new Map();
     this._state_declarations     = new Map();
-    this.#edges                  = [];
-    this.#edge_map               = new Map();
-    this.#outbound_edge_ids      = new Map();
-    this.#named_transitions      = new Map();
-    this.#actions                = new Map();
-    this.#reverse_actions        = new Map();
-    this.#reverse_action_targets = new Map();   // todo
+    this._edges                  = [];
+    this._edge_map               = new Map();
+    this._outbound_edge_ids      = new Map();
+    this._named_transitions      = new Map();
+    this._actions                = new Map();
+    this._reverse_actions        = new Map();
+    this._reverse_action_targets = new Map();   // todo
 
     this._state_interner         = new Interner();
     this._action_interner        = new Interner();
@@ -1094,13 +1101,13 @@ class Machine<mDT> {
       if ( tr.to   === undefined ) { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      let cursor_from: JssmGenericState | undefined = this.#states.get(tr.from);
+      let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
       if (cursor_from === undefined) {
         cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
         this._new_state(cursor_from);
       }
 
-      let cursor_to: JssmGenericState | undefined = this.#states.get(tr.to);
+      let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
       if (cursor_to === undefined) {
         cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
         this._new_state(cursor_to);
@@ -1138,16 +1145,16 @@ class Machine<mDT> {
       }
 
       // add the edge; note its id
-      this.#edges.push(tr);
-      const thisEdgeId: number = this.#edges.length - 1;
+      this._edges.push(tr);
+      const thisEdgeId: number = this._edges.length - 1;
       if (tr.forced_only) { this._has_forced_transitions = true; }
 
       // guard against repeating a transition name
       if (tr.name) {
-        if (this.#named_transitions.has(tr.name)) {
+        if (this._named_transitions.has(tr.name)) {
           throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
         }
-        this.#named_transitions.set(tr.name, thisEdgeId);
+        this._named_transitions.set(tr.name, thisEdgeId);
       }
 
       // set up the after mapping, if any
@@ -1156,10 +1163,10 @@ class Machine<mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      let from_mapping: Map<StateType, number> | undefined = this.#edge_map.get(tr.from);
+      let from_mapping: Map<StateType, number> | undefined = this._edge_map.get(tr.from);
       if (from_mapping === undefined) {
         from_mapping = new Map();
-        this.#edge_map.set(tr.from, from_mapping);
+        this._edge_map.set(tr.from, from_mapping);
       }
 
       // first-declared wins: when several edges share a (from, to) pair (parallel
@@ -1187,10 +1194,10 @@ class Machine<mDT> {
       // is fine for lookup_transition_for but loses information for edges_between when several
       // edges share endpoints across distinct actions.  This index preserves every edge id and
       // lets edges_between scan only one state's exits, not all of _edges.
-      let outbound: Array<number> = this.#outbound_edge_ids.get(tr.from);
+      let outbound: Array<number> = this._outbound_edge_ids.get(tr.from);
       if (!outbound) {
         outbound = [];
-        this.#outbound_edge_ids.set(tr.from, outbound);
+        this._outbound_edge_ids.set(tr.from, outbound);
       }
       outbound.push(thisEdgeId);
 
@@ -1199,10 +1206,10 @@ class Machine<mDT> {
 
 
         // forward mapping first by action name
-        let actionMap: Map<StateType, number> = this.#actions.get(tr.action);
+        let actionMap: Map<StateType, number> = this._actions.get(tr.action);
         if (!(actionMap)) {
           actionMap = new Map();
-          this.#actions.set(tr.action, actionMap);
+          this._actions.set(tr.action, actionMap);
         }
 
         if (actionMap.has(tr.from)) {
@@ -1212,10 +1219,10 @@ class Machine<mDT> {
 
 
         // reverse mapping first by state origin name
-        let rActionMap: Map<StateType, number> = this.#reverse_actions.get(tr.from);
+        let rActionMap: Map<StateType, number> = this._reverse_actions.get(tr.from);
         if (!(rActionMap)) {
           rActionMap = new Map();
-          this.#reverse_actions.set(tr.from, rActionMap);
+          this._reverse_actions.set(tr.from, rActionMap);
         }
 
         // no need to test for reverse mapping pre-presence;
@@ -1228,8 +1235,8 @@ class Machine<mDT> {
 
 
         // reverse mapping first by state target name
-        if (!(this.#reverse_action_targets.has(tr.to))) {
-          this.#reverse_action_targets.set(tr.to, new Map());
+        if (!(this._reverse_action_targets.has(tr.to))) {
+          this._reverse_action_targets.set(tr.to, new Map());
         }
 
         /* todo comeback
@@ -1300,7 +1307,7 @@ class Machine<mDT> {
     // set initial state either from the specified or the start state list.  validate admission behavior.
     if (initial_state) {
 
-      if (! (this.#states.has(initial_state)) ) {
+      if (! (this._states.has(initial_state)) ) {
         throw new JssmError(this, `requested start state ${initial_state} does not exist`);
       }
 
@@ -1365,7 +1372,7 @@ class Machine<mDT> {
 
     // assert connectivity constraints imposed by allow_islands
     if (this._allow_islands !== true) {
-      const components = find_connected_components(this.#states, this.#edges);
+      const components = find_connected_components(this._states, this._edges);
       if (this._allow_islands === false) {
         if (components.length > 1) {
           throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
@@ -1388,7 +1395,7 @@ class Machine<mDT> {
     for (const declaration of [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration]) {
       for (const arrange_pair of declaration) {
         for (const possibleState of arrange_pair) {
-          if (!(this.#states.has(possibleState))) {
+          if (!(this._states.has(possibleState))) {
             throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
           }
         }
@@ -1411,11 +1418,11 @@ class Machine<mDT> {
 
   _new_state(state_config: JssmGenericState): StateType {
 
-    if (this.#states.has(state_config.name)) {
+    if (this._states.has(state_config.name)) {
       throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
     }
 
-    this.#states.set(state_config.name, state_config);
+    this._states.set(state_config.name, state_config);
     this._state_interner.intern(state_config.name);
     return state_config.name;
 
@@ -2262,14 +2269,14 @@ class Machine<mDT> {
 
       internal_state_impl_version : 1,
 
-      actions                     : this.#actions,
-      edge_map                    : this.#edge_map,
-      edges                       : this.#edges,
-      named_transitions           : this.#named_transitions,
-      reverse_actions             : this.#reverse_actions,
+      actions                     : this._actions,
+      edge_map                    : this._edge_map,
+      edges                       : this._edges,
+      named_transitions           : this._named_transitions,
+      reverse_actions             : this._reverse_actions,
       // reverse_action_targets : this._reverse_action_targets,
       state                       : this._state,
-      states                      : this.#states
+      states                      : this._states
 
     };
 
@@ -2298,7 +2305,7 @@ class Machine<mDT> {
    */
 
   states(): Array<StateType> {
-    return [...this.#states.keys()];
+    return [...this._states.keys()];
   }
 
 
@@ -2313,7 +2320,7 @@ class Machine<mDT> {
    */
   state_for(whichState: StateType): JssmGenericState {
 
-    const state: JssmGenericState = this.#states.get(whichState);
+    const state: JssmGenericState = this._states.get(whichState);
 
     if (state) {
       return state;
@@ -2348,7 +2355,7 @@ class Machine<mDT> {
    */
 
   has_state(whichState: StateType): boolean {
-    return this.#states.has(whichState);
+    return this._states.has(whichState);
   }
 
 
@@ -2392,7 +2399,7 @@ class Machine<mDT> {
    */
 
   list_edges(): Array<JssmTransition<StateType, mDT>> {
-    return this.#edges;
+    return this._edges;
   }
 
   /**
@@ -2400,7 +2407,7 @@ class Machine<mDT> {
    *  @returns A `Map` from transition name to edge index.
    */
   list_named_transitions(): Map<StateType, number> {
-    return this.#named_transitions;
+    return this._named_transitions;
   }
 
   /**
@@ -2408,7 +2415,7 @@ class Machine<mDT> {
    *  @returns An array of action name strings.
    */
   list_actions(): Array<StateType> {
-    return [...this.#actions.keys()];
+    return [...this._actions.keys()];
   }
 
   /**
@@ -2417,7 +2424,7 @@ class Machine<mDT> {
    */
   get uses_actions(): boolean {
     // Map.size answers emptiness without materializing the key list
-    return this.#actions.size > 0;
+    return this._actions.size > 0;
   }
 
   /**
@@ -2627,7 +2634,7 @@ class Machine<mDT> {
    */
   get_transition_by_state_names(from: StateType, to: StateType): number {
 
-    const emg: Map<StateType, number> = this.#edge_map.get(from);
+    const emg: Map<StateType, number> = this._edge_map.get(from);
 
     return emg ? emg.get(to) : undefined;
 
@@ -2643,7 +2650,7 @@ class Machine<mDT> {
    */
   lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT> {
     const id: number = this.get_transition_by_state_names(from, to);
-    return ((id === undefined) || (id === null)) ? undefined : this.#edges[id];
+    return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
   }
 
 
@@ -2704,7 +2711,7 @@ class Machine<mDT> {
 
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
 
-    const guaranteed = (this.#states.get(whichState) ?? { from: undefined });
+    const guaranteed = (this._states.get(whichState) ?? { from: undefined });
     return guaranteed.from ?? [];
 
   }
@@ -2737,7 +2744,7 @@ class Machine<mDT> {
 
   list_exits(whichState: StateType = this.state()): Array<StateType> {
 
-    const guaranteed = (this.#states.get(whichState) ?? { to: undefined });
+    const guaranteed = (this._states.get(whichState) ?? { to: undefined });
     return guaranteed.to ?? [];
 
   }
@@ -2767,7 +2774,7 @@ class Machine<mDT> {
    */
   probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
 
-    const wstate: JssmGenericState = this.#states.get(whichState);
+    const wstate: JssmGenericState = this._states.get(whichState);
     if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     // single pass over the state's exits, replacing the old map -> filter ->
@@ -2781,14 +2788,14 @@ class Machine<mDT> {
     // lookup_transition_for.  wstate.to is non-empty only when at least one
     // outbound edge exists, and every outbound edge creates the from-side
     // mapping at construction — so emg is defined whenever the loop runs.
-    const emg: Map<StateType, number> = this.#edge_map.get(whichState);
+    const emg: Map<StateType, number> = this._edge_map.get(whichState);
 
     for (const ws of wstate.to) {
 
       // wstate.to is built from the same edge set _edge_map indexes, so the
       // per-target get cannot miss; the guard mirrors the old defensive
       // .filter(Boolean) and is equally unreachable.
-      const edge: JssmTransition<StateType, mDT> = this.#edges[ emg.get(ws) ];
+      const edge: JssmTransition<StateType, mDT> = this._edges[ emg.get(ws) ];
       /* v8 ignore next */
       if (!edge) { continue; }
 
@@ -3119,7 +3126,7 @@ class Machine<mDT> {
 
   actions(whichState: StateType = this.state()): Array<StateType> {
 
-    const wstate: Map<StateType, number> = this.#reverse_actions.get(whichState);
+    const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
 
     if (wstate) {
       return [...wstate.keys()];
@@ -3159,7 +3166,7 @@ class Machine<mDT> {
 
   list_states_having_action(whichState: StateType): Array<StateType> {
 
-    const wstate: Map<StateType, number> = this.#actions.get(whichState);
+    const wstate: Map<StateType, number> = this._actions.get(whichState);
 
     if (wstate) {
       return [...wstate.keys()];
@@ -3201,7 +3208,7 @@ class Machine<mDT> {
    */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
 
-    const ra_base: Map<StateType, number> = this.#reverse_actions.get(whichState);
+    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
 
     if (!(ra_base)) {
       if (this.has_state(whichState)) {
@@ -3228,7 +3235,7 @@ class Machine<mDT> {
    *  @throws {JssmError} If the state does not exist.
    */
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
-    const ra_base: Map<StateType, number> = this.#reverse_actions.get(whichState);
+    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
     if (!(ra_base)) {
       if (this.has_state(whichState)) {
         return [];
@@ -3243,7 +3250,7 @@ class Machine<mDT> {
     ra_base.forEach((edgeId: number, action: StateType) => {
       exits.push({
         action,
-        probability: this.#edges[edgeId].probability
+        probability: this._edges[edgeId].probability
       });
     });
 
@@ -3460,7 +3467,7 @@ class Machine<mDT> {
    *  @throws {JssmError} If the state does not exist.
    */
   state_is_complete(whichState: StateType): boolean {
-    const wstate: JssmGenericState = this.#states.get(whichState);
+    const wstate: JssmGenericState = this._states.get(whichState);
     if (wstate) { return wstate.complete; }
     throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
   }
@@ -4843,10 +4850,10 @@ class Machine<mDT> {
     // edges and returns [] immediately.
     const to_id = this._state_interner.id_of(to);
     if (to_id === undefined) { return []; }
-    const outbound: Array<number> = this.#outbound_edge_ids.get(from) ?? [];
+    const outbound: Array<number> = this._outbound_edge_ids.get(from) ?? [];
     const result: JssmTransition<StateType, mDT>[] = [];
     for (const edgeId of outbound) {
-      if (this._edge_to_ids[edgeId] === to_id) { result.push(this.#edges[edgeId]); }
+      if (this._edge_to_ids[edgeId] === to_id) { result.push(this._edges[edgeId]); }
     }
     return result;
   }
@@ -4897,7 +4904,7 @@ class Machine<mDT> {
 
     if (this.allows_override) {
 
-      if (this.#states.has(newState)) {
+      if (this._states.has(newState)) {
         const fromState = this._state;
         const oldData   = this._data;
         this._state    = newState;
@@ -5207,7 +5214,7 @@ class Machine<mDT> {
       const aid    = this._action_interner.id_of(newStateOrAction);
       const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
       if (edgeId !== undefined) {
-        const edge: JssmTransition<StateType, mDT> = this.#edges[edgeId];
+        const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
         valid      = true;
         trans_type = edge.kind;
         newState   = edge.to;
@@ -5221,7 +5228,7 @@ class Machine<mDT> {
       // be forced_only (truthiness, matching the old refusal exactly)
       const to_id  = this._state_interner.id_of(newStateOrAction);
       const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
-      if ((edgeId !== undefined) && (!(this.#edges[edgeId].forced_only))) {
+      if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
           // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
           // both first-declared-wins for parallel (from, to) pairs (see the
@@ -5231,7 +5238,7 @@ class Machine<mDT> {
           // Direct read replaces the O(out-degree) object-deref scan; the
           // first-declared-kind semantics are pinned by the parallel-edge
           // transition-kind hook spec.  #735
-          trans_type = this.#edges[edgeId].kind;
+          trans_type = this._edges[edgeId].kind;
         }
         valid      = true;
         newState   = newStateOrAction;
@@ -5639,7 +5646,7 @@ class Machine<mDT> {
       // here, and the public state_is_terminal / state_is_complete pair would
       // each redo has_state plus its own map walk.  Same predicates:
       // terminal = no exits, complete = the constructor-set flag.  #735
-      const new_state_rec: JssmGenericState = this.#states.get(newState);
+      const new_state_rec: JssmGenericState = this._states.get(newState);
       if ((new_state_rec.to.length === 0) && this.#has_subscribers('terminal')) {
         this.#fire('terminal', { state: newState, data: newData_after });
       }
@@ -6905,7 +6912,7 @@ class Machine<mDT> {
   current_action_edge_for(action: StateType): JssmTransition<StateType, mDT> {
     const idx: number = this.current_action_for(action);
     if ((idx === undefined) || (idx === null)) { throw new JssmError(this, `No such action ${JSON.stringify(action)}`); }
-    return this.#edges[idx];
+    return this._edges[idx];
   }
 
   /**
