@@ -88,6 +88,27 @@ describe('fsl-render plugin cli()', () => {
     expect(outB).toContain('<svg');
   });
 
+  it('refuses to silently overwrite when two inputs share a basename, exit 1', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-render-test-'));
+    const dirA = join(work, 'a');
+    const dirB = join(work, 'b');
+    await fs.mkdir(dirA);
+    await fs.mkdir(dirB);
+    const a = join(dirA, 'machine.fsl');   // first claimant of out/machine.svg
+    const b = join(dirB, 'machine.fsl');   // same basename -> would collide
+    await fs.copyFile(join(fixturesDir, 'traffic-light.fsl'), a);
+    await fs.copyFile(join(fixturesDir, 'atm.fsl'), b);
+
+    const code = await cli([a, b, '--out-dir', work]);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/refusing to overwrite/);
+    expect(stderrChunks.join('')).toContain(b);
+
+    // The first input's render survives; the collider was skipped, not written.
+    const written = await fs.readFile(join(work, 'machine.svg'), 'utf8');
+    expect(written).toMatch(/>Red</);      // traffic-light content, not atm's
+  });
+
   it('--target=dot --stdout emits DOT to stdout', async () => {
     const src = join(fixturesDir, 'traffic-light.fsl');
     const code = await cli([src, '--target=dot', '--stdout']);
