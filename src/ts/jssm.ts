@@ -4216,6 +4216,14 @@ class Machine<mDT> {
     }
 
     if (removed) {
+      // set_hook only ever turns the _has_* fast-path flags ON; they summarize
+      // whole families, not counts, so a removal can't simply turn one off.
+      // Rederive them all now, or a stale flag keeps the fast path doing work
+      // whose last hook is gone -- most visibly _has_transition_hooks, which
+      // would otherwise keep resolving trans_type and leaking it into every
+      // hook context after the last transition-kind hook was removed.  #1954
+      this.#recompute_hook_flags();
+
       // See set_hook: the hooked-state styling layer depends on which states
       // carry hooks, so removing one can change a state's composed style.
       this._static_state_config_cache.clear();
@@ -4223,6 +4231,85 @@ class Machine<mDT> {
     }
 
     return removed;
+  }
+
+
+
+  /**
+   *  Rederive every `_has_*` fast-path flag from the underlying hook stores.
+   *
+   *  Called after a successful {@link remove_hook}.  `set_hook` turns the flags
+   *  on as hooks arrive, but because each flag summarizes a whole family rather
+   *  than counting it, a removal cannot know whether it cleared the last hook of
+   *  that family without re-checking.  Recomputing here fixes the `trans_type`
+   *  context leak (a `_has_transition_hooks` that never went back to `false`)
+   *  and drops the standing per-transition fast-path overhead once a family's
+   *  last hook is gone.
+   *
+   *  Cheap and cold: it runs only on removal.  Every check is an O(1) `size` or
+   *  definedness test except the two nested maps, which scan their (small)
+   *  inner maps.  The flags are combined with `.includes(true)` over boolean
+   *  arrays rather than `||` chains so the method carries no branches of its own.
+   *
+   *  @internal
+   */
+  #recompute_hook_flags(): void {
+
+    const nested_has = (m: Map<number, Map<number, HookHandler<mDT>>>): boolean =>
+      [ ...m.values() ].some(inner => inner.size > 0);
+
+    // pre-hook family flags
+    this._has_basic_hooks         = this._hooks.size > 0;
+    this._has_named_hooks         = nested_has(this._named_hooks);
+    this._has_entry_hooks         = this._entry_hooks.size > 0;
+    this._has_exit_hooks          = this._exit_hooks.size > 0;
+    this._has_after_hooks         = [ this._after_hooks.size > 0, this._after_any_hook !== undefined ].includes(true);
+    this._has_global_action_hooks = this._global_action_hooks.size > 0;
+    this._has_transition_hooks    = [
+      this._standard_transition_hook !== undefined,
+      this._main_transition_hook     !== undefined,
+      this._forced_transition_hook   !== undefined,
+    ].includes(true);
+
+    this._has_hooks = [
+      this._has_basic_hooks,
+      this._has_named_hooks,
+      this._has_entry_hooks,
+      this._has_exit_hooks,
+      this._has_after_hooks,
+      this._has_global_action_hooks,
+      this._has_transition_hooks,
+      this._any_action_hook     !== undefined,
+      this._any_transition_hook !== undefined,
+      this._pre_everything_hook !== undefined,
+      this._everything_hook     !== undefined,
+    ].includes(true);
+
+    // post-hook family flags (mirror of the above)
+    this._has_post_basic_hooks         = this._post_hooks.size > 0;
+    this._has_post_named_hooks         = nested_has(this._post_named_hooks);
+    this._has_post_entry_hooks         = this._post_entry_hooks.size > 0;
+    this._has_post_exit_hooks          = this._post_exit_hooks.size > 0;
+    this._has_post_global_action_hooks = this._post_global_action_hooks.size > 0;
+    this._has_post_transition_hooks    = [
+      this._post_standard_transition_hook !== undefined,
+      this._post_main_transition_hook     !== undefined,
+      this._post_forced_transition_hook   !== undefined,
+    ].includes(true);
+
+    this._has_post_hooks = [
+      this._has_post_basic_hooks,
+      this._has_post_named_hooks,
+      this._has_post_entry_hooks,
+      this._has_post_exit_hooks,
+      this._has_post_global_action_hooks,
+      this._has_post_transition_hooks,
+      this._post_any_action_hook     !== undefined,
+      this._post_any_transition_hook !== undefined,
+      this._pre_post_everything_hook !== undefined,
+      this._post_everything_hook     !== undefined,
+    ].includes(true);
+
   }
 
 

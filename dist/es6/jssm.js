@@ -10,7 +10,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Machine_instances, _Machine_states, _Machine_edges, _Machine_edge_map, _Machine_outbound_edge_ids, _Machine_named_transitions, _Machine_actions, _Machine_reverse_actions, _Machine_reverse_action_targets, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_fire_one, _Machine_has_subscribers, _Machine_fire, _Machine_validate_hook_description, _Machine_fire_hook_rejection, _Machine_fire_boundary_actions, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
+var _Machine_instances, _Machine_states, _Machine_edges, _Machine_edge_map, _Machine_outbound_edge_ids, _Machine_named_transitions, _Machine_actions, _Machine_reverse_actions, _Machine_reverse_action_targets, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_fire_one, _Machine_has_subscribers, _Machine_fire, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_fire_hook_rejection, _Machine_fire_boundary_actions, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
 import { circular_buffer } from 'circular_buffer_js';
 import { make, transitive_members, membership_distance } from './jssm_compiler.js';
 import { theme_mapping, base_theme } from './jssm_theme.js';
@@ -2999,6 +2999,13 @@ class Machine {
             }
         }
         if (removed) {
+            // set_hook only ever turns the _has_* fast-path flags ON; they summarize
+            // whole families, not counts, so a removal can't simply turn one off.
+            // Rederive them all now, or a stale flag keeps the fast path doing work
+            // whose last hook is gone -- most visibly _has_transition_hooks, which
+            // would otherwise keep resolving trans_type and leaking it into every
+            // hook context after the last transition-kind hook was removed.  #1954
+            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_recompute_hook_flags).call(this);
             // See set_hook: the hooked-state styling layer depends on which states
             // carry hooks, so removing one can change a state's composed style.
             this._static_state_config_cache.clear();
@@ -5140,6 +5147,56 @@ _Machine_states = new WeakMap(), _Machine_edges = new WeakMap(), _Machine_edge_m
             throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
         }
     }
+}, _Machine_recompute_hook_flags = function _Machine_recompute_hook_flags() {
+    const nested_has = (m) => [...m.values()].some(inner => inner.size > 0);
+    // pre-hook family flags
+    this._has_basic_hooks = this._hooks.size > 0;
+    this._has_named_hooks = nested_has(this._named_hooks);
+    this._has_entry_hooks = this._entry_hooks.size > 0;
+    this._has_exit_hooks = this._exit_hooks.size > 0;
+    this._has_after_hooks = [this._after_hooks.size > 0, this._after_any_hook !== undefined].includes(true);
+    this._has_global_action_hooks = this._global_action_hooks.size > 0;
+    this._has_transition_hooks = [
+        this._standard_transition_hook !== undefined,
+        this._main_transition_hook !== undefined,
+        this._forced_transition_hook !== undefined,
+    ].includes(true);
+    this._has_hooks = [
+        this._has_basic_hooks,
+        this._has_named_hooks,
+        this._has_entry_hooks,
+        this._has_exit_hooks,
+        this._has_after_hooks,
+        this._has_global_action_hooks,
+        this._has_transition_hooks,
+        this._any_action_hook !== undefined,
+        this._any_transition_hook !== undefined,
+        this._pre_everything_hook !== undefined,
+        this._everything_hook !== undefined,
+    ].includes(true);
+    // post-hook family flags (mirror of the above)
+    this._has_post_basic_hooks = this._post_hooks.size > 0;
+    this._has_post_named_hooks = nested_has(this._post_named_hooks);
+    this._has_post_entry_hooks = this._post_entry_hooks.size > 0;
+    this._has_post_exit_hooks = this._post_exit_hooks.size > 0;
+    this._has_post_global_action_hooks = this._post_global_action_hooks.size > 0;
+    this._has_post_transition_hooks = [
+        this._post_standard_transition_hook !== undefined,
+        this._post_main_transition_hook !== undefined,
+        this._post_forced_transition_hook !== undefined,
+    ].includes(true);
+    this._has_post_hooks = [
+        this._has_post_basic_hooks,
+        this._has_post_named_hooks,
+        this._has_post_entry_hooks,
+        this._has_post_exit_hooks,
+        this._has_post_global_action_hooks,
+        this._has_post_transition_hooks,
+        this._post_any_action_hook !== undefined,
+        this._post_any_transition_hook !== undefined,
+        this._pre_post_everything_hook !== undefined,
+        this._post_everything_hook !== undefined,
+    ].includes(true);
 }, _Machine_fire_hook_rejection = function _Machine_fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
     // Every hook veto in transition_impl's pre-commit pipeline exits through
     // here, so this is the single close point for the reentrancy guard on the
