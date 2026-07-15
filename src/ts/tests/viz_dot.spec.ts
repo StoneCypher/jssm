@@ -420,3 +420,36 @@ describe('state names containing double-quotes produce valid DOT (fsl#474)', () 
   });
 
 });
+
+
+
+
+
+// doublequote must escape backslash before quote.  A state name ending in a
+// backslash would otherwise emit label="a\" — whose \" escapes the closing
+// quote — corrupting the DOT so the whole render throws.  StoneCypher/fsl#1951
+describe('a backslash in a state name is DOT-escaped, not left to corrupt the output', () => {
+
+  // FSL `"a\\"` decodes to a state literally named  a\
+  test('a state name ending in a backslash renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\" -> b;`))).not.toThrow();
+  });
+
+  test('the trailing backslash is emitted doubled, keeping quotes balanced', () => {
+    const dot = jv.machine_to_dot(jssm.from(String.raw`"a\\" -> b;`));
+    expect(dot).toContain(String.raw`label="a\\"`);
+  });
+
+  test('an embedded backslash renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\b" -> c;`))).not.toThrow();
+  });
+
+  test('a backslash-then-quote sequence renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\\"b" -> c;`))).not.toThrow();
+  });
+
+  test('the whole machine still renders to SVG', () => {
+    return expect(jv.fsl_to_svg_string(String.raw`"a\\" -> b;`)).resolves.toContain('<svg');
+  });
+
+});

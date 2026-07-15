@@ -3880,16 +3880,22 @@ declare function configure(opts: {
 declare function vc(col: string): string;
 /**
  *  Escape a string for safe interpolation inside a DOT double-quoted
- *  attribute value.  Replaces every `"` with `\"` so that group names,
- *  state labels, and chip labels containing literal double-quotes produce
- *  valid, parseable DOT source.
+ *  attribute value.  Escapes every `\` and `"` so that group names, state
+ *  labels, and chip labels containing either character produce valid,
+ *  parseable DOT source.
+ *
+ *  Backslash is escaped *first*: a label ending in `\` would otherwise emit
+ *  `label="a\"`, whose `\"` escapes the closing quote and corrupts the DOT so
+ *  the whole render throws.  Escaping `\`→`\\` before `"`→`\"` avoids
+ *  double-escaping the backslashes the quote step introduces.  StoneCypher/fsl#1951
  *
  *  ```typescript
- *  doublequote('a"b');  // 'a\\"b'
- *  doublequote('safe'); // 'safe'
+ *  doublequote('a"b');   // 'a\\"b'
+ *  doublequote('a\\');   // 'a\\\\'
+ *  doublequote('safe');  // 'safe'
  *  ```
  *  @param txt Any string that will be placed inside `"…"` in a DOT attribute.
- *  @returns The string with every `"` replaced by `\"`.
+ *  @returns The string with every `\` and `"` backslash-escaped.
  *  @internal
  */
 declare function doublequote(txt: string): string;
