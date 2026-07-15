@@ -400,3 +400,35 @@ describe('zero-probability candidate pools throw (StoneCypher/fsl#1248)', () => 
   });
 
 });
+
+
+
+
+// A one-way arrow has no reverse edge, so a probability/action/after written
+// AFTER the arrow used to be silently dropped.  It is now rejected.  fsl#1950
+describe('post-arrow decorations on a one-way arrow are rejected, not dropped', () => {
+
+  test('a -> 40% b throws', () =>
+    expect(() => jssm.from('a -> 40% b;')).toThrow(/write it before the arrow/));
+
+  test('a -> 0% b throws (a real 0% decoration, not absence)', () =>
+    expect(() => jssm.from('a -> 0% b;')).toThrow(/write it before the arrow/));
+
+  test('a => 40% b (main arrow) throws', () =>
+    expect(() => jssm.from('a => 40% b;')).toThrow(/write it before the arrow/));
+
+  test('the documented pre-arrow form still works and keeps the probability', () => {
+    const m = jssm.from('a 40% -> b;');
+    expect(m.list_edges()[0].probability).toBe(40);
+  });
+
+  test('a plain one-way arrow with no decoration compiles', () =>
+    expect(() => jssm.from('a -> b;')).not.toThrow());
+
+  test('a two-way arrow keeps its post-arrow decoration on the reverse edge', () => {
+    const m = jssm.from('a <-> 40% b;');
+    const rev = m.list_edges().find(e => e.from === 'b' && e.to === 'a');
+    expect(rev?.probability).toBe(40);
+  });
+
+});
