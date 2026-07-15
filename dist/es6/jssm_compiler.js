@@ -760,7 +760,19 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
                 acc.push(right);
             }
             const left = makeTransition(this_se, t, f, false);
-            if (left.kind !== 'none') {
+            if (left.kind === 'none') {
+                // A one-way arrow has no reverse edge, so a probability/action/after
+                // written AFTER the arrow ("a -> 40% b") lands in the reverse-edge slots
+                // and used to be silently dropped.  Reject it loudly; the decoration
+                // belongs before the arrow ("a 40% -> b").  The parser omits these
+                // fields when absent (despite the non-optional type), so a loose view
+                // lets `!= null` mean "was decorated".  StoneCypher/fsl#1950
+                const rev = this_se;
+                if (rev.l_probability != null || rev.l_action != null || rev.l_after != null) {
+                    throw new JssmError(undefined, `A one-way arrow has no reverse edge, so a decoration written after it ("${String(from)} ${this_se.kind} 40% ${String(to)}") is discarded; write it before the arrow instead ("${String(from)} 40% ${this_se.kind} ${String(to)}").`);
+                }
+            }
+            else {
                 acc.push(left);
             }
         }
