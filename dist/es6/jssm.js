@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Machine_instances, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_fire_one, _Machine_has_subscribers, _Machine_fire, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_fire_hook_rejection, _Machine_fire_boundary_actions, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
+var _Machine_instances, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
 import { circular_buffer } from 'circular_buffer_js';
 import { make, transitive_members, membership_distance } from './jssm_compiler.js';
 import { theme_mapping, base_theme } from './jssm_theme.js';
@@ -1016,7 +1016,7 @@ class Machine {
         const oldData = this._data;
         this._data = newData;
         if (oldData !== newData) {
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'data-change', {
+            this._fire('data-change', {
                 from: this._state,
                 to: this._state,
                 old_data: oldData,
@@ -2612,6 +2612,127 @@ class Machine {
         }
         return false;
     }
+    /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *  @internal
+     */
+    // PERF: this and the sibling dispatch methods (_fire, _fire_boundary_actions,
+    // _fire_hook_rejection, _has_subscribers) are intentionally underscore-
+    // convention, NOT `#`-private.  They are called on the per-transition hot
+    // path (_fire_boundary_actions runs on every transition), and a `#`-private
+    // method cannot be inlined the way its `_` twin can (brand check), so
+    // privatizing them in 5.162.8 cost ~20-25% on transition/action dispatch.
+    // Do not re-privatize.  StoneCypher/fsl#1959
+    _fire_one(entry, set, name, detail) {
+        // filter check
+        if (entry.filter !== undefined) {
+            for (const [k, v] of Object.entries(entry.filter)) {
+                if (v !== detail[k]) {
+                    return;
+                }
+            }
+        }
+        // once removal happens BEFORE invocation so a throwing handler still
+        // gets removed and so re-entrant `on` calls during the handler see
+        // the post-removal state.
+        if (entry.once) {
+            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry);
+        }
+        try {
+            entry.handler(detail);
+        }
+        catch (error) {
+            if (name === 'error' || this._firing_error) {
+                // surface to stderr as a last resort but never recurse;
+                // `console` is in the JS standard library and present in every
+                // supported runtime, so guarding it would just add an untestable
+                // branch.  See #638.
+                console.error(error);
+            }
+            else {
+                this._firing_error = true;
+                try {
+                    this._fire('error', {
+                        error: error,
+                        source_event: name,
+                        source_detail: detail,
+                        handler: entry.handler
+                    });
+                }
+                finally {
+                    this._firing_error = false;
+                }
+            }
+        }
+    }
+    /**
+     *  Dispatch an event to every registered subscriber in registration
+     *  order.  Filters are checked first; non-matching handlers are skipped
+     *  without invoking the handler.  Exceptions thrown by a handler are
+     *  caught and re-emitted as an `error` event so subsequent handlers
+     *  still run.
+     *
+     *  Re-entry into the `error` event itself is guarded — if an `error`
+     *  handler throws, the new exception is swallowed rather than rebroadcast
+     *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
+     *  @internal
+     */
+    /**
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
+     *
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *  @see Machine._fire
+     *  @internal
+     */
+    _has_subscribers(name) {
+        const set = this._event_handlers.get(name);
+        return (set !== undefined) && (set.size > 0);
+    }
+    _fire(name, detail) {
+        const set = this._event_handlers.get(name);
+        if (set === undefined || set.size === 0) {
+            return;
+        }
+        // Fast-path: single subscriber — capture entry before invoking so that
+        // even if the handler mutates `set` (via off/once auto-removal) we hold a
+        // stable reference.  Behaviorally identical to a 1-element snapshot.
+        if (set.size === 1) {
+            const only = set.values().next().value;
+            this._fire_one(only, set, name, detail);
+            return;
+        }
+        // General path: snapshot so handlers can `off()` mid-loop without
+        // disturbing iteration.
+        const entries = [...set];
+        for (const entry of entries) {
+            this._fire_one(entry, set, name, detail);
+        }
+    }
     set_hook(HookDesc) {
         __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_validate_hook_description).call(this, HookDesc);
         switch (HookDesc.kind) {
@@ -2792,7 +2913,7 @@ class Machine {
         // added after a style has already been computed and memoized.
         this._static_state_config_cache.clear();
         // fire the registration event for inspector tools (#638)
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'hook-registration', { description: HookDesc });
+        this._fire('hook-registration', { description: HookDesc });
     }
     /**
      *  Remove a previously-registered hook described by a
@@ -2995,7 +3116,7 @@ class Machine {
             // See set_hook: the hooked-state styling layer depends on which states
             // carry hooks, so removing one can change a state's composed style.
             this._static_state_config_cache.clear();
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'hook-removal', { description: HookDesc });
+            this._fire('hook-removal', { description: HookDesc });
         }
         return removed;
     }
@@ -3442,14 +3563,14 @@ class Machine {
                 if (dataProvided) {
                     this._data = newData;
                 }
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'override', {
+                this._fire('override', {
                     from: fromState,
                     to: newState,
                     old_data: oldData,
                     new_data: this._data
                 });
                 if (dataProvided && (oldData !== newData)) {
-                    __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'data-change', {
+                    this._fire('data-change', {
                         from: fromState,
                         to: newState,
                         old_data: oldData,
@@ -3459,7 +3580,7 @@ class Machine {
                 }
                 // An override is still a real state change that may cross group/state
                 // boundaries, so its boundary-hook actions fire too (depth-bounded).
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_boundary_actions).call(this, fromState, newState);
+                this._fire_boundary_actions(fromState, newState);
             }
             else {
                 throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
@@ -3467,6 +3588,164 @@ class Machine {
         }
         else {
             throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+        }
+    }
+    /*********
+     *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+        // Every hook veto in transition_impl's pre-commit pipeline exits through
+        // here, so this is the single close point for the reentrancy guard on the
+        // rejection path: clear it before firing the event so a `rejection` listener
+        // may itself transition (the outer transition is abandoned, not reverted).
+        // #1953
+        this._committing_transition = false;
+        this._fire('rejection', {
+            from: fromState,
+            to: newState,
+            action: fromAction,
+            data: oldData,
+            next_data: newData,
+            reason: 'hook',
+            hook_name,
+            forced: wasForced
+        });
+    }
+    /*********
+     *
+     *  Fire the FSL boundary-hook actions for a single, already-committed state
+     *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
+     *  means "when the machine crosses INTO group `g`, dispatch machine action
+     *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
+     *  that fires those parked hooks.
+     *
+     *  Crossing semantics (statechart convention — exits before enters):
+     *
+     *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
+     *     the old and new states, from `_state_to_groups`.
+     *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
+     *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
+     *     actually changed).
+     *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
+     *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
+     *     changed).
+     *  4. A group present in BOTH sets is a transition *within* that group and
+     *     fires neither of its boundary hooks.  `prev_state === next_state` fires
+     *     nothing at all.
+     *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
+     *     from the current state, `action` is a safe no-op (returns `false`) — an
+     *     inapplicable boundary action never throws.
+     *  6. Multi-membership and nesting both fan out naturally: a state in groups
+     *     A and B fires both; crossing an inner and an outer boundary fires both
+     *     levels.
+     *
+     *  Because firing an action can drive a further transition (which crosses
+     *  more boundaries, which fires more actions), this is a bounded
+     *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
+     *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
+     *  rather than overflowing the stack or hanging.  The limit defaults to 100
+     *  and is configurable via the `boundary_depth_limit` constructor option.
+     *
+     *  @param prev_state The state the machine was in before this commit.
+     *  @param next_state The state the machine is in now (already committed).
+     *
+     *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
+     *    (a probable infinite loop).
+     *
+     *  @see action
+     *  @see transition_impl
+     *
+     *  @internal
+     *
+     */
+    _fire_boundary_actions(prev_state, next_state) {
+        var _a, _b, _c, _d, _e, _f;
+        // Nothing crosses a boundary when the state name is unchanged.
+        if (prev_state === next_state) {
+            return;
+        }
+        // Skip entirely for machines that declared no boundary hooks at all — the
+        // overwhelming common case, and it keeps the hot transition path free of
+        // set arithmetic.
+        if (this._group_hooks.size === 0 && this._state_hooks.size === 0) {
+            return;
+        }
+        if (this._boundary_depth >= this._boundary_depth_limit) {
+            throw new JssmError(this, `boundary-hook action cascade exceeded depth limit (${this._boundary_depth_limit}) `
+                + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
+                + `(possible infinite loop)`);
+        }
+        const prev_groups = (_a = this._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : empty_string_set;
+        const next_groups = (_b = this._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : empty_string_set;
+        // The labels to dispatch, gathered before any firing so that re-entrant
+        // transitions caused by an early action cannot perturb which boundaries the
+        // *current* crossing fires.  Exits precede enters (statechart convention).
+        const labels = [];
+        // Exits: groups left (in prev but not next), then the plain prev state.
+        for (const group of prev_groups) {
+            if (next_groups.has(group)) {
+                continue;
+            }
+            const label = (_c = this._group_hooks.get(group)) === null || _c === void 0 ? void 0 : _c.onExit;
+            if (label !== undefined) {
+                labels.push(label);
+            }
+        }
+        const prev_state_exit = (_d = this._state_hooks.get(prev_state)) === null || _d === void 0 ? void 0 : _d.onExit;
+        if (prev_state_exit !== undefined) {
+            labels.push(prev_state_exit);
+        }
+        // Enters: groups entered (in next but not prev), then the plain next state.
+        for (const group of next_groups) {
+            if (prev_groups.has(group)) {
+                continue;
+            }
+            const label = (_e = this._group_hooks.get(group)) === null || _e === void 0 ? void 0 : _e.onEnter;
+            if (label !== undefined) {
+                labels.push(label);
+            }
+        }
+        const next_state_enter = (_f = this._state_hooks.get(next_state)) === null || _f === void 0 ? void 0 : _f.onEnter;
+        if (next_state_enter !== undefined) {
+            labels.push(next_state_enter);
+        }
+        if (labels.length === 0) {
+            return;
+        }
+        // Each dispatched action re-enters transition_impl, which (on success) calls
+        // back here for the boundary it just crossed.  The depth counter brackets
+        // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
+        this._boundary_depth += 1;
+        try {
+            for (const label of labels) {
+                this.action(label); // safe no-op (returns false) if inapplicable here
+            }
+        }
+        finally {
+            this._boundary_depth -= 1;
         }
     }
     /*********
@@ -3626,7 +3905,7 @@ class Machine {
         // when nothing is subscribed.  Gate is read at fire time, so a listener
         // registered inside a pre-hook still receives the event.  #671
         if (wasAction && this._event_listener_count !== 0) {
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'action', {
+            this._fire('action', {
                 action: newStateOrAction,
                 from: this._state,
                 to: newState,
@@ -3646,7 +3925,7 @@ class Machine {
                 // Open the pre-commit window: from here until the commit below, any
                 // reentrant transition_impl call (a hook transitioning the machine)
                 // throws instead of being silently reverted.  The `finally` below closes
-                // it on every exit path; #fire_hook_rejection additionally clears it
+                // it on every exit path; _fire_hook_rejection additionally clears it
                 // before firing the rejection event so a rejection listener may itself
                 // transition.  The pipeline body is intentionally left at its original
                 // indentation to keep this fix's diff focused.  #1953
@@ -3657,7 +3936,7 @@ class Machine {
                     if (this._pre_everything_hook !== undefined) {
                         const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3668,7 +3947,7 @@ class Machine {
                         // 1a. any action hook
                         const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any action', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3677,7 +3956,7 @@ class Machine {
                         // 1b. global specific action hook
                         const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
                         if (!outcome2.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'global action', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome2)) {
@@ -3694,7 +3973,7 @@ class Machine {
                     if (this._any_transition_hook !== undefined) {
                         const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'any transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3705,7 +3984,7 @@ class Machine {
                     if (this._has_exit_hooks) {
                         const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'exit', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3722,7 +4001,7 @@ class Machine {
                         const nh = byPair === undefined ? undefined : byPair.get(actionId);
                         const outcome = abstract_hook_step(nh, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'named', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3735,7 +4014,7 @@ class Machine {
                         const h = this._hooks.get(pre_pair_id);
                         const outcome = abstract_hook_step(h, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'hook', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3747,7 +4026,7 @@ class Machine {
                     if (trans_type === 'legal') {
                         const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3758,7 +4037,7 @@ class Machine {
                     else if (trans_type === 'main') {
                         const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'main transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3769,7 +4048,7 @@ class Machine {
                     else if (trans_type === 'forced') {
                         const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3780,7 +4059,7 @@ class Machine {
                     if (this._has_entry_hooks) {
                         const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'entry', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3791,7 +4070,7 @@ class Machine {
                     if (this._everything_hook !== undefined) {
                         const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
                         if (!outcome.pass) {
-                            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_hook_rejection).call(this, 'everything', fromState, newState, fromAction, oldData, newData, wasForced);
+                            this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
                         if (_update_hook_fields(hook_args, outcome)) {
@@ -3858,7 +4137,7 @@ class Machine {
             // when nothing is subscribed.  A listener still receives the event
             // because the gate is read at fire time.  #671
             if (this._event_listener_count !== 0) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'rejection', {
+                this._fire('rejection', {
                     from: fromState,
                     to: newStateOrAction, // we never resolved a real target
                     action: fromAction,
@@ -3959,16 +4238,16 @@ class Machine {
             // listening only to 'transition' previously paid for the exit/entry/
             // data-change/terminal/complete allocations _fire then discarded.
             // Gates read at fire time, like the outer count, preserving #671.
-            if (__classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'exit')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'exit', {
+            if (this._has_subscribers('exit')) {
+                this._fire('exit', {
                     state: fromState,
                     to: newState,
                     action: fromAction,
                     data: newData_after
                 });
             }
-            if (__classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'transition')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'transition', {
+            if (this._has_subscribers('transition')) {
+                this._fire('transition', {
                     from: fromState,
                     to: newState,
                     action: fromAction,
@@ -3978,16 +4257,16 @@ class Machine {
                     forced: wasForced
                 });
             }
-            if (__classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'entry')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'entry', {
+            if (this._has_subscribers('entry')) {
+                this._fire('entry', {
                     state: newState,
                     from: fromState,
                     action: fromAction,
                     data: newData_after
                 });
             }
-            if ((oldData !== newData_after) && __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'data-change')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'data-change', {
+            if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
+                this._fire('data-change', {
                     from: fromState,
                     to: newState,
                     action: fromAction,
@@ -4001,18 +4280,18 @@ class Machine {
             // each redo has_state plus its own map walk.  Same predicates:
             // terminal = no exits, complete = the constructor-set flag.  #735
             const new_state_rec = this._states.get(newState);
-            if ((new_state_rec.to.length === 0) && __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'terminal')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'terminal', { state: newState, data: newData_after });
+            if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
+                this._fire('terminal', { state: newState, data: newData_after });
             }
-            if (new_state_rec.complete && __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_has_subscribers).call(this, 'complete')) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'complete', { state: newState, data: newData_after });
+            if (new_state_rec.complete && this._has_subscribers('complete')) {
+                this._fire('complete', { state: newState, data: newData_after });
             }
         }
         // FSL boundary-hook actions (`on enter/exit &g do 'X'`) fire after the
         // state is committed and after the observation events, matching the
         // statechart "exits before enters" convention.  Cascades are depth-bounded
         // inside the helper.
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_boundary_actions).call(this, fromState, newState);
+        this._fire_boundary_actions(fromState, newState);
         // Clear the departed state's `after` timer and re-establish the new state's,
         // now that the transition has actually committed.  This clear runs only on a
         // successful commit -- a hook that VETOES the transition returns above, so
@@ -4970,7 +5249,7 @@ class Machine {
                     this._after_any_hook({ data: this._data, next_data: this._data });
                 }
             }
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'timeout', { from: from_state, to: next_state, after_time });
+            this._fire('timeout', { from: from_state, to: next_state, after_time });
             this.go(next_state);
         }, after_time);
         this._timeout_target = next_state;
@@ -5044,69 +5323,6 @@ _Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machi
     set.add(entry);
     this._event_listener_count++;
     return () => { __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry); };
-}, _Machine_fire_one = function _Machine_fire_one(entry, set, name, detail) {
-    // filter check
-    if (entry.filter !== undefined) {
-        for (const [k, v] of Object.entries(entry.filter)) {
-            if (v !== detail[k]) {
-                return;
-            }
-        }
-    }
-    // once removal happens BEFORE invocation so a throwing handler still
-    // gets removed and so re-entrant `on` calls during the handler see
-    // the post-removal state.
-    if (entry.once) {
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry);
-    }
-    try {
-        entry.handler(detail);
-    }
-    catch (error) {
-        if (name === 'error' || this._firing_error) {
-            // surface to stderr as a last resort but never recurse;
-            // `console` is in the JS standard library and present in every
-            // supported runtime, so guarding it would just add an untestable
-            // branch.  See #638.
-            console.error(error);
-        }
-        else {
-            this._firing_error = true;
-            try {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'error', {
-                    error: error,
-                    source_event: name,
-                    source_detail: detail,
-                    handler: entry.handler
-                });
-            }
-            finally {
-                this._firing_error = false;
-            }
-        }
-    }
-}, _Machine_has_subscribers = function _Machine_has_subscribers(name) {
-    const set = this._event_handlers.get(name);
-    return (set !== undefined) && (set.size > 0);
-}, _Machine_fire = function _Machine_fire(name, detail) {
-    const set = this._event_handlers.get(name);
-    if (set === undefined || set.size === 0) {
-        return;
-    }
-    // Fast-path: single subscriber — capture entry before invoking so that
-    // even if the handler mutates `set` (via off/once auto-removal) we hold a
-    // stable reference.  Behaviorally identical to a 1-element snapshot.
-    if (set.size === 1) {
-        const only = set.values().next().value;
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_one).call(this, only, set, name, detail);
-        return;
-    }
-    // General path: snapshot so handlers can `off()` mid-loop without
-    // disturbing iteration.
-    const entries = [...set];
-    for (const entry of entries) {
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire_one).call(this, entry, set, name, detail);
-    }
 }, _Machine_validate_hook_description = function _Machine_validate_hook_description(HookDesc) {
     const required = hook_required_fields[HookDesc.kind];
     if (required === undefined) {
@@ -5178,89 +5394,6 @@ _Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machi
         this._pre_post_everything_hook !== undefined,
         this._post_everything_hook !== undefined,
     ].includes(true);
-}, _Machine_fire_hook_rejection = function _Machine_fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
-    // Every hook veto in transition_impl's pre-commit pipeline exits through
-    // here, so this is the single close point for the reentrancy guard on the
-    // rejection path: clear it before firing the event so a `rejection` listener
-    // may itself transition (the outer transition is abandoned, not reverted).
-    // #1953
-    this._committing_transition = false;
-    __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_fire).call(this, 'rejection', {
-        from: fromState,
-        to: newState,
-        action: fromAction,
-        data: oldData,
-        next_data: newData,
-        reason: 'hook',
-        hook_name,
-        forced: wasForced
-    });
-}, _Machine_fire_boundary_actions = function _Machine_fire_boundary_actions(prev_state, next_state) {
-    var _a, _b, _c, _d, _e, _f;
-    // Nothing crosses a boundary when the state name is unchanged.
-    if (prev_state === next_state) {
-        return;
-    }
-    // Skip entirely for machines that declared no boundary hooks at all — the
-    // overwhelming common case, and it keeps the hot transition path free of
-    // set arithmetic.
-    if (this._group_hooks.size === 0 && this._state_hooks.size === 0) {
-        return;
-    }
-    if (this._boundary_depth >= this._boundary_depth_limit) {
-        throw new JssmError(this, `boundary-hook action cascade exceeded depth limit (${this._boundary_depth_limit}) `
-            + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
-            + `(possible infinite loop)`);
-    }
-    const prev_groups = (_a = this._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : empty_string_set;
-    const next_groups = (_b = this._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : empty_string_set;
-    // The labels to dispatch, gathered before any firing so that re-entrant
-    // transitions caused by an early action cannot perturb which boundaries the
-    // *current* crossing fires.  Exits precede enters (statechart convention).
-    const labels = [];
-    // Exits: groups left (in prev but not next), then the plain prev state.
-    for (const group of prev_groups) {
-        if (next_groups.has(group)) {
-            continue;
-        }
-        const label = (_c = this._group_hooks.get(group)) === null || _c === void 0 ? void 0 : _c.onExit;
-        if (label !== undefined) {
-            labels.push(label);
-        }
-    }
-    const prev_state_exit = (_d = this._state_hooks.get(prev_state)) === null || _d === void 0 ? void 0 : _d.onExit;
-    if (prev_state_exit !== undefined) {
-        labels.push(prev_state_exit);
-    }
-    // Enters: groups entered (in next but not prev), then the plain next state.
-    for (const group of next_groups) {
-        if (prev_groups.has(group)) {
-            continue;
-        }
-        const label = (_e = this._group_hooks.get(group)) === null || _e === void 0 ? void 0 : _e.onEnter;
-        if (label !== undefined) {
-            labels.push(label);
-        }
-    }
-    const next_state_enter = (_f = this._state_hooks.get(next_state)) === null || _f === void 0 ? void 0 : _f.onEnter;
-    if (next_state_enter !== undefined) {
-        labels.push(next_state_enter);
-    }
-    if (labels.length === 0) {
-        return;
-    }
-    // Each dispatched action re-enters transition_impl, which (on success) calls
-    // back here for the boundary it just crossed.  The depth counter brackets
-    // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
-    this._boundary_depth += 1;
-    try {
-        for (const label of labels) {
-            this.action(label); // safe no-op (returns false) if inapplicable here
-        }
-    }
-    finally {
-        this._boundary_depth -= 1;
-    }
 }, _Machine_resolved_themes = function _Machine_resolved_themes() {
     const themes = [];
     for (const th of this._themes) {

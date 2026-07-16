@@ -1588,7 +1588,7 @@ class Machine<mDT> {
     this._data    = newData;
 
     if (oldData !== newData) {
-      this.#fire('data-change', {
+      this._fire('data-change', {
         from     : this._state,
         to       : this._state,
         old_data : oldData,
@@ -3651,7 +3651,14 @@ class Machine<mDT> {
    *  @param detail - The event payload forwarded to the handler.
    *  @internal
    */
-  #fire_one<Ev extends JssmEventName>(
+  // PERF: this and the sibling dispatch methods (_fire, _fire_boundary_actions,
+  // _fire_hook_rejection, _has_subscribers) are intentionally underscore-
+  // convention, NOT `#`-private.  They are called on the per-transition hot
+  // path (_fire_boundary_actions runs on every transition), and a `#`-private
+  // method cannot be inlined the way its `_` twin can (brand check), so
+  // privatizing them in 5.162.8 cost ~20-25% on transition/action dispatch.
+  // Do not re-privatize.  StoneCypher/fsl#1959
+  _fire_one<Ev extends JssmEventName>(
     entry  : JssmEventEntry<mDT, Ev>,
     set    : Set<JssmEventEntry<any, any>>,
     name   : Ev,
@@ -3683,7 +3690,7 @@ class Machine<mDT> {
       } else {
         this._firing_error = true;
         try {
-          this.#fire('error', {
+          this._fire('error', {
             error         : error,
             source_event  : name,
             source_detail : detail,
@@ -3735,12 +3742,12 @@ class Machine<mDT> {
    *  @see Machine._fire
    *  @internal
    */
-  #has_subscribers(name: JssmEventName): boolean {
+  _has_subscribers(name: JssmEventName): boolean {
     const set = this._event_handlers.get(name);
     return (set !== undefined) && (set.size > 0);
   }
 
-  #fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
+  _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
 
     const set = this._event_handlers.get(name);
     if (set === undefined || set.size === 0) { return; }
@@ -3750,7 +3757,7 @@ class Machine<mDT> {
     // stable reference.  Behaviorally identical to a 1-element snapshot.
     if (set.size === 1) {
       const only = set.values().next().value as JssmEventEntry<mDT, Ev>;
-      this.#fire_one(only, set, name, detail);
+      this._fire_one(only, set, name, detail);
       return;
     }
 
@@ -3758,7 +3765,7 @@ class Machine<mDT> {
     // disturbing iteration.
     const entries = [...set];
     for (const entry of entries) {
-      this.#fire_one(entry, set, name, detail);
+      this._fire_one(entry, set, name, detail);
     }
   }
 
@@ -4035,7 +4042,7 @@ class Machine<mDT> {
     this._static_state_config_cache.clear();
 
     // fire the registration event for inspector tools (#638)
-    this.#fire('hook-registration', { description: HookDesc });
+    this._fire('hook-registration', { description: HookDesc });
   }
 
 
@@ -4234,7 +4241,7 @@ class Machine<mDT> {
       // See set_hook: the hooked-state styling layer depends on which states
       // carry hooks, so removing one can change a state's composed style.
       this._static_state_config_cache.clear();
-      this.#fire('hook-removal', { description: HookDesc });
+      this._fire('hook-removal', { description: HookDesc });
     }
 
     return removed;
@@ -4910,14 +4917,14 @@ class Machine<mDT> {
         this._state    = newState;
         this._state_id = this._state_interner.intern(newState);
         if (dataProvided) { this._data = newData; }
-        this.#fire('override', {
+        this._fire('override', {
           from     : fromState,
           to       : newState,
           old_data : oldData,
           new_data : this._data
         });
         if (dataProvided && (oldData !== newData)) {
-          this.#fire('data-change', {
+          this._fire('data-change', {
             from     : fromState,
             to       : newState,
             old_data : oldData,
@@ -4927,7 +4934,7 @@ class Machine<mDT> {
         }
         // An override is still a real state change that may cross group/state
         // boundaries, so its boundary-hook actions fire too (depth-bounded).
-        this.#fire_boundary_actions(fromState, newState);
+        this._fire_boundary_actions(fromState, newState);
       } else {
         throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
       }
@@ -4967,7 +4974,7 @@ class Machine<mDT> {
    *
    */
 
-  #fire_hook_rejection(
+  _fire_hook_rejection(
     hook_name : string,
     fromState : StateType,
     newState  : StateType,
@@ -4982,7 +4989,7 @@ class Machine<mDT> {
     // may itself transition (the outer transition is abandoned, not reverted).
     // #1953
     this._committing_transition = false;
-    this.#fire('rejection', {
+    this._fire('rejection', {
       from      : fromState,
       to        : newState,
       action    : fromAction,
@@ -5044,7 +5051,7 @@ class Machine<mDT> {
    *
    */
 
-  #fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
+  _fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
 
     // Nothing crosses a boundary when the state name is unchanged.
     if (prev_state === next_state) { return; }
@@ -5281,7 +5288,7 @@ class Machine<mDT> {
     // when nothing is subscribed.  Gate is read at fire time, so a listener
     // registered inside a pre-hook still receives the event.  #671
     if (wasAction && this._event_listener_count !== 0) {
-        this.#fire('action', {
+        this._fire('action', {
           action    : newStateOrAction,
           from      : this._state,
           to        : newState,
@@ -5306,7 +5313,7 @@ class Machine<mDT> {
         // Open the pre-commit window: from here until the commit below, any
         // reentrant transition_impl call (a hook transitioning the machine)
         // throws instead of being silently reverted.  The `finally` below closes
-        // it on every exit path; #fire_hook_rejection additionally clears it
+        // it on every exit path; _fire_hook_rejection additionally clears it
         // before firing the rejection event so a rejection listener may itself
         // transition.  The pipeline body is intentionally left at its original
         // indentation to keep this fix's diff focused.  #1953
@@ -5318,19 +5325,19 @@ class Machine<mDT> {
         // 0. pre everything hook (fires before all other pre-hooks)
         if (this._pre_everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._pre_everything_hook, { ...hook_args, hook_name: 'pre everything' });
-          if (!outcome.pass) { this.#fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         if (wasAction) {
           // 1a. any action hook
           const outcome = abstract_hook_step(this._any_action_hook, hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           // 1b. global specific action hook
           const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
-          if (!outcome2.pass) { this.#fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome2.pass) { this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome2)) { data_changed = true; }
         }
 
@@ -5344,14 +5351,14 @@ class Machine<mDT> {
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
           const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 4. exit hook
         if (this._has_exit_hooks) {
           const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
@@ -5367,7 +5374,7 @@ class Machine<mDT> {
             const nh     = byPair === undefined ? undefined : byPair.get(actionId);
             const outcome = abstract_hook_step(nh, hook_args);
 
-            if (!outcome.pass) { this.#fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+            if (!outcome.pass) { this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
             if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           }
@@ -5379,7 +5386,7 @@ class Machine<mDT> {
           const h = this._hooks.get(pre_pair_id);
           const outcome = abstract_hook_step(h, hook_args);
 
-          if (!outcome.pass) { this.#fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         }
@@ -5389,33 +5396,33 @@ class Machine<mDT> {
         // 7a. standard transition hook
         if (trans_type === 'legal') {
           const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         // 7b. main type hook
         } else if (trans_type === 'main') {
           const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         // 7c. forced transition hook
         } else if (trans_type === 'forced') {
           const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
           const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
-          if (!outcome.pass) { this.#fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 9. everything hook (fires after all other pre-hooks)
         if (this._everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._everything_hook, { ...hook_args, hook_name: 'everything' });
-          if (!outcome.pass) { this.#fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (!outcome.pass) { this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
@@ -5488,7 +5495,7 @@ class Machine<mDT> {
       // when nothing is subscribed.  A listener still receives the event
       // because the gate is read at fire time.  #671
       if (this._event_listener_count !== 0) {
-        this.#fire('rejection', {
+        this._fire('rejection', {
           from      : fromState,
           to        : newStateOrAction,   // we never resolved a real target
           action    : fromAction,
@@ -5596,16 +5603,16 @@ class Machine<mDT> {
       // listening only to 'transition' previously paid for the exit/entry/
       // data-change/terminal/complete allocations _fire then discarded.
       // Gates read at fire time, like the outer count, preserving #671.
-      if (this.#has_subscribers('exit')) {
-        this.#fire('exit', {
+      if (this._has_subscribers('exit')) {
+        this._fire('exit', {
           state  : fromState,
           to     : newState,
           action : fromAction,
           data   : newData_after
         });
       }
-      if (this.#has_subscribers('transition')) {
-        this.#fire('transition', {
+      if (this._has_subscribers('transition')) {
+        this._fire('transition', {
           from       : fromState,
           to         : newState,
           action     : fromAction,
@@ -5615,16 +5622,16 @@ class Machine<mDT> {
           forced     : wasForced
         });
       }
-      if (this.#has_subscribers('entry')) {
-        this.#fire('entry', {
+      if (this._has_subscribers('entry')) {
+        this._fire('entry', {
           state  : newState,
           from   : fromState,
           action : fromAction,
           data   : newData_after
         });
       }
-      if ((oldData !== newData_after) && this.#has_subscribers('data-change')) {
-        this.#fire('data-change', {
+      if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
+        this._fire('data-change', {
           from     : fromState,
           to       : newState,
           action   : fromAction,
@@ -5638,11 +5645,11 @@ class Machine<mDT> {
       // each redo has_state plus its own map walk.  Same predicates:
       // terminal = no exits, complete = the constructor-set flag.  #735
       const new_state_rec: JssmGenericState = this._states.get(newState);
-      if ((new_state_rec.to.length === 0) && this.#has_subscribers('terminal')) {
-        this.#fire('terminal', { state: newState, data: newData_after });
+      if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
+        this._fire('terminal', { state: newState, data: newData_after });
       }
-      if (new_state_rec.complete && this.#has_subscribers('complete')) {
-        this.#fire('complete', { state: newState, data: newData_after });
+      if (new_state_rec.complete && this._has_subscribers('complete')) {
+        this._fire('complete', { state: newState, data: newData_after });
       }
     }
 
@@ -5650,7 +5657,7 @@ class Machine<mDT> {
     // state is committed and after the observation events, matching the
     // statechart "exits before enters" convention.  Cascades are depth-bounded
     // inside the helper.
-    this.#fire_boundary_actions(fromState, newState);
+    this._fire_boundary_actions(fromState, newState);
 
     // Clear the departed state's `after` timer and re-establish the new state's,
     // now that the transition has actually committed.  This clear runs only on a
@@ -7019,7 +7026,7 @@ class Machine<mDT> {
           if (this._after_any_hook !== undefined) { this._after_any_hook({ data: this._data, next_data: this._data }); }
         }
 
-        this.#fire('timeout', { from: from_state, to: next_state, after_time });
+        this._fire('timeout', { from: from_state, to: next_state, after_time });
 
         this.go(next_state);
       },

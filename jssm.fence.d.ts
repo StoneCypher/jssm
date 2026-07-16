@@ -2846,6 +2846,57 @@ declare class Machine<mDT> {
      *  @returns `true` if removed, `false` if no match was registered.
      */
     off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
+    /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *  @internal
+     */
+    _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
+    /**
+     *  Dispatch an event to every registered subscriber in registration
+     *  order.  Filters are checked first; non-matching handlers are skipped
+     *  without invoking the handler.  Exceptions thrown by a handler are
+     *  caught and re-emitted as an `error` event so subsequent handlers
+     *  still run.
+     *
+     *  Re-entry into the `error` event itself is guarded — if an `error`
+     *  handler throws, the new exception is swallowed rather than rebroadcast
+     *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
+     *  @internal
+     */
+    /**
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
+     *
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *  @see Machine._fire
+     *  @internal
+     */
+    _has_subscribers(name: JssmEventName): boolean;
+    _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a
@@ -3186,6 +3237,81 @@ declare class Machine<mDT> {
      *
      */
     override(newState: StateType, newData?: mDT): void;
+    /*********
+     *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
+    /*********
+     *
+     *  Fire the FSL boundary-hook actions for a single, already-committed state
+     *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
+     *  means "when the machine crosses INTO group `g`, dispatch machine action
+     *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
+     *  that fires those parked hooks.
+     *
+     *  Crossing semantics (statechart convention — exits before enters):
+     *
+     *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
+     *     the old and new states, from `_state_to_groups`.
+     *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
+     *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
+     *     actually changed).
+     *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
+     *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
+     *     changed).
+     *  4. A group present in BOTH sets is a transition *within* that group and
+     *     fires neither of its boundary hooks.  `prev_state === next_state` fires
+     *     nothing at all.
+     *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
+     *     from the current state, `action` is a safe no-op (returns `false`) — an
+     *     inapplicable boundary action never throws.
+     *  6. Multi-membership and nesting both fan out naturally: a state in groups
+     *     A and B fires both; crossing an inner and an outer boundary fires both
+     *     levels.
+     *
+     *  Because firing an action can drive a further transition (which crosses
+     *  more boundaries, which fires more actions), this is a bounded
+     *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
+     *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
+     *  rather than overflowing the stack or hanging.  The limit defaults to 100
+     *  and is configurable via the `boundary_depth_limit` constructor option.
+     *
+     *  @param prev_state The state the machine was in before this commit.
+     *  @param next_state The state the machine is in now (already committed).
+     *
+     *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
+     *    (a probable infinite loop).
+     *
+     *  @see action
+     *  @see transition_impl
+     *
+     *  @internal
+     *
+     */
+    _fire_boundary_actions(prev_state: StateType, next_state: StateType): void;
     /*********
      *
      *  Shared transition core used by {@link transition}, {@link force_transition},
