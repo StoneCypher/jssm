@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.162.35",
+  "version": "5.163.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -100,6 +100,8 @@
       "import": "./dist/fence/fence.js",
       "default": "./dist/fence/fence.js"
     },
+    "./grammar": "./dist/grammars/fsl.tmLanguage.json",
+    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json",
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -141,6 +143,7 @@
     "dist/cm6/fsl_language.js",
     "dist/es6/cm6/fsl_language.d.ts",
     "dist/fence/fence.js",
+    "dist/grammars/fsl.tmLanguage.json",
     "dist/cdn/viz.js",
     "dist/cdn/instance.js",
     "dist/cli/lib.cjs",
@@ -208,6 +211,7 @@
     "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "make_fence": "rollup -c rollup.config.fence.es6.js",
+    "make_grammar": "node src/buildjs/build_fsl_tmlanguage.cjs",
     "typescript": "node --stack-size=4000 node_modules/typescript/bin/tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",

@@ -74,6 +74,7 @@ const FEATURES = {
   make_wc_docs_es6:     { script: 'make_wc_docs_es6',     stages: [4], optional: true, defaultEnabled: true },
   make_cm6:             { script: 'make_cm6',             stages: [4], optional: true, defaultEnabled: true },
   make_fence:           { script: 'make_fence',           stages: [4], optional: true, defaultEnabled: true },
+  make_grammar:         { script: 'make_grammar',         stages: [4], optional: true, defaultEnabled: true },
   make_cli:             { script: 'make_cli',             stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
