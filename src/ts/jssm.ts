@@ -5386,32 +5386,23 @@ class Machine<mDT> {
 
         // 7. edge type hook
 
-        switch (trans_type) {
+        // 7a. standard transition hook
+        if (trans_type === 'legal') {
+          const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
+          if (!outcome.pass) { this.#fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
-          // 7a. standard transition hook
-          case 'legal': {
-            const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
-            if (!outcome.pass) { this.#fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
-            break;
-          }
+        // 7b. main type hook
+        } else if (trans_type === 'main') {
+          const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
+          if (!outcome.pass) { this.#fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
-          // 7b. main type hook
-          case 'main': {
-            const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
-            if (!outcome.pass) { this.#fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
-            break;
-          }
-
-          // 7c. forced transition hook
-          case 'forced': {
-            const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
-            if (!outcome.pass) { this.#fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-            if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
-            break;
-          }
-
+        // 7c. forced transition hook
+        } else if (trans_type === 'forced') {
+          const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
+          if (!outcome.pass) { this.#fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
+          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
 
         // 8. entry hook

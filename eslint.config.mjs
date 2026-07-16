@@ -156,6 +156,12 @@ export default tseslint.config(
       //  house style embraces reduce and point-free array pipelines
       'unicorn/no-array-reduce': 'off',
 
+      //  prefer-switch mandates a switch over 3+ branches on one discriminant.
+      //  It forced a switch onto the hand-tuned edge-type-hook dispatch (and
+      //  rejects both separate ifs and if/else-if via prefer-else-if), i.e. a
+      //  purely stylistic rule dictating the shape of hot code.  StoneCypher/fsl#1959
+      'unicorn/prefer-switch': 'off',
+
       //  the no-unsafe family presupposes tsconfig strict; jssm pins
       //  strict:false until the fsl#712 migration (deferred to the v7 era).
       //  On a pre-strict codebase these are the strict migration by proxy —
