@@ -151,7 +151,26 @@
     },
     {
       "name": "keyword.control.fsl",
-      "match": "\\b(?:state|on|do|enter|exit|property|default|required|after)\\b"
+      "match": "\\b(?:state|property)\\b"
+    },
+    {
+      "match": "\\b(on)\\s+(enter|exit)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.control.fsl"
+        },
+        "2": {
+          "name": "keyword.control.fsl"
+        }
+      }
+    },
+    {
+      "name": "keyword.control.fsl",
+      "match": "\\bdo\\b(?=\\s+')"
+    },
+    {
+      "name": "keyword.control.fsl",
+      "match": "\\bafter\\b(?=\\s+[0-9])"
     },
     {
       "name": "entity.other.attribute-name.fsl",
@@ -170,7 +189,7 @@
       "match": "\\.\\.\\.(?=\\s*&)"
     },
     {
-      "match": "(&)\\s*([0-9A-Za-z._!$^*?,][0-9A-Za-z._+()*&$#@!?,^-]*)",
+      "match": "(&)\\s*([0-9A-Za-z._!$^*?][0-9A-Za-z._+()*&$#@!?^-]*)",
       "captures": {
         "1": {
           "name": "punctuation.definition.group.fsl"

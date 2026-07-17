@@ -68,12 +68,14 @@ const ARROW_KINDS = [...ARROWS_A, ...ARROWS_B, ...ARROWS_C];
 // Keyword vocabularies, transcribed from fsl_parser.peg.
 // ---------------------------------------------------------------------------
 
-// structural keywords (keyword.control). `state` is here rather than in the
-// attribute set because it is dual-use (`state:` config and `state Foo:`
-// declaration); coloring every `state` as a control keyword is consistent.
-const CONTROL_KEYWORDS = [
-  'state', 'on', 'do', 'enter', 'exit', 'property', 'default', 'required', 'after',
-];
+// Structural keywords scoped flat: `state` (dual-use — `state:` config and
+// `state Foo:` declaration) and `property` (property declarations). Both rarely
+// collide with a state name. The other former keywords are context-scoped in
+// buildGrammar() so they don't mis-color state names: the hook keywords
+// `on`/`enter`/`exit`/`do` fire only in hook shape (`on <enter|exit> … do '…'`),
+// and `after` only before a number. `default`/`required` are left unscoped —
+// scoping `default` would wrongly color the `theme: default` config value.
+const STRUCTURAL_KEYWORDS = ['state', 'property'];
 
 // arrange declarations — their own pattern, longest-first so `arrange-start`
 // wins over `arrange`.
@@ -173,8 +175,19 @@ function buildGrammar() {
     // arrange declarations (longest-first)
     { name: 'keyword.control.arrange.fsl', match: `\\b(?:${alt(ARRANGE_KEYWORDS)})\\b` },
 
-    // structural keywords
-    { name: 'keyword.control.fsl', match: `\\b(?:${alt(CONTROL_KEYWORDS)})\\b` },
+    // structural keywords (flat — `state`/`property` rarely collide with a state name)
+    { name: 'keyword.control.fsl', match: `\\b(?:${alt(STRUCTURAL_KEYWORDS)})\\b` },
+
+    // hook keywords, scoped only in hook shape so `on`/`enter`/`exit`/`do` used
+    // as ordinary state names (e.g. `on 'flip' -> off;`) are not mis-colored.
+    {
+      match: '\\b(on)\\s+(enter|exit)\\b',
+      captures: { '1': { name: 'keyword.control.fsl' }, '2': { name: 'keyword.control.fsl' } },
+    },
+    { name: 'keyword.control.fsl', match: "\\bdo\\b(?=\\s+')" },
+
+    // `after` timer — only before a number, so an `after` state stays a label
+    { name: 'keyword.control.fsl', match: '\\bafter\\b(?=\\s+[0-9])' },
 
     // config / machine-attribute keys (only before `:`)
     { name: 'entity.other.attribute-name.fsl', match: `\\b(?:${alt(ATTRIBUTE_KEYS)})\\b(?=\\s*:)` },
@@ -188,7 +201,7 @@ function buildGrammar() {
     // group spread + reference
     { name: 'keyword.operator.spread.fsl', match: '\\.\\.\\.(?=\\s*&)' },
     {
-      match: '(&)\\s*([0-9A-Za-z._!$^*?,][0-9A-Za-z._+()*&$#@!?,^-]*)',
+      match: '(&)\\s*([0-9A-Za-z._!$^*?][0-9A-Za-z._+()*&$#@!?^-]*)',
       captures: {
         '1': { name: 'punctuation.definition.group.fsl' },
         '2': { name: 'variable.other.group.fsl' },
@@ -249,7 +262,7 @@ module.exports = {
   serializeGrammar,
   writeGrammar,
   ARROW_KINDS,
-  CONTROL_KEYWORDS,
+  STRUCTURAL_KEYWORDS,
   ARRANGE_KEYWORDS,
   ATTRIBUTE_KEYS,
   STYLE_KEYS,
