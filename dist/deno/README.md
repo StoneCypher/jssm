@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.162.35 at 7/16/2026, 7:26:02 AM
+* Generated for version 5.163.0 at 7/16/2026, 8:40:19 AM
 
 -->
-# jssm 5.162.35
+# jssm 5.163.0
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -202,6 +202,21 @@ PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI
 
 <br/>
 
+## TextMate grammar (`jssm/grammar`)
+
+`jssm` ships the canonical TextMate grammar for FSL as a data file at `dist/grammars/fsl.tmLanguage.json` (scope `source.fsl`), the single source consumed across the editor ecosystem — [shiki](https://shiki.style/) (and the static-site generators built on it), GitHub Linguist, Monaco, Sublime, `bat`, and the [vscode-fsl](https://github.com/StoneCypher/vscode-fsl) extension.
+
+```js
+import grammar from 'jssm/grammar' with { type: 'json' };
+// or read dist/grammars/fsl.tmLanguage.json from node_modules/jssm
+```
+
+The grammar is generated from — and build-verified against — the same `fsl_parser.peg` that drives the parser, so its highlighting never drifts from the language.
+
+
+
+<br/>
+
 ## Web Components
 
 `jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
@@ -333,7 +348,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  8,768 tests at 100.0% line coverage
+  library.**  8,774 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -468,9 +483,9 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***8,768 tests***, run 98,165 times.
+***8,774 tests***, run 98,171 times.
 
-- 7,865 specs with 100.0% coverage
+- 7,871 specs with 100.0% coverage
 - 903 fuzz tests with 56.3% coverage
 - 11,181 TypeScript lines - 0.8 tests per line, 8.8 generated tests per line
 

@@ -179,6 +179,21 @@ PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI
 
 <br/>
 
+## TextMate grammar (`jssm/grammar`)
+
+`jssm` ships the canonical TextMate grammar for FSL as a data file at `dist/grammars/fsl.tmLanguage.json` (scope `source.fsl`), the single source consumed across the editor ecosystem — [shiki](https://shiki.style/) (and the static-site generators built on it), GitHub Linguist, Monaco, Sublime, `bat`, and the [vscode-fsl](https://github.com/StoneCypher/vscode-fsl) extension.
+
+```js
+import grammar from 'jssm/grammar' with { type: 'json' };
+// or read dist/grammars/fsl.tmLanguage.json from node_modules/jssm
+```
+
+The grammar is generated from — and build-verified against — the same `fsl_parser.peg` that drives the parser, so its highlighting never drifts from the language.
+
+
+
+<br/>
+
 ## Web Components
 
 `jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
