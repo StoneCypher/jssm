@@ -60,11 +60,11 @@ const DEFAULTS = Object.freeze({
 
 /** Operations charted, in panel order; absent operations are skipped. */
 const OPERATIONS = Object.freeze([
-  'construct()',
   'transition()',
   'action()',
-  'edges_between()',
+  'construct()',
   'has_state()',
+  'edges_between()',
   'list_exit_actions()',
   'probable_action_exits()'
 ]);
@@ -259,13 +259,23 @@ function format_tick(v) {
  *  @param unit Y-axis metric label for the title, e.g. `'ops/sec'` (throughput
  *         panels) or `'bytes'` (the package-size panel).  The point values still come
  *         from each point's `ops` field — `unit` only renames the axis.
- *  @param scale `'log'` (default) renders the log-decade axis anchored at 10^0;
- *         `'linear'` renders a linear axis padded 10% of the data span on each
- *         side, tick labels humanized via {@link format_tick}, and titles the
- *         panel `(linear scale, last N)` (N = {@link LINEAR_WINDOW}) — the caller windows the points.
+ *  @param scale `'log'` (default) renders the log-decade axis anchored at the
+ *         data's lowest decade (`10^floor(log10(min))`), or at 10^0 under
+ *         `zero_base`; `'linear'` renders a linear axis padded 10% of the data
+ *         span on each side, tick labels humanized via {@link format_tick}, and
+ *         titles the panel `(linear scale, last N)` (N = {@link LINEAR_WINDOW})
+ *         — the caller windows the points.
+ *  @param direction The metric's "good" direction, appended to the title as a
+ *         50%-lighter ` (<direction> is better)` suffix.  `'higher'` for
+ *         throughput panels (ops/sec), `'lower'` for the package-size panel
+ *         (bytes) — bigger is worse there.
+ *  @param zero_base When true, the y-axis anchors at its zero — 0 on the linear
+ *         twin, 10^0 on the log twin — instead of auto-fitting to the data's
+ *         minimum (linear) or its lowest decade (log).  Used for the
+ *         package-size panel so bundle-weight changes are read against zero.
  *  @returns A self-contained `<svg>` string.
  */
-function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 'log') {
+function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 'log', direction = 'higher', zero_base = false) {
   const m  = { t: 34, r: 150, b: 48, l: 64 };
   const iw = width - m.l - m.r, ih = height - m.t - m.b;
 
@@ -285,11 +295,13 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
   if (linear) {
     const span = hi - lo;
     const pad  = span > 0 ? span * 0.1 : (Math.abs(hi) * 0.1 || 1);   // 10% of the span; flat data -> 10% of the value
-    ylo = lo - pad;
+    ylo = zero_base ? 0 : lo - pad;                                   // zero_base: floor at 0 (package size) instead of hugging the min
     yhi = hi + pad;
     y   = (v) => m.t + ih - ((v - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
   } else {
-    ylo = 0;                                     // anchor the axis at 10^0 (the zeroth order of ten)
+    ylo = (zero_base || !(Number.isFinite(lo) && lo > 0))
+        ? 0                                      // zero_base (package size) or degenerate/empty data: anchor at 10^0
+        : Math.floor(Math.log10(lo));            // otherwise anchor at the data's lowest decade
     yhi = Math.floor(Math.log10(hi)) + 1;        // round the top up to the next order of ten above the max
     y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
   }
@@ -297,7 +309,7 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
   const els = [];
   els.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
   const scale_note = linear ? `linear scale, last ${LINEAR_WINDOW}` : 'log scale';
-  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (${scale_note}) by PR / release, ${DEFAULTS.instanceType}</text>`);
+  els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ${unit} (${scale_note}) by PR / release, ${DEFAULTS.instanceType}<tspan fill-opacity="0.5"> (${direction} is better)</tspan></text>`);
 
   // Gridlines, painted strictly lightest → heaviest so a heavier line is never
   // overpainted by a lighter one at a crossing (in SVG, paint order IS z-order):
@@ -414,33 +426,36 @@ function panel_svg(op, by_shape, keys, width, height, unit = 'ops/sec', scale = 
  *           `{ log, linear }` SVG pair keyed by operation (`'packageBytes'` for
  *           the package panel); the comment flow embeds both twins.
  */
-function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 32, cols = 2) {
+function render_chart(runs, panel_width = 1296, panel_height = 372, panel_gap = 32, cols = 2) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
   const keysWindow = keys.slice(-LINEAR_WINDOW);
 
   // Each panel is a { log, linear } pair: the log twin over full history, the
   // linear twin over the last LINEAR_WINDOW keys with a 10%-padded axis.
-  const make_pair = (op, by_shape, unit) => {
+  const make_pair = (op, by_shape, unit, direction, zero_base = false) => {
     const windowed = new Map();
     for (const [shape, pts] of by_shape) {
       windowed.set(shape, pts.filter((p) => keysWindow.includes(p.key)));
     }
     return {
-      log    : panel_svg(op, by_shape, keys,       panel_width, panel_height, unit, 'log'),
-      linear : panel_svg(op, windowed, keysWindow, panel_width, panel_height, unit, 'linear')
+      log    : panel_svg(op, by_shape, keys,       panel_width, panel_height, unit, 'log',    direction, zero_base),
+      linear : panel_svg(op, windowed, keysWindow, panel_width, panel_height, unit, 'linear', direction, zero_base)
     };
   };
 
   const panels = new Map();
   for (const op of OPERATIONS) {
-    if (series.has(op)) { panels.set(op, make_pair(op, series.get(op), 'ops/sec')); }
+    // throughput panels: more ops/sec is better, and the linear axis auto-fits.
+    if (series.has(op)) { panels.set(op, make_pair(op, series.get(op), 'ops/sec', 'higher')); }
   }
 
   // package-size panel (single line, bytes): the shape-independent package
-  // weight, only when the data carries a bundles block.
+  // weight, only when the data carries a bundles block.  Smaller is better, and
+  // both twins anchor at zero (0 linear, 10^0 log) so bundle growth reads
+  // against zero rather than the lowest decade.
   const pkg = bundle_size_series(runs);
-  if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes')); }
+  if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes', 'lower', true)); }
 
   const col_gap        = 40;                        // horizontal breathing room between columns
   const intra_pair_gap = panel_gap / 4;             // log → linear twin: tight, so each pair reads as one unit
