@@ -433,6 +433,9 @@ function render_chart(runs, panel_width = 1296, panel_height = 372, panel_gap = 
 
   // Each panel is a { log, linear } pair: the log twin over full history, the
   // linear twin over the last LINEAR_WINDOW keys with a 10%-padded axis.
+  // zero_base anchors only the full-history log twin; the windowed linear twin
+  // always auto-fits, so the recent window reads as a zoom even on panels
+  // (package size) whose long-term story is told against zero.
   const make_pair = (op, by_shape, unit, direction, zero_base = false) => {
     const windowed = new Map();
     for (const [shape, pts] of by_shape) {
@@ -440,7 +443,7 @@ function render_chart(runs, panel_width = 1296, panel_height = 372, panel_gap = 
     }
     return {
       log    : panel_svg(op, by_shape, keys,       panel_width, panel_height, unit, 'log',    direction, zero_base),
-      linear : panel_svg(op, windowed, keysWindow, panel_width, panel_height, unit, 'linear', direction, zero_base)
+      linear : panel_svg(op, windowed, keysWindow, panel_width, panel_height, unit, 'linear', direction, false)
     };
   };
 
@@ -451,9 +454,10 @@ function render_chart(runs, panel_width = 1296, panel_height = 372, panel_gap = 
   }
 
   // package-size panel (single line, bytes): the shape-independent package
-  // weight, only when the data carries a bundles block.  Smaller is better, and
-  // both twins anchor at zero (0 linear, 10^0 log) so bundle growth reads
-  // against zero rather than the lowest decade.
+  // weight, only when the data carries a bundles block.  Smaller is better; the
+  // full-history log twin anchors at 10^0 so long-term growth reads against
+  // zero, while the last-window linear twin auto-fits as a zoom on recent
+  // movement.
   const pkg = bundle_size_series(runs);
   if (pkg.size > 0) { panels.set('packageBytes', make_pair('package size', pkg, 'bytes', 'lower', true)); }
 

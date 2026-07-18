@@ -341,7 +341,7 @@ describe('render_chart', () => {
     expect(pair.linear).toContain('<tspan fill-opacity="0.5"> (higher is better)</tspan>');
   });
 
-  test('zero-floors and marks the package-size panel "(lower is better)"', () => {
+  test('package-size panel: absolute log twin, auto-fit linear twin, "(lower is better)"', () => {
     const bruns = [
       run({ pr: 1, results: [ { name: 'chain-200 transition()', ops: 100 } ],
             bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
@@ -354,10 +354,11 @@ describe('render_chart', () => {
     const pkg = panels.get('packageBytes');
     // direction suffix
     expect(pkg.log).toContain('<tspan fill-opacity="0.5"> (lower is better)</tspan>');
-    // linear twin axis starts at 0 (min bundle sum is 1500, so a 0 tick proves the zero-floor)
-    expect(pkg.linear).toContain('>0<');
-    // log twin keeps the 10^0 anchor (lowest-decade anchoring is ops-panels only;
-    // min sum 1500 would otherwise anchor at 1e3)
+    // last-window linear twin auto-fits as a zoom (min bundle sum is 1500, so a
+    // 0 tick would prove an unwanted zero-floor)
+    expect(pkg.linear).not.toContain('>0<');
+    // full-history log twin keeps the 10^0 anchor (lowest-decade anchoring is
+    // ops-panels only; min sum 1500 would otherwise anchor at 1e3)
     expect(pkg.log).toContain('>1e0<');
   });
 
