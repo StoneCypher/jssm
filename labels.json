@@ -1,0 +1,1218 @@
+[
+  {
+    "name": "Enhancement",
+    "count": 470
+  },
+  {
+    "name": "Needs implementation",
+    "count": 253
+  },
+  {
+    "name": "Ease of use",
+    "count": 246
+  },
+  {
+    "name": "Integrations",
+    "count": 199
+  },
+  {
+    "name": "Publicity and visibility",
+    "count": 191
+  },
+  {
+    "name": "Needs a feature",
+    "count": 157
+  },
+  {
+    "name": "Tooling",
+    "count": 151
+  },
+  {
+    "name": "Issue needs work",
+    "count": 139
+  },
+  {
+    "name": "Use cases",
+    "count": 128
+  },
+  {
+    "name": "Documentation and docgen",
+    "count": 122
+  },
+  {
+    "name": "Machine use cases",
+    "count": 120
+  },
+  {
+    "name": "Graph language",
+    "count": 117
+  },
+  {
+    "name": "Tutorials",
+    "count": 116
+  },
+  {
+    "name": "Needs research",
+    "count": 112
+  },
+  {
+    "name": "List issue",
+    "count": 112
+  },
+  {
+    "name": "Visualizations",
+    "count": 106
+  },
+  {
+    "name": "FSL",
+    "count": 103
+  },
+  {
+    "name": "Very powerful",
+    "count": 90
+  },
+  {
+    "name": "Functional language",
+    "count": 87
+  },
+  {
+    "name": "Test suite",
+    "count": 82
+  },
+  {
+    "name": "Automation",
+    "count": 80
+  },
+  {
+    "name": "Editors",
+    "count": 77
+  },
+  {
+    "name": "Examples",
+    "count": 73
+  },
+  {
+    "name": "Is blocked",
+    "count": 66
+  },
+  {
+    "name": "Chore",
+    "count": 65
+  },
+  {
+    "name": "Needs tests",
+    "count": 65
+  },
+  {
+    "name": "Cleanup",
+    "count": 61
+  },
+  {
+    "name": "Status: Underway",
+    "count": 61
+  },
+  {
+    "name": "Blocks others",
+    "count": 60
+  },
+  {
+    "name": "Core",
+    "count": 57
+  },
+  {
+    "name": "Visual improvements",
+    "count": 53
+  },
+  {
+    "name": "Low hanging fruit",
+    "count": 51
+  },
+  {
+    "name": "Good first issue",
+    "count": 50
+  },
+  {
+    "name": "Features",
+    "count": 48
+  },
+  {
+    "name": "Frontend",
+    "count": 44
+  },
+  {
+    "name": "Javascript",
+    "count": 39
+  },
+  {
+    "name": "Widgets",
+    "count": 39
+  },
+  {
+    "name": "Collected propaganda",
+    "count": 39
+  },
+  {
+    "name": "API",
+    "count": 38
+  },
+  {
+    "name": "Site use cases",
+    "count": 38
+  },
+  {
+    "name": "High priority",
+    "count": 37
+  },
+  {
+    "name": "Machine exposition",
+    "count": 37
+  },
+  {
+    "name": "Needs spec",
+    "count": 36
+  },
+  {
+    "name": "Ease of contribution",
+    "count": 34
+  },
+  {
+    "name": "Static analysis",
+    "count": 34
+  },
+  {
+    "name": "Bug",
+    "count": 33
+  },
+  {
+    "name": "Typescript",
+    "count": 32
+  },
+  {
+    "name": "Package managers",
+    "count": 32
+  },
+  {
+    "name": "Stochastics",
+    "count": 30
+  },
+  {
+    "name": "Low priority",
+    "count": 29
+  },
+  {
+    "name": "Competition",
+    "count": 27
+  },
+  {
+    "name": "Types",
+    "count": 27
+  },
+  {
+    "name": "Codegen",
+    "count": 27
+  },
+  {
+    "name": "Highlighters",
+    "count": 27
+  },
+  {
+    "name": "Environments",
+    "count": 26
+  },
+  {
+    "name": "CI/CD",
+    "count": 26
+  },
+  {
+    "name": "Web",
+    "count": 25
+  },
+  {
+    "name": "Cli",
+    "count": 25
+  },
+  {
+    "name": "Transcompile targets",
+    "count": 23
+  },
+  {
+    "name": "Documentation Generators",
+    "count": 22
+  },
+  {
+    "name": "Build",
+    "count": 21
+  },
+  {
+    "name": "Website",
+    "count": 21
+  },
+  {
+    "name": "REPL",
+    "count": 20
+  },
+  {
+    "name": "Youtube",
+    "count": 19
+  },
+  {
+    "name": "Help sidebar",
+    "count": 19
+  },
+  {
+    "name": "Performance",
+    "count": 18
+  },
+  {
+    "name": "Example source",
+    "count": 18
+  },
+  {
+    "name": "Dependencies",
+    "count": 16
+  },
+  {
+    "name": "Status: Needs design",
+    "count": 16
+  },
+  {
+    "name": "Color",
+    "count": 15
+  },
+  {
+    "name": "Meta",
+    "count": 15
+  },
+  {
+    "name": "Size improvement",
+    "count": 14
+  },
+  {
+    "name": "Readme",
+    "count": 14
+  },
+  {
+    "name": "Uncertain",
+    "count": 14
+  },
+  {
+    "name": "Pastebins",
+    "count": 14
+  },
+  {
+    "name": "CDN",
+    "count": 12
+  },
+  {
+    "name": "Stochastic machines",
+    "count": 12
+  },
+  {
+    "name": "Big picture",
+    "count": 11
+  },
+  {
+    "name": "Customer acquisition",
+    "count": 11
+  },
+  {
+    "name": "Minifier",
+    "count": 11
+  },
+  {
+    "name": "Composition",
+    "count": 10
+  },
+  {
+    "name": "Compile targets",
+    "count": 10
+  },
+  {
+    "name": "Build infrastructure",
+    "count": 10
+  },
+  {
+    "name": "Refactor",
+    "count": 9
+  },
+  {
+    "name": "Question",
+    "count": 9
+  },
+  {
+    "name": "Internationalization",
+    "count": 9
+  },
+  {
+    "name": "Rendering compatibility",
+    "count": 8
+  },
+  {
+    "name": "Viz action",
+    "count": 8
+  },
+  {
+    "name": "Technical debt",
+    "count": 7
+  },
+  {
+    "name": "Maintenance",
+    "count": 7
+  },
+  {
+    "name": "Community",
+    "count": 7
+  },
+  {
+    "name": "Workflows",
+    "count": 6
+  },
+  {
+    "name": "CSS",
+    "count": 5
+  },
+  {
+    "name": "Needs information",
+    "count": 5
+  },
+  {
+    "name": "Ahead of its time",
+    "count": 5
+  },
+  {
+    "name": "SEO",
+    "count": 5
+  },
+  {
+    "name": "Package Quality",
+    "count": 4
+  },
+  {
+    "name": "Solution proposed",
+    "count": 4
+  },
+  {
+    "name": "Process",
+    "count": 4
+  },
+  {
+    "name": "Windows",
+    "count": 4
+  },
+  {
+    "name": "Mobile",
+    "count": 4
+  },
+  {
+    "name": "Bug is upstream",
+    "count": 4
+  },
+  {
+    "name": "Version 6",
+    "count": 4
+  },
+  {
+    "name": "Help wanted",
+    "count": 3
+  },
+  {
+    "name": "Difficulty: easy",
+    "count": 3
+  },
+  {
+    "name": "HTML",
+    "count": 3
+  },
+  {
+    "name": "Markdown",
+    "count": 3
+  },
+  {
+    "name": "Mac",
+    "count": 3
+  },
+  {
+    "name": "Android",
+    "count": 3
+  },
+  {
+    "name": "Language server",
+    "count": 3
+  },
+  {
+    "name": "Needs external",
+    "count": 3
+  },
+  {
+    "name": "C++",
+    "count": 2
+  },
+  {
+    "name": "Icons",
+    "count": 2
+  },
+  {
+    "name": "iOS",
+    "count": 2
+  },
+  {
+    "name": "MCP",
+    "count": 2
+  },
+  {
+    "name": "Desktop",
+    "count": 2
+  },
+  {
+    "name": "Breaking change",
+    "count": 2
+  },
+  {
+    "name": "Cosmetic",
+    "count": 2
+  },
+  {
+    "name": "PDF",
+    "count": 2
+  },
+  {
+    "name": "Fonts",
+    "count": 2
+  },
+  {
+    "name": "Status: Backlog",
+    "count": 2
+  },
+  {
+    "name": "Difficulty: difficult",
+    "count": 1
+  },
+  {
+    "name": "Suppressed",
+    "count": 1
+  },
+  {
+    "name": "C",
+    "count": 1
+  },
+  {
+    "name": "PHP",
+    "count": 1
+  },
+  {
+    "name": "Python",
+    "count": 1
+  },
+  {
+    "name": "Ruby",
+    "count": 1
+  },
+  {
+    "name": "SQL",
+    "count": 1
+  },
+  {
+    "name": "F#",
+    "count": 1
+  },
+  {
+    "name": "Agents",
+    "count": 1
+  },
+  {
+    "name": "Firefox",
+    "count": 1
+  },
+  {
+    "name": "Reopened",
+    "count": 1
+  },
+  {
+    "name": "Security",
+    "count": 1
+  },
+  {
+    "name": "Critical",
+    "count": 1
+  },
+  {
+    "name": "Localization",
+    "count": 1
+  },
+  {
+    "name": "Backend",
+    "count": 1
+  },
+  {
+    "name": "Installer",
+    "count": 1
+  },
+  {
+    "name": "New icon",
+    "count": 0
+  },
+  {
+    "name": "Font pipeline",
+    "count": 0
+  },
+  {
+    "name": "Variable axis",
+    "count": 0
+  },
+  {
+    "name": "Created by AI",
+    "count": 0
+  },
+  {
+    "name": "Closed by AI",
+    "count": 0
+  },
+  {
+    "name": "Difficulty: medium",
+    "count": 0
+  },
+  {
+    "name": "Temporary solution proposed",
+    "count": 0
+  },
+  {
+    "name": "Extension",
+    "count": 0
+  },
+  {
+    "name": "Duplicate",
+    "count": 0
+  },
+  {
+    "name": "Erlang",
+    "count": 0
+  },
+  {
+    "name": "Java",
+    "count": 0
+  },
+  {
+    "name": "D",
+    "count": 0
+  },
+  {
+    "name": "C#",
+    "count": 0
+  },
+  {
+    "name": "Go",
+    "count": 0
+  },
+  {
+    "name": "Swift",
+    "count": 0
+  },
+  {
+    "name": ".NET",
+    "count": 0
+  },
+  {
+    "name": "Perl",
+    "count": 0
+  },
+  {
+    "name": "Kotlin",
+    "count": 0
+  },
+  {
+    "name": "Rust",
+    "count": 0
+  },
+  {
+    "name": "R",
+    "count": 0
+  },
+  {
+    "name": "Dart",
+    "count": 0
+  },
+  {
+    "name": "Lua",
+    "count": 0
+  },
+  {
+    "name": "ASP",
+    "count": 0
+  },
+  {
+    "name": "Scala",
+    "count": 0
+  },
+  {
+    "name": "Elixir",
+    "count": 0
+  },
+  {
+    "name": "Delphi/Object Pascal",
+    "count": 0
+  },
+  {
+    "name": "Visual Basic",
+    "count": 0
+  },
+  {
+    "name": "Assembly",
+    "count": 0
+  },
+  {
+    "name": "Matlab",
+    "count": 0
+  },
+  {
+    "name": "Objective-C",
+    "count": 0
+  },
+  {
+    "name": "PL/SQL",
+    "count": 0
+  },
+  {
+    "name": "MySQL DDL",
+    "count": 0
+  },
+  {
+    "name": "COBOL",
+    "count": 0
+  },
+  {
+    "name": "ABAP",
+    "count": 0
+  },
+  {
+    "name": "T-SQL",
+    "count": 0
+  },
+  {
+    "name": "LISP",
+    "count": 0
+  },
+  {
+    "name": "Prolog",
+    "count": 0
+  },
+  {
+    "name": "Scheme",
+    "count": 0
+  },
+  {
+    "name": "Ada",
+    "count": 0
+  },
+  {
+    "name": "Apex",
+    "count": 0
+  },
+  {
+    "name": "Fortran",
+    "count": 0
+  },
+  {
+    "name": "Haskell",
+    "count": 0
+  },
+  {
+    "name": "Hack",
+    "count": 0
+  },
+  {
+    "name": "BASH",
+    "count": 0
+  },
+  {
+    "name": "Solidity",
+    "count": 0
+  },
+  {
+    "name": "Powershell",
+    "count": 0
+  },
+  {
+    "name": "APL",
+    "count": 0
+  },
+  {
+    "name": "Clojure",
+    "count": 0
+  },
+  {
+    "name": "Zig",
+    "count": 0
+  },
+  {
+    "name": "Batch file",
+    "count": 0
+  },
+  {
+    "name": "Unity script",
+    "count": 0
+  },
+  {
+    "name": "Julia",
+    "count": 0
+  },
+  {
+    "name": "Groovy",
+    "count": 0
+  },
+  {
+    "name": "OCaml",
+    "count": 0
+  },
+  {
+    "name": "Racket",
+    "count": 0
+  },
+  {
+    "name": "Forth",
+    "count": 0
+  },
+  {
+    "name": "Intend to close",
+    "count": 0
+  },
+  {
+    "name": "Linux",
+    "count": 0
+  },
+  {
+    "name": "Unity",
+    "count": 0
+  },
+  {
+    "name": "Playstation",
+    "count": 0
+  },
+  {
+    "name": "Steam",
+    "count": 0
+  },
+  {
+    "name": "Switch",
+    "count": 0
+  },
+  {
+    "name": "Xbox",
+    "count": 0
+  },
+  {
+    "name": "Claude as a platform",
+    "count": 0
+  },
+  {
+    "name": "LLM",
+    "count": 0
+  },
+  {
+    "name": "Skills and commands",
+    "count": 0
+  },
+  {
+    "name": "Not a bug",
+    "count": 0
+  },
+  {
+    "name": "Needs followup",
+    "count": 0
+  },
+  {
+    "name": "Partner",
+    "count": 0
+  },
+  {
+    "name": "Customer",
+    "count": 0
+  },
+  {
+    "name": "Client",
+    "count": 0
+  },
+  {
+    "name": "Employer",
+    "count": 0
+  },
+  {
+    "name": "Employee",
+    "count": 0
+  },
+  {
+    "name": "Chrome",
+    "count": 0
+  },
+  {
+    "name": "Safari",
+    "count": 0
+  },
+  {
+    "name": "Edge",
+    "count": 0
+  },
+  {
+    "name": "Status: Next sprint",
+    "count": 0
+  },
+  {
+    "name": "Unsolved",
+    "count": 0
+  },
+  {
+    "name": "Size: tiny",
+    "count": 0
+  },
+  {
+    "name": "Size: small",
+    "count": 0
+  },
+  {
+    "name": "Size: medium",
+    "count": 0
+  },
+  {
+    "name": "Size: huge",
+    "count": 0
+  },
+  {
+    "name": "Size: large",
+    "count": 0
+  },
+  {
+    "name": "Size: unknown",
+    "count": 0
+  },
+  {
+    "name": "Difficulty: unknown",
+    "count": 0
+  },
+  {
+    "name": "Regressed",
+    "count": 0
+  },
+  {
+    "name": "Unconfirmed",
+    "count": 0
+  },
+  {
+    "name": "Customer retention",
+    "count": 0
+  },
+  {
+    "name": "Threat management",
+    "count": 0
+  },
+  {
+    "name": "Business opportunity",
+    "count": 0
+  },
+  {
+    "name": "Business threat",
+    "count": 0
+  },
+  {
+    "name": "Major",
+    "count": 0
+  },
+  {
+    "name": "Moderate",
+    "count": 0
+  },
+  {
+    "name": "Minor",
+    "count": 0
+  },
+  {
+    "name": "Urgent",
+    "count": 0
+  },
+  {
+    "name": "Trivial priority",
+    "count": 0
+  },
+  {
+    "name": "Medium priority",
+    "count": 0
+  },
+  {
+    "name": "Stale",
+    "count": 0
+  },
+  {
+    "name": "Accessibility",
+    "count": 0
+  },
+  {
+    "name": "Will deprecate",
+    "count": 0
+  },
+  {
+    "name": "Deprecated",
+    "count": 0
+  },
+  {
+    "name": "Slop",
+    "count": 0
+  },
+  {
+    "name": "Important for integration",
+    "count": 0
+  },
+  {
+    "name": "Socially important",
+    "count": 0
+  },
+  {
+    "name": "Important for trust",
+    "count": 0
+  },
+  {
+    "name": "Fixed",
+    "count": 0
+  },
+  {
+    "name": "Verified",
+    "count": 0
+  },
+  {
+    "name": "Release blocker",
+    "count": 0
+  },
+  {
+    "name": "Flaky",
+    "count": 0
+  },
+  {
+    "name": "License",
+    "count": 0
+  },
+  {
+    "name": "Privacy",
+    "count": 0
+  },
+  {
+    "name": "Hotfix",
+    "count": 0
+  },
+  {
+    "name": "Sponsorship",
+    "count": 0
+  },
+  {
+    "name": "Fullstack",
+    "count": 0
+  },
+  {
+    "name": "Bare metal",
+    "count": 0
+  },
+  {
+    "name": "Out of scope",
+    "count": 0
+  },
+  {
+    "name": "Almost done",
+    "count": 0
+  },
+  {
+    "name": "Already available",
+    "count": 0
+  },
+  {
+    "name": "Search",
+    "count": 0
+  },
+  {
+    "name": "Authentication",
+    "count": 0
+  },
+  {
+    "name": "Do not merge",
+    "count": 0
+  },
+  {
+    "name": "Merge ready",
+    "count": 0
+  },
+  {
+    "name": "Miscellaneous",
+    "count": 0
+  },
+  {
+    "name": "Needs translation",
+    "count": 0
+  },
+  {
+    "name": "Needs ui",
+    "count": 0
+  },
+  {
+    "name": "Needs review",
+    "count": 0
+  },
+  {
+    "name": "Needs approval",
+    "count": 0
+  },
+  {
+    "name": "Needs improvement",
+    "count": 0
+  },
+  {
+    "name": "Needs answers",
+    "count": 0
+  },
+  {
+    "name": "Needs advice",
+    "count": 0
+  },
+  {
+    "name": "Needs feedback",
+    "count": 0
+  },
+  {
+    "name": "Needs rebase",
+    "count": 0
+  },
+  {
+    "name": "Needs splitting up",
+    "count": 0
+  },
+  {
+    "name": "Needs triage",
+    "count": 0
+  },
+  {
+    "name": "Status: In triage",
+    "count": 0
+  },
+  {
+    "name": "Status: Not planned",
+    "count": 0
+  },
+  {
+    "name": "Status: Cannot reproduce",
+    "count": 0
+  },
+  {
+    "name": "Status: Needs reproduction",
+    "count": 0
+  },
+  {
+    "name": "Status: In roadmap",
+    "count": 0
+  },
+  {
+    "name": "Status: In milestone",
+    "count": 0
+  },
+  {
+    "name": "Status: In sprint",
+    "count": 0
+  },
+  {
+    "name": "Status: Assigned",
+    "count": 0
+  },
+  {
+    "name": "Status: In design",
+    "count": 0
+  },
+  {
+    "name": "Status: In review",
+    "count": 0
+  },
+  {
+    "name": "Status: Merged",
+    "count": 0
+  },
+  {
+    "name": "Status: Released",
+    "count": 0
+  },
+  {
+    "name": "Status: Reverted",
+    "count": 0
+  },
+  {
+    "name": "Status: Superseded",
+    "count": 0
+  },
+  {
+    "name": "Quality: very low",
+    "count": 0
+  },
+  {
+    "name": "Quality: low",
+    "count": 0
+  },
+  {
+    "name": "Quality: medium",
+    "count": 0
+  },
+  {
+    "name": "Quality: high",
+    "count": 0
+  },
+  {
+    "name": "Quality: very high",
+    "count": 0
+  },
+  {
+    "name": "Quality: unknown",
+    "count": 0
+  },
+  {
+    "name": "Effort: 1/5 - 1 person up to 1/2 day",
+    "count": 0
+  },
+  {
+    "name": "Effort: 2/5 - 1 person up to 3 days",
+    "count": 0
+  },
+  {
+    "name": "Effort: 3/5 - up to 3 people 1 week",
+    "count": 0
+  },
+  {
+    "name": "Effort: 4/5 - plan and divide; up to 1 month",
+    "count": 0
+  },
+  {
+    "name": "Effort: 5/5 - plan and divide; enormous",
+    "count": 0
+  },
+  {
+    "name": "Effort estimate missing",
+    "count": 0
+  },
+  {
+    "name": "Modernize",
+    "count": 0
+  },
+  {
+    "name": "GEO",
+    "count": 0
+  },
+  {
+    "name": "Facebook",
+    "count": 0
+  },
+  {
+    "name": "Tiktok",
+    "count": 0
+  },
+  {
+    "name": "Linkedin",
+    "count": 0
+  },
+  {
+    "name": "Reddit",
+    "count": 0
+  },
+  {
+    "name": "Backlog",
+    "count": 0
+  }
+]

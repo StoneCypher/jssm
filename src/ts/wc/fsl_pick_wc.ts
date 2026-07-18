@@ -86,7 +86,7 @@ export class FslPick extends LitElement {
 
   updated(changedProperties: Map<string, any>) {
     if (changedProperties.has('candidates') || changedProperties.has('rubric')) {
-      this._machines = this.candidates.map(c => sm(c));
+      this._machines = this.candidates.map(c => sm`${c}`);
       this._recalculate();
     }
   }

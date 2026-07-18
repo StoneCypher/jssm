@@ -1,0 +1,1 @@
+query { repository(owner: "StoneCypher", name: "jssm") { labels(first: 100) { nodes { name issues(states: OPEN) { totalCount } } } } }
