@@ -96,6 +96,9 @@ const FEATURES = {
   // bundles are ESM.  terser's default comment filter keeps the lit @license
   // blocks the bundles carry.
   min_cdn:      { script: 'min_cdn',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_wc_viz_cdn', 'make_wc_instance_cdn'] },
+  // in-place, --module (the fence bundle is ESM).  Shipped unminified through
+  // 5.163.2 at 6.5 MB — 42% of the installed package; minified it is ~2.3 MB.
+  min_fence:    { script: 'min_fence',    stages: [5], optional: true, defaultEnabled: true, requires: ['make_fence'] },
 
   // --- Stage 6: cleanup of minify's intermediate nonmin artifact ---
   rm_nonmin: { script: 'rm_nonmin', stages: [6], optional: true, defaultEnabled: true, requires: ['minify'] },

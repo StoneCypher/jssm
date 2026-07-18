@@ -153,10 +153,31 @@ describe('panel_svg (scale)', () => {
   const series = new Map([[ 's', [ { key: 'a', ops: 100 }, { key: 'b', ops: 200 }, { key: 'c', ops: 300 } ] ]]);
   const keys   = ['a', 'b', 'c'];
 
-  test('log path unchanged: log-scale title and a decade label', () => {
+  test('log-scale title and a decade label', () => {
     const svg = mpc.panel_svg('op', series, keys, 720, 372, 'ops/sec', 'log');
     expect(svg).toContain('(log scale)');
     expect(svg).toContain('1e2');
+  });
+
+  test('log axis anchors at the data\'s lowest decade, not 1e0', () => {
+    // data 2e5..5e6 -> ylo floor(log10(2e5)) = 5, yhi floor(log10(5e6))+1 = 7
+    const high = new Map([[ 's', [ { key: 'a', ops: 200000 }, { key: 'b', ops: 5000000 } ] ]]);
+    const svg  = mpc.panel_svg('op', high, ['a', 'b'], 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('>1e5<');       // bottom decade = the data's lowest
+    expect(svg).toContain('>1e7<');       // top still rounds up past the max
+    expect(svg).not.toContain('>1e0<');   // no longer anchored at the zeroth decade
+  });
+
+  test('zero_base pins the log anchor back to 1e0', () => {
+    const high = new Map([[ 's', [ { key: 'a', ops: 200000 }, { key: 'b', ops: 5000000 } ] ]]);
+    const svg  = mpc.panel_svg('op', high, ['a', 'b'], 720, 372, 'bytes', 'log', 'lower', true);
+    expect(svg).toContain('>1e0<');
+    expect(svg).toContain('>1e5<');       // interior decades still labeled
+  });
+
+  test('empty series keeps a sane 1e0 anchor (degenerate guard)', () => {
+    const svg = mpc.panel_svg('op', new Map(), [], 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('(log scale)'); // renders without throwing
   });
 
   test('linear title reads "linear scale, last 50" with the given unit', () => {
@@ -187,7 +208,7 @@ describe('render_chart', () => {
 
   test('emits one panel per present operation and a composite header', () => {
     const { svg, panels } = mpc.render_chart(two_runs);
-    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()', 'action()']);
+    expect( [...panels.keys()] ).toEqual(['transition()', 'action()', 'construct()']);
     expect(svg).toContain('jssm performance trend');
     expect(svg).toContain('Data through 20260611-010203');
     expect(svg).toContain('chain-200');     // legend entries survive compositing
@@ -202,7 +223,7 @@ describe('render_chart', () => {
 
   test('renders a log+linear pair per operation, panels keyed by op', () => {
     const { panels } = mpc.render_chart(two_runs);
-    expect([...panels.keys()]).toEqual(['construct()', 'transition()', 'action()']);
+    expect([...panels.keys()]).toEqual(['transition()', 'action()', 'construct()']);
     const pair = panels.get('transition()');
     expect(pair.log).toContain('(log scale)');
     expect(pair.linear).toContain('(linear scale, last 50)');
@@ -246,13 +267,13 @@ describe('render_chart', () => {
   });
 
   test('lays each pair log-on-top / linear-beneath at the same width', () => {
-    // defaults: panel_width 720, panel_height 372, panel_gap 32 (intra 32/4=8, inter 128)
-    // construct pair: log (0,56), linear (0, 56+372+8=436); transition pair at x=760
+    // defaults: panel_width 1296, panel_height 372, panel_gap 32 (intra 32/4=8, inter 128)
+    // first pair: log (0,56), linear (0, 56+372+8=436); second pair at x=1296+40=1336
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
     expect(svg).toContain('translate(0 436)');
-    expect(svg).toContain('translate(760 56)');
-    expect(svg).toContain('translate(760 436)');
+    expect(svg).toContain('translate(1336 56)');
+    expect(svg).toContain('translate(1336 436)');
   });
 
   test('sets the inter-pair-row gap to 4x the base; height matches the pair formula', () => {
@@ -304,6 +325,56 @@ describe('render_chart', () => {
   test('omits the package-size panel when no run carries bundles', () => {
     const { panels } = mpc.render_chart(two_runs);
     expect([...panels.keys()]).not.toContain('packageBytes');
+  });
+
+  test('renders each panel at the 1296px default width', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('<svg width="1296"');
+    expect(pair.linear).toContain('<svg width="1296"');
+  });
+
+  test('titles throughput panels "(higher is better)" in 50%-lighter text', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('<tspan fill-opacity="0.5"> (higher is better)</tspan>');
+    expect(pair.linear).toContain('<tspan fill-opacity="0.5"> (higher is better)</tspan>');
+  });
+
+  test('package-size panel: absolute log twin, auto-fit linear twin, "(lower is better)"', () => {
+    const bruns = [
+      run({ pr: 1, results: [ { name: 'chain-200 transition()', ops: 100 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, results: [ { name: 'chain-200 transition()', ops: 200 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const { panels } = mpc.render_chart(bruns);
+    const pkg = panels.get('packageBytes');
+    // direction suffix
+    expect(pkg.log).toContain('<tspan fill-opacity="0.5"> (lower is better)</tspan>');
+    // last-window linear twin auto-fits as a zoom (min bundle sum is 1500, so a
+    // 0 tick would prove an unwanted zero-floor)
+    expect(pkg.linear).not.toContain('>0<');
+    // full-history log twin keeps the 10^0 anchor (lowest-decade anchoring is
+    // ops-panels only; min sum 1500 would otherwise anchor at 1e3)
+    expect(pkg.log).toContain('>1e0<');
+  });
+
+  test('operation log twins anchor at the data\'s lowest decade', () => {
+    // chain-200 transition() spans 50..200 in two_runs -> anchor 1e1, not 1e0
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('>1e1<');
+    expect(pair.log).not.toContain('>1e0<');
+  });
+
+  test('operation linear twins keep their auto-fit floor (not zero-based)', () => {
+    // chain-200 transition() spans 100..200; a zero floor would put a 0 tick on
+    // the axis, so its absence confirms only the package panel is zero-floored.
+    const { panels } = mpc.render_chart(two_runs);
+    expect(panels.get('transition()').linear).not.toContain('>0<');
   });
 
 });
