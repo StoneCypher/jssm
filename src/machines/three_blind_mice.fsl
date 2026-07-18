@@ -1,0 +1,36 @@
+// "Three Blind Mice" - English nursery rhyme, earliest known printed
+// version 1609 (Deuteromelia).
+//
+// Per this batch's addendum the carving knife stays off the page - the
+// chase is the whole joke, and it survives losing the blade intact. The
+// topology bit is "shared deficit": three distinct start states (mouse one,
+// two, and three - jssm's `start_states` array seating all three at once,
+// confirmed via `is_start_state` on each) each carry the identical single
+// deficit in their name and each fire the identical action toward the
+// identical target. Three independently named origins, one shared
+// destination - the graph itself cannot tell the mice apart once they are
+// running, because nothing about their blindness was ever going to be
+// distinguishable in the first place. The chase state self-loops (repeated
+// laps, "see how they run" taken literally and indefinitely) until the one
+// chosen exit: the pursued woman gets clear, and three winded, still-blind
+// mice call it off, no worse for it.
+
+machine_name    : "Three Blind Mice";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+start_states    : ["mouse one, blind" "mouse two, blind" "mouse three, blind"];
+
+// three independent origins, one shared, indistinguishable destination.
+"mouse one, blind"   'take off after her' -> "the chase, three mice running as one blur";
+"mouse two, blind"   'take off after her' -> "the chase, three mice running as one blur";
+"mouse three, blind" 'take off after her' -> "the chase, three mice running as one blur";
+
+// see how they run - repeatedly, gently, no knife anywhere on this graph.
+"the chase, three mice running as one blur" 'round the kitchen table again' -> "the chase, three mice running as one blur";
+
+// the only chosen exit: she gets clear, and the chase is called off.
+"the chase, three mice running as one blur" 'the pursued woman slips through the pantry door, chase called off' -> "three mice, winded, still blind, uncaught";

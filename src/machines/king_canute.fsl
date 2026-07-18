@@ -1,0 +1,41 @@
+// "King Canute and the Tide" - medieval legend (Henry of Huntingdon)
+//
+// Canute has his throne carried to the shoreline and commands the tide
+// to halt, precisely so his flattering court can watch it fail - the
+// point was never that he expected obedience. The joke is rendered here
+// as two machines sharing one file and nothing else: the throne, where
+// every command Canute issues is a real, chosen action that only ever
+// lands him back in his own graph, and the tide, a fully separate
+// component that cycles on forced edges alone and has no chosen action
+// bound anywhere in it, ever. allow_islands is load-bearing - the two
+// halves do not touch, in either direction.
+//
+// The showcase is what "issuing an action to a machine you do not hold
+// the reference to" looks like at the API layer: force_transition
+// cannot cross between the components (no edge exists at all, in either
+// direction), so the only way to even inspect the tide is a second,
+// independent from() call seated there directly via initial_state and
+// start_states_no_enforce - a different reference to a different graph,
+// which is the whole point Canute was making.
+
+machine_name     : "King Canute and the Tide";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the throne: every command is real, chosen, and wired only to itself.
+"the throne, courtiers flattering" 'command the tide to halt' -> "the throne, waiting on the water";
+"the throne, waiting on the water" 'command it again, louder' -> "the throne, wet boots, point made";
+"the throne, wet boots, point made" 'dismiss the flatterers, lesson delivered' -> "the throne, humility restored";
+
+// the tide: a fully separate component, no incoming edge from the
+// throne at all - not even a forced one - and no chosen action bound
+// anywhere in it. it does not take orders; it was never wired to.
+"the tide, coming in" ~> "the tide, high water";
+"the tide, high water" ~> "the tide, going out";
+"the tide, going out" ~> "the tide, low water";
+"the tide, low water" ~> "the tide, coming in";

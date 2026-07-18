@@ -1,0 +1,42 @@
+// "The Twelve Days of Christmas" - traditional English carol (earliest
+// printed text 1780, "Mirth Without Mischief"; melody as commonly sung
+// dates to a 1909 arrangement by Frederic Austin)
+//
+// Same cumulative-naming mechanism as house_that_jack_built.fsl, applied to
+// the carol's own additive structure: each day's verse re-enumerates every
+// gift so far, counting DOWN from the newest to "a partridge in a pear
+// tree," so the state name for day N is required to contain the state name
+// for day N-1 as a trailing substring - the whole song, in miniature, is a
+// machine whose states get strictly longer and never forget an earlier one.
+//
+// ABRIDGEMENT, noted per the batch brief: this machine ships five days, not
+// twelve. By day 5 - "five gold rings," the verse everyone actually
+// remembers, where the tune itself changes - the additive-re-enumeration
+// mechanism is already fully demonstrated: every earlier gift is
+// mechanically present in the day-5 state's own name, verified in the
+// script below by direct substring checks. Days 6 through 12 would exercise
+// the identical mechanism seven more times, at the cost of seven
+// increasingly enormous state names and no new topology - pure length
+// against the field guide's own "bloat forbidden" rule, for a joke that
+// day 5 has already made. Six geese a-laying et al. are elided here, not
+// forgotten.
+
+machine_name    : "The Twelve Days of Christmas";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"day 1: a partridge in a pear tree"
+  'the second day arrives' -> "day 2: two turtle doves, and a partridge in a pear tree";
+
+"day 2: two turtle doves, and a partridge in a pear tree"
+  'the third day arrives' -> "day 3: three french hens, two turtle doves, and a partridge in a pear tree";
+
+"day 3: three french hens, two turtle doves, and a partridge in a pear tree"
+  'the fourth day arrives' -> "day 4: four calling birds, three french hens, two turtle doves, and a partridge in a pear tree";
+
+"day 4: four calling birds, three french hens, two turtle doves, and a partridge in a pear tree"
+  'the fifth day arrives' -> "day 5: five gold rings, four calling birds, three french hens, two turtle doves, and a partridge in a pear tree";

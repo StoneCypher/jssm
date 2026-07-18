@@ -1,0 +1,41 @@
+// "Bring Out Your Dead" - Monty Python and the Holy Grail (1975)
+//
+// The customer and the corpse collector are arguing over which state the
+// man on the cart is actually in - "I'm not dead", "he's not looking too
+// good", "I feel fine!", "he'll be stone dead in a moment" - and the
+// machine gives the argument exactly as much power as it has: none.
+// Every claim the two of them make is a self-loop, chosen, legal, and
+// utterly inert; the actual assignment happens on a single FORCED edge
+// (`~>`) that fires from that same contested state regardless of which
+// claim was standing when it does. The cart protocol - a club, applied
+// once - does not consult the argument in progress, and per jssm's
+// contract `fslSimulate` cannot walk that edge at all: no sequence of
+// chosen claims ever reaches the cart. Only `force_transition`, called
+// from outside the argument entirely, resolves it.
+//
+// Showcase: `fslSimulate` given every self-loop claim in any order still
+// reports `endState` unchanged with `legalNext` never containing the cart;
+// raw jssm's `force_transition` reaches it anyway, proving the dispute was
+// never actually load-bearing.
+
+machine_name    : "Bring Out Your Dead";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// three competing claims about the same contested state, none of which
+// move anything - all self-loops, all legal, all beside the point.
+"propped up in the line, the state under dispute"
+  'insist he feels fine' -> "propped up in the line, the state under dispute";
+"propped up in the line, the state under dispute"
+  'insist he is not looking too good' -> "propped up in the line, the state under dispute";
+"propped up in the line, the state under dispute"
+  'offer to go for a walk, actually' -> "propped up in the line, the state under dispute";
+
+// the cart protocol: fires regardless of the argument, and cannot be
+// walked by choice - fslSimulate has no path to it, only force_transition does.
+"propped up in the line, the state under dispute"
+  ~> "loaded onto the cart, the dispute resolved without consulting it";

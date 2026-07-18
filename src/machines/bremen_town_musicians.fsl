@@ -1,0 +1,59 @@
+// "The Bremen Town Musicians" - Brothers Grimm (KHM 27)
+//
+// Four separate farms, four separate animals, each too old to be useful to
+// an owner about to dispose of it - and, structurally, three of those four
+// starting farms are real islands: nothing in this file has an edge INTO
+// the dog kennel, the cat hearth, or the rooster yard, so `allow_islands`
+// is load-bearing for all three, and no `force_transition` from the
+// declared start can ever land on them (there is no edge there to force
+// across). They are only inspectable the way king_canute.fsl inspects its
+// separate tide component: a second `from()` call, seeded directly via
+// `initial_state` and `start_states_no_enforce`.
+//
+// What each island DOES have is a real outbound edge into a shared chain,
+// and that chain is three diamond merges in a row - donkey-and-dog,
+// then-and-cat, then-and-rooster - the graph literally stacking four
+// disconnected rejections into one traveling party before the animals ever
+// physically stack at the window. The forced screech-and-bray transition
+// that follows is the payoff both stacks were building toward.
+
+machine_name    : "The Bremen Town Musicians";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+start_states: ["farm: the donkey, too old to carry sacks, about to be sold"];
+
+// four rejections. only the donkeys farm is reachable from the declared start.
+"farm: the donkey, too old to carry sacks, about to be sold"
+  'flee toward bremen instead' -> "the donkey, on the road alone";
+"kennel: the dog, too old to hunt, about to be put down"
+  'flee toward bremen instead' -> "the dog, on the road alone";
+"hearth: the cat, too old to catch mice, about to be drowned"
+  'flee toward bremen instead' -> "the cat, on the road alone";
+"yard: the rooster, too old to crow for the pot, about to be plucked"
+  'flee toward bremen instead' -> "the rooster, on the road alone";
+
+// the stack forms in the graph before it ever forms at the window.
+"the donkey, on the road alone" 'meet a fellow traveler' -> "donkey and dog, traveling together";
+"the dog, on the road alone"    'meet a fellow traveler' -> "donkey and dog, traveling together";
+
+"donkey and dog, traveling together" 'meet a fellow traveler' -> "donkey, dog, and cat, traveling together";
+"the cat, on the road alone"        'meet a fellow traveler' -> "donkey, dog, and cat, traveling together";
+
+"donkey, dog, and cat, traveling together" 'meet a fellow traveler' -> "all four, on the road to bremen";
+"the rooster, on the road alone"           'meet a fellow traveler' -> "all four, on the road to bremen";
+
+"all four, on the road to bremen"
+  'spot a lit robbers house at nightfall' -> "the robbers house, lights on, dinner smell drifting out";
+"the robbers house, lights on, dinner smell drifting out"
+  'stack up at the window: donkey, dog, cat, then rooster on top' -> "the stack, screeching and braying through the window all at once";
+
+"the stack, screeching and braying through the window all at once" ~> "robbers flee into the night, terrified of the monster";
+
+"robbers flee into the night, terrified of the monster"
+  'settle in, the house and the table both' -> "the house, acquired, four rejected animals home at last";

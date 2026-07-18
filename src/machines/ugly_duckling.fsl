@@ -1,0 +1,39 @@
+// "The Ugly Duckling" - Hans Christian Andersen (1843)
+//
+// Two arguing actions are bound at the misclassified state, and both are
+// real, legal, and completely inert - self-loops, checkable directly:
+// firing either one any number of times leaves the walk exactly where it
+// started. No chosen action anywhere in this file leads from
+// "misclassified" to "recognized as a swan." What actually moves the walk
+// is a chain of three forced (`~>`) transitions in a row - winter, then
+// spring, then the reflection itself - none of them nameable, none of them
+// arguable, none of them requested. Only after that forced chain completes
+// does a chosen action reappear at all, and it is not an argument, it is
+// just joining the swans. The correction was never something anyone won;
+// it was something that finished happening.
+
+machine_name    : "The Ugly Duckling";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the pond, a mismatched egg hatches among ducklings"
+  'waddle over, hoping to fit in' -> "misclassified: too big, too gray, called ugly";
+
+// two real, legal actions - both self-loops. arguing changes nothing.
+"misclassified: too big, too gray, called ugly"
+  'insist: i am a duckling too' -> "misclassified: too big, too gray, called ugly";
+"misclassified: too big, too gray, called ugly"
+  'hide among the reeds, try to look smaller' -> "misclassified: too big, too gray, called ugly";
+
+// forced, three times running - maturation, not negotiation.
+"misclassified: too big, too gray, called ugly" ~> "winter, alone, driven from every yard";
+"winter, alone, driven from every yard" ~> "spring thaw, wings grown long, drawn to the swans on the water";
+"spring thaw, wings grown long, drawn to the swans on the water" ~> "reflection in the water: a swan, and always was";
+
+// only now does a chosen action reappear - and it is not an argument.
+"reflection in the water: a swan, and always was"
+  'glide over to join the swans, no explanation needed' -> "accepted among swans, the misclassification simply over";

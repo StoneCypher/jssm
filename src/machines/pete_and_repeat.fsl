@@ -1,0 +1,28 @@
+// "Pete and Repeat" - anonymous playground loop joke
+//
+// The whole joke is a machine that answers its own question by handing
+// you back to the question. Pete and Repeat are sitting on a fence; Pete
+// loses his balance; "who's left" has exactly one legal answer -
+// Repeat - and giving that answer isn't a resolution, it's a re-entry:
+// the "tell it again" action out of the punchline state lands you back
+// on the fence, same two names, same setup, forever.
+//
+// There's no terminal here on purpose - this is recursion as a bit, not
+// a bug. It's the shortest possible chosen cycle that still tells a
+// complete three-beat joke (setup, event, punchline) before folding back
+// on itself, and every step of the fold - including the fold itself - is
+// something a chooser does on purpose, which is what separates it from
+// `the_song_that_never_ends.fsl`'s forced version of the same shape:
+// there, the loop just happens; here, someone has to ask for it again.
+
+machine_name     : "Pete and Repeat";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"pete and repeat sit on a fence" 'pete falls off'    -> "who is left on the fence";
+"who is left on the fence"       'ask who is left'   -> "the answer is repeat";
+"the answer is repeat"           'tell it again'     -> "pete and repeat sit on a fence";

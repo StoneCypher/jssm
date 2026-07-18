@@ -1,0 +1,56 @@
+// "Wile E. Coyote and the Road Runner" - Looney Tunes / Chuck Jones, whose
+// own house rules for the series specified that every ACME product must
+// fail, and must fail because of gravity, momentum, or some other law the
+// Coyote himself refuses to acknowledge, rather than through any fault of
+// craftsmanship. The genius he brings to the blueprint stage never once
+// survives contact with the canyon.
+//
+// The topology joke is that "ACME actions never bind" to the effect they
+// advertise: three different chosen actions - rocket skates, a rubber
+// band, a stick of dynamite, pick your catalog page - all fan out from the
+// same planning state and all three converge on the identical next state,
+// "device engages," because the specific product never actually mattered.
+// From there the graph stops offering choices at all: "device engages"
+// forces (~>) into "physics notices," which forces again into "canyon
+// floor," because gravity was never something the Coyote could out-shop.
+// Only after he has landed does a chosen action reappear - dusting off and
+// walking back to the blueprint stage, because unlike Sisyphus he was
+// never condemned to this, he keeps volunteering. And "catch the road
+// runner" - the one state this entire machine exists to reach - sits off
+// to the side with no incoming edge from anywhere in it at all, registered
+// only by its own self-loop and `allow_islands`, because in three
+// generations of cartoons no chosen action, no ACME product, and no
+// forced transition has ever once connected to it.
+
+machine_name     : "Wile E. Coyote and the Road Runner";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+allow_islands: true;
+
+start_states: ["blueprint stage"];
+
+// three ACME products, three chosen actions, one shared next state - the
+// catalog page never changes what happens next.
+"blueprint stage" 'order from the ACME catalog' -> "package arrives, untested";
+"package arrives, untested" 'strap on the ACME rocket skates' -> "device engages";
+"package arrives, untested" 'trigger the ACME giant rubber band' -> "device engages";
+"package arrives, untested" 'light the ACME dynamite (guaranteed)' -> "device engages";
+
+// no chosen action from here forward: the plan is over, and physics takes
+// the only edges that exist.
+"device engages" ~> "physics notices";
+"physics notices" ~> "canyon floor";
+
+// getting up again is a choice - a bad one, repeated indefinitely - so the
+// loop back to the blueprint stage is a real, named, chosen action.
+"canyon floor" 'dust off, sign reading "yipe" falls last' -> "blueprint stage";
+
+// the actual goal of the entire enterprise. no edge in this file leads to
+// it; it exists only to be conspicuously unreachable, held in the graph by
+// its own self-loop.
+"catch the road runner" 'meep meep, already gone' -> "catch the road runner";

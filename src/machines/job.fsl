@@ -1,0 +1,44 @@
+// "Job" - Hebrew scripture, Book of Job
+//
+// Treated here as a topology, not a tragedy: a subject in steady, prosperous
+// state is hit by two rounds of externally-injected faults, neither of which
+// the subject requests, causes, or can decline the ONSET of - each affliction
+// is a forced (`~>`) edge, arriving from outside the subject's own action
+// set, exactly like a fault-injection harness firing a scheduled failure at
+// a system under test. What the subject DOES control, both times, is the
+// response: an available action that holds the line, and a second available
+// action - never exercised in this file's demonstration walk, but real,
+// wired, and reachable - that gives up instead. Both affliction rounds
+// funnel their "give up" option to the identical single state, because
+// abandoning the trial partway through and abandoning it later amount to
+// the same terminal regardless of which round breaks the walker. The two
+// "hold fast" responses, by contrast, are the only path that reaches the
+// forced restoration at the end - the topology's own quiet argument that
+// endurance, not the affliction, is what the graph was actually testing.
+
+machine_name    : "Job";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"blameless and prosperous, before any of this"
+  ~> "first affliction lands: wealth and household gone";
+
+"first affliction lands: wealth and household gone"
+  'hold fast to integrity'      -> "grieving hard, integrity unbroken after round one";
+"first affliction lands: wealth and household gone"
+  'give up, integrity abandoned' -> "the trial ends early, unfinished";
+
+"grieving hard, integrity unbroken after round one"
+  ~> "second affliction lands: health struck down";
+
+"second affliction lands: health struck down"
+  'hold fast to integrity, still' -> "sitting in ashes, integrity unbroken after round two";
+"second affliction lands: health struck down"
+  'give up, integrity abandoned'  -> "the trial ends early, unfinished";
+
+"sitting in ashes, integrity unbroken after round two"
+  ~> "restoration granted, twice what was lost";

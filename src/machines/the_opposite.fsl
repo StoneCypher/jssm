@@ -1,0 +1,54 @@
+// "The Opposite" - Seinfeld, season 5 episode 22 (written by Larry David
+// and Jerry Seinfeld, 1994): George Costanza reasons that if every
+// instinct he has ever had has been wrong, doing the exact opposite of
+// every instinct must be right - and it is, he gets the girl, the
+// apartment, and a job with the New York Yankees in one conversation.
+// Elaine's fortunes invert too, in the other direction, for no reason the
+// show bothers to justify, which is itself accurate to how the episode
+// plays it.
+//
+// The topology joke is "reach the unreachable": "everything George ever
+// wanted" has exactly one incoming edge in this entire graph, and it does
+// not come from George's default loop of following his gut - that loop
+// only ever returns to itself, forever, the same shape as
+// boy_who_cried_wolf.fsl's trust decay but with nowhere new to decay to.
+// The success state is reachable ONLY through the 'do the opposite'
+// branch; inverting the action map does not just change where you end up,
+// it opens territory the un-inverted map structurally cannot reach at
+// all. Elaine's arc is left as a disconnected island on purpose
+// (`allow_islands`) - she never tries the opposite, so she never gets an
+// edge out of her own loop either, and the two characters' graphs make the
+// same point from two directions.
+
+machine_name    : "The Opposite";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"George, another instinct arrives"
+  'follow his gut, order the tuna salad on toast' -> "instinct followed, humiliation";
+"George, another instinct arrives"
+  'do the opposite, order the chicken salad on rye, untoasted, with potato salad and a cup of coffee' -> "the opposite is done, something shifts";
+
+"instinct followed, humiliation"
+  'another instinct arrives, same as always' -> "George, another instinct arrives";
+
+"the opposite is done, something shifts"
+  'introduce himself to the beautiful stranger at the counter' -> "she is charmed, unheard of";
+"she is charmed, unheard of"
+  'apply for the job he is unqualified for, out of spite' -> "hired by the Yankees, somehow";
+
+// the one and only edge into the unreachable - and it only exists because
+// the opposite branch, not the default loop, built the path to it.
+"hired by the Yankees, somehow" ~> "everything George ever wanted";
+
+// Elaine's island: same loop shape as George's default, but she never
+// tries the opposite, so there is no edge out of it at all.
+"Elaine, still following her gut"
+  'follow her gut, the same read that always worked before' -> "the streak breaks, quietly";
+"the streak breaks, quietly"
+  'another gut call, on reflex' -> "Elaine, still following her gut";

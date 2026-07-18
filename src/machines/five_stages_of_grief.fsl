@@ -1,0 +1,39 @@
+// "The Five Stages of Grief" - Kubler-Ross model (1969)
+//
+// Everybody knows the chain: denial, anger, bargaining, depression,
+// acceptance - taught and drawn as a tidy left-to-right arrow diagram with
+// a finish line at the end. The honest topology isn't a chain at all: every
+// later stage keeps a chosen edge straight back to the stage before it, and
+// "acceptance" - the one state everyone assumes is the terminal - keeps a
+// chosen edge all the way back to square one. There is no terminal state in
+// this machine at all, and that omission IS the joke: fslExplain reports an
+// empty terminals list no matter how the graph is drawn, because grief, done
+// honestly, is a strongly-recurring graph wearing a straight line's
+// publicity photo.
+//
+// The showcase: fslSimulate walks the textbook forward path start to finish,
+// then shows legalNext at "acceptance" is non-empty - the model insists you
+// are done, the graph disagrees - and takes the one edge available there
+// straight back to "denial," then walks forward again to show the cycle is
+// not a one-time relapse but a standing structural feature.
+
+machine_name    : "The Five Stages of Grief";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// THE TEXTBOOK CHAIN - the part everyone draws.
+denial      'the news starts to sink in'      -> anger;
+anger       'why me, specifically'            -> bargaining;
+bargaining  'what if we make a deal'          -> depression;
+depression  'nothing matters anyway'          -> acceptance;
+
+// THE PART NOBODY DRAWS - a chosen edge back to the previous stage from
+// every stage that has one, plus the big one: acceptance back to denial.
+anger       'actually, never mind, not ready for this'          -> denial;
+bargaining  'actually, never mind, still furious'                -> anger;
+depression  'actually, never mind, one more deal to try'         -> bargaining;
+acceptance  'actually, never mind, it hits again out of nowhere' -> denial;

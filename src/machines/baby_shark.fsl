@@ -1,0 +1,51 @@
+// "Baby Shark" - children's campfire chant, popularized worldwide by the
+// Pinkfong (2016) version
+//
+// The song is a family-member enumeration chain wrapped around one
+// repeated-refrain protocol, and the protocol is the part worth modeling:
+// at every verse, the refrain is a real, chosen, arbitrarily-repeatable
+// self-loop - fire it zero times, once, or forty times, the state graph
+// cannot tell the difference, same shape as `duck_duck_goose.fsl`'s
+// circling self-loop - and advancing to the next family member is a
+// separate, differently-labeled action sitting right next to it. Five
+// family members enumerate in fixed order, each with its own refrain
+// self-loop, before the closing verse gathers everyone and resolves to a
+// real terminal.
+
+machine_name    : "Baby Shark";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"verse: smallest of the family"
+  'repeat the refrain' -> "verse: smallest of the family";
+"verse: smallest of the family"
+  'introduce the next family member' -> "verse: mother of the family";
+
+"verse: mother of the family"
+  'repeat the refrain' -> "verse: mother of the family";
+"verse: mother of the family"
+  'introduce the next family member' -> "verse: father of the family";
+
+"verse: father of the family"
+  'repeat the refrain' -> "verse: father of the family";
+"verse: father of the family"
+  'introduce the next family member' -> "verse: grandmother of the family";
+
+"verse: grandmother of the family"
+  'repeat the refrain' -> "verse: grandmother of the family";
+"verse: grandmother of the family"
+  'introduce the next family member' -> "verse: grandfather of the family";
+
+"verse: grandfather of the family"
+  'repeat the refrain' -> "verse: grandfather of the family";
+"verse: grandfather of the family"
+  'introduce the next family member' -> "verse: the whole family together";
+
+"verse: the whole family together"
+  'repeat the refrain' -> "verse: the whole family together";
+"verse: the whole family together"
+  'close the song' -> "song ends, everyone claps";

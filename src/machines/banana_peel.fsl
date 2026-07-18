@@ -1,0 +1,43 @@
+// "Banana Peel" - vaudeville's oldest gag, still funny, still a topology
+//
+// dignity ~> pavement. That's the whole bit, and it's already legal FSL:
+// a forced edge, no action label, because nobody has ever CHOSEN to slip
+// on a banana peel. 'strut' is the one real action in this graph, a
+// self-loop that keeps dignity intact for as many steps as you like - it
+// is fully, indefinitely stable under the action system. There is no
+// competing chosen action anywhere that leads toward the peel; physics
+// doesn't wait for you to pick an option, it just fires. Once the boot
+// finds it, 'flail for balance' is the one genuinely real thing left to
+// choose - and choosing it changes the SCENERY of the fall (a beat more
+// embarrassing) without changing its DESTINATION, because both branches
+// converge on the same forced airborne state regardless.
+//
+// The showcase: no sequence of chosen actions - "strut" once, a hundred
+// times, forever - ever reaches "pavement" in a simulated walk. Per this
+// project's house rule on forced edges, fslSimulate cannot traverse one
+// under any name, not even by naming the destination directly. Dignity
+// is therefore perfectly safe in the choice space and completely doomed
+// in the state space - which is, itself, the entire joke, formalized.
+
+machine_name     : "Banana Peel";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the only action that ever preserves dignity - stable indefinitely.
+"strolling with dignity" 'strut' -> "strolling with dignity";
+
+// physics does not consult the action set.
+"strolling with dignity" ~> "boot finds the peel";
+
+// the last real choice available: how, not whether.
+"boot finds the peel" 'flail for balance' -> "still falling, more embarrassingly now";
+"boot finds the peel" ~> "legs exit stage left, no flailing";
+
+// both branches land in the same place, forced, no exceptions.
+"still falling, more embarrassingly now" ~> "airborne, arms windmilling";
+"legs exit stage left, no flailing"      ~> "airborne, arms windmilling";
+"airborne, arms windmilling"             ~> pavement;

@@ -1,0 +1,33 @@
+// "The North Wind and the Sun" - Aesop's Fables (Perry Index 46)
+//
+// The wind and the sun argue over who can make a traveler remove his cloak,
+// then take turns. The topology joke is that their two methods are not just
+// different in STYLE, they are different in KIND: the wind's whole approach
+// is a forced (`~>`) chain - it never asks, it just blows, maximally, and
+// what happens next is not a decision anyone makes, it is physics. The sun's
+// approach is the opposite: two ordinary chosen actions, an incentive
+// offered and a choice taken. The showcase is that `fslSimulate` can walk
+// the sun's branch end to end - it is nothing but chosen actions - while the
+// wind's branch cannot be walked by simulation at all (gotcha: forced-only
+// edges are invisible to `legalNext`), and can only be driven by
+// `force_transition`, arriving at a DIFFERENT, lesser terminal. The forced
+// edge is not merely less pleasant; it structurally fails where the
+// incentive action structurally succeeds.
+
+machine_name    : "The North Wind and the Sun";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the wind's method: no choices offered anywhere along it, only force.
+"the travelers approach, cloak buttoned" 'let the wind go first' -> "wind takes the challenge, all bluster";
+"wind takes the challenge, all bluster" ~> "wind unleashes everything at once";
+"wind unleashes everything at once"     ~> "cloak clutched tighter than ever, wind concedes";
+
+// the sun's method: an incentive offered, and a choice freely taken.
+"the travelers approach, cloak buttoned"        'let the sun go instead'                -> "sun takes the challenge, gentle warmth";
+"sun takes the challenge, gentle warmth"        'sun offers warmth, the incentive'       -> "sun offers warmth, cloak begins to loosen";
+"sun offers warmth, cloak begins to loosen"     'traveler removes the cloak, freely chosen' -> "cloak removed freely, sun wins the contest";

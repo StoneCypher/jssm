@@ -1,0 +1,50 @@
+// "The Boy Who Cried Wolf" - Aesop's Fables (Perry Index 210)
+//
+// The fable is usually told as a story about belief eroding, but the honest
+// mechanical version is sharper than that: `'cry wolf'` does not become
+// less EFFECTIVE with use, it becomes UNBOUND. It is a real, legal, chosen
+// action from "full trust in the shepherd boy" and again from "wary trust" -
+// jssm's `actions()` reports it available from both, scoped per state, no
+// special-casing required. From "no trust left," it is not merely rejected
+// when attempted: it is not in the action set AT ALL, the same way an
+// interface can drop a method between versions. The alarm is not ignored.
+// It is deprecated.
+//
+// What happens next is not a consequence the boy can trigger, mitigate, or
+// even name: a real wolf arriving is a FORCED transition (`~>`, no action
+// label), same grammar as the doomed half of for_want_of_a_nail.fsl. There
+// is no `'cry wolf'` edge waiting at "no trust left" for the boy to reach
+// for and find missing - fsl-mcp's `fslSimulate` rejects the third attempt
+// outright, with `legalNext: []`, because the deprecation is structural,
+// not a runtime permission check.
+//
+// The showcase: two false alarms succeed via the ordinary chosen-action
+// walk; the third `'cry wolf'` is rejected at that exact index, and only
+// `force_transition`, called from outside the game the boy was playing,
+// can walk the flock the rest of the way to the end.
+
+machine_name    : "The Boy Who Cried Wolf";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"full trust in the shepherd boy"
+  'cry wolf' -> "villagers rush out, false alarm number one";
+
+"villagers rush out, false alarm number one"
+  'trudge back to the fields, muttering' -> "wary trust";
+
+"wary trust"
+  'cry wolf' -> "villagers rush out again, false alarm number two";
+
+"villagers rush out again, false alarm number two"
+  'trudge back to the fields, done with this' -> "no trust left, the alarm has lost its binding";
+
+// no 'cry wolf' edge exists from here. the action is not rejected - it is
+// simply not part of this state's action set, the way a deprecated method
+// is simply not part of an interface anymore.
+"no trust left, the alarm has lost its binding" ~> "a real wolf arrives";
+"a real wolf arrives"                           ~> "the flock pays for it";

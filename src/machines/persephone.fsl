@@ -1,0 +1,36 @@
+// "Persephone" - Greek myth, the pomegranate seeds
+//
+// Six seeds eaten in the underworld bind Persephone to six months below
+// with Hades and six months above with Demeter, forever, exactly as
+// contracted - no more, no fewer. The graph is the contract: twelve
+// states in a single ring, six named for the underworld and six for the
+// surface, walked one month at a time by the same repeated action, with
+// a differently-named action only at the two hinge points where the
+// season actually turns over.
+//
+// The showcase is the ring itself: fslSimulate can walk all twelve
+// months in order and land exactly back where it started, and
+// fslExplain reports zero terminals - a contract with an end date would
+// not be much of a myth.
+
+machine_name     : "Persephone";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"underworld, month 1 of 6" 'the month turns' -> "underworld, month 2 of 6";
+"underworld, month 2 of 6" 'the month turns' -> "underworld, month 3 of 6";
+"underworld, month 3 of 6" 'the month turns' -> "underworld, month 4 of 6";
+"underworld, month 4 of 6" 'the month turns' -> "underworld, month 5 of 6";
+"underworld, month 5 of 6" 'the month turns' -> "underworld, month 6 of 6";
+"underworld, month 6 of 6" 'the seeds are honored, she ascends' -> "surface, month 1 of 6";
+
+"surface, month 1 of 6" 'the month turns' -> "surface, month 2 of 6";
+"surface, month 2 of 6" 'the month turns' -> "surface, month 3 of 6";
+"surface, month 3 of 6" 'the month turns' -> "surface, month 4 of 6";
+"surface, month 4 of 6" 'the month turns' -> "surface, month 5 of 6";
+"surface, month 5 of 6" 'the month turns' -> "surface, month 6 of 6";
+"surface, month 6 of 6" 'the seeds are honored, she descends' -> "underworld, month 1 of 6";

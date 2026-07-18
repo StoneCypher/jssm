@@ -1,0 +1,30 @@
+// "Roll Safe" - internet meme (still from Kayode Ewumi's "Hood Documentary"),
+// captioned with the deadpan life hack: "can't fail a test if you don't
+// take the test," delivered with a finger tapped against the temple.
+//
+// The topology joke takes the logic literally rather than as a punchline
+// about avoidance. The failure state has exactly one path in, and that path
+// runs through the exam itself - there is no edge from "declined the test"
+// to "test failed" at any distance, because no such edge exists to omit.
+// Roll Safe is not choosing not to fail; he is standing in a state from
+// which failure is not merely unchosen but structurally unreachable. The
+// file showcases plain chosen-edge (`->`) branching: two actions fork the
+// graph at the very first state, and only one fork ever touches "failed."
+
+machine_name     : "Roll Safe";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["faced with a test"];
+
+// the fork: enter the attempt, or tap the temple and route around it entirely.
+"faced with a test" 'take the test'          -> "mid-exam, pencil moving";
+"faced with a test" 'tap the temple, decline' -> "never took it, so it never counted";
+
+// failure exists ONLY down this branch - there is no other edge into it.
+"mid-exam, pencil moving" 'ace it'  -> "test passed, framed on the fridge";
+"mid-exam, pencil moving" 'bomb it' -> "test failed, hidden in a drawer";

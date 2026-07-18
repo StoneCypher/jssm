@@ -1,0 +1,52 @@
+// "Appointment in Samarra" - old Mesopotamian fable, popularized in English
+// by W. Somerset Maugham (as an epigraph, quoting a retelling by Edward
+// O'Brien) and again as the epigraph to John O'Hara's novel of the same
+// name. A servant in the Baghdad market sees Death, reads a threatening
+// gesture in Death's face, panics, borrows his master's horse, and rides
+// hard for Samarra to escape him. That evening the master meets Death in
+// the market and asks why he frightened his servant. Death says it was not
+// a threat, only surprise: he had not expected to see the man in Baghdad,
+// because he had an appointment with him that night - in Samarra.
+//
+// The topology joke is a single load-bearing edge: the CHOSEN action
+// 'flee to samarra' does not lead to safety, it leads to samarra, full
+// stop - the escape act and the fate edge are typographically the same
+// arrow. To make sure no alternate route reads as an accident of this one
+// phrasing, a second chosen path (borrow the horse, ride all night) is
+// unrolled separately and made to converge on the identical terminal - and
+// a THIRD, entirely independent source feeds it too: Death's own forced
+// edge, kept regardless of what the servant does, with no incoming edge of
+// its own (nothing in this file ever routes control there - it is simply
+// Death, elsewhere, already walking). Three unrelated causal stories, one
+// destination. Nobody in this graph chooses samarra as a place; everyone
+// who acts, acts their way into it anyway.
+
+machine_name     : "Appointment in Samarra";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["market at baghdad"];
+
+// panic, taken at face value: the servant sees the gesture and runs. the
+// destination he names for his own escape route IS samarra.
+"market at baghdad" 'flee to samarra' -> samarra;
+
+// the slower, more deliberate version of the same mistake: he keeps his
+// head, asks his master for the fastest horse, and rides through the
+// night. different pacing, different action names, same arrival.
+"market at baghdad" 'beg the master for the fastest horse' -> "borrowed horse, riding hard";
+"borrowed horse, riding hard" 'ride through the night' -> samarra;
+
+// meanwhile, and entirely without reference to the servant's choices:
+// Death was already bound for samarra. nothing in this file ever transfers
+// control to this state - it has no incoming edge from the servant's side
+// of the graph at all - because the servant's panic was never what put it
+// on Death's schedule.
+"death, keeping the appointment" ~> samarra;
+
+// samarra has no outgoing edge: whichever of the three roads got you here,
+// this is where the story - and the graph - stops.

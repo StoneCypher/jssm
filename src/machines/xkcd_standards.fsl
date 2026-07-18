@@ -1,0 +1,30 @@
+// "Standards" - xkcd #927 (Randall Munroe). "Situation: there are 14
+// competing standards. Ridiculous! We need to develop one universal
+// standard that covers everyone's use cases. Soon: there are 15 competing
+// standards."
+//
+// The topology joke is that the unifying action never actually reaches a
+// state called "one standard" - it is forced (`~>`) straight past that
+// fantasy into n+1, because the committee-convenes state has no chosen
+// exit at all; once convened, the outcome was never in doubt. The pattern
+// then repeats one level higher with a differently-named but structurally
+// identical action, showing this is a rule about the shape of the graph,
+// not a one-off gag: every "let's unify them" edge in this file is chosen,
+// and every edge out of the resulting committee state is forced into a
+// strictly larger number.
+
+machine_name     : "xkcd 927: Standards";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["14 competing standards"];
+
+"14 competing standards" 'propose one universal standard to cover every use case' -> "a committee convenes to unify them";
+"a committee convenes to unify them" ~> "15 competing standards";
+
+"15 competing standards" 'propose one universal standard, this time for real' -> "a second committee convenes to unify them";
+"a second committee convenes to unify them" ~> "16 competing standards";

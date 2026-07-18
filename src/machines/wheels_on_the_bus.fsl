@@ -1,0 +1,63 @@
+// "The Wheels on the Bus" - traditional children's song (English lyrics
+// commonly dated to Verna Hills, 1930s America)
+//
+// The song's structure is compositional: the bus is a hub, and each verse
+// zooms in on one part of it, and each part moves in its own repeating
+// pattern before attention returns to the bus as a whole. This machine
+// builds that literally - a central hub state with one branch per part, and
+// each branch is its OWN small cycle, not a shared one: the wheel's motion
+// is a single self-loop (one continuous rotation repeating on itself), the
+// wipers are a two-state back-and-forth cycle (a real oscillation between
+// two distinct states, structurally different from a self-loop), and the
+// horn is a self-loop again but with its own separate action name. No part's
+// cycle ever leaks into another part's states - the only edges connecting
+// the parts to each other run through the hub.
+
+machine_name    : "The Wheels on the Bus";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the bus, idling at the curb"
+  'watch the wheels'  -> "the wheels, turning";
+"the bus, idling at the curb"
+  'watch the wipers'  -> "the wipers, at the near side";
+"the bus, idling at the curb"
+  'watch the doors'   -> "the doors, closed";
+"the bus, idling at the curb"
+  'listen for the horn' -> "the horn, quiet";
+
+// the wheel: one continuous rotation, a pure self-loop.
+"the wheels, turning"
+  'completes another rotation' -> "the wheels, turning";
+"the wheels, turning"
+  'look away from the wheels' -> "the bus, idling at the curb";
+
+// the wipers: a real two-state oscillation, not a self-loop.
+"the wipers, at the near side"
+  'sweeps to the far side' -> "the wipers, at the far side";
+"the wipers, at the far side"
+  'sweeps back to the near side' -> "the wipers, at the near side";
+"the wipers, at the near side"
+  'look away from the wipers' -> "the bus, idling at the curb";
+"the wipers, at the far side"
+  'look away from the wipers' -> "the bus, idling at the curb";
+
+// the doors: another two-state oscillation, open and closed as real states.
+"the doors, closed"
+  'swings wide open' -> "the doors, open";
+"the doors, open"
+  'swings shut again' -> "the doors, closed";
+"the doors, closed"
+  'look away from the doors' -> "the bus, idling at the curb";
+"the doors, open"
+  'look away from the doors' -> "the bus, idling at the curb";
+
+// the horn: a self-loop with its own distinct action, unrelated to the wheel's.
+"the horn, quiet"
+  'sounds once more, sharp and bright' -> "the horn, quiet";
+"the horn, quiet"
+  'stop listening to the horn' -> "the bus, idling at the curb";

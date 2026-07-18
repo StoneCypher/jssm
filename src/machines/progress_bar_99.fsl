@@ -1,0 +1,47 @@
+// "The Progress Bar That Stops at 99%" - software-installer folklore
+//
+// The chain from 0% to 99% is real, chosen, and fast: three plain actions
+// carry the copy operation from a cold start to one file remaining, no
+// tricks. The trick is entirely at the far end. "99%, one file remaining"
+// has exactly one chosen edge available, a self-loop for waiting, and it
+// is legal to take that self-loop as many times as patience allows -
+// every single time landing right back on 99%. The edge that would
+// actually finish the job, to "100%, copy complete", exists in the file
+// and is completely real, but it is FORCED (`~>`) and unlabeled: no
+// action anywhere in this machine's vocabulary names it, so no amount of
+// waiting, chosen on purpose, ever fires it. Completion is not a state
+// this machine's user-facing half can reach. It is only ever reached from
+// outside, by force_transition - which is exactly the deceptive relationship
+// a progress bar has with the work it claims to be tracking.
+//
+// Showcase: fslSimulate walks the three real copy actions to 99%, then
+// loops the wait action several times, and legalNext never contains
+// anything but that same wait, proving the stall is structural, not
+// merely slow. Raw jssm then shows force_transition is the only route
+// from 99% to 100% at all.
+
+machine_name    : "Progress Bar 99";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the honest part: three real actions, real progress, no tricks yet.
+"0%, starting the copy"
+  'copy the small files'  -> "38%, copying steadily";
+"38%, copying steadily"
+  'copy the medium files' -> "72%, almost there";
+"72%, almost there"
+  'copy the big file'     -> "99%, one file remaining";
+
+// the dishonest part: the only chosen edge left is waiting, and waiting
+// goes nowhere but back to itself, no matter how many times it is taken.
+"99%, one file remaining"
+  'wait for the last file to copy' -> "99%, one file remaining";
+
+// completion exists. it is real. it is not something choosing to wait
+// can ever reach - nothing in this machine's action vocabulary names it.
+"99%, one file remaining"
+  ~> "100%, copy complete";

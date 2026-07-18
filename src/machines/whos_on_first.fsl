@@ -1,0 +1,46 @@
+// "Who's on First?" - Abbott & Costello's classic double-talk routine.
+// The players on a fictional baseball team are named after the very
+// interrogative words a listener would use to ask who they are - Who on
+// first, What on second, I Don't Know on third - so every clarifying
+// question Costello asks just re-triggers the misunderstanding it was
+// meant to resolve. It's a joke about reference collapsing into itself,
+// not about baseball.
+//
+// This machine renders that collapse as topology: Costello's mental
+// state cycles a three-state ring, where the "obvious" clarifying
+// question ('who', 'what', 'i don't know') either re-confirms the base
+// he's already stuck on or advances him to the next one - never toward
+// resolution. `understanding` is a real, fourth state in the graph -
+// present, self-looping, fully formed - but no edge from anywhere else
+// ever names it as a target, so it is permanently unreachable from
+// confusion. That's jssm's `allow_islands` (true by default) put to
+// work: a state can exist in a machine and still be out of reach.
+
+machine_name     : "Who's on First";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states : [first_base];
+
+// The roster: Who is on first, What is on second, I Don't Know is on
+// third. Asking the question that names the CURRENT base just confirms
+// it (self-loop, below); asking the question that names the NEXT base
+// in the rotation drags Costello's attention forward instead.
+state first_base  : { label : "First Base (Who)"; };
+state second_base : { label : "Second Base (What)"; };
+state third_base  : { label : "Third Base (I Don't Know)"; };
+
+first_base  'who'           -> first_base;
+first_base  'what'          -> second_base;
+second_base 'what'          -> second_base;
+second_base 'i don\'t know' -> third_base;
+third_base  'i don\'t know' -> third_base;
+third_base  'who'           -> first_base;
+
+// The state Costello never reaches. Present in the graph, self-
+// sufficient, and unreachable from anywhere else in it. On purpose.
+understanding 'stay enlightened' -> understanding;

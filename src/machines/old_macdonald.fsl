@@ -1,0 +1,48 @@
+// "Old MacDonald Had a Farm" - traditional folk song (English-language
+// versions traced to at least the early 20th century)
+//
+// Every verse names a new animal, but the verse's MIDDLE step - the
+// farm's fixed vowel-refrain, unchanged no matter which animal is being
+// introduced - is not described here by its actual sound; it is described
+// only by what it does topologically. This machine wires that refrain as
+// the exact same action name, bound identically at three different, non-
+// adjacent states (one per animal), each time leading from that animal's
+// introduction into that animal's own "awaiting its sound" state. The
+// refrain is the one constant thread running through an otherwise varying
+// enumeration - a fixed protocol step wrapped around a changing payload,
+// present verbatim (same action name, three separate bindings) every time,
+// exactly as advertised, and never once spelled out.
+
+machine_name    : "Old MacDonald Had a Farm";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the farm, no animal named yet"
+  'introduce the cow' -> "the cow, just introduced";
+
+// the fixed refrain: the same action name, bound three separate times below.
+"the cow, just introduced"
+  'recite the fixed vowel refrain, unchanged every verse' -> "the cow, refrain done, sound pending";
+"the cow, refrain done, sound pending"
+  'announce the cow call' -> "the cow, verse complete";
+
+"the cow, verse complete"
+  'move on to the next animal' -> "the pig, just introduced";
+"the pig, just introduced"
+  'recite the fixed vowel refrain, unchanged every verse' -> "the pig, refrain done, sound pending";
+"the pig, refrain done, sound pending"
+  'announce the pig call' -> "the pig, verse complete";
+
+"the pig, verse complete"
+  'move on to the next animal' -> "the duck, just introduced";
+"the duck, just introduced"
+  'recite the fixed vowel refrain, unchanged every verse' -> "the duck, refrain done, sound pending";
+"the duck, refrain done, sound pending"
+  'announce the duck call' -> "the duck, verse complete";
+
+"the duck, verse complete"
+  'end the enumeration, no animals left to name' -> "the song ends, farm quiet again";

@@ -1,0 +1,48 @@
+// "Calvinball" - Bill Watterson
+//
+// The only permanent rule of Calvinball is that it may never be played the
+// same way twice. A state machine is a formal promise to always play the
+// same way. This document is therefore a paradox with a filename: it is a
+// perfectly legal record of one (1) game of Calvinball, now concluded, and
+// simulating it constitutes playing that game again, which is against the
+// only rule there is. The reader who runs the verify script twice is
+// required to sing the Very Sorry Song.
+//
+// Structural notes for the topology-minded: every rule-declaration is an
+// action you may choose, but your OPPONENT's rule declarations arrive as
+// forced transitions - Calvinball's deepest truth is that the rules change
+// whether you choose or not. The state "played the same way twice" exists
+// in the grammar (a self-loop keeps it registered; jssm silently drops
+// bare edgeless states) but is unreachable from play, as the constitution
+// requires. The final score is Q to 12. Scores in Calvinball are not
+// numbers, and Q is winning.
+
+machine_name    : "Calvinball";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// masks are the only other permanent rule. no one may question the masks.
+"put on the masks" 'no questioning the masks' -> "opposite zone";
+
+// chosen rule declarations: your moves
+"opposite zone"           'declare the vortex spot'    -> "vortex spot";
+"vortex spot"             'sing the very sorry song'   -> "pernicious poem place";
+"pernicious poem place"   'touch the opposite pole'    -> "bonus box";
+"bonus box"               'flag the Calvinball flag'   -> "invisible sector";
+"invisible sector"        'declare a new rule'         -> "opposite zone";
+
+// opponent rule declarations: these happen TO you
+"opposite zone"         ~> "you have been songed";
+"bonus box"             ~> "time-fraud zone";
+"you have been songed"  ~> "pernicious poem place";
+"time-fraud zone"       ~> "invisible sector";
+
+// the game ends when somebody wins, which is unrelated to anything above
+"invisible sector" 'declare victory' -> "the score is Q to 12";
+
+// constitutionally unreachable; self-loop keeps it registered in the grammar
+"played the same way twice" 'never' -> "played the same way twice";

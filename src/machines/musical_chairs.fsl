@@ -1,0 +1,36 @@
+// "Musical Chairs" - traditional elimination party game
+//
+// The rule that makes the game work is baked directly into the state
+// names: every round has one fewer seat than player, and the elimination
+// that follows is never a choice anyone makes - it is forced (`~>`),
+// unlabeled, the same grammar `murphys_law.fsl` uses for a fallible
+// system's one way forward. Circling the chairs while the music plays is
+// the only chosen action anywhere in the file; the scramble that follows
+// it always resolves the same forced way, regardless of who circled how.
+// Four rounds count down five players to one, and the last round's
+// forced edge lands on a real terminal - `fslExplain` reports it with no
+// outgoing edges at all, because there is nothing left to eliminate.
+
+machine_name    : "Musical Chairs";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"round 1: 5 circling, 4 seats"
+  'circle the chairs' -> "round 1: music stops, scramble";
+"round 1: music stops, scramble" ~> "round 2: 4 circling, 3 seats";
+
+"round 2: 4 circling, 3 seats"
+  'circle the chairs' -> "round 2: music stops, scramble";
+"round 2: music stops, scramble" ~> "round 3: 3 circling, 2 seats";
+
+"round 3: 3 circling, 2 seats"
+  'circle the chairs' -> "round 3: music stops, scramble";
+"round 3: music stops, scramble" ~> "round 4: 2 circling, 1 seat";
+
+"round 4: 2 circling, 1 seat"
+  'circle the chairs' -> "round 4: music stops, scramble";
+"round 4: music stops, scramble" ~> "one champion seated, game over";

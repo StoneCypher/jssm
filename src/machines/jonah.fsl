@@ -1,0 +1,43 @@
+// "Jonah and the Whale" - Hebrew scripture, Book of Jonah
+//
+// Jonah is assigned one terminal - preaching in Nineveh - and chooses to
+// flee toward Tarshish instead. The topology joke is that the avoidance
+// route is not a different destination, it is a longer edge to the SAME
+// one, with a forced storm, a forced overboard plunge, and a forced
+// swallowing by a great fish stitched into the middle of it like a
+// whale-shaped detour sign. Both paths - the direct one-action walk and
+// the multi-state fish-shaped scenic route - converge on the identical
+// terminal state. `fslExplain` reports exactly one terminal for a graph
+// with two visibly different routes into it, and that convergence, not
+// the fish, is the actual punchline.
+
+machine_name    : "Jonah and the Whale";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the call: go to Nineveh"
+  'obey immediately, go to Nineveh'   -> "preaching in Nineveh, the assigned terminal";
+
+"the call: go to Nineveh"
+  'flee toward Tarshish instead'      -> "aboard a ship, sailing away from the assignment";
+
+// the avoidance route does not avoid consequences, it just delays them.
+"aboard a ship, sailing away from the assignment" ~> "a violent storm rises, the crew terrified";
+
+"a violent storm rises, the crew terrified"
+  'be thrown overboard to calm the sea' -> "overboard, sinking";
+
+// the whale-shaped detour: forced in, one action to wait it out, forced
+// out - three states that exist purely to reroute back to the one
+// terminal the direct path already reaches.
+"overboard, sinking" ~> "swallowed whole by a great fish";
+
+"swallowed whole by a great fish"
+  'wait it out, three days and three nights' -> "vomited onto dry land, entirely undignified";
+
+"vomited onto dry land, entirely undignified"
+  'go to Nineveh after all, no more excuses' -> "preaching in Nineveh, the assigned terminal";

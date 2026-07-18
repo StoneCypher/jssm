@@ -1,0 +1,60 @@
+// "Rapunzel" - Brothers Grimm (KHM 12)
+//
+// The tower has exactly one auth channel, and it checks nothing but a
+// phrase: whoever calls up the same words gets the same braid lowered down.
+// The topology joke is a literal merge - the witchs routine visit and the
+// princes very first visit are two different source states, both carrying
+// the identical action label, both landing on the identical target state,
+// "hair descends, the phrase alone was ever the key." Once merged, the
+// graph genuinely cannot tell them apart; that erasure is the vulnerability,
+// not a side effect of it.
+//
+// The exploit fires only after Rapunzel is gone. The same call-and-climb
+// shape reappears a third time, reusing the same action label from a new
+// source, but this time the responder at the top is the witch, not
+// Rapunzel - and nothing in the protocol was ever checking who answered
+// either. That is the spoof: an auth channel with a password but no
+// identity check is symmetrically exploitable from both ends of the call.
+
+machine_name    : "Rapunzel";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the witchs ordinary visit and the princes first visit share one target -
+// the channel does not distinguish who is calling.
+"tower base, the witch begins her daily visit"
+  'call up: rapunzel, let down your hair' -> "hair descends, the phrase alone was ever the key";
+"tower base, a prince approaches, the phrase overheard the night before"
+  'call up: rapunzel, let down your hair' -> "hair descends, the phrase alone was ever the key";
+
+"hair descends, the phrase alone was ever the key"
+  'climb the golden braid' -> "inside the tower, visitor and resident indistinguishable from here";
+
+"inside the tower, visitor and resident indistinguishable from here"
+  'the witch leaves, a prince has been listening from the thicket' -> "tower base, a prince approaches, the phrase overheard the night before";
+"inside the tower, visitor and resident indistinguishable from here"
+  'days pass, an overheard voice does not match the routine' -> "suspicion grows, an overheard voice does not match the routine";
+
+// the banishment is forced - the story removes her, nobody at the console chooses it.
+"suspicion grows, an overheard voice does not match the routine" ~> "the shorn braid, left knotted at the sill, no one behind it now";
+
+"the shorn braid, left knotted at the sill, no one behind it now"
+  'the prince returns, still trusting the same phrase' -> "tower base, the prince calls again, unaware anything has changed";
+
+// the phrase, a third time, from a caller who has no idea the channel has been captured.
+"tower base, the prince calls again, unaware anything has changed"
+  'call up: rapunzel, let down your hair' -> "hair descends again, still just the phrase, still no one asks who";
+
+// same climb action as before - but this source is not the same state, and
+// this time the answer at the top is a spoof.
+"hair descends again, still just the phrase, still no one asks who"
+  'climb the golden braid' -> "the witch waits above, answering to a voice that is not hers";
+
+"the witch waits above, answering to a voice that is not hers" ~> "thrown clear, blinded among the thorns below";
+
+"thrown clear, blinded among the thorns below"
+  'wander blind for years, drawn at last by a familiar song' -> "reunited in the wasteland, her tears restore his sight";

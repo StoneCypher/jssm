@@ -1,0 +1,53 @@
+// "For Want of a Nail" - English proverb (traced to at least the 14th
+// century; the "for want of" chain form popularized in English by Benjamin
+// Franklin's "Poor Richard's Almanack")
+//
+// The proverb has exactly one decision in it, and it happens off-panel,
+// before the recitation even starts: did anyone drive the nail home, or did
+// it fall in the mud? Everything the proverb actually narrates - shoe, horse,
+// rider, message, battle, kingdom - is not a sequence of further choices at
+// all, it is a single, unstoppable, FORCED cascade (`~>`, no action label)
+// running downhill from that one lapse. Nobody chooses to lose the horse;
+// losing the shoe already decided that. This machine ships BOTH branches
+// side by side from the same fork, so the contrast is structural, not just
+// asserted in the comment: the safe branch is six chosen actions, each one a
+// real decision with a real verb (shoe, mount, ride, deliver, carry); the
+// doomed branch is one chosen lapse followed by five edges with no verb at
+// all, because by then there is nothing left to decide.
+//
+// The showcase is `fslSimulate`'s own limits: walked with chosen actions,
+// the safe branch completes cleanly, state by state, all the way to
+// "kingdom stands." Walked past "let it fall in the mud," legalNext goes
+// empty immediately and stays empty - fsl-mcp's own simulator cannot move
+// the doomed branch one inch further, because there is no chosen edge left
+// to name. Only `force_transition`, called from outside the choice-driven
+// half of the API, can walk the rest of the proverb - which is the whole
+// point: for want of a nail, choice itself runs out.
+
+machine_name    : "For Want of a Nail";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the one real decision in the whole proverb, made at the smithy, before
+// any of the rest of this file happens to anyone.
+"the horseshoe nail" 'drive it home'          -> "shoe held fast";
+"the horseshoe nail" 'let it fall in the mud' -> "shoe lost";
+
+// the safe branch: six verbs, six real choices, six links that all hold.
+"shoe held fast"  'shoe the horse'    -> "horse shod";
+"horse shod"      'mount up'          -> "rider mounted";
+"rider mounted"   'ride hard'         -> "message rides";
+"message rides"   'deliver the word'  -> "battle joined";
+"battle joined"   'carry the day'     -> "kingdom stands";
+
+// the doomed branch: one lapse, then no verbs left at all - each of these
+// is forced, because by this point nothing remains to decide.
+"shoe lost"    ~> "horse lost";
+"horse lost"   ~> "rider lost";
+"rider lost"   ~> "message lost";
+"message lost" ~> "battle lost";
+"battle lost"  ~> "kingdom lost";

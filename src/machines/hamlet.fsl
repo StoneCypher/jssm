@@ -1,0 +1,55 @@
+// "Hamlet" - William Shakespeare (c. 1600)
+//
+// Five acts, one available exit the entire time, and it just never gets
+// taken until it no longer matters. Every act in this graph offers the
+// same two live options as every other act: keep circling in place
+// (soliloquize), or resolve everything immediately - and that second
+// action is real, chosen, and sitting in legalNext from act one onward.
+// All four early acts route their resolve edge to the identical
+// convergent state, proving timing was never the obstacle; the
+// contemplation was.
+//
+// By the fifth act the loop finally breaks, but not by resolution - by a
+// duel that was accepted, not planned, and everything past that
+// acceptance is forced end to end. Showcase: a walk contemplates through
+// four acts, and legalNext at each one still lists the untaken resolve
+// action; a second, separate walk fires that same action straight from
+// act one and lands on the identical convergent state four acts of
+// hesitation would otherwise have reached anyway.
+
+machine_name     : "Hamlet";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// act I
+"Act I, the ghost demands vengeance" 'soliloquize, delay the reckoning' -> "Act I, the ghost demands vengeance";
+"Act I, the ghost demands vengeance" 'resolve it now, cut the delay short' -> "vengeance taken early, whichever act it happened in";
+"Act I, the ghost demands vengeance" 'let the act end, still undecided' -> "Act II, the play confirms the guilt";
+
+// act II
+"Act II, the play confirms the guilt" 'soliloquize, delay the reckoning' -> "Act II, the play confirms the guilt";
+"Act II, the play confirms the guilt" 'resolve it now, cut the delay short' -> "vengeance taken early, whichever act it happened in";
+"Act II, the play confirms the guilt" 'let the act end, still undecided' -> "Act III, the king caught at prayer";
+
+// act III
+"Act III, the king caught at prayer" 'soliloquize, delay the reckoning' -> "Act III, the king caught at prayer";
+"Act III, the king caught at prayer" 'resolve it now, cut the delay short' -> "vengeance taken early, whichever act it happened in";
+"Act III, the king caught at prayer" 'let the act end, still undecided' -> "Act IV, exiled toward England";
+
+// act IV
+"Act IV, exiled toward England" 'soliloquize, delay the reckoning' -> "Act IV, exiled toward England";
+"Act IV, exiled toward England" 'resolve it now, cut the delay short' -> "vengeance taken early, whichever act it happened in";
+"Act IV, exiled toward England" 'let the act end, still undecided' -> "Act V, the duel accepted";
+
+// act V - the loop finally breaks, but the break itself is an invitation
+// to a duel, not a resolution, and nothing past it is optional again.
+"Act V, the duel accepted" 'soliloquize, one last delay, foils already drawn' -> "Act V, the duel accepted";
+"Act V, the duel accepted" 'accept the duel, resolve arrives at last' -> "the queen drinks the poisoned cup meant for him";
+
+"the queen drinks the poisoned cup meant for him" ~> "the poisoned foil finds them both";
+"the poisoned foil finds them both"               ~> "the king exposed and struck down at last";
+"the king exposed and struck down at last"        ~> "the stage littered with the dead";

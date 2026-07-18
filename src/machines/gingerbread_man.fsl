@@ -1,0 +1,47 @@
+// "The Gingerbread Man" - nursery tale in which a gingerbread man leaps
+// from the oven and outruns an old woman, an old man, and a barnyard's
+// worth of livestock, taunting each of them with the same rhyme: "Run, run,
+// as fast as you can, you can't catch me, I'm the Gingerbread Man." At the
+// riverbank a fox offers passage across - on his nose, to keep him dry -
+// and eats him partway over.
+//
+// The topology joke is that the running action is real and reusable -
+// the SAME action label, 'run, run, as fast as you can', fires unchanged
+// across every pursuer from the oven to the riverbank, because it is
+// genuinely the one strategy that keeps working. Then it stops existing as
+// an option at all. Whether the gingerbread man refuses the fox and
+// hesitates at the water, or accepts the ride onto the fox's nose, neither
+// choice has a 'run' edge leading out of it - the taunt simply has nothing
+// left to bind to - and both choices are followed by a forced transition
+// (~>) into the identical "eaten" terminal. The one tool that always
+// worked is not merely insufficient at the river; it is absent from
+// legalNext entirely, and the ending is forced regardless of which of the
+// two remaining doors he picks.
+
+machine_name     : "The Gingerbread Man";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["fresh from the oven"];
+
+// the same action, reused unchanged, five times - it keeps working right
+// up until the riverbank.
+"fresh from the oven"   'run, run, as fast as you can' -> "past the old woman";
+"past the old woman"    'run, run, as fast as you can' -> "past the old man";
+"past the old man"      'run, run, as fast as you can' -> "past the cow";
+"past the cow"          'run, run, as fast as you can' -> "past the horse";
+"past the horse"        'run, run, as fast as you can' -> "riverbank, fox waiting";
+
+// two different chosen responses to the fox - refuse him, or trust him -
+// and neither one has a 'run' edge leading anywhere. the taunt has run out
+// of road.
+"riverbank, fox waiting" 'decline the fox, hesitate at the water' -> "hesitating at the waterline";
+"riverbank, fox waiting" 'accept a ride, climb onto the fox nose to stay dry' -> "on the fox nose, midriver";
+
+// both doors are forced shut the same way.
+"hesitating at the waterline"  ~> "eaten";
+"on the fox nose, midriver"    ~> "eaten";

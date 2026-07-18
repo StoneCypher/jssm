@@ -1,0 +1,34 @@
+// "The Straw That Broke the Camel's Back" - English proverb
+//
+// The idiom insists that the load and the breaking are qualitatively
+// different events, and the topology enforces that by making the load a
+// single self-loop: `'add a straw, well within capacity'` can fire any
+// number of times - one straw, ten, a hundred - and the camel's state
+// never moves, because the edge's source and target are identical. Only
+// a differently-named action, `'add the last straw'`, actually leaves
+// that state at all, and what it reaches is not the break itself but a
+// second state one step short of it - because nobody chooses to break a
+// camel's back. That last step is a forced edge (`~>`): the consequence
+// of loading past capacity, not a decision anyone makes.
+//
+// Showcase: `fslSimulate` can repeat the self-loop as many times as asked
+// with `path.length` growing while `state` never changes, then the named
+// action moves it exactly once; the forced snap is unreachable by
+// `fslSimulate` at all (per the field guide's forced-edge rule) and is
+// demonstrated instead via raw jssm `force_transition`.
+
+machine_name    : "The Straw That Broke the Camel's Back";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"camel loaded, back holding, straw after straw"
+  'add a straw, well within capacity' -> "camel loaded, back holding, straw after straw";
+"camel loaded, back holding, straw after straw"
+  'add the last straw' -> "camel loaded past capacity, back straining";
+
+// nobody chooses this part; it is what loading past capacity means.
+"camel loaded past capacity, back straining" ~> "the camel's back, broken";

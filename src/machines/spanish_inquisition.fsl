@@ -1,0 +1,53 @@
+// "Nobody Expects the Spanish Inquisition"
+//
+// Monty Python's cardinals never appear on anyone's list of options - they
+// simply arrive. That's a topology claim, not a writing choice: the six
+// mundane states below (bed, breakfast, commute, work, tea, home) form one
+// small chosen cycle of an ordinary day, and separately, EVERY one of those
+// six states also carries a forced `~>` edge to "THE SPANISH INQUISITION".
+// Ask any mundane state for its chooseable actions (`m.actions()` /
+// `legalNext`) and the Inquisition edge is invisible - it has no action
+// label, so it can never be picked. It can only be done TO the walk, via
+// `force_transition()`, from outside the action game entirely. That gap -
+// between a state's legalNext and its full outbound edge set - IS the joke,
+// formally: nobody expects it because it is not among the things you can
+// expect.
+//
+// From the Inquisition itself: the chief weapons, recited on schedule, then
+// the traditional forgetting and sheepish re-entry - back into the same
+// ordinary day it just interrupted, no wiser and no safer.
+
+machine_name     : "Nobody Expects the Spanish Inquisition";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the mundane cycle - every edge here is CHOSEN, and appears in legalNext.
+bed        'wake up'           -> breakfast;
+breakfast  'head out'          -> commute;
+commute    'clock in'          -> work;
+work       'clock out'         -> commute;
+commute    'go home'           -> home;
+home       'put the kettle on' -> tea;
+tea        'unwind'            -> home;
+home       'go to bed'         -> bed;
+
+// the joke: a forced, unlabeled edge out of EVERY mundane state. absent
+// from legalNext. invisible until it fires. nobody expects it.
+bed        ~> "THE SPANISH INQUISITION";
+breakfast  ~> "THE SPANISH INQUISITION";
+commute    ~> "THE SPANISH INQUISITION";
+work       ~> "THE SPANISH INQUISITION";
+home       ~> "THE SPANISH INQUISITION";
+tea        ~> "THE SPANISH INQUISITION";
+
+// the chief weapons, recited in order - then, having forgotten one, a
+// sheepish re-entry back into the daily grind it just ambushed.
+"THE SPANISH INQUISITION"         'chief weapon'  -> fear;
+fear                               'chief weapon'  -> surprise;
+surprise                          'chief weapon'  -> "ruthless efficiency";
+"ruthless efficiency"             'chief weapon'  -> "fanatical devotion to the Pope";
+"fanatical devotion to the Pope"  'come in again' -> bed;

@@ -1,0 +1,44 @@
+// "Opposite Day" - playground folklore, no fixed author, the universal
+// grade-school exploit where a kid declares it's opposite day and now,
+// allegedly, every statement means its reverse. The topology joke is
+// GLOBAL, not one special-cased inverted edge: this is the entire action
+// map mirrored. `'say yes'` and `'say no'` both exist, verbatim, in two
+// different states of the machine, and in one of them they route to their
+// ordinary targets while in the other they are bound to the OPPOSITE
+// targets - the exact same two labels, doing the exact opposite job,
+// depending only on which protocol-state is currently active.
+//
+// The activation edge is the disputed part: declaring opposite day, taken
+// while ALREADY in opposite day, should - by the very rule it invokes -
+// mean the opposite of what it says, i.e. that it is NOT opposite day. The
+// graph does not referee that argument; it just makes the declare action
+// an involution, a toggle that returns you to normal protocol on its
+// second use, whatever anyone wants to claim it means philosophically.
+// Two applications of the identical action, from the identical state,
+// land back on that exact state - checkable, not just arguable.
+
+machine_name    : "Opposite Day";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"normal protocol: yes means yes"
+  'say yes' -> "room gets cleaned";
+"normal protocol: yes means yes"
+  'say no' -> "room stays messy";
+"normal protocol: yes means yes"
+  'declare that it is opposite day, disputed the instant it is said' -> "opposite protocol: yes means no";
+
+// same two labels as above. opposite targets. nothing else changed.
+"opposite protocol: yes means no"
+  'say yes' -> "room stays messy";
+"opposite protocol: yes means no"
+  'say no' -> "room gets cleaned";
+"opposite protocol: yes means no"
+  'declare that it is opposite day, disputed the instant it is said' -> "normal protocol: yes means yes";
+
+"room gets cleaned" 'reset for tomorrow' -> "normal protocol: yes means yes";
+"room stays messy"  'reset for tomorrow, mom is unimpressed' -> "normal protocol: yes means yes";

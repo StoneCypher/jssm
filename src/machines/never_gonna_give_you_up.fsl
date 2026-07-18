@@ -1,0 +1,46 @@
+// "Never Gonna Give You Up" - written by Stock, Aitken and Waterman,
+// performed by Rick Astley (1987)
+//
+// Every other machine in this project's tradition specifies its promises
+// as edges that exist. This one specifies its promise by which edges do
+// NOT: six plainly-named actions - relent, disappoint, abandon, wound,
+// part ways, deceive - are never bound anywhere in this file, at any
+// state, under any name. That is a structural claim, checkable the same
+// way `boy_who_cried_wolf.fsl` checks a deprecated action: attempt any of
+// the six from the reachable state and jssm throws, because the action
+// was never in the vocabulary to begin with, not because it was rejected
+// at runtime. The commitment itself is the only real cycle here - a
+// chosen self-loop that reaffirms indefinitely, and a test-branch that
+// always resolves back to the same steadfast state, never anywhere else.
+//
+// What breaking the commitment would even look like is declared as its
+// own real state - registered, per the self-loop gotcha, since a bare
+// state with no edges is silently dropped - but it sits on a fully
+// separate, `allow_islands`-only component, exactly the shape
+// `fox_and_grapes.fsl` uses for the grapes: reachable from nowhere the
+// commitment can actually stand, inspectable only by seating a second,
+// independent `from()` reference directly at it.
+
+machine_name    : "Never Gonna Give You Up";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+// the commitment: one real, chosen cycle. reaffirmed as many times as you
+// like; tested, and it holds, every time, back to the same state.
+"promise kept, steadfast"
+  'reaffirm' -> "promise kept, steadfast";
+"promise kept, steadfast"
+  'put to the test' -> "held under pressure";
+"held under pressure"
+  'commitment endures' -> "promise kept, steadfast";
+
+// what breaking it would look like: a real, declared state, and a
+// fully separate component. no edge, forced or chosen, connects it to
+// the commitment above in either direction.
+"no desertion, never entered"
+  'the absence persists' -> "no desertion, never entered";

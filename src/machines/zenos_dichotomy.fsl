@@ -1,0 +1,52 @@
+// "Zeno's Dichotomy" - Zeno of Elea
+//
+// To reach the wall you must first cross half the distance, then half of
+// what remains, then half of THAT, forever - so the argument goes, motion
+// never technically arrives, because covering infinitely many halvings
+// would take infinitely many steps. FSL cannot literally encode that: a
+// grammar is finite text, so this file can only ever declare finitely many
+// states, and the halving chain below stops - by hand, with a comment
+// marking the ellipsis - at 127/128 of the way. The joke is structural, not
+// narrated. "The wall" - the limit those fractions approach - is a real,
+// declared state in this machine, exactly the way a sequence's limit is a
+// real number even though no term of the sequence ever equals it. Nothing
+// the halving chain does ever points at it; it exists only by virtue of a
+// self-loop (see: bare edgeless declarations are silently dropped), an
+// island on purpose, `allow_islands` doing the honest work of admitting
+// that arrival was never on the menu.
+//
+// Showcase: fslSimulate can walk the halving chain, chosen step by chosen
+// step, right up to the last modeled term and then loop there forever on
+// the same action - but no walk, however long, can ever choose its way
+// onto "the wall," because nothing legal leads there. That is Zeno's
+// argument, enforced by jssm's own reachability rules instead of by rhetoric.
+
+machine_name    : "Zeno's Dichotomy";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+// the halving chain - each stride is chosen, and each one covers only half
+// of whatever distance is left.
+"the start line"        'stride to the midpoint' -> "halfway (1/2)";
+"halfway (1/2)"         'halve what remains'      -> "3/4 of the way";
+"3/4 of the way"        'halve what remains'      -> "7/8 of the way";
+"7/8 of the way"        'halve what remains'      -> "15/16 of the way";
+"15/16 of the way"      'halve what remains'      -> "31/32 of the way";
+"31/32 of the way"      'halve what remains'      -> "63/64 of the way";
+"63/64 of the way"      'halve what remains'      -> "127/128 of the way";
+
+// the true dichotomy has no final term: the sequence 1/2, 3/4, 7/8, ...
+// converges to 1, but 1 is never itself a member of it. we stop unrolling
+// here for the same reason every retelling does - paper, patience, and
+// floating point all run out before the paradox does - and let the last
+// modeled term stand for "keep going, forever, by the same rule":
+"127/128 of the way"    'halve what remains'      -> "127/128 of the way";
+
+// the limit itself: declared, nameable, self-referential - and permanently
+// unreached by anything upstream of it. an island, on purpose.
+"the wall" 'arrive (this never fires from anywhere but itself)' -> "the wall";

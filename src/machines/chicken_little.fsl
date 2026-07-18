@@ -1,0 +1,46 @@
+// "Chicken Little" - English/American folktale (also "Henny Penny")
+//
+// The whole first act is a false-alarm cascade built from one repeated
+// action shape: each animal, on hearing the sky is falling, runs to tell
+// exactly one further animal, using an edge that looks structurally
+// identical to the one before it - same fan-out, same urgency, different
+// name pasted in. The cascade is entirely chosen, one deliberate relay
+// per hop, right up until the flock is fully assembled; only the very
+// last step - what happens once they are all inside the den that the
+// "shortcut" led them to - is a forced edge with no action bound at all,
+// because by then nobody in the story is making decisions anymore.
+//
+// Showcase: `fslExplain` shows every relay edge chosen (six in a row,
+// identical shape, different animal), then the walk's forced tail is
+// unreachable by `fslSimulate` - the same forced-edge rule as
+// boy_who_cried_wolf.fsl's wolf - and is demonstrated instead via raw
+// jssm `force_transition` after `fslSimulate` stalls at the door.
+
+machine_name    : "Chicken Little";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"an acorn falls, Chicken Little alone under the oak"
+  'run tell Henny Penny the sky is falling' -> "Henny Penny told, alarm spreading";
+
+"Henny Penny told, alarm spreading"
+  'run tell Cocky Locky' -> "Cocky Locky told, alarm spreading";
+
+"Cocky Locky told, alarm spreading"
+  'run tell Ducky Lucky' -> "Ducky Lucky told, alarm spreading";
+
+"Ducky Lucky told, alarm spreading"
+  'run tell Goosey Loosey' -> "Goosey Loosey told, alarm spreading";
+
+"Goosey Loosey told, alarm spreading"
+  'run tell Turkey Lurkey' -> "Turkey Lurkey told, whole flock panicking";
+
+"Turkey Lurkey told, whole flock panicking"
+  'follow Foxy Loxy, he claims a shortcut to the king' -> "inside Foxy Loxy's den, door swinging shut";
+
+// nobody decides this part; the shortcut already decided it for them.
+"inside Foxy Loxy's den, door swinging shut" ~> "eaten, one by one, no alarm left to spread";

@@ -1,0 +1,49 @@
+// "Cookie Banner" - dark-pattern web folklore
+//
+// Two terminals, wildly unequal travel time. Accepting everything is one
+// edge, taken directly off the banner itself - a single chosen action and
+// you are done. Rejecting everything requires opening a preferences
+// panel, then toggling off advertising vendors, then toggling off
+// analytics vendors, then hunting down a save button, then confirming -
+// four intervening states between the banner and an honest "no", each one
+// its own screen, its own click, its own chance to give up and just
+// accept. The panel even offers a decoy: a prominent-looking reject
+// button that is not actually the reject button, just a self-loop back to
+// the same list of vendors. The topology does not merely describe the
+// dark pattern, it times it: one hop versus five.
+//
+// Showcase: fslSimulate takes the one-action accept path and the full
+// five-action reject path and reports path.length for both side by side -
+// 2 versus 6 - directly against the states-deep claim in the mechanism
+// note. A separate walk proves the decoy reject button is a genuine
+// self-loop: taking it and then still having to do all four real steps.
+
+machine_name    : "Cookie Banner";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// one click, done. the fast lane is intentionally this short.
+"cookie banner appears"
+  'accept all cookies' -> "all cookies accepted";
+
+// the slow lane starts here.
+"cookie banner appears"
+  'manage preferences' -> "preferences panel, vendors listed";
+
+// a decoy: looks like the exit, is actually a self-loop.
+"preferences panel, vendors listed"
+  'click the reject button that just relists the same vendors' -> "preferences panel, vendors listed";
+
+// the four real states standing between "no" and actually meaning it.
+"preferences panel, vendors listed"
+  'turn off advertising cookies, one by one' -> "advertising vendors toggled off";
+"advertising vendors toggled off"
+  'turn off analytics cookies, one by one' -> "analytics vendors toggled off";
+"analytics vendors toggled off"
+  'scroll to find the save button' -> "confirm your choices";
+"confirm your choices"
+  'confirm and save preferences' -> "all cookies rejected";

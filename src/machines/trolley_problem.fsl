@@ -1,0 +1,47 @@
+// "The Trolley Problem" - Philippa Foot's classic, plus its footbridge
+// cousin (the "fat man" variant), staged as one graph
+//
+// The philosophical question this machine actually answers, formally:
+// does having an available action make a forced outcome your fault? The
+// switch case and the footbridge case FEEL like the same choice - divert
+// harm, or don't - but jssm's action/forced distinction draws a hard line
+// between them that moral intuition draws only fuzzily. Pulling the lever
+// is a real, chosen edge, but it only ever chooses ROUTING - the actual
+// strike that follows is a separate, unlabeled, forced edge, outside the
+// action system entirely, and per this project's house rules on forced
+// transitions, no fslSimulate walk can ever traverse it under any name.
+// Formally: the impact is not a thing you can do, on either track, on
+// purpose or by inaction - the graph makes it happen TO whoever's on the
+// rails, never BY whoever's at the switch. Pushing the bystander off the
+// footbridge is different in kind, not degree: that harm IS the chosen
+// edge, zero hops removed, directly simulate-reachable. Same five lives
+// saved either way; only one of the two graphs lets you dispatch the
+// harm as an action call. That asymmetry - the one philosophers call
+// "the doctrine of double effect" when they're being careful about it -
+// is not a vibe here. It's the difference between an edge with an action
+// label and one without.
+//
+// Doing nothing is not a third choice either: there is no 'do nothing'
+// action anywhere below. Standing still IS the forced edge firing on its
+// own, same as it would if you'd never walked up to the switch at all.
+
+machine_name     : "The Trolley Problem";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the only two chosen actions in the whole machine.
+"approaching the switch" 'pull the lever'                    -> "diverted to the side track";
+"approaching the switch" 'push the bystander onto the track' -> "bystander struck, trolley stopped";
+
+// inaction is not a third action - it is this forced edge, firing with
+// or without you, identical to what happens if you never touch anything.
+"approaching the switch" ~> "still on the main track";
+
+// the strikes themselves: forced, unlabeled, outside the action system on
+// both branches. you chose the routing; you never chose the impact.
+"diverted to the side track" ~> "one person struck";
+"still on the main track"    ~> "five people struck";

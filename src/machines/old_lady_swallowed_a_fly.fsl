@@ -1,0 +1,43 @@
+// "There Was an Old Lady Who Swallowed a Fly" - traditional nonsense song
+// (English-language, widely popularized in the mid-20th century; author
+// unknown)
+//
+// Eight verses, eight chosen actions, every one of them the same shape:
+// swallow something bigger to deal with the thing you swallowed last. Each
+// swallow is a real, named choice - a strategy, however bad - which is why
+// every edge up through "horse" is a labeled, chosen (`->`) transition. The
+// joke's actual hinge is the ninth beat, the one the song does not sing as
+// a verb at all: nobody "swallows" being dead, and the old lady does not
+// choose it, strategize it, or one-up it. It simply happens, the instant
+// she swallows the horse, which is why that last edge is FORCED (`~>`, no
+// action label) rather than one more escalating choice.
+//
+// The showcase is exactly where `fslSimulate`'s chosen-action walk runs out:
+// having swallowed fly through horse (eight actions, eight legal moves),
+// legalNext at "horse" is empty. The tool that can walk her all the way
+// through seven absurd survival strategies cannot walk her into the eighth
+// beat, because there is no strategy there - only `force_transition`, used
+// here from outside the chosen-action game, can cross that last edge, which
+// is the mechanical difference between "she swallowed it" and "she died,
+// of course."
+
+machine_name    : "There Was an Old Lady Who Swallowed a Fly";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"empty"  'swallow a fly, nobody knows why'    -> "fly";
+"fly"    'swallow a spider to catch the fly'  -> "spider";
+"spider" 'swallow a bird to catch the spider' -> "bird";
+"bird"   'swallow a cat to catch the bird'    -> "cat";
+"cat"    'swallow a dog to catch the cat'     -> "dog";
+"dog"    'swallow a goat to catch the dog'    -> "goat";
+"goat"   'swallow a cow to catch the goat'    -> "cow";
+"cow"    'swallow a horse to catch the cow'   -> "horse";
+
+// no ninth verb exists. this is not one more escalation - it is what an
+// escalation like this always ends in, and nobody had to choose it.
+"horse" ~> "she is dead, of course";

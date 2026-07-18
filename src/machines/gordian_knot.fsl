@@ -1,0 +1,38 @@
+// "The Gordian Knot" - Phrygian legend, resolved by Alexander the Great
+//
+// The knot's rule was "whoever unravels this rules Asia," and
+// generations of legal, chosen attempts at unraveling it just cycle
+// among a small ring of configurations, none of them closer to undone
+// than the last. Alexander's answer was not a move inside that rule at
+// all - he drew his sword. That is not a chosen action reachable from
+// anywhere in the puzzle graph; it is a forced edge, present in the file
+// but untakeable by fslSimulate, which can never traverse a forced
+// transition no matter what its destination is named.
+//
+// The showcase is force_transition itself: raw jssm can walk straight
+// across that forced edge and cut the knot, precisely because
+// force_transition only requires that a real edge exist between the two
+// states - it does not care whether that edge was ever meant to be
+// chosen, only that it is there.
+
+machine_name     : "The Gordian Knot";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the puzzle: a small ring of legal, chosen re-configurations, none of
+// which are any closer to solved than the one before it.
+"the knot, first configuration" 'trace the near cord under the far loop' -> "the knot, second configuration";
+"the knot, second configuration" 'work the loose end back through' -> "the knot, third configuration";
+"the knot, third configuration" 'start over from the first configuration' -> "the knot, first configuration";
+
+// the out-of-band answer: a real edge, forced, reachable from every
+// puzzle state - and reachable by no chosen action at all.
+"the knot, first configuration" ~> "the knot, cut clean through";
+"the knot, second configuration" ~> "the knot, cut clean through";
+"the knot, third configuration" ~> "the knot, cut clean through";
+
+"the knot, cut clean through" 'declare the puzzle solved, by the wrong kind of cleverness' -> "Asia, ruled";

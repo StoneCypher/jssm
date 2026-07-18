@@ -1,0 +1,39 @@
+// "The Wolf in Sheep's Clothing" - Aesop (Perry Index 451)
+//
+// The fable is a type-system exploit: the pasture only checks the label
+// ("sheep") at the gate, never the interface. This machine gives ordinary
+// flock members ONE action, `'graze peacefully'` - a harmless self-loop -
+// and that is the whole sheep contract. "a new sheep joins the flock (it
+// is the wolf)" carries the identical nominal type, since it was let in
+// as a sheep, but its actual action set is `'devour a lamb at midnight'`,
+// an action no grazing animal has ever had. jssm's `actions()` reports
+// these two "sheep" states with completely disjoint action sets: same
+// label class, incompatible interface, and nothing in the FSL grammar
+// catches the mismatch at admission time. The type check only ever
+// happens once, at the gate.
+//
+// The showcase: comparing `actions()` across the two nominally-identical
+// "sheep" states surfaces the exploit directly - one has `'graze
+// peacefully'` and not the wolf's action, the other has the wolf's action
+// and not `'graze peacefully'`. The mislabeling is not asserted in prose;
+// it is a diffable fact about the graph.
+
+machine_name    : "The Wolf in Sheep's Clothing";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the flock, all present and accounted for"
+  'graze peacefully' -> "the flock, all present and accounted for";
+
+"the flock, all present and accounted for"
+  'a new sheep wanders in, wearing wool' -> "a new sheep joins the flock (it is the wolf)";
+
+"a new sheep joins the flock (it is the wolf)"
+  'devour a lamb at midnight' -> "one sheep missing at dawn";
+
+"one sheep missing at dawn"
+  'the shepherd doesn\'t buy it and counts again' -> "the disguise slips: it was the wolf all along";

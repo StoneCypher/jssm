@@ -1,0 +1,33 @@
+// "Don't count your chickens before they hatch" - English proverb,
+// traceable to the Aesopic fable tradition and popularized in English via
+// Thomas Howell's 1570 collection.
+//
+// This file is a deliberate exception to the field guide's own vacuous-pass
+// warning: normally a walk that never leaves the start state is a bug in
+// the demo. Here it is the entire punchline. 'count them as chickens
+// already' is a real, legal, repeatable action - and it is a self-loop.
+// Calling it once, or fifty times, leaves you exactly where you started, in
+// "eggs in the basket, unhatched," because asserting a state and the
+// transition function actually reaching that state are different things,
+// and only one of them is wired to an edge. The real hatch is a separate,
+// forced (~>) two-step process with no action label anywhere on it - no
+// amount of counting ever hands you a shortcut into it. Verification below
+// checks both that the counting loop genuinely goes nowhere (the
+// exception, taken deliberately) and that the forced route genuinely gets
+// there (the rule, unaffected by any of it).
+
+machine_name    : "Counting Chickens";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the assertion is real, legal, and repeatable - and it changes nothing.
+"eggs in the basket, unhatched" 'count them as chickens already' -> "eggs in the basket, unhatched";
+
+// the real process is forced, unlabeled, and utterly indifferent to how
+// many times the count above was performed.
+"eggs in the basket, unhatched" ~> "eggs finish incubating";
+"eggs finish incubating"        ~> "chickens, actually hatched now";

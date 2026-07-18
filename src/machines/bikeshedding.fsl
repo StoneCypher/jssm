@@ -1,0 +1,44 @@
+// "Bikeshedding" - programming folklore, from C. Northcote Parkinson's Law
+// of Triviality (1957): a committee will spend disproportionate time on a
+// trivial, easy-to-picture decision (what color to paint the bike shed)
+// and comparatively none at all on a substantial one (the design of the
+// nuclear reactor it sits beside), because everyone has an opinion about
+// paint and almost nobody feels qualified to argue about reactor physics.
+//
+// The topology joke is a raw edge count, directly countable from
+// `fslExplain`'s transition list: the substantial agenda item gets exactly
+// one edge in and one edge out - raised, approved without comment, done -
+// while the trivial item is a single state that accumulates SEVEN chosen
+// self-loop actions, one per flavor of bikeshedding (a color proposal, a
+// near-identical counter-proposal, a procedural stall, a request for more
+// data, a re-litigation of an already-settled point...), before any exit
+// edge is even reachable. The committee's attention is not described as
+// disproportionate anywhere in this file - it IS disproportionate, in the
+// literal, checkable ratio of edges bound at one state versus the other.
+
+machine_name    : "Bikeshedding";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"meeting called to order" 'raise agenda item: reactor core design' -> "reactor core design, presented";
+
+// the substantial item: one edge in, one edge out, zero debate.
+"reactor core design, presented" 'approve without further comment' -> "reactor approved, no discussion";
+
+"reactor approved, no discussion" 'raise agenda item: shed paint color' -> "shed paint color, up for debate";
+
+// the trivial item: seven chosen self-loops, each a different flavor of
+// bikeshedding, before any exit edge is even reachable.
+"shed paint color, up for debate" 'propose green'                              -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'propose a slightly different shade of green' -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'object to green, counter-propose blue'       -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'demand a physical color swatch first'        -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'move it to a subcommittee'                   -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'reopen the vote from last week'              -> "shed paint color, up for debate";
+"shed paint color, up for debate" 'ask if beige was ever seriously considered'  -> "shed paint color, up for debate";
+
+"shed paint color, up for debate" 'call it beige and adjourn' -> "meeting adjourned, beige by default";

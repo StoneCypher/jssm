@@ -1,0 +1,32 @@
+// "The Grand Old Duke of York" - English nursery rhyme, possibly referring
+// to Richard, Duke of York (d. 1460) or Frederick, Duke of York (d. 1827);
+// the attribution is disputed and the marching is the point either way.
+//
+// The rhyme's closing couplet is usually read as a joke about indecision,
+// but it is actually a state-identity claim: when the men were only halfway
+// up, they were "neither up nor down" - meaning halfway is not a blend or
+// an average of the two named endpoints, it is its own distinct, reachable
+// state, and this graph gives it exactly one name and exactly one node.
+// The showcase is that BOTH directions of march - up from the bottom, down
+// from the top - discover the identical halfway state rather than two
+// separately-labeled "still ascending" / "still descending" states. There
+// is no terminal here on purpose: the men march up, march down, and march
+// up again, the same three-state hill, forever, discovering the same
+// middle every time.
+
+machine_name    : "The Grand Old Duke of York";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// up from the bottom passes through the middle.
+"at the bottom of the hill" 'march up' -> "halfway up the hill, neither up nor down";
+"halfway up the hill, neither up nor down" 'march up' -> "at the top of the hill";
+
+// down from the top passes through the SAME middle. one node, discovered
+// from both directions.
+"at the top of the hill" 'march down' -> "halfway up the hill, neither up nor down";
+"halfway up the hill, neither up nor down" 'march down' -> "at the bottom of the hill";

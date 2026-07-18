@@ -1,0 +1,42 @@
+// "Knights and Knaves" - classic logic puzzle (attributed to Raymond Smullyan)
+//
+// The puzzle only works because you don't get to know which kind of
+// islander you're talking to before committing to an interpretation - so
+// this machine forks BEFORE the claim is even spoken. "assume A is a
+// knight" and "assume A is a knave" are two live hypotheses, both real FSL
+// states, and A's actual claim - `'A says: "we are both knaves"'` - is
+// bound as the SAME action label from both of them, to two DIFFERENT
+// targets. That is the reliability bit riding on the edge, not the state:
+// identical utterance, different consequence, depending on which world you
+// forked into.
+//
+// One fork is a dead end: a truthful knight cannot truthfully call himself
+// a knave, so that branch terminates in flat contradiction with no way
+// onward. The other survives the arithmetic: a lying knave's false claim
+// means NOT both are knaves, and since A is (by this hypothesis) the
+// knave, B is pinned as the knight - a forced one-action inference to the
+// only consistent terminal. jssm never adjudicates which fork was "real";
+// the graph just makes one of them a cul-de-sac and the other a corridor.
+
+machine_name    : "Knights and Knaves";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"A and B, reliability unknown"
+  'assume A is a knight (truthful)' -> "world where A is a knight";
+
+"A and B, reliability unknown"
+  'assume A is a knave (lying)' -> "world where A is a knave";
+
+"world where A is a knight"
+  'A says: "we are both knaves"' -> "contradiction: a truth-teller just called himself a liar";
+
+"world where A is a knave"
+  'A says: "we are both knaves"' -> "the claim is false: so NOT both are knaves";
+
+"the claim is false: so NOT both are knaves"
+  'therefore B must be the knight' -> "solved: A is a knave, B is a knight";

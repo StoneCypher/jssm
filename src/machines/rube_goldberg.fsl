@@ -1,0 +1,40 @@
+// "Rube Goldberg Machine" - after the cartoonist, whose entire body of
+// work is a joke about ratio: maximum apparatus, minimum payload
+//
+// One chosen action starts this graph - a single nudge - and every one
+// of the fifteen edges after it is forced, unlabeled, and utterly
+// uninterested in your opinion. That is the bit, drawn as literally as
+// FSL allows: the machine does not offer a single further decision point
+// between "marble at rest" and "toast, lightly browned," because a real
+// Goldberg contraption doesn't either - the whole point is that once you
+// tip the first domino, every subsequent step is physics, not choice.
+// fslExplain's own tally is the punchline: fifteen forced transitions,
+// one chosen action, one slice of toast. The gag is the exchange rate.
+
+machine_name     : "Rube Goldberg Machine";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the one decision in the entire apparatus.
+"marble at rest on the ramp" 'give it a nudge' -> "marble rolling down the ramp";
+
+// fifteen forced steps, zero further decisions, one slice of toast.
+"marble rolling down the ramp"          ~> "marble strikes the first domino";
+"marble strikes the first domino"       ~> "domino chain falls";
+"domino chain falls"                    ~> "chain topples the tiny bucket";
+"chain topples the tiny bucket"         ~> "bucket douses the candle";
+"bucket douses the candle"              ~> "candle flame gutters out";
+"candle flame gutters out"              ~> "string burns through";
+"string burns through"                  ~> "weight drops";
+"weight drops"                          ~> "weight yanks the lever";
+"weight yanks the lever"                ~> "lever releases the bowling ball";
+"lever releases the bowling ball"       ~> "bowling ball rolls down the second ramp";
+"bowling ball rolls down the second ramp" ~> "bowling ball hits the see-saw";
+"bowling ball hits the see-saw"         ~> "see-saw launches the tiny hammer";
+"see-saw launches the tiny hammer"      ~> "hammer swings down";
+"hammer swings down"                    ~> "hammer taps the toaster lever";
+"hammer taps the toaster lever"         ~> "toast pops up, lightly browned";

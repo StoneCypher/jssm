@@ -1,0 +1,35 @@
+// "Dependency Hell" - programming folklore, the version-resolution
+// nightmare familiar to anyone who has run a package manager: two
+// libraries your project needs each pin an incompatible version range on
+// a THIRD, shared dependency, and no single version can satisfy both at
+// once.
+//
+// The topology is a literal diamond: one source ("top-level install
+// requested") fans out to two independent branches, each of which locally
+// "succeeds" - library A gets its shared-lib pinned to a version that
+// satisfies A alone, library B gets its own pin that satisfies B alone -
+// and both branches then converge, forced, on the same bottom node. The
+// convergence is forced (`~>`), not chosen, because nobody decides that
+// the constraints are unsatisfiable; checking A's pin against B's
+// requirement (or vice versa) simply reveals it, the moment both halves
+// of the diamond are considered together rather than one at a time. Two
+// locally-valid solutions, wired by the diamond's shape into one globally
+// unsatisfiable terminal - which is the entire folklore in one graph.
+
+machine_name    : "Dependency Hell";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the diamond's two shoulders: each pin is a real, chosen resolution step,
+// and each one is entirely locally correct on its own terms.
+"top-level install requested" 'pull in library A, needs shared-lib at least 2.0' -> "library A satisfied, shared-lib pinned to 2.3";
+"top-level install requested" 'pull in library B, needs shared-lib under 1.0'   -> "library B satisfied, shared-lib pinned to 0.9";
+
+// the diamond's bottom: nobody chooses this. checking both pins together
+// is what a real solver does automatically, and it is what finds this.
+"library A satisfied, shared-lib pinned to 2.3" ~> "solver: no version satisfies both A and B";
+"library B satisfied, shared-lib pinned to 0.9" ~> "solver: no version satisfies both A and B";

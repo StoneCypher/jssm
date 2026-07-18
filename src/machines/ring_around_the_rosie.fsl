@@ -1,0 +1,42 @@
+// "Ring Around the Rosie" - traditional English nursery rhyme (earliest
+// printed texts date to the 1880s; the plague-origin story is popular
+// folklore, not documented etymology)
+//
+// Three children join the ring independently, and each keeps circling for
+// as long as it likes - its own self-loop, its own pace, no shared clock
+// with the other two. The rhyme's actual joke is the ending: no matter
+// which of the three states a walk is sitting in, there is exactly one
+// forced (`~>`) edge out of it, and all three of those edges - three
+// different sources, zero coordination between them - target the SAME
+// single state. Three independent walks, three different histories,
+// one identical terminal the instant the fall fires: a group terminal
+// built from parallel forced convergence rather than from any single
+// shared trigger state.
+
+machine_name    : "Ring Around the Rosie";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the ring, hands joined, about to start circling"
+  'bring in the first child'  -> "child one, circling, hand held";
+"the ring, hands joined, about to start circling"
+  'bring in the second child' -> "child two, circling, hand held";
+"the ring, hands joined, about to start circling"
+  'bring in the third child'  -> "child three, circling, hand held";
+
+// each child circles at its own pace, independently, for as long as it likes.
+"child one, circling, hand held"
+  'circle another turn' -> "child one, circling, hand held";
+"child two, circling, hand held"
+  'circle another turn' -> "child two, circling, hand held";
+"child three, circling, hand held"
+  'circle another turn' -> "child three, circling, hand held";
+
+// three independent sources, zero coordination, one identical forced target.
+"child one, circling, hand held"   ~> "everyone falls down together";
+"child two, circling, hand held"   ~> "everyone falls down together";
+"child three, circling, hand held" ~> "everyone falls down together";

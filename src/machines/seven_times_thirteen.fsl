@@ -1,0 +1,50 @@
+// "Seven Times Thirteen" - Abbott & Costello's chalkboard arithmetic routine
+// (the "7 x 13 = 28" bit, built from repeated column addition rather than
+// multiplication, most familiar from "In the Navy," 1941)
+//
+// The routine's trick is never the addition itself - every step of adding
+// another seven is a perfectly ordinary, perfectly legal chosen edge. The
+// trick is the CARRY: twice in this file, a digit that should propagate
+// into the next column instead vanishes down a forced (`~>`) edge with no
+// action name at all, because by the routine's own logic there is no
+// longer a choice about whether the carry survives. Nobody decides to lose
+// the one; the graph simply doesn't offer keeping it as an option once
+// you're standing at that state. The correct sum, 91, is preserved in this
+// file as a real, named, fully self-consistent island (`allow_islands:
+// true`) - the arithmetic that would get you there is perfectly sound, it
+// is simply never the arithmetic this particular chalk performs.
+//
+// Showcase: `fslExplain` reports exactly two forced transitions - the two
+// broken carries - sandwiched between four chosen ones, terminating at
+// "28," with "91" sitting off to the side, correctly computed, never once
+// on the path.
+
+machine_name    : "Seven Times Thirteen";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"chalk raised, first seven written down"
+  'add the second seven: 7+7=14, write 4 carry 1' -> "14 written, 1 carried";
+
+// the first broken carry: the 1 does not survive to the next column. no
+// verb covers this because, by this point, nobody is choosing it.
+"14 written, 1 carried" ~> "the carried 1 is gone, write 14 as 12 instead";
+
+"the carried 1 is gone, write 14 as 12 instead"
+  'add the third seven, more or less' -> "19, or thereabouts, carry the 2 to be safe";
+
+// the second broken carry: the 2 goes the same way the 1 did.
+"19, or thereabouts, carry the 2 to be safe" ~> "the carried 2 is also gone, somehow";
+
+"the carried 2 is also gone, somehow"
+  'keep adding sevens until the chalk runs out' -> "28, and that's final, don't ask again";
+
+// the arithmetic nobody at the board performs: real, correct, and an
+// island. every one of these thirteen sevens adds up fine - just not here.
+"91, the actual sum of thirteen sevens"
+  'the carry nobody at the board bothers with' -> "91, the actual sum of thirteen sevens";

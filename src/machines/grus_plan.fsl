@@ -1,0 +1,29 @@
+// "Gru's Plan" - four-panel meme from Despicable Me, storyboard cards Gru
+// flips through: step one, step two, step three, then a fourth card that is
+// step three again, and Gru's expression breaks.
+//
+// The topology is a straight four-state chain, one panel per state, two
+// chosen presentation edges - except the last one isn't chosen. Saying step
+// three out loud is what exposes it, and once exposed there is no walking
+// it back, so that final panel is reached by a forced (`~>`) edge: nothing
+// in the graph offers an alternative action once the third card is read.
+// The file showcases forced transitions as an inevitability device: the
+// realization is not something Gru does, it is something that happens to
+// him the moment the third card is spoken aloud.
+
+machine_name     : "Gru's Plan";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["panel one, point at the card, step one"];
+
+"panel one, point at the card, step one" 'pitch it, confident' -> "panel two, point at the card, step two";
+"panel two, point at the card, step two" 'pitch it, still confident' -> "panel three, point at the card, step three";
+
+// no action here - reading the card back is not a choice, it is what
+// speaking step three out loud always, immediately, does to him.
+"panel three, point at the card, step three" ~> "panel four, same card flipped back, same look now horrified";

@@ -1,0 +1,35 @@
+// "Prometheus's Daily Grind" - Hesiod / Aeschylus, the eagle-and-the-liver
+// punishment, restaged as a scheduled job
+//
+// Zeus's sentence is, structurally, a cron job: the same four forced
+// transitions, no action label on any of them, firing on a fixed
+// schedule forever - eagle arrives, liver is devoured, night falls and
+// the wound knits, liver regrows, eagle arrives again. Nothing in
+// Prometheus's own action set participates anywhere in that cycle; per
+// this project's house rule on forced edges, no fslSimulate walk can
+// ever traverse a single link of it, in either direction, under any
+// name. He does get exactly one real, chosen, repeatable action -
+// begging Zeus for mercy - and it is a self-loop for a reason: it is
+// fully stable under the action system (beg once, beg a thousand times,
+// the graph cannot tell the difference) and it never once touches the
+// scheduled cycle running in parallel. The whole joke is that his agency
+// and his punishment occupy the same machine and never intersect.
+
+machine_name     : "Prometheus's Daily Grind";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the one thing prometheus can actually do - and it does nothing at all
+// to the schedule running below.
+"liver, freshly regrown" 'beg zeus for mercy' -> "liver, freshly regrown";
+
+// the gods' cron job: four forced links, no action anywhere, closing
+// into an exact cycle back to the top.
+"liver, freshly regrown"      ~> "eagle arrives, on schedule";
+"eagle arrives, on schedule"  ~> "liver devoured";
+"liver devoured"              ~> "night falls, the wound knits";
+"night falls, the wound knits" ~> "liver, freshly regrown";

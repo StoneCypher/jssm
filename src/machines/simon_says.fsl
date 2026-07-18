@@ -1,0 +1,41 @@
+// "Simon Says" - playground game, auth-token protocol
+//
+// Every legal command in this game is gated on a prefix: say "Simon says"
+// first and the instruction is authenticated; skip it and the instruction
+// was never a legal message at all - only ever a trap. The topology encodes
+// that as two edges leaving every "listening" state: one chosen action
+// carrying the auth-token prefix, routing forward to the next round, and one
+// chosen action WITHOUT the prefix that a player obeys anyway. All three
+// unauthenticated edges - one per round - funnel into the exact same sink
+// state regardless of which round the mistake happens in: the auth check
+// isn't round-specific, it's structural, and failing it anywhere collapses
+// to the identical terminal.
+//
+// The showcase: fslSimulate walks the fully-authenticated path to victory,
+// then separately walks two clean rounds and one un-prefixed slip on round
+// three, landing on "out" from a different state than a slip on round one
+// would - same terminal, different entry edge, proving the trap is
+// round-independent.
+
+machine_name    : "Simon Says";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"round one, listening"
+  'simon says touch your nose' -> "round two, listening";
+"round one, listening"
+  'touch your nose without the simon says prefix, obeyed anyway' -> "out, obeyed an unauthenticated command";
+
+"round two, listening"
+  'simon says hop on one foot' -> "round three, listening";
+"round two, listening"
+  'hop on one foot without the simon says prefix, obeyed anyway' -> "out, obeyed an unauthenticated command";
+
+"round three, listening"
+  'simon says clap twice' -> "last one standing, you win";
+"round three, listening"
+  'clap twice without the simon says prefix, obeyed anyway' -> "out, obeyed an unauthenticated command";

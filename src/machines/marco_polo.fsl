@@ -1,0 +1,45 @@
+// "Marco Polo" - pool game, blind handshake with positional leakage
+//
+// The seeker plays blind, calling "Marco" and listening for "Polo" to
+// triangulate the hiders. The rule everyone forgets is that the reply is
+// COMPULSORY - a tagged player cannot choose to stay silent - and that rule
+// is what actually breaks the blindness. This machine models the reply as
+// a FORCED edge (`~>`), not a chosen one: legalNext at every "Marco" state
+// is empty, because there never was a legal choice to answer or not, only
+// the forced fact of the reply. The seeker's half - closing distance once
+// the position leaks - IS a chosen action, so the asymmetry is exact: the
+// hiders have zero agency over whether they leak; the seeker has full
+// agency over what to do with the leak.
+//
+// The showcase: fslSimulate at the very start returns an empty legalNext
+// and rejects any attempted chosen action, proving the "Polo" reply can
+// never be walked as a choice - only raw jssm's force_transition can move
+// the hiders through it, exactly the way gotcha #6 predicts. A full raw-jssm
+// walk (forced reply, chosen close-in, repeated three times) reaches the
+// tag.
+
+machine_name    : "Marco Polo";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"round begins, seeker calls out marco"
+  ~> "hiders forced to answer polo, position leaked";
+
+"hiders forced to answer polo, position leaked"
+  'seeker moves toward the sound' -> "seeker calls marco again, distance closing";
+
+"seeker calls marco again, distance closing"
+  ~> "hiders forced to answer polo again, position re-leaked";
+
+"hiders forced to answer polo again, position re-leaked"
+  'seeker moves toward the sound' -> "seeker calls marco a third time, nearly there";
+
+"seeker calls marco a third time, nearly there"
+  ~> "hiders forced to answer polo one last time, cornered";
+
+"hiders forced to answer polo one last time, cornered"
+  'seeker lunges toward the voice' -> "tag, seeker wins, blind in name only";

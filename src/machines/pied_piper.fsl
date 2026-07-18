@@ -1,0 +1,42 @@
+// "The Pied Piper of Hamelin" - German legend (Brothers Grimm, Robert
+// Browning)
+//
+// The topology is a service contract with one enforcement gap: the piper
+// delivers first (rats lured to the river) on a real, chosen action, and
+// only afterward does the town choose whether to honor the fee. Paying
+// closes the contract cleanly. Refusing is also a real, chosen action -
+// haggling down a debt already earned - but what happens next is not
+// something the town chooses at all: it is a forced edge, the piper's
+// response to a broken protocol, not a further negotiation. In keeping
+// with the gentler tellings, what that edge leads to is kept
+// offscreen-whimsical on purpose: the children simply follow the music
+// out of town, into the hills, which this graph does not narrate any
+// further than that.
+//
+// Showcase: `fslExplain` shows "payment refused, contract broken" has
+// exactly one outgoing edge and it is forced - the town has no action
+// bound there at all, matching the field guide's forced-edge rule; the
+// escalation is demonstrated via raw jssm `force_transition` after
+// `fslSimulate` confirms `legalNext` is empty at that state.
+
+machine_name    : "The Pied Piper of Hamelin";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"town infested with rats, council meets"
+  'hire the piper, promise the agreed fee' -> "piper contracted, terms agreed";
+
+"piper contracted, terms agreed"
+  'play the pipe, lead the rats down to the river' -> "rats gone, town clean";
+
+"rats gone, town clean"
+  'pay the piper the agreed fee' -> "piper paid in full, contract closed";
+"rats gone, town clean"
+  'refuse to pay, haggle the price down instead' -> "payment refused, contract broken";
+
+// no negotiating action exists here; the town's choice already happened.
+"payment refused, contract broken" ~> "a different tune drifts through town, children humming along, out past the gates and into the hills";

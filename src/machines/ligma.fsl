@@ -1,0 +1,42 @@
+// "Ligma" - playground exploit, same family as updog.fsl, different payload
+//
+// Structurally identical con to updog.fsl - bait, a fork between the eager
+// mark and the patient one, a restated bait, a merge into the same trigger
+// state, then the canned reply. Same exploit family, same shape of injection
+// (a downstream handler that authenticates on token shape, blind to which
+// branch produced it). What's actually different is the payload, and this
+// file keeps it that way ON PURPOSE: the punchline text itself is never
+// written into any state name or action label. States and actions describe
+// the SHAPE of the con - bait, ask-back, delivery - not its content, so the
+// joke is fully family-safe while remaining structurally honest about what
+// kind of exploit it is.
+//
+// The showcase: fslExplain shows this machine has the identical
+// shape-signature as updog.fsl (five states, one two-source merge, one
+// terminal) - same topology, different vocabulary, payload redacted at the
+// source.
+
+machine_name    : "Ligma";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"conversation opens"
+  'the mark opens with, I have been diagnosed with ligma' -> "bait set, diagnosis named";
+
+// TWO ROUTES IN, same shape as updog.fsl's fork.
+"bait set, diagnosis named"
+  'mark bites immediately, asks ligma what' -> "trigger fired, payload window open";
+"bait set, diagnosis named"
+  'mark stalls, asks what is ligma' -> "bait restated, patience tested";
+
+"bait restated, patience tested"
+  'attacker restates, yeah ligma, so ligma what' -> "trigger fired, payload window open";
+
+// the payload itself is deliberately never spelled out - this is the whole
+// point of "keep it fully family-safe": the con is a shape, not a script.
+"trigger fired, payload window open"
+  'attacker delivers the payload, redacted here, mercifully off-screen' -> "gotcha, mark regrets asking";

@@ -1,0 +1,44 @@
+// "The Little Red Hen" - Anglo-American folktale
+//
+// Every stage of the work offers the same shape of edge: the hen asks who
+// will help, nobody answers, and she does the stage herself - four
+// identical-looking hops, planting through baking, each one a real,
+// chosen action rather than anything forced on her. The gate is at the
+// very end: "sit down and eat it" is an action that exists at the bread
+// state precisely because the hen (and her chicks) took every edge that
+// led there. The animals who never took any of those edges are not
+// rejected by a permission check when they show up hungry - their action
+// is a self-loop that asks again and goes nowhere, the same "not part of
+// the action set for you" shape as boy_who_cried_wolf.fsl's deprecated
+// alarm, except here the exclusion was earned at the start, not lost at
+// the end.
+//
+// Showcase: `fslExplain` on "bread baked, smell fills the yard" shows two
+// bound actions - one that reaches the terminal, one that self-loops
+// forever - and neither the state graph nor `fslSimulate` needs a
+// separate permission model to keep freeloaders circling in place.
+
+machine_name    : "The Little Red Hen";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"seeds in hand, hen asks who will help plant the wheat"
+  'do the planting herself, nobody offered' -> "wheat planted, hen did it alone";
+
+"wheat planted, hen did it alone"
+  'do the harvesting herself, nobody offered' -> "wheat harvested, hen did it alone";
+
+"wheat harvested, hen did it alone"
+  'do the milling herself, nobody offered' -> "flour milled, hen did it alone";
+
+"flour milled, hen did it alone"
+  'do the baking herself, nobody offered' -> "bread baked, smell fills the yard";
+
+"bread baked, smell fills the yard"
+  'sit down and eat it, hen and chicks earned it' -> "bread eaten, by the ones who did the work";
+"bread baked, smell fills the yard"
+  'ask for a slice anyway, same as every stage before' -> "bread baked, smell fills the yard";

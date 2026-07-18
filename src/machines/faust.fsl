@@ -1,0 +1,44 @@
+// "Faust" - Johann Wolfgang von Goethe (Part One, 1808)
+//
+// The bargain has exactly one terminal clause: the instant Faust is
+// satisfied enough to want a single moment to last forever, the contract
+// self-executes. Every pleasure on offer before that point is a real,
+// chosen, repeatable action that changes nothing about the state - seek
+// knowledge, chase a love affair, take one more wonder from an eager
+// counterpart who keeps offering deeper pacts. None of it binds the
+// clause. Only one specific phrase does, and it sits in legalNext from
+// the very first state onward, unused, the whole time.
+//
+// The counterparty earns "eager" structurally: the instant the clause
+// fires, collection is forced with no intervening state at all - contrast
+// the pact states, which allow indefinite stalling, with the clause
+// state, which offers no self-loop, no delay, nothing to hold onto.
+// Showcase: a long walk of pleasures that never trips the clause,
+// followed by the one phrase that does, followed immediately by forced,
+// uncontested collection.
+
+machine_name     : "Faust";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"the pact signed, first wonders granted"
+  'seek forbidden knowledge' -> "the pact signed, first wonders granted";
+"the pact signed, first wonders granted"
+  'accept a deeper pleasure, the counterpart insists on more' -> "deeper into the pact, the counterpart still eager for more";
+"the pact signed, first wonders granted"
+  'say to the moment, stay, thou art so fair' -> "the terminal clause invoked, the contract triggers";
+
+"deeper into the pact, the counterpart still eager for more"
+  'chase a fleeting love affair' -> "deeper into the pact, the counterpart still eager for more";
+"deeper into the pact, the counterpart still eager for more"
+  'accept a deeper pleasure, the counterpart insists on more' -> "deeper into the pact, the counterpart still eager for more";
+"deeper into the pact, the counterpart still eager for more"
+  'say to the moment, stay, thou art so fair' -> "the terminal clause invoked, the contract triggers";
+
+// no self-loop, no delay: the counterpart does not wait around.
+"the terminal clause invoked, the contract triggers"
+  ~> "the counterpart collects, eager and immediate, no grace period offered";

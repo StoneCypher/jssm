@@ -1,0 +1,36 @@
+// "Sword in the Stone" - Arthurian legend
+//
+// The sword only yields to the rightful king, and jssm has no runtime
+// notion of "who is asking" - identity has to be rendered as topology
+// instead. So the gate is not a guard clause bolted onto one action; it
+// is two DIFFERENT actions bound at the very same state. The titled
+// claimants attempt is real and legal and goes exactly nowhere, forced
+// straight back to the unclaimed stone. The unknighted boys attempt,
+// reaching for a spare sword for his foster-brother with no ambition
+// attached at all, is the only edge in the whole graph that actually
+// leaves the stone.
+//
+// The showcase is that "gated on identity" and "gated on which edge is
+// wired" are the same sentence in FSL: nothing about the boy is checked
+// at runtime, because nothing needs to be checked - the graph only ever
+// offered him the one action that works, and only ever offered the
+// claimants the one that loops.
+
+machine_name     : "Sword in the Stone";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// every titled claimant gets a real, legal try - and it goes nowhere.
+"courtyard, sword seated in the stone" 'a titled claimant grips the hilt and heaves' -> "grip taken, blade does not give";
+"grip taken, blade does not give" ~> "courtyard, sword seated in the stone";
+
+// no claim asserted, no ambition declared - and it is the only action
+// anywhere in this file that actually advances the graph.
+"courtyard, sword seated in the stone" 'an unknighted boy grips it, only to borrow a blade for his foster-brother' -> "sword drawn free, no claim intended";
+
+"sword drawn free, no claim intended" 'the barons demand proof, in front of everyone' -> "sword drawn a second time, doubt exhausted";
+"sword drawn a second time, doubt exhausted" 'crowned, whether he asked for it or not' -> "king, undisputed";

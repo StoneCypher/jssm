@@ -1,0 +1,52 @@
+// "Red Light, Green Light" - playground game, compliance interrupt
+//
+// Green light is unearned running time, and the flip to red is not
+// something a runner ever chooses to encounter - it is imposed on them from
+// outside, mid-stride, which is exactly what a FORCED edge (`~>`) models:
+// every "green light" state's only outbound edge is forced, so legalNext
+// there is empty - there is nothing to choose while green, only motion,
+// interrupted on nobody's schedule but the caller's. Once interrupted, the
+// runner finally gets a real choice: comply (chosen, safe, advances) or
+// keep moving (chosen, terminal). All three "caught moving" edges - one per
+// checkpoint - funnel into the identical elimination state: the compliance
+// rule doesn't get stricter or looser by distance, it is the same rule,
+// enforced identically, every time it is tested.
+//
+// The showcase: fslSimulate at the green-light start returns an empty
+// legalNext and rejects an attempted chosen move, proving the interrupt
+// truly cannot be preempted by choice. Raw jssm then force_transitions
+// through all three interrupts, alternating a winning compliance path and,
+// separately, a losing moved-during-red path, to show both terminals are
+// reachable and equally final.
+
+machine_name    : "Red Light, Green Light";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"quarter mark, green light, running"
+  ~> "quarter mark, red light, compliance interrupt";
+
+"quarter mark, red light, compliance interrupt"
+  'freeze on a dime, comply completely' -> "half mark, green light, running";
+"quarter mark, red light, compliance interrupt"
+  'still got momentum, caught moving' -> "eliminated, moved during red";
+
+"half mark, green light, running"
+  ~> "half mark, red light, compliance interrupt";
+
+"half mark, red light, compliance interrupt"
+  'freeze on a dime, comply completely' -> "three-quarter mark, green light, running";
+"half mark, red light, compliance interrupt"
+  'still got momentum, caught moving' -> "eliminated, moved during red";
+
+"three-quarter mark, green light, running"
+  ~> "three-quarter mark, red light, compliance interrupt";
+
+"three-quarter mark, red light, compliance interrupt"
+  'freeze on a dime, comply completely' -> "finish line, you win";
+"three-quarter mark, red light, compliance interrupt"
+  'still got momentum, caught moving' -> "eliminated, moved during red";

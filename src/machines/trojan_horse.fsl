@@ -1,0 +1,30 @@
+// "The Trojan Horse" - Homer, by way of Virgil's Aeneid
+//
+// The Trojans inspect the horse, decide it is safe, and wheel it through
+// their own gate - a real, legal, chosen action, correctly evaluated
+// against everything it was actually checked for. The gate's entire
+// action set is about the exterior: admit it, or refuse it and insist it
+// burn outside the walls. Nothing in that action set was ever about the
+// interior, because the gate does not have an action bound anywhere that
+// inspects a payload - it was never wired to check for one.
+//
+// The showcase is the blind spot rendered as a dead end in the legal
+// graph: once admitted, the entire rest of the sack is forced, edge
+// after edge, with no chosen action anywhere along it - the gatekeepers
+// do not get another decision to make, because the graph never gave them
+// one past the gate.
+
+machine_name     : "The Trojan Horse";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"outside the walls, wooden horse presented as a gift" 'inspect the horse, exterior only, wave it through' -> "horse inside the walls, city celebrating";
+"outside the walls, wooden horse presented as a gift" 'refuse it, insist it burn outside the walls' -> "the horse burned harmlessly, city intact";
+
+"horse inside the walls, city celebrating" ~> "night falls, hidden soldiers emerge";
+"night falls, hidden soldiers emerge" ~> "the gates thrown open from inside";
+"the gates thrown open from inside" ~> "the city sacked, walls breached from within";

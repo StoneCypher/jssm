@@ -1,0 +1,27 @@
+// "The Goose That Laid the Golden Eggs" - Aesop's Fables (Perry Index 87)
+//
+// A farmer, impatient for wealth, cuts the goose open expecting to find
+// every egg at once inside - and destroys the only thing that was ever
+// producing them. The topology joke: the goose's ordinary state is a
+// self-loop, `'wait a day, collect one golden egg'`, that can fire forever,
+// an unbounded, renewable generator sitting right there in the graph. The
+// greedy action does not merely trade a slower payout for a faster one - it
+// is a DIFFERENT edge out of the same state, one that leaves the generator
+// state entirely, landing on a terminal with no outbound edges at all. Once
+// there, the harvesting action is not just unwise to take again, it does
+// not exist to take: `m.actions()` on the terminal returns nothing. The
+// generator was not depleted. It was deleted, for exactly one payout.
+
+machine_name    : "The Goose That Laid the Golden Eggs";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the generator: renewable, patient, and available for as long as it is left alone.
+"farm, goose lays golden eggs daily" 'wait a day, collect one golden egg' -> "farm, goose lays golden eggs daily";
+
+// the greedy edge: leaves the generator state for good, in exchange for one lump sum.
+"farm, goose lays golden eggs daily" 'cut the goose open for all the eggs at once' -> "goose dead, one jackpot collected, no eggs ever again";
