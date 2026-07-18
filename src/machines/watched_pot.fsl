@@ -1,0 +1,37 @@
+// "A watched pot never boils" - English proverb, popularized in this exact
+// wording by Benjamin Franklin's Poor Richard's Almanack (1785), though the
+// sentiment is older.
+//
+// The honest mechanical reading is not "boiling subjectively takes longer
+// when you stare at it" - it is that observation removes the transition
+// from the graph entirely, the same shape as heisenbug.fsl's programming-
+// folklore cousin. From "pot watched intently," no edge to boiling exists
+// AT ALL - not delayed, not throttled, simply absent, so fslSimulate can
+// try 'keep watching' as many times as it likes and legalNext never once
+// offers boiling. The unwatched branch is the mirror image: its only way
+// forward is a forced (~>) edge straight to boiling, with no watching
+// action even defined there to distract from it. The one bridge between
+// the two worlds is a chosen action, 'finally look away' - observation is
+// not merely slow here, it is a structurally different, boil-less region
+// of the same machine.
+
+machine_name    : "A Watched Pot Never Boils";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the fork: watch it, or walk away and let it be.
+"pot on the stove, heat on" 'pull up a chair, keep watching' -> "pot watched intently";
+"pot on the stove, heat on" 'walk away, stop watching'       -> "pot unwatched, heat still on";
+
+// no edge to boiling exists from here. none. that is the whole joke.
+"pot watched intently" 'keep watching, arms crossed' -> "pot watched intently";
+
+// the only bridge out of the watched branch and toward boiling at all.
+"pot watched intently" 'finally look away' -> "pot unwatched, heat still on";
+
+// unwatched, boiling is not a choice - it is just what heat does.
+"pot unwatched, heat still on" ~> "the pot boils";

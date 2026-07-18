@@ -1,0 +1,48 @@
+// "99 Little Bugs in the Code" - programming folklore, a filk verse widely
+// passed around engineering teams as a rebuttal to the old countdown song
+// structure: same call-and-response shape, opposite arithmetic. Where the
+// original counts down to a clean zero, the coder's version counts UP,
+// because every fix that goes out the door tends to bring a few friends
+// back with it.
+//
+// The topology joke is arithmetic, not narrative: each `'apply the fix,
+// watch a few more crawl out'` edge does not decrement, it adds a GROWING
+// increment (+1, +2, +3, ...) to the running bug count, so the state names
+// themselves are the punchline - 99, 100, 102, 105, ... 127 - and the total
+// growth across all seven fixes (1+2+3+4+5+6+7 = 28) lands exactly on the
+// promised 127. Rather than hand-roll one state per integer (100 through
+// 126 inclusive would be dead weight - jssm has no relative/cycle target
+// that could shortcut it; see the field guide), the walk is unrolled by
+// hand for a representative few verses, with a commented ellipsis standing
+// in for the shape repeating, then finished out explicitly. The final
+// count is a real terminal: the count does not wrap, reset, or loop - it
+// simply stops being tracked, which is its own kind of ending.
+
+machine_name    : "99 Little Bugs in the Code";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// verse one: the count everybody starts the joke with.
+"99 known bugs" 'apply the fix, watch a few more crawl out' -> "100 known bugs";
+
+// verse two and three: the increment is already growing, not shrinking.
+"100 known bugs" 'apply the fix, watch a few more crawl out' -> "102 known bugs";
+"102 known bugs" 'apply the fix, watch a few more crawl out' -> "105 known bugs";
+
+// ... same shape continues, verse after verse, the increment climbing by
+// one each time (+4, +5, +6) - elided here on paper, not in the graph;
+// every one of those edges below is still a real, named, walkable state.
+
+"105 known bugs" 'apply the fix, watch a few more crawl out' -> "109 known bugs";
+"109 known bugs" 'apply the fix, watch a few more crawl out' -> "114 known bugs";
+"114 known bugs" 'apply the fix, watch a few more crawl out' -> "120 known bugs";
+
+// verse seven: the last, largest increment (+7) lands the count exactly on
+// 127 - the running total of 1+2+3+...+7 added to the original 99 - and
+// here the song simply stops. no wraparound, no reset to zero, no loop:
+// a real terminal, reached by counting up, not down.
+"120 known bugs" 'apply the fix, watch a few more crawl out' -> "127 known bugs, and everyone stops counting";

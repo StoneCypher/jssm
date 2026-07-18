@@ -268,9 +268,11 @@ describe('dist/wc/widgets.js — bundler-friendly build', () => {
   });
 
   it('is reasonably small with jssm core + lit externalized', () => {
-    // Eight small widgets, no inlined core/lit. Comfortably under 60 KB; the
-    // guard catches an accidental core-or-lit inline (which would be 150KB+).
-    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(60_000);
+    // The widget suite, no inlined core/lit. The guard exists to catch an
+    // accidental core-or-lit inline (which would balloon past 150KB+), not to
+    // police incremental panel growth — the suite is ~80KB after fsl-stochastic
+    // (fsl#1384) joined the bundle. Ceiling matches the fsl-instance guard.
+    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(100_000);
   });
 
 });
@@ -285,10 +287,10 @@ describe('dist/wc/widgets.define.js — registration entry point', () => {
 
   it('registers all eight new canonical tags', () => {
     const built = readFileSync(define_path, 'utf8');
-    for (const tag of ['fsl-toolbar', 'fsl-footer', 'fsl-help', 'fsl-history',
-      'fsl-data-inspector', 'fsl-hook-log', 'fsl-simulation', 'fsl-export']) {
-      expect(built, tag).toContain(tag);
-    }
+    const tags  = ['fsl-toolbar', 'fsl-footer', 'fsl-help', 'fsl-history',
+      'fsl-data-inspector', 'fsl-hook-log', 'fsl-simulation', 'fsl-export'];
+    const missing = tags.filter(tag => !built.includes(tag));
+    expect(missing).toEqual([]);
   });
 
   it('imports the class build rather than re-inlining the eight widgets', () => {

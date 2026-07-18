@@ -1,0 +1,34 @@
+// "Groucho's Club" - Groucho Marx's resignation letter to the Friars Club:
+// "I don't care to belong to any social organization that will accept me
+// as a member."
+//
+// The topology joke is that "wants membership" and "has membership" never
+// hold in the same state - not by policy, but because the acceptance edge
+// itself deletes desire on arrival, and no edge ever restores it once
+// membership is granted. Every reachable state in this file satisfies
+// at most one of the two properties, so the conjunction the club is
+// nominally selling - a member who still wants to be one - is genuinely
+// unreachable, not merely unlikely: an UNSAT membership by construction,
+// demonstrated by chosen edges alone.
+
+machine_name     : "Groucho's Club";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["outside, desperately wants to join the club"];
+
+// desires membership, does not have it.
+"outside, desperately wants to join the club" 'submit an application' -> "application pending, membership still desired";
+
+// the accept edge deletes desire on arrival: has membership, wants nothing to do with it.
+"application pending, membership still desired" 'application accepted' -> "accepted member, instantly repulsed by any club that would have him";
+
+// the reject edge preserves desire, withholds membership: the opposite half of the same gap.
+"application pending, membership still desired" 'application rejected' -> "rejected, desire intact and unrequited forever";
+
+// no edge ever leads back to wanting membership once membership is granted.
+"accepted member, instantly repulsed by any club that would have him" 'resign in protest' -> "resigned, wants nothing more to do with any club";

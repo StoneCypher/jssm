@@ -21,7 +21,7 @@ describe('GraphViz Shapes', () => {
 
   jssm.shapes.map(shape => {
 
-    let mach = undefined;
+    let mach;
 
     test(`Shape "${shape}" parses as a shape`, () =>
       expect( () => { mach = sm`state c: { shape: ${shape}; }; a -> b;`; }).not.toThrow() );

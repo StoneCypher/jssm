@@ -1,0 +1,31 @@
+// "The Fox and the Grapes" - Aesop's Fables (Perry Index 15), the original
+// source of "sour grapes."
+//
+// A fox cannot reach the grapes and decides they were probably sour anyway.
+// The topology joke is that the coping mechanism is not an emotional beat
+// layered on top of the graph - it IS the graph. "the grapes" exist as a
+// real, declared state (registered by the self-loop gotcha, since a bare
+// edgeless state is silently dropped), but no edge anywhere in the fox's
+// reachable component ever targets it. The fox never gets closer to the
+// grapes by even one hop; instead, his only forward action RELABELS the
+// situation, routing him to a self-authored terminal about sourness that
+// has nothing to do with the vine. `allow_islands: true;` is load-bearing
+// here: without it, jssm refuses to compile a state that can never be
+// entered - which is exactly why the fox has to talk his way out instead.
+
+machine_name    : "The Fox and the Grapes";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"fox spots the grapes, high on the vine" 'fox leaps for the grapes' -> "fox leaps, falls short";
+"fox leaps, falls short" 'fox leaps again, same result' -> "fox leaps, falls short";
+"fox leaps, falls short" 'fox declares the grapes sour, walks away' -> "fox convinces himself, grapes were probably sour";
+
+// the grapes themselves: real, declared, self-sufficient - and never once
+// named as a target from anywhere the fox can actually stand.
+"the grapes, unbothered on the vine" 'grapes just hang there, unreached' -> "the grapes, unbothered on the vine";

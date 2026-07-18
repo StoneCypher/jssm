@@ -29,7 +29,7 @@ const config_block_test = (idx: number): boolean => {
 
       try {
         ast = parse(`a -> b; ${kw}: { label: ${cp}; };`);
-      } catch (e) {
+      } catch {
         throw new Error(`Broke on ${idx} "${cp}" for ${kw}`);
       }
 

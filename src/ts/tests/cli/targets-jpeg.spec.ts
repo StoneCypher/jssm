@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { jpegTarget } from '../../cli/subcommands/render/targets/jpeg';
 
 const trafficLight = readFileSync(
@@ -13,12 +13,12 @@ const trafficLight = readFileSync(
 
 describe('jpegTarget', () => {
 
-  const realTextDecoder = (globalThis as any).TextDecoder;
+  const realTextDecoder = TextDecoder;
 
   beforeAll(() => {
     // Provide TextDecoder for jsdom if not present
-    if (typeof (globalThis as any).TextDecoder === 'undefined') {
-      const { TextDecoder: NodeTextDecoder } = require('util');
+    if ((globalThis as any).TextDecoder === undefined) {
+      const { TextDecoder: NodeTextDecoder } = require('node:util');
       (globalThis as any).TextDecoder = NodeTextDecoder;
     }
 
@@ -55,7 +55,7 @@ describe('jpegTarget', () => {
       onerror: (() => void) | null = null;
       decode = async () => {
         // Synchronously resolve (mock only)
-        return Promise.resolve();
+        return;
       };
     };
   });
@@ -68,7 +68,7 @@ describe('jpegTarget', () => {
 
   it('produces JPEG bytes with the SOI marker', async () => {
     const buf = await jpegTarget(trafficLight, { width: 400, quality: 80 });
-    expect(Array.from(buf.subarray(0, 2))).toEqual([0xFF, 0xD8]);
+    expect([...buf.subarray(0, 2)]).toEqual([0xFF, 0xD8]);
   });
 
   it('throws RenderError for invalid FSL', async () => {

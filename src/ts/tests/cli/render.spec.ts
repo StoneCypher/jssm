@@ -1,6 +1,8 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { render } from '../../cli/subcommands/render/render';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { render, wrap_gif_error } from '../../cli/subcommands/render/render';
+import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
+import { decode_gif } from '../helpers/gif_decode';
 
 const trafficLight = readFileSync(
   resolve(__dirname, 'fixtures/machines/traffic-light.fsl'),
@@ -39,7 +41,7 @@ describe('render', () => {
     expect(r.kind).toBe('raster');
     expect(r.target).toBe('png');
     if (r.kind === 'raster') {
-      expect(Array.from(r.buffer.subarray(0, 8))).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+      expect([...r.buffer.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
     }
   });
 
@@ -48,7 +50,9 @@ describe('render', () => {
     // Without this, the WASM fallback runs and rejects with
     // RasterizationUnsupportedError — exercising the throw branch but not
     // the successful `return { ... }` on the line itself.
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- OffscreenCanvas does not exist in Node; a bare identifier read throws ReferenceError
     const realOffscreen = (globalThis as any).OffscreenCanvas;
+    // eslint-disable-next-line unicorn/no-unnecessary-global-this -- Image does not exist in Node; a bare identifier read throws ReferenceError
     const realImage     = (globalThis as any).Image;
     (globalThis as any).Image = class FakeImage {
       src = '';
@@ -71,7 +75,7 @@ describe('render', () => {
       expect(r.kind).toBe('raster');
       expect(r.target).toBe('jpeg');
       if (r.kind === 'raster') {
-        expect(Array.from(r.buffer.subarray(0, 2))).toEqual([0xFF, 0xD8]);
+        expect([...r.buffer.subarray(0, 2)]).toEqual([0xFF, 0xD8]);
       }
     } finally {
       (globalThis as any).OffscreenCanvas = realOffscreen;
@@ -79,14 +83,65 @@ describe('render', () => {
     }
   });
 
+  it('dispatches target=gif to raster result (GIF89a magic bytes)', async () => {
+    const r = await render('A => B => A;', { target: 'gif', scale: 25 });
+    expect(r.kind).toBe('raster');
+    expect(r.target).toBe('gif');
+    if (r.kind === 'raster') {
+      expect(String.fromCharCode(...r.buffer.subarray(0, 6))).toBe('GIF89a');
+    }
+  }, 60_000);
+
+  it('passes --delay and --max-frames through to the gif pipeline', async () => {
+    const result = await render('A -> B; C -> D; E -> F;', { target: 'gif', scale: 25, delay: 25, maxFrames: 2 });
+    expect(result.kind).toBe('raster');
+    if (result.kind === 'raster') {
+      const gif = decode_gif(result.buffer);
+      expect(gif.frames.length).toBe(2);              // maxFrames → max_frames
+      expect(gif.frames[0]!.delay_cs).toBe(25);       // delay → delay_cs
+    }
+  }, 60_000);
+
   it('throws RenderError for invalid FSL', async () => {
     const { RenderError } = await import('../../cli/types');
     await expect(render('not valid fsl !!', { target: 'svg' })).rejects.toBeInstanceOf(RenderError);
   });
 
+  it('throws RenderError (not a bare JssmError) for bad FSL with --target gif', async () => {
+    await expect(render('this is not -> valid ->;', { target: 'gif' }))
+      .rejects.toBeInstanceOf(RenderError);
+  });
+
   it('throws for unknown target', async () => {
     // @ts-expect-error testing runtime guard
     await expect(render(trafficLight, { target: 'webp' })).rejects.toThrow(/unknown target/i);
+  });
+
+});
+
+describe('wrap_gif_error', () => {
+
+  it('propagates a RasterizationUnsupportedError unwrapped (the install-resvg hint must survive)', () => {
+    const original = new RasterizationUnsupportedError('no canvas, no wasm');
+    expect(() => wrap_gif_error(original)).toThrow(RasterizationUnsupportedError);
+    try {
+      wrap_gif_error(original);
+      throw new Error('unreachable');
+    } catch (error) {
+      expect(error).toBe(original);
+    }
+  });
+
+  it('wraps any other error in a RenderError carrying the original message', () => {
+    expect(() => wrap_gif_error(new Error('boom'))).toThrow(RenderError);
+    try {
+      wrap_gif_error(new Error('boom'));
+      throw new Error('unreachable');
+    } catch (error) {
+      expect(error).toBeInstanceOf(RenderError);
+      expect(error).not.toBeInstanceOf(RasterizationUnsupportedError);
+      expect((error as Error).message).toContain('boom');
+    }
   });
 
 });

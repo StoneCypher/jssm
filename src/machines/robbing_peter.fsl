@@ -1,0 +1,36 @@
+// "Robbing Peter to Pay Paul" - English proverb
+//
+// The idiom names a transfer that launders a debt without ever retiring
+// it, and the topology is a strict two-state cycle: the same total
+// shortfall just changes which name it is currently attached to. Neither
+// edge is forced - both are chosen, deliberate reallocations - and
+// neither one is progress, because the cycle has no exit of its own. The
+// actual fix (earning enough to owe nobody) is modeled as a real state
+// with a real self-loop, so it registers in the graph, but it is wired to
+// nothing: no edge from the cycle reaches it, and no edge from it reaches
+// the cycle. `allow_islands` is load-bearing, the same device
+// king_canute.fsl and rubber_duck.fsl use for "the actual solution is a
+// different graph entirely."
+//
+// Showcase: the two-state cycle can be walked arbitrarily long without
+// ever visiting a third state; the solvent state is reachable only by
+// seating a second `from()` reference there directly, never by any
+// action or `force_transition` from inside the cycle.
+
+machine_name    : "Robbing Peter to Pay Paul";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"Peter flush, Paul in debt"
+  'rob Peter to pay Paul' -> "Peter in debt, Paul flush";
+"Peter in debt, Paul flush"
+  'rob Paul to pay Peter' -> "Peter flush, Paul in debt";
+
+// the real fix: reachable by nobody currently inside the robbing cycle.
+"an actual raise, both accounts solvent at last"
+  'stay solvent, no robbing required' -> "an actual raise, both accounts solvent at last";

@@ -533,7 +533,7 @@ const BUNDLED_FONT_BASE64: string = [
   '0wAA/IkAAQF0/jsCbv+DAAsADrQBBwWACwAvGs05OTAxRRUOAgcjNT4CNwJuCjBBJFsPIx4FfREncHMtGCJtdSz//wAz/j4BfgRIBiYBfAAAAAYBR+EA',
 ].join('');
 
-let decoded: Uint8Array | null = null;
+const decoded_cache: { bytes: Uint8Array | null } = { bytes: null };
 
 /**
  * The subset Open Sans Regular font as raw TrueType bytes, ready to hand to
@@ -541,15 +541,13 @@ let decoded: Uint8Array | null = null;
  *
  * Decoded once on first call and cached; the same buffer is returned on every
  * subsequent call (resvg treats it as read-only).
- *
  * @returns the decoded TrueType font bytes
- *
  * @example
  *   new Resvg(svg, { font: { fontBuffers: [bundledFontBytes()] } });
  */
 export function bundledFontBytes(): Uint8Array {
-  if (decoded === null) {
-    decoded = new Uint8Array(Buffer.from(BUNDLED_FONT_BASE64, 'base64'));
+  if (decoded_cache.bytes === null) {
+    decoded_cache.bytes = new Uint8Array(Buffer.from(BUNDLED_FONT_BASE64, 'base64'));
   }
-  return decoded;
+  return decoded_cache.bytes;
 }

@@ -1,0 +1,39 @@
+// "Ulysses and the Sirens" - Homer, the Odyssey
+//
+// Knowing he cannot trust the version of himself who will be listening
+// to the sirens, Ulysses acts early: he has the crew bind him to the
+// mast and orders them, in advance, to ignore every command he gives
+// until they are past. That single early action removes an entire
+// action from every state that follows it - not by checking anything at
+// the time, but because the graph downstream of it was never wired with
+// that action at all. Bound, every remaining edge on the strait is
+// forced; no matter what Ulysses shouts, there is nothing left for it to
+// bind to.
+//
+// The showcase is precommitment as topology: the same starting state
+// also carries the untaken branch, where the tempting action is real,
+// legal, and leads somewhere fatal instead. The two futures fork at one
+// edge, chosen or not chosen in advance, and never touch again.
+
+machine_name     : "Ulysses and the Sirens";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the precommitment: real, chosen, and the last thing he ever gets to
+// choose on this stretch of water.
+"the ship, approaching the sirens, Ulysses unbound" 'have the crew bind me to the mast, and swear to obey nothing further until we are past' -> "bound to the mast, crew ears sealed with wax";
+
+// bound, the rest of the crossing is forced from end to end - no matter
+// what he shouts, none of it is wired to an action anymore.
+"bound to the mast, crew ears sealed with wax" ~> "the sirens song, Ulysses pleading to be freed";
+"the sirens song, Ulysses pleading to be freed" ~> "past the rocks, song fading behind";
+"past the rocks, song fading behind" 'crew unbinds him, safely past' -> "clear water, Ulysses freed, ship intact";
+
+// the future that never happens if he binds himself in advance: still
+// reachable from the same starting state, so the file can show the fork
+// actually costs something instead of merely asserting it.
+"the ship, approaching the sirens, Ulysses unbound" 'give in, order the helm turned toward the singing' -> "ship wrecked on the rocks, song still playing";

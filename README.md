@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 6.0.0-alpha.11 at 6/27/2026, 11:54:48 PM
+* Generated for version 5.163.4 at 7/18/2026, 10:29:31 AM
 
 -->
-# jssm 6.0.0-alpha.11
+# jssm 5.163.4
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -162,24 +162,6 @@ Pipe FSL via stdin:
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
 
-### Configuration
-
-The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
-
-```json
-{
-  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
-  "render": {
-    "defaultTarget": "png",
-    "scale": 4
-  }
-}
-```
-
-CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
-
-See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
-
 ### Plugin architecture
 
 Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. Third-party plugins follow the same contract as first-party `fsl-render`. See `notes/superpowers/specs/2026-05-12-fsl-cli-design.md` for the contract.
@@ -194,6 +176,42 @@ import { render, renderSet } from 'jssm/cli';
 const result = await render(fslText, { target: 'svg' });
 if (result.kind === 'text') console.log(result.content);
 ```
+
+
+
+<br/>
+
+## Static fence rendering (`jssm/fence`)
+
+`jssm/fence` renders FSL code fences to static, editor-parity-highlighted HTML — no browser, no editor, no live machine required — for Markdown pipelines, static site generators, and doc tooling.
+
+```typescript
+import { transform_markdown } from 'jssm/fence';
+
+const html = await transform_markdown(markdown);
+// every fsl/jssm fence becomes rendered, highlighted HTML
+// everything else in the document passes through untouched
+console.log(html);
+```
+
+`render_fence_gif` walks a machine's main path (or every edge, if there is no main path) into a looping animated GIF, one Graphviz layout patched per frame: 70cs per-frame delay, loops forever, and a 64-frame walk cap by default, all overridable via options.
+
+PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI — install it with `npm install @resvg/resvg-wasm`.
+
+
+
+<br/>
+
+## TextMate grammar (`jssm/grammar`)
+
+`jssm` ships the canonical TextMate grammar for FSL as a data file at `dist/grammars/fsl.tmLanguage.json` (scope `source.fsl`), the single source consumed across the editor ecosystem — [shiki](https://shiki.style/) (and the static-site generators built on it), GitHub Linguist, Monaco, Sublime, `bat`, and the [vscode-fsl](https://github.com/StoneCypher/vscode-fsl) extension.
+
+```js
+import grammar from 'jssm/grammar' with { type: 'json' };
+// or read dist/grammars/fsl.tmLanguage.json from node_modules/jssm
+```
+
+The grammar is generated from — and build-verified against — the same `fsl_parser.peg` that drives the parser, so its highlighting never drifts from the language.
 
 
 
@@ -330,7 +348,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  9,153 tests at 100.0% line coverage
+  library.**  10,142 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -343,9 +361,11 @@ That decision shows up everywhere downstream:
 
 - [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) - conceptual intro for newcomers
 - [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
+- [Using jssm in the browser](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Environments_Browser.md) - script tags, CDN, native ES modules, bundlers, and web components
 - [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
 - [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
 - [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) - DSL reference for people already comfortable with state machines
+- [Styling nodes and graphs](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Styling.md) - the built-in named color themes and how to select them from FSL source, code, Markdown fences, the CLI, and web components
 - [Catalog of example machines](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/ExampleMachines.md) - comparison table of worked examples (light switch, traffic light, intersection, vending machine, more)
 - [Generated API reference](https://stonecypher.github.io/jssm/docs/) - full surface, generated from the TypeScript source
 
@@ -463,11 +483,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***9,153 tests***, run 95,976 times.
+***10,142 tests***, run 99,539 times.
 
-- 8,276 specs with 100.0% coverage
-- 877 fuzz tests with 50.6% coverage
-- 13,624 TypeScript lines - 0.7 tests per line, 7.0 generated tests per line
+- 9,239 specs with 100.0% coverage
+- 903 fuzz tests with 56.3% coverage
+- 11,181 TypeScript lines - 0.9 tests per line, 8.9 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

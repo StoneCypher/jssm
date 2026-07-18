@@ -1,0 +1,40 @@
+// "Little Red Riding Hood" - Charles Perrault (1697) / Brothers Grimm
+// (1812), specifically the wolf-in-grandmother's-bed sequence, which is,
+// structurally, an authentication protocol: a claimed identity is accepted
+// at the door with no verification at all, and every challenge Red raises
+// about the impostor's appearance - the ears, the eyes, at last the teeth -
+// gets an answer that is accepted without ever being checked against
+// anything. That is a fail-open auth flow: the protocol has no reject
+// branch anywhere in it.
+//
+// The topology joke is the absence of an edge, not the presence of one: at
+// no state in this graph does a 'flee' or 'call for the woodsman' action
+// exist. Every state offers exactly one legal continuation - one more
+// remark, met with one more reassuring answer - so `legalNext` is always a
+// singleton, all the way to the last challenge, where the "answer" stops
+// being an answer at all and becomes the FORCED attack it was hiding the
+// entire time. The protocol was never rejecting bad input; it never had a
+// code path capable of rejecting anything.
+
+machine_name    : "Little Red Riding Hood";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"cottage door, closed"
+  'a voice claims it is Grandmother, dear - nobody checks' -> "invited in, no ID verified";
+
+"invited in, no ID verified"
+  'remarks: my, what big ears you have' -> "answered: all the better to hear you with";
+
+"answered: all the better to hear you with"
+  'remarks: my, what big eyes you have' -> "answered: all the better to see you with";
+
+"answered: all the better to see you with"
+  'remarks: my, what big teeth you have' -> "answered: all the better to eat you with";
+
+// the "answer" was never one - it was the attack, waiting for the last cue.
+"answered: all the better to eat you with" ~> "eaten";

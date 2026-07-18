@@ -1,0 +1,54 @@
+// "London Bridge Is Falling Down" - English nursery rhyme (Roud 502),
+// origins disputed, sung in rounds since at least the 17th century.
+//
+// The rhyme's real structure is a postmortem loop that never resolves:
+// each verse proposes a fix, and the very next verse reports that fix's
+// own distinct failure mode - the fix is a CHOSEN action, but the failure
+// that follows it is not something anyone decides, it is FORCED, the same
+// grammar murphys_law.fsl uses for competent-looking plans with exactly
+// one unchosen way forward. Four escalating patch revisions all fail this
+// way in turn. The rhyme's actual final move is not a fifth material - it
+// is staffing an on-call engineer to keep watch through the night, and THAT
+// state is the one place in the whole graph with no forced failure edge
+// waiting on the other side of it, only a real, repeatable, chosen
+// self-loop. `fslExplain` reports zero terminal states: the bridge is
+// never structurally fixed, it is just permanently monitored, which is
+// the whole joke about on-call rotations rendered as a state graph.
+
+machine_name    : "London Bridge Is Falling Down";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// revision 1: light, cheap materials. a real choice, followed by a fate
+// nobody voted on.
+"bridge down, incident declared"
+  'apply patch revision 1, light cheap materials' -> "patch 1 holding, span reopened";
+"patch 1 holding, span reopened" ~> "patch 1 failed, bridge down again";
+
+// revision 2: heavier materials. same shape, different failure mode.
+"patch 1 failed, bridge down again"
+  'apply patch revision 2, heavier bound materials' -> "patch 2 holding, span reopened";
+"patch 2 holding, span reopened" ~> "patch 2 failed, bridge down again";
+
+// revision 3: reinforced structure. still forced to fail, on its own terms.
+"patch 2 failed, bridge down again"
+  'apply patch revision 3, reinforced structure' -> "patch 3 holding, span reopened";
+"patch 3 holding, span reopened" ~> "patch 3 failed, bridge down again";
+
+// revision 4: valuable materials - which is exactly why this one goes
+// missing rather than crumbling.
+"patch 3 failed, bridge down again"
+  'apply patch revision 4, valuable but stealable materials' -> "patch 4 holding, span reopened";
+"patch 4 holding, span reopened" ~> "patch 4 failed, bridge down again";
+
+// the actual resolution: not a fifth material, a human, watching, forever.
+// no forced edge exists from here - the only way forward is to keep
+// choosing to watch.
+"patch 4 failed, bridge down again"
+  'escalate: assign an on-call engineer to keep watch through the night' -> "on-call engineer watching, span monitored";
+"on-call engineer watching, span monitored"
+  'stay awake, keep watching' -> "on-call engineer watching, span monitored";

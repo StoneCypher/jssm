@@ -1,0 +1,33 @@
+// "Hold Music" - modern life
+//
+// Three chosen `'wait'` actions carry the caller from the reassurance
+// ("your call is important to us") through thirty seconds of hold music to
+// an estimated-wait announcement - and then a fourth `'wait'` drains all of
+// that straight back into "queue position: 4". Not a new position. Not
+// "queue position: 3". The identical state, spelled the identical way,
+// every single circuit - the importance is reasserted fresh each loop, as
+// if for the first time, while the one number that would actually mean
+// something (your place in line) never once changes. There is exactly one
+// way out that isn't the loop, and it does not require reaching the front.
+//
+// Showcase: `fslSimulate` can walk this loop any number of times - the
+// `path` array grows by four entries per circuit - while `endState` after
+// every completed loop is the exact same string, unmoved no matter how many
+// times importance was asserted or music was played.
+
+machine_name    : "Hold Music";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"queue position: 4"              'wait' -> "your call is important to us";
+"your call is important to us"   'wait' -> "30 seconds of hold music";
+"30 seconds of hold music"       'wait' -> "estimated wait: 4 minutes";
+"estimated wait: 4 minutes"      'wait' -> "queue position: 4";
+
+// the only exit that isn't the loop - and it doesn't require reaching the
+// front of the queue, because nothing in this graph ever gets you there.
+"queue position: 4" 'hang up in despair' -> "dial tone";

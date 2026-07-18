@@ -9,6 +9,7 @@ const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 const plan = require('./benchmark_scaling_plan.cjs');
 const memory = require('./benchmark_scaling_memory.cjs');
+const carrying = require('./benchmark_scaling_carrying.cjs');
 const exponents = require('./benchmark_scaling_exponents.cjs');
 const bundleSize = require('./benchmark_bundle_size.cjs');
 const latency = require('./benchmark_scaling_latency.cjs');
@@ -536,6 +537,10 @@ function memoryPass() {
   const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
   const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   memory.injectMemoryFields(data, footprints, allocs);
+  // spec #5 (carrying cost, generalized): retained-footprint price of merely
+  // DECLARING groups/properties on an otherwise identical plain chain.
+  // Same graceful degradation — no --expose-gc, no rows.
+  carrying.injectCarryingRows(data, carrying.collectCarrying(sm, [10, 200]));
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 

@@ -1,0 +1,38 @@
+// "Orange You Glad" - traditional knock-knock joke (folk form; "banana"
+// variant widely attested since at least mid-20th-century joke books)
+//
+// The joke's entire structure is a loop with a single, deliberately late
+// exit condition. "Banana" can be answered as many times as the teller
+// likes - `"who's there?"` and `"banana who?"` simply hand off to each
+// other, forever, and nothing in the graph forces the loop to end after
+// any particular count. The escape isn't a counter running out; it's a
+// different WORD becoming available at exactly the state where "banana"
+// always was - say "orange" instead of "banana" from `"who's there?"` and
+// the same choice point that always fed the loop instead feeds the
+// punchline. The joke is not "three bananas, then orange" as a rule; it is
+// "orange is always a legal exit from here, and nobody ever needs to take
+// it."
+//
+// Showcase: `fslSimulate` walks the loop an arbitrary number of times
+// (banana, banana, banana...) and `legalNext` at `"who's there?"` never
+// changes - `'orange'` is exactly as available on lap one as on lap five.
+
+machine_name    : "Orange You Glad";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the door" 'knock knock' -> "who's there?";
+
+// the loop: as many bananas as the teller has patience for. every lap
+// through here re-offers the exact same two choices.
+"who's there?"  'banana'            -> "banana who?";
+"banana who?"   'knock knock again' -> "who's there?";
+
+// the exit condition: not a counter, just a different word, always sitting
+// right next to 'banana' at the same choice point.
+"who's there?"  'orange' -> "orange who?";
+"orange who?"   'deliver the line' -> "orange you glad I didn't say banana?";

@@ -1,63 +1,69 @@
 import { circular_buffer } from 'circular_buffer_js';
 
-declare type StateType$1 = string;
+type StateType$1 = string;
 /**
  *  A color value accepted by jssm-viz for state and arrow styling.  Currently
  *  any string, validated downstream by Graphviz / the named-colors list.
  *  Intended to be narrowed to `#RRGGBB` / `#RRGGBBAA` and CSS named colors
  *  in a future release.
  */
-declare type JssmColor = string;
+type JssmColor = string;
 /**
  *  Three-state policy flag: `'required'`, `'disallowed'`, or `'optional'`.
  *  Used by machine configuration where a default-permissive middle ground
  *  is meaningful (for example, the `actions` config key).
  */
-declare type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
+type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
 /**
- *  The set of ASCII arrow tokens recognized by the FSL grammar.  Each arrow
- *  encodes a direction (one-way left/right, or two-way) and a "kind" for
+ *  Every arrow token recognized by the FSL grammar — all 42 spellings.  Each
+ *  arrow encodes a direction (one-way left/right, or two-way) and a "kind" for
  *  each direction (`-` legal, `=` main path, `~` forced-only).  See the
  *  Language Reference docs for the full semantic table.
+ *
+ *  Every arrow has an ASCII spelling and a unicode spelling, and each half of a
+ *  two-way arrow may be spelled independently, so the two-way arrows also have
+ *  mixed ASCII/unicode spellings (`←=>`, `<-⇒`, and so on).  All of them are
+ *  accepted, by the grammar and by {@link arrow_direction},
+ *  {@link arrow_left_kind}, and {@link arrow_right_kind}.
  */
-declare type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
+type JssmArrow = '->' | '→' | '=>' | '⇒' | '~>' | '↛' | '<-' | '←' | '<=' | '⇐' | '<~' | '↚' | '<->' | '↔' | '<=>' | '⇔' | '<~>' | '↮' | '<-=>' | '←⇒' | '←=>' | '<-⇒' | '<-~>' | '←↛' | '←~>' | '<-↛' | '<=->' | '⇐→' | '⇐->' | '<=→' | '<=~>' | '⇐↛' | '⇐~>' | '<=↛' | '<~->' | '↚→' | '↚->' | '<~→' | '<~=>' | '↚⇒' | '↚=>' | '<~⇒';
 /**
  * A type teaching Typescript the various supported shapes for nodes, mostly inherited from GraphViz
  */
-declare type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
+type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
 /**
  *  Direction polarity of an arrow: pointing only `'left'`, only `'right'`,
  *  or `'both'` (a bidirectional arrow).
  */
-declare type JssmArrowDirection = 'left' | 'right' | 'both';
+type JssmArrowDirection = 'left' | 'right' | 'both';
 /**
  *  Semantic category of an arrow's transition.  `'legal'` is a normal
  *  transition, `'main'` is part of the machine's primary path, `'forced'`
- *  may only be taken via {@link Machine.force_transition}, and `'none'`
+ *  may only be taken via {@link jssm!Machine.force_transition}, and `'none'`
  *  means no transition exists in that direction.
  */
-declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
+type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
 /**
  *  Graphviz layout engine selector.  Controls how jssm-viz lays out the
  *  rendered diagram; `'dot'` is the default and most useful for state
  *  machines.  See the Graphviz documentation for the differences.
  */
-declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';
-declare type JssmCorner = 'regular' | 'rounded' | 'lined';
-declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
+type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';
+type JssmCorner = 'regular' | 'rounded' | 'lined';
+type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
 /**
  *  Tristate flag for whether a property may be overridden at runtime.
  *  `true` permits overrides, `false` forbids them, and `undefined` defers
  *  the decision to the surrounding configuration's default.
  */
-declare type JssmAllowsOverride = true | false | undefined;
+type JssmAllowsOverride = true | false | undefined;
 /**
  *  Controls whether the state graph may contain disconnected components
  *  (islands).  `true` permits islands (default), `false` requires a single
  *  connected component, and `'with_start'` permits islands only when every
  *  component contains at least one start state.
  */
-declare type JssmAllowIslands = true | false | 'with_start';
+type JssmAllowIslands = true | false | 'with_start';
 /**
  *  Structured render-size hint for a machine visualization, set by the FSL
  *  `default_size` directive.  All three forms are optional in the sense that
@@ -68,12 +74,32 @@ declare type JssmAllowIslands = true | false | 'with_start';
  *  - `{ height }` — height-only form (`default_size: height 600;`)
  *
  *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
- *
  *  @see Machine.default_size
  */
-declare type JssmDefaultSize = {
+type JssmDefaultSize = {
     width?: number;
     height?: number;
+};
+/**
+ *  A parsed semantic-version breakdown, as produced by the FSL parser for
+ *  version-valued directives (`machine_version`, `fsl_version`).  `major`,
+ *  `minor`, and `patch` are the three numeric components; `full` preserves
+ *  the exact source text of the version.  `loc` is present only when the
+ *  source was parsed with `{ locations: true }`.
+ *
+ *  ```typescript
+ *  const m = sm`machine_version: 1.2.3; a -> b;`;
+ *  m.machine_version();  // { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+ *  ```
+ *  @see Machine.machine_version
+ *  @see Machine.fsl_version
+ */
+type JssmParsedSemver = {
+    major: number;
+    minor: number;
+    patch: number;
+    full: string;
+    loc?: FslSourceLocation;
 };
 /**
  *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
@@ -85,7 +111,7 @@ declare const FslDirections: readonly ["up", "right", "down", "left"];
  *  String literal type of the four supported FSL flow directions.  This is
  *  the type of the `flow` config key on a machine.
  */
-declare type FslDirection = typeof FslDirections[number];
+type FslDirection = typeof FslDirections[number];
 /**
  *  Runtime-iterable list of the built-in theme names that ship with jssm-viz.
  *  Use this when you need to enumerate themes; for the type itself see
@@ -97,16 +123,15 @@ declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"
  *  type of the `theme` config key (which accepts an array so that themes
  *  can be layered).
  */
-declare type FslTheme = typeof FslThemes[number];
+type FslTheme = typeof FslThemes[number];
 /**
- *  Persistable snapshot of a Machine produced by {@link Machine.serialize}
- *  and consumed by {@link deserialize}.  Carries the current state, the
+ *  Persistable snapshot of a Machine produced by {@link jssm!Machine.serialize}
+ *  and consumed by {@link jssm!deserialize}.  Carries the current state, the
  *  associated machine data, the recent history (subject to the configured
  *  capacity), and metadata to detect version-skew on rehydration.
- *
- *  @typeParam DataType - The type of the user-supplied data payload (`mDT`).
+ *  @template DataType - The type of the user-supplied data payload (`mDT`).
  */
-declare type JssmSerialization<DataType> = {
+type JssmSerialization<DataType> = {
     jssm_version: string;
     timestamp: number;
     comment?: string | undefined;
@@ -130,11 +155,10 @@ declare type JssmSerialization<DataType> = {
  *  // [ { kind: 'group', name: 'inner', mode: 'nest' },
  *  //   { kind: 'state', name: 'x' } ]
  *  ```
- *
  *  @see JssmGroupRef
  *  @see JssmGroupRegistry
  */
-declare type JssmGroupMemberRef = {
+type JssmGroupMemberRef = {
     kind: 'state';
     name: string;
 } | {
@@ -157,20 +181,18 @@ declare type JssmGroupMemberRef = {
  *  // registry.get('outer') === [ { kind:'group', name:'inner', mode:'nest' },
  *  //                             { kind:'state', name:'c' } ]
  *  ```
- *
  *  @see JssmGroupMemberRef
  */
-declare type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
+type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
 /**
  *  The compiled boundary-hook surface for a single subject (a group or a
  *  state): the action to run on entry (`onEnter`) and/or on exit (`onExit`).
  *  Each is optional so a subject may declare only one direction; the compiler
  *  merges an `enter` and an `exit` declaration for the same subject into one
  *  of these.
- *
  *  @see JssmHookDeclaration
  */
-declare type JssmBoundaryHooks = {
+type JssmBoundaryHooks = {
     onEnter?: string;
     onExit?: string;
 };
@@ -178,18 +200,16 @@ declare type JssmBoundaryHooks = {
  *  Maps each group name that has at least one boundary hook to its merged
  *  {@link JssmBoundaryHooks}.  Carried on {@link JssmGenericConfig} for the
  *  runtime to consume; depth-aware firing is a later task.
- *
  *  @see JssmHookDeclaration
  */
-declare type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
+type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
 /**
  *  Maps each plain state name that has at least one boundary hook to its
  *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
  *  {@link JssmGroupHooks}.
- *
  *  @see JssmHookDeclaration
  */
-declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
+type JssmStateHooks = Map<string, JssmBoundaryHooks>;
 /**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
@@ -202,47 +222,15 @@ declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
  *  may carry only the serialized `name`, and global property definitions
  *  never set them.
  */
-declare type JssmPropertyDefinition = {
+type JssmPropertyDefinition = {
     name: string;
     default_value?: any;
     required?: boolean;
     property?: string;
     state?: string;
 };
-/*********
- *
- *  The declared type of a machine `val` (extended-state variable): the scalar
- *  type core — `boolean`, `string`, unbounded or bounded `int lo..hi`, and
- *  `enum(...)`.  Carried from the grammar to the runtime, where
- *  `validate_val_value` enforces it at construction and on every write.
- *
- */
-declare type JssmValType = {
-    kind: 'boolean';
-} | {
-    kind: 'string';
-} | {
-    kind: 'int';
-    lo?: number;
-    hi?: number;
-} | {
-    kind: 'enum';
-    members: string[];
-};
-/*********
- *
- *  A machine `val` declaration: a named, typed, validated, mutable
- *  extended-state variable (the mutable sibling of a `property`).
- *
- */
-declare type JssmValDefinition = {
-    name: string;
-    val_type: JssmValType;
-    default_value?: any;
-    required?: boolean;
-};
-declare type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
-declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
+type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
+type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 /**
  *  A single directed transition (edge) within a state machine.  Captures
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
@@ -250,11 +238,10 @@ declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitt
  *  per-edge `name`, an action label, a guard `check`, a transition
  *  `probability` for stochastic models, and an `after_time` for timed
  *  transitions.
- *
- *  @typeParam StateType - The state-name type (usually `string`).
- *  @typeParam DataType  - The machine's data payload type (`mDT`).
+ *  @template StateType - The state-name type (usually `string`).
+ *  @template DataType  - The machine's data payload type (`mDT`).
  */
-declare type JssmTransition<StateType, DataType> = {
+type JssmTransition<StateType, DataType> = {
     from: StateType;
     to: StateType;
     after_time?: number;
@@ -268,12 +255,12 @@ declare type JssmTransition<StateType, DataType> = {
     main_path: boolean;
 };
 /** A list of {@link JssmTransition}s — the edge set of a machine. */
-declare type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
+type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
 /**
  *  The set of states that can immediately precede or follow a given state.
  *  Returned by jssm helpers that report a state's connectivity in the graph.
  */
-declare type JssmTransitionList = {
+type JssmTransitionList = {
     entrances: Array<StateType$1>;
     exits: Array<StateType$1>;
 };
@@ -282,20 +269,20 @@ declare type JssmTransitionList = {
  *  states it can be reached from, the set of states it can transition to,
  *  and whether reaching it constitutes "completing" the machine.
  */
-declare type JssmGenericState = {
+type JssmGenericState = {
     from: Array<StateType$1>;
     name: StateType$1;
     to: Array<StateType$1>;
     complete: boolean;
 };
 /**
- *  The full internal bookkeeping snapshot of a {@link Machine}, exposed for
+ *  The full internal bookkeeping snapshot of a {@link jssm!Machine}, exposed for
  *  advanced introspection.  Contains the current state, the state map, the
  *  edge map and reverse-action map, and the original edge list.  The
  *  `internal_state_impl_version` field exists so that consumers can detect
  *  shape changes if this representation evolves.
  */
-declare type JssmMachineInternalState<DataType> = {
+type JssmMachineInternalState<DataType> = {
     internal_state_impl_version: 1;
     state: StateType$1;
     states: Map<StateType$1, JssmGenericState>;
@@ -305,8 +292,8 @@ declare type JssmMachineInternalState<DataType> = {
     reverse_actions: Map<StateType$1, Map<StateType$1, number>>;
     edges: Array<JssmTransition<StateType$1, DataType>>;
 };
-declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
-declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
+type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
+type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
  *  A source span produced by the FSL parser when `parse(input, { locations:
  *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
@@ -318,21 +305,47 @@ declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataTyp
  *  //             end:   { offset: 7, line: 1, column: 8 } }
  *  ```
  */
-declare type FslSourcePoint = {
+type FslSourcePoint = {
     offset: number;
     line: number;
     column: number;
 };
-declare type FslSourceLocation = {
+type FslSourceLocation = {
     start: FslSourcePoint;
     end: FslSourcePoint;
+};
+/**
+ *  Options accepted by the FSL parser and its {@link wrap_parse} wrapper
+ *  (exported from the package as `parse`).  Exists so the two-argument parse
+ *  call is typed against what the parser actually reads, instead of a bare
+ *  `object`.
+ *
+ *  - `locations` — when `true`, the grammar attaches a `loc` field of type
+ *    {@link FslSourceLocation} (plus curated `*_loc` token sub-spans) to every
+ *    AST node.  When absent or `false`, the tree is byte-for-byte identical to
+ *    the historical location-free output.
+ *
+ *  - `startRule` — honored by the generated PEG.js boilerplate, which throws
+ *    on any rule name it doesn't expose.  This grammar exposes only its
+ *    default rule, `Document`, so the field is only useful for explicitness.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ *  @see FslSourceLocation
+ */
+type JssmParseOptions = {
+    locations?: boolean;
+    startRule?: 'Document';
 };
 /**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
  */
-declare type JssmStateDeclarationRule = {
+type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
@@ -342,9 +355,9 @@ declare type JssmStateDeclarationRule = {
 /**
  *  The fully-condensed declaration for a single state, including its raw
  *  rule list (`declarations`) and the well-known styling fields jssm-viz
- *  understands.  Returned by {@link Machine.state_declaration}.
+ *  understands.  Returned by {@link jssm!Machine.state_declaration}.
  */
-declare type JssmStateDeclaration = {
+type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
     shape?: JssmShape;
     color?: JssmColor;
@@ -367,44 +380,44 @@ declare type JssmStateDeclaration = {
  *  optional.  Used as the value type for theme entries and for default
  *  state configuration where most fields will be inherited or merged.
  */
-declare type JssmStateConfig = Partial<JssmStateDeclaration>;
-declare type JssmStateStyleShape = {
+type JssmStateConfig = Partial<JssmStateDeclaration>;
+type JssmStateStyleShape = {
     key: 'shape';
     value: JssmShape;
 };
-declare type JssmStateStyleColor = {
+type JssmStateStyleColor = {
     key: 'color';
     value: JssmColor;
 };
-declare type JssmStateStyleTextColor = {
+type JssmStateStyleTextColor = {
     key: 'text-color';
     value: JssmColor;
 };
-declare type JssmStateStyleCorners = {
+type JssmStateStyleCorners = {
     key: 'corners';
     value: JssmCorner;
 };
-declare type JssmStateStyleLineStyle = {
+type JssmStateStyleLineStyle = {
     key: 'line-style';
     value: JssmLineStyle;
 };
-declare type JssmStateStyleStateLabel = {
+type JssmStateStyleStateLabel = {
     key: 'state-label';
     value: string;
 };
-declare type JssmStateStyleBackgroundColor = {
+type JssmStateStyleBackgroundColor = {
     key: 'background-color';
     value: JssmColor;
 };
-declare type JssmStateStyleBorderColor = {
+type JssmStateStyleBorderColor = {
     key: 'border-color';
     value: JssmColor;
 };
-declare type JssmStateStyleImage = {
+type JssmStateStyleImage = {
     key: 'image';
     value: string;
 };
-declare type JssmStateStyleUrl = {
+type JssmStateStyleUrl = {
     key: 'url';
     value: string;
 };
@@ -413,13 +426,13 @@ declare type JssmStateStyleUrl = {
  *  a state's style configuration.  The `key` discriminator selects which
  *  member, and the `value` is typed accordingly.
  */
-declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage | JssmStateStyleUrl;
+type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage | JssmStateStyleUrl;
 /**
  *  An ordered list of {@link JssmStateStyleKey} entries.  Used by the
  *  `default_*_state_config` machine config options to provide a fallback
  *  style stack.
  */
-declare type JssmStateStyleKeyList = JssmStateStyleKey[];
+type JssmStateStyleKeyList = JssmStateStyleKey[];
 /**
  *  The graph-wide default edge colour style item, produced by the
  *  `edge-color`/`edge_color` line inside a `transition: {}` (or `graph: {}`)
@@ -427,7 +440,7 @@ declare type JssmStateStyleKeyList = JssmStateStyleKey[];
  *  applies to edges rather than nodes, and because it carries the legacy
  *  `graph_default_edge_color` key the grammar emits.
  */
-declare type JssmGraphDefaultEdgeColor = {
+type JssmGraphDefaultEdgeColor = {
     key: 'graph_default_edge_color';
     value: JssmColor;
 };
@@ -436,10 +449,9 @@ declare type JssmGraphDefaultEdgeColor = {
  *  reuses the per-state style items (so `color: red;` works inside a
  *  `transition:` block exactly as inside a `state:` block) plus the
  *  edge-scoped {@link JssmGraphDefaultEdgeColor} default.
- *
  *  @see JssmTransitionConfig
  */
-declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
+type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
 /**
  *  The compiled value of a `transition: {}` config block: an ordered list of
  *  edge-default style items.  V1 mirrors the state-style shape used by
@@ -451,10 +463,9 @@ declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeCo
  *  const cfg = compile(parse('a -> b; transition: { color: red; };'));
  *  // cfg.default_transition_config === [ { key: 'color', value: '#ff0000ff' } ]
  *  ```
- *
  *  @see JssmGraphConfig
  */
-declare type JssmTransitionConfig = JssmTransitionStyleKey[];
+type JssmTransitionConfig = JssmTransitionStyleKey[];
 /**
  *  Graph-scope default-config style items folded from the deprecated
  *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
@@ -462,7 +473,7 @@ declare type JssmTransitionConfig = JssmTransitionStyleKey[];
  *  default) into the consolidated `graph: {}` config.  Each carries the
  *  legacy parse key so downstream consumers can disambiguate.
  */
-declare type JssmGraphAliasKey = {
+type JssmGraphAliasKey = JssmGraphDefaultEdgeColor | {
     key: 'graph_layout';
     value: JssmLayout;
 } | {
@@ -477,16 +488,15 @@ declare type JssmGraphAliasKey = {
 } | {
     key: 'flow';
     value: FslDirection;
-} | JssmGraphDefaultEdgeColor;
+};
 /**
  *  A single item inside a `graph: {}` default-config block.  For v1 this
  *  reuses the per-state style items plus the graph-scope alias items
  *  ({@link JssmGraphAliasKey}) folded in from the deprecated top-level
  *  graph keywords.
- *
  *  @see JssmGraphConfig
  */
-declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
+type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
 /**
  *  The compiled value of a `graph: {}` config block: an ordered list of
  *  graph-default style items.  The compiler folds the deprecated top-level
@@ -500,42 +510,11 @@ declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
  *  // `background-color` item, so:
  *  // cfg.default_graph_config includes { key: 'background-color', value: '#ffffffff' }
  *  ```
- *
  *  @see JssmTransitionConfig
  */
-declare type JssmGraphConfig = JssmGraphStyleKey[];
+type JssmGraphConfig = JssmGraphStyleKey[];
 /**
- *  Complete shape of a jssm-viz theme.  A theme provides a style block for
- *  each kind of state (`state`, `hooked`, `start`, `end`, `terminal`) as
- *  well as a matching `active_*` variant used while that state is current.
- *
- *  The `graph`, `legal`, `main`, `forced`, `action`, and `title` slots are
- *  reserved for future use and currently typed as `undefined`.
- *
- *  Most user-defined themes should be typed as {@link JssmTheme} (the
- *  `Partial` of this) so that omitted fields fall back to the base theme.
- */
-declare type JssmBaseTheme = {
-    name: string;
-    state: JssmStateConfig;
-    hooked: JssmStateConfig;
-    start: JssmStateConfig;
-    end: JssmStateConfig;
-    terminal: JssmStateConfig;
-    active: JssmStateConfig;
-    active_hooked: JssmStateConfig;
-    active_start: JssmStateConfig;
-    active_end: JssmStateConfig;
-    active_terminal: JssmStateConfig;
-    graph: undefined;
-    legal: undefined;
-    main: undefined;
-    forced: undefined;
-    action: undefined;
-    title: undefined;
-};
-/**
- *  Full configuration object accepted by the {@link Machine} constructor and
+ *  Full configuration object accepted by the {@link jssm!Machine} constructor and
  *  by {@link from}.  Carries the transition list and the optional knobs
  *  governing layout, theming, history, start/end states, property
  *  definitions, machine metadata (author, license, version, ...) and the
@@ -543,11 +522,47 @@ declare type JssmBaseTheme = {
  *
  *  Most users never construct one of these directly — the `sm` tagged
  *  template literal and {@link from} produce one from FSL source.
- *
- *  @typeParam StateType - The state-name type (usually `string`).
- *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
+ *  @template StateType - The state-name type (usually `string`).
+ *  @template DataType  - The user-supplied data payload type (`mDT`).
  */
-declare type JssmGenericConfig<StateType, DataType> = {
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+type JssmEditorConfig = {
+    stochastic_run_count?: number;
+    panels?: Array<string>;
+};
+/** Which stochastic view a run batch produces. */
+type JssmStochasticMode = 'montecarlo' | 'steady_state';
+/** Options for {@link jssm!Machine.stochastic_summary} / {@link jssm!Machine.stochastic_runs}. */
+type JssmStochasticOptions = {
+    mode?: JssmStochasticMode;
+    runs?: number;
+    max_steps?: number;
+    seed?: number;
+};
+/** One walk's result, yielded by {@link jssm!Machine.stochastic_runs}. */
+type JssmStochasticRun = {
+    states: Array<string>;
+    edges: Array<string>;
+    length: number;
+    terminated: boolean;
+};
+/** Aggregate statistics over a stochastic run batch. */
+type JssmStochasticSummary = {
+    mode: JssmStochasticMode;
+    runs: number;
+    seed: number;
+    state_visits: Map<string, number>;
+    state_visit_fraction: Map<string, number>;
+    edge_traversals: Map<string, number>;
+    path_lengths?: Array<number>;
+    terminal_reached?: number;
+    capped?: number;
+};
+type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
     transitions: JssmTransitions<StateType, DataType>;
@@ -560,7 +575,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     history?: number;
     /**
      *  Maximum depth of the boundary-hook action cascade before the machine
-     *  throws a {@link JssmError} rather than risking a stack overflow or hang.
+     *  throws a {@link jssm_error!JssmError} rather than risking a stack overflow or hang.
      *
      *  Each time a boundary action fires a transition that itself crosses a
      *  boundary, the depth counter increments.  A cascade exceeding this limit is
@@ -568,7 +583,6 @@ declare type JssmGenericConfig<StateType, DataType> = {
      *
      *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
      *  more than 100 transitions via boundary hooks.
-     *
      *  @see Machine._boundary_depth_limit
      *  @see Machine._fire_boundary_actions
      */
@@ -576,6 +590,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     min_exits?: number;
     max_exits?: number;
     allow_islands?: JssmAllowIslands;
+    editor_config?: JssmEditorConfig;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -587,16 +602,14 @@ declare type JssmGenericConfig<StateType, DataType> = {
     failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
-    state_declaration?: Object[];
+    state_declaration?: object[];
     property_definition?: JssmPropertyDefinition[];
-    val_definition?: JssmValDefinition[];
-    vals?: {
-        [name: string]: any;
-    };
     state_property?: JssmPropertyDefinition[];
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
+    oarrange_declaration?: Array<Array<StateType>>;
+    farrange_declaration?: Array<Array<StateType>>;
     machine_author?: string | Array<string>;
     machine_comment?: string;
     machine_contributor?: string | Array<string>;
@@ -604,10 +617,10 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_language?: string;
     machine_license?: string;
     machine_name?: string;
-    machine_version?: string;
+    machine_version?: JssmParsedSemver;
     npm_name?: string;
     default_size?: JssmDefaultSize;
-    fsl_version?: string;
+    fsl_version?: JssmParsedSemver;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
     default_state_config?: JssmStateStyleKeyList;
@@ -644,8 +657,22 @@ declare type JssmGenericConfig<StateType, DataType> = {
     state_hooks?: JssmStateHooks;
     rng_seed?: number | undefined;
     time_source?: () => number;
-    timeout_source?: (Function: any, number: any) => number;
-    clear_timeout_source?: (number: any) => void;
+    /**
+     *  Schedules `fn` to run after `delay_ms`, and returns a handle that will be
+     *  handed back to `clear_timeout_source` untouched.  Defaults to `setTimeout`.
+     *
+     *  The handle is typed `number` — the browser shape.  Node's `setTimeout`
+     *  returns a `Timeout` object instead, so a Node-shaped source casts it (as
+     *  jssm's own `DEFAULT_TIMEOUT_SOURCE` does); jssm never inspects the handle,
+     *  it only stores it and gives it back.
+     *
+     *  (Before 5.162.14 these read `(Function, number) => number`, in which
+     *  `Function` and `number` were *parameter names*, not types — so both
+     *  parameters were silently `any`.)
+     */
+    timeout_source?: (fn: () => void, delay_ms: number) => number;
+    /** Cancels a timer previously scheduled by `timeout_source`.  Defaults to `clearTimeout`. */
+    clear_timeout_source?: (handle: number) => void;
 };
 /**
  *  Internal compiler intermediate: one link in a chained transition
@@ -653,13 +680,20 @@ declare type JssmGenericConfig<StateType, DataType> = {
  *  arrow with optional per-direction action labels, probabilities, and
  *  after-times.  The recursive `se` field allows the parser to chain
  *  arrows of the form `A -> B -> C`.  Not intended for end-user code.
- *
  *  @internal
  */
-declare type JssmCompileSe<StateType, mDT> = {
+type JssmCompileSe<StateType, mDT> = {
     to: StateType;
     se?: JssmCompileSe<StateType, mDT>;
-    kind: JssmArrow;
+    /**
+     *  The arrow token as the parser emitted it.  Deliberately `string` and not
+     *  {@link JssmArrow}: this internal intermediate flows through the whole
+     *  compiler, and threading a 42-member string-literal union through that much
+     *  control-flow analysis overflows `tsc`'s stack (it type-checks standalone
+     *  but dies under `npm run make`).  The value *is* a `JssmArrow` — the two
+     *  places that care re-assert it on the way into the arrow classifiers.
+     */
+    kind: string;
     l_action?: StateType;
     r_action?: StateType;
     l_probability: number;
@@ -677,10 +711,9 @@ declare type JssmCompileSe<StateType, mDT> = {
  *  for non-transition rules (state declarations, property definitions,
  *  machine metadata) via its `key`/`value`/`name`/`state` fields.  Not
  *  intended for end-user code.
- *
  *  @internal
  */
-declare type JssmCompileSeStart<StateType, DataType> = {
+type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;
     se: JssmCompileSe<StateType, DataType>;
     key: string;
@@ -689,7 +722,6 @@ declare type JssmCompileSeStart<StateType, DataType> = {
     state?: string;
     default_value?: any;
     required?: boolean;
-    val_type?: JssmValType;
     loc?: FslSourceLocation;
     from_loc?: FslSourceLocation;
     value_loc?: FslSourceLocation;
@@ -699,124 +731,127 @@ declare type JssmCompileSeStart<StateType, DataType> = {
  *  The output shape of the FSL parser: a flat array of
  *  {@link JssmCompileSeStart} entries, one per top-level rule in the
  *  source.  Consumed by the compiler to build a machine configuration.
- *
  *  @internal
  */
-declare type JssmParseTree<StateType, mDT> = Array<JssmCompileSeStart<StateType, mDT>>;
-declare type BasicHookDescription<mDT> = {
+type JssmParseTree<StateType, mDT> = Array<JssmCompileSeStart<StateType, mDT>>;
+type BasicHookDescription<mDT> = {
     kind: 'hook';
     from: string;
     to: string;
     handler: HookHandler<mDT>;
 };
-declare type HookDescriptionWithAction<mDT> = {
+type HookDescriptionWithAction<mDT> = {
     kind: 'named';
     from: string;
     to: string;
     action: string;
     handler: HookHandler<mDT>;
 };
-declare type StandardTransitionHook<mDT> = {
+type StandardTransitionHook<mDT> = {
     kind: 'standard transition';
     handler: HookHandler<mDT>;
 };
-declare type MainTransitionHook<mDT> = {
+type MainTransitionHook<mDT> = {
     kind: 'main transition';
     handler: HookHandler<mDT>;
 };
-declare type ForcedTransitionHook<mDT> = {
+type ForcedTransitionHook<mDT> = {
     kind: 'forced transition';
     handler: HookHandler<mDT>;
 };
-declare type AnyTransitionHook<mDT> = {
+type AnyTransitionHook<mDT> = {
     kind: 'any transition';
     handler: HookHandler<mDT>;
 };
-declare type GlobalActionHook<mDT> = {
+type GlobalActionHook<mDT> = {
     kind: 'global action';
     action: string;
     handler: HookHandler<mDT>;
 };
-declare type AnyActionHook<mDT> = {
+type AnyActionHook<mDT> = {
     kind: 'any action';
     handler: HookHandler<mDT>;
 };
-declare type EntryHook<mDT> = {
+type EntryHook<mDT> = {
     kind: 'entry';
     to: string;
     handler: HookHandler<mDT>;
 };
-declare type ExitHook<mDT> = {
+type ExitHook<mDT> = {
     kind: 'exit';
     from: string;
     handler: HookHandler<mDT>;
 };
-declare type AfterHook<mDT> = {
+type AfterHook<mDT> = {
     kind: 'after';
     from: string;
     handler: HookHandler<mDT>;
 };
-declare type PostBasicHookDescription<mDT> = {
+type AfterAnyHook<mDT> = {
+    kind: 'after any';
+    handler: HookHandler<mDT>;
+};
+type PostBasicHookDescription<mDT> = {
     kind: 'post hook';
     from: string;
     to: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostHookDescriptionWithAction<mDT> = {
+type PostHookDescriptionWithAction<mDT> = {
     kind: 'post named';
     from: string;
     to: string;
     action: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostStandardTransitionHook<mDT> = {
+type PostStandardTransitionHook<mDT> = {
     kind: 'post standard transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostMainTransitionHook<mDT> = {
+type PostMainTransitionHook<mDT> = {
     kind: 'post main transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostForcedTransitionHook<mDT> = {
+type PostForcedTransitionHook<mDT> = {
     kind: 'post forced transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostAnyTransitionHook<mDT> = {
+type PostAnyTransitionHook<mDT> = {
     kind: 'post any transition';
     handler: PostHookHandler<mDT>;
 };
-declare type PostGlobalActionHook<mDT> = {
+type PostGlobalActionHook<mDT> = {
     kind: 'post global action';
     action: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostAnyActionHook<mDT> = {
+type PostAnyActionHook<mDT> = {
     kind: 'post any action';
     handler: PostHookHandler<mDT>;
 };
-declare type PostEntryHook<mDT> = {
+type PostEntryHook<mDT> = {
     kind: 'post entry';
     to: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PostExitHook<mDT> = {
+type PostExitHook<mDT> = {
     kind: 'post exit';
     from: string;
     handler: PostHookHandler<mDT>;
 };
-declare type PreEverythingHook<mDT> = {
+type PreEverythingHook<mDT> = {
     kind: 'pre everything';
     handler: EverythingHookHandler<mDT>;
 };
-declare type EverythingHook<mDT> = {
+type EverythingHook<mDT> = {
     kind: 'everything';
     handler: EverythingHookHandler<mDT>;
 };
-declare type PrePostEverythingHook<mDT> = {
+type PrePostEverythingHook<mDT> = {
     kind: 'pre post everything';
     handler: PostEverythingHookHandler<mDT>;
 };
-declare type PostEverythingHook<mDT> = {
+type PostEverythingHook<mDT> = {
     kind: 'post everything';
     handler: PostEverythingHookHandler<mDT>;
 };
@@ -829,18 +864,18 @@ declare type PostEverythingHook<mDT> = {
  *
  *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
  *  `'main transition'`, `'forced transition'`, `'any transition'`,
- *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
- *  may return a falsy value to veto a transition.  Post-transition
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`,
+ *  `'after any'`) may return a falsy value to veto a transition.  Post-transition
  *  variants (`'post *'`) cannot veto and are invoked only after a
  *  successful transition.
  */
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
+type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | AfterAnyHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
  *  Whether an observational hook runs in the pre-transition phase (where it
  *  may veto/mutate the transition) or the post-transition phase (a pure
  *  observer that runs only after a successful transition commits).
  */
-declare type HookPhase = 'pre' | 'post';
+type HookPhase = 'pre' | 'post';
 /**
  *  Normalized description of the target a registry entry is bound to.  Exactly
  *  one scope variant applies; the present fields depend on the scope:
@@ -851,7 +886,7 @@ declare type HookPhase = 'pre' | 'post';
  *  - `'global'` carries no further keys (it matches everything),
  *  - `'group'`  carries `group` (a named state group with a boundary hook).
  */
-declare type HookTarget = {
+type HookTarget = {
     scope: 'edge';
     from: StateType$1;
     to: StateType$1;
@@ -875,7 +910,7 @@ declare type HookTarget = {
  *  covers only the programmatically-registered observational hooks), so the
  *  registry widens its `kind` field with them.
  */
-declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
+type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
 /**
  *  One row of the generated uniform observational-hook registry.  `kind` is
  *  either an original {@link HookDescription} discriminator (e.g. `'entry'`,
@@ -884,20 +919,20 @@ declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | '
  *  normalized {@link HookTarget} it is bound to.  The triple
  *  `(kind, target, phase)` is the registry key the spec calls for.
  */
-declare type HookRegistryEntry = {
+type HookRegistryEntry = {
     kind: HookDescription<unknown>['kind'] | HookBoundaryKind;
     phase: HookPhase;
     target: HookTarget;
 };
 /**
- *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  Query for {@link jssm!Machine.has_hook} / {@link jssm!Machine.hooks_on}.  A bare
  *  string is read as a state name; an `{ from, to, action? }` object is read
  *  as an edge (optionally a named edge); an `{ action }` object is read as a
  *  named action; a `{ group }` object is read as a named state group.  This
  *  mirrors the spec's `hooks_on(state)` / `hooks_on(from→to)` /
  *  `hooks_on(action)` / `hooks_on(&group)` set with one parameter shape.
  */
-declare type HookQuery = StateType$1 | {
+type HookQuery = StateType$1 | {
     from: StateType$1;
     to: StateType$1;
     action?: string;
@@ -914,7 +949,7 @@ declare type HookQuery = StateType$1 | {
  *  `data` overrides the data observed by other hooks in the same chain,
  *  and `next_data` overrides the data committed after the transition.
  */
-declare type HookComplexResult<mDT> = {
+type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType$1;
     data?: mDT;
@@ -926,17 +961,40 @@ declare type HookComplexResult<mDT> = {
  *  a {@link HookComplexResult} that additionally rewrites the next state
  *  and/or the next data payload.
  */
-declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
+type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 /**
  *  Context object passed to every {@link HookHandler}.  `data` is the
  *  data payload as it stands before the transition, and `next_data` is
  *  the payload that will be committed if the transition is accepted —
  *  handlers may inspect or mutate the latter via a
  *  {@link HookComplexResult} return value.
+ *
+ *  The remaining fields describe the transition the hook is firing on.  They
+ *  are optional because a handler is not obliged to care about them, but the
+ *  transition path always supplies all of them; `action` is `undefined` when
+ *  the transition was not driven by an action.
  */
-declare type HookContext<mDT> = {
+type HookContext<mDT> = {
     data: mDT;
     next_data: mDT;
+    /** The state being left. */
+    from?: string;
+    /** The state being entered. */
+    to?: string;
+    /** The action that drove the transition, or `undefined` if none did. */
+    action?: string;
+    /** Whether this transition came from `force_transition` rather than `transition`. */
+    forced?: boolean;
+    /**
+     *  Which arrow kind the traversed edge carries — `legal`, `main`, or `forced`.
+     *
+     *  Populated **only when a transition-kind hook is installed** (a standard,
+     *  main, or forced transition hook, or their post- equivalents).  With no such
+     *  hook registered there is nothing to switch on, so jssm skips resolving the
+     *  edge's kind and this is `undefined`.  Install `hook_standard_transition`
+     *  (or a sibling) if a general handler needs to read it.
+     */
+    trans_type?: JssmArrowKind;
 };
 /**
  *  Context object passed to "everything" hooks ({@link EverythingHookHandler}
@@ -944,7 +1002,7 @@ declare type HookContext<mDT> = {
  *  {@link HookContext} with `hook_name`, which identifies which specific
  *  hook fired so a single handler can route on it.
  */
-declare type EverythingHookContext<mDT> = HookContext<mDT> & {
+type EverythingHookContext<mDT> = HookContext<mDT> & {
     hook_name: string;
 };
 /**
@@ -954,53 +1012,52 @@ declare type EverythingHookContext<mDT> = HookContext<mDT> & {
  *  result allows it, and a {@link HookComplexResult} can additionally
  *  rewrite the next state or next data.
  */
-declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
+type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 /**
  *  Signature of a post-transition hook handler.  Invoked after a successful
  *  transition has been committed; the return value is ignored (the
  *  transition cannot be undone).
  */
-declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
+type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
 /**
  *  Signature of an "everything" pre-transition hook handler.  Like
  *  {@link HookHandler} but receives an {@link EverythingHookContext} so the
  *  handler can dispatch on `hook_name`.
  */
-declare type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
+type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
 /**
  *  Signature of an "everything" post-transition hook handler.  Like
  *  {@link PostHookHandler} but receives an {@link EverythingHookContext}.
  *  The return value is ignored.
  */
-declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
+type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
 /**
  *  Bounded history of recently-visited states paired with the data payload
  *  observed in each.  Backed by `circular_buffer_js`, so the oldest entry
  *  is dropped silently once the configured capacity is exceeded.
  */
-declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
+type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
 /**
  *  Pluggable random-number-generator function shape.  Must return a value
  *  in `[0, 1)` exactly as `Math.random` does.  Supplied via the
  *  `rng_seed`-aware machine configuration so that stochastic models can be
  *  made reproducible.
  */
-declare type JssmRng = () => number;
+type JssmRng = () => number;
 /**
- *  All event names that {@link Machine.on} accepts.  These are observation
+ *  All event names that {@link jssm!Machine.on} accepts.  These are observation
  *  events fired by the machine in addition to (not in place of) the hook
  *  system.  Hooks intercept; events observe.
- *
  *  @see Machine.on
  */
-declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
 /**
  *  Detail payload fired with a `transition` event.  Carries the resolved
  *  source and target, the action name (if the transition was driven by an
  *  action), the data observed before and after the change, the edge kind,
  *  and whether the call was a forced transition.
  */
-declare type JssmTransitionEventDetail<mDT> = {
+type JssmTransitionEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     action?: StateType$1;
@@ -1015,7 +1072,7 @@ declare type JssmTransitionEventDetail<mDT> = {
  *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
  *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
  */
-declare type JssmRejectionEventDetail<mDT> = {
+type JssmRejectionEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     action?: StateType$1;
@@ -1029,7 +1086,7 @@ declare type JssmRejectionEventDetail<mDT> = {
  *  Detail payload fired with an `action` event.  Fires when an action is
  *  attempted, before transition validation runs.
  */
-declare type JssmActionEventDetail<mDT> = {
+type JssmActionEventDetail<mDT> = {
     action: StateType$1;
     from: StateType$1;
     to?: StateType$1;
@@ -1041,7 +1098,7 @@ declare type JssmActionEventDetail<mDT> = {
  *  state.  `from` is the predecessor state, if any.  `action` is the
  *  action that drove the entry, if any.
  */
-declare type JssmEntryEventDetail<mDT> = {
+type JssmEntryEventDetail<mDT> = {
     state: StateType$1;
     from?: StateType$1;
     action?: StateType$1;
@@ -1052,7 +1109,7 @@ declare type JssmEntryEventDetail<mDT> = {
  *  state.  `to` is the next state, if any.  `action` is the action that
  *  drove the exit, if any.
  */
-declare type JssmExitEventDetail<mDT> = {
+type JssmExitEventDetail<mDT> = {
     state: StateType$1;
     to?: StateType$1;
     action?: StateType$1;
@@ -1062,7 +1119,7 @@ declare type JssmExitEventDetail<mDT> = {
  *  Detail payload fired with a `terminal` event.  Indicates that the
  *  machine has reached a state with no outgoing edges.
  */
-declare type JssmTerminalEventDetail<mDT> = {
+type JssmTerminalEventDetail<mDT> = {
     state: StateType$1;
     data: mDT;
 };
@@ -1070,7 +1127,7 @@ declare type JssmTerminalEventDetail<mDT> = {
  *  Detail payload fired with a `complete` event.  Indicates that the
  *  machine has reached a FSL `complete` state.
  */
-declare type JssmCompleteEventDetail<mDT> = {
+type JssmCompleteEventDetail<mDT> = {
     state: StateType$1;
     data: mDT;
 };
@@ -1080,30 +1137,32 @@ declare type JssmCompleteEventDetail<mDT> = {
  *  identify the event whose handler threw, and `handler` is the offending
  *  function so consumers can correlate / blame.
  */
-declare type JssmErrorEventDetail = {
+type JssmErrorEventDetail = {
     error: unknown;
     source_event: JssmEventName;
     source_detail: unknown;
-    handler: Function;
+    handler: JssmEventHandler<unknown, JssmEventName>;
 };
 /**
  *  Detail payload fired with a `data-change` event.  Fires whenever the
  *  machine's data payload is replaced.  `old_data` is the value before the
- *  change; `new_data` is the value after.
+ *  change; `new_data` is the value after.  `cause` names the API family that
+ *  performed the replacement: a data-bearing `transition`, an `override`, or
+ *  a direct `set_data` call.
  */
-declare type JssmDataChangeEventDetail<mDT> = {
+type JssmDataChangeEventDetail<mDT> = {
     from?: StateType$1;
     to?: StateType$1;
     action?: StateType$1;
     old_data: mDT;
     new_data: mDT;
-    cause: 'transition' | 'override';
+    cause: 'transition' | 'override' | 'set_data';
 };
 /**
  *  Detail payload fired with an `override` event.  Distinguishes a forced
  *  state replacement from a normal transition.
  */
-declare type JssmOverrideEventDetail<mDT> = {
+type JssmOverrideEventDetail<mDT> = {
     from: StateType$1;
     to: StateType$1;
     old_data: mDT;
@@ -1113,7 +1172,7 @@ declare type JssmOverrideEventDetail<mDT> = {
  *  Detail payload fired with a `timeout` event.  Fires when a configured
  *  `after` clause causes an automatic transition.
  */
-declare type JssmTimeoutEventDetail = {
+type JssmTimeoutEventDetail = {
     from: StateType$1;
     to: StateType$1;
     after_time: number;
@@ -1123,15 +1182,15 @@ declare type JssmTimeoutEventDetail = {
  *  Mirrors the {@link HookDescription} so inspector tools can mirror the
  *  current hook set.
  */
-declare type JssmHookLifecycleEventDetail<mDT> = {
+type JssmHookLifecycleEventDetail<mDT> = {
     description: HookDescription<mDT>;
 };
 /**
  *  Mapped type from {@link JssmEventName} to the corresponding detail
- *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  payload.  Drives the discriminated-union typing of {@link jssm!Machine.on},
  *  so `e.action` and friends only exist where they're meaningful.
  */
-declare type JssmEventDetailMap<mDT> = {
+type JssmEventDetailMap<mDT> = {
     'transition': JssmTransitionEventDetail<mDT>;
     'rejection': JssmRejectionEventDetail<mDT>;
     'action': JssmActionEventDetail<mDT>;
@@ -1147,12 +1206,12 @@ declare type JssmEventDetailMap<mDT> = {
     'hook-removal': JssmHookLifecycleEventDetail<mDT>;
 };
 /**
- *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  Filter accepted by {@link jssm!Machine.on} / {@link jssm!Machine.once} for an
  *  individual event name.  Only events whose detail key matches every
  *  filter entry fire the handler.  Events that don't list a filter key in
  *  v1 take no filter properties.
  */
-declare type JssmEventFilterMap<mDT> = {
+type JssmEventFilterMap<mDT> = {
     'transition': {
         from?: StateType$1;
         to?: StateType$1;
@@ -1175,24 +1234,256 @@ declare type JssmEventFilterMap<mDT> = {
     'hook-removal': Record<string, never>;
 };
 /**
- *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  Per-event filter object (as passed to {@link jssm!Machine.on}).  Use
  *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @template mDT The type of the machine data member.
+ *  @template Ev  The event name.
  */
-declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
 /**
  *  Per-event handler signature.  Receives a detail object typed by event
  *  name, so `e.action` (etc.) only exist where they're meaningful.
- *  @typeparam mDT The type of the machine data member.
- *  @typeparam Ev  The event name.
+ *  @template mDT The type of the machine data member.
+ *  @template Ev  The event name.
  */
-declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
 /**
- *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  Function returned by {@link jssm!Machine.on} and {@link jssm!Machine.once} that
  *  removes the subscription.  Calling it more than once is a no-op.
  */
-declare type JssmUnsubscribe = () => void;
+type JssmUnsubscribe = () => void;
+
+/**
+ * String interning support for the jssm machine internals.
+ *
+ * State and action names are interned to dense integer ids at machine
+ * construction so that per-transition dispatch can use numeric map keys
+ * (integer hashing) instead of repeated string-keyed lookups.  Internal
+ * machinery only — deliberately not re-exported from the `jssm` public
+ * surface, so the public API is unchanged.
+ * @internal
+ */
+/**
+ * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
+ * order; lookups are O(1) both directions.  Grows monotonically — there is
+ * no removal, matching machine semantics (states and actions are fixed
+ * after construction; late interning only happens for never-matching
+ * lookups such as hook registrations naming unknown states).
+ * @example
+ *   const i = new Interner();
+ *   i.intern('red');     // 0
+ *   i.intern('green');   // 1
+ *   i.intern('red');     // 0  (idempotent)
+ *   i.id_of('green');    // 1
+ *   i.name_of(0);        // 'red'
+ * @see pair_key
+ */
+declare class Interner {
+    private readonly ids;
+    private readonly names;
+    constructor();
+    /**
+     * Return the id for `name`, assigning the next dense id if the name has
+     * not been seen before.
+     * @param name - The string to intern.
+     * @returns The (possibly newly assigned) integer id.
+     * @example
+     *   interner.intern('red');  // 0 on first call, 0 on every later call
+     */
+    intern(name: string): number;
+    /**
+     * Return the id for `name` without interning, or `undefined` when the
+     * name has never been interned.  This is the hot-path probe for
+     * user-supplied names.
+     * @param name - The string to look up.
+     * @example
+     *   interner.id_of('mauve');  // undefined — never interned
+     */
+    id_of(name: string): number | undefined;
+    /**
+     * Return the name for `id`, or `undefined` for an id never assigned.
+     * @param id - The integer id to invert.
+     * @example
+     *   interner.name_of(0);  // 'red'
+     */
+    name_of(id: number): string | undefined;
+    /** The count of distinct interned names. */
+    get size(): number;
+}
+
+/**
+ * Editor-agnostic data types for the FSL language service.
+ *
+ * These are the neutral contract every editor adapter (CodeMirror, VS Code, a
+ * future LSP server) converts to/from. Shapes are kept aligned with LSP types so
+ * an LSP wrapper is a near-mechanical mapping.
+ */
+/** A character-offset range in the FSL source. */
+interface Range {
+    from: number;
+    to: number;
+}
+/** Diagnostic severity, aligned with LSP severities. */
+type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
+/** An editor-agnostic diagnostic (one parse/compile problem). */
+interface Diagnostic {
+    range: Range;
+    severity: DiagnosticSeverity;
+    message: string;
+}
+/** What a completion item suggests, so adapters can pick an icon. */
+type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
+/** An editor-agnostic completion suggestion. */
+interface CompletionItem {
+    label: string;
+    kind: CompletionKind;
+    detail?: string;
+}
+/** Parser-derived semantic role of a source span. */
+type SemanticSpanKind = 'color' | 'state' | 'enum';
+/** An editor-agnostic semantic span (for decorations / semantic tokens). */
+interface SemanticSpan extends Range {
+    kind: SemanticSpanKind;
+    value?: string;
+}
+
+/**
+ * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
+ * neutral {@link Diagnostic}s. Adapters map these to CodeMirror lint diagnostics,
+ * VS Code markers, or LSP `Diagnostic`s.
+ *
+ * Parse errors (peg.js) carry `.location`; compile errors carry
+ * `.source_location` *when they reference a parsed node* — but machine-level
+ * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
+ * the location is treated as optional and falls back to the whole document.
+ *
+ * Some validity checks (e.g. a `required` property that no state defines) live
+ * in the {@link Machine} constructor, a stage past `compile`. We therefore also
+ * construct the machine so the editor surfaces those construction-time errors
+ * instead of calling such a machine valid. The `Machine` import closes a cycle
+ * (`jssm` re-exports this module), but it is only referenced at call time inside
+ * {@link fslDiagnostics}, never during module initialization, so the cycle is
+ * benign.
+ */
+
+/**
+ * Parse then compile `text`, returning a list of diagnostics — empty when the
+ * machine parses and compiles cleanly.
+ * @example
+ *   fslDiagnostics('a -> b;');            // => []
+ *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
+ *   // a `required` property no state defines is a construction-time error:
+ *   fslDiagnostics('property p required; a -> b;')[0].severity; // => 'error'
+ */
+declare function fslDiagnostics(text: string): Diagnostic[];
+
+/**
+ * Context-aware, editor-agnostic FSL completions. Value suggestions after a
+ * `key:`, key suggestions at a statement start (top-level vs inside a `{ }`
+ * block, by brace depth). Adapters convert {@link CompletionItem}s to their own
+ * completion type. Value vocab is jssm's own (`gviz_shapes`, `named_colors`,
+ * `FslDirections`), so it cannot drift from the renderer.
+ */
+
+/**
+ * Completions for the caret at `offset` in `text`.
+ * @example
+ *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
+ */
+declare function fslCompletions(text: string, offset: number): CompletionItem[];
+
+/**
+ * Parser-derived semantic spans for FSL: color values (with resolved hex),
+ * state names, and shape-enum values. Returns `[]` if the document does not
+ * parse. Editor-agnostic — adapters map spans to decorations or semantic
+ * tokens. Logic is a verified port of the sketch's `semantic_overlay.mjs`.
+ */
+
+/**
+ * Collect color / state / shape-enum semantic spans from `text`. State spans
+ * cover transition endpoints, state-declaration subjects, group-list members
+ * (`&G : [a b c];` — but not the group's own name, nor `&`/`...&` nested
+ * group references), and plain-label hook subjects (`on enter x do 'act';` —
+ * but not `&group` subjects). Every state span's `value` is the parser's
+ * resolved name (unquoted, unescaped), while `from`/`to` cover the source
+ * spelling including any quotes.
+ * @example
+ *   fslSemanticSpans('state s : { color: crimson; };')
+ *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
+ * @example
+ *   fslSemanticSpans('&G : [a b];\na -> b;')
+ *     .filter(s => s.kind === 'state').length;   // => 4 (two members + two endpoints)
+ */
+declare function fslSemanticSpans(text: string): SemanticSpan[];
+
+/**
+ *  The FSL Markdown fence convention parser — pure, host-agnostic logic that
+ *  turns a fenced-code-block info string into a {@link FenceDescriptor}.  Hosts
+ *  (a VS Code preview plugin, a static-site generator, …) each interpret the
+ *  descriptor according to their capabilities.
+ *  @see notes/superpowers/specs/2026-06-23-fsl-markdown-fence-convention-design.md
+ */
+/** A single renderable part of a fence block (stacks in listed order, first on top). */
+type FencePart = 'image' | 'code' | 'dot' | 'editor' | 'actions' | 'info-panel' | 'toolbar' | 'title' | 'footer';
+/** An image output format for the `image` part. */
+type FenceImageFormat = 'svg' | 'png' | 'jpeg' | 'gif';
+/** The unit of a {@link FenceDimension} (`%` is represented as `'percent'`). */
+type FenceDimensionUnit = 'px' | 'percent';
+/** A parsed `width=`/`height=` value with its unit. */
+interface FenceDimension {
+    value: number;
+    unit: FenceDimensionUnit;
+}
+/**
+ *  The fully-parsed, validated description of one FSL Markdown fence block.
+ *
+ *  Sizing semantics: `width`/`height` (from `width=`/`height=` tokens) are
+ *  *exact* dimensions — the host renders the block at that size.
+ *  `max_width`/`max_height` (from `max-width=`/`max-height=` tokens) are
+ *  *upper bounds* on natural sizing — the block renders at its natural size
+ *  but is capped on that axis.  When both an exact and a max token are given
+ *  for the same axis, the exact dimension wins and the cap is moot.  All four
+ *  are `null` when their token is absent.
+ */
+interface FenceDescriptor {
+    parts: FencePart[];
+    ide: boolean;
+    format: FenceImageFormat;
+    width: FenceDimension | null;
+    height: FenceDimension | null;
+    max_width: FenceDimension | null;
+    max_height: FenceDimension | null;
+    interactive: boolean;
+    notes: string[];
+}
+/**
+ *  Canonical fence language for an info string, or `null` if the block is not
+ *  an FSL fence.  Reads only the first whitespace-delimited token,
+ *  case-insensitively.
+ *  @param info The full fence info string (everything after the opening fence).
+ *  @returns `'fsl'` or `'jssm'` for our fences; `null` otherwise.
+ *  @example fsl_fence_lang('fsl image code') // => 'fsl'
+ *  @example fsl_fence_lang('JSSM')           // => 'jssm'
+ *  @example fsl_fence_lang('mermaid')        // => null
+ */
+declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
+/**
+ *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
+ *  the (already-validated) language and is ignored; remaining tokens are
+ *  classified as parts, image formats, the `ide` macro, or the dimension
+ *  options `width`/`height` (exact size) and `max-width`/`max-height`
+ *  (upper bounds on natural size — see {@link FenceDescriptor} for the
+ *  precedence rule when both appear on one axis).  All four dimension tokens
+ *  share one value syntax: a bare number (pixels), `<n>px`, or `<n>%`.
+ *  Unrecognized or conflicting tokens are dropped and recorded in
+ *  `notes` rather than throwing, so a host can render forward-compatibly.
+ *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
+ *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
+ *  @example parse_fence_info('fsl').parts // => ['image', 'code']
+ *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ *  @example parse_fence_info('fsl image max-width=300 max-height=50%').max_width // => { value: 300, unit: 'px' }
+ */
+declare function parse_fence_info(info: string): FenceDescriptor;
 
 /*********
  *
@@ -1326,20 +1617,37 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @typeParam StateType The type of state names in the resulting tree; the
+ *                       grammar itself always produces `string`s, so only
+ *                       override this when threading a caller's own state
+ *                       naming through to {@link compile}.
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
+ *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance.  Pass
+ *  @param options Things to control about the parse.  Pass
  *                 `{ locations: true }` to enable opt-in source location
- *                 tracking on every AST node.
+ *                 tracking on every AST node.  When omitted, an empty options
+ *                 object is passed through to the parser.
+ *
+ *  @returns The machine's intermediate representation: a flat
+ *           {@link JssmParseTree} with one node per top-level FSL statement.
+ *
+ *  @throws {SyntaxError} The generated PEG.js parser's `SyntaxError` when
+ *                        `input` is not valid FSL.
+ *
+ *  @see {@link compile}
+ *  @see {@link make}
+ *  @see {@link JssmParseOptions}
  *
  */
-declare function wrap_parse(input: string, options?: Object): any;
+declare function wrap_parse<StateType = string, mDT = unknown>(input: string, options?: JssmParseOptions): JssmParseTree<StateType, mDT>;
 /*********
  *
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -1405,12 +1713,18 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param tree The parse tree to be boiled down into a machine config.  If the
  *              tree was produced with `parse(input, { locations: true })`, any
  *              semantic error thrown will carry a `source_location` span
  *              pointing at the offending statement.
+ *
+ *  @throws {JssmError} If the document declares no transitions (for example a
+ *                      states-first document of only `state` blocks) — a
+ *                      machine requires at least one transition; also for
+ *                      repeated property definitions, group errors, and other
+ *                      semantic problems noted throughout.
  *
  */
 declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGenericConfig<StateType, mDT>;
@@ -1420,7 +1734,7 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param plan The FSL code to be evaluated and built into a machine config
  *
@@ -1454,7 +1768,7 @@ declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType
  *  @throws {TypeError} If `options` is not a non-empty array of objects.
  *
  */
-declare const weighted_rand_select: Function;
+declare const weighted_rand_select: (options: Array<any>, probability_property?: string, rng?: JssmRng) => any;
 /*******
  *
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
@@ -1480,7 +1794,7 @@ declare function seq(n: number): number[];
  *  ```
  *
  */
-declare const histograph: Function;
+declare const histograph: (ar: any[]) => Map<any, number>;
 /*******
  *
  *  Draws `n` weighted random samples from an array of objects.  Each draw is
@@ -1504,7 +1818,7 @@ declare const histograph: Function;
  *  @returns An array of `n` independently selected items.
  *
  */
-declare const weighted_sample_select: Function;
+declare const weighted_sample_select: (n: number, options: Array<any>, probability_property: string, rng?: JssmRng) => Array<any>;
 /*******
  *
  *  Draws `n` weighted random samples, extracts a named key from each, and
@@ -1532,7 +1846,7 @@ declare const weighted_sample_select: Function;
  *  @returns A `Map` from extracted key values to their occurrence counts.
  *
  */
-declare const weighted_histo_key: Function;
+declare const weighted_histo_key: (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng) => Map<any, number>;
 /*******
  *
  *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
@@ -1542,7 +1856,7 @@ declare const weighted_histo_key: Function;
  *  Replaces the Mulberry generator, which was found to have problems
  *
  */
-declare function gen_splitmix32(a?: number | undefined): () => number;
+declare function gen_splitmix32(a?: number): () => number;
 /*******
  *
  *  Reduces an array to its unique contents.  Compares with `===` and makes no
@@ -1596,71 +1910,18 @@ declare function find_repeated<T>(arr: T[]): [T, number][];
 declare function sleep(ms: number): Promise<unknown>;
 
 /**
- * String interning support for the jssm machine internals.
- *
- * State and action names are interned to dense integer ids at machine
- * construction so that per-transition dispatch can use numeric map keys
- * (integer hashing) instead of repeated string-keyed lookups.  Internal
- * machinery only — deliberately not re-exported from the `jssm` public
- * surface, so the public API is unchanged.
- *
- * @internal
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
  */
+declare const version: string;
 /**
- * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
- * order; lookups are O(1) both directions.  Grows monotonically — there is
- * no removal, matching machine semantics (states and actions are fixed
- * after construction; late interning only happens for never-matching
- * lookups such as hook registrations naming unknown states).
- *
- * @example
- *   const i = new Interner();
- *   i.intern('red');     // 0
- *   i.intern('green');   // 1
- *   i.intern('red');     // 0  (idempotent)
- *   i.id_of('green');    // 1
- *   i.name_of(0);        // 'red'
- *
- * @see pair_key
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
  */
-declare class Interner {
-    private readonly ids;
-    private readonly names;
-    constructor();
-    /**
-     * Return the id for `name`, assigning the next dense id if the name has
-     * not been seen before.
-     *
-     * @param name - The string to intern.
-     * @returns The (possibly newly assigned) integer id.
-     *
-     * @example
-     *   interner.intern('red');  // 0 on first call, 0 on every later call
-     */
-    intern(name: string): number;
-    /**
-     * Return the id for `name` without interning, or `undefined` when the
-     * name has never been interned.  This is the hot-path probe for
-     * user-supplied names.
-     *
-     * @param name - The string to look up.
-     *
-     * @example
-     *   interner.id_of('mauve');  // undefined — never interned
-     */
-    id_of(name: string): number | undefined;
-    /**
-     * Return the name for `id`, or `undefined` for an id never assigned.
-     *
-     * @param id - The integer id to invert.
-     *
-     * @example
-     *   interner.name_of(0);  // 'red'
-     */
-    name_of(id: number): string | undefined;
-    /** The count of distinct interned names. */
-    get size(): number;
-}
+declare const build_time: number;
 
 /*******
  *
@@ -1732,7 +1993,6 @@ declare const named_colors$1: string[];
  *  Includes ASCII digits/letters and the symbols
  *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
- *
  *  @example
  *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
@@ -1748,7 +2008,6 @@ declare const state_name_chars$1: ReadonlyArray<{
  *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
  *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
- *
  *  @example
  *  import { state_name_first_chars } from 'jssm';
  *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
@@ -1764,7 +2023,6 @@ declare const state_name_first_chars$1: ReadonlyArray<{
  *  excluded since it terminates the label.
  *
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
- *
  *  @example
  *  import { action_label_chars } from 'jssm';
  *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
@@ -1820,110 +2078,7 @@ declare namespace jssm_constants_d {
   };
 }
 
-/**
- * Editor-agnostic data types for the FSL language service.
- *
- * These are the neutral contract every editor adapter (CodeMirror, VS Code, a
- * future LSP server) converts to/from. Shapes are kept aligned with LSP types so
- * an LSP wrapper is a near-mechanical mapping.
- */
-/** A character-offset range in the FSL source. */
-interface Range {
-    from: number;
-    to: number;
-}
-/** Diagnostic severity, aligned with LSP severities. */
-declare type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
-/** An editor-agnostic diagnostic (one parse/compile problem). */
-interface Diagnostic {
-    range: Range;
-    severity: DiagnosticSeverity;
-    message: string;
-}
-/** What a completion item suggests, so adapters can pick an icon. */
-declare type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
-/** An editor-agnostic completion suggestion. */
-interface CompletionItem {
-    label: string;
-    kind: CompletionKind;
-    detail?: string;
-}
-/** Parser-derived semantic role of a source span. */
-declare type SemanticSpanKind = 'color' | 'state' | 'enum';
-/** An editor-agnostic semantic span (for decorations / semantic tokens). */
-interface SemanticSpan extends Range {
-    kind: SemanticSpanKind;
-    value?: string;
-}
-
-/**
- * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
- * neutral {@link Diagnostic}s. Adapters map these to CodeMirror lint diagnostics,
- * VS Code markers, or LSP `Diagnostic`s.
- *
- * Parse errors (peg.js) carry `.location`; compile errors carry
- * `.source_location` *when they reference a parsed node* — but machine-level
- * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
- * the location is treated as optional and falls back to the whole document.
- */
-
-/**
- * Parse then compile `text`, returning a list of diagnostics — empty when the
- * machine parses and compiles cleanly.
- *
- * @example
- *   fslDiagnostics('a -> b;');            // => []
- *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
- */
-declare function fslDiagnostics(text: string): Diagnostic[];
-
-/**
- * Context-aware, editor-agnostic FSL completions. Value suggestions after a
- * `key:`, key suggestions at a statement start (top-level vs inside a `{ }`
- * block, by brace depth). Adapters convert {@link CompletionItem}s to their own
- * completion type. Value vocab is jssm's own (`gviz_shapes`, `named_colors`,
- * `FslDirections`), so it cannot drift from the renderer.
- */
-
-/**
- * Completions for the caret at `offset` in `text`.
- *
- * @example
- *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
- */
-declare function fslCompletions(text: string, offset: number): CompletionItem[];
-
-/**
- * Parser-derived semantic spans for FSL: color values (with resolved hex),
- * state names, and shape-enum values. Returns `[]` if the document does not
- * parse. Editor-agnostic — adapters map spans to decorations or semantic
- * tokens. Logic is a verified port of the sketch's `semantic_overlay.mjs`.
- */
-
-/**
- * Collect color / state / shape-enum semantic spans from `text`.
- *
- * @example
- *   fslSemanticSpans('state s : { color: crimson; };')
- *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
- */
-declare function fslSemanticSpans(text: string): SemanticSpan[];
-
-/**
- *  The published semantic version of the jssm package this build was cut from.
- *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
- *  Useful for runtime diagnostics and for embedding in serialized machine
- *  snapshots so that deserializers can detect version-skew.
- */
-declare const version: string;
-/**
- *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
- *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
- *  with the same `version` string during development, and for diagnostic logs.
- */
-declare const build_time: number;
-
-declare type StateType = string;
+type StateType = string;
 
 declare const shapes: string[];
 declare const gviz_shapes: string[];
@@ -1945,59 +2100,30 @@ declare const action_label_chars: readonly {
  *  Internal record holding a single registered event subscription: the
  *  handler, its optional filter, and a flag for `once` semantics.  Not
  *  exported.
- *
  *  @internal
  */
-declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     handler: JssmEventHandler<mDT, Ev>;
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
 };
-declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
-/**
+/*********
  *
- *  Collapse a list of individual state-style key/value pairs into a single
- *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
- *  camelCase field names the runtime uses.
- *
- *  The parser emits state styling as a flat array like
- *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
- *  because that is the most natural shape for the grammar to produce.  This
- *  helper runs once per style bucket during `Machine` construction to turn
- *  those arrays into the compact `{ color, lineStyle, ... }` objects the
- *  graph-rendering code expects.
- *
- *  ```typescript
- *  state_style_condense([
- *    { key: 'color',      value: 'red' },
- *    { key: 'shape',      value: 'oval' },
- *    { key: 'line-style', value: 'dashed' }
- *  ]);
- *  // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
- *
- *  state_style_condense(undefined);
- *  // => {}
- *  ```
- *
- *  @param jssk The list of style keys to condense.  `undefined` is accepted
- *  and yields an empty config.
- *
- *  @param machine Optional `Machine` reference, used only so that any
- *  {@link JssmError} thrown can point at the offending machine in its
- *  diagnostic message.
- *
- *  @returns A `JssmStateConfig` object containing every key from `jssk`
- *  remapped into its camelCase field.
- *
- *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
- *  element is not an object, if the same key appears more than once, or if a
- *  key is not one of the recognized style names.
+ *  An internal method meant to take a series of declarations and fold them into
+ *  a single multi-faceted declaration, in the process of building a state.  Not
+ *  generally meant for external use.
  *
  *  @internal
  *
  */
+declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
+/** Default number of independent Monte-Carlo runs when none is declared. */
+declare const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+declare const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 declare class Machine<mDT> {
+    #private;
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
     _edges: Array<JssmTransition<StateType, mDT>>;
@@ -2023,11 +2149,11 @@ declare class Machine<mDT> {
     _machine_language?: string;
     _machine_license?: string;
     _machine_name?: string;
-    _machine_version?: string;
+    _machine_version?: JssmParsedSemver;
     _npm_name?: string;
     _default_size?: JssmDefaultSize;
-    _fsl_version?: string;
-    _raw_state_declaration?: Array<Object>;
+    _fsl_version?: JssmParsedSemver;
+    _raw_state_declaration?: Array<object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
     _data?: mDT;
     _instance_name: string;
@@ -2040,6 +2166,8 @@ declare class Machine<mDT> {
     _arrange_declaration: Array<Array<StateType>>;
     _arrange_start_declaration: Array<Array<StateType>>;
     _arrange_end_declaration: Array<Array<StateType>>;
+    _oarrange_declaration: Array<Array<StateType>>;
+    _farrange_declaration: Array<Array<StateType>>;
     _themes: FslTheme[];
     _flow: FslDirection;
     _has_hooks: boolean;
@@ -2056,6 +2184,7 @@ declare class Machine<mDT> {
     _entry_hooks: Map<number, HookHandler<mDT>>;
     _exit_hooks: Map<number, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
+    _after_any_hook: HookHandler<mDT> | undefined;
     _global_action_hooks: Map<number, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
@@ -2072,6 +2201,7 @@ declare class Machine<mDT> {
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
     _allow_islands: JssmAllowIslands;
+    _editor_config?: JssmEditorConfig;
     _post_hooks: Map<number, HookHandler<mDT>>;
     _post_named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
     _post_entry_hooks: Map<number, HookHandler<mDT>>;
@@ -2091,10 +2221,6 @@ declare class Machine<mDT> {
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
     _state_property_first_state: Map<string, StateType>;
-    _val_keys: Set<string>;
-    _val_types: Map<string, JssmValType>;
-    _val_values: Map<string, any>;
-    _required_vals: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -2115,17 +2241,18 @@ declare class Machine<mDT> {
     _create_started: number;
     _created: number;
     _after_mapping: Map<string, [string, number]>;
-    _timeout_source: (Function: any, number: any) => number;
-    _clear_timeout_source: (h: any) => void;
+    _timeout_source: (f: () => void, a: number) => number;
+    _clear_timeout_source: (h: number) => void;
     _timeout_handle: number | undefined;
     _timeout_target: string | undefined;
     _timeout_target_time: number | undefined;
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
+    _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -2148,7 +2275,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.state() );             // 'off'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The current state name.
      *
@@ -2168,7 +2295,7 @@ declare class Machine<mDT> {
      *
      *  See also {@link display_text}.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to get the label for.
      *
@@ -2195,7 +2322,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.display_text('b') );              // 'b'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to get display text for.
      *
@@ -2214,12 +2341,66 @@ declare class Machine<mDT> {
      *  console.log( lswitch.data() );              // 1
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns A deep clone of the machine's current data value.
      *
      */
     data(): mDT;
+    /*********
+     *
+     *  Replace the machine's data in place, without a transition.  This is the
+     *  practical way to assign any value — including `undefined`, `null`, or
+     *  `false` — outside a hook's complex return, closing the gap where an
+     *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
+     *  a `data-change` event with cause `'set_data'` when the value actually
+     *  changes; unlike {@link override} it requires no `allows_override`
+     *  config, because it never moves the state.
+     *
+     *  ```typescript
+     *  import * as jssm from 'jssm';
+     *
+     *  const lswitch = jssm.from('on <=> off;', {data: 1});
+     *  console.log( lswitch.data() );              // 1
+     *
+     *  lswitch.set_data(2);
+     *  console.log( lswitch.data() );              // 2
+     *
+     *  lswitch.set_data(undefined);
+     *  console.log( lswitch.data() );              // undefined
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newData The value to install as the machine's data.
+     *
+     *  @returns The machine, for chaining.
+     *
+     *  @see Machine.data
+     *  @see override
+     *
+     */
+    set_data(newData: mDT): Machine<mDT>;
+    /**
+     *  The machine's current data by REFERENCE — no clone.  The public
+     *  {@link Machine.data} contract is a deep clone per call (a mutation
+     *  boundary for external consumers, and deliberately untouched); that clone
+     *  is `structuredClone` of the whole data value, which same-package
+     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
+     *  read one dotted path or serialize per transition — should not pay on
+     *  every event.  Callers MUST NOT mutate the returned value or store it
+     *  beyond the current tick; anything crossing a trust boundary must use
+     *  {@link Machine.data} instead.
+     *
+     *  ```typescript
+     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
+     *  m._data_ref().a.b;   // 1, zero-copy
+     *  ```
+     *  @returns The live data value; treat as read-only.
+     *  @see Machine.data
+     *  @internal
+     */
+    _data_ref(): mDT;
     /*********
      *
      *  Get the current value of a given property name.  Checks the current
@@ -2283,21 +2464,21 @@ declare class Machine<mDT> {
      *    [Red Yellow Green] ~> [Off FlashingRed];
      *    FlashingRed -> Red;
      *
-     *    state Red:         { property stop_first true;  property can_go false; };
-     *    state Off:         { property stop_first true;  };
-     *    state FlashingRed: { property stop_first true;  };
-     *    state Green:       { property hesitate   false; };
+     *    state Red:         { property: stop_first true;  property: can_go false; };
+     *    state Off:         { property: stop_first true;  };
+     *    state FlashingRed: { property: stop_first true;  };
+     *    state Green:       { property: hesitate   false; };
      *
      *  `;
      *
      *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
      *  ```
      *
      *  @returns An object mapping every known property name to its current value
@@ -2337,101 +2518,6 @@ declare class Machine<mDT> {
      *
      */
     known_props(): string[];
-    /*********
-     *
-     *  Read the current value of a declared machine `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val ok : boolean default true; a -> b;`;
-     *
-     *  m.val('ok');   // true
-     *  ```
-     *
-     *  @param name The declared val name to read.
-     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
-     *  @throws {JssmError} If `name` is not a declared val.
-     *
-     */
-    val(name: string): any;
-    /*********
-     *
-     *  Set the value of a declared machine `val`, validating it against the val's
-     *  declared type.  This is the runtime mutation surface; source-level `assign`
-     *  arrives in a later phase.
-     *
-     *  ```typescript
-     *  const m = sm`val n : int default 0; a -> b;`;
-     *
-     *  m.set_val('n', 5);
-     *  m.val('n');   // 5
-     *  ```
-     *
-     *  @param name  The declared val name to write.
-     *  @param value The new value; must satisfy the val's declared type.
-     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
-     *
-     */
-    set_val(name: string, value: any): void;
-    /*********
-     *
-     *  Return a plain object mapping every declared val name to its current value.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
-     *
-     *  m.vals();   // { a: 1, b: false }
-     *  ```
-     *
-     *  @returns An object of every declared val name to its current value.
-     *
-     */
-    vals(): object;
-    /*********
-     *
-     *  Check whether a string is the name of a declared `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; x -> y;`;
-     *
-     *  m.known_val('a');   // true
-     *  m.known_val('z');   // false
-     *  ```
-     *
-     *  @param name The candidate val name.
-     *  @returns Whether the name is a declared val.
-     *
-     */
-    known_val(name: string): boolean;
-    /*********
-     *
-     *  List every declared `val` name, in declaration order.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
-     *
-     *  m.known_vals();   // ['a', 'b']
-     *  ```
-     *
-     *  @returns The declared val names in declaration order.
-     *
-     */
-    known_vals(): string[];
-    /*********
-     *
-     *  Return the declared type descriptor of a `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
-     *
-     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
-     *  ```
-     *
-     *  @param name The declared val name.
-     *  @returns The val's declared type descriptor.
-     *  @throws {JssmError} If `name` is not a declared val.
-     *
-     */
-    val_type(name: string): JssmValType;
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
@@ -2451,7 +2537,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.is_start_state('b') );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check
      *
@@ -2476,7 +2562,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.is_start_state('b') );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check
      *
@@ -2529,7 +2615,7 @@ declare class Machine<mDT> {
      *  console.log( final_test.state_is_final('second') );  // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The name of the state to check for finality
      *
@@ -2557,9 +2643,9 @@ declare class Machine<mDT> {
      *  Serialize the current machine, including all defining state but not the
      *  machine string, to a structure.  This means you will need the machine
      *  string to recreate (to not waste repeated space;) if you want the machine
-     *  string embedded, call {@link serialize_with_string} instead.
+     *  string embedded, call `serialize_with_string` instead.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param comment An optional comment string to embed in the serialized
      *  output for identification or debugging.
@@ -2568,29 +2654,21 @@ declare class Machine<mDT> {
      *  current state, data, and timestamp.
      *
      */
-    serialize(comment?: string | undefined): JssmSerialization<mDT>;
+    serialize(comment?: string): JssmSerialization<mDT>;
     /**
-     *  The RFC 8785 canonical-config identity of the current configuration
-     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
-     *  hashing.  Excludes envelope fields (timestamp/comment/history).
-     *
-     *  @returns The canonical config string.
-     *  @example
-     *    import { sm } from 'jssm';
-     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
-     */
-    canonical(): string;
-    /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
+     * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
      *  FSL `graph_layout` directive.
      *  @returns The layout string, or the default if not set.
      */
     graph_layout(): string;
-    /** Get the Graphviz DOT preamble string, injected before the graph body
+    /**
+     * Get the Graphviz DOT preamble string, injected before the graph body
      *  during visualization.  Set via the FSL `dot_preamble` directive.
      *  @returns The preamble string.
      */
     dot_preamble(): string;
-    /** Get the consolidated `transition: {}` default-config block: the ordered,
+    /**
+     * Get the consolidated `transition: {}` default-config block: the ordered,
      *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
      *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
      *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
@@ -2601,13 +2679,13 @@ declare class Machine<mDT> {
      *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
      *  // [ { key: 'color', value: '#0000ffff' } ]
      *  ```
-     *
      *  @returns The transition-config item list, or `undefined` if the machine
      *  declared no `transition: {}` block.
      *  @see default_graph_config
      */
     default_transition_config(): JssmTransitionConfig | undefined;
-    /** Get the consolidated `graph: {}` default-config block: the ordered,
+    /**
+     * Get the consolidated `graph: {}` default-config block: the ordered,
      *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
      *  compiler folds the deprecated top-level graph keywords
      *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
@@ -2621,29 +2699,33 @@ declare class Machine<mDT> {
      *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
      *  // [ { key: 'background-color', value: '#ffffffff' } ]
      *  ```
-     *
      *  @returns The graph-config item list, or `undefined` if the machine has no
      *  graph config (no `graph: {}` block and no deprecated graph keyword).
      *  @see default_transition_config
      */
     default_graph_config(): JssmGraphConfig | undefined;
-    /** Get the machine's author list.  Set via the FSL `machine_author` directive.
+    /**
+     * Get the machine's author list.  Set via the FSL `machine_author` directive.
      *  @returns An array of author name strings.
      */
     machine_author(): Array<string>;
-    /** Get the machine's comment string.  Set via the FSL `machine_comment` directive.
+    /**
+     * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
      *  @returns The comment string.
      */
     machine_comment(): string;
-    /** Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
+    /**
+     * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
      *  @returns An array of contributor name strings.
      */
     machine_contributor(): Array<string>;
-    /** Get the machine's definition string.  Set via the FSL `machine_definition` directive.
+    /**
+     * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
      *  @returns The definition string.
      */
     machine_definition(): string;
-    /** Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
+    /**
+     * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
      *  `machine_language` directive, which accepts a language name or code, or a
      *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
      *  values resolve to `undefined`.
@@ -2651,21 +2733,35 @@ declare class Machine<mDT> {
      *           supplied value did not resolve to a known language.
      */
     machine_language(): string;
-    /** Get the machine's license string.  Set via the FSL `machine_license` directive.
+    /**
+     * Get the machine's license string.  Set via the FSL `machine_license` directive.
      *  @returns The license string.
      */
     machine_license(): string;
-    /** Get the machine's name.  Set via the FSL `machine_name` directive.
+    /**
+     * Get the machine's name.  Set via the FSL `machine_name` directive.
      *  @returns The machine name string.
      */
     machine_name(): string;
-    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+    /**
+     * The editor/panel defaults declared in the FSL `editor: {}` block, or
+     *  `undefined` when none was given.  Read by the all-widgets web control
+     *  (fsl#1334) — `panels` drives `request` panel mode.
+     *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+     *  @example
+     *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+     *    m.editor_config();  // => { panels: ['history'] }
+     */
+    editor_config(): JssmEditorConfig | undefined;
+    /**
+     * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
      *  Returns `undefined` when not present.
      *  @returns The npm package name string, or `undefined`.
      *  @see machine_name
      */
     npm_name(): string;
-    /** Get the render-size hint for the machine's visualization.  Set via the
+    /**
+     * Get the render-size hint for the machine's visualization.  Set via the
      *  FSL `default_size` directive.  Returns `undefined` when not present.
      *
      *  The three FSL forms each produce a different subset of fields:
@@ -2675,33 +2771,54 @@ declare class Machine<mDT> {
      *  - `default_size: height 600;` → `{ height: 600 }`
      *
      *  This is a hint, not a hard constraint.  Renderers may ignore it.
-     *
      *  @returns The size-hint object, or `undefined` if not set.
      *  @see npm_name
      */
     default_size(): JssmDefaultSize | undefined;
-    /** Get the machine's version string.  Set via the FSL `machine_version` directive.
-     *  @returns The version string.
+    /**
+     * Get the machine's declared version, parsed.  Set via the FSL
+     *  `machine_version` directive, which takes a semver triple; the parser
+     *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
+     *  exact source text in `full`.  Returns `undefined` when the directive
+     *  was not given.
+     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+     *  @example
+     *    const m = sm`machine_version: 1.2.3; a -> b;`;
+     *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+     *  @see fsl_version
      */
-    machine_version(): string;
-    /** Get the raw state declaration objects as parsed from the FSL source.
+    machine_version(): JssmParsedSemver | undefined;
+    /**
+     * Get the raw state declaration objects as parsed from the FSL source.
      *  @returns An array of raw state declaration objects.
      */
-    raw_state_declarations(): Array<Object>;
-    /** Get the processed state declaration for a specific state.
+    raw_state_declarations(): Array<object>;
+    /**
+     * Get the processed state declaration for a specific state.
      *  @param which - The state to look up.
      *  @returns The {@link JssmStateDeclaration} for the given state.
      */
     state_declaration(which: StateType): JssmStateDeclaration;
-    /** Get all processed state declarations as a Map.
+    /**
+     * Get all processed state declarations as a Map.
      *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
      */
     state_declarations(): Map<StateType, JssmStateDeclaration>;
-    /** Get the FSL language version this machine was compiled under.
-     *  @returns The FSL version string.
+    /**
+     * Get the FSL language version this machine declares, parsed.  Set via
+     *  the FSL `fsl_version` directive, which takes a semver triple; the
+     *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
+     *  the exact source text in `full`.  Returns `undefined` when the
+     *  directive was not given.
+     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+     *  @example
+     *    const m = sm`fsl_version: 1.0.0; a -> b;`;
+     *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
+     *  @see machine_version
      */
-    fsl_version(): string;
-    /** Get the complete internal state of the machine as a serializable
+    fsl_version(): JssmParsedSemver | undefined;
+    /**
+     * Get the complete internal state of the machine as a serializable
      *  structure.  Includes actions, edges, edge map, named transitions,
      *  reverse actions, current state, and states map.
      *  @returns A {@link JssmMachineInternalState} snapshot.
@@ -2719,13 +2836,14 @@ declare class Machine<mDT> {
      *  console.log( lswitch.states() );             // ['on', 'off']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns An array of all state names in the machine.
      *
      */
     states(): Array<StateType>;
-    /** Get the internal state descriptor for a given state name.
+    /**
+     * Get the internal state descriptor for a given state name.
      *  @param whichState - The state to look up.
      *  @returns The {@link JssmGenericState} descriptor.
      *  @throws {JssmError} If the state does not exist.
@@ -2744,7 +2862,7 @@ declare class Machine<mDT> {
      *  console.log( lswitch.has_state('dance') );   // false
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state to be checked for existence.
      *
@@ -2782,25 +2900,29 @@ declare class Machine<mDT> {
      *  ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns An array of all {@link JssmTransition} edge objects.
      *
      */
     list_edges(): Array<JssmTransition<StateType, mDT>>;
-    /** Get the map of named transitions (transitions with explicit names).
+    /**
+     * Get the map of named transitions (transitions with explicit names).
      *  @returns A `Map` from transition name to edge index.
      */
     list_named_transitions(): Map<StateType, number>;
-    /** List all distinct action names defined anywhere in the machine.
+    /**
+     * List all distinct action names defined anywhere in the machine.
      *  @returns An array of action name strings.
      */
     list_actions(): Array<StateType>;
-    /** Whether any actions are defined on this machine.
+    /**
+     * Whether any actions are defined on this machine.
      *  @returns `true` if the machine has at least one action.
      */
     get uses_actions(): boolean;
-    /** Whether any forced (`~>`) transitions exist in this machine.
+    /**
+     * Whether any forced (`~>`) transitions exist in this machine.
      *  @returns `true` if at least one forced transition is defined.
      */
     get uses_forced_transitions(): boolean;
@@ -2841,16 +2963,16 @@ declare class Machine<mDT> {
      *
      */
     get allow_islands(): JssmAllowIslands;
-    /** List all available theme names.
+    /**
+     * List all available theme names.
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
-    /** List the character ranges accepted by the FSL grammar in any but the
+    /**
+     * List the character ranges accepted by the FSL grammar in any but the
      *  first position of a state name (atom).  Each entry is an inclusive
      *  `{from, to}` range of single Unicode characters.
-     *
      *  @returns An array of `{from, to}` inclusive character ranges.
-     *
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
@@ -2860,12 +2982,11 @@ declare class Machine<mDT> {
         from: string;
         to: string;
     }>;
-    /** List the character ranges accepted by the FSL grammar in the first
+    /**
+     * List the character ranges accepted by the FSL grammar in the first
      *  position of a state name (atom).  Narrower than
      *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
-     *
      *  @returns An array of `{from, to}` inclusive character ranges.
-     *
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
@@ -2875,12 +2996,11 @@ declare class Machine<mDT> {
         from: string;
         to: string;
     }>;
-    /** List the character ranges accepted inside a single-quoted FSL action
+    /**
+     * List the character ranges accepted inside a single-quoted FSL action
      *  label without escaping.  Space is allowed; the apostrophe `'` is
      *  explicitly excluded since it terminates the label.
-     *
      *  @returns An array of `{from, to}` inclusive character ranges.
-     *
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
@@ -2891,28 +3011,45 @@ declare class Machine<mDT> {
         from: string;
         to: string;
     }>;
-    /** Get the active theme(s) for this machine.  Always stored as an array
+    /**
+     * Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
      */
     get themes(): FslTheme | FslTheme[];
-    /** Set the active theme(s).  Accepts a single theme name or an array.
+    /**
+     * Set the active theme(s).  Accepts a single theme name or an array.
+     *  Also drops every memoized static state config, so styles resolved
+     *  before the change re-resolve under the new theme stack.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  m.style_for('b');                 // resolved under the default theme
+     *  m.themes = 'ocean';
+     *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
+     *  ```
+     *
      *  @param to - A theme name or array of theme names to apply.
+     *
+     *  @see resolve_state_config
      */
     set themes(to: FslTheme | FslTheme[]);
-    /** Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
+    /**
+     * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
      *  Set via the FSL `flow` directive.
      *  @returns The current flow direction.
      */
     flow(): FslDirection;
-    /** Look up a transition's edge index by source and target state names.
+    /**
+     * Look up a transition's edge index by source and target state names.
      *  @param from - Source state name.
      *  @param to   - Target state name.
      *  @returns The edge index in the edges array, or `undefined` if no
      *  such transition exists.
      */
     get_transition_by_state_names(from: StateType, to: StateType): number;
-    /** Look up the full transition object for a given source→target pair.
+    /**
+     * Look up the full transition object for a given source→target pair.
      *  @param from - Source state name.
      *  @param to   - Target state name.
      *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
@@ -2933,7 +3070,7 @@ declare class Machine<mDT> {
      *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose transitions to have listed
      *
@@ -2944,7 +3081,7 @@ declare class Machine<mDT> {
      *  List all entrances attached to the current state.  Please note that the
      *  order of the list is not defined.  This list includes both unforced and
      *  forced entrances; if this isn't desired, consider
-     *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+     *  `list_unforced_entrances` or `list_forced_entrances` as
      *  appropriate.
      *
      *  ```typescript
@@ -2956,7 +3093,7 @@ declare class Machine<mDT> {
      *  light.list_entrances();      // [ 'yellow', 'off' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose entrances to have listed
      *
@@ -2966,8 +3103,8 @@ declare class Machine<mDT> {
      *
      *  List all exits attached to the current state.  Please note that the order
      *  of the list is not defined.  This list includes both unforced and forced
-     *  exits; if this isn't desired, consider {@link list_unforced_exits} or
-     *  {@link list_forced_exits} as appropriate.
+     *  exits; if this isn't desired, consider `list_unforced_exits` or
+     *  `list_forced_exits` as appropriate.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -2978,13 +3115,14 @@ declare class Machine<mDT> {
      *  light.list_exits();          // [ 'green', 'off' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose exits to have listed
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
-    /** Get the transitions available from a state for use by the probabilistic
+    /**
+     * Get the transitions available from a state for use by the probabilistic
      *  walk system.
      *
      *  If any exit declares a `probability`, only those probability-bearing
@@ -2997,30 +3135,139 @@ declare class Machine<mDT> {
      *  Fixes StoneCypher/fsl#1325, in which the function previously returned
      *  every exit unconditionally — including forced-only exits and exits
      *  with no `probability`, which distorted the weighted distribution.
-     *
      *  @param whichState - The state to inspect.
      *  @returns An array of {@link JssmTransition} edges exiting the state,
      *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
-    /** Take a single random transition from the current state, weighted by
+    /**
+     * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
+     *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
+     *  selectable weight is zero, because weighted selection over an all-zero
+     *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
+     *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+     *  An empty pool is not this guard's concern (terminality is handled by the
+     *  callers) and passes through untouched.
+     *
+     *  ```typescript
+     *  const m = sm`a 0% -> b; a 0% -> c;`;
+     *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
+     *  ```
+     *  @param whichState - The state the pool exits from, named in the error.
+     *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
+     *  @throws {JssmError} If the pool is non-empty and every candidate edge
+     *  has probability 0 — including the case where explicit `0%` edges
+     *  excluded their unweighted sibling edges from the candidate pool.
+     *  @see probable_exits_for
+     */
+    private _assert_selectable_exit_pool;
+    /**
+     * Take a single random transition from the current state, weighted by
      *  edge probabilities.
      *  @returns `true` if a transition was taken, `false` otherwise.
+     *  @throws {JssmError} If the candidate exit pool is non-empty but its
+     *  total weight is zero — every candidate declares `0%` — per
+     *  StoneCypher/fsl#1248.
      */
     probabilistic_transition(): boolean;
-    /** Take `n` consecutive probabilistic transitions and return the sequence
+    /**
+     * Take `n` consecutive probabilistic transitions and return the sequence
      *  of states visited (before each transition).
      *  @param n - Number of steps to walk.
      *  @returns An array of state names visited during the walk.
+     *  @throws {JssmError} If a visited state's candidate exit pool is
+     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
      */
     probabilistic_walk(n: number): Array<StateType>;
-    /** Take `n` probabilistic steps and return a histograph of how many times
+    /**
+     * Take `n` probabilistic steps and return a histograph of how many times
      *  each state was visited.
      *  @param n - Number of steps to walk.
      *  @returns A `Map` from state name to visit count.
+     *  @throws {JssmError} If a visited state's candidate exit pool is
+     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
      */
     probabilistic_histo_walk(n: number): Map<StateType, number>;
+    /**
+     * One non-destructive weighted-random walk over the graph from `start`.
+     *
+     *  Reads the graph and advances the PRNG only — it never calls
+     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+     *  state, and touches no `data`.  A state with no probabilistic exits
+     *  (a terminal, or a forced-only `~>` state) ends the walk.
+     *
+     *  Terminality is checked before the first transition and after every
+     *  transition.  A terminal start therefore completes with length zero even
+     *  when `max_steps` is zero, and a terminal reached on the final permitted
+     *  transition is completed rather than step-capped.
+     *
+     *  @param start - State to begin the walk from.
+     *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
+     *    results.  The graph is immutable after construction, so a state's
+     *    probable exits never change; sharing one memo across a generator's
+     *    runs collapses runs×steps re-derivations (two array allocations and an
+     *    exit rescan per step) to one per distinct state.  The memo only reuses
+     *    the derived arrays — RNG draw order is untouched, so seeded walks
+     *    reproduce exactly.
+     *  @returns The {@link JssmStochasticRun} for this walk.
+     *  @throws {JssmError} If a visited state's candidate exit pool is
+     *  non-empty but all-zero-weight — see
+     *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
+     */
+    private _stochastic_one_walk;
+    /**
+     * Lazily yield one {@link JssmStochasticRun} at a time.
+     *
+     *  In `montecarlo` mode (default) yields `runs` independent walks from the
+     *  current state, each ending at a terminal or after `max_steps`.  In
+     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+     *  fsl-stochastic panel drives it across animation frames.  A walk already
+     *  at a terminal is reported as terminated with length zero, including when
+     *  `max_steps` is zero.
+     *
+     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+     *  prior seed afterward — a direct caller's machine is left reseeded.
+     *  @param opts - {@link JssmStochasticOptions}.
+     *  @yields One {@link JssmStochasticRun} per completed walk.
+     *  @returns A generator of per-run results.
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+     */
+    stochastic_runs(opts?: JssmStochasticOptions): Generator<JssmStochasticRun>;
+    /**
+     * Run many weighted-random walks and return aggregate statistics.
+     *
+     *  Honors `%` transition probabilities (via the existing probabilistic
+     *  machinery).  Non-destructive: the machine's current state and
+     *  {@link Machine.rng_seed} are restored before returning, so calling this
+     *  never perturbs the live machine.  `montecarlo` mode (default) reports
+     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+     *  mode runs one long walk and omits those fields.
+     *
+     *  Monte-Carlo runs count as `terminal_reached` when they start at a
+     *  terminal or reach one on the final permitted transition.  Terminal
+     *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
+     *
+     *  Timing (`after`) decorations and data-guard conditions are not modeled
+     *  by this sampler; it walks the probabilistic graph topology.
+     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+     *  @returns A {@link JssmStochasticSummary}.
+     *  @see Machine.stochastic_runs
+     *  @see Machine.probabilistic_walk
+     *  @see Machine.editor_config
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+     *  s.terminal_reached;  // => 100
+     */
+    stochastic_summary(opts?: JssmStochasticOptions): JssmStochasticSummary;
     /********
      *
      *  List all actions available from this state.  Please note that the order of
@@ -3050,7 +3297,7 @@ declare class Machine<mDT> {
      *  console.log( machine.actions() );  // logs ['next', 'shutdown']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The state whose actions to list.  Defaults to the
      *  current state.
@@ -3076,23 +3323,22 @@ declare class Machine<mDT> {
      *  console.log( machine.list_states_having_action('start') );   // ['off']
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param whichState The action to be checked for associated states
      *
      */
     list_states_having_action(whichState: StateType): Array<StateType>;
-    /** List all action names available as exits from a given state.
+    /**
+     * List all action names available as exits from a given state.
      *
      *  Returns the empty array (does not throw) when `whichState` exists but has
      *  no action-named exits — including terminal states, states whose only
      *  exits are plain `->` transitions, and states in machines that use no
      *  actions at all.  Only nonexistent states cause a throw.
-     *
      *  @param whichState - The state to inspect.  Defaults to the current state.
      *  @returns An array of action name strings, possibly empty.
      *  @throws {JssmError} If the state does not exist.
-     *
      *  @example
      *    const m = sm`a 'go' -> b; b -> c;`;
      *    m.list_exit_actions('a');  // => ['go']
@@ -3101,33 +3347,39 @@ declare class Machine<mDT> {
      *    expect(() => m.list_exit_actions('z')).toThrow();
      */
     list_exit_actions(whichState?: StateType): Array<StateType>;
-    /** List all action exits from a state with their probabilities.
+    /**
+     * List all action exits from a state with their probabilities.
      *  @param whichState - The state to inspect.  Defaults to the current state.
      *  @returns An array of `{ action, probability }` objects.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_action_exits(whichState?: StateType): Array<any>;
-    /** Check whether a state has no incoming transitions (unreachable after start).
+    /**
+     * Check whether a state has no incoming transitions (unreachable after start).
      *  @param whichState - The state to check.
      *  @returns `true` if the state has zero entrances.
      *  @throws {JssmError} If the state does not exist.
      */
     is_unenterable(whichState: StateType): boolean;
-    /** Check whether any state in the machine is unenterable.
+    /**
+     * Check whether any state in the machine is unenterable.
      *  @returns `true` if at least one state has no incoming transitions.
      */
     has_unenterables(): boolean;
-    /** Check whether the current state is terminal (has no exits).
+    /**
+     * Check whether the current state is terminal (has no exits).
      *  @returns `true` if the current state has zero exits.
      */
     is_terminal(): boolean;
-    /** Check whether a specific state is terminal (has no exits).
+    /**
+     * Check whether a specific state is terminal (has no exits).
      *  @param whichState - The state to check.
      *  @returns `true` if the state has zero exits.
      *  @throws {JssmError} If the state does not exist.
      */
     state_is_terminal(whichState: StateType): boolean;
-    /** Check whether any state in the machine is terminal.
+    /**
+     * Check whether any state in the machine is terminal.
      *  @returns `true` if at least one state has no exits.
      */
     has_terminals(): boolean;
@@ -3149,7 +3401,7 @@ declare class Machine<mDT> {
      *  m.isIn('nonesuch'); // false — undeclared group has no members
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param groupName The group to test the current state against.
      *
@@ -3177,7 +3429,7 @@ declare class Machine<mDT> {
      *  m.groupsOf('z');     // Set {}                    — not in any group
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state whose containing groups are wanted.
      *
@@ -3203,7 +3455,7 @@ declare class Machine<mDT> {
      *  m.groups();  // [ 'first', 'second' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The declared group names, in declaration order.
      *
@@ -3226,7 +3478,7 @@ declare class Machine<mDT> {
      *  m.statesIn('inner');  // [ 'a', 'b' ]
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param groupName The group whose transitive member states are wanted.
      *
@@ -3239,17 +3491,20 @@ declare class Machine<mDT> {
      *
      */
     statesIn(groupName: string): Array<StateType>;
-    /** Check whether the current state is complete (every exit has an action).
+    /**
+     * Check whether the current state is complete (every exit has an action).
      *  @returns `true` if the current state is complete.
      */
     is_complete(): boolean;
-    /** Check whether a specific state is complete (every exit has an action).
+    /**
+     * Check whether a specific state is complete (every exit has an action).
      *  @param whichState - The state to check.
      *  @returns `true` if the state is complete.
      *  @throws {JssmError} If the state does not exist.
      */
     state_is_complete(whichState: StateType): boolean;
-    /** Check whether any state in the machine is complete.
+    /**
+     * Check whether any state in the machine is complete.
      *  @returns `true` if at least one state is complete.
      */
     has_completes(): boolean;
@@ -3273,14 +3528,12 @@ declare class Machine<mDT> {
      *  const off = m.on('transition', () => {});
      *  off();  // unsubscribe
      *  ```
-     *
-     *  @typeparam Ev      The event name (drives the detail type).
+     *  @template Ev      The event name (drives the detail type).
      *  @param name        The event name to subscribe to.
-     *  @param filterOrFn  Either a filter object or, when calling the no-filter
-     *                     form, the handler itself.
-     *  @param maybeFn     The handler, when a filter object was supplied.
+     *  @param handler     The handler invoked on each matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (see the example above).
      *  @returns A function that unsubscribes when called.
-     *
      *  @see Machine.off
      *  @see Machine.once
      */
@@ -3294,14 +3547,13 @@ declare class Machine<mDT> {
      *  ```typescript
      *  m.once('terminal', e => console.log(`done at ${e.state}`));
      *  ```
-     *
-     *  @typeparam Ev      The event name.
+     *  @template Ev      The event name.
      *  @param name        The event name.
-     *  @param filterOrFn  A filter object or the handler (no-filter form).
-     *  @param maybeFn     The handler, when a filter was supplied.
+     *  @param handler     The handler invoked on the first matching delivery.  The
+     *                     three-argument `(name, filter, handler)` form inserts a
+     *                     filter object before the handler (same shapes as `on`).
      *  @returns A function that unsubscribes early if called before the
      *           handler has fired.
-     *
      *  @see Machine.on
      *  @see Machine.off
      */
@@ -3319,43 +3571,20 @@ declare class Machine<mDT> {
      *  m.off('transition', fn);  // true
      *  m.off('transition', fn);  // false
      *  ```
-     *
      *  @param name    The event name.
      *  @param handler The handler reference to remove.
      *  @returns `true` if removed, `false` if no match was registered.
      */
     off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
     /**
-     *  Remove one event-subscription entry from its set and keep
-     *  {@link Machine._event_listener_count} in sync.  The count is decremented
-     *  only when the entry was actually present, so calling a stale unsubscribe
-     *  closure (or removing an already-fired `once` entry) is idempotent and
-     *  cannot drive the count negative.
-     *
-     *  @param set   The per-event-name subscription set.
-     *  @param entry The entry to remove.
-     *  @internal
-     */
-    _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void;
-    /**
-     *  Shared registration core used by {@link Machine.on} and
-     *  {@link Machine.once}.  Normalizes the optional filter argument and
-     *  installs the entry into the per-event subscription set.
-     *
-     *  @internal
-     */
-    _subscribe<Ev extends JssmEventName>(name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn: JssmEventHandler<mDT, Ev> | undefined, once: boolean): JssmUnsubscribe;
-    /**
      *  Invoke a single event-handler entry, respecting its filter, once-removal
      *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
      *  {@link _fire} can share identical behavior between the size-1 fast-path
      *  and the general snapshotted loop.
-     *
      *  @param entry  - The subscriber descriptor to invoke.
      *  @param set    - The live Set that owns `entry`; needed for once-removal.
      *  @param name   - The event name being dispatched (used in error re-fires).
      *  @param detail - The event payload forwarded to the handler.
-     *
      *  @internal
      */
     _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
@@ -3374,34 +3603,30 @@ declare class Machine<mDT> {
      *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
      *  local first — equivalent to a 1-element snapshot but allocation-free.
      *  The general path still snapshots for re-entrancy safety.
-     *
      *  @internal
      */
-    _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
-    /** Low-level hook registration.  Installs a handler described by a
-     *  {@link HookDescription} into the appropriate internal map.  Prefer the
-     *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
-     *  calling this directly.
-     *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
-     */
     /**
-     *  Validate a {@link HookDescription} before registration.  Every hook needs
-     *  a `handler` function, and each kind's identifying spatial fields
-     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
-     *  kind — present when required, absent otherwise.  This turns a mis-shaped
-     *  descriptor into a thrown error instead of a silently dead hook keyed on
-     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *  Whether at least one live subscriber is registered for `name`.  Used by
+     *  the transition-commit observation block to skip building a detail
+     *  literal that {@link Machine._fire} would immediately discard — a panel
+     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
+     *  previously paid for the exit/entry/data-change detail allocations on
+     *  every transition.  Read at fire time, so a listener installed by a
+     *  pre-hook is still seen (#671).
+     *  @param name The event name to probe.
+     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
+     *  least one handler.
      *
-     *  @param HookDesc - The descriptor about to be registered.
-     *  @throws JssmError if the kind is unknown, the handler is not a function, a
-     *          required field is missing, or an inapplicable field is present.
-     *
-     *  @example
-     *    const m = sm`a -> b;`;
-     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
-     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     *  ```typescript
+     *  machine.on('transition', () => {});
+     *  machine._has_subscribers('transition');  // true
+     *  machine._has_subscribers('exit');        // false
+     *  ```
+     *  @see Machine._fire
+     *  @internal
      */
-    _validate_hook_description(HookDesc: HookDescription<mDT>): void;
+    _has_subscribers(name: JssmEventName): boolean;
+    _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a
@@ -3420,12 +3645,12 @@ declare class Machine<mDT> {
      *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
      *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
      *  ```
-     *
      *  @param HookDesc - A hook descriptor identifying the hook to remove.
      *  @returns `true` if a hook was removed, `false` otherwise.
      */
     remove_hook(HookDesc: HookDescription<mDT>): boolean;
-    /** Register a pre-transition hook on a specific edge.  Fires before
+    /**
+     * Register a pre-transition hook on a specific edge.  Fires before
      *  transitioning from `from` to `to`.  If the handler returns `false`, the
      *  transition is blocked.
      *
@@ -3433,14 +3658,14 @@ declare class Machine<mDT> {
      *  const m = sm`a -> b -> c;`;
      *  m.hook('a', 'b', () => console.log('a->b'));
      *  ```
-     *
      *  @param from    - Source state name.
      *  @param to      - Target state name.
      *  @param handler - Callback invoked before the transition.
      *  @returns `this` for chaining.
      */
     hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on a specific action-labeled edge.
+    /**
+     * Register a pre-transition hook on a specific action-labeled edge.
      *  @param from    - Source state name.
      *  @param to      - Target state name.
      *  @param action  - The action label that triggers this hook.
@@ -3448,50 +3673,59 @@ declare class Machine<mDT> {
      *  @returns `this` for chaining.
      */
     hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any edge triggered by a specific action.
+    /**
+     * Register a pre-transition hook on any edge triggered by a specific action.
      *  @param action  - The action name to hook.
      *  @param handler - Callback invoked before any transition with this action.
      *  @returns `this` for chaining.
      */
     hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any action-driven transition.
+    /**
+     * Register a pre-transition hook on any action-driven transition.
      *  @param handler - Callback invoked before any action transition.
      *  @returns `this` for chaining.
      */
     hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any standard (`->`) transition.
+    /**
+     * Register a pre-transition hook on any standard (`->`) transition.
      *  @param handler - Callback invoked before any legal transition.
      *  @returns `this` for chaining.
      */
     hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any main-path (`=>`) transition.
+    /**
+     * Register a pre-transition hook on any main-path (`=>`) transition.
      *  @param handler - Callback invoked before any main transition.
      *  @returns `this` for chaining.
      */
     hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any forced (`~>`) transition.
+    /**
+     * Register a pre-transition hook on any forced (`~>`) transition.
      *  @param handler - Callback invoked before any forced transition.
      *  @returns `this` for chaining.
      */
     hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook on any transition regardless of kind.
+    /**
+     * Register a pre-transition hook on any transition regardless of kind.
      *  @param handler - Callback invoked before every transition.
      *  @returns `this` for chaining.
      */
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a hook that fires when entering a specific state.
+    /**
+     * Register a hook that fires when entering a specific state.
      *  @param to      - The state being entered.
      *  @param handler - Callback invoked on entry.
      *  @returns `this` for chaining.
      */
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a hook that fires when leaving a specific state.
+    /**
+     * Register a hook that fires when leaving a specific state.
      *  @param from    - The state being exited.
      *  @param handler - Callback invoked on exit.
      *  @returns `this` for chaining.
      */
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a hook that fires when a state's `after` timer elapses — the
+    /**
+     * Register a hook that fires when a state's `after` timer elapses — the
      *  delay-over companion to `a after 5s -> b;` style time transitions.  It
      *  does NOT fire when the state is entered or left by ordinary dispatch;
      *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
@@ -3502,7 +3736,6 @@ declare class Machine<mDT> {
      *                   timed transition is taken; informational — its outcome
      *                   cannot reject the transition.
      *  @returns `this` for chaining.
-     *
      *  @example
      *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
      *    let calls = 0;
@@ -3512,13 +3745,39 @@ declare class Machine<mDT> {
      *    // ordinary dispatch never fires it; only the timer elapsing does:
      *    calls;  // => 0
      *    m.clear_state_timeout();
-     *
      *  @see hook_entry
      *  @see hook_exit
      *  @see set_state_timeout
      */
     hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on a specific edge.  Fires after the transition
+    /**
+     * Register a hook that fires when ANY state's `after` timer elapses — the
+     *  whole-machine companion to {@link hook_after}, mirroring how
+     *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
+     *  state also has a specific {@link hook_after}, the specific hook fires
+     *  first and this one fires second; a specific after hook firing always
+     *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
+     *  `hook_after` it is informational — its outcome cannot reject the timed
+     *  transition — and it does NOT fire on ordinary dispatch.
+     *  @param handler - Callback invoked whenever any `after` timer fires, just
+     *                   before the timed transition is taken.
+     *  @returns `this` for chaining.
+     *  @example
+     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+     *    let calls = 0;
+     *    m.hook_after_any(() => { calls += 1; });
+     *    m.go('c');
+     *    m.go('a');
+     *    // ordinary dispatch never fires it; only a timer elapsing does:
+     *    calls;  // => 0
+     *    m.clear_state_timeout();
+     *  @see hook_after
+     *  @see hook_any_transition
+     *  @see set_state_timeout
+     */
+    hook_after_any(handler: HookHandler<mDT>): Machine<mDT>;
+    /**
+     * Post-transition hook on a specific edge.  Fires after the transition
      *  from `from` to `to` has completed.  Cannot block the transition.
      *  @param from    - Source state name.
      *  @param to      - Target state name.
@@ -3526,7 +3785,8 @@ declare class Machine<mDT> {
      *  @returns `this` for chaining.
      */
     post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on a specific action-labeled edge.
+    /**
+     * Post-transition hook on a specific action-labeled edge.
      *  @param from    - Source state name.
      *  @param to      - Target state name.
      *  @param action  - The action label.
@@ -3534,50 +3794,59 @@ declare class Machine<mDT> {
      *  @returns `this` for chaining.
      */
     post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any edge triggered by a specific action.
+    /**
+     * Post-transition hook on any edge triggered by a specific action.
      *  @param action  - The action name.
      *  @param handler - Callback invoked after any transition with this action.
      *  @returns `this` for chaining.
      */
     post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any action-driven transition.
+    /**
+     * Post-transition hook on any action-driven transition.
      *  @param handler - Callback invoked after any action transition.
      *  @returns `this` for chaining.
      */
     post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any standard (`->`) transition.
+    /**
+     * Post-transition hook on any standard (`->`) transition.
      *  @param handler - Callback invoked after any legal transition.
      *  @returns `this` for chaining.
      */
     post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any main-path (`=>`) transition.
+    /**
+     * Post-transition hook on any main-path (`=>`) transition.
      *  @param handler - Callback invoked after any main transition.
      *  @returns `this` for chaining.
      */
     post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any forced (`~>`) transition.
+    /**
+     * Post-transition hook on any forced (`~>`) transition.
      *  @param handler - Callback invoked after any forced transition.
      *  @returns `this` for chaining.
      */
     post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook on any transition regardless of kind.
+    /**
+     * Post-transition hook on any transition regardless of kind.
      *  @param handler - Callback invoked after every transition.
      *  @returns `this` for chaining.
      */
     post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook that fires after entering a specific state.
+    /**
+     * Post-transition hook that fires after entering a specific state.
      *  @param to      - The state that was entered.
      *  @param handler - Callback invoked after entry.
      *  @returns `this` for chaining.
      */
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Post-transition hook that fires after leaving a specific state.
+    /**
+     * Post-transition hook that fires after leaving a specific state.
      *  @param from    - The state that was exited.
      *  @param handler - Callback invoked after exit.
      *  @returns `this` for chaining.
      */
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook that fires **before** all other pre-hooks
+    /**
+     * Register a pre-transition hook that fires **before** all other pre-hooks
      *  on every transition.  If the handler returns `false`, the transition is
      *  blocked.  The handler receives an {@link EverythingHookContext} whose
      *  `hook_name` is `'pre everything'`.
@@ -3589,12 +3858,12 @@ declare class Machine<mDT> {
      *    return true;
      *  });
      *  ```
-     *
      *  @param handler - Callback invoked before all other pre-hooks.
      *  @returns `this` for chaining.
      */
     hook_pre_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
-    /** Register a pre-transition hook that fires **after** all other pre-hooks
+    /**
+     * Register a pre-transition hook that fires **after** all other pre-hooks
      *  on every transition.  If the handler returns `false`, the transition is
      *  blocked.  The handler receives an {@link EverythingHookContext} whose
      *  `hook_name` is `'everything'`.
@@ -3606,12 +3875,12 @@ declare class Machine<mDT> {
      *    return true;
      *  });
      *  ```
-     *
      *  @param handler - Callback invoked after all other pre-hooks.
      *  @returns `this` for chaining.
      */
     hook_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
-    /** Register a post-transition hook that fires **after** all other
+    /**
+     * Register a post-transition hook that fires **after** all other
      *  post-hooks on every transition.  Cannot block the transition.  The
      *  handler receives an {@link EverythingHookContext} whose `hook_name` is
      *  `'post everything'`.
@@ -3622,12 +3891,12 @@ declare class Machine<mDT> {
      *    console.log(`${hook_name} fired`);
      *  });
      *  ```
-     *
      *  @param handler - Callback invoked after all other post-hooks.
      *  @returns `this` for chaining.
      */
     hook_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
-    /** Register a post-transition hook that fires **before** all other
+    /**
+     * Register a post-transition hook that fires **before** all other
      *  post-hooks on every transition.  Cannot block the transition.  The
      *  handler receives an {@link EverythingHookContext} whose `hook_name` is
      *  `'pre post everything'`.
@@ -3638,22 +3907,24 @@ declare class Machine<mDT> {
      *    console.log(`${hook_name} fired`);
      *  });
      *  ```
-     *
      *  @param handler - Callback invoked before all other post-hooks.
      *  @returns `this` for chaining.
      */
     hook_pre_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
-    /** Get the current RNG seed used for probabilistic transitions.
+    /**
+     * Get the current RNG seed used for probabilistic transitions.
      *  @returns The numeric seed value.
      */
     get rng_seed(): number;
-    /** Set the RNG seed.  Pass `undefined` to reseed from the current time.
+    /**
+     * Set the RNG seed.  Pass `undefined` to reseed from the current time.
      *  Resets the internal PRNG so subsequent probabilistic operations use the
      *  new seed.
      *  @param to - The seed value, or `undefined` for time-based seeding.
      */
     set rng_seed(to: number | undefined);
-    /** Get all edges between two states (there can be multiple with
+    /**
+     * Get all edges between two states (there can be multiple with
      *  different actions).
      *  @param from - Source state name.
      *  @param to   - Target state name.
@@ -3662,7 +3933,13 @@ declare class Machine<mDT> {
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     /*********
      *
-     *  Replace the current state and data with no regard to the graph.
+     *  Replace the current state — and, when a data argument is provided, the
+     *  data — with no regard to the graph.
+     *
+     *  The data argument is arity-detected: omitting it preserves the current
+     *  data, while explicitly passing `undefined` really sets the data to
+     *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
+     *  argument silently cleared the data.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -3678,8 +3955,18 @@ declare class Machine<mDT> {
      *  console.log( machine.state() );    // 'a'
      *  ```
      *
+     *  @param newState The state to teleport to; must exist in the graph.
+     *
+     *  @param newData Replacement data.  Omit to keep the current data; pass
+     *  `undefined` explicitly to clear it.
+     *
+     *  @throws {JssmError} If the machine's config does not set
+     *  `allows_override: true`, or if `newState` does not exist.
+     *
+     *  @see set_data
+     *
      */
-    override(newState: StateType, newData?: mDT | undefined): void;
+    override(newState: StateType, newData?: mDT): void;
     /*********
      *
      *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
@@ -3776,7 +4063,7 @@ declare class Machine<mDT> {
      *  - When multiple edges exist between two states with different `kind`
      *    values, only the first edge's kind is used to pick the edge-type hook.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted.
+     *  @typeParam mDT The type of the machine data member; usually omitted.
      *
      *  @param newStateOrAction The target state name (for a plain or forced
      *  transition) or the action name (when `wasAction` is true).
@@ -3792,14 +4079,29 @@ declare class Machine<mDT> {
      *  `newStateOrAction` is an action name and the target state is looked up
      *  via the current action edge.
      *
+     *  @param dataProvided `true` when the caller explicitly supplied a data
+     *  argument — even an explicitly-`undefined` one, which commits `undefined`
+     *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
+     *  is preserved.  The public wrappers derive this from call arity; the
+     *  default reproduces the old `!== undefined` inference for any direct
+     *  callers.
+     *
      *  @returns `true` if the transition was valid and every hook passed;
      *  `false` if the transition was invalid or any hook rejected.
+     *
+     *  @throws {JssmError} If called reentrantly from inside a hook that is still
+     *  running in the enclosing transition's pre-commit pipeline — a hook that
+     *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
+     *  and then the outer one would silently discard the inner result, so the
+     *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
+     *  (from a post-hook or the boundary-action cascade) is permitted.
      *
      *  @internal
      *
      */
-    transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
-    /** If the current state has an `after` timeout configured, schedule it.
+    transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided?: boolean): boolean;
+    /**
+     * If the current state has an `after` timeout configured, schedule it.
      *  Called internally after each transition.
      */
     auto_set_state_timeout(): void;
@@ -3828,7 +4130,7 @@ declare class Machine<mDT> {
      *
      *  Notice that the machine's current state, `e`, is not in the returned list.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history(): [string, mDT][];
@@ -3861,7 +4163,7 @@ declare class Machine<mDT> {
      *
      *  Notice that the machine's current state, `e`, is in the returned list.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history_inclusive(): [string, mDT][];
@@ -3880,7 +4182,7 @@ declare class Machine<mDT> {
      *  foo.history_length;                                  // 5
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      */
     get history_length(): number;
@@ -3897,7 +4199,7 @@ declare class Machine<mDT> {
      *  light.state();               // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param actionName The action to engage
      *
@@ -3924,7 +4226,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for standard states.
      *
@@ -3950,7 +4252,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for hooked states.
      *
@@ -3975,7 +4277,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for start states.
      *
@@ -4005,7 +4307,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for end states.
      *
@@ -4030,7 +4332,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for terminal states.
      *
@@ -4052,7 +4354,7 @@ declare class Machine<mDT> {
      *  // { shape: 'circle' }
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @returns The {@link JssmStateConfig} for the active state.
      *
@@ -4212,109 +4514,25 @@ declare class Machine<mDT> {
     state_has_hooks(state: StateType): boolean;
     /********
      *
-     *  Returns the list of resolved theme implementations for this machine, in
-     *  the order they should layer (outer/base-most first).  Each declared theme
-     *  name is mapped through {@link theme_mapping}; unknown names are skipped.
-     *
-     *  The list is reversed relative to declaration order to match the historical
-     *  layering of {@link style_for}: a later-declared theme layers under an
-     *  earlier-declared one.
-     *
-     *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
-     *
-     *  @internal
-     *
-     */
-    _resolved_themes(): JssmBaseTheme[];
-    /********
-     *
-     *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
-     *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
-     *  "`state foo : { … }`" contribution of the config cascade.  A state with no
-     *  declaration yields an all-`undefined` config (which contributes nothing
-     *  once folded with {@link merge_state_config}).
-     *
-     *  @param state The state whose per-state declared style is wanted.
-     *
-     *  @returns The per-state style config (fields may be `undefined`).
-     *
-     *  @internal
-     *
-     */
-    _individual_state_config(state: StateType): JssmStateConfig;
-    /********
-     *
-     *  Orders the groups a state belongs to by nesting depth for the config
-     *  cascade — outermost first, innermost last — so that, folded in order,
-     *  the innermost (nearest / smallest {@link membership_distance}) group's
-     *  metadata wins.  Equal-distance groups are ordered by group declaration
-     *  order, so a later-declared group of the same depth wins the tie.
-     *
-     *  Concretely: groups are sorted by descending membership distance (largest
-     *  distance applied first / wins least), and for equal distances by
-     *  ascending declaration index (later index applied last / wins most).
-     *
-     *  @param state The state whose containing groups are being ordered.
-     *
-     *  @returns The containing group names, ordered for outer→inner folding
-     *  (the last entry wins).
-     *
-     *  @internal
-     *
-     */
-    _groups_by_depth(state: StateType): string[];
-    /********
-     *
-     *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
-     *  — when `active` is set — the active-state THEME layers, which historically
-     *  sit just below the per-state config so that a `state foo : { … }` block
-     *  still overrides a theme's `active` styling.  The user `active_state : { … }`
-     *  overlay (tier 6) is NOT applied here; it is layered on top by
-     *  {@link resolve_state_config} so it wins over per-state config.
-     *
-     *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
-     *  (later wins, never throwing on a cross-tier key collision):
-     *
-     *    1. theme defaults — `base_theme.state`, then each selected theme's
-     *       `.state` block.
-     *    2. `default_state_config` (the implicit `state : { … }` root over every
-     *       state).
-     *    3. static per-kind defaults selected by structural kind — terminal,
-     *       then start, then end — each contributing its `base_theme.<kind>`,
-     *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
-     *       When `active`, the active-state theme layers (`base_theme.active` and
-     *       each selected theme's `.active`) are folded here too.
-     *    4. group metadata, depth-ordered outer→inner (see {@link _groups_by_depth}),
-     *       each group's RAW `{ declarations }` already condensed at construction.
-     *    5. the per-state `state foo : { … }` config.
-     *
-     *  @param state  The state to resolve config for.
-     *  @param active Whether to include the active-state theme layers (true only
-     *                for the machine's currently-occupied state).
-     *
-     *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
-     *
-     *  @internal
-     *
-     */
-    _compose_state_config(state: StateType, active: boolean): JssmStateConfig;
-    /********
-     *
      *  Resolves the full unified style/config cascade for a state — the runtime
      *  successor to the ad-hoc layer merge {@link style_for} used to perform.
      *
      *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
+     *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
      *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-     *  per-state config.  The cache is keyed by state and never invalidated, since
-     *  those tiers do not depend on which state is current.
+     *  per-state config.  The cache is keyed by state; those tiers do not depend
+     *  on which state is current, so it survives transitions, but the mutable
+     *  cascade inputs each clear it when they change — hook registration and
+     *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
+     *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
+     *  per-kind theme layers).
      *
      *  For the machine's CURRENTLY-occupied state the result is recomputed each
      *  call (never cached) and additionally carries the dynamic `active_state`
      *  layers: the active-state THEME layers fold in just below the per-state
      *  config (tier 3-active), and the user `active_state : { … }` overlay folds
      *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
+     *  Every fold uses `merge_state_config`, so a key set at a lower tier is
      *  overridden — never rejected — by a higher one.
      *
      *  ```typescript
@@ -4324,7 +4542,7 @@ declare class Machine<mDT> {
      *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to compute the composite config for.
      *
@@ -4347,7 +4565,7 @@ declare class Machine<mDT> {
      *  winning over outer), then the per-state config, and finally — for the
      *  current state only — the active overlay.  Last wins at every tier.
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to compute the composite style for.
      *
@@ -4381,7 +4599,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'yellow'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param actionName The action to engage
      *
@@ -4414,7 +4632,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
@@ -4436,7 +4654,7 @@ declare class Machine<mDT> {
      *  light.state();       // 'green'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
@@ -4461,7 +4679,7 @@ declare class Machine<mDT> {
      *  light.state();                     // 'off'
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
@@ -4472,76 +4690,90 @@ declare class Machine<mDT> {
      *
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
-    /** Get the edge index for an action from the current state.
+    /**
+     * Get the edge index for an action from the current state.
      *  Interned dispatch: resolves via the numeric (action, from) index —
      *  unknown action names miss without throwing.
      *  @param action - The action name.
      *  @returns The edge index, or `undefined` if the action is not available.
      */
     current_action_for(action: StateType): number;
-    /** Get the full transition object for an action from the current state.
+    /**
+     * Get the full transition object for an action from the current state.
      *  @param action - The action name.
      *  @returns The {@link JssmTransition} object.
      *  @throws {JssmError} If the action is not available from the current state.
      */
     current_action_edge_for(action: StateType): JssmTransition<StateType, mDT>;
-    /** Check whether an action is available from the current state.
+    /**
+     * Check whether an action is available from the current state.
      *  @param action   - The action name to check.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if the action can be taken.
      */
     valid_action(action: StateType, _newData?: mDT): boolean;
-    /** Check whether a transition to a given state is legal (non-forced) from
+    /**
+     * Check whether a transition to a given state is legal (non-forced) from
      *  the current state.
      *  @param newState - The target state.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if the transition is legal.
      */
     valid_transition(newState: StateType, _newData?: mDT): boolean;
-    /** Check whether a forced transition to a given state exists from the
+    /**
+     * Check whether a forced transition to a given state exists from the
      *  current state.
      *  @param newState - The target state.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if a forced (or any) transition exists.
      */
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
-    /** Get the instance name of this machine, if one was assigned at creation.
+    /**
+     * Get the instance name of this machine, if one was assigned at creation.
      *  @returns The instance name string, or `undefined`.
      */
     instance_name(): string | undefined;
-    /** Get the creation date of this machine as a `Date` object.
+    /**
+     * Get the creation date of this machine as a `Date` object.
      *  @returns A `Date` representing when the machine was created.
      */
     get creation_date(): Date;
-    /** Get the creation timestamp (milliseconds since epoch).
+    /**
+     * Get the creation timestamp (milliseconds since epoch).
      *  @returns The timestamp as a number.
      */
     get creation_timestamp(): number;
-    /** Get the timestamp when construction began (before parsing).
+    /**
+     * Get the timestamp when construction began (before parsing).
      *  @returns The start-of-construction timestamp as a number.
      */
     get create_start_time(): number;
-    /** Schedule an automatic transition to `next_state` after `after_time`
+    /**
+     * Schedule an automatic transition to `next_state` after `after_time`
      *  milliseconds.  Only one timeout may be active at a time.
      *  @param next_state - The state to transition to when the timer fires.
      *  @param after_time - Delay in milliseconds.
      *  @throws {JssmError} If a timeout is already pending.
      */
     set_state_timeout(next_state: StateType, after_time: number): void;
-    /** Cancel any pending state timeout.  Safe to call when no timeout is active.
+    /**
+      Cancel any pending state timeout.  Safe to call when no timeout is active.
      */
     clear_state_timeout(): void;
-    /** Get the configured `after` timeout for a given state, if any.
+    /**
+     * Get the configured `after` timeout for a given state, if any.
      *  @param which_state - The state to look up.
      *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
      *  is configured for that state.
      */
     state_timeout_for(which_state: StateType): [StateType, number] | undefined;
-    /** Get the configured `after` timeout for the current state, if any.
+    /**
+     * Get the configured `after` timeout for the current state, if any.
      *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
      */
     current_state_timeout(): [StateType, number] | undefined;
-    /** Convenience method to create a new machine from a tagged template literal.
+    /**
+     * Convenience method to create a new machine from a tagged template literal.
      *  Equivalent to calling the top-level `sm` function.
      *  @param template_strings - The template string array.
      *  @param remainder        - Interpolated values.
@@ -4565,7 +4797,7 @@ declare class Machine<mDT> {
  *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param template_strings The assembled code
  *
@@ -4588,14 +4820,14 @@ declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: a
  *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param MachineAsString The FSL code to evaluate
  *
  *  @param ExtraConstructorFields Extra non-code configuration to pass at creation time
  *
  */
-declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<StateType, mDT>> | undefined): Machine<mDT>;
+declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<StateType, mDT>>): Machine<mDT>;
 /**
  *
  *  Type guard that narrows an unknown value to a {@link HookComplexResult}.
@@ -4613,15 +4845,11 @@ declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Par
  *  is_hook_complex_result(null);                           // false
  *  is_hook_complex_result({ other: 'thing' });             // false
  *  ```
- *
- *  @typeparam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr The value to test.
- *
  *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
  *  `false` otherwise.  When `true`, TypeScript narrows `hr` to
  *  `HookComplexResult<mDT>`.
- *
  */
 declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT>;
 /**
@@ -4642,16 +4870,11 @@ declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResu
  *  is_hook_rejection({ pass: true });  // false (pass)
  *  is_hook_rejection({ pass: false }); // true  (reject)
  *  ```
- *
- *  @typeparam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr A hook result of any legal shape.
- *
  *  @returns `true` if the hook rejected the transition; `false` if it passed.
- *
  *  @throws {TypeError} If `hr` is not a recognized hook result shape (for
  *  example, a number or a plain object without a `pass` field).
- *
  */
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 /**
@@ -4672,24 +4895,17 @@ declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
  *  - a complex result object → returned as-is
  *
  *  Anything else is a programmer error and throws.
- *
- *  @typeparam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param maybe_hook The hook handler to call, or `undefined` for the
  *  "no hook installed" case.
- *
  *  @param hook_args The context object passed to the hook.  Includes the
  *  current and proposed state, current and proposed data, action name, and
  *  transition kind.
- *
  *  @returns A {@link HookComplexResult} describing whether the hook passed
  *  and, optionally, any data replacements it requested.
- *
  *  @throws {TypeError} If the hook returns a value that is not one of the
  *  legal shapes listed above.
- *
  *  @internal
- *
  */
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 /**
@@ -4709,22 +4925,15 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  *  - `undefined` or `true` → `{ pass: true }`
  *  - `false` or `null`     → `{ pass: false }`
  *  - a complex result      → returned as-is
- *
- *  @typeparam mDT The type of the machine data member; usually omitted.
- *
+ *  @template mDT The type of the machine data member; usually omitted.
  *  @param maybe_hook The everything-hook handler, or `undefined` when none
  *  is installed.
- *
  *  @param hook_args The everything-hook context object.  Differs from a
  *  normal hook context in that it also includes `hook_name`.
- *
  *  @returns A {@link HookComplexResult} describing whether the hook passed
  *  and any data replacements it requested.
- *
  *  @throws {TypeError} If the hook returns a value outside the legal shapes.
- *
  *  @internal
- *
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
@@ -4737,32 +4946,24 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * numeric identifiers numerically and below alphanumeric ones, alphanumeric
  * identifiers in ASCII order, and a shorter identifier set precedes a longer
  * one that it prefixes.
- *
  * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
  * @param {string} v2 - Second version string (e.g., "5.103.1")
- *
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.103.1");  // => 1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "6.0.0");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.104.2");  // => 0
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
- *
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
@@ -4774,16 +4975,11 @@ declare function compareVersions(v1: string, v2: string): number;
  * This function recreates a machine from a serialization object, restoring its
  * state, data, and history. For security and compatibility reasons, it will
  * refuse to deserialize data from future versions of the library.
- *
- * @typeparam mDT - The type of the machine data member
- *
+ * @template mDT - The type of the machine data member
  * @param {string} machine_string - The FSL string defining the machine structure
  * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
- *
  * @returns {Machine<mDT>} - The restored machine instance
- *
  * @throws {Error} If the serialization is from a future version
- *
  * @example
  * import { from, deserialize } from 'jssm';
  * const machine    = from("a -> b;");
@@ -4793,4 +4989,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, parse_fence_info, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions };

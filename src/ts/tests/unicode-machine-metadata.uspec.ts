@@ -26,7 +26,7 @@ const metadata_test = (idx: number): boolean => {
 
     try {
       test = sm`a -> b; machine_name: ${cp}; machine_comment: ${cp}; machine_author: ${cp};`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

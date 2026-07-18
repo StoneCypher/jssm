@@ -5,7 +5,6 @@ import { LitElement, type TemplateResult } from 'lit';
  * `<details>` sections). Presentational and self-contained — it owns no machine
  * binding. The reflected `open` attribute drives visibility, so embedders can
  * animate it (e.g. a width transition on the host) purely from CSS.
- *
  * @element fsl-help
  * @csspart drawer - The drawer container.
  * @csspart head - The header bar.

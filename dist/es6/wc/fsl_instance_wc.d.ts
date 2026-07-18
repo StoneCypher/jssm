@@ -52,7 +52,6 @@ export interface ParsedJssmOn {
  * // => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,
  * //      once: false, name: undefined, filter: { state: 'paid' } }
  * ```
- *
  * @param el - The `<jssm-on>` element to parse.
  * @returns A validated {@link ParsedJssmOn} record.
  * @throws If `event` is missing, unknown, both handler forms are
@@ -75,7 +74,6 @@ export declare const jssm_handler_registry: Map<string, (...args: unknown[]) => 
  * Resolve a named handler from the registry, then from `globalThis`.
  * Throws if neither lookup finds a function — earlier failure here is
  * better than a delayed "is not a function" at first event delivery.
- *
  * @param name - The handler name as supplied by `handler="..."`.
  * @returns The resolved function.
  * @throws If no function is registered under `name`.
@@ -91,7 +89,6 @@ export declare function resolve_named_handler(name: string): (e: unknown) => voi
  * caveats apply (strict CSP without `'unsafe-eval'` blocks it).  A
  * `//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces
  * point at a meaningful name.
- *
  * @param body - The inline JS body (function body, not full function).
  * @param source_id - A short identifier for the sourceURL pragma.
  * @returns The compiled handler.
@@ -126,7 +123,6 @@ export interface JssmInstanceFslResolution {
  * resolve_fsl_source(div as HTMLElement, 'Off -> On;');
  * // => { fsl: 'Off -> On;', provided_count: 1, error: undefined }
  * ```
- *
  * @param host - The `<jssm-instance>` element being resolved.
  * @param fsl_attr - The current value of the host's `fsl` attribute (or property), or empty string.
  * @returns A {@link JssmInstanceFslResolution} describing the outcome.
@@ -138,14 +134,23 @@ export declare function resolve_fsl_source(host: HTMLElement, fsl_attr: string):
  * `'tb'`/`'bt'` stacked panes (editor top / bottom) · `'editor'`/`'viewer'`
  * single pane · `'tabs'` one pane at a time · `'auto'` by viewport aspect.
  */
-export declare type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | 'tabs' | 'auto';
+export type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | 'tabs' | 'auto';
 /** Which pane the tabbed layout currently shows. */
-export declare type FslTab = 'viz' | 'editor';
+export type FslTab = 'viz' | 'editor';
+/**
+ * How a panel's visibility is governed, per-panel or as the control-level
+ * default: `hide` (never shown, locked), `show` (always shown, locked),
+ * `default` (the built-in default — only the editor + renderer show), or
+ * `request` (like `default`, but panels the FSL requests are shown). The
+ * requested-panels source is the editor-defaults-in-FSL mechanism (fsl#1334);
+ * until that lands, {@link FslInstance.requestedPanels} is the embedder-set
+ * stand-in it reads.
+ */
+export type PanelMode = 'hide' | 'show' | 'default' | 'request';
 /**
  * Resolve `layout="auto"` to a concrete split direction from the viewport
  * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
  * (`'tb'`). Pure, so it's testable without a laid-out DOM.
- *
  * @example
  *   auto_mode(1200, 800);   // => 'lr'
  *   auto_mode(600, 900);    // => 'tb'
@@ -156,7 +161,6 @@ export declare function auto_mode(width: number, height: number): 'lr' | 'tb';
  * Pure so it's testable without a laid-out DOM: returns a neutral `50` when the
  * container has no measured size (e.g. jsdom, where `getBoundingClientRect`
  * yields zeros), and otherwise clamps to `[15, 85]` so neither pane collapses.
- *
  * @example
  *   split_ratio(30, 0, 100);   // => 30
  *   split_ratio(5,  0, 100);   // => 15  (clamped low)
@@ -178,7 +182,6 @@ export declare function split_ratio(coord: number, start: number, size: number):
  * attributes (`current-state`, `legal-actions`, `terminal`, `complete`)
  * and sets a `--current-state` CSS custom property so consumer CSS can
  * style by state without subclassing.
- *
  * @element fsl-instance
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
@@ -192,10 +195,16 @@ export declare function split_ratio(coord: number, start: number, size: number):
  * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
  * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
  * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot stochastic - Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).
  * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */
 export declare class FslInstance extends LitElement {
+    /**
+     * Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+     *  (inert if it has neither): restore on connect, write debounced on edit.
+     */
+    constructor();
     static styles: import("lit").CSSResult;
     /**
      * FSL source attribute.  When non-empty, this is the sole channel
@@ -245,8 +254,28 @@ export declare class FslInstance extends LitElement {
     private _autoMode;
     /** Window-resize listener installed while `layout="auto"`, or null. */
     private _autoListener;
-    /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
-    private _hiddenPanels;
+    /**
+     * Per-panel runtime visibility overrides set by the user via the toolbar
+     *  toggles; a slot absent here falls back to its mode-resolved base.
+     */
+    private _overrides;
+    /**
+     * Control-level default {@link PanelMode}; {@link panelModes} overrides it
+     *  per panel. `default` shows only the editor + renderer; every other panel
+     *  starts hidden and is opt-in.
+     */
+    panelMode: PanelMode;
+    /**
+     * Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+     *  control-level {@link panelMode}.
+     */
+    panelModes: Record<string, PanelMode>;
+    /**
+     * Panels the FSL "requests" — the embedder-set stand-in for the
+     *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+     *  here are shown; others fall back to the default.
+     */
+    requestedPanels: string[];
     /**
      * The underlying machine instance, constructed at `connectedCallback`.
      * Exposed raw (not proxied) per the #639/#648 design decision so that
@@ -315,7 +344,6 @@ export declare class FslInstance extends LitElement {
     private _action_listeners;
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
-     *
      * @throws If accessed before the element has been connected.
      */
     get machine(): Machine<unknown>;
@@ -351,13 +379,25 @@ export declare class FslInstance extends LitElement {
             type: ObjectConstructor;
             reflect: boolean;
         };
+        panelMode: {
+            type: StringConstructor;
+            attribute: string;
+            reflect: boolean;
+        };
+        panelModes: {
+            type: ObjectConstructor;
+            attribute: boolean;
+        };
+        requestedPanels: {
+            type: ArrayConstructor;
+            attribute: boolean;
+        };
     };
     /**
      * Convenience wrapper for `machine.action(action, data)`.
      * After the action, reflects updated state to host attributes and the
      * `--current-state` CSS custom property, and requests a Lit update so
      * the state-specific `<slot name="state-...">` can re-pick.
-     *
      * @param action - The action name to dispatch.
      * @param data - Optional data payload to pass to the action.
      * @returns `true` if the action succeeded, `false` otherwise.
@@ -367,7 +407,6 @@ export declare class FslInstance extends LitElement {
      * Convenience wrapper for `machine.transition(state, data)` — moves directly
      * to a state along a legal (non-forced) edge. Reflects the new state and
      * requests an update, exactly as {@link FslInstance.do} does for actions.
-     *
      * @param state - The destination state.
      * @param data - Optional data payload.
      * @returns `true` if the transition succeeded (a legal edge existed).
@@ -377,7 +416,6 @@ export declare class FslInstance extends LitElement {
      * Convenience wrapper for `machine.force_transition(state, data)` — moves to a
      * state along any edge, including forced-only ones. Reflects the new state and
      * requests an update.
-     *
      * @param state - The destination state.
      * @param data - Optional data payload.
      * @returns `true` if the forced transition succeeded (any edge existed).
@@ -415,25 +453,32 @@ export declare class FslInstance extends LitElement {
     private _renderTabbar;
     /** Switch the visible pane in the `tabs` layout. */
     private _setTab;
+    /** The built-in default hidden state: only the editor + renderer (viz) show. */
+    private _defaultHidden;
     /**
-     * Whether the panel slotted under `slot` is currently hidden.
-     *
+     * Whether the panel slotted under `slot` is currently hidden, resolving its
+     * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+     * `hide`/`show` force the state; otherwise a user toggle wins, then a
+     * `request`ed panel shows, then the built-in default.
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @returns `true` when the panel is hidden.
+     * @example
+     * el.panelModes = { history: 'show' };
+     * el.isPanelHidden('history'); // false
      */
     isPanelHidden(slot: string): boolean;
     /**
-     * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
-     * collapses that workbench pane (the other fills); hiding an aux panel
-     * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
-     *
+     * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+     * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+     * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+     * panel toggles.
      * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @param hidden - `true` to hide, `false` to show.
      */
     setPanelHidden(slot: string, hidden: boolean): void;
     /**
-     * Toggle the visibility of the panel slotted under `slot`.
-     *
+     * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+     * panel's mode is `hide` or `show` — those lock the visibility.
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      */
     togglePanel(slot: string): void;
@@ -454,11 +499,17 @@ export declare class FslInstance extends LitElement {
      * Order is important: state reflection happens BEFORE the first render
      * so that consumer CSS rules keyed off `[current-state="..."]` apply on
      * first paint without a flash of unstyled content.
-     *
      * @throws If no FSL source was provided, or if more than one channel
      * supplied a source.
      */
     connectedCallback(): void;
+    /**
+     * True when this instance owns a URL permalink segment (keyed by its
+     * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+     * its FSL source — so `connectedCallback` can defer the machine build to that
+     * restore instead of throwing on an otherwise-absent source.
+     */
+    private _permalinkSegmentPresent;
     /**
      * Discover direct-child `<jssm-on>` elements and install their
      * subscriptions on the owned machine.  Per #643:
@@ -517,7 +568,6 @@ export declare class FslInstance extends LitElement {
      * host attributes (mechanism 1), CSS custom properties (mechanism 3), and
      * the state-specific slot (mechanism 2) are all current by the time a
      * `fsl-*` listener runs.
-     *
      * @param changed - Lit's changed-property map (forwarded to super).
      */
     /**
@@ -544,11 +594,17 @@ export declare class FslInstance extends LitElement {
      */
     /**
      * Build a machine from FSL source, seeding {@link data} when it is set.
-     *
      * @param fsl_source - The FSL string to compile.
      * @returns The compiled machine.
      */
     private _build_machine;
+    /**
+     * Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+     *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+     *  mode honors the source. The embedder's value persists when the FSL is
+     *  silent. Called after each (re)build, with `_machine` freshly assigned.
+     */
+    private _applyEditorConfig;
     private _rebuild_machine;
     updated(changed: PropertyValues): void;
     /**
@@ -603,23 +659,24 @@ export declare class FslInstance extends LitElement {
      * and a state-specific `<slot name="state-...">` that re-targets on each
      * transition.  Fallback content in each slot keeps a bare
      * `<jssm-instance fsl="...">` from rendering as a blank box.
-     *
      * @returns A Lit `TemplateResult` describing the shadow tree.
      */
     render(): TemplateResult;
-    /** The stacked middle panels, shared by both layouts. The toolbar slot is
-     *  rendered at the top of {@link render}. In split mode the `actions` and
-     *  `data-inspector` panels are lifted out into easing side docks, so
+    /**
+     * The stacked middle panels, shared by both layouts. The toolbar slot is
+     *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+     *  and `data-inspector` panels are lifted out into easing side docks, so
      *  `docked` is true there and they are skipped here to avoid duplicating
-     *  their slots. The state-section + footer stay in {@link render} so the
-     *  dynamic state-slot name binds at the top level.
-     *
-     *  @param docked - True when actions + data-inspector are rendered as side
-     *  docks (split layouts); they are then omitted from this stack. */
+     *  their slots; `actions` instead lives here as a horizontal bar. The
+     *  state-section + footer stay in {@link render} so the dynamic state-slot
+     *  name binds at the top level.
+     *  @param docked - True when hook-log + data-inspector are rendered as side
+     *  docks (split layouts); they are then omitted from this stack.
+     */
     private _renderAuxPanels;
 }
 /** @deprecated Use `FslInstance` instead; kept for backwards compat. */
-export declare type JssmInstance = FslInstance;
+export type JssmInstance = FslInstance;
 declare global {
     interface HTMLElementTagNameMap {
         'fsl-instance': FslInstance;

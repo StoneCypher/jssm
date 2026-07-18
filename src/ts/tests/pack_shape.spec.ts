@@ -23,12 +23,12 @@ describe('package tarball shape', () => {
     };
     const walk = (v: unknown): void => {
       if (typeof v === 'string') add(v);
-      else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+      else if (v && typeof v === 'object') { for (const member of Object.values(v)) { walk(member); } }
     };
 
     walk(pkg.exports);
     walk(pkg.bin);
-    [pkg.main, pkg.module, pkg.browser, pkg.types].forEach(add);
+    for (const p of [pkg.main, pkg.module, pkg.browser, pkg.types]) { add(p); }
 
     const out    = JSON.parse(execSync('npm pack --dry-run --json', { encoding: 'utf8' }));
     const packed = new Set<string>((out[0].files as Array<{ path: string }>).map((f) => f.path));
@@ -36,6 +36,8 @@ describe('package tarball shape', () => {
     const missing = [...refs].filter((r) => !packed.has(r));
     expect(missing, `exports/bin targets missing from the package tarball: ${missing.join(', ')}`).toEqual([]);
 
-  });
+  // `npm pack --dry-run` packs 110+ artifacts and AV-scans each; on Windows under
+  // the full build's parallel test load that exceeds the default 30s, so give it room.
+  }, 120_000);
 
 });

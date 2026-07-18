@@ -1,0 +1,40 @@
+// "Waiting for Godot" - Samuel Beckett (1953)
+//
+// Two tramps pass an evening the only way the play allows: by choosing
+// busywork. Boots, hats, the tree - every one of those is a real, chosen
+// edge, and every one of them drains back into "waiting," so the loop
+// does move, it just never arrives anywhere. Godot's arrival is not
+// modeled as a rare or difficult edge; it does not exist as an edge from
+// "waiting" at all, chosen or otherwise. The only transitions neither
+// tramp chooses are the boy's visit and what he says - both forced, both
+// returning them to exactly where they started.
+//
+// `allow_islands: true` is load-bearing: `godot` is a real, declared
+// state, one hop from `tomorrow`, and completely disconnected from the
+// loop the tramps actually walk. It isn't hidden behind a locked door -
+// there is no door. The verify script's reachability search from
+// "waiting" never finds it, which is the whole joke rendered as a graph
+// query instead of a punchline.
+
+machine_name     : "Waiting for Godot";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the evening: real choices, all of them circular.
+waiting          'business with the boots' -> "boot business";
+"boot business"  'business with the hats'  -> "hat business";
+"hat business"   'contemplate the tree'    -> "tree gazing";
+"tree gazing"    'decide to go'            -> waiting;   // "Let's go." "Yes, let's go." They do not move.
+
+// the only non-chosen edges in the loop: the boy's visit is forced on
+// them, and so is his message.
+waiting           ~> "the boy arrives";
+"the boy arrives" ~> waiting;   // "Mr. Godot told me to tell you he won't come this evening, but surely tomorrow."
+
+// one hop from "waiting," and reachable from no edge declared above.
+tomorrow 'arrives' -> godot;

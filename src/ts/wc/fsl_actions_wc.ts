@@ -3,8 +3,9 @@ import { state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 
-/** One edge of the machine, as returned by `machine.list_edges()`. */
-interface MachineEdge { from: unknown; to: unknown; main_path: boolean; forced_only: boolean; }
+/** One edge of the machine, as returned by `machine.list_edges()` (edge
+ *  endpoints are `StateType = string` in jssm). */
+interface MachineEdge { from: string; to: string; main_path: boolean; forced_only: boolean; }
 
 /** Host whose machine the actions panel reads and drives. */
 interface ActionsHost extends HTMLElement {
@@ -31,10 +32,8 @@ const ACTION_EVENTS = ['fsl-transition', 'fsl-machine-rebuilt'] as const;
  * appear, and each group is omitted when empty, so a self-loop-only state shows
  * just its actions and a terminal state shows `no actions available`. Standalone
  * (no host ancestor) renders empty.
- *
  * @element fsl-actions
  * @csspart actions - The container.
- *
  * @example
  * // For `A 'x' -> B; A 'y' => C; A ~> D;` while in A:
  * //   Actions:      [ x ] [ y ]
@@ -46,18 +45,21 @@ export class FslActions extends LitElement {
 
   static styles = css`
     :host { display: block; }
+    /* Horizontal bar: groups flow left-to-right and wrap; within a group the
+       label sits inline before its buttons. Suits the panel's home below the
+       workbench rather than a tall side dock. */
     .actions {
-      display: flex; flex-direction: column; gap: 0.7rem;
+      display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem;
       padding: 0.55rem 0.65rem; background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 0.8rem var(--_fsl-font);
     }
-    .group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .group { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
     .label {
       font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--_fsl-muted);
+      color: var(--_fsl-muted); white-space: nowrap;
     }
     button {
-      text-align: left; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
+      text-align: center; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
       border: 1px solid var(--_fsl-border); background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 600 0.8rem var(--_fsl-font);
     }
@@ -96,7 +98,7 @@ export class FslActions extends LitElement {
     const main = new Set<string>(), regular = new Set<string>(), forced = new Set<string>();
     for (const e of host.machine.list_edges()) {
       if (e.from !== current || e.to === current) { continue; }   // only non-self exits from here
-      const to = String(e.to);
+      const to = e.to;
       if (e.main_path)        { main.add(to); }
       else if (e.forced_only) { forced.add(to); }
       else                    { regular.add(to); }
@@ -113,8 +115,10 @@ export class FslActions extends LitElement {
       <div class="group">
         <div class="label">${label}</div>
         ${targets.map(to => html`
-          <button class="trn" @click=${() => { if (forced) { host.force_transition(to); } else { host.transition(to); } }}>→ ${to}</button>`)}
-      </div>`;
+          <button class="trn" @click=${() => { if (forced) { host.force_transition(to); } else { host.transition(to); } }}>→ ${to}</button>
+        `)}
+      </div>
+    `;
   }
 
   render(): TemplateResult {
@@ -132,12 +136,15 @@ export class FslActions extends LitElement {
           <div class="group">
             <div class="label">Actions</div>
             ${this._actions.map(a => html`
-              <button class="act" @click=${() => host.do(a)}>${a}</button>`)}
-          </div>`}
+              <button class="act" @click=${() => host.do(a)}>${a}</button>
+            `)}
+          </div>
+        `}
         ${this._group(host, 'Main', this._main, false)}
         ${this._group(host, 'Transitions', this._regular, false)}
         ${this._group(host, 'Forced', this._forced, true)}
-      </div>`;
+      </div>
+    `;
   }
 
 }

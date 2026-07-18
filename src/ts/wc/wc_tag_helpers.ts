@@ -7,11 +7,9 @@
 /**
  * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
  * (case-insensitive).
- *
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
  * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
- *
  * @example
  * wc_suffix_matches('FSL-VIZ', 'viz');   // true
  * wc_suffix_matches('jssm-viz', 'viz');  // true
@@ -26,15 +24,12 @@ export function wc_suffix_matches(tag_name: string, suffix: string): boolean {
 /**
  * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
  * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
- *
  * @param el     - The element to start the search from.
  * @param suffix - The suffix to match (e.g. `"instance"`).
  * @returns The closest matching ancestor element, or `null`.
- *
  * @example
  * // <fsl-instance><div id="k"></div></fsl-instance>
  * closest_wc(document.getElementById('k'), 'instance'); // <fsl-instance>
- *
  * @see wc_suffix_matches
  */
 export function closest_wc(el: Element, suffix: string): Element | null {
@@ -48,18 +43,15 @@ export function closest_wc(el: Element, suffix: string): Element | null {
  * callers pass the canonical class and a thin subclass for the synonym.
  * The function is idempotent: if either tag is already registered it skips
  * that `define` call rather than throwing.
- *
  * @param canonical_tag  - The primary tag name (e.g. `"fsl-instance"`).
  * @param synonym_tag    - The alias tag name (e.g. `"jssm-instance"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
  * @param SynonymClass   - Constructor to register under `synonym_tag`
  *                         (must be a distinct class from `CanonicalClass`).
- *
  * @example
  * class FslInstance extends HTMLElement {}
  * class JssmInstance extends FslInstance {}
  * define_with_synonym('fsl-instance', 'jssm-instance', FslInstance, JssmInstance);
- *
  * @see closest_wc
  */
 export function define_with_synonym(
@@ -85,14 +77,11 @@ export function define_with_synonym(
  * dual-named components.
  *
  * Idempotent: skips the `define` call when the tag is already registered.
- *
  * @param canonical_tag - The `fsl-*` tag name (e.g. `"fsl-info-panel"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
- *
  * @example
  * class FslInfoPanel extends HTMLElement {}
  * define_canonical('fsl-info-panel', FslInfoPanel);
- *
  * @see define_with_synonym
  */
 export function define_canonical(

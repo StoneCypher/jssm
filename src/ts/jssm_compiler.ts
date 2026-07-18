@@ -16,13 +16,16 @@ import {
 import {
   JssmTransition,
     JssmTransitions,
+  JssmArrow,
   JssmArrowKind,
   JssmCompileSe,
     JssmCompileSeStart,
   JssmCompileRule,
   JssmParseTree,
+  JssmParseOptions,
   JssmStateConfig,
   JssmGenericConfig,
+  JssmEditorConfig,
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
@@ -38,7 +41,8 @@ import {
   JssmStateHooks,
   FslSourceLocation,
   JssmAllowIslands,
-  JssmDefaultSize
+  JssmDefaultSize,
+  JssmParsedSemver
 } from './jssm_types.js';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -73,10 +77,12 @@ function nth_matching_loc<StateType, mDT>(
   let count = 0;
 
   for (const node of tree) {
-    if (predicate(node)) {
-      count++;
-      if (count === n) { return node.loc; }
+    if (!predicate(node)) {
+    	continue;
     }
+
+    count++;
+    if (count === n) { return node.loc; }
   }
 
   return undefined;
@@ -95,8 +101,8 @@ function nth_matching_loc<StateType, mDT>(
  *
  *  @internal
  *
- *  @typeparam StateType The type of state names (usually `string`).
- *  @typeparam mDT       The type of the machine data member; usually omitted.
+ *  @typeParam StateType The type of state names (usually `string`).
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
  *
  *  @param this_se    - The parsed semi-edge containing kind, action, and
  *                      probability metadata.
@@ -124,17 +130,35 @@ function makeTransition<StateType, mDT>(
 
 ): JssmTransition<StateType, mDT> {
 
-  const kind: JssmArrowKind = isRight
-                            ? arrow_right_kind(this_se.kind)
-                            : arrow_left_kind(this_se.kind),
+  // the explicit quotation syntax lets `""` through the grammar; a nameless
+  // state can never be addressed, so reject at edge assembly (fsl#653)
+  if ((from as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition source)'); }
+  if ((to   as unknown) === '') { throw new JssmError(undefined, 'A state name may not be the empty string (transition target)'); }
 
+  // `this_se.kind` is typed `string` rather than JssmArrow — see the field's own
+  // note in jssm_types.ts.  The classifiers reject anything that isn't a real
+  // arrow, so an unsound value throws here rather than passing silently.
+  const arrow: JssmArrow = this_se.kind as JssmArrow,
+
+        kind: JssmArrowKind = isRight
+                            ? arrow_right_kind(arrow)
+                            : arrow_left_kind(arrow),
+
+        // action and probability are pre-declared (as after_time always was)
+        // so every compiled edge shares ONE hidden class regardless of which
+        // optional fields its declaration carries.  The conditional assigns
+        // below then overwrite a value instead of adding a property, keeping
+        // the runtime _edges array monomorphic for the dispatch-path loads
+        // (.kind / .to / .forced_only) that run on every transition.
         edge: JssmTransition<StateType, mDT> = {
           from,
           to,
           kind,
           after_time  : isRight? this_se.r_after : this_se.l_after,
           forced_only : kind === 'forced',
-          main_path   : kind === 'main'
+          main_path   : kind === 'main',
+          action      : undefined,
+          probability : undefined
         };
 
   //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
@@ -156,6 +180,10 @@ function makeTransition<StateType, mDT>(
 
   if (this_se[action]      != null) { edge.action      = this_se[action]; }
   if (this_se[probability] != null) { edge.probability = this_se[probability]; }
+
+  // same rejection for `''` action quotation — an action nobody can name
+  // can never be dispatched (fsl#653)
+  if (edge.action === '') { throw new JssmError(undefined, 'An action name may not be the empty string'); }
 
   return edge;
 
@@ -245,15 +273,35 @@ function makeTransition<StateType, mDT>(
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @typeParam StateType The type of state names in the resulting tree; the
+ *                       grammar itself always produces `string`s, so only
+ *                       override this when threading a caller's own state
+ *                       naming through to {@link compile}.
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
+ *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance.  Pass
+ *  @param options Things to control about the parse.  Pass
  *                 `{ locations: true }` to enable opt-in source location
- *                 tracking on every AST node.
+ *                 tracking on every AST node.  When omitted, an empty options
+ *                 object is passed through to the parser.
+ *
+ *  @returns The machine's intermediate representation: a flat
+ *           {@link JssmParseTree} with one node per top-level FSL statement.
+ *
+ *  @throws {SyntaxError} The generated PEG.js parser's `SyntaxError` when
+ *                        `input` is not valid FSL.
+ *
+ *  @see {@link compile}
+ *  @see {@link make}
+ *  @see {@link JssmParseOptions}
  *
  */
 
-function wrap_parse(input: string, options?: Object) {
+function wrap_parse<StateType = string, mDT = unknown>(
+  input    : string,
+  options? : JssmParseOptions
+): JssmParseTree<StateType, mDT> {
   return parse(input, options || {});
 }
 
@@ -286,7 +334,7 @@ function wrap_parse(input: string, options?: Object) {
 function normalize_group_members(value: Array<unknown>): JssmGroupMemberRef[] {
   return value.map((member: unknown) =>
     (typeof member === 'string')
-      ? { kind: 'state', name: member } as JssmGroupMemberRef
+      ? { kind: 'state', name: member }
       : member as JssmGroupMemberRef
   );
 }
@@ -322,14 +370,16 @@ function build_group_registry<StateType, mDT>(tree: JssmParseTree<StateType, mDT
 
   const registry: JssmGroupRegistry = new Map();
 
-  tree.forEach((node: any) => {                                       // TODO FIXME no any
-    if (node.key === 'named_list') {
-      if (registry.has(node.name)) {
-        throw new JssmError(undefined, `Cannot redeclare group: &${node.name}`);
-      }
-      registry.set(node.name, normalize_group_members(node.value));
+  for (const node of tree as Array<any>) {                            // TODO FIXME no any
+    if (node.key !== 'named_list') {
+    	continue;
     }
-  });
+
+    if (registry.has(node.name)) {
+      throw new JssmError(undefined, `Cannot redeclare group: &${node.name}`);
+    }
+    registry.set(node.name, normalize_group_members(node.value));
+  }
 
   return registry;
 
@@ -374,18 +424,19 @@ function group_registry_cycle_check(registry: JssmGroupRegistry): void {
 
     visiting.add(group);
 
-    (registry.get(group) ?? []).forEach((member: JssmGroupMemberRef) => {
+    const group_members: Array<JssmGroupMemberRef> = registry.get(group) ?? [];
+    for (const member of group_members) {
       if (member.kind === 'group') {
         walk(member.name, [...path, group]);
       }
-    });
+    }
 
     visiting.delete(group);
     visited.add(group);
 
   };
 
-  registry.forEach((_members: JssmGroupMemberRef[], group: string) => walk(group, []));
+  for (const group of registry.keys()) { walk(group, []); }
 
 }
 
@@ -431,13 +482,16 @@ function transitive_members(
 
   const out: string[] = [];
 
-  (registry.get(group) ?? []).forEach((member: JssmGroupMemberRef) => {
+  const group_members: Array<JssmGroupMemberRef> = registry.get(group) ?? [];
+  for (const member of group_members) {
     if (member.kind === 'state') {
       out.push(member.name);
     } else {
-      transitive_members(registry, member.name, memo).forEach((s: string) => out.push(s));
+      for (const s of transitive_members(registry, member.name, memo)) {
+        out.push(s);
+      }
     }
-  });
+  }
 
   memo.set(group, out);
   return out;
@@ -474,13 +528,13 @@ function transitive_members(
 
 function validate_group_members(registry: JssmGroupRegistry): void {
 
-  registry.forEach((members: JssmGroupMemberRef[]) => {
-    members.forEach((member: JssmGroupMemberRef) => {
+  for (const members of registry.values()) {
+    for (const member of members) {
       if ((member.kind === 'group') && (!registry.has(member.name))) {
         throw new JssmError(undefined, `Unresolved group reference: &${member.name}`);
       }
-    });
-  });
+    }
+  }
 
 }
 
@@ -531,7 +585,7 @@ function membership_distance(
   const visited : Set<string>                      = new Set([group]);
   let   frontier: Array<{ group: string, hops: number }> = [{ group, hops: 0 }];
 
-  while (frontier.length) {
+  while (frontier.length > 0) {
 
     const next: Array<{ group: string, hops: number }> = [];
 
@@ -560,13 +614,36 @@ function membership_distance(
 
 
 
+/**
+ *  Transient conflict-resolution metadata for one compiled edge, carried
+ *  BESIDE the edge in {@link edge_decl_meta} instead of stamped onto it.
+ *  @internal
+ */
+type EdgeDeclMeta = {
+  decl_id      : number,
+  source_group : string | undefined,
+  specificity  : number | undefined
+};
+
+// Carried in a side table rather than as `__decl_id`/`__source_group`/
+// `__specificity` properties on the edges: the old stamp-then-`delete`
+// pipeline forced a hidden-class transition per edge, and for group-sourced
+// edges the delete (not last-added property) demoted the very objects that
+// become the runtime `_edges` array into V8 dictionary mode for the machine's
+// whole life, taxing every dispatch-path `.kind`/`.to`/`.forced_only` load.
+// WeakMap keys are per-compile edge objects, so entries cannot leak across
+// compiles and are collected with the edges.
+const edge_decl_meta: WeakMap<object, EdgeDeclMeta> = new WeakMap();
+
+
+
 /*********
  *
  *  Arbitrates transitions that compete for the same `(source_state, action)`
  *  pair after group-as-source expansion, returning a new edge list in which
- *  each such pair keeps exactly one winner and every transient
- *  conflict-resolution tag (`__source_group`, `__specificity`) has been
- *  stripped.  Edges without an `action`, and `(from, action)` pairs claimed
+ *  each such pair keeps exactly one winner.  The transient conflict-resolution
+ *  metadata lives in {@link edge_decl_meta}, never on the edges themselves.
+ *  Edges without an `action`, and `(from, action)` pairs claimed
  *  by a single edge, pass through untouched (so a genuine user-authored
  *  duplicate like `a 'x' -> b; a 'x' -> c;` still reaches — and is rejected
  *  by — the Machine constructor's one-action-per-origin check).
@@ -596,10 +673,14 @@ function membership_distance(
  *  // surviving edge is `normal 'error' -> buffering`.
  *  ```
  *
- *  @param edges The assembled, post-expansion edge list (tags still present).
+ *  @param edges The assembled, post-expansion edge list.
+ *  @param has_group_sources Whether the machine declared any groups at all;
+ *         when `false` no edge can carry a source group, the arbitration is a
+ *         provable pass-through, and the bucketing work (one JSON key per
+ *         actioned edge) is skipped entirely.
  *
- *  @returns A new edge list with contested pairs resolved and tags removed;
- *           surviving edges keep their original relative order.
+ *  @returns The edge list with contested pairs resolved; surviving edges keep
+ *           their original relative order.
  *
  *  @see resolve_group_refs
  *  @see membership_distance
@@ -607,52 +688,52 @@ function membership_distance(
  */
 
 function resolve_transition_conflicts<StateType, mDT>(
-  edges: Array<JssmTransition<StateType, mDT>>
+  edges: Array<JssmTransition<StateType, mDT>>,
+  has_group_sources: boolean = true
 ): Array<JssmTransition<StateType, mDT>> {
 
-  type Tagged = JssmTransition<StateType, mDT> & {
-    __decl_id?      : number,
-    __source_group? : string,
-    __specificity?  : number
-  };
+  if (!has_group_sources) { return edges; }
 
   type DeclEntry = {
-    decl_id      : number,
+    decl_id      : number | undefined,
     indices      : Array<number>,
     source_group : string | undefined,
     specificity  : number
   };
 
-  const tagged: Array<Tagged> = edges as Array<Tagged>;
-
   // Group edge indices by (from, action), then by declaration within each, so
   // sibling edges of one fan-out (shared decl_id) never override each other.
-  const buckets: Map<string, Map<number, DeclEntry>> = new Map();
+  // Reverse-direction edges (`<-` halves) carry no metadata and share the
+  // `undefined` declaration bucket, exactly as the untagged edges did before.
+  const buckets: Map<string, Map<number | undefined, DeclEntry>> = new Map();
 
-  tagged.forEach((edge: Tagged, index: number) => {
-    if (edge.action == null) { return; }                 // actionless edges never contest on action
+  for (const [index, edge] of edges.entries()) {
+    if (edge.action == null) { continue; }               // actionless edges never contest on action
     const key: string = JSON.stringify([String(edge.from), String(edge.action)]);
 
-    let by_decl: Map<number, DeclEntry> | undefined = buckets.get(key);
+    let by_decl: Map<number | undefined, DeclEntry> | undefined = buckets.get(key);
     if (by_decl === undefined) { by_decl = new Map(); buckets.set(key, by_decl); }
 
-    const decl_id: number = edge.__decl_id as number;
+    const meta: EdgeDeclMeta | undefined = edge_decl_meta.get(edge);
+    const decl_id: number | undefined = meta === undefined ? undefined : meta.decl_id;
     const entry: DeclEntry | undefined = by_decl.get(decl_id);
     if (entry === undefined) {
       by_decl.set(decl_id, {
         decl_id,
         indices      : [index],
-        source_group : edge.__source_group,
-        specificity  : edge.__specificity ?? Infinity
+        source_group : meta === undefined ? undefined : meta.source_group,
+        specificity  : (meta === undefined ? undefined : meta.specificity) ?? Infinity
       });
     } else {
       entry.indices.push(index);
     }
-  });
+  }
 
   const dropped: Set<number> = new Set();
 
-  buckets.forEach((by_decl: Map<number, DeclEntry>) => {
+  // Arbitrates one (from, action) bucket of competing declarations, adding
+  // each losing declaration's edge indices to `dropped`.
+  const arbitrate_bucket = (by_decl: Map<number | undefined, DeclEntry>): void => {
 
     const decls: Array<DeclEntry> = [...by_decl.values()];
     if (decls.length < 2) { return; }                    // a single declaration cannot conflict
@@ -663,44 +744,49 @@ function resolve_transition_conflicts<StateType, mDT>(
     // Rule 1: any state-specific declaration wins — drop every group-sourced
     // edge silently, keep every state-specific edge (runtime rejects genuine
     // user dupes among the state declarations).
-    if (state_decls.length) {
-      group_decls.forEach((d: DeclEntry) => d.indices.forEach((i: number) => dropped.add(i)));
+    if (state_decls.length > 0) {
+      for (const d of group_decls) {
+        for (const i of d.indices) { dropped.add(i); }
+      }
       return;
     }
 
     // Rule 2 + 3: among group-sourced declarations, smallest specificity wins;
     // ties break by later declaration order (larger decl_id).
     let winner: DeclEntry = group_decls[0];
-    group_decls.forEach((d: DeclEntry) => {
+    for (const d of group_decls) {
       const nearer    : boolean = d.specificity < winner.specificity;
       const tie_later : boolean = (d.specificity === winner.specificity) && (d.decl_id > winner.decl_id);
       if (nearer || tie_later) { winner = d; }
-    });
+    }
 
-    group_decls.forEach((d: DeclEntry) => {
-      if (d.decl_id !== winner.decl_id) {
-        d.indices.forEach((i: number) => dropped.add(i));
-        // eslint-disable-next-line no-console
-        console.warn(
-          `jssm: group &${d.source_group} transition for state '${String(tagged[d.indices[0]].from)}' `
-          + `on action '${String(tagged[d.indices[0]].action)}' is overridden by nearer group `
-          + `&${winner.source_group}`
-        );
+    for (const d of group_decls) {
+      if (d.decl_id === winner.decl_id) {
+        continue;
       }
-    });
 
-  });
+      for (const i of d.indices) { dropped.add(i); }
 
-  // Emit survivors in original order, stripping the transient tags.
+      console.warn(
+        `jssm: group &${d.source_group} transition for state '${String(edges[d.indices[0]].from)}' `
+        + `on action '${String(edges[d.indices[0]].action)}' is overridden by nearer group `
+        + `&${winner.source_group}`
+      );
+    }
+
+  };
+
+  for (const by_decl of buckets.values()) { arbitrate_bucket(by_decl); }
+
+  // Emit survivors in original order.  No stripping: the metadata never
+  // touched the edge objects, so their hidden classes are intact for the
+  // runtime dispatch paths that will load from them for the machine's life.
   const out: Array<JssmTransition<StateType, mDT>> = [];
 
-  tagged.forEach((edge: Tagged, index: number) => {
-    if (dropped.has(index)) { return; }
-    delete edge.__decl_id;
-    delete edge.__source_group;
-    delete edge.__specificity;
+  for (const [index, edge] of edges.entries()) {
+    if (dropped.has(index)) { continue; }
     out.push(edge);
-  });
+  }
 
   return out;
 
@@ -796,10 +882,23 @@ function resolve_group_refs<StateType, mDT>(
     }
   };
 
+  // Rewrites every group-ref `to` along one transition's arrow chain, in
+  // place, to its ordered member-state array.
+  const rewrite_group_targets = (node: any): void => {              // TODO FIXME no any
+    for (let link = node.se; link; link = link.se) {
+      if (!is_group_ref(link.to)) {
+        continue;
+      }
+
+      require_resolvable(link.to.name);
+      link.to = transitive_members(registry, link.to.name, memo);
+    }
+  };
+
   const resolved: Array<any> = [];                                   // TODO FIXME no any
   let   decl_id : number      = 0;                                   // one id per source declaration
 
-  tree.forEach((node: any) => {                                       // TODO FIXME no any
+  for (const node of tree as Array<any>) {                            // TODO FIXME no any
 
     // Hook subjects that are group refs are validated here (state subjects
     // need no validation — states are never pre-declared).
@@ -809,7 +908,7 @@ function resolve_group_refs<StateType, mDT>(
 
     if (node.key !== 'transition') {
       resolved.push(node);
-      return;
+      continue;
     }
 
     // Every transition declaration gets one id so conflict resolution can
@@ -819,12 +918,7 @@ function resolve_group_refs<StateType, mDT>(
 
     // Every `to` along the arrow chain is a target; a group ref there is
     // rewritten in place to its ordered member-state array.
-    for (let link = node.se; link; link = link.se) {
-      if (is_group_ref(link.to)) {
-        require_resolvable(link.to.name);
-        link.to = transitive_members(registry, link.to.name, memo) as unknown as StateType;
-      }
-    }
+    rewrite_group_targets(node);
 
     // A group-ref SOURCE fans out to one transition node per transitive
     // member, each tagged with the originating group and that member's
@@ -832,7 +926,7 @@ function resolve_group_refs<StateType, mDT>(
     if (is_group_ref(node.from)) {
       const group_name: string = node.from.name;
       require_resolvable(group_name);
-      transitive_members(registry, group_name, memo).forEach((member: string) => {
+      for (const member of transitive_members(registry, group_name, memo)) {
         resolved.push({
           ...node,
           from           : member as unknown as StateType,
@@ -840,12 +934,18 @@ function resolve_group_refs<StateType, mDT>(
           __source_group : group_name,
           __specificity  : membership_distance(registry, member, group_name)
         });
-      });
+      }
+    } else if (registry.size === 0) {
+      // No groups declared anywhere: the decl tag is only ever read by group
+      // conflict arbitration, which cannot trigger, so skip the per-statement
+      // node copy — a full shallow spread of every transition parse node
+      // (5,000 copies on messy-5000) purely to carry an unread tag.
+      resolved.push(node);
     } else {
       resolved.push({ ...node, __decl_id: this_decl });
     }
 
-  });
+  }
 
   return resolved as JssmParseTree<StateType, mDT>;
 
@@ -862,7 +962,7 @@ function resolve_group_refs<StateType, mDT>(
  *
  *  @internal
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  */
 
@@ -886,16 +986,25 @@ function compile_rule_transition_step<StateType, mDT>(
       if (right.kind !== 'none') { acc.push(right); }
 
       const left: JssmTransition<StateType, mDT> = makeTransition(this_se, t, f, false);
-      if (left.kind !== 'none') { acc.push(left); }
+      if (left.kind === 'none') {
+        // A one-way arrow has no reverse edge, so a probability/action/after
+        // written AFTER the arrow ("a -> 40% b") lands in the reverse-edge slots
+        // and used to be silently dropped.  Reject it loudly; the decoration
+        // belongs before the arrow ("a 40% -> b").  The parser omits these
+        // fields when absent (despite the non-optional type), so a loose view
+        // lets `!= null` mean "was decorated".  StoneCypher/fsl#1950
+        const rev = this_se as { l_probability?: number, l_action?: StateType, l_after?: number };
+        if (rev.l_probability != null || rev.l_action != null || rev.l_after != null) {
+          throw new JssmError(undefined, `A one-way arrow has no reverse edge, so a decoration written after it ("${String(from)} ${this_se.kind} 40% ${String(to)}") is discarded; write it before the arrow instead ("${String(from)} 40% ${this_se.kind} ${String(to)}").`);
+        }
+      } else {
+        acc.push(left);
+      }
 
     }
   }
 
-  if (next_se) {
-    return compile_rule_transition_step(acc, to, next_se.to, next_se, next_se.se);
-  } else {
-    return acc;
-  }
+  return next_se ? compile_rule_transition_step(acc, to, next_se.to, next_se, next_se.se) : acc;
 
 }
 
@@ -932,23 +1041,29 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
     // Every transition node carries a transient `__decl_id` (assigned per
     // source declaration by resolve_group_refs); a group-sourced node also
-    // carries `__source_group` / `__specificity`.  Stamp these onto the edges
-    // leaving the declared source so resolve_transition_conflicts can
-    // arbitrate competing (from, action) pairs across DISTINCT declarations.
-    // The right-direction edges are the source-driven ones, so tag only the
-    // edges whose `from` is the declaration's source state.
-    const decl_id     : number           = (rule as any).__decl_id;               // TODO FIXME no any
+    // carries `__source_group` / `__specificity`.  Record these in the
+    // edge_decl_meta side table — NEVER as properties on the edges, which
+    // would churn their hidden classes (see the note at edge_decl_meta) — so
+    // resolve_transition_conflicts can arbitrate competing (from, action)
+    // pairs across DISTINCT declarations.  The right-direction edges are the
+    // source-driven ones, so only edges whose `from` is the declaration's
+    // source state get an entry.
+    const decl_id     : number | undefined = (rule as any).__decl_id;             // TODO FIXME no any
     const source_group: string | undefined = (rule as any).__source_group;        // TODO FIXME no any
     const specificity : number | undefined = (rule as any).__specificity;         // TODO FIXME no any
-    edges.forEach((edge: JssmTransition<StateType, mDT>) => {
-      if (edge.from === rule.from) {
-        (edge as any).__decl_id = decl_id;                                         // TODO FIXME no any
-        if (source_group !== undefined) {
-          (edge as any).__source_group = source_group;                            // TODO FIXME no any
-          (edge as any).__specificity  = specificity;                             // TODO FIXME no any
+    // Group-free machines (registry.size === 0) reach here with UNTAGGED
+    // nodes — resolve_group_refs passes them through untouched — and their
+    // conflict arbitration is skipped outright, so the metadata would never
+    // be read.  Skipping the per-edge WeakMap.set removes the one remaining
+    // unconditional per-edge construction cost the side-table refactor added
+    // (the week-over-week trail showed construct paying for it).
+    if (decl_id !== undefined) {
+      for (const edge of edges) {
+        if (edge.from === rule.from) {
+          edge_decl_meta.set(edge, { decl_id, source_group, specificity });
         }
       }
-    });
+    }
 
     return { agg_as: 'transition', val: edges };
   }
@@ -957,7 +1072,10 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     // Accept BCP-47 language tags (e.g. `en-us`, `zh-Hant`) by reducing to the
     // primary language subtag before the ISO 639-1 lookup, so a regional tag
     // resolves to its base language (`en-us` -> `en`) instead of failing.
-    const primary_subtag = String(rule.value).split(/[-_]/)[0];
+    // the grammar guarantees machine_language carries a string value; the cast
+    // narrows away the state-declaration array arm for no-base-to-string
+    const language_value = rule.value as string | number;
+    const primary_subtag = String(language_value).split(/[-_]/, 1)[0];
     return { agg_as: 'machine_language', val: reduce_to_639(primary_subtag) };
   }
 
@@ -966,11 +1084,11 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     const ret: { agg_as: string, val: { name: string, default_value?: unknown, required?: boolean } }
              = { agg_as: 'property_definition', val: { name: rule.name } };
 
-    if (rule.hasOwnProperty('default_value')) {
+    if (Object.prototype.hasOwnProperty.call(rule, 'default_value')) {
       ret.val.default_value = rule.default_value;
     }
 
-    if (rule.hasOwnProperty('required')) {
+    if (Object.prototype.hasOwnProperty.call(rule, 'required')) {
       ret.val.required = rule.required;
     }
 
@@ -1032,7 +1150,8 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
   }
 
   if (['arrange_declaration', 'arrange_start_declaration',
-    'arrange_end_declaration'].includes(rule.key)) {
+    'arrange_end_declaration', 'oarrange_declaration',
+    'farrange_declaration'].includes(rule.key)) {
     return { agg_as: rule.key, val: [rule.value] };
   }
 
@@ -1045,7 +1164,7 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     'allow_islands', 'default_state_config', 'default_transition_config', 'default_graph_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
-    'default_terminal_state_config', 'npm_name', 'default_size'
+    'default_terminal_state_config', 'npm_name', 'default_size', 'editor_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -1125,25 +1244,27 @@ function fold_graph_config(
 
   const folded: Array<JssmGraphStyleKey> = [];
 
-  Object.keys(aliases).forEach((alias_key: string) => {
-    aliases[alias_key].forEach((value: unknown) => {
+  for (const [alias_key, values] of Object.entries(aliases)) {
+    for (const value of values) {
       if (WARN_DEPRECATED_GRAPH_ALIASES.has(alias_key)) {
-        // eslint-disable-next-line no-console
+         
         console.warn(
           `jssm: top-level \`${alias_key}\` is deprecated; prefer a \`graph: {}\` config block`
         );
       }
       folded.push({ key: canonical_graph_alias_key(alias_key), value } as JssmGraphStyleKey);
-    });
-  });
+    }
+  }
 
-  explicit_block.forEach((item: JssmGraphStyleKey) => folded.push(item));
+  for (const item of explicit_block) {
+    folded.push(item);
+  }
 
   // De-duplicate by canonical key, last-wins, holding first-seen position.
   const seen_at: Map<string, number> = new Map();
   const result : Array<JssmGraphStyleKey> = [];
 
-  folded.forEach((item: JssmGraphStyleKey) => {
+  for (const item of folded) {
     const existing_index: number | undefined = seen_at.get(item.key);
     if (existing_index === undefined) {
       seen_at.set(item.key, result.length);
@@ -1151,7 +1272,7 @@ function fold_graph_config(
     } else {
       result[existing_index] = item;
     }
-  });
+  }
 
   return result;
 
@@ -1166,7 +1287,7 @@ function fold_graph_config(
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -1232,12 +1353,18 @@ function fold_graph_config(
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param tree The parse tree to be boiled down into a machine config.  If the
  *              tree was produced with `parse(input, { locations: true })`, any
  *              semantic error thrown will carry a `source_location` span
  *              pointing at the offending statement.
+ *
+ *  @throws {JssmError} If the document declares no transitions (for example a
+ *                      states-first document of only `state` blocks) — a
+ *                      machine requires at least one transition; also for
+ *                      repeated property definitions, group errors, and other
+ *                      semantic problems noted throughout.
  *
  */
 
@@ -1252,7 +1379,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     failed_outputs                : Array<StateType>,
     state_config                  : Array<any>,           // TODO COMEBACK no any
     state_declaration             : Array<JssmStateDeclaration>,
-    fsl_version                   : Array<string>,
+    fsl_version                   : Array<JssmParsedSemver>,
     machine_author                : Array<string>,
     machine_comment               : Array<string>,
     machine_contributor           : Array<string>,
@@ -1272,7 +1399,9 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_start_declaration     : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version               : Array<string>,        // TODO COMEBACK semver
+    oarrange_declaration          : Array<Array<string>>,
+    farrange_declaration          : Array<Array<string>>,
+    machine_version               : Array<JssmParsedSemver>,
     default_state_config          : Array<JssmStateConfig>,
     default_active_state_config   : Array<JssmStateConfig>,
     default_hooked_state_config   : Array<JssmStateConfig>,
@@ -1285,7 +1414,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     group_metadata                : Array<{ group: string, declarations: Array<any> }>,  // TODO COMEBACK no any
     hook_decl                     : Array<any>,                                          // TODO COMEBACK no any
     allows_override               : Array<JssmAllowsOverride>,
-    allow_islands                 : Array<JssmAllowIslands>
+    allow_islands                 : Array<JssmAllowIslands>,
+    editor_config                 : Array<{ key: string; value: unknown }>
   } = {
     graph_layout                  : [],
     graph_bg_color                : [],
@@ -1315,6 +1445,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : [],
     arrange_start_declaration     : [],
     arrange_end_declaration       : [],
+    oarrange_declaration          : [],
+    farrange_declaration          : [],
     machine_version               : [],
     default_state_config          : [],
     default_active_state_config   : [],
@@ -1328,7 +1460,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     group_metadata                : [],
     hook_decl                     : [],
     allows_override               : [],
-    allow_islands                 : []
+    allow_islands                 : [],
+    editor_config                 : []
   };
 
   // Build the ordered group registry, reject membership cycles and undeclared
@@ -1362,7 +1495,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const property_keys = results['property_definition'].map(pd => pd.name),
         repeat_props  = find_repeated(property_keys);
 
-  if (repeat_props.length) {
+  if (repeat_props.length > 0) {
     const dup = repeat_props[0][0];
     throw new JssmError(undefined,
       `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`,
@@ -1400,10 +1533,21 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   // for the same (source_state, action) by depth-specificity before any
   // further processing (the runtime would otherwise reject the duplicates).
   const assembled_transitions: JssmTransitions<StateType, mDT> =
-    resolve_transition_conflicts(results['transition']);
+    resolve_transition_conflicts(results['transition'], group_registry.size > 0);
+
+  // A machine with no transitions cannot be constructed (and previously
+  // crashed right here with a raw TypeError reading `[0].from`).  This is a
+  // natural mid-authoring document shape — state blocks first, wiring later —
+  // and the editor's lint shows this message verbatim, so name the actual
+  // problem instead of leaking an internal error.
+  if (assembled_transitions.length === 0) {
+    throw new JssmError(undefined,
+      'This machine has no transitions, only declarations; a machine requires at least one transition (like `a -> b;`)'
+    );
+  }
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
-    start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+    start_states   : results.start_states.length > 0 ? results.start_states : [assembled_transitions[0].from],
     end_states     : results.end_states,
     failed_outputs : results.failed_outputs,
     transitions    : assembled_transitions,
@@ -1412,25 +1556,25 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   // Carry the ordered group registry through to the machine config, but only
   // when groups were actually declared, so group-free machines are unchanged.
-  if (group_registry.size) {
+  if (group_registry.size > 0) {
     result_cfg.group_registry = group_registry;
   }
 
   // Group metadata: each `state &g : { … }` block becomes one per-group
   // JssmStateConfig entry, keyed by group name and NOT fanned out to members,
   // so the runtime cascade can resolve it with depth-specificity later.
-  if (results.group_metadata.length) {
+  if (results.group_metadata.length > 0) {
     const group_metadata: Map<string, JssmStateConfig> = new Map();
-    results.group_metadata.forEach((gm: { group: string, declarations: Array<any> }) => {  // TODO FIXME no any
+    for (const gm of results.group_metadata) {                       // TODO FIXME no any
       group_metadata.set(gm.group, { declarations: gm.declarations });
-    });
+    }
     result_cfg.group_metadata = group_metadata;
   }
 
   // Boundary hooks: route each `on enter|exit <subject> do '<action>';` into
   // group_hooks (group subject) or state_hooks (plain-state subject), merging
   // an enter and an exit declaration for the same subject into one entry.
-  if (results.hook_decl.length) {
+  if (results.hook_decl.length > 0) {
     const group_hooks: JssmGroupHooks = new Map();
     const state_hooks: JssmStateHooks = new Map();
 
@@ -1440,16 +1584,16 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
       table.set(subject, existing);
     };
 
-    results.hook_decl.forEach((decl: any) => {                       // TODO FIXME no any
+    for (const decl of results.hook_decl) {                          // TODO FIXME no any
       if (is_group_ref(decl.subject)) {
         merge_hook(group_hooks, decl.subject.name, decl.event, decl.action);
       } else {
         merge_hook(state_hooks, decl.subject, decl.event, decl.action);
       }
-    });
+    }
 
-    if (group_hooks.size) { result_cfg.group_hooks = group_hooks; }
-    if (state_hooks.size) { result_cfg.state_hooks = state_hooks; }
+    if (group_hooks.size > 0) { result_cfg.group_hooks = group_hooks; }
+    if (state_hooks.size > 0) { result_cfg.state_hooks = state_hooks; }
   }
 
   const oneOnlyKeys: Array<string> = [
@@ -1459,31 +1603,33 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     'npm_name', 'default_size'
   ];
 
-  oneOnlyKeys.map((oneOnlyKey: string) => {
+  for (const oneOnlyKey of oneOnlyKeys) {
     if (results[oneOnlyKey].length > 1) {
       throw new JssmError(undefined,
         `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`,
         { source_location: nth_matching_loc(tree, (n) => n.key === oneOnlyKey, 2) }
       );
-    } else {
-      if (results[oneOnlyKey].length) {
-        result_cfg[oneOnlyKey] = results[oneOnlyKey][0];
-      }
     }
-  });
+    if (results[oneOnlyKey].length > 0) {
+      result_cfg[oneOnlyKey] = results[oneOnlyKey][0];
+    }
+  }
 
-  ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-   'machine_author', 'machine_contributor', 'machine_reference', 'theme',
-   'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
-   'default_start_state_config', 'default_end_state_config',
-   'default_hooked_state_config', 'default_terminal_state_config',
-   'default_active_state_config', 'default_transition_config'].map(
-      (multiKey: string) => {
-        if (results[multiKey].length) {
-          result_cfg[multiKey] = results[multiKey];
-        }
-      }
-    );
+  const multiKeys: Array<string> = [
+    'arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+    'oarrange_declaration', 'farrange_declaration',
+    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
+    'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
+    'default_start_state_config', 'default_end_state_config',
+    'default_hooked_state_config', 'default_terminal_state_config',
+    'default_active_state_config', 'default_transition_config'
+  ];
+
+  for (const multiKey of multiKeys) {
+    if (results[multiKey].length > 0) {
+      result_cfg[multiKey] = results[multiKey];
+    }
+  }
 
   result_cfg.default_graph_config = fold_graph_config(
     {
@@ -1496,32 +1642,51 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     results.default_graph_config
   );
 
-  if (!result_cfg.default_graph_config.length) {
+  if (result_cfg.default_graph_config.length === 0) {
     delete result_cfg.default_graph_config;
+  }
+
+  // Fold the `editor: {}` block's flat items into one object the web control
+  // reads (fsl#1334). The grammar only emits the two whitelisted keys, so the
+  // `else` is `panels`.
+  if (results.editor_config.length > 0) {
+    const ec: JssmEditorConfig = {};
+    for (const item of results.editor_config) {
+      if (item.key === 'stochastic_run_count') { ec.stochastic_run_count = item.value as number; }
+      else                                     { ec.panels = item.value as Array<string>; }
+    }
+    result_cfg.editor_config = ec;
   }
 
   // re-walk state declarations, already wrapped up, to get state properties,
   // which go out in a different datastructure
-  results.state_declaration.forEach(sd => {
-    sd.declarations.forEach(decl => {
+  // Registers one state block declaration as a state property binding, when
+  // it is one; throws on a duplicate (state, property) pair.
+  const register_state_property = (sd: JssmStateDeclaration, decl: any): void => {  // TODO FIXME no any
 
-      if (decl.key === 'state_property') {
-        const label = name_bind_prop_and_state(decl.name, sd.state)
+    if (decl.key !== 'state_property') {
+      return;
+    }
 
-        if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
-          throw new JssmError(undefined,
-            `A state may only bind a property once (${sd.state} re-binds ${decl.name})`,
-            { source_location: nth_matching_loc(tree, (n) => n.key === 'state_declaration' && n.name === sd.state, 1) }
-          );
-        } else {
-          // property/state carry the unserialized pair so the constructor can
-          // validate bindings without JSON.parse-ing label back apart (#734)
-          result_cfg.state_property.push({ name: label, default_value: decl.value, property: decl.name, state: sd.state });
-        }
-      }
+    const label = name_bind_prop_and_state(decl.name, sd.state)
 
-    });
-  });
+    if (result_cfg.state_property.some(c => c.name === label) ) {
+      throw new JssmError(undefined,
+        `A state may only bind a property once (${sd.state} re-binds ${decl.name})`,
+        { source_location: nth_matching_loc(tree, (n) => n.key === 'state_declaration' && n.name === sd.state, 1) }
+      );
+    }
+    // property/state carry the unserialized pair so the constructor can
+    // validate bindings without JSON.parse-ing label back apart (#734)
+    result_cfg.state_property.push({ name: label, default_value: decl.value, property: decl.name, state: sd.state });
+
+  };
+
+  for (const sd of results.state_declaration) {
+    for (const decl of sd.declarations) {
+      register_state_property(sd, decl);
+    }
+  }
 
   return result_cfg;
 
@@ -1537,14 +1702,14 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param plan The FSL code to be evaluated and built into a machine config
  *
  */
 
 function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType, mDT> {
-  return compile(wrap_parse(plan));
+  return compile(wrap_parse<StateType, mDT>(plan));
 }
 
 

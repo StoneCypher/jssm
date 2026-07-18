@@ -1,0 +1,42 @@
+// "Yak Shaving" - programming folklore, the term MIT hacker culture
+// settled on (popularized via Carlin Vieri, then Jeremy H. Brown's
+// mailing-list retelling of a "Ren & Stimpy" episode) for the experience
+// of chasing a chain of seemingly-necessary prerequisites so long that,
+// several detours in, you find yourself doing something absurd and can no
+// longer say what it was originally in service of.
+//
+// The topology joke is length plus amnesia: an unbroken chain of eight
+// chosen actions, each one locally justified by the state before it, runs
+// from a simple stated goal all the way to a terminal that shares no
+// vocabulary with that goal at all. Critically, no edge anywhere in this
+// file points back at the opening state, and no edge reaches any notion
+// of the document actually printing - the original goal is not defeated,
+// contradicted, or abandoned by any decision; it is simply never named
+// again after the first hop. `fslExplain` shows a start state with exactly
+// one outgoing edge and a terminal with none, and nothing in between ever
+// closes the loop back to what this was supposed to be about.
+
+machine_name    : "Yak Shaving";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the goal, named exactly once - no edge in this file ever refers back to
+// it, and no edge ever satisfies it either.
+"I just want to print this document" 'printer driver is missing, go install one' -> "installing a printer driver";
+
+// eight hops, each locally justified, each drifting further from the top.
+"installing a printer driver"      'driver needs a newer OS library'        -> "updating OS libraries";
+"updating OS libraries"            'update needs more free disk space'      -> "clearing disk space";
+"clearing disk space"               'old files only fit on an external drive' -> "buying an external hard drive";
+"buying an external hard drive"    'the store is a drive away'              -> "driving to the store";
+"driving to the store"             'the car has a flat tire'                -> "changing a flat tire";
+"changing a flat tire"             'the jack is broken, borrow one nearby'  -> "at the farm supply store";
+"at the farm supply store"         'yak wool happens to be on sale'         -> "shaving a yak";
+
+// the terminal. no edge from here, or anywhere above, ever leads back to
+// a printed document - the original goal was never defeated, just never
+// mentioned again.

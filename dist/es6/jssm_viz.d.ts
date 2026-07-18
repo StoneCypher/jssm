@@ -1,5 +1,4 @@
 import * as jssm from './jssm.js';
-import { version, build_time } from './version.js';
 import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from './jssm_types.js';
 /**
  *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
@@ -15,13 +14,50 @@ import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from '
  *    diagram or when overlap is pervasive.
  *  - `'off'` — ignore groups entirely; byte-for-byte the historical output.
  */
-declare type RenderGroups = 'cluster' | 'chips' | 'off';
+type RenderGroups = 'cluster' | 'chips' | 'off';
 /**
- *  Inject runtime configuration for jssm/viz.  Currently only accepts a
- *  custom `DOMParser` constructor for use by `*_svg_element` functions in
- *  environments that do not provide one globally (e.g. Node + jsdom).
+ *  The Graphviz engine surface jssm/viz actually consumes: one ready-to-use
+ *  object with a `renderString(dot, options)` method.  This is the contract
+ *  for {@link configure}`({ viz })` injection — a *direct adapter*, not a
+ *  factory: the caller instantiates (and, if needed, awaits) their engine
+ *  themselves, then hands over the finished object.  `renderString` receives
+ *  the dot source and an options object whose members jssm/viz uses are
+ *  `format` (always `'svg'`) and `engine` (a Graphviz layout engine name,
+ *  when the caller of a render function supplied one); it may return the
+ *  output string synchronously (like `@viz-js/viz`) or as a promise (like
+ *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
  *
- *  Idempotent — last call wins.  No-op if called with no recognized keys.
+ *  ```typescript
+ *  import { instance } from '@viz-js/viz';
+ *  configure({ viz: await instance() });   // the default engine, injected by hand
+ *  ```
+ *  @see configure
+ */
+type VizEngine = {
+    renderString: (dot: string, options?: {
+        format?: string;
+        engine?: string;
+    }) => string | Promise<string>;
+};
+/**
+ *  Inject runtime configuration for jssm/viz — a custom `DOMParser`
+ *  constructor for the `*_svg_element` functions, a replacement Graphviz
+ *  engine for every render path, or both.
+ *
+ *  Each key is handled independently.  Idempotent — last call wins per key;
+ *  an omitted (or `undefined`) key leaves any earlier injection for that key
+ *  in place, so neither injection can be un-set.  No-op if called with no
+ *  recognized keys.
+ *
+ *  Precedence differs by key, on purpose:
+ *
+ *  - `DOMParser` is a *fallback* — `globalThis.DOMParser` (browsers, jsdom
+ *    test environments) still wins when present.
+ *  - `viz` is an *override* — once injected it is used for every render, and
+ *    the default `@viz-js/viz` import is never even attempted.  This is what
+ *    lets WASM-hostile environments (strict-CSP webviews such as VS Code's
+ *    markdown preview) supply an asm.js Graphviz build at runtime, without
+ *    bundler aliasing.  See {@link VizEngine} for the exact contract.
  *
  *  ```typescript
  *  // Node, with jsdom:
@@ -32,39 +68,70 @@ declare type RenderGroups = 'cluster' | 'chips' | 'off';
  *  const el = await fsl_to_svg_element('a -> b;');
  *  ```
  *
+ *  ```typescript
+ *  // strict-CSP webview, with an asm.js Graphviz:
+ *  import { configure, fsl_to_svg_string } from 'jssm/viz';
+ *
+ *  configure({ viz: my_asm_graphviz });  // anything with renderString(dot, opts)
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  ```
  *  @param opts Configuration overrides.
  *  @param opts.DOMParser Constructor compatible with the WHATWG `DOMParser`
  *  interface.  Used as a fallback when `globalThis.DOMParser` is undefined.
- *
+ *  @param opts.viz A ready-to-use Graphviz engine implementing
+ *  {@link VizEngine} (`renderString(dot, opts)`).  Overrides the default
+ *  `@viz-js/viz` engine for all subsequent renders.
  *  @throws {JssmError} if `DOMParser` is provided and is not a constructor.
+ *  @throws {JssmError} if `viz` is provided and lacks a callable `renderString`.
+ *  @see VizEngine
  */
 declare function configure(opts: {
     DOMParser?: typeof globalThis.DOMParser;
+    viz?: VizEngine;
 }): void;
 /**
  *  Look up a color from the default viz palette by key, returning empty
  *  string if the key is unknown (so it disappears in feature concatenation).
- *
  *  @internal
  */
 declare function vc(col: string): string;
 /**
  *  Escape a string for safe interpolation inside a DOT double-quoted
- *  attribute value.  Replaces every `"` with `\"` so that group names,
- *  state labels, and chip labels containing literal double-quotes produce
- *  valid, parseable DOT source.
+ *  attribute value.  Escapes every `\` and `"` so that group names, state
+ *  labels, and chip labels containing either character produce valid,
+ *  parseable DOT source.
+ *
+ *  Backslash is escaped *first*: a label ending in `\` would otherwise emit
+ *  `label="a\"`, whose `\"` escapes the closing quote and corrupts the DOT so
+ *  the whole render throws.  Escaping `\`→`\\` before `"`→`\"` avoids
+ *  double-escaping the backslashes the quote step introduces.  StoneCypher/fsl#1951
  *
  *  ```typescript
- *  doublequote('a"b');  // 'a\\"b'
- *  doublequote('safe'); // 'safe'
+ *  doublequote('a"b');   // 'a\\"b'
+ *  doublequote('a\\');   // 'a\\\\'
+ *  doublequote('safe');  // 'safe'
  *  ```
- *
  *  @param txt Any string that will be placed inside `"…"` in a DOT attribute.
- *  @returns The string with every `"` replaced by `\"`.
- *
+ *  @returns The string with every `\` and `"` backslash-escaped.
  *  @internal
  */
 declare function doublequote(txt: string): string;
+/**
+ *  Reverse {@link doublequote}: turn DOT's `\"` escape back into the literal
+ *  `"` that graphviz renders into SVG `<text>` content.  Used by
+ *  {@link state_svg_label_texts} to reconstruct a node's on-screen label from
+ *  the DOT label it was handed, so the fence renderer keys against exactly what
+ *  was drawn.
+ *
+ *  ```typescript
+ *  undoublequote('a\\"b');  // 'a"b'
+ *  undoublequote('safe');   // 'safe'
+ *  ```
+ *  @param txt A DOT-escaped attribute string (as produced by `doublequote`).
+ *  @returns The string with every `\"` collapsed back to `"`.
+ *  @internal
+ */
+declare function undoublequote(txt: string): string;
 /**
  *  Convert a state name into a URL-friendly slug suitable for use as the
  *  body of a dot/SVG node identifier.  The transformation is:
@@ -84,11 +151,14 @@ declare function doublequote(txt: string): string;
  *  slug_for('!!!');          // ''
  *  slug_for('  Foo  Bar  '); // 'foo-bar'
  *  ```
+ *  Exported so consumers which must match rendered SVG node `<title>`s back
+ *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
+ *  the *same* function the dot generator used, rather than a drifting copy.
  *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
- *
+ *  @see slug_states
  *  @internal
  */
 declare function slug_for(state: string): string;
@@ -117,10 +187,8 @@ declare function slug_for(state: string): string;
  *  slug_states(['!!!', '???']);
  *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
  *  ```
- *
  *  @param states States in declaration order.
  *  @returns A `Map` from each state name to its unique slug.
- *
  *  @internal
  */
 declare function slug_states(states: string[]): Map<string, string>;
@@ -141,7 +209,6 @@ declare function slug_states(states: string[]): Map<string, string>;
  *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
  *  // '"red-light"'
  *  ```
- *
  *  @internal
  */
 declare function node_of(state: string, state_index: string[] | Map<string, number> | Map<string, string>): string;
@@ -151,13 +218,11 @@ declare function node_of(state: string, state_index: string[] | Map<string, numb
  *  a 9-character `#`-prefixed string.
  *
  *  Graphviz dot does not support alpha; this is a lossy projection.
- *
  *  @internal
  */
 declare function color8to6(color8: string): string;
 /**
  *  Variant of {@link color8to6} that passes `undefined` through.
- *
  *  @internal
  */
 declare function u_color8to6(color8?: string): string | undefined;
@@ -166,7 +231,6 @@ declare function u_color8to6(color8?: string): string | undefined;
  *  so theme-supplied shapes are honoured along with per-state declarations.
  *  Returns `undefined` if neither a theme nor a state declaration supplies a
  *  shape.
- *
  *  @internal
  */
 declare function shape_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
@@ -175,7 +239,6 @@ declare function shape_for_state<T>(u_jssm: jssm.Machine<T>, state: string): str
  *  so theme-supplied images are honoured along with per-state declarations.
  *  Returns `undefined` if neither a theme nor a state declaration supplies an
  *  image.
- *
  *  @internal
  */
 declare function image_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
@@ -184,13 +247,12 @@ declare function image_for_state<T>(u_jssm: jssm.Machine<T>, state: string): str
  *  style via {@link jssm.Machine.style_for}, then delegating to
  *  {@link compose_style_string}.  Theme-supplied `corners` and `lineStyle`
  *  are honoured along with per-state declarations.
- *
  *  @internal
  */
 declare function style_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string;
 /**
  *  Map a single `transition: {}` config item (`{ key, value }`) to a Graphviz
- *  *edge*-scope attribute `name="value"` pair, or `undefined` when the key has
+ *  edge*-scope attribute `name="value"` pair, or `undefined` when the key has
  *  no edge-meaningful projection.  Mirrors the per-node mapping in
  *  {@link state_node_line}, but targets the attribute names Graphviz uses on
  *  edges:
@@ -203,7 +265,6 @@ declare function style_for_state<T>(u_jssm: jssm.Machine<T>, state: string): str
  *  Node-only keys (`background-color`, `shape`, `corners`, `image`, `url`,
  *  `state-label`, `border-color`) have no edge meaning and yield `undefined`,
  *  so they are dropped from the `edge [ … ]` default statement.
- *
  *  @internal
  */
 declare function edge_attr_for(key: string, value: string): string | undefined;
@@ -220,13 +281,12 @@ declare function edge_attr_for(key: string, value: string): string | undefined;
  *  edge_defaults_body([{ key: 'color', value: '#0000ffff' }]);
  *  // 'color="#0000ffff"'
  *  ```
- *
  *  @internal
  */
 declare function edge_defaults_body(config: JssmTransitionConfig | undefined): string;
 /**
  *  Map a single `graph: {}` config item (`{ key, value }`) to a Graphviz
- *  *graph*-scope attribute `name="value"` pair, or `undefined` when the key is
+ *  graph*-scope attribute `name="value"` pair, or `undefined` when the key is
  *  either not graph-meaningful or already handled by another machine path
  *  (`graph_layout` → SVG engine, `flow` → `rankdir`, `theme` → style cascade,
  *  `dot_preamble` → preamble).  `background-color` is handled separately — it
@@ -235,7 +295,6 @@ declare function edge_defaults_body(config: JssmTransitionConfig | undefined): s
  *
  *  - `color`      → graph `color` (cluster/graph border).
  *  - `text-color` → graph `fontcolor`.
- *
  *  @internal
  */
 declare function graph_attr_for(key: string, value: string): string | undefined;
@@ -250,7 +309,6 @@ declare function graph_attr_for(key: string, value: string): string | undefined;
  *  This is the single reconciliation point for the graph background: the value
  *  it returns flows into {@link dot_template}'s one `bgcolor="…"` slot, so the
  *  `graph: {}` value wins over the legacy alias and is never emitted twice.
- *
  *  @internal
  */
 declare function graph_bg_color_from_config(config: JssmGraphConfig | undefined, fallback: string): string;
@@ -260,7 +318,6 @@ declare function graph_bg_color_from_config(config: JssmGraphConfig | undefined,
  *  one Graphviz graph attribute statement per key (e.g. `color="…";`).  Returns
  *  the empty string when nothing applies, so machines without graph-scope color
  *  attributes are byte-identical to before.
- *
  *  @internal
  */
 declare function graph_attrs_body(config: JssmGraphConfig | undefined): string;
@@ -283,10 +340,9 @@ declare function graph_attrs_body(config: JssmGraphConfig | undefined): string;
  *  or only terminal — a long-standing bug.  The fix is to check the two
  *  underlying predicates directly so the three named buckets reflect
  *  three meaningfully distinct conditions.
- *
  *  @internal
  */
-declare type StateKind = 'final' | 'complete' | 'terminal' | 'base';
+type StateKind = 'final' | 'complete' | 'terminal' | 'base';
 /**
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
  *  identifier.  Graphviz treats any `subgraph` whose name begins with the
@@ -302,12 +358,10 @@ declare type StateKind = 'final' | 'complete' | 'terminal' | 'base';
  *  cluster_id_for('Active Players', 0);  // 'cluster_active_players_0'
  *  cluster_id_for('!!!', 3);             // 'cluster_g3'
  *  ```
- *
  *  @param group The FSL group name.
  *  @param index The group's stable declaration-order index (0-based); included
  *  in the emitted id to prevent slug collisions.
  *  @returns A valid Graphviz subgraph identifier starting with `cluster_`.
- *
  *  @internal
  */
 declare function cluster_id_for(group: string, index: number): string;
@@ -322,7 +376,6 @@ declare function cluster_id_for(group: string, index: number): string;
  *  label_with_chips('Foo', []);              // 'Foo'
  *  label_with_chips('Foo', ['a', 'b']);      // 'Foo [a] [b]'
  *  ```
- *
  *  @internal
  */
 declare function label_with_chips(label: string, chips: string[]): string;
@@ -339,7 +392,6 @@ declare function label_with_chips(label: string, chips: string[]): string;
  *  // for `&inner:[a]; &outer:[&inner b];`
  *  // group_parent_map(reg, ['inner','outer']) === Map { 'inner' => 'outer' }
  *  ```
- *
  *  @internal
  */
 declare function group_parent_map(registry: Map<string, JssmGroupMemberRef[]>, order: string[]): Map<string, string>;
@@ -348,7 +400,6 @@ declare function group_parent_map(registry: Map<string, JssmGroupMemberRef[]>, o
  *  ancestor set *including the group itself*.  Used both to nest clusters and
  *  to decide which of a state's memberships its primary cluster already
  *  represents (so the rest become chips).
- *
  *  @internal
  */
 declare function group_ancestry(group: string, parents: Map<string, string>): Set<string>;
@@ -358,7 +409,6 @@ declare function group_ancestry(group: string, parents: Map<string, string>): Se
  *  declaration order — the same precedence the config cascade uses, so a
  *  state's cluster placement agrees with the group whose style won.  Returns
  *  `undefined` for a state in no group.
- *
  *  @internal
  */
 declare function primary_group_for<T>(u_jssm: jssm.Machine<T>, state: string, order: string[]): string | undefined;
@@ -368,11 +418,9 @@ declare function primary_group_for<T>(u_jssm: jssm.Machine<T>, state: string, or
  *  ungrouped state) plus the *chip* groups — memberships the primary cluster's
  *  ancestry does not already represent, i.e. genuine overlap that nesting
  *  cannot show.
- *
  *  @returns `{ placement, chips }` where `placement` maps state → primary
  *  group, and `chips` maps state → the overflow group names (declaration
  *  order).
- *
  *  @internal
  */
 declare function plan_cluster_groups<T>(u_jssm: jssm.Machine<T>, l_states: string[], order: string[], parents: Map<string, string>): {
@@ -395,10 +443,8 @@ declare function plan_cluster_groups<T>(u_jssm: jssm.Machine<T>, l_states: strin
  *  // for `&inner:[a]; &outer:[&inner b]; a -> b;` the result contains
  *  //   subgraph cluster_outer { label="outer"; … subgraph cluster_inner { … } }
  *  ```
- *
  *  @returns `{ clusters, ungrouped_nodes }` — the cluster DOT block and the
  *  node statements for states in no group.
- *
  *  @internal
  */
 declare function groups_to_subgraph_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels: boolean): {
@@ -415,7 +461,6 @@ declare function groups_to_subgraph_string<T>(u_jssm: jssm.Machine<T>, l_states:
  *  // for `&inner:[a]; &outer:[&inner b]; a -> b;`
  *  // chips_for_all_groups(m, ['a','b']) === Map { 'a' => ['inner','outer'], 'b' => ['outer'] }
  *  ```
- *
  *  @internal
  */
 declare function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: string[]): Map<string, string[]>;
@@ -435,7 +480,7 @@ declare function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: stri
  *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
  *    output byte-for-byte.
  */
-declare type VizRenderOpts = {
+type VizRenderOpts = {
     hide_state_labels?: boolean;
     footer?: string;
     engine?: string;
@@ -455,10 +500,50 @@ declare type VizRenderOpts = {
  *
  *  A machine that declares no groups produces the same flat node list in every
  *  mode, so `'cluster'`/`'chips'` are no-ops there.
- *
  *  @internal
  */
 declare function node_block_for<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_labels: boolean, mode: RenderGroups): string;
+/**
+ *  The per-state group-chip map that {@link node_block_for} appends to labels
+ *  in a given render mode.  Mirrors that function's mode dispatch and calls the
+ *  very same chip sources — {@link chips_for_all_groups} for `'chips'`,
+ *  {@link plan_cluster_groups} (with identical inputs) for `'cluster'` — so a
+ *  reconstructed label can never disagree with the one graphviz was handed.
+ *  `'off'`, and any machine that declares no groups, yields an empty map.
+ *  @internal
+ */
+declare function chips_for_render_mode<T>(u_jssm: jssm.Machine<T>, l_states: string[], mode: RenderGroups): Map<string, string[]>;
+/**
+ *  The exact text graphviz places in each state's SVG `<text>` element(s) when
+ *  a machine is rendered via {@link machine_to_dot} / {@link fsl_to_svg_string}:
+ *  the state's display text plus any group chips the node builder appends, with
+ *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
+ *  wraps across lines becomes several `<text>` elements; this returns the lines
+ *  joined by `\n`, exactly how `extract_state_fills` reads them back — so
+ *  the derived key and the extracted key meet at the same string.
+ *
+ *  This is the single source of truth the static fence renderer keys its
+ *  highlight and recolor lookups against, so those lookups can never drift from
+ *  what was actually drawn — plain labels, group chips, and multi-line wraps
+ *  alike.  It is built by running the node builder's own
+ *  `label_with_chips(doublequote(display_text), chips)` and inverting the one
+ *  escaping step, so it follows any change to the label format for free.
+ *  @param u_jssm The machine being rendered.
+ *  @param opts Render flags; only `render_groups` affects the label text
+ *  (default `'cluster'`, matching `fsl_to_svg_string`).
+ *  @returns A map from each state name to its rendered SVG label text.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *  import { state_svg_label_texts } from 'jssm/viz';
+ *
+ *  // a state in two groups renders a chip suffix in its node label
+ *  state_svg_label_texts(sm`&g1 : [a b]; &g2 : [a]; a -> b;`).get('a');  // 'a [g1]'
+ *  state_svg_label_texts(sm`a -> b;`).get('a');                          // 'a'
+ *  ```
+ *  @see extract_state_fills
+ */
+declare function state_svg_label_texts<T>(u_jssm: jssm.Machine<T>, opts?: VizRenderOpts): Map<string, string>;
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
@@ -487,7 +572,6 @@ declare function node_block_for<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
  *  // or as label chips, with no cluster boxes
  *  const chipped = machine_to_dot(sm`&g : [a b]; a -> b;`, { render_groups: 'chips' });
  *  ```
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
@@ -506,22 +590,21 @@ declare function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts?: VizRenderOpts
  *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
  *  // 'digraph G { ... label="caption"; }'
  *  ```
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
 declare function fsl_to_dot(fsl: string, opts?: VizRenderOpts): string;
 /**
- *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
- *  underlying viz instance is lazy-initialized on first call and cached for
- *  the lifetime of the module.
+ *  Render a graphviz dot source string to SVG using `@viz-js/viz`, or the
+ *  engine injected via {@link configure}`({ viz })` when one is set.  The
+ *  default viz instance is lazy-initialized on first call and cached for
+ *  the lifetime of the module; an injected engine bypasses it entirely.
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
  *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
- *
  *  @param dot Graphviz dot source.
  *  @param options Optional renderer overrides.
  *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
@@ -539,7 +622,6 @@ declare function dot_to_svg(dot: string, options?: {
  *  const svg = await fsl_to_svg_string('a -> b;');
  *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
  *  ```
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
@@ -547,7 +629,6 @@ declare function dot_to_svg(dot: string, options?: {
 declare function fsl_to_svg_string(fsl: string, opts?: VizRenderOpts): Promise<string>;
 /**
  *  Render a {@link jssm.Machine} to SVG.
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
@@ -555,7 +636,6 @@ declare function fsl_to_svg_string(fsl: string, opts?: VizRenderOpts): Promise<s
 declare function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts?: VizRenderOpts): Promise<string>;
 /**
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
@@ -564,7 +644,6 @@ declare function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts?: VizRen
 declare function fsl_to_svg_element(fsl: string, opts?: VizRenderOpts): Promise<SVGSVGElement>;
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
@@ -574,13 +653,12 @@ declare function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts?: VizRe
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
  *  jssm-viz.  Will be removed in the next major.
- *
  *  @deprecated Use {@link machine_to_dot} instead.
  */
 declare function dot<T>(machine: jssm.Machine<T>): string;
-export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, version, build_time };
-export type { VizRenderOpts, RenderGroups };
-/** @internal — test-only access to private helpers. */
+export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, state_svg_label_texts, slug_for, };
+export type { VizRenderOpts, RenderGroups, VizEngine };
+/** @internal */
 export declare const _test: {
     doublequote: typeof doublequote;
     color8to6: typeof color8to6;
@@ -594,6 +672,7 @@ export declare const _test: {
     style_for_state: typeof style_for_state;
     cluster_id_for: typeof cluster_id_for;
     label_with_chips: typeof label_with_chips;
+    undoublequote: typeof undoublequote;
     group_parent_map: typeof group_parent_map;
     group_ancestry: typeof group_ancestry;
     primary_group_for: typeof primary_group_for;
@@ -601,9 +680,11 @@ export declare const _test: {
     groups_to_subgraph_string: typeof groups_to_subgraph_string;
     chips_for_all_groups: typeof chips_for_all_groups;
     node_block_for: typeof node_block_for;
+    chips_for_render_mode: typeof chips_for_render_mode;
     edge_attr_for: typeof edge_attr_for;
     edge_defaults_body: typeof edge_defaults_body;
     graph_attr_for: typeof graph_attr_for;
     graph_attrs_body: typeof graph_attrs_body;
     graph_bg_color_from_config: typeof graph_bg_color_from_config;
 };
+export { version, build_time } from './version.js';

@@ -1,0 +1,16 @@
+// "Loss" - internet notation meme (Ctrl+Alt+Del, 2008), reduced by its
+// audience to four bare strokes: | || ||_ |-
+//
+// The meme already is a state graph; this file just declares it as one.
+
+machine_name    : "Loss";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"|"   'advance' -> "||";
+"||"  'advance' -> "||_";
+"||_" 'advance' -> "|-";

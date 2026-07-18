@@ -1,59 +1,304 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JSSM CodeMirror 6 editor sketch</title>
   <script type="importmap">
   {
     "imports": {
       "@codemirror/state":    "https://esm.sh/@codemirror/state@6.5.2",
       "@codemirror/view":     "https://esm.sh/@codemirror/view@6.37.2?external=@codemirror/state",
-      "@codemirror/language": "https://esm.sh/@codemirror/language@6.10.8?external=@codemirror/state,@codemirror/view",
+      "@lezer/highlight":     "https://esm.sh/@lezer/highlight@1.2.1",
+      "@codemirror/language": "https://esm.sh/@codemirror/language@6.10.8?external=@codemirror/state,@codemirror/view,@lezer/highlight",
       "@codemirror/commands": "https://esm.sh/@codemirror/commands@6.7.1?external=@codemirror/state,@codemirror/view,@codemirror/language",
-      "@codemirror/lint":     "https://esm.sh/@codemirror/lint@6.8.5?external=@codemirror/state,@codemirror/view"
+      "@codemirror/lint":     "https://esm.sh/@codemirror/lint@6.8.5?external=@codemirror/state,@codemirror/view",
+      "@codemirror/autocomplete": "https://esm.sh/@codemirror/autocomplete@6.18.6?external=@codemirror/state,@codemirror/view,@codemirror/language,@codemirror/commands",
+      "@viz-js/viz":          "https://esm.sh/@viz-js/viz@3.26.0"
     }
   }
   </script>
   <style>
+    /* ---- theme tokens ---------------------------------------------------- */
+    :root {
+      --app-bg:#fff;            --app-fg:#222;
+      --header-bg:#cfccc4;      --header-fg:#1f1f1f;   --header-sub:#5a564e;
+      --graph-bg:#ddd;
+      --gutter-bg:#c9c9c9;      --gutter-edge:#b5b5b5; --gutter-hover:#ababab;
+      --footer-bg:#f0eee9;      --footer-fg:#555;      --footer-border:#dcd8d0;
+      --ok:#197d2c;             --err:#b91c1c;
+      /* Win32-style toolbar */
+      --tb-face:#e8e6df;        --tb-face-hover:#f3f1ec; --tb-face-active:#d8d5cc;
+      --tb-fg:#2a2a2a;          --tb-border:#222;
+      --help-bg:#fffef9;        --help-fg:#2a2a2a;       --help-border:#cfccc4;
+      --help-accent:#6a4cd6;    --kbd-bg:#eceae3;
+      --li-ed:#5b9dff;          --li-gr:#c4c0b8;   /* layout-icon editor / graph swatches */
+    }
+    html[data-theme="dark"] {
+      --app-bg:#18181b;         --app-fg:#d6d6d6;
+      --header-bg:#1f1f23;      --header-fg:#ededed;   --header-sub:#9a9a9a;
+      --graph-bg:#26262b;
+      --gutter-bg:#3a3a40;      --gutter-edge:#2a2a2e; --gutter-hover:#4a4a52;
+      --footer-bg:#1c1c20;      --footer-fg:#aaa;      --footer-border:#2a2a2e;
+      --ok:#6ee787;             --err:#ff7b72;
+      --tb-face:#3a3a40;        --tb-face-hover:#46464d; --tb-face-active:#2b2b31;
+      --tb-fg:#e6e6e6;          --tb-border:#000;
+      --help-bg:#202026;        --help-fg:#d6d6d6;       --help-border:#34343c;
+      --help-accent:#addb67;    --kbd-bg:#2c2c33;
+      --li-ed:#82aaff;          --li-gr:#4a4a52;
+    }
+
+    /* ---- layout ---------------------------------------------------------- */
     html, body { height: 100%; margin: 0; }
     body {
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #fff;
-      color: #222;
+      background: var(--app-bg); color: var(--app-fg);
     }
     header {
-      padding: 10px 14px;
-      background: #1f1f23;
-      color: #eee;
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
+      padding: 8px 12px; background: var(--header-bg); color: var(--header-fg);
+      display: flex; align-items: center; gap: 12px;
+      position: relative; z-index: 30;   /* stays above the help drawer */
     }
     header h1 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
-    header .sub { font-size: 11px; opacity: 0.6; }
-    #editor { flex: 1; overflow: hidden; }
-    .cm-editor { height: 100%; }
-    footer {
-      padding: 6px 14px;
-      font-family: ui-monospace, Consolas, monospace;
-      font-size: 12px;
-      background: #f5f5f5;
-      border-top: 1px solid #e5e5e5;
-      color: #555;
+    header .sub { font-size: 11px; color: var(--header-sub); }
+
+    #workbench { flex: 1; display: flex; min-height: 0; }
+    /* Panes default to an even split; the splitter overrides via inline flex. */
+    #viz {
+      flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; box-sizing: border-box;
+      padding: 2em; background: var(--graph-bg); display: flex;
     }
-    footer #status[data-state="ok"]  { color: #197d2c; }
-    footer #status[data-state="err"] { color: #b91c1c; }
+    fsl-viz { flex: 1; min-width: 0; min-height: 0; display: block; }
+    #editor { flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; }
+    .cm-editor { height: 100%; }
+
+    /* Draggable divider. Double-click resets to an even split. */
+    #gutter { flex: 0 0 7px; background: var(--gutter-bg); touch-action: none; }
+    #gutter:hover, #gutter.dragging { background: var(--gutter-hover); }
+
+    /* ---- layout modes (driven by [data-layout] on #workbench) ------------ */
+    #workbench[data-layout="lr"], #workbench[data-layout="rl"],
+    #workbench[data-layout="editor"], #workbench[data-layout="viewer"] { flex-direction: row; }
+    #workbench[data-layout="tb"], #workbench[data-layout="bt"],
+    #workbench[data-layout="tabs"] { flex-direction: column; }
+
+    /* horizontal vs vertical gutter */
+    #workbench[data-layout="lr"] #gutter, #workbench[data-layout="rl"] #gutter {
+      cursor: col-resize; border-left: 1px solid var(--gutter-edge); border-right: 1px solid var(--gutter-edge);
+    }
+    #workbench[data-layout="tb"] #gutter, #workbench[data-layout="bt"] #gutter {
+      cursor: row-resize; border-top: 1px solid var(--gutter-edge); border-bottom: 1px solid var(--gutter-edge);
+    }
+
+    /* pane order per mode */
+    #workbench[data-layout="lr"] #editor { order: 0; } #workbench[data-layout="lr"] #gutter { order: 1; } #workbench[data-layout="lr"] #viz { order: 2; }
+    #workbench[data-layout="rl"] #viz { order: 0; } #workbench[data-layout="rl"] #gutter { order: 1; } #workbench[data-layout="rl"] #editor { order: 2; }
+    #workbench[data-layout="tb"] #editor { order: 0; } #workbench[data-layout="tb"] #gutter { order: 1; } #workbench[data-layout="tb"] #viz { order: 2; }
+    #workbench[data-layout="bt"] #viz { order: 0; } #workbench[data-layout="bt"] #gutter { order: 1; } #workbench[data-layout="bt"] #editor { order: 2; }
+
+    /* single-pane + tabbed modes hide the gutter and the inactive pane */
+    #workbench[data-layout="editor"] #gutter, #workbench[data-layout="editor"] #viz { display: none; }
+    #workbench[data-layout="viewer"] #gutter, #workbench[data-layout="viewer"] #editor { display: none; }
+    #workbench[data-layout="tabs"] #gutter { display: none; }
+    #workbench[data-layout="tabs"] #viz[data-tab-hidden],
+    #workbench[data-layout="tabs"] #editor[data-tab-hidden] { display: none; }
+
+    /* tab strip (tabbed mode only) */
+    #tabbar { display: none; }
+    #workbench[data-layout="tabs"] #tabbar {
+      display: flex; gap: 3px; padding: 6px 8px 0;
+      background: var(--app-bg); border-bottom: 1px solid var(--footer-border);
+    }
+    #tabbar .tab {
+      font: inherit; font-size: 12px; padding: 6px 16px; cursor: pointer;
+      background: var(--tb-face); color: var(--tb-fg);
+      border: 1px solid var(--tb-edge); border-bottom: none; border-radius: 6px 6px 0 0;
+    }
+    #tabbar .tab[aria-selected="true"] { background: var(--app-bg); font-weight: 600; }
+    footer {
+      padding: 6px 14px; font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+      background: var(--footer-bg); border-top: 1px solid var(--footer-border); color: var(--footer-fg);
+    }
+    footer #status[data-state="ok"]  { color: var(--ok); }
+    footer #status[data-state="err"] { color: var(--err); }
+
+    /* ---- Win32-style toolbar: square buttons, flush in a group ----------- */
+    .toolbar { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .btn-group { display: inline-flex; }
+    .tbtn {
+      width: 30px; height: 26px; padding: 0; display: grid; place-items: center;
+      background: var(--tb-face); color: var(--tb-fg);
+      border: 1px solid var(--tb-border);
+      cursor: pointer;
+    }
+    .btn-group .tbtn:first-child { border-radius: 3px 0 0 3px; }
+    .btn-group .tbtn:last-child  { border-radius: 0 3px 3px 0; }
+    .btn-group .tbtn:only-child  { border-radius: 3px; }
+    .btn-group .tbtn + .tbtn { margin-left: -1px; }   /* overlap edges → shared border */
+    .tbtn:hover { background: var(--tb-face-hover); }
+    .tbtn:active, .tbtn[aria-pressed="true"], .tbtn[aria-expanded="true"] {
+      background: var(--tb-face-active);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.28);
+    }
+    .tbtn svg { width: 15px; height: 15px; fill: currentColor; display: block; }
+    .tbtn:focus-visible { outline: 2px solid #5b9dff; outline-offset: 1px; position: relative; z-index: 1; }
+    /* View dropdown button: wider, carries a caret. */
+    .tbtn-wide { width: auto; padding: 0 7px; gap: 5px; grid-auto-flow: column; }
+    .tbtn-wide .caret { width: 8px; height: 8px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---- View dropdown menu ---------------------------------------------- */
+    .menu {
+      position: fixed; z-index: 30; min-width: 188px;
+      background: var(--help-bg); color: var(--help-fg);
+      border: 1px solid var(--help-border); border-radius: 8px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.28); padding: 5px;
+    }
+    .menu[hidden] { display: none; }
+    .menu-item {
+      display: flex; align-items: center; gap: 9px; width: 100%; box-sizing: border-box;
+      background: none; border: 0; border-radius: 5px; padding: 6px 9px;
+      color: inherit; cursor: pointer; text-align: left; font: inherit; font-size: 12.5px;
+    }
+    .menu-item:hover, .menu-item:focus, .menu-item:focus-visible { background: rgba(127,127,127,0.18); outline: none; }
+    .menu-item[aria-checked="true"] { font-weight: 600; }
+    .menu-item[aria-checked="true"]::after { content: "\2713"; margin-left: auto; padding-left: 8px; color: var(--help-accent); }
+    .menu-sep { border: 0; border-top: 1px solid var(--help-border); margin: 5px 4px; }
+    .li-icon { width: 22px; height: 14px; flex: 0 0 auto; }
+    .li-icon .ed { fill: var(--li-ed); }
+    .li-icon .gr { fill: var(--li-gr); }
+
+    /* ---- shell: workbench + optional docs panel (a real third pane) ------ */
+    #shell { flex: 1; display: flex; min-height: 0; }
+    #workbench { flex: 1 1 0; min-width: 0; min-height: 0; }
+    /* the docs panel and its gutter only take space when open */
+    #shell[data-docs="closed"] #docs,
+    #shell[data-docs="closed"] #docs-gutter { display: none; }
+    #docs-gutter {
+      flex: 0 0 7px; cursor: col-resize; background: var(--gutter-bg);
+      border-left: 1px solid var(--gutter-edge); border-right: 1px solid var(--gutter-edge);
+      touch-action: none;
+    }
+    #docs-gutter:hover, #docs-gutter.dragging { background: var(--gutter-hover); }
+
+    /* ---- docs panel (foldable sections) --------------------------------- */
+    #docs {
+      flex: 0 0 24%; min-width: 0; overflow: hidden;
+      display: flex; flex-direction: column;
+      background: var(--help-bg); color: var(--help-fg);
+      border-left: 1px solid var(--help-border);
+    }
+    #docs .drawer-head {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 14px; border-bottom: 1px solid var(--help-border);
+    }
+    #docs .drawer-head h2 {
+      margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--help-accent);
+    }
+    #docs-close {
+      margin-left: auto; width: 24px; height: 24px; display: grid; place-items: center;
+      background: none; border: 0; border-radius: 5px; color: inherit; cursor: pointer; font-size: 17px; line-height: 1;
+    }
+    #docs-close:hover { background: rgba(127,127,127,0.18); }
+    #docs .drawer-body { overflow-y: auto; padding: 4px 14px 16px; }
+    #docs details { border-bottom: 1px solid var(--help-border); }
+    #docs summary {
+      cursor: pointer; padding: 10px 2px; font-size: 12.5px; font-weight: 600;
+      list-style: none; display: flex; align-items: center; gap: 8px;
+    }
+    #docs summary::-webkit-details-marker { display: none; }
+    #docs summary::before { content: "\25B8"; color: var(--help-accent); transition: transform 0.15s; }
+    @media (prefers-reduced-motion: reduce) { #docs summary::before { transition: none; } }
+    #docs details[open] summary::before { transform: rotate(90deg); }
+    #docs .doc { padding: 0 2px 12px 18px; font-size: 12.5px; line-height: 1.55; }
+    #docs .doc p { margin: 0 0 7px; }
+    #docs .doc ul { margin: 0 0 7px; padding-left: 1.1em; }
+    #docs .doc li { margin: 4px 0; }
+    #docs code, #docs kbd {
+      background: var(--kbd-bg); border-radius: 3px; padding: 0 4px;
+      font-family: ui-monospace, Consolas, monospace; font-size: 11.5px;
+    }
+
+    /* ---- docs browser (drill-in nav + page) ----------------------------- */
+    .docs-nav { list-style: none; margin: 6px 0; padding: 0; }
+    .docs-nav li { margin: 2px 0; }
+    .docs-nav a { color: var(--help-accent); text-decoration: none; display: block; padding: 6px 4px; border-radius: 5px; }
+    .docs-nav a:hover { background: rgba(127,127,127,0.14); }
+    .docs-crumb { font-size: 11px; color: var(--header-sub); margin: 6px 0 8px; }
+    .docs-crumb a { color: var(--help-accent); text-decoration: none; }
+    .docs-page { font-size: 12.5px; line-height: 1.55; }
+    .docs-page pre { background: var(--kbd-bg); padding: 8px 10px; border-radius: 6px; overflow-x: auto; }
+    .docs-load-example { display: block; margin-top: 6px; font: inherit; font-size: 11px; cursor: pointer; }
+    .docs-empty { color: var(--header-sub); }
+    #docs-search-input { width: 100%; box-sizing: border-box; padding: 6px 8px; margin: 4px 0 8px;
+      background: var(--app-bg); color: var(--app-fg); border: 1px solid var(--help-border); border-radius: 5px; }
+    .docs-ref { font-size: 10px; opacity: 0.7; }
   </style>
 </head>
 <body>
   <header>
     <h1>JSSM &middot; CodeMirror 6 sketch</h1>
     <span class="sub">stream tokenizer + fsl_parser linter</span>
+    <div class="toolbar" role="toolbar" aria-label="View controls">
+      <div class="btn-group">
+        <button id="btn-view" class="tbtn tbtn-wide" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="view-menu" title="View layout" aria-label="View layout">
+          <svg class="view-icon" viewBox="0 0 22 14" aria-hidden="true" style="width:18px;height:11px;"><rect class="gr" x="0" y="0" width="10" height="14" rx="1"/><rect class="ed" x="12" y="0" width="10" height="14" rx="1"/></svg>
+          <svg class="caret" viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 3 4 5.5 6.5 3"/></svg>
+        </button>
+      </div>
+      <div class="btn-group">
+        <button id="btn-theme" class="tbtn" type="button" aria-pressed="false" title="Switch to dark mode" aria-label="Toggle dark mode">
+          <svg class="i-moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2 1.6a6.5 6.5 0 1 0 8.2 8.2A5.2 5.2 0 0 1 6.2 1.6Z"/></svg>
+          <svg class="i-sun" viewBox="0 0 16 16" aria-hidden="true" style="display:none">
+            <circle cx="8" cy="8" r="3.1"/>
+            <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <line x1="8" y1="0.8" x2="8" y2="2.8"/><line x1="8" y1="13.2" x2="8" y2="15.2"/>
+              <line x1="0.8" y1="8" x2="2.8" y2="8"/><line x1="13.2" y1="8" x2="15.2" y2="8"/>
+              <line x1="2.9" y1="2.9" x2="4.3" y2="4.3"/><line x1="11.7" y1="11.7" x2="13.1" y2="13.1"/>
+              <line x1="13.1" y1="2.9" x2="11.7" y2="4.3"/><line x1="4.3" y1="11.7" x2="2.9" y2="13.1"/>
+            </g>
+          </svg>
+        </button>
+        <button id="btn-help" class="tbtn" type="button" aria-expanded="false" aria-controls="docs" title="Documentation" aria-label="Documentation">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm.05 11.35a.96.96 0 1 1 0-1.92.96.96 0 0 1 0 1.92Zm1.5-4.5c-.6.5-.78.78-.78 1.3v.3H7.18v-.42c0-.86.3-1.38.98-1.95.6-.5.82-.78.82-1.2 0-.48-.4-.8-1-.8-.52 0-.92.24-1.2.82l-1.32-.62C6.02 4.55 6.9 4 8.1 4c1.4 0 2.4.78 2.4 1.98 0 .8-.32 1.3-.95 1.87Z"/></svg>
+        </button>
+      </div>
+    </div>
   </header>
-  <div id="editor"></div>
+  <div id="shell" data-docs="closed">
+  <div id="workbench" data-layout="rl">
+    <div id="tabbar" role="tablist" aria-label="Pane">
+      <button class="tab" type="button" role="tab" data-pane="viz" aria-selected="true">Graph</button>
+      <button class="tab" type="button" role="tab" data-pane="editor" aria-selected="false">Code</button>
+    </div>
+    <div id="viz"><fsl-viz id="viz-el"></fsl-viz></div>
+    <div id="gutter" role="separator" aria-orientation="vertical" title="Drag to resize · double-click to reset"></div>
+    <div id="editor"></div>
+  </div>
+  <div id="docs-gutter" role="separator" aria-orientation="vertical" title="Drag to resize the docs panel · double-click to reset"></div>
+  <aside id="docs" aria-label="Documentation">
+    <div class="drawer-head">
+      <h2>Documentation</h2>
+      <button id="docs-close" type="button" aria-label="Close documentation" title="Close">&times;</button>
+    </div>
+    <div class="drawer-body" id="docs-body"><!-- populated by docs_panel.mjs --></div>
+  </aside>
+  </div>
   <footer>parser status: <span id="status">(initializing)</span></footer>
+
+  <div id="view-menu" class="menu" role="menu" aria-label="View layout" hidden>
+    <button class="menu-item" role="menuitemradio" data-layout="auto" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><polygon class="ed" points="0,0 22,0 0,14"/><polygon class="gr" points="22,0 22,14 0,14"/></svg>Auto &middot; by aspect ratio</button>
+    <hr class="menu-sep">
+    <button class="menu-item" role="menuitemradio" data-layout="lr" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="ed" x="0" y="0" width="10" height="14" rx="1"/><rect class="gr" x="12" y="0" width="10" height="14" rx="1"/></svg>Side by side &middot; editor left</button>
+    <button class="menu-item" role="menuitemradio" data-layout="rl" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="gr" x="0" y="0" width="10" height="14" rx="1"/><rect class="ed" x="12" y="0" width="10" height="14" rx="1"/></svg>Side by side &middot; editor right</button>
+    <button class="menu-item" role="menuitemradio" data-layout="tb" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="ed" x="0" y="0" width="22" height="6" rx="1"/><rect class="gr" x="0" y="8" width="22" height="6" rx="1"/></svg>Top &amp; bottom &middot; editor top</button>
+    <button class="menu-item" role="menuitemradio" data-layout="bt" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="gr" x="0" y="0" width="22" height="6" rx="1"/><rect class="ed" x="0" y="8" width="22" height="6" rx="1"/></svg>Top &amp; bottom &middot; editor bottom</button>
+    <hr class="menu-sep">
+    <button class="menu-item" role="menuitemradio" data-layout="editor" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="ed" x="0" y="0" width="22" height="14" rx="1"/></svg>Just editor</button>
+    <button class="menu-item" role="menuitemradio" data-layout="viewer" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="gr" x="0" y="0" width="22" height="14" rx="1"/></svg>Just viewer</button>
+    <button class="menu-item" role="menuitemradio" data-layout="tabs" aria-checked="false"><svg class="li-icon" viewBox="0 0 22 14" aria-hidden="true"><rect class="ed" x="0" y="0" width="9" height="3.5" rx="0.5"/><rect class="gr" x="10" y="0" width="9" height="3.5" rx="0.5"/><rect class="gr" x="0" y="4.5" width="22" height="9.5" rx="1"/></svg>Tabbed</button>
+  </div>
+
   <script type="module" src="./editor.js"></script>
 </body>
 </html>

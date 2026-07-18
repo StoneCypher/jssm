@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "6.0.0-alpha.11",
+  "version": "6.0.0-alpha.12",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -82,11 +82,26 @@
       "import": "./dist/wc/widgets.define.js",
       "default": "./dist/wc/widgets.define.js"
     },
+    "./wc/docs": {
+      "import": "./dist/wc/docs.js",
+      "default": "./dist/wc/docs.js"
+    },
+    "./wc/docs/define": {
+      "import": "./dist/wc/docs.define.js",
+      "default": "./dist/wc/docs.define.js"
+    },
     "./cm6": {
       "types": "./dist/es6/cm6/fsl_language.d.ts",
       "import": "./dist/cm6/fsl_language.js",
       "default": "./dist/cm6/fsl_language.js"
     },
+    "./fence": {
+      "types": "./jssm.fence.d.ts",
+      "import": "./dist/fence/fence.js",
+      "default": "./dist/fence/fence.js"
+    },
+    "./grammar": "./dist/grammars/fsl.tmLanguage.json",
+    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json",
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -123,8 +138,12 @@
     "dist/wc/editor.define.js",
     "dist/wc/widgets.js",
     "dist/wc/widgets.define.js",
+    "dist/wc/docs.js",
+    "dist/wc/docs.define.js",
     "dist/cm6/fsl_language.js",
     "dist/es6/cm6/fsl_language.d.ts",
+    "dist/fence/fence.js",
+    "dist/grammars/fsl.tmLanguage.json",
     "dist/cdn/viz.js",
     "dist/cdn/instance.js",
     "dist/cli/lib.cjs",
@@ -138,6 +157,7 @@
     "jssm_viz.es6.d.ts",
     "jssm.cli.d.cts",
     "jssm.cli.d.ts",
+    "jssm.fence.d.ts",
     "MIGRATING-jssm-viz.md",
     "custom-elements.json"
   ],
@@ -174,13 +194,14 @@
     "vitest": "npm run vitest-stoch && npm run vitest-spec && npm run vitest-docs",
     "test": "npm run make && npm run vitest",
     "make_cli": "rollup -c rollup.config.cli.js",
-    "typecheck_cli": "tsc --noEmit -p tsconfig.cli.json",
-    "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
-    "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f src/ts/tests/generated/*.docex.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
+    "typecheck_cli": "node --stack-size=4000 node_modules/typescript/bin/tsc --noEmit -p tsconfig.cli.json",
+    "typecheck_tests": "node --stack-size=4000 node_modules/typescript/bin/tsc --noEmit -p tsconfig.test.json",
+    "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/fsl-export-system-prompt.cjs -o dist/cli/fsl-export-system-prompt.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
+    "clean": "rm -rf dist && rm -rf docs && rm -f tsconfig.tsbuildinfo && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f src/ts/tests/generated/*.docex.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
     "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_core": "rollup -c rollup.config.core.js",
-    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
+    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno && cp README.md dist/deno",
     "make_viz": "rollup -c rollup.config.viz.js",
     "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
@@ -188,15 +209,20 @@
     "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
     "make_wc_editor_es6": "rollup -c rollup.config.wc.editor.es6.js",
     "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
+    "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
-    "typescript": "tsc --build tsconfig.json",
+    "make_fence": "rollup -c rollup.config.fence.es6.js",
+    "make_grammar": "node src/buildjs/build_fsl_tmlanguage.cjs",
+    "typescript": "node --stack-size=4000 node_modules/typescript/bin/tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
-    "prep": "npm run makever && npm run peg",
+    "make_help_content": "node src/buildjs/build_help_content.cjs",
+    "prep": "npm run makever && npm run peg && npm run make_help_content",
     "make": "node src/buildjs/run_build.cjs --profile=fast",
-    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_wc_editor_es6 && npm run make_wc_widgets_es6 && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
-    "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
+    "make_ci": "node src/buildjs/run_build.cjs --profile=ci-lite",
+    "eslint": "eslint --color src/ts src/buildjs",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
+    "check_teaching_surface": "node src/scripts/teaching_surface/check_teaching_surface.cjs --report",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
     "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",
@@ -209,9 +235,12 @@
     "qbuild": "npm run test",
     "hosted_test": "node src/buildjs/hosted_test.cjs",
     "e2e:install": "node src/buildjs/playwright_install.cjs",
-    "e2e": "npm run e2e:install && node src/buildjs/hosted_test.cjs --serve-dir=src/ts/e2e/fixtures",
+    "e2e": "npm run e2e:install && node src/buildjs/hosted_test.cjs --serve-dir=.",
     "ci_build": "npm run vet && npm run test",
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
+    "ci_test_runtime": "npm run make_ci && npm run vitest",
+    "attw": "attw --pack .",
+    "decl_parity": "node src/buildjs/decl_parity.cjs",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
@@ -220,6 +249,8 @@
     "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
+    "min_cdn": "terser dist/cdn/viz.js -o dist/cdn/viz.js --module && terser dist/cdn/instance.js -o dist/cdn/instance.js --module",
+    "min_fence": "terser dist/fence/fence.js -o dist/fence/fence.js --module",
     "rm_nonmin": "rm ./dist/es6/*.nonmin.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.js docs/demo",
     "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
@@ -273,15 +304,18 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "markdown-it": "^14.1.0",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.4",
     "@codemirror/language": "^6.12.3",
     "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.6.0",
-    "@codemirror/view": "^6.43.2",
+    "@codemirror/view": "6.43.2",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@custom-elements-manifest/analyzer": "^0.10.4",
-    "@knodes/typedoc-plugin-pages": "^0.22.5",
+    "@eslint/js": "^10.0.1",
     "@lezer/highlight": "^1.2.3",
     "@playwright/test": "^1.61.0",
     "@rollup/plugin-commonjs": "^28.0.1",
@@ -291,23 +325,27 @@
     "@swc/core": "^1.15.33",
     "@types/chalk": "^2.2.0",
     "@types/jsdom": "^21.1.7",
-    "@typescript-eslint/eslint-plugin": "^5.30.4",
-    "@typescript-eslint/parser": "^5.30.4",
+    "@types/node": "^26.1.0",
     "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/eslint-plugin": "^1.6.23",
     "@viz-js/viz": "^3.26.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
     "better_git_changelog": "^1.6.20",
     "cloc": "^2.10.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-fp": "^2.3.0",
-    "eslint-plugin-new-with-error": "^2.0.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-react": "^7.26.1",
-    "eslint-plugin-unicorn": "^37.0.1",
+    "eslint": "^10.7.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-functional": "^10.0.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-jsdoc": "^63.0.13",
+    "eslint-plugin-n": "^18.2.2",
+    "eslint-plugin-promise": "^7.3.0",
+    "eslint-plugin-regexp": "^3.1.1",
+    "eslint-plugin-unicorn": "^71.1.0",
     "fast-check": "^2.12.0",
     "glob": "^7.1.6",
+    "globals": "^17.7.0",
     "jsdom": "^24.1.0",
     "lit": "^3.2.1",
     "pegjs": "^0.10.0",
@@ -321,9 +359,10 @@
     "text_audit": "^0.9.3",
     "tslib": "^2.8.1",
     "twitter-api-client": "^1.6.0",
-    "typedoc": "^0.22.18",
-    "typedoc-plugin-missing-exports": "^0.23.0",
-    "typescript": "^4.7.4",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-missing-exports": "^4.1.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.6",
     "xml2js": "^0.6.2"
   },
@@ -332,8 +371,12 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
+    "@codemirror/autocomplete": ">=6",
+    "@codemirror/commands": ">=6",
     "@codemirror/language": ">=6",
+    "@codemirror/lint": ">=6",
     "@codemirror/state": ">=6",
+    "@codemirror/view": ">=6 <6.43.3 || >6.43.4",
     "@lezer/highlight": ">=1",
     "lit": ">=3"
   },
@@ -341,13 +384,22 @@
     "lit": {
       "optional": true
     },
+    "@codemirror/autocomplete": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
     "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/lint": {
       "optional": true
     },
     "@codemirror/state": {
       "optional": true
     },
-    "@lezer/highlight": {
+    "@codemirror/view": {
       "optional": true
     }
   },

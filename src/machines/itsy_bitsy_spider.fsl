@@ -1,0 +1,35 @@
+// "The Itsy Bitsy Spider" (a.k.a. "Incy Wincy Spider") - American nursery
+// rhyme, first collected in print in the early 20th century.
+//
+// The rhyme's whole structure is a retry loop that never resolves into
+// success or failure - it just repeats, forever, on a fixed weather
+// schedule. The spider's own progress up the spout is a real, repeatable,
+// chosen action: a self-loop, because "how far up" is never tracked, only
+// "presently climbing" is. Rain is not something the spider chooses to
+// encounter; it is a forced (~>) interrupt that can fire regardless of how
+// much climbing has already happened. Drying out afterward is equally
+// forced - the sun runs on its own schedule, not the spider's - and only
+// once the rain has genuinely cleared does a chosen action exist again to
+// re-enter the climb. The loop this file draws is exactly the loop the
+// rhyme sings: climb, get interrupted, wait out the weather, climb again,
+// with no exit state anywhere in the graph.
+
+machine_name    : "The Itsy Bitsy Spider";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the climb is real, chosen, and repeatable.
+"climbing up the water spout" 'climb another inch' -> "climbing up the water spout";
+
+// the rain does not ask permission to interrupt it.
+"climbing up the water spout" ~> "washed back down by the rain";
+
+// the weather resolves on its own schedule, not the spider's.
+"washed back down by the rain" ~> "sun comes out, dries up all the rain";
+
+// only now does a chosen action exist to re-enter the loop.
+"sun comes out, dries up all the rain" 'climb up the spout once more' -> "climbing up the water spout";

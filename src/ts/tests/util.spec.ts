@@ -4,11 +4,30 @@ import {
   unique,
   find_repeated,
   gen_splitmix32,
-  name_bind_prop_and_state
+  name_bind_prop_and_state,
+  default_lexicographic
 } from '../jssm_util';
 
-import { unique        as jssm_unique        } from '../jssm';
-import { find_repeated as jssm_find_repeated } from '../jssm';
+import { unique        as jssm_unique, find_repeated as jssm_find_repeated         } from '../jssm';
+
+
+
+
+
+
+describe('default_lexicographic', () => {
+
+  test('orders below',  () => { expect(default_lexicographic('a', 'b')).toBe(-1); });
+  test('orders above',  () => { expect(default_lexicographic('b', 'a')).toBe(1);  });
+  test('equal is zero', () => { expect(default_lexicographic('a', 'a')).toBe(0);  });
+
+  test('stringifies, matching default sort', () => {
+    // [10, 9, 1].sort() -> [1, 10, 9]: default sort compares as strings,
+    // which is exactly what this comparator reproduces
+    expect([10, 9, 1].sort(default_lexicographic)).toStrictEqual([1, 10, 9]);
+  });
+
+});
 
 
 
@@ -41,11 +60,11 @@ describe('seq', () => {
   });
 
   test('positive infinity must throw', () => {
-    expect( () => seq( Number.POSITIVE_INFINITY ) ).toThrow();
+    expect( () => seq( Infinity ) ).toThrow();
   });
 
   test('negative infinity must throw', () => {
-    expect( () => seq( Number.NEGATIVE_INFINITY ) ).toThrow();
+    expect( () => seq( -Infinity ) ).toThrow();
   });
 
   test('strings must throw', () => {
@@ -86,14 +105,14 @@ describe('gen_splitmix32', () => {
 
 
 
-  seq(3).map(n =>
+  for (const n of seq(3)) {
 
     test(`Seed ${n} - Generates 500 numbers [0,1)`, () => {
 
       const rnd  = gen_splitmix32(n);
       let   fail = false;
 
-      seq(500).forEach(_ => {
+      for (const _ of seq(500)) {
 
         const r = rnd();
 
@@ -101,26 +120,26 @@ describe('gen_splitmix32', () => {
         if (r < 0)                 { fail = true; }
         if (r >= 1)                { fail = true; }
 
-      });
+      }
 
       expect(fail).toBe(false);
 
-    })
+    });
 
-  );
+  }
 
 
 
-  const rnd = (n) => Math.floor(gen_splitmix32( new Date().getTime()+n )() * Number.MAX_SAFE_INTEGER );
+  const rnd = (n) => Math.floor(gen_splitmix32( Date.now()+n )() * Number.MAX_SAFE_INTEGER );
 
-  [ rnd(0), rnd(1), rnd(2), rnd(3), rnd(4) ].map( n =>
+  for (const n of [ rnd(0), rnd(1), rnd(2), rnd(3), rnd(4) ]) {
 
     test(`Seed ${n} - Generates 500 numbers [0,1)`, () => {
 
       const rnd  = gen_splitmix32(n);
       let   fail = false;
 
-      seq(500).forEach(_ => {
+      for (const _ of seq(500)) {
 
         const r = rnd();
 
@@ -128,13 +147,13 @@ describe('gen_splitmix32', () => {
         if (r < 0)                 { fail = true; }
         if (r >= 1)                { fail = true; }
 
-      });
+      }
 
       expect(fail).toBe(false);
 
-    })
+    });
 
-  );
+  }
 
 
 
@@ -143,7 +162,7 @@ describe('gen_splitmix32', () => {
     const rnd  = gen_splitmix32();
     let   fail = false;
 
-    seq(500).forEach(_ => {
+    for (const _ of seq(500)) {
 
       const r = rnd();
 
@@ -151,7 +170,7 @@ describe('gen_splitmix32', () => {
       if (r < 0)                 { fail = true; }
       if (r >= 1)                { fail = true; }
 
-    });
+    }
 
     expect(fail).toBe(false);
 
@@ -188,11 +207,11 @@ describe('unique', () => {
   });
 
   test('1,2,1.0,2.0', () => {
-    expect(unique<number>([1,2,1.0,2.0])).toStrictEqual([1,2]);
+    expect(unique<number>([1,2,1,2])).toStrictEqual([1,2]);
   });
 
   test('external call 1,2,1.0,2.0', () => {
-    expect(jssm_unique<number>([1,2,1.0,2.0])).toStrictEqual([1,2]);
+    expect(jssm_unique<number>([1,2,1,2])).toStrictEqual([1,2]);
   });
 
   test('"one","two","one"', () => {
@@ -251,7 +270,7 @@ describe('find_repeated', () => {
     expect(find_repeated<string>(["a","b","c","b","a"])).toStrictEqual([ ["a",2], ["b",2] ]);
   });
 
-  test('"a","b","c","b","a"', () => {
+  test('0,NaN,0,NaN suppresses the NaN repeat', () => {
     expect(find_repeated<number>([0, NaN, 0, NaN])).toStrictEqual([ [0,2] ]);
   });
 

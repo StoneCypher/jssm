@@ -1,0 +1,48 @@
+// "Jack and the Beanstalk" - English tale (Joseph Jacobs, 1890)
+//
+// One vertical edge connects the whole of Jacks ordinary world to a
+// completely different, hostile machine living in the clouds - a real
+// climb action, taken once, into a subgraph with its own internal states,
+// its own forced betrayal (the harp does not wait to be told to cry out),
+// and its own escalation the moment the giant wakes. Getting back down is
+// a real chosen edge too, but the chop is the interesting one: it is not
+// a special deletion operator, it is just an ordinary chosen action whose
+// target state has no outbound edge back up, ever. The joke is provable by
+// BFS - walk every transition reachable forward from "the stump, all that
+// is left" and the giants castle is not among them. The vertical edge did
+// not get marked deleted; the graph after the chop simply never leads
+// there again, the same way a felled bridge does not need a flag on it to
+// stop being a road.
+
+machine_name    : "Jack and the Beanstalk";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"cottage, a cow traded for five magic beans"
+  'plant the beans in anger, thrown out the window' -> "beanstalk, grown overnight into the clouds";
+
+// the one vertical edge into a hostile machine with its own internal states.
+"beanstalk, grown overnight into the clouds"
+  'climb the vertical beanstalk, up into the clouds' -> "giants castle in the clouds";
+
+"giants castle in the clouds"
+  'creep past while the giant counts gold coins' -> "the golden harp, stolen quietly from the giants table";
+
+// forced - the harp cries out on its own, nobody chooses the betrayal.
+"the golden harp, stolen quietly from the giants table" ~> "giant wakes, fee fi fo fum";
+
+"giant wakes, fee fi fo fum"
+  'flee back down the beanstalk, harp under one arm' -> "ground, beanstalk still standing, giant descending close behind";
+
+"ground, beanstalk still standing, giant descending close behind"
+  'grab the axe and chop the beanstalk down' -> "the stump, all that is left, giant somewhere above and falling";
+
+// forced - and nothing reachable from here ever leads back to the castle.
+"the stump, all that is left, giant somewhere above and falling" ~> "giant, fallen, story over";
+
+"giant, fallen, story over"
+  'sell the harp and live comfortably, never climbing again' -> "cottage, poor no longer";

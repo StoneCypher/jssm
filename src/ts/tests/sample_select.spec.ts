@@ -11,7 +11,7 @@ describe('weighted_sample_select/1', () => {
 
   test.todo('wow is this hard to meaningfully test');
   it('(0) generates []', () =>
-    expect( jssm.weighted_sample_select(0, [{item:'a',probability:2},{item:'a',probability:3}]) )
+    expect( jssm.weighted_sample_select(0, [{item:'a',probability:2},{item:'a',probability:3}], 'probability') )
       .toEqual( [] )
   );
 
@@ -110,11 +110,11 @@ describe('weighted_sample_select/1', () => {
         .toBe(true) );
 
     test('d expects 375 requires 250',  () =>
-      expect(res.get('c') >= 250)
+      expect(res.get('d') >= 250)
         .toBe(true) );
 
     test('e expects 375 requires 250',  () =>
-      expect(res.get('c') >= 250)
+      expect(res.get('e') >= 250)
         .toBe(true) );
 
   });
@@ -150,11 +150,11 @@ describe('weighted_sample_select/1', () => {
         .toBe(true) );
 
     test('d expects 375 requires 250',  () =>
-      expect(res.get('c') >= 250)
+      expect(res.get('d') >= 250)
         .toBe(true) );
 
     test('e expects 375 requires 250',  () =>
-      expect(res.get('c') >= 250)
+      expect(res.get('e') >= 250)
         .toBe(true) );
 
   });

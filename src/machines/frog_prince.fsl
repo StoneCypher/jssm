@@ -1,0 +1,34 @@
+// "The Frog Prince" - German fairy tale, collected by the Brothers Grimm
+// (1812, as "Der Froschkönig")
+//
+// Exactly one chosen action exists in this whole machine: the kiss. Every
+// other edge is forced (`~>`). The topology joke is that the fable treats
+// transformation as something that HAPPENS, not something the princess
+// does - she performs one small, reversible-seeming social act, and the
+// graph takes over from there with two automatic edges in a row, same
+// grammar as cinderella.fsl's midnight chain and icarus.fsl's wax giving
+// way. `fslSimulate` can walk right up to the kiss and no further:
+// `legalNext` at the state immediately after is empty, because nothing
+// past that point was ever a choice.
+
+machine_name    : "The Frog Prince";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"frog by the well, asking politely"
+  'ignore the frog and walk away'          -> "frog remains a frog, forever";
+
+"frog by the well, asking politely"
+  'kiss the frog, out of pity or curiosity' -> "the kiss lands";
+
+// nothing chosen from here forward - the transformation is not an action,
+// it is a consequence, and the graph enforces that distinction directly.
+"the kiss lands"                                    ~> "a transformation begins, skin dissolving into royal velvet";
+"a transformation begins, skin dissolving into royal velvet" ~> "a prince stands by the well, mid-bow";
+
+"a prince stands by the well, mid-bow"
+  'introduce himself properly' -> "happily ever after";

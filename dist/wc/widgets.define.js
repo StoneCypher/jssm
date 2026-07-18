@@ -1,4 +1,4 @@
-import { FslToolbar, FslActions, FslFooter, FslHelp, FslHistory, FslDataInspector, FslHookLog, FslSimulation, FslExport } from './widgets.js';
+import { FslToolbar, FslActions, FslFooter, FslHelp, FslHistory, FslDataInspector, FslHookLog, FslSimulation, FslExport, FslStochastic, FslInfoPanel } from './widgets.js';
 export * from './widgets.js';
 
 /**
@@ -9,11 +9,9 @@ export * from './widgets.js';
 /**
  * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
  * (case-insensitive).
- *
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
  * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
- *
  * @example
  * wc_suffix_matches('FSL-VIZ', 'viz');   // true
  * wc_suffix_matches('jssm-viz', 'viz');  // true
@@ -33,14 +31,11 @@ export * from './widgets.js';
  * dual-named components.
  *
  * Idempotent: skips the `define` call when the tag is already registered.
- *
  * @param canonical_tag - The `fsl-*` tag name (e.g. `"fsl-info-panel"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
- *
  * @example
  * class FslInfoPanel extends HTMLElement {}
  * define_canonical('fsl-info-panel', FslInfoPanel);
- *
  * @see define_with_synonym
  */
 function define_canonical(canonical_tag, CanonicalClass) {
@@ -50,7 +45,8 @@ function define_canonical(canonical_tag, CanonicalClass) {
 
 /**
  * Bundle entry: registers the entire light fsl-* widget suite (toolbar, actions,
- * footer, help, history, data-inspector, hook-log, simulation, export) in one import.
+ * footer, help, history, data-inspector, hook-log, simulation, export, stochastic,
+ * info-panel) in one import.
  * Canonical `fsl-*` tags only — no deprecated `jssm-*` synonyms. Registration
  * is idempotent, so this composes safely with the per-widget `*.define` modules.
  */
@@ -63,3 +59,5 @@ define_canonical('fsl-data-inspector', FslDataInspector);
 define_canonical('fsl-hook-log', FslHookLog);
 define_canonical('fsl-simulation', FslSimulation);
 define_canonical('fsl-export', FslExport);
+define_canonical('fsl-stochastic', FslStochastic);
+define_canonical('fsl-info-panel', FslInfoPanel);

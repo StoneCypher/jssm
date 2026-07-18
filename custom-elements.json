@@ -414,6 +414,358 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_docs_markdown.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "parseFenceInfo",
+          "return": {
+            "type": {
+              "text": "{ lang: string; attrs: Record<string, string | boolean> }"
+            }
+          },
+          "parameters": [
+            {
+              "name": "info",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Parse a fenced-code info string like `fsl {teaches: x, run: true}`."
+        },
+        {
+          "kind": "variable",
+          "name": "FSL_KEYWORDS",
+          "default": "new Set([ 'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state', 'transition', 'graph', 'on', 'enter', 'exit', 'do', 'arrange', 'arrange-start', 'arrange-end', 'machine_name', 'machine_author', 'machine_license', 'machine_version', 'machine_comment', 'fsl_version', 'flow', 'graph_layout', 'allow_islands', 'allows_override', 'required', 'true', 'false', 'null', 'undefined', ])",
+          "description": "Structural / attribute keywords highlighted in fsl code fences."
+        },
+        {
+          "kind": "variable",
+          "name": "FSL_COLOR_KEYS",
+          "default": "new Set([ 'color', 'text-color', 'background-color', 'border-color', 'edge-color', ])",
+          "description": "Attribute keys whose value is a color, mirroring the editor's `COLOR_KEYS`\r\n(language_service). The value token following one of these (plus its `:`) is\r\ntagged `color` and rendered with a swatch, matching the editor overlay."
+        },
+        {
+          "kind": "function",
+          "name": "tokenizeFsl",
+          "return": {
+            "type": {
+              "text": "FslToken[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,\r\nregex-driven scanner — never parses, so it cannot throw on malformed input.\r\n`cls` is null for uncategorized text (punctuation, identifiers, whitespace).\r\n\r\nBeyond the lexical classes it tracks one bit of structural context: an\r\nidentifier immediately before a `:` is retro-tagged `key` (an attribute key,\r\nunless it is already a `keyword`), and the value token after a color key's\r\ncolon — or any hex literal — is tagged `color`. The context never spans a\r\n`;`, so a value can't leak past its statement."
+        },
+        {
+          "kind": "function",
+          "name": "highlightFsl",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Highlight FSL source to an HTML string of `<span class=\"fsl-tok-…\">` runs.\r\nA `color` token is preceded by an inline `<span class=\"fsl-swatch\">` whose\r\nbackground is the literal color text (a CSS-valid named color or hex), giving\r\nthe docs the same swatch the editor overlay shows. Color text is a hex or\r\nidentifier run, so it is a safe `background:` value."
+        },
+        {
+          "kind": "function",
+          "name": "renderMarkdown",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "md",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Render the supported markdown subset to an HTML string."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "parseFenceInfo",
+          "declaration": {
+            "name": "parseFenceInfo",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_KEYWORDS",
+          "declaration": {
+            "name": "FSL_KEYWORDS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_COLOR_KEYS",
+          "declaration": {
+            "name": "FSL_COLOR_KEYS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "tokenizeFsl",
+          "declaration": {
+            "name": "tokenizeFsl",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "highlightFsl",
+          "declaration": {
+            "name": "highlightFsl",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "renderMarkdown",
+          "declaration": {
+            "name": "renderMarkdown",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_docs_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-docs>` — the language-docs content engine: drill-in nav over the bundled\r\ncurriculum (Getting Started / About State Machines / Tutorials / Example\r\nMachines / Index / Search), a markdown page renderer, and \"load into editor\"\r\nfor tagged FSL examples. Content-only; slot it into `<fsl-help>`.",
+          "name": "FslDocs",
+          "members": [
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it drives the `--fsl-*` token defaults.",
+              "attribute": "theme",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "_view",
+              "type": {
+                "text": "DocsView"
+              },
+              "privacy": "private",
+              "default": "'sections'"
+            },
+            {
+              "kind": "field",
+              "name": "_section",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_pageId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_query",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "method",
+              "name": "_pagesIn",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "DocsPage[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "section",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "_sectionLabel",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Display label for a section id (falls back to the id for unknown sections)."
+            },
+            {
+              "kind": "field",
+              "name": "_go",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_loadExample",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "_renderSections",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderPages",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderPage",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_withButtons",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "htmlStr",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Append a \"Load into editor\" button to every runnable fsl fence."
+            },
+            {
+              "kind": "method",
+              "name": "_renderIndex",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderSearch",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<FslDocsLoadExampleDetail>"
+              },
+              "description": "When a fence's \"Load into editor\" is clicked.",
+              "name": "load-example"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it drives the `--fsl-*` token defaults.",
+              "fieldName": "theme"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-docs",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslDocs",
+          "declaration": {
+            "name": "FslDocs",
+            "module": "src/ts/wc/fsl_docs_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_editor_wc.ts",
       "declarations": [
         {
@@ -837,7 +1189,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\r\n\r\nReflects the host's current state, legal-action count, and\r\nterminal/complete status by observing the host's reflected attributes\r\n(`current-state`, `legal-actions`, `terminal`, `complete`) — so it tracks\r\ntransitions *and* survives a live machine rebuild (#1387) without a machine\r\nsubscription. A default slot carries embedder status (line/column, parse\r\nstate, …). Standalone (no `<fsl-instance>` ancestor) it renders just the slot.",
+          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\r\n\r\nShows the current state with both **local** counts (actions firable from\r\nhere + transitions out of here) and **global** machine counts: distinct\r\naction *names*, **action-starts** (action-bearing edges — each place an\r\naction fires from), and total transitions. Plus terminal/complete badges.\r\n\r\nLocal counts track transitions by observing the host's reflected\r\n`current-state` / `legal-actions` attributes; the global counts refresh on\r\n`fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A\r\ndefault slot carries embedder status. Standalone (no `<fsl-instance>`\r\nancestor) it renders just the slot.",
           "name": "FslFooter",
           "cssParts": [
             {
@@ -872,6 +1224,15 @@
             },
             {
               "kind": "field",
+              "name": "_transitions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
               "name": "_terminal",
               "type": {
                 "text": "boolean"
@@ -890,12 +1251,65 @@
             },
             {
               "kind": "field",
+              "name": "_gActions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_gStarts",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_gTransitions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
               "name": "_observer",
               "type": {
                 "text": "MutationObserver | null"
               },
               "privacy": "private",
               "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "FooterHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_onRebuilt",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "_syncMachine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Recompute the machine-derived counts: local transitions out of the current\r\n state, and the global action / action-start / transition totals. Only\r\n called while a host is attached, so `_host` is non-null here."
             }
           ],
           "superclass": {
@@ -1725,6 +2139,10 @@
               "name": "simulation"
             },
             {
+              "description": "Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).",
+              "name": "stochastic"
+            },
+            {
               "description": "Slot for the export menu (`<fsl-export>`, #667).",
               "name": "export"
             },
@@ -1845,10 +2263,42 @@
             },
             {
               "kind": "field",
-              "name": "_hiddenPanels",
+              "name": "_overrides",
               "privacy": "private",
-              "default": "new Set<string>()",
-              "description": "Slot names of panels currently hidden (driven by `<fsl-toolbar>`)."
+              "default": "new Map<string, boolean>()",
+              "description": "Per-panel runtime visibility overrides set by the user via the toolbar\r\n toggles; a slot absent here falls back to its mode-resolved base."
+            },
+            {
+              "kind": "field",
+              "name": "panelMode",
+              "privacy": "public",
+              "type": {
+                "text": "PanelMode"
+              },
+              "default": "'default'",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\n per panel. `default` shows only the editor + renderer; every other panel\r\n starts hidden and is opt-in.",
+              "attribute": "panel-mode",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "panelModes",
+              "privacy": "public",
+              "type": {
+                "text": "Record<string, PanelMode>"
+              },
+              "default": "{}",
+              "description": "Per-panel PanelMode overrides (slot → mode), each overriding the\r\n control-level panelMode."
+            },
+            {
+              "kind": "field",
+              "name": "requestedPanels",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "Panels the FSL \"requests\" — the embedder-set stand-in for the\r\n editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed\r\n here are shown; others fall back to the default."
             },
             {
               "kind": "field",
@@ -2145,6 +2595,25 @@
             },
             {
               "kind": "method",
+              "name": "_defaultHidden",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "The built-in default hidden state: only the editor + renderer (viz) show."
+            },
+            {
+              "kind": "method",
               "name": "isPanelHidden",
               "return": {
                 "type": {
@@ -2160,7 +2629,7 @@
                   "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
                 }
               ],
-              "description": "Whether the panel slotted under `slot` is currently hidden."
+              "description": "Whether the panel slotted under `slot` is currently hidden, resolving its\r\nPanelMode (panelModes for the slot, else panelMode):\r\n`hide`/`show` force the state; otherwise a user toggle wins, then a\r\n`request`ed panel shows, then the built-in default."
             },
             {
               "kind": "method",
@@ -2186,7 +2655,7 @@
                   "description": "`true` to hide, `false` to show."
                 }
               ],
-              "description": "Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`\r\ncollapses that workbench pane (the other fills); hiding an aux panel\r\nremoves its section. `<fsl-toolbar>` drives this from its panel toggles."
+              "description": "Show or hide the panel slotted under `slot` (a runtime override). Hiding\r\n`viz` or `editor` collapses that workbench pane (the other fills); hiding\r\nan aux panel removes its section. `<fsl-toolbar>` drives this from its\r\npanel toggles."
             },
             {
               "kind": "method",
@@ -2205,7 +2674,7 @@
                   "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
                 }
               ],
-              "description": "Toggle the visibility of the panel slotted under `slot`."
+              "description": "Toggle the visibility of the panel slotted under `slot`. A no-op when the\r\npanel's mode is `hide` or `show` — those lock the visibility."
             },
             {
               "kind": "method",
@@ -2229,6 +2698,17 @@
               "name": "_onGutterReset",
               "privacy": "private",
               "description": "Gutter double-click: reset the split to 50/50."
+            },
+            {
+              "kind": "method",
+              "name": "_permalinkSegmentPresent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "True when this instance owns a URL permalink segment (keyed by its\r\n`uhash`/`id`) that a pending FslPermalinkSync restore will turn into\r\nits FSL source — so `connectedCallback` can defer the machine build to that\r\nrestore instead of throwing on an otherwise-absent source."
             },
             {
               "kind": "method",
@@ -2293,6 +2773,17 @@
                 }
               ],
               "description": "Build a machine from FSL source, seeding data when it is set."
+            },
+            {
+              "kind": "method",
+              "name": "_applyEditorConfig",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine\r\n declares `panels`, drive requestedPanels from it so `request` panel\r\n mode honors the source. The embedder's value persists when the FSL is\r\n silent. Called after each (re)build, with `_machine` freshly assigned."
             },
             {
               "kind": "method",
@@ -2382,10 +2873,10 @@
                   "type": {
                     "text": "boolean"
                   },
-                  "description": "True when actions + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
+                  "description": "True when hook-log + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
                 }
               ],
-              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\nrendered at the top of render. In split mode the `actions` and\r\n`data-inspector` panels are lifted out into easing side docks, so\r\n`docked` is true there and they are skipped here to avoid duplicating\r\ntheir slots. The state-section + footer stay in render so the\r\ndynamic state-slot name binds at the top level."
+              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\n rendered at the top of render. In split mode the `hook-log` (events)\r\n and `data-inspector` panels are lifted out into easing side docks, so\r\n `docked` is true there and they are skipped here to avoid duplicating\r\n their slots; `actions` instead lives here as a horizontal bar. The\r\n state-section + footer stay in render so the dynamic state-slot\r\n name binds at the top level."
             }
           ],
           "events": [
@@ -2455,6 +2946,15 @@
               "default": "undefined",
               "description": "Initial extended-state data seeded into the machine at build time. When set\r\n(to anything other than `undefined`), the machine is built via `from(fsl,\r\n{ data })` so `<fsl-data-inspector>` has something to show before any\r\ntransition; the default keeps the lighter `sm`-tag build path.",
               "fieldName": "data"
+            },
+            {
+              "name": "panel-mode",
+              "type": {
+                "text": "PanelMode"
+              },
+              "default": "'default'",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\n per panel. `default` shows only the editor + renderer; every other panel\r\n starts hidden and is opt-in.",
+              "fieldName": "panelMode"
             }
           ],
           "superclass": {
@@ -2536,6 +3036,543 @@
           "declaration": {
             "name": "FslInstance",
             "module": "src/ts/wc/fsl_instance_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_permalink.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "DEFAULT_PERMALINK_KEY",
+          "type": {
+            "text": "string"
+          },
+          "default": "'m'",
+          "description": "Default fragment key for the single-machine case (back-compat with 5.150)."
+        },
+        {
+          "kind": "function",
+          "name": "bytes_to_base64url",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\r\n`/`→`_`, and trailing `=` padding stripped."
+        },
+        {
+          "kind": "function",
+          "name": "base64url_to_bytes",
+          "return": {
+            "type": {
+              "text": "Uint8Array"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Inverse of bytes_to_base64url."
+        },
+        {
+          "kind": "function",
+          "name": "deflate_raw",
+          "return": {
+            "type": {
+              "text": "Promise<Uint8Array>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`."
+        },
+        {
+          "kind": "variable",
+          "name": "MAX_PERMALINK_INFLATE_BYTES",
+          "description": "Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides\r\nin a URL an attacker can hand a victim, and inflate_raw runs on it\r\nautomatically on page load, so an uncapped inflate is a decompression-bomb\r\nvector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is\r\ngenerous for real FSL (text — even a vast machine is well under a megabyte)."
+        },
+        {
+          "kind": "function",
+          "name": "inflate_raw",
+          "return": {
+            "type": {
+              "text": "Promise<Uint8Array>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "Inverse of deflate_raw, reading the stream in chunks and aborting once\r\nthe inflated output would exceed MAX_PERMALINK_INFLATE_BYTES (a\r\ndecompression-bomb guard — see that constant)."
+        },
+        {
+          "kind": "function",
+          "name": "encode_machine",
+          "return": {
+            "type": {
+              "text": "Promise<string>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\r\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\r\nbytes (scheme `0`)."
+        },
+        {
+          "kind": "function",
+          "name": "decode_machine",
+          "return": {
+            "type": {
+              "text": "Promise<string>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "segment",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\r\nto FSL. Async because inflate is async."
+        },
+        {
+          "kind": "function",
+          "name": "read_fragment_param",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "hash",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Read one segment's value out of a `#a=…&b=…` fragment."
+        },
+        {
+          "kind": "function",
+          "name": "set_fragment_param",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "hash",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\r\n`value`, preserving every other segment and its order; appends if absent."
+        },
+        {
+          "kind": "function",
+          "name": "permalink_key_for",
+          "return": {
+            "type": {
+              "text": "string | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              }
+            }
+          ],
+          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\r\n`id`, else `null` (does not participate in URL sync). The single source of\r\nthis rule, shared by the toolbar export and the sync controller."
+        },
+        {
+          "kind": "function",
+          "name": "permalink_for",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "default": "DEFAULT_PERMALINK_KEY",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "href",
+              "default": "location.href",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "currentHash",
+              "default": "location.hash",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\r\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\r\ntests."
+        },
+        {
+          "kind": "function",
+          "name": "fsl_from_permalink",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "default": "DEFAULT_PERMALINK_KEY",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Recover the FSL for `key` from a permalink URL (or bare fragment)."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DEFAULT_PERMALINK_KEY",
+          "declaration": {
+            "name": "DEFAULT_PERMALINK_KEY",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "bytes_to_base64url",
+          "declaration": {
+            "name": "bytes_to_base64url",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "base64url_to_bytes",
+          "declaration": {
+            "name": "base64url_to_bytes",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "deflate_raw",
+          "declaration": {
+            "name": "deflate_raw",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MAX_PERMALINK_INFLATE_BYTES",
+          "declaration": {
+            "name": "MAX_PERMALINK_INFLATE_BYTES",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "inflate_raw",
+          "declaration": {
+            "name": "inflate_raw",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "encode_machine",
+          "declaration": {
+            "name": "encode_machine",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "decode_machine",
+          "declaration": {
+            "name": "decode_machine",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "read_fragment_param",
+          "declaration": {
+            "name": "read_fragment_param",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "set_fragment_param",
+          "declaration": {
+            "name": "set_fragment_param",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_key_for",
+          "declaration": {
+            "name": "permalink_key_for",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_for",
+          "declaration": {
+            "name": "permalink_for",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "fsl_from_permalink",
+          "declaration": {
+            "name": "fsl_from_permalink",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_permalink_sync.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+          "type": {
+            "text": "number"
+          },
+          "default": "300",
+          "description": "Debounce before a live edit is written to the URL fragment."
+        },
+        {
+          "kind": "class",
+          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\r\non connect and writes back (debounced, via `history.replaceState`) whenever\r\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\r\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\r\n`location`.\r\n\r\nEcho guard: `_observed` holds this connection's current URL segment, including\r\nexplicit absence, so unrelated hash changes and restore→rebuild→write cycles\r\nare no-ops. Async operations share a revision: every observed segment change\r\nor source write invalidates all older work, and disconnecting invalidates all\r\nwork. This gives cross-direction latest-operation-wins semantics without\r\nallowing unrelated hash changes to cancel valid writes.",
+          "name": "FslPermalinkSync",
+          "members": [
+            {
+              "kind": "field",
+              "name": "host",
+              "type": {
+                "text": "SyncHost"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "key",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_observed",
+              "type": {
+                "text": "ObservedSegment"
+              },
+              "privacy": "private",
+              "default": "UNOBSERVED_SEGMENT"
+            },
+            {
+              "kind": "field",
+              "name": "_timer",
+              "type": {
+                "text": "ReturnType<typeof setTimeout> | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_connected",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_revision",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_onRebuilt",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "_onHashChange",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Observe the keyed URL segment and attach synchronization listeners."
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Invalidate work, forget observations, detach listeners, and cancel timers."
+            },
+            {
+              "kind": "method",
+              "name": "_restore",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "description": "Observe this instance's newest segment and push it into the host. A changed\r\nobservation supersedes older restores and writes; an unchanged observation\r\nleaves them valid. Declared source is overridden only when this decode is\r\nstill the latest operation and the actual fragment is unchanged after\r\nawaiting it, even when a corresponding hashchange handler is still queued."
+            },
+            {
+              "kind": "method",
+              "name": "_scheduleWrite",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Debounce the newest rebuild and immediately supersede older restores or writes."
+            },
+            {
+              "kind": "method",
+              "name": "_write",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "revision",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Encode the scheduled source and merge it into the fragment only when no\r\nnewer source write, observed segment change, or disconnect superseded it.\r\nThe actual fragment must also match the observation captured before the\r\nawait, covering URL changes whose hashchange handler is still queued. A\r\nsuccessful write becomes the current observation, preventing echo work."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+          "declaration": {
+            "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+            "module": "src/ts/wc/fsl_permalink_sync.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslPermalinkSync",
+          "declaration": {
+            "name": "FslPermalinkSync",
+            "module": "src/ts/wc/fsl_permalink_sync.ts"
           }
         }
       ]
@@ -2658,6 +3695,280 @@
           "declaration": {
             "name": "FslSimulation",
             "module": "src/ts/wc/fsl_simulation_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_stochastic_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\r\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\r\nhost's `.fsl` source (never touching the live machine) and renders\r\naggregate run statistics in-panel.  Standalone (no host) the controls are\r\ndisabled.",
+          "name": "FslStochastic",
+          "cssParts": [
+            {
+              "description": "The control row.",
+              "name": "controls"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "runs",
+              "default": "STOCHASTIC_DEFAULT_RUNS",
+              "description": "Run-count (montecarlo). Defaults from editor_config().stochastic_run_count.",
+              "attribute": "runs"
+            },
+            {
+              "kind": "field",
+              "name": "maxSteps",
+              "default": "STOCHASTIC_DEFAULT_MAX_STEPS",
+              "description": "Per-run step cap (montecarlo) / walk length (steady_state).",
+              "attribute": "maxSteps"
+            },
+            {
+              "kind": "field",
+              "name": "seed",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Seed string ('' = time-based). Kept as string so the field can be blank.",
+              "attribute": "seed"
+            },
+            {
+              "kind": "field",
+              "name": "mode",
+              "type": {
+                "text": "JssmStochasticMode"
+              },
+              "default": "'montecarlo'",
+              "description": "Run mode.",
+              "attribute": "mode"
+            },
+            {
+              "kind": "field",
+              "name": "_summary",
+              "type": {
+                "text": "JssmStochasticSummary | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_error",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "StochHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_playing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "run",
+              "description": "Execute a batch synchronously and render the aggregates."
+            },
+            {
+              "kind": "field",
+              "name": "play",
+              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\r\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\r\n\r\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\r\n`requestAnimationFrame` is undefined."
+            },
+            {
+              "kind": "method",
+              "name": "_commit",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "state_visits",
+                  "type": {
+                    "text": "Map<string, number>"
+                  },
+                  "description": "Accumulated visit counts per state name."
+                },
+                {
+                  "name": "edge_traversals",
+                  "type": {
+                    "text": "Map<string, number>"
+                  },
+                  "description": "Accumulated traversal counts per edge key."
+                },
+                {
+                  "name": "path_lengths",
+                  "type": {
+                    "text": "number[]"
+                  },
+                  "description": "Lengths of completed (terminated) paths."
+                },
+                {
+                  "name": "terminal_reached",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Count of runs that reached a terminal state."
+                },
+                {
+                  "name": "capped",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Count of runs that hit the step cap."
+                },
+                {
+                  "name": "runs",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Total runs processed so far."
+                },
+                {
+                  "name": "seed",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "The effective RNG seed used for this batch."
+                }
+              ],
+              "description": "Fold accumulated counters into a rendered summary. Shared by play\r\nfor incremental rendering during animation."
+            },
+            {
+              "kind": "field",
+              "name": "_togglePlay",
+              "privacy": "private",
+              "description": "Toggle between playing and paused. Starts a new play batch when idle."
+            },
+            {
+              "kind": "field",
+              "name": "_onMode",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onRuns",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onMax",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onSeed",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "_bars",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_panes",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "CustomEvent<JssmStochasticSummary> after a run.",
+              "name": "fsl-stochastic-complete"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "runs",
+              "default": "STOCHASTIC_DEFAULT_RUNS",
+              "description": "Run-count (montecarlo). Defaults from editor_config().stochastic_run_count.",
+              "fieldName": "runs"
+            },
+            {
+              "name": "maxSteps",
+              "default": "STOCHASTIC_DEFAULT_MAX_STEPS",
+              "description": "Per-run step cap (montecarlo) / walk length (steady_state).",
+              "fieldName": "maxSteps"
+            },
+            {
+              "name": "seed",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Seed string ('' = time-based). Kept as string so the field can be blank.",
+              "fieldName": "seed"
+            },
+            {
+              "name": "mode",
+              "type": {
+                "text": "JssmStochasticMode"
+              },
+              "default": "'montecarlo'",
+              "description": "Run mode.",
+              "fieldName": "mode"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-stochastic",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "state_visits",
+          "default": "new Map<string, number>()"
+        },
+        {
+          "kind": "variable",
+          "name": "runs",
+          "type": {
+            "text": "number"
+          },
+          "default": "0"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslStochastic",
+          "declaration": {
+            "name": "FslStochastic",
+            "module": "src/ts/wc/fsl_stochastic_wc.ts"
           }
         }
       ]
@@ -2836,8 +4147,26 @@
       "path": "src/ts/wc/fsl_toolbar_wc.ts",
       "declarations": [
         {
+          "kind": "function",
+          "name": "embed_snippet_for",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A paste-able HTML snippet that renders the given FSL from the CDN builds: an\r\n`<fsl-instance>` reading its source from a `<script type=\"text/fsl\">` child,\r\nwith a slotted `<fsl-viz>` for the graph."
+        },
+        {
           "kind": "class",
-          "description": "`<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. A light/dark\r\ntheme toggle on the left; on the right, an icon toggle to show/hide each\r\npanel present in the host (renderer, code, history, …) plus a View menu of\r\nthe layout set (its button shows the current layout's icon). Standalone (no\r\nhost) the panel toggles disappear. A trailing slot carries extra buttons.",
+          "description": "`<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. Validate + Lint\r\naction buttons (fired as `fsl-validate` / `fsl-lint` events for the embedder\r\nto fulfill, each suppressible via `no-validate` / `no-lint`); an icon toggle\r\nto show/hide each panel present in the host (renderer, code, history, …); and\r\nLayout / Export / Theme pulldowns (the Layout button shows the current\r\nlayout's icon). Standalone (no host) the host-dependent controls disappear.\r\nA trailing slot carries extra buttons.",
           "name": "FslToolbar",
           "cssParts": [
             {
@@ -2882,6 +4211,26 @@
             },
             {
               "kind": "field",
+              "name": "noValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Validate button (e.g. when the consumer validates inline).",
+              "attribute": "no-validate"
+            },
+            {
+              "kind": "field",
+              "name": "noLint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Lint button.",
+              "attribute": "no-lint"
+            },
+            {
+              "kind": "field",
               "name": "_host",
               "type": {
                 "text": "HostTarget | null"
@@ -2916,7 +4265,7 @@
                   }
                 }
               ],
-              "description": "Set the theme mode (System/Light/Dark). The host applies the palette + drives\r\nthe editor; the menu stays open so a theme can be picked in the same trip."
+              "description": "Set the theme mode (System/Light/Dark). The host applies the palette + drives\r\n the editor; the menu stays open so a theme can be picked in the same trip."
             },
             {
               "kind": "method",
@@ -2935,7 +4284,7 @@
                   }
                 }
               ],
-              "description": "Select a named theme from the host's registry. The theme-name buttons only\r\nrender when a host exists, so `_host` is non-null here."
+              "description": "Select a named theme from the host's registry. The theme-name buttons only\r\n render when a host exists, so `_host` is non-null here."
             },
             {
               "kind": "method",
@@ -2972,7 +4321,7 @@
                   }
                 }
               ],
-              "description": "Set the active export destination; the menu stays open so a format can be\r\nchosen next."
+              "description": "Set the active export destination; the menu stays open so a format can be\r\n chosen next."
             },
             {
               "kind": "method",
@@ -2991,7 +4340,26 @@
                   }
                 }
               ],
-              "description": "Emit `fsl-export` with the chosen format's content + the active destination.\r\nThe embedder performs the actual clipboard / file save."
+              "description": "Emit `fsl-export` with the chosen format's content + the active destination.\r\n The embedder performs the actual clipboard / file save."
+            },
+            {
+              "kind": "method",
+              "name": "_fireAction",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "text": "'fsl-validate' | 'fsl-lint'"
+                  }
+                }
+              ],
+              "description": "Fire a workspace-action intent (validate / lint) for the consumer to\r\n fulfill — the toolbar presents the action; the embedder runs it. The\r\n current machine source rides along in the detail as a convenience. The\r\n buttons only render with a host, so `_host` is non-null here."
             },
             {
               "kind": "method",
@@ -3018,6 +4386,32 @@
               "type": {
                 "text": "CustomEvent"
               }
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "no-validate",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Validate button (e.g. when the consumer validates inline).",
+              "fieldName": "noValidate"
+            },
+            {
+              "name": "no-lint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Lint button.",
+              "fieldName": "noLint"
             }
           ],
           "superclass": {
@@ -3031,10 +4425,34 @@
       "exports": [
         {
           "kind": "js",
+          "name": "embed_snippet_for",
+          "declaration": {
+            "name": "embed_snippet_for",
+            "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "FslToolbar",
           "declaration": {
             "name": "FslToolbar",
             "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "fsl_from_permalink",
+          "declaration": {
+            "name": "fsl_from_permalink",
+            "module": "./fsl_permalink.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_for",
+          "declaration": {
+            "name": "permalink_for",
+            "module": "./fsl_permalink.js"
           }
         }
       ]
@@ -3071,6 +4489,11 @@
               "description": "Minimum height of the rendered SVG container.",
               "name": "--jssm-viz-min-height",
               "default": "100px"
+            },
+            {
+              "description": "Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.",
+              "name": "--jssm-viz-max-height",
+              "default": "none"
             }
           ],
           "members": [
@@ -3154,6 +4577,45 @@
                 }
               },
               "description": "Render the current `fsl` source to an SVG string via the headless\r\n`fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a\r\n`viz-error` `CustomEvent` on failure. Guards against stale results\r\nwhen `fsl` changes mid-flight."
+            },
+            {
+              "kind": "method",
+              "name": "clearHighlights",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Clears any active programmatic highlights from the rendered SVG,\r\nrestoring every node and edge to its default Graphviz presentation.\r\n\r\nRemoves only the inline `fill` / `stroke` / `opacity` overrides that\r\nhighlightTrace installs; the SVG's own presentation attributes\r\nare untouched. Safe to call when nothing is highlighted, before the\r\nfirst render, or while detached — it no-ops if there is no rendered\r\nSVG to clear.\r\n\r\n```typescript\r\nconst viz = document.querySelector('fsl-viz');\r\nviz.highlightTrace(['a', 'b']);\r\nviz.clearHighlights();   // back to the default rendering\r\n```"
+            },
+            {
+              "kind": "method",
+              "name": "highlightTrace",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "trace",
+                  "type": {
+                    "text": "string[]"
+                  },
+                  "description": "Ordered state names describing the path (e.g.\r\n`['A', 'B', 'C']`). Consecutive pairs select the edges\r\n`A->B` and `B->C`. An empty array is a no-op."
+                },
+                {
+                  "name": "options",
+                  "default": "{}",
+                  "type": {
+                    "text": "HighlightOptions"
+                  },
+                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   * "
+                }
+              ],
+              "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` and edges by the `from->to`\r\ntitle Graphviz emits, applying inline style overrides so the highlight\r\ncomposes over — and is reversible against — the default rendering (see\r\nclearHighlights, which this calls first). No-ops when detached,\r\nbefore the first render, or given an empty trace.\r\n\r\nBecause dot generation slugs state names into node identifiers (fsl#1935\r\n— `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name\r\nis matched in **both** its raw form and its slugged form, using the same\r\n`slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,\r\n`'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore\r\nboth work. Names whose slug is empty (e.g. `'!!!'`, which renders under\r\nan indexed `node-N` title) are only matchable by passing that literal\r\n`node-N` title.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n\r\n// Display-form names match their slugged titles:\r\nviz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm\r\n```"
             }
           ],
           "events": [
@@ -3504,6 +4966,22 @@
           "declaration": {
             "name": "FslExport",
             "module": "./fsl_export_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslStochastic",
+          "declaration": {
+            "name": "FslStochastic",
+            "module": "./fsl_stochastic_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslInfoPanel",
+          "declaration": {
+            "name": "FslInfoPanel",
+            "module": "./fsl_info_panel_wc.js"
           }
         }
       ]

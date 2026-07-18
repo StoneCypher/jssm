@@ -16,7 +16,6 @@ interface SimHost extends HTMLElement {
  * {@link FslSimulation.interval} ms and stops automatically when the machine
  * reaches a terminal state (no legal actions). Standalone (no host ancestor)
  * the controls are disabled.
- *
  * @element fsl-simulation
  * @csspart sim - The control row.
  * @attr {number} interval - Auto-step period in milliseconds (default 600).
@@ -86,7 +85,8 @@ export class FslSimulation extends LitElement {
         <button class="btn" @click=${this._step}>Step</button>
         <button class="btn" @click=${this._toggle}>${this._running ? 'Pause' : 'Play'}</button>
         <span class="count ${this._host === null ? 'idle' : ''}">${this._steps} step${this._steps === 1 ? '' : 's'}</span>
-      </div>`;
+      </div>
+    `;
   }
 
 }

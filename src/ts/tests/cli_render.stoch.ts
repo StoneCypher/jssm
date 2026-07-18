@@ -3,13 +3,14 @@ import * as fc from 'fast-check';
 
 import { render }     from '../cli/subcommands/render/render';
 import { renderSet }  from '../cli/subcommands/render/renderSet';
+import type { RenderSetItemErr } from '../cli/subcommands/render/renderSet';
 import { svgTarget }  from '../cli/subcommands/render/targets/svg';
 import { dotTarget }  from '../cli/subcommands/render/targets/dot';
 import { htmlTarget } from '../cli/subcommands/render/targets/html';
 import { pngTarget }  from '../cli/subcommands/render/targets/png';
 import { jpegTarget } from '../cli/subcommands/render/targets/jpeg';
 
-import { RenderError, RasterizationUnsupportedError } from '../cli/types';
+import { RenderError, RasterizationUnsupportedError, RENDER_TARGETS } from '../cli/types';
 
 import { chain_plan_arb } from './stoch_helpers';
 
@@ -134,7 +135,7 @@ describe('raster targets through resvg-wasm', () => {
           const buf = await pngTarget(GOOD_FSL, { width });
 
           // PNG signature: 89 50 4E 47 0D 0A 1A 0A
-          expect([...buf.slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+          expect([...buf.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
           expect(png_width(buf)).toBe(width);
 
         }
@@ -148,7 +149,7 @@ describe('raster targets through resvg-wasm', () => {
 
     const buf = await pngTarget(GOOD_FSL, { scale: 100 });
 
-    expect([...buf.slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect([...buf.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
     expect(png_width(buf)).toBeGreaterThan(0);
 
   });
@@ -188,7 +189,12 @@ describe('render() dispatch', () => {
     await fc.assert(
       fc.asyncProperty(
         fc.stringOf(fc.constantFrom(...'abcdefghij'.split('')), { minLength: 2, maxLength: 8 })
-          .filter( t => !['svg', 'dot', 'html', 'png', 'jpeg'].includes(t) ),
+          // Exclude EVERY real target from the canonical source — the old
+          // hand-maintained list omitted 'gif', whose letters (g,i,f) are all in
+          // this a–j alphabet, so fast-check could emit "gif" and then wrongly
+          // demand it throw "unknown target".  Deriving from RENDER_TARGETS keeps
+          // the generator honest as targets are added.
+          .filter( t => !(RENDER_TARGETS as readonly string[]).includes(t) ),
         async (target) => {
           await expect(render(GOOD_FSL, { target: target as never }))
             .rejects.toThrow(`unknown target: ${target}`);
@@ -219,7 +225,7 @@ describe('renderSet error isolation', () => {
 
           expect(results.length).toBe(goods.length);
 
-          results.forEach( (item, i) => {
+          for (const [i, item] of results.entries()) {
 
             expect(item.index).toBe(i);
             expect(item.ok).toBe(goods[i]);
@@ -227,10 +233,14 @@ describe('renderSet error isolation', () => {
             if (item.ok) {
               expect(item.result.kind).toBe('text');
             } else {
-              expect(item.error).toBeInstanceOf(Error);
+              // The `as RenderSetItemErr` is needed only because the project
+              // pins `strictNullChecks: false`, under which TypeScript will not
+              // narrow the `ok: true | false` boolean-literal discriminant on
+              // the false branch.  Drop it when strict mode lands (fsl#712).
+              expect((item as RenderSetItemErr).error).toBeInstanceOf(Error);
             }
 
-          });
+          }
 
         }
       ),

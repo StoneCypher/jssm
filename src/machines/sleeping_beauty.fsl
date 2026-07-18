@@ -1,0 +1,37 @@
+// "Sleeping Beauty" - European fairy tale (Perrault, 1697 / Grimm, 1812)
+//
+// The prick of the spindle is a forced (`~>`) transition into a state
+// that stays entered for what the story insists is a hundred years - the
+// exact shape cinderella.fsl documents for wall-clock deadlines a
+// deterministic verify script cannot honestly wait through, expressed
+// instead as "no action unbinds this, only time does." The topology
+// joke is the sleep state's action SET: it is a singleton. Exactly one
+// action - true love's kiss - is bound there. Nothing else the story
+// offers (shaking her, shouting, a second kiss from the wrong person) was
+// ever wired to an edge, so `m.actions()` at that state returns an array
+// of length one, and that fact alone is the whole punchline about fairy
+// tale rescues: there was only ever one key that fit.
+
+machine_name    : "Sleeping Beauty";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"castle, on her sixteenth birthday"
+  'wander the tower, curious' -> "spinning wheel room, spindle gleaming";
+
+"spinning wheel room, spindle gleaming"
+  'touch the spindle, drawn to it' -> "finger pricked";
+
+// forced and total - the curse does not wait for permission.
+"finger pricked" ~> "a hundred years sleep begins, castle and court frozen in place";
+
+// exactly one action binds here. this is the whole joke.
+"a hundred years sleep begins, castle and court frozen in place"
+  'true loves kiss' -> "she wakes, a century later";
+
+"she wakes, a century later"
+  'blink at the dust, the cobwebs, the decades' -> "court wakes with her, mid-sentence";

@@ -1,0 +1,40 @@
+// "Total Eclipse of the Heart" - written by Jim Steinman, performed by
+// Bonnie Tyler (1983)
+//
+// Modeled here as a periodic hardware interrupt, described purely
+// structurally: an ordinary, self-sustaining orbit of three chosen
+// phases, cycling by choice - except the cycle never actually gets to
+// choose its way back to the top. The third phase's only way forward is
+// forced (`~>`), unlabeled, into a short, equally forced sequence that
+// seizes the whole graph before handing control back to exactly the
+// state the ordinary orbit started from. Nothing in the action system
+// ever names the interrupt, requests it, or defers it - per this
+// project's forced-edge rule, `fslSimulate` cannot walk it under any
+// label, and `legalNext` at the third phase is empty, same shape as
+// `cinderella.fsl`'s midnight edge. The showcase is that the interrupt is
+// transparent: after it fires and resolves, the ordinary orbit's own
+// chosen action is bound again, unchanged, ready to run the same three
+// phases into the same forced seizure, on schedule, indefinitely.
+
+machine_name    : "Total Eclipse of the Heart";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the ordinary orbit - two real, chosen steps forward.
+"orbit: phase 1, steady"
+  'advance the ordinary cycle' -> "orbit: phase 2, steady";
+"orbit: phase 2, steady"
+  'advance the ordinary cycle' -> "orbit: phase 3, steady";
+
+// phase 3 never gets a chosen way back to phase 1. the interrupt is not
+// requested - it is forced, unlabeled, and total.
+"orbit: phase 3, steady" ~> "interrupt: seizure begins, control taken";
+"interrupt: seizure begins, control taken" ~> "interrupt: totality, orbit fully dark";
+
+// and control returns forced too - handed back to exactly where the
+// ordinary orbit began, ready to run again.
+"interrupt: totality, orbit fully dark" ~> "orbit: phase 1, steady";

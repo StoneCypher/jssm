@@ -1,0 +1,41 @@
+// "Duck Season, Rabbit Season" - Looney Tunes (Chuck Jones' "hunting
+// trilogy": Rabbit Fire, 1951; Rabbit Seasoning, 1952; Duck! Rabbit,
+// Duck!, 1953), where the entire gag is one manipulated variable: a
+// hand-lettered sign nobody but the audience really controls, and
+// whichever season it currently reads is who Elmer's shotgun answers to.
+// Daffy's strategy - shout the loudest, insist the hardest - is also,
+// mechanically, the exploit that keeps destroying him.
+//
+// The topology joke is that the SAME action label is bound to two
+// completely different consequences depending on which state it fires
+// from: `'insist that it's duck season, loudly'`, taken while the sign
+// reads "rabbit season," is safe - it just flips the sign. Taken while
+// the sign ALREADY reads "duck season," the identical words are the edge
+// straight to getting shot, because insisting on the label that is
+// already active is confirming it, out loud, to the one holding the gun.
+// Nothing about the words changed; only the state they were spoken into
+// did. That is Bugs' whole con, reduced to a two-state machine: he never
+// needs to argue Daffy out of anything, he only needs the sign to already
+// agree before Daffy opens his mouth.
+
+machine_name    : "Duck Season, Rabbit Season";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"sign reads: rabbit season"
+  'flip the sign before he can talk' -> "sign reads: duck season";
+"sign reads: rabbit season"
+  'insist that it\'s duck season, loudly' -> "sign reads: duck season";
+
+"sign reads: duck season"
+  'flip the sign before he can talk' -> "sign reads: rabbit season";
+"sign reads: duck season"
+  'insist that it\'s duck season, loudly' -> "Daffy gets shot, again";
+
+// cartoon physics: he is fine by the next scene, and the sign resets too.
+"Daffy gets shot, again"
+  'dust off, next scene, sign back to rabbit season' -> "sign reads: rabbit season";

@@ -46,11 +46,9 @@ const RUNS = 100;
 /**
  *  Parse `a {<pre>} -> {<post>} b;` and return the transition's
  *  `se` object so callers can inspect `l_desc` / `r_desc`.
- *
  *  @param  pre_block_src   Pre-arrow brace block contents (without braces).  Empty string skips the block.
  *  @param  post_block_src  Post-arrow brace block contents.  Empty string skips the block.
  *  @returns                The se object containing kind, to, and any *_desc fields.
- *
  *  @example
  *    parse_desc_se('arc_label: x;', '')
  *    // → { kind:'->', to:'b', l_desc:[{key:'arc_label', value:'x'}] }

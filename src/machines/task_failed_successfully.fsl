@@ -1,0 +1,39 @@
+// "Task Failed Successfully" - Windows Task Scheduler / event-log folklore
+//
+// Three outcomes leave the running task in genuinely different states: a
+// clean finish, an unhandled exception, and a watchdog kill after a hang.
+// These are not the same thing, and the machine says so - three distinct,
+// real states, reached by three distinct, real actions. Then the status
+// logger runs, identically worded, from all three: 'log the result'. And
+// all three land on the exact same terminal, whose own name asserts two
+// contradictory facts about itself at once. The graph does not merely
+// report the contradiction, it manufactures it structurally - success,
+// crash, and kill are three different edges that all converge on one
+// state that is impossible to parse as true, and there is nothing past it
+// to resolve the contradiction, because it is the terminal.
+//
+// Showcase: fslExplain reports a single terminal reachable from three
+// distinct, differently-named predecessor states. fslSimulate walks each
+// of the three outcome branches independently and confirms all three
+// reach the identical terminal state by name.
+
+machine_name    : "Task Failed Successfully";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// three genuinely different outcomes, real actions, real distinctions.
+"task running"
+  'the task completes without error'            -> "task succeeded";
+"task running"
+  'the task throws an unhandled exception'      -> "task crashed";
+"task running"
+  'the task hangs and gets killed by the scheduler' -> "task terminated by watchdog";
+
+// the same logging action, from all three, erases the distinction.
+"task succeeded"                   'log the result' -> "task failed successfully";
+"task crashed"                     'log the result' -> "task failed successfully";
+"task terminated by watchdog"      'log the result' -> "task failed successfully";

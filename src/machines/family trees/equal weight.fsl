@@ -1,0 +1,23 @@
+machine_name      : "Family Tree - Equal Weight";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+machine_comment   : "Equal-weight variant: every parent connects to every child with a plain -> edge. Same family as the siblings 'merged.fsl', 'female oriented.fsl', and 'male oriented.fsl' - the four files differ only in edge treatment.";
+machine_reference : "https://github.com/StoneCypher/fsl/issues/499";
+
+flow              : down;
+
+
+
+// Generation 1: the grandparents
+
+Rosalind -> Marigold;
+Edmund   -> Marigold;
+
+// Generation 2: the parents, spreading to generation 3
+
+Marigold -> [Clara Oliver June];
+Felix    -> [Clara Oliver June];

@@ -24,16 +24,14 @@ const RUNS = 60;
  *  Builds a plain ring machine `r0 -> r1 -> ... -> r(k-1) -> r0` and the
  *  walk helper used by every test: `walk(machine, n)` advances n single
  *  steps with `transition()`, asserting each step succeeds.
- *
  *  @param k  Ring size (number of states).
  *  @returns  The state names and the FSL source.
- *
  *  @example
  *    ring(3)  // { names: ['r0','r1','r2'], fsl: 'r0 -> r1;  r1 -> r2;  r2 -> r0;' }
  */
 function ring(k: number): { names: string[], fsl: string } {
 
-  const names = [...new Array(k).keys()].map( i => `r${i}` );
+  const names = Array.from({length: k}, (_, index) => index).map( i => `r${i}` );
   const fsl   = names.map( (n, i) => `${n} -> ${names[(i + 1) % k]};` ).join('  ');
 
   return { names, fsl };
@@ -45,7 +43,6 @@ function ring(k: number): { names: string[], fsl: string } {
 /**
  *  Advances a ring machine n steps with plain transitions, asserting each
  *  step is accepted.
- *
  *  @param machine  A machine currently somewhere on a ring built by {@link ring}.
  *  @param names    The ring's state names in order.
  *  @param n        Number of steps to take.
@@ -64,12 +61,10 @@ function walk_ring(machine: jssm.Machine<unknown>, names: string[], n: number): 
 /**
  *  How many of the first n ring steps start from state index i: a walk
  *  from r0 visits edge (i -> i+1) on steps s where s % k === i.
- *
  *  @param n  Total steps walked.
  *  @param k  Ring size.
  *  @param i  Source-state index of the edge in question.
  *  @returns  The number of traversals of edge i -> (i+1)%k.
- *
  *  @example
  *    traversals_of_edge(7, 3, 0)  // 3  (steps 0, 3, 6)
  *    traversals_of_edge(7, 3, 2)  // 2  (steps 2, 5)
@@ -148,7 +143,7 @@ describe('basic from->to hooks', () => {
           const { names, fsl } = ring(k);
           const machine        = jssm.from(fsl);
 
-          machine.hook(names[0], names[1], () => undefined);
+          machine.hook(names[0], names[1], () => {});
 
           expect(machine.transition(names[1])).toBe(true);
           expect(machine.state()).toBe(names[1]);
@@ -266,16 +261,14 @@ describe('action hooks versus action events', () => {
 
   /**
    *  Builds a ring where every edge carries the same action label.
-   *
    *  @param k       Ring size.
    *  @param action  The shared action name.
    *  @returns       State names and FSL source.
-   *
    *  @example
    *    action_ring_shared(2, 'tick')  // fsl: "s0 'tick' -> s1;  s1 'tick' -> s0;"
    */
   function action_ring_shared(k: number, action: string): { names: string[], fsl: string } {
-    const names = [...new Array(k).keys()].map( i => `s${i}` );
+    const names = Array.from({length: k}, (_, index) => index).map( i => `s${i}` );
     const fsl   = names.map( (n, i) => `${n} '${action}' -> ${names[(i + 1) % k]};` ).join('  ');
     return { names, fsl };
   }
@@ -377,10 +370,10 @@ describe('observation events: on, once, off, unsubscribe', () => {
 
           expect(seen.length).toBe(n_before);
 
-          seen.forEach( ([from, to], s) => {
+          for (const [s, [from, to]] of seen.entries()) {
             expect(from).toBe(names[s % k]);
             expect(to).toBe(names[(s + 1) % k]);
-          });
+          }
 
         }
       ),

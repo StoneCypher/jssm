@@ -1,0 +1,27 @@
+// "Galaxy Brain" - the expanding-brain meme: four ascending panels, brain
+// growing from a dim outline to a radiant galaxy, each panel's "solution"
+// less sane than the last while being framed as more enlightened.
+//
+// The topology is deliberately the dumbest possible shape for the joke:
+// a single unbranching chain, one escalation action per link, four states,
+// no choice ever offered except to keep climbing or to stop where you are.
+// That is the point - "enlightenment" here is not a search over options,
+// it is a straight line with no exits, and the file shows that starkness
+// structurally rather than asserting it in prose. Every intermediate state
+// is a valid terminal in its own right (fslExplain will show three of the
+// four states as reachable stopping points), which is its own small joke:
+// you were always free to stop being enlightened.
+
+machine_name     : "Galaxy Brain";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["small brain, just use a spoon"];
+
+"small brain, just use a spoon"                        'overthink it slightly'  -> "glowing brain, a fork also works";
+"glowing brain, a fork also works"                      'overthink it further'   -> "sparkling brain, forge a bespoke utensil from scratch";
+"sparkling brain, forge a bespoke utensil from scratch" 'transcend the utensil entirely' -> "galaxy brain, abolish the concept of hunger";

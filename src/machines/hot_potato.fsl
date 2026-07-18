@@ -1,0 +1,39 @@
+// "Hot Potato" - traditional elimination party game
+//
+// Passing is a real, chosen action, forming a genuine cycle among four
+// holders - pass it around twice, ten times, the graph does not care, the
+// same open-ended self-sustaining loop `duck_duck_goose.fsl` uses for its
+// circle. But every single holding state also carries a second, forced,
+// unlabeled edge to elimination, standing in for a timer that answers to
+// nobody's turn order - same grammar as `trolley_problem.fsl`'s switch,
+// where a chosen action and a forced one coexist from the same source
+// without conflicting. `fslSimulate` can walk any number of passes, in any
+// order around the ring, and never once traverse the elimination edge
+// under any name; only stepping outside the game with a direct
+// `force_transition` call reaches it - and it reaches the same shared
+// terminal no matter which of the four holders it fires from.
+
+machine_name    : "Hot Potato";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the pass cycle - a real, chosen, indefinitely-repeatable ring.
+"A holding, potato hot"
+  'pass to B' -> "B holding, potato hot";
+"B holding, potato hot"
+  'pass to C' -> "C holding, potato hot";
+"C holding, potato hot"
+  'pass to D' -> "D holding, potato hot";
+"D holding, potato hot"
+  'pass to A' -> "A holding, potato hot";
+
+// the timer does not care whose turn it is - forced, from every holding
+// state, into one shared elimination, unreachable by any chosen action.
+"A holding, potato hot" ~> "buzzer sounds, holder eliminated";
+"B holding, potato hot" ~> "buzzer sounds, holder eliminated";
+"C holding, potato hot" ~> "buzzer sounds, holder eliminated";
+"D holding, potato hot" ~> "buzzer sounds, holder eliminated";

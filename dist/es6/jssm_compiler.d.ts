@@ -1,4 +1,4 @@
-import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
+import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmParseOptions, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
 /*********
  *
  *  Returns the source span of the `n`-th parse-tree node (1-based) matching
@@ -25,8 +25,8 @@ declare function nth_matching_loc<StateType, mDT>(tree: JssmParseTree<StateType,
  *
  *  @internal
  *
- *  @typeparam StateType The type of state names (usually `string`).
- *  @typeparam mDT       The type of the machine data member; usually omitted.
+ *  @typeParam StateType The type of state names (usually `string`).
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
  *
  *  @param this_se    - The parsed semi-edge containing kind, action, and
  *                      probability metadata.
@@ -123,14 +123,31 @@ declare function makeTransition<StateType, mDT>(this_se: JssmCompileSe<StateType
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @typeParam StateType The type of state names in the resulting tree; the
+ *                       grammar itself always produces `string`s, so only
+ *                       override this when threading a caller's own state
+ *                       naming through to {@link compile}.
+ *  @typeParam mDT       The type of the machine data member; usually omitted.
+ *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance.  Pass
+ *  @param options Things to control about the parse.  Pass
  *                 `{ locations: true }` to enable opt-in source location
- *                 tracking on every AST node.
+ *                 tracking on every AST node.  When omitted, an empty options
+ *                 object is passed through to the parser.
+ *
+ *  @returns The machine's intermediate representation: a flat
+ *           {@link JssmParseTree} with one node per top-level FSL statement.
+ *
+ *  @throws {SyntaxError} The generated PEG.js parser's `SyntaxError` when
+ *                        `input` is not valid FSL.
+ *
+ *  @see {@link compile}
+ *  @see {@link make}
+ *  @see {@link JssmParseOptions}
  *
  */
-declare function wrap_parse(input: string, options?: Object): any;
+declare function wrap_parse<StateType = string, mDT = unknown>(input: string, options?: JssmParseOptions): JssmParseTree<StateType, mDT>;
 /*********
  *
  *  Builds the ordered {@link JssmGroupRegistry} from every `named_list` node
@@ -263,7 +280,7 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
+ *  {@link Machine.constructor} to turn the config object into a workable machine.
  *
  *  ```typescript
  *  import { parse, compile, Machine } from 'jssm';
@@ -329,12 +346,18 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param tree The parse tree to be boiled down into a machine config.  If the
  *              tree was produced with `parse(input, { locations: true })`, any
  *              semantic error thrown will carry a `source_location` span
  *              pointing at the offending statement.
+ *
+ *  @throws {JssmError} If the document declares no transitions (for example a
+ *                      states-first document of only `state` blocks) — a
+ *                      machine requires at least one transition; also for
+ *                      repeated property definitions, group errors, and other
+ *                      semantic problems noted throughout.
  *
  */
 declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGenericConfig<StateType, mDT>;
@@ -344,7 +367,7 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param plan The FSL code to be evaluated and built into a machine config
  *

@@ -114,7 +114,7 @@ describe('FslViz rendering', () => {
 
   it('renders an SVG containing both state names when fsl is set', async () => {
     const el = document.createElement('fsl-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     el.fsl = 'Off -> On;';
     await (el as any).updateComplete;
@@ -127,12 +127,12 @@ describe('FslViz rendering', () => {
     expect(tree_html).toContain('Off');
     expect(tree_html).toContain('On');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('fires viz-error when fsl fails to parse', async () => {
     const el = document.createElement('fsl-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     const errorEvent: Promise<CustomEvent> = new Promise(resolve => {
       el.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
@@ -147,7 +147,7 @@ describe('FslViz rendering', () => {
     expect(evt.bubbles).toBe(true);
     expect(evt.composed).toBe(true);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('passes engine override into fsl_to_svg_string', async () => {
@@ -157,7 +157,7 @@ describe('FslViz rendering', () => {
     // engine prop reached the renderer. What we are NOT testing is whether
     // viz.js supports the given engine name.
     const el = document.createElement('fsl-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     let saw_error = false;
     el.addEventListener('viz-error', () => { saw_error = true; });
@@ -172,7 +172,7 @@ describe('FslViz rendering', () => {
     const tree_html = el.shadowRoot!.innerHTML;
     expect(saw_error || tree_html.includes('<svg')).toBe(true);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('renders nothing and stays quiet when fsl is empty', async () => {
@@ -180,7 +180,7 @@ describe('FslViz rendering', () => {
     // covers transitioning from non-empty back to empty: the SVG should be
     // cleared, and no viz-error should fire.
     const el = document.createElement('fsl-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     let saw_error = false;
     el.addEventListener('viz-error', () => { saw_error = true; });
@@ -203,7 +203,7 @@ describe('FslViz rendering', () => {
     expect(el.shadowRoot!.innerHTML).not.toContain('<svg');
     expect(saw_error).toBe(false);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('discards a stale render result when fsl changes mid-flight', async () => {
@@ -212,7 +212,7 @@ describe('FslViz rendering', () => {
     // fsl_to_svg_string resolves. The stale result must NOT be committed to
     // _svg — only the value matching the current fsl survives.
     const el = document.createElement('fsl-viz') as any;
-    document.body.appendChild(el);
+    document.body.append(el);
 
     // Start a render for the first source, but do not await it yet.
     el.fsl = 'StaleStart -> StaleEnd;';
@@ -229,7 +229,7 @@ describe('FslViz rendering', () => {
     expect(el._svg).not.toContain('StaleStart');
     expect(el._svg).not.toContain('<svg');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('jssm-viz synonym renders identically to fsl-viz for the same fsl', async () => {
@@ -238,8 +238,8 @@ describe('FslViz rendering', () => {
     // any future divergence sneaking into the JssmViz subclass.
     const fsl_el  = document.createElement('fsl-viz');
     const jssm_el = document.createElement('jssm-viz');
-    document.body.appendChild(fsl_el);
-    document.body.appendChild(jssm_el);
+    document.body.append(fsl_el);
+    document.body.append(jssm_el);
 
     const source = 'Off -> On;';
     fsl_el.fsl  = source;
@@ -261,14 +261,14 @@ describe('FslViz rendering', () => {
     expect(fsl_html).toContain('On');
     expect(jssm_html).toContain('On');
 
-    document.body.removeChild(fsl_el);
-    document.body.removeChild(jssm_el);
+    fsl_el.remove();
+    jssm_el.remove();
   });
 
   it('jssm-viz fires viz-error on bad fsl just like fsl-viz', async () => {
     // Confirms the synonym inherits the error path unchanged.
     const el = document.createElement('jssm-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     const errorEvent: Promise<CustomEvent> = new Promise(resolve => {
       el.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
@@ -281,7 +281,7 @@ describe('FslViz rendering', () => {
     expect(typeof evt.detail.message).toBe('string');
     expect(evt.detail.message.length).toBeGreaterThan(0);
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('renders successfully when engine is set to a valid value', async () => {
@@ -289,7 +289,7 @@ describe('FslViz rendering', () => {
     // render, proving the engine prop reaching the renderer doesn't break
     // the happy path.
     const el = document.createElement('fsl-viz');
-    document.body.appendChild(el);
+    document.body.append(el);
 
     el.fsl    = 'Off -> On;';
     el.engine = 'dot';
@@ -301,7 +301,7 @@ describe('FslViz rendering', () => {
     const tree_html = el.shadowRoot!.innerHTML;
     expect(tree_html).toContain('<svg');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
 });
@@ -312,7 +312,6 @@ describe('FslViz rendering', () => {
  * subsequent async SVG render.  jsdom resolves microtasks immediately, but
  * the `machine_to_svg_string` pipeline awaits the viz-js WASM module, so
  * a generous timeout is needed.
- *
  * @param el - The viz element to wait on.
  */
 async function settle_viz(el: HTMLElement): Promise<void> {
@@ -320,6 +319,66 @@ async function settle_viz(el: HTMLElement): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 2000));
   await (el as any).updateComplete;
 }
+
+describe('FslViz sizing constraints (#1934)', () => {
+
+  // jsdom performs no layout, so the honest jsdom-side assertions are:
+  // (a) the component's stylesheet carries the max-bound rules and the
+  //     custom-property seam that make an auto-height host under an external
+  //     max-height keep its svg bounded, and
+  // (b) the rendered <svg> receives no inline pixel sizing that would defeat
+  //     those CSS rules, and keeps the viewBox that makes a capped viewport
+  //     letterbox instead of distort.
+  // The real layout behavior is asserted in the Playwright e2e suite
+  // (src/ts/e2e/viz_sizing.spec.ts), which measures bounding boxes in a real
+  // Chromium.
+
+  it('stylesheet exposes the --jssm-viz-max-height seam on the host', () => {
+    const sheet = String(FslVizBase.styles);
+    expect(sheet).toContain('max-height: var(--jssm-viz-max-height, none)');
+    // The pre-existing min-height seam must survive alongside it.
+    expect(sheet).toContain('min-height: var(--jssm-viz-min-height, 100px)');
+  });
+
+  it('stylesheet threads the max-height cap down to the svg via inherit', () => {
+    const sheet = String(FslVizBase.styles);
+    // Both the .container and the svg inherit the host's cap — that chain is
+    // what keeps the svg bounded when percentage heights collapse to auto.
+    const inherits = sheet.match(/max-height:\s*inherit/g) ?? [];
+    expect(inherits.length).toBeGreaterThanOrEqual(2);
+    expect(sheet).toContain('max-width: 100%');
+  });
+
+  it('rendered svg carries no inline sizing and keeps its viewBox', async () => {
+    const el = document.createElement('fsl-viz');
+    document.body.append(el);
+
+    el.fsl = 'Off -> On;';
+    await (el as any).updateComplete;
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await (el as any).updateComplete;
+
+    // chained single-segment queries: jsdom does not support :scope from a
+    // shadow root, and a bare descendant selector trips prefer-scoped-selector
+    const container = el.shadowRoot!.querySelector('.container');
+    const svg       = container === null ? null : container.querySelector('svg');
+    expect(svg).not.toBeNull();
+
+    // No inline style sizing — inline styles would outrank the stylesheet's
+    // max-bounds and reintroduce the escape.
+    expect(svg!.style.width).toBe('');
+    expect(svg!.style.height).toBe('');
+    expect(svg!.style.maxHeight).toBe('');
+
+    // The viewBox (plus Graphviz's default preserveAspectRatio) is what lets
+    // a max-height-capped viewport letterbox cleanly; reorder_svg_layers must
+    // not have stripped it.
+    expect(svg!.hasAttribute('viewBox')).toBe(true);
+
+    el.remove();
+  });
+
+});
 
 describe('FslViz parent-context binding', () => {
 
@@ -330,8 +389,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'ParentRed -> ParentGreen;');
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
 
@@ -340,7 +399,7 @@ describe('FslViz parent-context binding', () => {
     expect(tree_html).toContain('ParentRed');
     expect(tree_html).toContain('ParentGreen');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('console.warns when nested viz also carries its own fsl attribute', async () => {
@@ -350,10 +409,10 @@ describe('FslViz parent-context binding', () => {
     host.setAttribute('fsl', 'HostA -> HostB;');
     const viz = document.createElement('fsl-viz');
     viz.setAttribute('fsl', 'InnerX -> InnerY;');
-    host.appendChild(viz);
+    host.append(viz);
 
     const warn_spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    document.body.appendChild(host);
+    document.body.append(host);
 
     expect(warn_spy).toHaveBeenCalledTimes(1);
     expect(String(warn_spy.mock.calls[0]![0])).toMatch(/fsl.*ignored.*fsl-instance/);
@@ -365,7 +424,7 @@ describe('FslViz parent-context binding', () => {
     expect(tree_html).not.toContain('InnerX');
 
     warn_spy.mockRestore();
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('re-renders on parent machine transition', async () => {
@@ -376,8 +435,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "Off 'flip' -> On;");
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     const first_svg = (viz as any)._svg;
@@ -395,7 +454,7 @@ describe('FslViz parent-context binding', () => {
     expect((viz as any)._svg).not.toBe('SENTINEL');
     expect((viz as any)._svg).toContain('<svg');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('re-renders when the host rebuilds its machine (#1387)', async () => {
@@ -404,8 +463,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "Off 'flip' -> On;");
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     await host.updateComplete;              // hasUpdated → true, so the next fsl change rebuilds
@@ -425,21 +484,21 @@ describe('FslViz parent-context binding', () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     expect((viz as any)._svg).not.toBe('SENTINEL2');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('cleans up the subscription on disconnect (no further rerenders after detach)', async () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "Off 'flip' -> On 'unflip' -> Off;");
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     expect((viz as any)._parent_sub).not.toBeNull();
 
     // Detach the viz (the host remains).  Subscription must be released.
-    host.removeChild(viz);
+    viz.remove();
     expect((viz as any)._parent_sub).toBeNull();
     expect((viz as any)._parent_host).toBeNull();
 
@@ -450,7 +509,7 @@ describe('FslViz parent-context binding', () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     expect((viz as any)._svg).toBe('POST_DETACH');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('jssm-viz synonym also auto-binds when nested inside fsl-instance', async () => {
@@ -458,8 +517,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'SynRed -> SynGreen;');
     const viz = document.createElement('jssm-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     const tree_html = viz.shadowRoot!.innerHTML;
@@ -467,7 +526,7 @@ describe('FslViz parent-context binding', () => {
     expect(tree_html).toContain('SynRed');
     expect(tree_html).toContain('SynGreen');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('keeps standalone behavior intact when there is no parent ancestor', async () => {
@@ -475,7 +534,7 @@ describe('FslViz parent-context binding', () => {
     // a viz with no <fsl-instance> ancestor must render its own fsl.
     const viz = document.createElement('fsl-viz');
     viz.setAttribute('fsl', 'StandAlpha -> StandBeta;');
-    document.body.appendChild(viz);
+    document.body.append(viz);
 
     await settle_viz(viz);
     const tree_html = viz.shadowRoot!.innerHTML;
@@ -483,7 +542,7 @@ describe('FslViz parent-context binding', () => {
     expect(tree_html).toContain('StandBeta');
     expect((viz as any)._parent_host).toBeNull();
 
-    document.body.removeChild(viz);
+    viz.remove();
   });
 
   it('re-renders the bound parent\'s machine when engine prop changes', async () => {
@@ -492,8 +551,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'EngineA -> EngineB;');
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     (viz as any)._svg = 'ENGINE_SENTINEL';
@@ -505,7 +564,7 @@ describe('FslViz parent-context binding', () => {
     expect((viz as any)._svg).not.toBe('ENGINE_SENTINEL');
     expect((viz as any)._svg).toContain('<svg');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('ignores fsl-attribute changes while nested (no rerender from own fsl path)', async () => {
@@ -516,8 +575,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'KeepRed -> KeepGreen;');
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
 
@@ -529,7 +588,7 @@ describe('FslViz parent-context binding', () => {
     expect(tree_html).toContain('KeepRed');
     expect(tree_html).not.toContain('BogusA');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('emits viz-error when host.machine throws at subscription time', async () => {
@@ -538,7 +597,7 @@ describe('FslViz parent-context binding', () => {
     // before letting `whenDefined` resolve.  The viz must emit viz-error.
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'A -> B;');
-    document.body.appendChild(host);
+    document.body.append(host);
 
     // Replace the machine getter on this instance to throw.
     Object.defineProperty(host, 'machine', {
@@ -550,13 +609,13 @@ describe('FslViz parent-context binding', () => {
     const error_p: Promise<CustomEvent> = new Promise(resolve => {
       viz.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
     });
-    host.appendChild(viz);
+    host.append(viz);
 
     const evt = await error_p;
     expect(evt.type).toBe('viz-error');
     expect(evt.detail.message).toMatch(/forced machine failure/);
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('does not subscribe if the viz is detached before whenDefined resolves', async () => {
@@ -566,19 +625,19 @@ describe('FslViz parent-context binding', () => {
     // back to null), then settle.  No subscription should be installed.
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'A -> B;');
-    document.body.appendChild(host);
+    document.body.append(host);
 
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
+    host.append(viz);
     // Synchronously detach before the microtask running inside connectedCallback's
     // whenDefined().then(...) gets to run.
-    host.removeChild(viz);
+    viz.remove();
 
     // Allow the deferred .then() to run.
     await new Promise(resolve => setTimeout(resolve, 100));
     expect((viz as any)._parent_sub).toBeNull();
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('emits viz-error when nested rerender fails (machine throws mid-render)', async () => {
@@ -589,8 +648,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'A -> B;');
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     expect((viz as any)._svg).toContain('<svg');
@@ -612,7 +671,7 @@ describe('FslViz parent-context binding', () => {
     expect(evt.detail.message).toMatch(/mid-render boom/);
     expect((viz as any)._svg).toBe('');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('_rerenderFromHostMachine is a no-op when called with no parent host', async () => {
@@ -633,8 +692,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', 'StaleA -> StaleB;');
     const viz = document.createElement('fsl-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
     (viz as any)._svg = 'STALE_GUARD';
@@ -647,7 +706,7 @@ describe('FslViz parent-context binding', () => {
 
     expect((viz as any)._svg).toBe('STALE_GUARD');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
   it('mixed-prefix: jssm-viz nested inside fsl-instance binds and rerenders on transition', async () => {
@@ -657,8 +716,8 @@ describe('FslViz parent-context binding', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "MixOff 'toggle' -> MixOn;");
     const viz = document.createElement('jssm-viz');
-    host.appendChild(viz);
-    document.body.appendChild(host);
+    host.append(viz);
+    document.body.append(host);
 
     await settle_viz(viz);
 
@@ -675,7 +734,7 @@ describe('FslViz parent-context binding', () => {
     expect((viz as any)._svg).not.toBe('MIX_SENTINEL');
     expect((viz as any)._svg).toContain('<svg');
 
-    document.body.removeChild(host);
+    host.remove();
   });
 
 });

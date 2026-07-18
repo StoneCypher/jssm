@@ -8,10 +8,8 @@
  *
  * Each edge's label text is hoisted out of its edge group to the very top.
  * Markup that isn't graphviz output (no `g.graph`) is returned untouched.
- *
  * @param svg - SVG markup from the viz pipeline (`machine_to_svg_string`, etc.).
  * @returns The reordered SVG markup; identical input for non-graphviz SVG.
- *
  * @example
  * // <g class="graph"><polygon/>…<g class="node"/><g class="edge"><path/><text/></g></g>
  * // becomes: <g class="graph"><polygon/><g class="edge"><path/></g><g class="node"/><text/></g>

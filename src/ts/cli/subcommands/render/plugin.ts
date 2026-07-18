@@ -1,21 +1,27 @@
-import { promises as fs } from 'fs';
-import { basename, dirname, extname, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { basename, dirname, extname, join } from 'node:path';
 import { parseFslArgs } from '../../cli-utils.js';
 import { loadConfig } from '../../config/loader.js';
 import { render } from './render.js';
 import type { RenderTarget, RenderOptions } from '../../types.js';
-import { RenderError } from '../../types.js';
+import { RenderError, RENDER_TARGETS } from '../../types.js';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 
-// Defaults for `target` and `quality` previously lived on `SPEC` flags. They
-// have been moved to the config `defaults` layer so that an absent flag stays
-// `undefined` in `parsed.flags` and `flagsToConfig` correctly treats it as
-// "no override" — letting the config file's value win. SPEC defaults would
-// otherwise stamp a value over the config layer every invocation.
-const SPEC = {
+/**
+ * The `fsl-render` argument specification consumed by {@link parseFslArgs}.
+ * Exported so tests can assert the `--target` enum stays in lockstep with the
+ * canonical {@link RENDER_TARGETS} rather than a hand-maintained literal.
+ *
+ * Defaults for `target` and `quality` previously lived on `SPEC` flags. They
+ * have been moved to the config `defaults` layer so that an absent flag stays
+ * `undefined` in `parsed.flags` and `flagsToConfig` correctly treats it as
+ * "no override" — letting the config file's value win. SPEC defaults would
+ * otherwise stamp a value over the config layer every invocation.
+ */
+export const SPEC = {
   flags: {
-    target:   { short: 't' as const, enum: ['svg','dot','png','jpeg','html'] as const },
+    target:   { short: 't' as const, enum: RENDER_TARGETS },
     output:   { short: 'o' as const },
     'out-dir': {},
     stdout:   { boolean: true as const },
@@ -23,6 +29,8 @@ const SPEC = {
     height:   { type: 'number' as const },
     scale:    { type: 'number' as const },
     quality:  { type: 'number' as const },
+    delay:    { type: 'number' as const },
+    'max-frames': { type: 'number' as const },
     config:   {},
     'no-config': { boolean: true as const },
     help:     { short: 'h' as const, boolean: true as const },
@@ -64,7 +72,7 @@ const writeStderr = (s: string): void => { process.stderr.write(s); };
 const printErr = (msg: string, path?: string, line?: number): void => {
   writeStderr(`fsl-render: error: ${msg}\n`);
   if (path) {
-    const loc = line !== undefined ? `  at ${path} line ${line}` : `  at ${path}`;
+    const loc = line === undefined ? `  at ${path}` : `  at ${path} line ${line}`;
     writeStderr(loc + '\n');
   }
 };
@@ -76,10 +84,8 @@ const printErr = (msg: string, path?: string, line?: number): void => {
  *
  * Returns an exit code; never throws to the caller and never calls
  * `process.exit()` directly (per the plugin contract).
- *
  * @param argv - Args after the subcommand name (e.g. `['m.fsl', '--target=svg']`)
  * @returns 0 on success, 1 on user error, 2 on internal error
- *
  * @example
  *   const code = await cli(['traffic-light.fsl', '--stdout']);
  *   // code === 0, SVG written to stdout
@@ -91,8 +97,8 @@ export async function cli(argv: string[]): Promise<number> {
   let parsed: ReturnType<typeof parseFslArgs>;
   try {
     parsed = parseFslArgs(argv, SPEC);
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
@@ -120,14 +126,18 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const target  = config.render.defaultTarget as RenderTarget;
-  const output  = parsed.flags.output as string | undefined;
-  const outDir  = (parsed.flags['out-dir'] as string | undefined) ?? config.render.outDir;
-  const stdout  = parsed.flags.stdout === true;
-  const width   = config.render.width;
-  const height  = config.render.height;
-  const scale   = config.render.scale;
-  const quality = config.render.quality;
+  const target    = config.render.defaultTarget as RenderTarget;
+  const output    = parsed.flags.output as string | undefined;
+  const outDir    = (parsed.flags['out-dir'] as string | undefined) ?? config.render.outDir;
+  const stdout    = parsed.flags.stdout === true;
+  const width     = config.render.width;
+  const height    = config.render.height;
+  const scale     = config.render.scale;
+  const quality   = config.render.quality;
+  // delay / max-frames are flag-only until the config schema grows animation
+  // keys; they arrived from main after the config layer split off.
+  const delay     = parsed.flags.delay as number | undefined;
+  const maxFrames = parsed.flags['max-frames'] as number | undefined;
 
   // Conflict rules
   const outputFlags = [output, outDir, stdout ? '--stdout' : undefined].filter(x => x !== undefined);
@@ -142,7 +152,22 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const renderOpts: RenderOptions = { target, width, height, scale, quality };
+  // A bare Number() coercion rejects only NaN, so Infinity, 0, negatives, and
+  // absurd magnitudes reach the canvas / resvg backend as the fit target and
+  // can OOM or fault the allocation.  Require each size flag to be finite,
+  // positive, and within a sane bound before it leaves the CLI.  #1957
+  const MAX_RENDER_DIMENSION = 100_000;
+  const validSize = (v: number): boolean =>
+    ![ Number.isFinite(v), v > 0, v <= MAX_RENDER_DIMENSION ].includes(false);
+  const sizeChecks: Array<[string, number | undefined]> = [['width', width], ['height', height], ['scale', scale]];
+  for (const [flagName, value] of sizeChecks) {
+    if (value !== undefined && !validSize(value)) {
+      printErr(`--${flagName} must be a positive finite number no greater than ${MAX_RENDER_DIMENSION}`);
+      return 1;
+    }
+  }
+
+  const renderOpts: RenderOptions = { target, width, height, scale, quality, delay, maxFrames };
 
   const inputs = parsed.positional;
   if (inputs.length === 0) {
@@ -161,8 +186,8 @@ export async function cli(argv: string[]): Promise<number> {
     let fsl: string;
     try {
       fsl = path === '-' ? await readStream(process.stdin) : await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       return 1;
     }
     const inputLabel = path === '-' ? '<stdin>' : path;
@@ -194,16 +219,29 @@ export async function cli(argv: string[]): Promise<number> {
   }
 
   let worstCode = 0;
+  // The output name is derived from the input's basename only, so two inputs
+  // that share a basename (different directories, or different source
+  // extensions) map to the same file.  Track which source first claimed each
+  // output and refuse a second claim rather than silently overwriting the
+  // first render.  StoneCypher/fsl#1955
+  const claimedBy = new Map<string, string>();
   for (const path of inputs) {
     let fsl: string;
     try {
       fsl = await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       worstCode = Math.max(worstCode, 1);
       continue;
     }
     const outPath = join(outDir, basename(path, extname(path)) + '.' + extOf(target));
+    const priorSource = claimedBy.get(outPath);
+    if (priorSource !== undefined) {
+      printErr(`refusing to overwrite ${outPath}: both ${priorSource} and ${path} render to it — rename an input or render them in separate --out-dir runs`);
+      worstCode = Math.max(worstCode, 1);
+      continue;
+    }
+    claimedBy.set(outPath, path);
     const code = await renderOne(fsl, path, renderOpts, { outputPath: outPath });
     worstCode = Math.max(worstCode, code);
   }
@@ -229,11 +267,11 @@ async function renderOne(
     const data: string | Uint8Array = r.kind === 'text' ? r.content : Buffer.from(r.buffer);
     await fs.writeFile(out.outputPath, data);
     return 0;
-  } catch (e) {
-    if (e instanceof RenderError) {
-      printErr(e.message, label, e.line);
+  } catch (error) {
+    if (error instanceof RenderError) {
+      printErr(error.message, label, error.line);
     } else {
-      printErr(`${(e as Error).message ?? String(e)}`, label);
+      printErr((error as Error).message ?? String(error), label);
     }
     return 1;
   }

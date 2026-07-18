@@ -82,7 +82,7 @@ describe('resolve_binding', () => {
   it('resolves "legal-actions" to a space-joined list', () => {
     const m = sm`Off 'flip' -> On; Off 'spin' -> Up;`;
     const val = resolve_binding(m, 'legal-actions') as string;
-    expect(val.split(' ').sort()).toEqual(['flip', 'spin']);
+    expect(val.split(' ').sort((a, b) => a.localeCompare(b))).toEqual(['flip', 'spin']);
   });
 
   it('resolves "legal-actions" to an empty string when no actions are exposed', () => {
@@ -144,13 +144,13 @@ describe('set_on_element', () => {
   it('sets a data-* attribute via setAttribute when target starts with "data-"', () => {
     const el = document.createElement('div');
     set_on_element(el, 'data-current-state', 'red');
-    expect(el.getAttribute('data-current-state')).toBe('red');
+    expect(el.dataset.currentState).toBe('red');
   });
 
   it('coerces non-string values when writing a data-* attribute', () => {
     const el = document.createElement('div');
     set_on_element(el, 'data-count', 7);
-    expect(el.getAttribute('data-count')).toBe('7');
+    expect(el.dataset.count).toBe('7');
   });
 
   it('assigns "value" property for input elements', () => {
@@ -187,9 +187,9 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('paints initial textContent from current machine state', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'state');
+    span.dataset.jssmBind = 'state';
     span.textContent = 'placeholder';
-    host.appendChild(span);
+    host.append(span);
 
     const m = sm`Idle 'go' -> Running;`;
     install_bindings(host, m);
@@ -200,8 +200,8 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('updates textContent on every transition', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'state');
-    host.appendChild(span);
+    span.dataset.jssmBind = 'state';
+    host.append(span);
 
     const m = sm`Idle 'go' -> Running 'stop' -> Idle;`;
     install_bindings(host, m);
@@ -217,9 +217,9 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('honors data-jssm-bind-to="value" against an input', () => {
     const host = document.createElement('div');
     const input = document.createElement('input');
-    input.setAttribute('data-jssm-bind', 'state');
-    input.setAttribute('data-jssm-bind-to', 'value');
-    host.appendChild(input);
+    input.dataset.jssmBind = 'state';
+    input.dataset.jssmBindTo = 'value';
+    host.append(input);
 
     const m = sm`A 'go' -> B;`;
     install_bindings(host, m);
@@ -232,9 +232,9 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('honors data-jssm-bind-to="disabled" with a boolean source', () => {
     const host = document.createElement('div');
     const btn = document.createElement('button');
-    btn.setAttribute('data-jssm-bind', 'terminal');
-    btn.setAttribute('data-jssm-bind-to', 'disabled');
-    host.appendChild(btn);
+    btn.dataset.jssmBind = 'terminal';
+    btn.dataset.jssmBindTo = 'disabled';
+    host.append(btn);
 
     const m = sm`A 'go' -> B;`;
     install_bindings(host, m);
@@ -247,16 +247,16 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('honors data-jssm-bind-to="data-foo" by writing the attribute', () => {
     const host = document.createElement('div');
     const div = document.createElement('div');
-    div.setAttribute('data-jssm-bind', 'state');
-    div.setAttribute('data-jssm-bind-to', 'data-current');
-    host.appendChild(div);
+    div.dataset.jssmBind = 'state';
+    div.dataset.jssmBindTo = 'data-current';
+    host.append(div);
 
     const m = sm`A 'go' -> B;`;
     install_bindings(host, m);
-    expect(div.getAttribute('data-current')).toBe('A');
+    expect(div.dataset.current).toBe('A');
 
     m.transition('B');
-    expect(div.getAttribute('data-current')).toBe('B');
+    expect(div.dataset.current).toBe('B');
   });
 
   it('resolves dotted data paths', () => {
@@ -266,8 +266,8 @@ describe('install_bindings — inline data-jssm-bind form', () => {
 
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'data.count');
-    host.appendChild(span);
+    span.dataset.jssmBind = 'data.count';
+    host.append(span);
 
     install_bindings(host, m);
     expect(span.textContent).toBe('undefined');  // initial data is undefined
@@ -282,8 +282,8 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('throws on install when an inline binding uses an unknown expression', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'nope');
-    host.appendChild(span);
+    span.dataset.jssmBind = 'nope';
+    host.append(span);
 
     const m = sm`a -> b;`;
     expect(() => install_bindings(host, m)).toThrow(/unknown binding expression/);
@@ -292,8 +292,8 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('returns one unsub per inline binding and stops updates after unsubscribing', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'state');
-    host.appendChild(span);
+    span.dataset.jssmBind = 'state';
+    host.append(span);
 
     const m = sm`A 'go' -> B 'go' -> C;`;
     const unsubs = install_bindings(host, m);
@@ -317,12 +317,12 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const host = document.createElement('div');
     const target_span = document.createElement('span');
     target_span.id = 'tgt';
-    host.appendChild(target_span);
+    host.append(target_span);
 
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '#tgt');
     config.setAttribute('source', 'state');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`Alpha 'go' -> Beta;`;
     install_bindings(host, m);
@@ -336,17 +336,17 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const host = document.createElement('div');
     const target_div = document.createElement('div');
     target_div.className = 'tgt';
-    host.appendChild(target_div);
+    host.append(target_div);
 
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '.tgt');
     config.setAttribute('source', 'state');
     config.setAttribute('target', 'data-current');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`A -> B;`;
     install_bindings(host, m);
-    expect(target_div.getAttribute('data-current')).toBe('A');
+    expect(target_div.dataset.current).toBe('A');
   });
 
   it('binds to multiple elements matching the selector', () => {
@@ -354,24 +354,24 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     for (let i = 0; i < 3; ++i) {
       const s = document.createElement('span');
       s.className = 'multi';
-      host.appendChild(s);
+      host.append(s);
     }
 
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '.multi');
     config.setAttribute('source', 'state');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`A 'go' -> B;`;
     const unsubs = install_bindings(host, m);
     expect(unsubs.length).toBe(3);
 
-    for (const s of Array.from(host.querySelectorAll<HTMLElement>('.multi'))) {
+    for (const s of host.querySelectorAll<HTMLElement>('.multi')) {
       expect(s.textContent).toBe('A');
     }
 
     m.transition('B');
-    for (const s of Array.from(host.querySelectorAll<HTMLElement>('.multi'))) {
+    for (const s of host.querySelectorAll<HTMLElement>('.multi')) {
       expect(s.textContent).toBe('B');
     }
   });
@@ -380,7 +380,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const host = document.createElement('div');
     const config = document.createElement('jssm-bind');
     config.setAttribute('source', 'state');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`a -> b;`;
     expect(() => install_bindings(host, m)).toThrow(/missing required "selector"/);
@@ -390,7 +390,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const host = document.createElement('div');
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '#x');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`a -> b;`;
     expect(() => install_bindings(host, m)).toThrow(/missing required "source"/);
@@ -401,7 +401,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '');
     config.setAttribute('source', 'state');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`a -> b;`;
     expect(() => install_bindings(host, m)).toThrow(/missing required "selector"/);
@@ -412,7 +412,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '#x');
     config.setAttribute('source', '');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`a -> b;`;
     expect(() => install_bindings(host, m)).toThrow(/missing required "source"/);
@@ -456,7 +456,7 @@ describe('FslBind class (canonical)', () => {
 
   it('renders no content (purely declarative configuration)', async () => {
     const el = document.createElement('fsl-bind') as FslBind;
-    document.body.appendChild(el);
+    document.body.append(el);
     await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
 
     // shadowRoot exists but contains nothing renderable.
@@ -464,7 +464,7 @@ describe('FslBind class (canonical)', () => {
     // The render() method returns `null` — defensive direct call.
     expect(el.render()).toBeNull();
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
 });
@@ -485,12 +485,12 @@ describe('JssmBind synonym coverage', () => {
     const host = document.createElement('div');
     const target_span = document.createElement('span');
     target_span.id = 'syn-tgt';
-    host.appendChild(target_span);
+    host.append(target_span);
 
     const config = document.createElement('jssm-bind');
     config.setAttribute('selector', '#syn-tgt');
     config.setAttribute('source', 'state');
-    host.appendChild(config);
+    host.append(config);
 
     const m = sm`Alpha 'go' -> Beta;`;
     install_bindings(host, m);
@@ -513,7 +513,7 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     const s = document.createElement('script');
     s.setAttribute('type', 'text/fsl');
     s.textContent = fsl;
-    el.appendChild(s);
+    el.append(s);
   }
 
   it('paints inline data-jssm-bind descendants on connect', () => {
@@ -521,16 +521,16 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     add_fsl_script(el, "Idle 'go' -> Running;");
 
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'state');
-    el.appendChild(span);
+    span.dataset.jssmBind = 'state';
+    el.append(span);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     expect(span.textContent).toBe('Idle');
 
     el.do('go');
     expect(span.textContent).toBe('Running');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('paints dedicated <jssm-bind> children on connect', () => {
@@ -539,20 +539,20 @@ describe('JssmInstance integration with <jssm-bind>', () => {
 
     const tgt = document.createElement('span');
     tgt.id = 'tgt-int';
-    el.appendChild(tgt);
+    el.append(tgt);
 
     const cfg = document.createElement('jssm-bind');
     cfg.setAttribute('selector', '#tgt-int');
     cfg.setAttribute('source', 'state');
-    el.appendChild(cfg);
+    el.append(cfg);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     expect(tgt.textContent).toBe('A');
 
     el.do('go');
     expect(tgt.textContent).toBe('B');
 
-    document.body.removeChild(el);
+    el.remove();
   });
 
   it('tears down all bindings on disconnect', () => {
@@ -560,10 +560,10 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     add_fsl_script(el, "A 'go' -> B 'go' -> C;");
 
     const span = document.createElement('span');
-    span.setAttribute('data-jssm-bind', 'state');
-    el.appendChild(span);
+    span.dataset.jssmBind = 'state';
+    el.append(span);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     expect(span.textContent).toBe('A');
 
     el.do('go');
@@ -574,12 +574,33 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     // prove the listener was removed.
     const m = el.machine;
 
-    document.body.removeChild(el);
+    el.remove();
 
     // After disconnect, no binding listener should remain — transitioning
     // on the (still-reachable) machine must not update the span.
     m.transition('C');
     expect(span.textContent).toBe('B');
+  });
+
+});
+
+
+
+// dotted-path bindings walk the live data reference but hand back
+// mutation-isolated values, exactly as when they cloned the whole tree
+describe('resolve_binding data.<path> leaf isolation', () => {
+
+  test('object leaves come back as clones, primitives as themselves', () => {
+    type D = { a: { b: number }, n: number };
+    const m = sm<D>`x -> y;`;
+    // seed data via a transition hook (the hook contract commits `data`)
+    m.hook_any_transition(() => ({ pass: true, data: { a: { b: 1 }, n: 7 } }));
+    m.transition('y');
+    const leaf = resolve_binding(m, 'data.a') as { b: number };
+    expect(leaf).toEqual({ b: 1 });
+    leaf.b = 999;                                        // mutating the returned clone...
+    expect(resolve_binding(m, 'data.a.b')).toBe(1);      // ...never touches machine data
+    expect(resolve_binding(m, 'data.n')).toBe(7);        // primitive branch
   });
 
 });

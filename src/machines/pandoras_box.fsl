@@ -1,0 +1,42 @@
+// "Pandora's Box" - Hesiod's jar (later "box," courtesy of a mistranslation
+// that stuck)
+//
+// One chosen action in the whole graph: lifting the lid. Everything
+// after it is forced, and - this is the load-bearing part - no edge
+// anywhere in this file points back at "the box, sealed." The opening is
+// not merely hard to reverse, it is structurally absent from the state
+// space as a target: once chosen, the myth's downstream is one long
+// forced corridor with a single door, and the door only opens outward.
+// "hope, alone, still inside the box" sits at the far end of that
+// corridor as the terminal, not because anyone chose to leave hope
+// behind, but because it's simply what the graph has left over once
+// every forced edge has fired - the remainder, not a decision. You can
+// hover at the sealed box indefinitely ('wonder what's inside' is a
+// stable, repeatable, chosen self-loop, curiosity without commitment),
+// but the instant you lift the lid, you've left the only region of this
+// graph that ever had a return edge.
+
+machine_name     : "Pandora's Box";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// curiosity, indefinitely stable - commitment-free, and the only edge
+// that ever points back at "sealed."
+"the box, sealed" 'wonder what is inside' -> "the box, sealed";
+
+// the one chosen action in the whole machine. nothing reachable from
+// here ever points back at "sealed" again.
+"the box, sealed" 'lift the lid' -> "the box, open";
+
+// forced, one door, opening outward only.
+"the box, open"                                                      ~> "plagues released";
+"plagues released"                                                    ~> "disease, famine, death, and all other evils escape into the world";
+"disease, famine, death, and all other evils escape into the world"  ~> "the lid slams shut, too late";
+
+// hope isn't chosen or released - it's the remainder left in the jar once
+// every forced edge upstream has already fired.
+"the lid slams shut, too late" ~> "hope, alone, still inside the box";

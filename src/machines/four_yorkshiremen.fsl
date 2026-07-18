@@ -1,0 +1,43 @@
+// "The Four Yorkshiremen" - Monty Python (first performed by the members of
+// Monty Python and Marty Feldman on At Last the 1948 Show, 1967; frequently
+// mistaken for a genuine Python sketch ever since)
+//
+// The whole bit is one repeated move, played by four increasingly wealthy
+// men competing over who had the WORSE childhood: whatever the last man
+// claimed, you were lucky to have it. The topology is a bare, undecorated
+// chain, and the joke is that the edge label never changes - `'you were
+// lucky'` is reused, verbatim, on three separate edges between three
+// separate pairs of states. This is legal precisely because jssm's
+// duplicate-edge rule guards a single (source, target) PAIR, not an action
+// string in the abstract; three different pairs may all wear the same
+// name, the same way three different Yorkshiremen may all say the same
+// four words. Nothing here is forced - every escalation is a boast someone
+// chooses to make - which is the point: unlike the batch's fate-driven
+// entries, this one-upmanship never runs out of road on its own. It only
+// stops because the sketch, not the topology, decides to stop it.
+//
+// The showcase: `fslExplain` reports the same action string bound three
+// times to three different edges without complaint, and the closing
+// `fslSimulate` walk lands on a real terminal - "they will not believe
+// you" - with an empty legalNext, because there is no fifth Yorkshireman
+// waiting to top a hole in the road and a leather belt.
+
+machine_name    : "The Four Yorkshiremen";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"a house, with holes in the roof"
+  'you were lucky' -> "one room, twenty-six of us, no floor";
+
+"one room, twenty-six of us, no floor"
+  'you were lucky' -> "a corridor";
+
+"a corridor"
+  'you were lucky' -> "a water tank on a rubbish tip, thrashed to sleep";
+
+"a water tank on a rubbish tip, thrashed to sleep"
+  'tell the young people' -> "they will not believe you";

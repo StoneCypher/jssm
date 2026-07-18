@@ -3,6 +3,7 @@ import * as fc from 'fast-check';
 
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from '../jssm_arrow';
 import { JssmError }                                          from '../jssm_error';
+import type { JssmArrow }                                     from '../jssm_types';
 
 
 
@@ -47,6 +48,36 @@ const UNICODE_LEFT  = { '-': '←', '=': '⇐', '~': '↚' } as const;
 /** Unicode glyph for each same-kind two-sided ASCII arrow. */
 const UNICODE_BOTH  = { '-': '↔', '=': '⇔', '~': '↮' } as const;
 
+/** The three kind characters, as a type: `-` legal, `=` main, `~` forced. */
+type KindChar = (typeof KINDS)[number]['ch'];
+
+/**
+ *  Names a composed arrow string as the `JssmArrow` the classifiers take.
+ *
+ *  Two things make this necessary, and neither is a runtime concern:
+ *
+ *  1. These tests *build* arrows from kind characters rather than writing
+ *     them out, so the compiler only ever sees `string` — it cannot prove a
+ *     composed string lands in the union, even when it always does.
+ *  2. `JssmArrow` spells out only the ASCII arrows; the unicode aliases
+ *     (`→`, `⇔`, `←⇒`, ...) have no literal type to name yet, though
+ *     `arrow_direction` and friends accept and classify them.  See the
+ *     `TODO finish the arrow types - unicode *and* mixed` note in
+ *     `jssm_types.ts`.
+ *
+ *  Every string handed to this function is a real, accepted arrow; the
+ *  rejection suite passes its junk to the classifiers directly, so nothing
+ *  invalid is laundered through here.
+ *
+ *  @param spelling  Any spelling of a real arrow, ASCII or unicode.
+ *  @returns         The same string, typed as an arrow.
+ *  @example
+ *    as_arrow('<->');  // '<->', typed JssmArrow
+ *    as_arrow('←⇒');   // '←⇒',  typed JssmArrow
+ *  @see JssmArrow
+ */
+const as_arrow = (spelling: string): JssmArrow => spelling as JssmArrow;
+
 const kind_arb = fc.constantFrom(...KINDS);
 
 
@@ -56,38 +87,35 @@ const kind_arb = fc.constantFrom(...KINDS);
  *  and right kind characters.  Same-kind arrows have exactly two spellings
  *  (collapsed ASCII like `<->`, single glyph like `↔`); mixed-kind arrows
  *  have four (each side independently ASCII or unicode).
- *
  *  @param lc  Left kind character: `-`, `=`, or `~`.
  *  @param rc  Right kind character: `-`, `=`, or `~`.
  *  @returns   All equivalent spellings of the arrow.
- *
  *  @example
  *    spellings_of('-', '=')  // ['<-=>', '←⇒', '←=>', '<-⇒']
  *    spellings_of('-', '-')  // ['<->', '↔']
  */
-function spellings_of(lc: string, rc: string): string[] {
+function spellings_of(lc: KindChar, rc: KindChar): JssmArrow[] {
 
   if (lc === rc) {
-    return [ `<${lc}>`, UNICODE_BOTH[lc] ];
+    return [ `<${lc}>`, UNICODE_BOTH[lc] ].map(as_arrow);
   }
 
   const lefts  = [ `<${lc}`, UNICODE_LEFT[lc]  ],
         rights = [ `${rc}>`, UNICODE_RIGHT[rc] ];
 
-  return lefts.flatMap( l => rights.map( r => `${l}${r}` ) );
+  return lefts.flatMap( l => rights.map( r => as_arrow(`${l}${r}`) ) );
 
 }
 
 
 
 /** The complete arrow vocabulary, used to filter the fuzz rejection test. */
-const ALL_ARROWS = new Set<string>(
-  KINDS.flatMap( l =>
+const ALL_ARROWS = new Set<string>([
+  ...KINDS.flatMap( l =>
     KINDS.flatMap( r => spellings_of(l.ch, r.ch) )
-  ).concat(
-    KINDS.flatMap( k => [ `${k.ch}>`, UNICODE_RIGHT[k.ch], `<${k.ch}`, UNICODE_LEFT[k.ch] ] )
-  )
-);
+  ),
+  ...KINDS.flatMap( k => [ `${k.ch}>`, UNICODE_RIGHT[k.ch], `<${k.ch}`, UNICODE_LEFT[k.ch] ] ),
+]);
 
 
 
@@ -103,7 +131,7 @@ describe('one-sided arrows', () => {
         fc.boolean(),
         ({ ch, kind }, use_unicode) => {
 
-          const arrow = use_unicode ? UNICODE_RIGHT[ch] : `${ch}>`;
+          const arrow = as_arrow(use_unicode ? UNICODE_RIGHT[ch] : `${ch}>`);
 
           expect(arrow_direction(arrow)).toBe('right');
           expect(arrow_left_kind(arrow)).toBe('none');
@@ -124,7 +152,7 @@ describe('one-sided arrows', () => {
         fc.boolean(),
         ({ ch, kind }, use_unicode) => {
 
-          const arrow = use_unicode ? UNICODE_LEFT[ch] : `<${ch}`;
+          const arrow = as_arrow(use_unicode ? UNICODE_LEFT[ch] : `<${ch}`);
 
           expect(arrow_direction(arrow)).toBe('left');
           expect(arrow_right_kind(arrow)).toBe('none');
@@ -200,11 +228,12 @@ describe('classifier consistency laws', () => {
 
   test('direction is recoverable from the two side kinds, for the whole vocabulary', () => {
 
-    for (const arrow of ALL_ARROWS) {
+    for (const spelling of ALL_ARROWS) {
 
-      const l = arrow_left_kind(arrow),
-            r = arrow_right_kind(arrow),
-            d = arrow_direction(arrow);
+      const arrow = as_arrow(spelling),
+            l     = arrow_left_kind(arrow),
+            r     = arrow_right_kind(arrow),
+            d     = arrow_direction(arrow);
 
       if      (l === 'none') { expect(d).toBe('right'); }
       else if (r === 'none') { expect(d).toBe('left');  }
@@ -235,8 +264,13 @@ describe('unknown arrows reject', () => {
           fc.constantFrom('-->', '>>', '<<', '<>', '=', '-', '~', '', ' -> ', '<~~>')
         ).filter( s => !ALL_ARROWS.has(s) ),
         (junk) => {
+          // the point of the suite is to hand the classifiers something that
+          // is *not* an arrow, so each call is a deliberate type violation
+          // @ts-expect-error junk is deliberately not a JssmArrow
           expect(() => arrow_direction(junk)).toThrow(JssmError);
+          // @ts-expect-error junk is deliberately not a JssmArrow
           expect(() => arrow_left_kind(junk)).toThrow(JssmError);
+          // @ts-expect-error junk is deliberately not a JssmArrow
           expect(() => arrow_right_kind(junk)).toThrow(JssmError);
         }
       ),

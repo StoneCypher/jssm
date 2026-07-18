@@ -7,7 +7,6 @@
  * (integer hashing) instead of repeated string-keyed lookups.  Internal
  * machinery only — deliberately not re-exported from the `jssm` public
  * surface, so the public API is unchanged.
- *
  * @internal
  */
 
@@ -17,7 +16,6 @@
  * no removal, matching machine semantics (states and actions are fixed
  * after construction; late interning only happens for never-matching
  * lookups such as hook registrations naming unknown states).
- *
  * @example
  *   const i = new Interner();
  *   i.intern('red');     // 0
@@ -25,7 +23,6 @@
  *   i.intern('red');     // 0  (idempotent)
  *   i.id_of('green');    // 1
  *   i.name_of(0);        // 'red'
- *
  * @see pair_key
  */
 class Interner {
@@ -41,10 +38,8 @@ class Interner {
   /**
    * Return the id for `name`, assigning the next dense id if the name has
    * not been seen before.
-   *
    * @param name - The string to intern.
    * @returns The (possibly newly assigned) integer id.
-   *
    * @example
    *   interner.intern('red');  // 0 on first call, 0 on every later call
    */
@@ -61,9 +56,7 @@ class Interner {
    * Return the id for `name` without interning, or `undefined` when the
    * name has never been interned.  This is the hot-path probe for
    * user-supplied names.
-   *
    * @param name - The string to look up.
-   *
    * @example
    *   interner.id_of('mauve');  // undefined — never interned
    */
@@ -73,9 +66,7 @@ class Interner {
 
   /**
    * Return the name for `id`, or `undefined` for an id never assigned.
-   *
    * @param id - The integer id to invert.
-   *
    * @example
    *   interner.name_of(0);  // 'red'
    */
@@ -106,15 +97,12 @@ class Interner {
  * injective over the naturals, and a negative input can collide with a real
  * stored key (e.g. szudzik(-1, 2) === szudzik(1, 1) === 3), which would make
  * lookups from an unknown state falsely succeed.
- *
  * @param a - First non-negative integer (or NaN as a deliberate miss).
  * @param b - Second non-negative integer (or NaN as a deliberate miss).
  * @returns A number unique to the ordered pair `(a, b)` over the naturals.
- *
  * @example
  *   pair_key(2, 5);  // 27
  *   pair_key(5, 2);  // 32 — order-sensitive
- *
  * @see Interner
  */
 function pair_key(a: number, b: number): number {
@@ -134,14 +122,11 @@ function pair_key(a: number, b: number): number {
  *
  * Behavior is only defined for keys `pair_key` actually emits; a NaN key (the
  * unknown-name sentinel) yields `[NaN, NaN]`, never a spurious real pair.
- *
  * @param z - A key produced by `pair_key`.
  * @returns The ordered pair `[a, b]` such that `pair_key(a, b) === z`.
- *
  * @example
  *   un_pair_key(27);  // [2, 5]
  *   un_pair_key(32);  // [5, 2] — order preserved
- *
  * @see pair_key
  */
 function un_pair_key(z: number): [number, number] {

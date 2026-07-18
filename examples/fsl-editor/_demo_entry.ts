@@ -13,6 +13,9 @@ import { FslDataInspector } from '../../src/ts/wc/fsl_data_inspector_wc.js';
 import { FslHookLog }       from '../../src/ts/wc/fsl_hook_log_wc.js';
 import { FslSimulation }    from '../../src/ts/wc/fsl_simulation_wc.js';
 import { FslExport }        from '../../src/ts/wc/fsl_export_wc.js';
+import { FslInfoPanel }     from '../../src/ts/wc/fsl_info_panel_wc.js';
+import { FslEffectiveProperties } from '../../src/ts/wc/fsl_effective_properties_wc.js';
+import { FslDocs }          from '../../src/ts/wc/fsl_docs_wc.js';
 
 const REGISTRY: ReadonlyArray<readonly [string, CustomElementConstructor]> = [
   ['fsl-instance',       FslInstance],
@@ -27,6 +30,9 @@ const REGISTRY: ReadonlyArray<readonly [string, CustomElementConstructor]> = [
   ['fsl-hook-log',       FslHookLog],
   ['fsl-simulation',     FslSimulation],
   ['fsl-export',         FslExport],
+  ['fsl-info-panel',     FslInfoPanel],
+  ['fsl-effective-properties', FslEffectiveProperties],
+  ['fsl-docs',           FslDocs],
 ];
 for (const [tag, ctor] of REGISTRY) {
   if (!customElements.get(tag)) { customElements.define(tag, ctor); }

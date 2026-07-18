@@ -16,9 +16,9 @@ describe('resolve_theme_mode', () => {
 describe('BUILTIN_THEMES', () => {
   it('ships Default and Solarized, each with a light and dark palette', () => {
     expect(Object.keys(BUILTIN_THEMES)).toEqual(['Default', 'Solarized']);
-    for (const name of Object.keys(BUILTIN_THEMES)) {
+    for (const theme of Object.values(BUILTIN_THEMES)) {
       for (const variant of ['light', 'dark'] as const) {
-        const p = BUILTIN_THEMES[name]![variant];
+        const p = theme[variant];
         expect(p.surface).toMatch(/^#[0-9a-f]{6}$/i);
         expect(p['json-key']).toMatch(/^#[0-9a-f]{6}$/i);
       }
@@ -58,6 +58,7 @@ describe('palette_to_vars', () => {
 });
 
 describe('register_palette_properties', () => {
+  // eslint-disable-next-line unicorn/no-unnecessary-global-this -- deliberate environment probe: bare `CSS` throws ReferenceError in an environment where it is undefined; the prefixed read yields undefined instead
   const saved = (globalThis as { CSS?: unknown }).CSS;
   const setCSS = (v: unknown): void => { (globalThis as { CSS?: unknown }).CSS = v; };
   afterEach(() => { setCSS(saved); });

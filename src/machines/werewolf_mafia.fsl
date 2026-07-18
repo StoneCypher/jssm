@@ -1,0 +1,44 @@
+// "Werewolf" / "Mafia" - party game, folk design (credited to Dmitry
+// Davidoff, Moscow State University, 1986, endlessly reinvented since as
+// "Mafia," "Werewolf," "Ultimate Werewolf," and a hundred living-room
+// house variants), whose defining feature is that roles are secret: half
+// the table's information is hidden from the other half, and the verdict
+// depends on facts no player-facing action ever gets to query.
+//
+// The topology joke is that "hidden role" is not flavor text here, it is
+// structural: from each night phase, two distinctly-labeled actions - each
+// naming a different accusation or a different victim - both fan in to
+// the SAME next day-phase state. The identity information a label carries
+// (who was accused, who was struck) is real, chosen, and present in the
+// action name, but it is not present in the STATE the game is left in
+// afterward - the destination is identical no matter which name was
+// spoken. That is hidden-role play made mechanical: the observable game
+// state cannot distinguish outcomes that differ only by which secret role
+// a name turned out to have. The verdict itself is a FORCED edge off the
+// second night, because in real play it is computed from role assignments
+// no player-facing action ever chose.
+
+machine_name    : "Werewolf (a.k.a. Mafia)";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"day one, everyone awake, nobody sure of anybody"
+  'the village votes to lynch the quiet one' -> "night one, eyes closed";
+"day one, everyone awake, nobody sure of anybody"
+  'the village votes to lynch the loud one'  -> "night one, eyes closed";
+
+"night one, eyes closed"
+  'the wolves choose the doctor, or say they do' -> "day two, one chair empty";
+"night one, eyes closed"
+  'the wolves choose the seer, or say they do'   -> "day two, one chair empty";
+
+"day two, one chair empty"
+  'the village votes again, no wiser than before' -> "night two, eyes closed again";
+
+// the verdict was never a player-facing choice - it was decided by role
+// assignments nobody at the table could query directly.
+"night two, eyes closed again" ~> "the verdict, role assignments were never public";

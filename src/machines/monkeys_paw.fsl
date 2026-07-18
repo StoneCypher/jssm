@@ -1,0 +1,44 @@
+// "The Monkey's Paw" - W. W. Jacobs (1902)
+//
+// Three wishes, three chosen actions - the wisher genuinely picks the edge,
+// choosing which want to speak aloud. But immediately after each wish, a
+// forced (`~>`) transition decides what was actually granted, and the
+// wisher never has a say in that part, nor does any action exist that
+// could. That split - a real choice of edge, followed by a target the
+// chooser does not control - is the whole mechanism the paw is famous for.
+// Consequences are left offscreen throughout (a knock, a settlement, a
+// sound in the road) rather than staged directly, the same restraint
+// little_red_riding_hood.fsl and rumpelstiltskin.fsl use for their own
+// endings.
+
+machine_name    : "The Monkey's Paw";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the white family parlor, sergeant major offers the paw with a warning"
+  'accept the paw despite the warning' -> "the paw, first of three wishes remaining";
+
+// wish one: the edge is chosen. the target is not.
+"the paw, first of three wishes remaining"
+  'wish for two hundred pounds' -> "two hundred pounds, granted exactly as worded";
+"two hundred pounds, granted exactly as worded" ~> "a knock at the door, the factory offers condolences and a settlement, offscreen";
+
+"a knock at the door, the factory offers condolences and a settlement, offscreen"
+  'pick up the paw again, grief stricken' -> "the paw, second of three wishes remaining";
+
+// wish two: same shape. the wording is chosen; the manner of granting never is.
+"the paw, second of three wishes remaining"
+  'wish him back, alive again' -> "a wish granted exactly as worded, nothing more specified";
+"a wish granted exactly as worded, nothing more specified" ~> "something walks the road back from the graveyard at night, offscreen, drawing nearer";
+
+"something walks the road back from the graveyard at night, offscreen, drawing nearer"
+  'a knock at the door, three slow knocks' -> "the paw, last wish, no time left to think";
+
+// wish three: the last chosen edge in the file, and the last forced target after it.
+"the paw, last wish, no time left to think"
+  'wish it back to the grave, wish it away' -> "the third wish, granted exactly as worded";
+"the third wish, granted exactly as worded" ~> "the knocking stops, the road is empty again, the paw finally still";

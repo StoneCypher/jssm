@@ -1,0 +1,46 @@
+// "Final Destination" (2000-2011) - a premonition pulls a handful of
+// characters off a doomed flight/coaster/bridge/highway moments before
+// disaster, and the film's actual antagonist turns out to be Death's
+// "design": an unseen, self-correcting plan that spends the rest of the
+// runtime picking off the survivors, out of order, through increasingly
+// baroque accidents, because the ledger it was owed was never actually
+// balanced.
+//
+// The topology joke is graph self-healing, modeled as exactly one
+// respawn generation rather than an infinite hand-wave. "premonition"
+// carries the ORIGINAL scripted edge - a forced transition straight to
+// "scheduled disaster" - alongside a chosen escape action that routes
+// around it entirely. That escape action is the only piece of agency this
+// file grants anyone: once taken, "off the manifest" has no chosen exit at
+// all, only a forced edge to "design regrows an edge," and that state in
+// turn forces again into "claimed, list closed." The deletion was real -
+// the original edge to "scheduled disaster" genuinely goes untaken in
+// every walk this file permits - and the regrowth is just as real: the
+// design does not need the edge you dodged, it grows a new one to the same
+// kind of ending. Two forced edges, one immediately after the other,
+// neither nameable in advance, is the whole of what "self-healing" means
+// here: you can delete the graph's plan for you exactly once, and only
+// once, before it writes a new one.
+
+machine_name     : "Final Destination";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["premonition"];
+
+// the road not taken, in every walk this file allows: present in the
+// graph, reachable by nobody who exercises the choice below.
+"premonition" ~> "scheduled disaster";
+
+// the one real choice: heeding the vision and stepping off the doomed
+// path. this is the only chosen action anywhere in the file.
+"premonition" 'heed the vision, get off' -> "off the manifest";
+
+// the design does not stay broken. it regrows a new edge to the same kind
+// of ending - forced, immediately, with no chosen detour available.
+"off the manifest" ~> "design regrows an edge";
+"design regrows an edge" ~> "claimed, list closed";

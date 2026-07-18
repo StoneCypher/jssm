@@ -1,0 +1,44 @@
+// "Don't Mention the War" - Fawlty Towers, "The Germans" (BBC, 1975)
+//
+// Basil's plan is suppression: say nothing about the war, and the danger
+// passes. The topology argues the opposite. There is no edge in this
+// machine that simply avoids the topic while making progress - the only
+// action that moves you forward from "welcoming the German guests" is the
+// suppression instruction itself, repeated, and each repetition is a step
+// closer to the outburst it was meant to prevent. Two attempts escalate
+// composure into a rictus; from there the edge to blurting it out loud is
+// FORCED (`~>`) - not a probability, a certainty, because trying not to
+// say a thing was never actually a way of not saying it. The one genuinely
+// safe move in the whole graph is a self-loop that never mentions the war
+// at all.
+//
+// Showcase: `fslSimulate` walking the suppression action twice reaches
+// "rictus grin, a tic developing" with `legalNext` empty - the outburst
+// from there is forced, unreachable by choice - while looping on the
+// weather action forever never leaves the calm start state.
+
+machine_name    : "Dont Mention the War";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the only genuinely safe move: never engage the topic, never move.
+"welcoming the German guests, all smiles"
+  'stick to the weather, sincerely' -> "welcoming the German guests, all smiles";
+
+// attempt one at suppression. this is the action that feels safest and
+// is not: it is the only edge that leaves the calm state at all.
+"welcoming the German guests, all smiles"
+  'whatever happens, do not mention the war' -> "gripping the menu, definitely not mentioning it";
+
+// attempt two. the same instruction, repeated, tightens things further.
+"gripping the menu, definitely not mentioning it"
+  'whatever happens, do not mention the war' -> "rictus grin, a tic developing";
+
+// from here there is nothing left to choose. suppression's second
+// application was the last chosen step available; what follows is forced.
+"rictus grin, a tic developing"
+  ~> "blurted it out in front of everybody, war and all";

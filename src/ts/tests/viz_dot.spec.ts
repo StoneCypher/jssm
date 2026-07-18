@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jv   from '../jssm_viz';
 import * as jssm from '../jssm';
@@ -181,6 +181,31 @@ describe('arrange declarations render into dot', () => {
     expect(dot).toMatch(/rank=max/);
   });
 
+  test('oarrange [b c] produces a rank=same group and an invisible ordering chain', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; oarrange [b c];`);
+    expect(dot).toMatch(/rank=same/);
+    expect(dot).toMatch(/style=invis/);
+    // the chain pins b before c, in written order, by real node id
+    expect(dot).toMatch(/"b"->"c" \[style=invis\];/);
+  });
+
+  test('oarrange order follows the written order (reversed list reverses the chain)', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; oarrange [c b];`);
+    expect(dot).toMatch(/"c"->"b" \[style=invis\];/);
+  });
+
+  test('farrange [b c] produces an invisible chain and constraint=false on member edges', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; farrange [b c];`);
+    expect(dot).toMatch(/style=invis/);
+    expect(dot).toMatch(/constraint=false/);
+  });
+
+  test('a machine with neither oarrange nor farrange emits no invis chain or constraint=false', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    expect(dot).not.toMatch(/style=invis/);
+    expect(dot).not.toMatch(/constraint=false/);
+  });
+
 });
 
 
@@ -226,9 +251,123 @@ describe('configure() input validation', () => {
       .toThrow(/must be a constructor/);
   });
 
+  test('throws on a viz engine without a callable renderString', () => {
+    expect(() => jv.configure({ viz: {} as any }))
+      .toThrow(/renderString/);
+  });
+
+  test('throws on a viz engine whose renderString is not a function', () => {
+    expect(() => jv.configure({ viz: { renderString: 'nope' } as any }))
+      .toThrow(/renderString/);
+  });
+
   test('no-op for empty options object', () => {
     expect(() => jv.configure({}))
       .not.toThrow();
+  });
+
+});
+
+
+
+// NOTE: these injections deliberately come last in the file — configure({ viz })
+// is last-call-wins with no un-set, so the injected fakes stay live for the
+// rest of the module's lifetime.  Nothing after this point may render through
+// the default @viz-js/viz engine.
+describe('configure({ viz }) engine injection', () => {
+
+  test('an injected fake engine receives the dot and its svg is returned', async () => {
+
+    const calls: Array<{ dot: string, opts: any }> = [];
+    const fake = {
+      renderString: (dot: string, opts?: any) => {
+        calls.push({ dot, opts });
+        return '<svg data-fake="a"/>';
+      }
+    };
+
+    jv.configure({ viz: fake });
+
+    const dot_src = 'digraph G { a -> b; }';
+    const svg     = await jv.dot_to_svg(dot_src);
+
+    expect(svg).toBe('<svg data-fake="a"/>');
+    expect(calls).toHaveLength(1);
+    expect(calls[0].dot).toBe(dot_src);
+    expect(calls[0].opts).toMatchObject({ format: 'svg' });
+
+  });
+
+  test('fsl_to_svg_string routes through the injected engine, end to end', async () => {
+
+    const seen: string[] = [];
+    const fake = {
+      renderString: (dot: string) => { seen.push(dot); return '<svg data-fake="fsl"/>'; }
+    };
+
+    jv.configure({ viz: fake });
+
+    const svg = await jv.fsl_to_svg_string('alpha -> beta;');
+
+    expect(svg).toBe('<svg data-fake="fsl"/>');
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toMatch(/^digraph G \{/);   // real compiled dot, not a canned string
+    expect(seen[0]).toMatch(/"alpha"/);
+    expect(seen[0]).toMatch(/"beta"/);
+
+  });
+
+  test('the engine render option is forwarded to the injected engine', async () => {
+
+    const opts_seen: any[] = [];
+    const fake = {
+      renderString: (_dot: string, opts?: any) => { opts_seen.push(opts); return '<svg/>'; }
+    };
+
+    jv.configure({ viz: fake });
+    await jv.fsl_to_svg_string('a -> b;', { engine: 'neato' });
+
+    expect(opts_seen[0]).toMatchObject({ format: 'svg', engine: 'neato' });
+
+  });
+
+  test('a promise-returning renderString (asm.js viz.js style) is awaited', async () => {
+
+    const fake = {
+      renderString: async (_dot: string) => '<svg data-fake="async"/>'
+    };
+
+    jv.configure({ viz: fake });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="async"/>');
+
+  });
+
+  test('last call wins: a second injected engine replaces the first', async () => {
+
+    const first  = { renderString: () => '<svg data-fake="first"/>'  };
+    const second = { renderString: () => '<svg data-fake="second"/>' };
+
+    jv.configure({ viz: first  });
+    jv.configure({ viz: second });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="second"/>');
+
+  });
+
+  test('an omitted viz key leaves the injected engine in place (no un-set)', async () => {
+
+    const sticky = { renderString: () => '<svg data-fake="sticky"/>' };
+
+    jv.configure({ viz: sticky });
+    jv.configure({});
+    jv.configure({ viz: undefined });
+
+    await expect(jv.dot_to_svg('digraph G { a; }'))
+      .resolves.toBe('<svg data-fake="sticky"/>');
+
   });
 
 });
@@ -269,8 +408,8 @@ describe('state names containing double-quotes produce valid DOT (fsl#474)', () 
   // The node label must escape them, or the DOT is unbalanced and crashes the
   // graphviz/emscripten renderer.
   test('embedded quotes in a state name are escaped in the node label', () => {
-    const dot = jv.fsl_to_dot(`start -> "say \\"hi\\"";`);
-    expect(dot).toContain('label="say \\"hi\\""');     // escaped form present
+    const dot = jv.fsl_to_dot(String.raw`start -> "say \"hi\"";`);
+    expect(dot).toContain(String.raw`label="say \"hi\""`);     // escaped form present
     expect(dot).not.toContain('label="say "hi""');     // broken unbalanced form absent
   });
 
@@ -278,6 +417,39 @@ describe('state names containing double-quotes produce valid DOT (fsl#474)', () 
     const dot = jv.fsl_to_dot(`a -> b;`);
     expect(dot).toContain('label="a"');
     expect(dot).toContain('label="b"');
+  });
+
+});
+
+
+
+
+
+// doublequote must escape backslash before quote.  A state name ending in a
+// backslash would otherwise emit label="a\" — whose \" escapes the closing
+// quote — corrupting the DOT so the whole render throws.  StoneCypher/fsl#1951
+describe('a backslash in a state name is DOT-escaped, not left to corrupt the output', () => {
+
+  // FSL `"a\\"` decodes to a state literally named  a\
+  test('a state name ending in a backslash renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\" -> b;`))).not.toThrow();
+  });
+
+  test('the trailing backslash is emitted doubled, keeping quotes balanced', () => {
+    const dot = jv.machine_to_dot(jssm.from(String.raw`"a\\" -> b;`));
+    expect(dot).toContain(String.raw`label="a\\"`);
+  });
+
+  test('an embedded backslash renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\b" -> c;`))).not.toThrow();
+  });
+
+  test('a backslash-then-quote sequence renders without throwing', () => {
+    expect(() => jv.machine_to_dot(jssm.from(String.raw`"a\\\"b" -> c;`))).not.toThrow();
+  });
+
+  test('the whole machine still renders to SVG', () => {
+    return expect(jv.fsl_to_svg_string(String.raw`"a\\" -> b;`)).resolves.toContain('<svg');
   });
 
 });

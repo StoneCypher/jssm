@@ -17,7 +17,7 @@ const atom_test = (idx: number): boolean => {
 
     try {
       test = sm`source '${cp}' -> target;`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

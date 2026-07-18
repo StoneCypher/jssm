@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html, css } from 'lit';
 import { state } from 'lit/decorators.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { fslTokens } from './fsl_tokens.js';
 /**
  * Read-only state-inspector web component for a parent `<fsl-instance>`.
  *
@@ -19,7 +20,6 @@ import { closest_wc } from './wc_tag_helpers.js';
  * Display-only: it never drives the machine. It binds by walking up to the
  * host via {@link closest_wc} (which matches both the canonical `fsl-instance`
  * and the deprecated `jssm-instance` host tags), so it works under either.
- *
  * @element fsl-info-panel
  * @cssproperty [--fsl-info-panel-gap=0.25rem] - Vertical gap between rows.
  */
@@ -63,15 +63,20 @@ export class FslInfoPanel extends LitElement {
                 return;
             }
             this._sub = host.machine.on('transition', (detail) => {
+                // The transition event detail carries `StateType = string` endpoints;
+                // `action` is undefined for pure transitions, rendered as 'undefined'
+                // by String() (longstanding display behavior, preserved).
                 const d = detail;
                 this._last = {
-                    from: String(d.from),
-                    to: String(d.to),
+                    from: d.from,
+                    to: d.to,
+                    // eslint-disable-next-line unicorn/no-useless-coercion -- action is `string | undefined`, not string: String() renders an actionless transition as 'undefined', the shipped display behavior
                     action: String(d.action),
                 };
                 this._refresh(host);
             });
             this._refresh(host); // initial snapshot
+            return;
         });
     }
     /**
@@ -92,20 +97,18 @@ export class FslInfoPanel extends LitElement {
      * re-render. Called once on bind and again on every transition. The bound
      * host is passed in by the caller (which already holds a non-null reference),
      * so no re-null-check is needed here.
-     *
      * @param host - The bound parent host whose machine to snapshot.
      */
     _refresh(host) {
         const m = host.machine;
-        this._current = String(m.state());
-        this._actions = m.list_exit_actions().map(a => String(a)).join(' ');
+        this._current = m.state();
+        this._actions = m.list_exit_actions().map(String).join(' ');
         this._terminal = m.is_terminal();
         this._complete = m.is_complete();
     }
     /**
      * Lit render method. Shows a placeholder until the panel has bound to a host
      * machine; thereafter a labeled grid of the live snapshot.
-     *
      * @returns A Lit `TemplateResult` for the panel.
      */
     render() {
@@ -126,10 +129,15 @@ export class FslInfoPanel extends LitElement {
 }
 FslInfoPanel.styles = css `
     :host { display: block; }
+    .info, .placeholder {
+      padding: 0.5rem 0.7rem; font: 0.8rem var(--_fsl-font-mono);
+      color: var(--_fsl-text); background: var(--_fsl-surface);
+    }
     .info { display: grid; gap: var(--fsl-info-panel-gap, 0.25rem); }
     .row { display: flex; gap: 0.5rem; }
-    .label { font-weight: 600; opacity: 0.7; }
-    .placeholder { opacity: 0.6; font-style: italic; }
+    .label { font-weight: 600; color: var(--_fsl-muted); }
+    .placeholder { color: var(--_fsl-muted); font-style: italic; }
+    ${fslTokens}
   `;
 __decorate([
     state()

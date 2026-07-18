@@ -1,0 +1,51 @@
+// "The Dead Parrot Sketch"
+//
+// Monty Python's shopkeeper has one move: deny. The customer's parrot has
+// one trajectory: down. This machine encodes that as topology, not
+// dialogue - the euphemism chain (resting -> stunned -> "pining for the
+// fjords" -> late -> deceased -> expired -> "bereft of life" ->
+// "ex-parrot") is wired ENTIRELY in forced transitions (`~>`), chained in
+// one statement. Forced edges carry no action name, and - verified here -
+// no ordinary caller can walk one by naming its destination either:
+// jssm's own `transition()` checks *legality*, and a forced-only edge
+// is never legal, only forceable. The only door through is the engine's
+// `force_transition()` escape hatch, which sits outside the
+// action/transition surface entirely. Nobody simulating this machine by
+// the normal rules - denier or narrator alike - can choose their way
+// through the bird's decline. They can only watch it happen to them.
+//
+// The shopkeeper's denials are real FSL, not decoration: four
+// action-labeled edges, each pointing backward up the chain exactly the
+// way his dialogue does ("he's resting", "merely stunned", ...). But
+// every one of them is sourced from "ex-parrot" - the single state the
+// bird occupies only once the argument is already over. Try any denial
+// from wherever the bird actually, presently is, and jssm rejects it on
+// the spot: not because the shopkeeper is lying (he clearly is), but
+// because that sentence is not a thing this graph lets him say from
+// here. Meanwhile the chain itself is equally unreachable by request -
+// simulate a walk toward "stunned" and it is rejected too, the same way,
+// for the same reason. The denial keeps failing; the decline keeps
+// being unrequestable; both are true at once, structurally, no narrator
+// required.
+
+machine_name     : "The Dead Parrot Sketch";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// THE PARROT'S CONDITION - one-way, forced, undeniable. No action will
+// ever appear on any of these seven edges.
+resting ~> stunned ~> "pining for the fjords" ~> late ~> deceased ~> expired ~> "bereft of life" ~> "ex-parrot";
+
+// THE SHOPKEEPER'S DENIALS - legitimate actions, pointed the right way
+// (backward), sourced from the wrong place. All four exist only from
+// "ex-parrot", so none of them are ever legal while the bird is still
+// somewhere in the middle of dying - which is the only time anyone
+// would bother arguing.
+"ex-parrot" 'he is resting'       -> resting;
+"ex-parrot" 'merely stunned'      -> stunned;
+"ex-parrot" 'pining, that is all' -> "pining for the fjords";
+"ex-parrot" 'a late riser'        -> late;

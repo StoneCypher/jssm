@@ -21,10 +21,8 @@ const JSON_TOKEN_RE = /"(?:\\.|[^"\\])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\
  * `:`, otherwise a `string`; `true`/`false` are `bool`, `null` is `null`,
  * numbers are `number`, and everything between (braces, commas, whitespace) is
  * `plain`. Driven by the text, not a JSON parse, so it never throws.
- *
  * @param json - A JSON string (typically `JSON.stringify(value, null, 2)`).
  * @returns The tokens in source order; concatenating their `text` reproduces `json`.
- *
  * @example
  * tokenizeJson('{"a": 1}');
  * // [{text:'{',kind:'plain'}, {text:'"a"',kind:'key'}, {text:': ',kind:'plain'},
@@ -61,7 +59,6 @@ export function tokenizeJson(json: string): JsonToken[] {
  * host's transition / data-change / rebuild DOM events. The panel is bounded and
  * scrolls internally (a self-contained vertical column). Renders `no data` when
  * the machine carries none; standalone (no host) renders empty.
- *
  * @element fsl-data-inspector
  * @csspart inspector - The scrollable container.
  */
@@ -111,7 +108,8 @@ export class FslDataInspector extends LitElement {
           ? html`<span class="empty">no data</span>`
           : html`<pre class="json">${tokenizeJson(JSON.stringify(this._data, null, 2)).map(t =>
               t.kind === 'plain' ? t.text : html`<span class="tok-${t.kind}">${t.text}</span>`)}</pre>`}
-      </div>`;
+      </div>
+    `;
   }
 
 }

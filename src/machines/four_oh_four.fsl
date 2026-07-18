@@ -1,0 +1,49 @@
+// "404" - HTTP status folklore
+//
+// Three routes are registered against this router, each its own real
+// action naming its own real destination state. The joke is what happens
+// off that list: one more chosen action, "request a path that was never
+// registered as a route", is the only edge this machine offers for
+// everything else in the universe, and it goes to one shared "404, page
+// not found" state - a real, working, self-looping state, because the
+// 404 page is not an absence, it is a fully functional part of the site.
+// But the deeper version of the joke lives outside the FSL text entirely:
+// the machine's own action vocabulary and state set are a closed, finite
+// list. Ask jssm, directly, for a state or an action that was never
+// declared here, and it does not route you to a 404 state - there is no
+// edge for that either, so the request fails at the API boundary itself.
+// The requested state genuinely is not in the machine.
+//
+// Showcase: fslSimulate walks the three real routes and the 404 catch-all
+// each to their own destinations. Raw jssm then calls .action() and
+// .force_transition() with a name never declared anywhere in this file;
+// per jssm's own contract both simply return `false` rather than moving
+// or throwing - the literal, unmediated version of "the requested state
+// is not in the machine", one level below the 404 page that only
+// handles requests the router agreed to receive in the first place.
+
+machine_name    : "404";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the registered routes - a finite, closed list, same as any router's.
+"the router, awaiting a request"
+  'request /home'    -> "home page rendered";
+"the router, awaiting a request"
+  'request /about'   -> "about page rendered";
+"the router, awaiting a request"
+  'request /contact' -> "contact page rendered";
+
+// everything not on that list, caught by exactly one catch-all edge.
+"the router, awaiting a request"
+  'request a path that was never registered as a route' -> "404, page not found";
+
+// the 404 page is a real, working page. it can even fail to help twice.
+"404, page not found"
+  'try a slightly different typo of the same broken url' -> "404, page not found";
+"404, page not found"
+  'follow the link back home' -> "home page rendered";

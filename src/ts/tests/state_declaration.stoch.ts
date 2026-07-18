@@ -34,11 +34,9 @@ const RUNS = 100;
 /**
  *  Parse a `state <name> : { <body> };` declaration and return the
  *  state-declaration AST node at `tree[0]`.
- *
  *  @param  name  Source for the state's name label (atom or quoted).
  *  @param  body  Source for the body items (sequence of `key : value ;`).
  *  @returns      The state_declaration node, with `name` and a `value` array.
- *
  *  @example
  *    parse_state_decl('F', 'color: red;')
  *    // → { key:'state_declaration', name:'F', value:[{key:'color', value:'#ff0000ff'}] }

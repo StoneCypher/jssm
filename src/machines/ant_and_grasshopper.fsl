@@ -1,0 +1,41 @@
+// "The Ant and the Grasshopper" - Aesop's Fables (Perry Index 373)
+//
+// The ant works all summer storing food; the grasshopper fiddles. Winter
+// comes for both of them regardless of how the summer was spent. The
+// topology joke is a literal graph merge: two entirely separate summer
+// loops - the ant's self-loop of gathering, the grasshopper's self-loop of
+// playing - each end in their OWN forced (`~>`) edge, and both forced
+// edges, from two different source states, land on the exact same target,
+// `"winter arrives, the cold sets in"`. Winter is not persuaded by either
+// lifestyle; it is a merge point neither summer-state can avoid or divert.
+// What actually distinguishes them shows up only after the merge: the ant's
+// winter state carries a self-loop action, `'ant eats the stored food'` -
+// a real food edge - while the grasshopper's winter state has no such
+// action anywhere in its action set, only one edge out, and it is a plea.
+
+machine_name    : "The Ant and the Grasshopper";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"summer begins, ant and grasshopper both start out" 'follow the ant, industrious'   -> "ant gathers food all summer";
+"summer begins, ant and grasshopper both start out" 'follow the grasshopper, carefree' -> "grasshopper plays all summer, fiddling";
+
+// two separate summer loops, each with its own forced exit into the SAME winter.
+"ant gathers food all summer" 'ant gathers another store' -> "ant gathers food all summer";
+"ant gathers food all summer" ~> "winter arrives, the cold sets in";
+
+"grasshopper plays all summer, fiddling" 'grasshopper plays another tune' -> "grasshopper plays all summer, fiddling";
+"grasshopper plays all summer, fiddling" ~> "winter arrives, the cold sets in";
+
+// after the merge, the asymmetry: one path has a food edge, the other does not.
+"winter arrives, the cold sets in" 'ant retreats into the storehouse'      -> "ant safe in the storehouse, winter";
+"winter arrives, the cold sets in" 'grasshopper searches the frozen field' -> "grasshopper out in the cold, no food edge exists";
+
+"ant safe in the storehouse, winter" 'ant eats the stored food' -> "ant safe in the storehouse, winter";
+
+// no eating action exists here at all - only a plea.
+"grasshopper out in the cold, no food edge exists" 'grasshopper begs at the storehouse door' -> "grasshopper begging, fate undecided";

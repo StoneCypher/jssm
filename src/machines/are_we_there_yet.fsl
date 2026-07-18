@@ -1,0 +1,43 @@
+// "Are We There Yet?" - the family road trip
+//
+// The kid's loop is small and fully chosen: ask, hear "not yet," ask
+// again - a two-state ping-pong that never advances anything by itself.
+// Arrival, when it comes, is a FORCED edge off `asked`, on the car's own
+// schedule, uncorrelated with how many times the question got asked -
+// the same disconnect the actual trip has always had. legalNext at
+// `asked` only ever offers the chosen loop back to asking again; the
+// arrival edge is real, but nothing `fslSimulate` does can ever be the
+// thing that fires it.
+//
+// The joke's other half - the hidden parental-anger machine - is modeled
+// the way `groundhog_day.fsl` models Phil's off-graph growth: a second,
+// wholly disconnected chain of mood states (`allow_islands` does the
+// work here), reachable from nowhere in the asking loop, because plain
+// FSL has no counter to wire "asked again" to "one notch crankier." In a
+// live jssm consumer that wiring is exactly what an `on enter` hook is
+// for; in this file it's left, deliberately, as an island the verify
+// script proves is unreachable - the same gap the front seat has never
+// had a formal model for either.
+
+machine_name     : "Are We There Yet?";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+driving 'ask are we there yet' -> asked;
+asked   'hear not yet'         -> driving;
+
+// arrival happens on the car's own schedule - never chosen, never
+// correlated with how many laps the loop above has run.
+asked ~> "we have arrived";
+
+// the hidden half of the joke: a second machine, silently keeping its
+// own count, that nothing above ever connects to or advances. only an
+// external hook - one per "ask" - would ever walk this chain for real.
+"quietly patient"   'one more time' -> "a little strained";
+"a little strained" 'one more time' -> "visibly done";
+"visibly done"      'one more time' -> "out of patience, entirely";

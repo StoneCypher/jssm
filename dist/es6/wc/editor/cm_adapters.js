@@ -33,7 +33,7 @@ export function fslCompletionSource(context) {
     const before = line.text.slice(0, context.pos - line.from);
     const typed = /([\w-]*)$/.exec(before)[1];
     const items = fslCompletions(context.state.doc.toString(), context.pos);
-    if (!items.length) {
+    if (items.length === 0) {
         return null;
     }
     return {
@@ -51,7 +51,11 @@ export function buildFslDecorations(text) {
         .sort((a, b) => a.from - b.from)
         .map(s => Decoration.mark({
         class: `fsl-${s.kind}`,
-        attributes: s.value ? { title: s.value, style: `--fsl-chip:${s.value}` } : {},
+        // chip styling is color-span-specific: a color span's value is a CSS
+        // color for the --fsl-chip swatch. State spans also carry a value (the
+        // AST-resolved state name) but a name is not a paint — gating on kind,
+        // not value presence, keeps chips off state/enum marks.
+        attributes: s.kind === 'color' ? { title: s.value, style: `--fsl-chip:${s.value}` } : {},
     }).range(s.from, s.to));
     return Decoration.set(decos, true);
 }

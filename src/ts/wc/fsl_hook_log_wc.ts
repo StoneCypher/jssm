@@ -16,7 +16,6 @@ const MAX_ENTRIES = 50;
  * `<fsl-hook-log>` — a running log of a parent `<fsl-instance>`'s machine
  * events, listening to the host's re-emitted `fsl-*` DOM events (#639). Keeps
  * the most recent {@link MAX_ENTRIES}. Standalone (no host ancestor) is empty.
- *
  * @element fsl-hook-log
  * @csspart log - The log container.
  */
@@ -63,7 +62,8 @@ export class FslHookLog extends LitElement {
         ${this._log.length === 0
           ? html`<span class="empty">no events</span>`
           : this._log.map(name => html`<div class="entry">${name}</div>`)}
-      </div>`;
+      </div>
+    `;
   }
 
 }

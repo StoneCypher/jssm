@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import { sm } from '../jssm';
 

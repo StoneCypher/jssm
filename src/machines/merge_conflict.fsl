@@ -1,0 +1,59 @@
+// "Merge Conflict" - version-control folklore
+//
+// Two walkers leave the same commit and never coordinate again. Alice's
+// branch and Bobs branch each add a real, chosen commit on top of the
+// shared ancestor, then a second one - four states total, two per
+// walker, diverging cleanly. Both walkers eventually try the same thing:
+// an automatic merge. Both land in the same place, because automatic
+// merging a genuine conflict does not resolve it, it just names it - a
+// state with a self-loop back onto itself for every further attempt to
+// let the tool sort it out. The only edges that actually leave that
+// state are two very different chosen actions: a careful hand-weave of
+// both histories, thread by thread, into one honest result, or a blunt
+// force-one-side-to-win that silently deletes the other walkers work.
+// The topology is the argument: "automatic" is a loop, "resolved" is a
+// choice someone has to make on purpose.
+//
+// Showcase: fslSimulate walks Alices two commits, then Bobs two commits,
+// from the same shared ancestor, showing both diverge from one state;
+// then walks the automatic-merge action from both branch tips into the
+// identical conflict state, loops the retry action twice to show the
+// self-loop never resolves anything, and finally takes the hand-weave
+// action to reach the honest terminal.
+
+machine_name    : "Merge Conflict";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the shared ancestor, and the moment the two walkers stop coordinating.
+"shared file, last common commit"
+  'alice branches off'      -> "alices branch, one commit ahead";
+"shared file, last common commit"
+  'bob branches off'        -> "bobs branch, one commit ahead";
+
+// each walker keeps going, alone, on their own understanding of the file.
+"alices branch, one commit ahead"
+  'alice commits again'     -> "alices branch, two commits ahead";
+"bobs branch, one commit ahead"
+  'bob commits again'       -> "bobs branch, two commits ahead";
+
+// both walkers eventually try to reunite the same way, and land together.
+"alices branch, two commits ahead"
+  'attempt an automatic merge' -> "merge conflict, both histories touching the same lines";
+"bobs branch, two commits ahead"
+  'attempt an automatic merge' -> "merge conflict, both histories touching the same lines";
+
+// retrying the automatic merge changes nothing. it is a self-loop, not
+// a way out.
+"merge conflict, both histories touching the same lines"
+  'attempt an automatic merge again, hope it resolves itself' -> "merge conflict, both histories touching the same lines";
+
+// two genuinely different resolutions, chosen on purpose, by a person.
+"merge conflict, both histories touching the same lines"
+  'hand-weave the two histories together, line by line' -> "merged commit, both histories rewoven";
+"merge conflict, both histories touching the same lines"
+  'abandon the merge, force one side to win' -> "merged commit, one history silently discarded";

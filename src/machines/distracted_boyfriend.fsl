@@ -1,0 +1,38 @@
+// "Distracted Boyfriend" - stock photo by Antonio Guillem (2015), turned
+// meme template: a man walking with his girlfriend twists his head to
+// ogle a woman passing by, girlfriend visibly appalled.
+//
+// The topology joke is that "attention" is modeled as a literal edge, and
+// the meme is the moment that edge gets retargeted mid-walk rather than
+// completing its original arc. From the shared starting state, staying
+// focused and catching-yourself-after-a-glance both converge on the same
+// dull, non-eventful terminal - two different actions collapsing to one
+// outcome, because a caught glance changes nothing. Only the third path,
+// where the gaze is allowed to fully retarget, diverges to a second,
+// distinct terminal. The file showcases convergent chosen edges (two
+// actions, two states, one shared destination) set against a branch that
+// escapes the convergence.
+
+machine_name     : "Distracted Boyfriend";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["walking together, eyes forward"];
+
+// path one: no distraction at all. converges on the boring terminal.
+"walking together, eyes forward" 'stay focused on the person you came with' -> "walk continues, forgettable";
+
+// path two: a glance happens, but attention snaps back before it matters.
+// also converges on the SAME boring terminal - the caught glance changed
+// nothing structurally.
+"walking together, eyes forward" 'notice someone else walking by' -> "attention snags, neck turning";
+"attention snags, neck turning" 'catch yourself, refocus immediately' -> "walk continues, forgettable";
+
+// path three: the retarget completes. this is the only edge that escapes
+// the convergence above, and it lands somewhere entirely different.
+"attention snags, neck turning" 'let the gaze fully retarget, keep staring' -> "stare locked on the passerby, fully retargeted";
+"stare locked on the passerby, fully retargeted" 'the sightline gets followed back to its source' -> "camera flash of disapproval, caught in the act";

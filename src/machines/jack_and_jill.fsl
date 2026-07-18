@@ -1,0 +1,37 @@
+// "Jack and Jill" - English nursery rhyme, first recorded in the late 18th
+// century (Mother Goose's Melody, c. 1765).
+//
+// The second half of the rhyme reads like a joke about bad luck striking
+// twice, but the graph says something more precise: Jill's fall is not an
+// independent event that merely happens to arrive right after Jack's -
+// there is no edge anywhere in this file that lets "tumbling after" be
+// reached without first passing through "Jack trips and falls." Her
+// transition's only source state IS his outcome; take his fall out of the
+// walk and hers has no edge left to fire from at all. That is cascade
+// failure read literally as topology - a downstream transition whose one
+// and only origin is an upstream failure state, the same dependency shape
+// as a handler that only ever runs from inside another function's catch
+// block.
+
+machine_name    : "Jack and Jill";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// ordinary, chosen, repeatable progress up the hill - nothing about this
+// self-loop implies what happens next.
+"climbing the hill, pail between them" 'keep going, nearly at the top' -> "climbing the hill, pail between them";
+
+// the fall is not a choice - and it is the ONLY route to what follows.
+"climbing the hill, pail between them" ~> "jack trips, tumbling down first";
+
+// jill's transition exists nowhere else in this graph. her fall is only
+// ever reachable through his.
+"jack trips, tumbling down first" ~> "jill comes tumbling after";
+
+// the one chosen action left: the folk remedy, taken downstream of both
+// falls, never available any earlier.
+"jill comes tumbling after" 'fetch vinegar and brown paper' -> "both patched up, crowns mended";

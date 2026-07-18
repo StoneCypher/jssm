@@ -1,7 +1,6 @@
 import { FslViz } from './fsl_viz_wc.js';
 /**
  * Thin subclass so `<jssm-viz>` registers under a distinct constructor.
- *
  * @deprecated The `jssm-*` tag and the `JssmViz` class alias are deprecated
  * since v5 in favor of the canonical `<fsl-viz>` / {@link FslViz}, for
  * fsl.tools brand alignment. They remain functional but are slated for
@@ -16,4 +15,5 @@ declare global {
         'jssm-viz': JssmViz;
     }
 }
-export { FslViz, JssmViz };
+export { JssmViz };
+export { FslViz } from './fsl_viz_wc.js';

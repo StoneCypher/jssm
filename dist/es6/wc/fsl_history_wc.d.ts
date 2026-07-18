@@ -6,7 +6,6 @@ import { LitElement, type TemplateResult } from 'lit';
  * transition, #639) and records the host's reflected `current-state`, so it
  * captures every transition and survives a live machine rebuild without a
  * machine subscription. Standalone (no host ancestor) renders empty.
- *
  * @element fsl-history
  * @csspart timeline - The timeline container.
  */

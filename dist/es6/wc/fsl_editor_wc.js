@@ -25,7 +25,6 @@ import { closest_wc } from './wc_tag_helpers.js';
  * each toggleable via a `no-*` attribute. Light/dark via the reflected `theme`
  * attribute (which also drives the `--fsl-*` token defaults). White-labeled
  * through the shared appearance contract. Emits `change` on user edits.
- *
  * @element fsl-editor
  * @fires {CustomEvent<FslEditorChangeDetail>} change - On every user edit (not on programmatic `fsl` writes).
  * @csspart editor - The CodeMirror editor container.

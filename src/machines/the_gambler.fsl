@@ -1,0 +1,33 @@
+// "The Gambler" - Kenny Rogers (1978, written by Don Schlitz)
+//
+// The song's whole thesis is stated as advice on a train: a poker hand
+// resolves to exactly four moves, and knowing which one applies right now
+// is the entire skill. This machine builds that thesis as a state-dependent
+// action-selection policy rather than describing it: one decision state,
+// four legal actions, and a structural asymmetry that is the actual joke.
+// Three of the four actions are one-way exits to qualitatively different
+// terminals - a clean fold, a triumphant walk-away, a panicked run - and
+// the fourth, holding, is the only action that loops back to the SAME
+// decision state instead of leaving it. Holding was never a fifth kind of
+// ending; topologically it is just "ask the policy again," which is why it
+// is the only edge in the whole file with no terminal on the other end of it.
+
+machine_name    : "The Gambler";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the only recurring action in the file: holding just re-asks the policy.
+"the table, deciding what the hand is worth"
+  'hold' -> "the table, deciding what the hand is worth";
+
+// three exits, three different flavors of leaving, none of them come back.
+"the table, deciding what the hand is worth"
+  'fold'       -> "folded, out of this hand for good";
+"the table, deciding what the hand is worth"
+  'walk away'  -> "cashed out, walked away while still ahead";
+"the table, deciding what the hand is worth"
+  'run'        -> "fled the table, trouble close behind";

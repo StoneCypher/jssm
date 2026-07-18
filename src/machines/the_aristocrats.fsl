@@ -1,0 +1,51 @@
+// "The Aristocrats" - vaudeville / the classic dirty joke
+//
+// The professional appeal of this joke is entirely structural: a fixed,
+// polite entry (the pitch to the talent agent), an interior the performer
+// can run through in any order, any number of times, for as long as their
+// nerve holds - and exactly one mandatory, fixed exit, the same every time,
+// regardless of how the middle went. This file keeps the interior
+// tastefully abstract on purpose: "unspeakable act one/two/three" describe
+// nothing at all, because the blank IS the joke's content and the topology
+// around it is the joke's mechanism. Every one of the three interior states
+// can route to either of the others or repeat itself - a small clique,
+// arbitrarily long to traverse - and every one of them also has a `'take a
+// bow'` edge that converges on the same single state, no matter which acts
+// were performed or in what order or how many times.
+//
+// Showcase: `fslSimulate` can walk an arbitrarily long, arbitrarily
+// shuffled tour of the three interior states and still land, every time,
+// on the one mandatory punchline - the interior's variety is real, but it
+// is bounded by a fixed entry and drained into a fixed exit no matter what
+// happens in between.
+
+machine_name    : "The Aristocrats";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// fixed entry.
+"the talent agent's office" 'pitch the act' -> "the act begins";
+"the act begins"            'go first'      -> "unspeakable act one";
+
+// arbitrary interior: any act, in any order, any number of times.
+"unspeakable act one"   'follow with the second act' -> "unspeakable act two";
+"unspeakable act one"   'follow with the third act'  -> "unspeakable act three";
+"unspeakable act one"   'do it again'                -> "unspeakable act one";
+"unspeakable act two"   'follow with the first act'  -> "unspeakable act one";
+"unspeakable act two"   'follow with the third act'  -> "unspeakable act three";
+"unspeakable act two"   'do it again'                -> "unspeakable act two";
+"unspeakable act three" 'follow with the first act'  -> "unspeakable act one";
+"unspeakable act three" 'follow with the second act' -> "unspeakable act two";
+"unspeakable act three" 'do it again'                -> "unspeakable act three";
+
+// mandatory, fixed exit - however long the middle ran, it always converges
+// here.
+"unspeakable act one"   'take a bow' -> "the agent asks what do you call yourselves";
+"unspeakable act two"   'take a bow' -> "the agent asks what do you call yourselves";
+"unspeakable act three" 'take a bow' -> "the agent asks what do you call yourselves";
+
+"the agent asks what do you call yourselves" 'announce the name' -> "The Aristocrats!";

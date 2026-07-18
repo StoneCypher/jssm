@@ -1,5 +1,8 @@
 
 import * as jssm from '../jssm';
+
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
 const sm = jssm.sm;
 
 
@@ -36,12 +39,12 @@ describe('parallel action edges (#325, #531)', () => {
   });
 
   test('list_exit_actions reports both actions', () =>
-    expect(sm`a 'f' -> c; a 'g' -> c;`.list_exit_actions('a').sort()).toEqual(['f', 'g']) );
+    expect(sm`a 'f' -> c; a 'g' -> c;`.list_exit_actions('a').sort(code_unit_compare)).toEqual(['f', 'g']) );
 
   test('edges_between returns both parallel edges', () => {
     const between = sm`a 'f' -> c; a 'g' -> c;`.edges_between('a', 'c');
     expect(between.length).toBe(2);
-    expect(between.map(e => e.action).sort()).toEqual(['f', 'g']);
+    expect(between.map(e => e.action).sort(code_unit_compare)).toEqual(['f', 'g']);
   });
 
   test('lookup_transition_for resolves to the first-declared edge', () =>
@@ -67,5 +70,26 @@ describe('parallel action edges (#325, #531)', () => {
 
   test('probabilistic fan-out to different targets still works', () =>
     expect(sm`a 30% -> b; a 70% -> c;`.list_edges().length).toBe(2) );
+
+});
+
+
+
+// transition-kind hooks resolve the dispatched edge's kind through the same
+// first-declared-wins rule as lookup_transition_for and the pair fast-path,
+// so a parallel (from, to) pair with mixed arrow kinds fires the hook of the
+// FIRST-declared edge's kind
+describe('parallel edges: transition-kind hooks see the first-declared kind', () => {
+
+  test('main-then-legal parallel pair dispatches the main-transition hook', () => {
+    // a=>b declared first (kind 'main'), a->b second (kind 'legal').
+    const m = sm`a 'go' => b; a 'walk' -> b;`;
+    let main_fired = false, standard_fired = false;
+    m.hook_main_transition( () => { main_fired = true; } );
+    m.hook_standard_transition( () => { standard_fired = true; } );
+    expect(m.transition('b')).toBe(true);
+    expect(main_fired).toBe(true);       // first-declared edge kind is 'main'
+    expect(standard_fired).toBe(false);  // 'legal' hook must not fire
+  });
 
 });

@@ -636,12 +636,12 @@ describe('hook-registration / hook-removal events', () => {
       { kind: 'post everything',                                                 handler: noop }
     ];
 
-    descs.forEach(d => {
+    for (const d of descs) {
       m.set_hook(d);
       expect(m.remove_hook(d)).toBe(true);
       // second removal returns false: covers the "already empty" branches
       expect(m.remove_hook(d)).toBe(false);
-    });
+    }
   });
 
   test('remove_hook throws on unknown kind', () => {
@@ -694,7 +694,7 @@ describe('timeout event', () => {
     const m = sm_from(`a after 10ms -> b;`);
     let received: any = null;
     m.on('timeout', e => { received = e; });
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
     expect(received).not.toBeNull();
     expect(received.from).toBe('a');
     expect(received.to).toBe('b');
@@ -843,6 +843,26 @@ describe('action/rejection listener-count gate (perf #671)', () => {
     expect(received.reason).toBe('invalid');
     expect(received.from).toBe('a');
     expect(received.to).toBe('c');
+  });
+
+});
+
+
+
+// the per-name observation gates (#671-preserving): a machine with SOME
+// listener enters the observation block, but only the subscribed event's
+// detail is built; the others' gates read false at fire time
+describe('per-event-name detail gating', () => {
+
+  test('a transition-only listener fires while exit/entry/data-change/terminal/complete builds are skipped', () => {
+    const m = sm_from(`a -> b;`, { data: 1, complete: ['b'] });   // b is terminal AND complete
+    m.hook('a', 'b', () => ({ pass: true, data: 2 }));            // drives the data-change path
+    let seen = 0;
+    m.on('transition', () => { seen += 1; });
+    expect(m.transition('b')).toBe(true);
+    expect(seen).toBe(1);
+    expect(m.state()).toBe('b');
+    expect(m.data()).toBe(2);
   });
 
 });

@@ -1,7 +1,8 @@
 
-/* eslint-disable max-len */
+ 
 
-import * as jssm from '../jssm';
+import * as jssm     from '../jssm';
+import { JssmError } from '../jssm_error';
 
 const sm = jssm.sm;
 
@@ -26,7 +27,7 @@ describe('compile/1', () => {
   });
 
   describe('template tokens', () => {
-    const a_through_e_token_str = `a->${'b'}->c->${'d'}->e;`;
+    const a_through_e_token_str = `a->b->c->d->e;`;
     test('doesn\'t throw', () => expect( () => {
       jssm.compile(jssm.parse(a_through_e_token_str));
     }).not.toThrow() );
@@ -46,8 +47,34 @@ describe('compile/1', () => {
     }).not.toThrow() );
   });
 
+  // A transition-free document (natural while authoring states-first) must
+  // fail with a deliberate, readable JssmError — not the internal TypeError
+  // it used to crash with — because the editor's lint surfaces this message
+  // verbatim on every keystroke.  A machine with no transitions cannot be
+  // constructed, so compile is the right place to say so clearly.
+  describe('transition-free machines', () => {
+
+    describe('state Off : {};', () => {
+      const state_only_str = `state Off : {};`;
+      test('throws JssmError', () => expect( () => {
+        jssm.compile(jssm.parse(state_only_str));
+      }).toThrow(JssmError) );
+      test('names the problem', () => expect( () => {
+        jssm.compile(jssm.parse(state_only_str));
+      }).toThrow(/no transitions/) );
+    });
+
+    describe('several state blocks, still no transitions', () => {
+      const blocks_only_str = `state Off : {}; state On : {};`;
+      test('throws JssmError', () => expect( () => {
+        jssm.compile(jssm.parse(blocks_only_str));
+      }).toThrow(JssmError) );
+    });
+
+  });
+
   describe('direct make callpoint', () => {
-    const match = { start_states: [ 'a' ], end_states: [], failed_outputs: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', after_time: undefined, forced_only: false, main_path: false } ], state_property: [] };
+    const match = { start_states: [ 'a' ], end_states: [], failed_outputs: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', after_time: undefined, forced_only: false, main_path: false, action: undefined, probability: undefined } ], state_property: [] };
     test('direct match', () => {
       expect(jssm.make('a->b;')).toStrictEqual(match);
     })
@@ -77,7 +104,7 @@ describe('error catchery', () => {
 
   describe('unknown state property', () => {
     test('throws', () => expect( () => {
-      sm`a->b; c: { foo: red; };`;
+      const _foo = sm`a->b; c: { foo: red; };`;
     } ).toThrow() );
   });
 

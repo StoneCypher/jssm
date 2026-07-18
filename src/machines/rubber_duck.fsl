@@ -1,0 +1,43 @@
+// "Rubber Duck Debugging" - programming folklore, popularized by "The
+// Pragmatic Programmer" (Hunt & Thomas, 1999), though the practice
+// predates the name: explain your broken code out loud, line by line, to
+// a rubber duck (or any silent object) on your desk, and the act of
+// articulating it is what surfaces the fix - not anything the duck does,
+// because the duck does nothing at all.
+//
+// The topology joke is what is MISSING, not what is present: the fix
+// happens entirely inside the programmer's own chain of states, reached
+// by a chosen action that only ever needs itself to fire. The duck is
+// modeled honestly - as a real, fully wired state (a bare declaration with
+// no edges would be silently dropped; see the field guide) - but it is
+// also a fully disconnected component, wired only to itself via one
+// self-loop action, requiring `allow_islands: true` to compile at all.
+// No edge anywhere in the main chain ever names the duck as a source or a
+// target. It sits in the file exactly as it sits on the desk: present,
+// listening, structurally incapable of participating in the transition
+// function. Narrating the problem to it is what fixes the state; the duck
+// itself is provably a non-participant, and `fslExplain` shows it.
+
+machine_name    : "Rubber Duck Debugging";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+// flailing without articulating anything gets you nowhere - a loop back
+// to the same confusion, not a fix.
+"stuck, staring at the code" 'try random changes and hope' -> "still stuck, more confused than before";
+"still stuck, more confused than before" 'step away, come back later' -> "stuck, staring at the code";
+
+// the actual fix path: start narrating the problem out loud, line by
+// line. nothing about the duck is named on either side of this edge.
+"stuck, staring at the code" 'start explaining it line by line, out loud' -> "explaining it out loud, line by line";
+"explaining it out loud, line by line" 'reach the line that was actually wrong' -> "bug found, fix obvious now";
+
+// the duck: fully declared, fully self-consistent, wired only to itself.
+// allow_islands is load-bearing - nothing above ever reaches this state,
+// and this state never reaches anything above. it is not a participant.
+"the duck, listening, saying nothing" 'sit there, unblinking' -> "the duck, listening, saying nothing";

@@ -1,0 +1,30 @@
+// "The Lion and the Mouse" - Aesop's Fables (Perry Index 150)
+//
+// A lion spares a mouse out of idle mercy; much later, caught in a
+// hunter's net, the lion is freed only because that same tiny mouse gnaws
+// through the ropes. The topology joke is where the "only" in "only exit"
+// actually lives: at "lion trapped in the net, thrashing," the lion's own
+// strength is modeled as a self-loop, `'lion thrashes uselessly against
+// the ropes'`, that goes nowhere - `m.actions()` at that state returns
+// exactly two entries, and just one of them, the tiny mouse's action,
+// targets anywhere else at all. That one small edge, added at the very
+// start of the graph as an idle mercy, is structurally the ONLY road out
+// of the trap the lion builds for itself later. Brute force has a self-
+// loop. Mercy has an edge.
+
+machine_name    : "The Lion and the Mouse";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the tiny edge, added early: a small, freely chosen mercy.
+"lion catches the mouse underpaw" 'lion decides to spare the mouse, tiny mercy' -> "mouse released, scurries off grateful";
+"mouse released, scurries off grateful" 'time passes, the forest falls quiet' -> "later, lion roams the forest";
+"later, lion roams the forest" 'lion blunders into the hunter\'s net' -> "lion trapped in the net, thrashing";
+
+// the trap: one action goes nowhere, one goes everywhere it needs to.
+"lion trapped in the net, thrashing" 'lion thrashes uselessly against the ropes' -> "lion trapped in the net, thrashing";
+"lion trapped in the net, thrashing" 'tiny mouse gnaws through the ropes' -> "lion free at last, the tiny edge was the only exit";

@@ -8,47 +8,47 @@ import { sm }          from '../jssm';
 
 describe('Colors', () => {
 
-/* eslint-disable max-nested-callbacks */
+ 
 
   const ColorSets = [
     { label: "Named colors",  dataset: NamedColors },
     { label: "Direct colors", dataset: [ '#ABC', '#ABCF', '#AABBCC', '#AABBCCFF' ] }
   ];
 
-  ColorSets.map( ({label, dataset}) =>
+  for (const {label, dataset} of ColorSets) {
 
-    dataset.map(col => {
+    for (const col of dataset) {
 
       // edge things
-      ['edge_color'].map(prop =>
-        [col, col.toLowerCase()].map(repres =>
+      for (const prop of ['edge_color']) {
+        for (const repres of [col, col.toLowerCase()]) {
           test(`${label} - Color "${repres}" parses as ${prop}`, () =>
 
             expect( () => {
               const _foo = sm`machine_name: bob; a-> { ${prop}: ${repres}; } b;`;
             }).not.toThrow()
 
-          )
-        )
-      );
+          );
+        }
+      }
 
       // state things
-      ['color', 'background-color', 'text-color', 'border-color'].map(prop =>
-        [col, col.toLowerCase()].map(repres =>
+      for (const prop of ['color', 'background-color', 'text-color', 'border-color']) {
+        for (const repres of [col, col.toLowerCase()]) {
           test(`${label} - Color "${repres}" parses as ${prop}`, () =>
 
             expect( () => {
               const _foo = sm`machine_name: bob; state a: { ${prop}: ${repres}; }; a -> b;`;
             }).not.toThrow()
 
-          )
-        )
-      );
+          );
+        }
+      }
 
-    })
-  );
+    }
+  }
 
-/* eslint-enable max-nested-callbacks */
+ 
 
 });
 

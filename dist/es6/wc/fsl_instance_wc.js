@@ -3,6 +3,8 @@ import { sm, from as jssm_from } from '../jssm.js';
 import { install_bindings } from './fsl_bind_wc.js';
 import { build_hook_descriptor, parse_hook_element, wrap_user_handler, } from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { FslPermalinkSync } from './fsl_permalink_sync.js';
+import { permalink_key_for, read_fragment_param } from './fsl_permalink.js';
 import { BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars, register_palette_properties, } from './fsl_themes.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
@@ -51,7 +53,6 @@ export const JSSM_ON_EVENT_NAMES = new Set([
  * // => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,
  * //      once: false, name: undefined, filter: { state: 'paid' } }
  * ```
- *
  * @param el - The `<jssm-on>` element to parse.
  * @returns A validated {@link ParsedJssmOn} record.
  * @throws If `event` is missing, unknown, both handler forms are
@@ -136,7 +137,6 @@ export const jssm_handler_registry = new Map();
  * Resolve a named handler from the registry, then from `globalThis`.
  * Throws if neither lookup finds a function — earlier failure here is
  * better than a delayed "is not a function" at first event delivery.
- *
  * @param name - The handler name as supplied by `handler="..."`.
  * @returns The resolved function.
  * @throws If no function is registered under `name`.
@@ -162,7 +162,6 @@ export function resolve_named_handler(name) {
  * caveats apply (strict CSP without `'unsafe-eval'` blocks it).  A
  * `//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces
  * point at a meaningful name.
- *
  * @param body - The inline JS body (function body, not full function).
  * @param source_id - A short identifier for the sourceURL pragma.
  * @returns The compiled handler.
@@ -172,7 +171,7 @@ export function compile_inline_body(body, source_id) {
     // The Function constructor is intentional here — see the docblock above
     // for the rationale and the CSP caveat.  Equivalent to how browsers wire
     // up inline event handlers; the input is consumer-authored markup.
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return new Function('e', wrapped); // skipcq: JS-0086
 }
 /**
@@ -191,7 +190,6 @@ export function compile_inline_body(body, source_id) {
  * resolve_fsl_source(div as HTMLElement, 'Off -> On;');
  * // => { fsl: 'Off -> On;', provided_count: 1, error: undefined }
  * ```
- *
  * @param host - The `<jssm-instance>` element being resolved.
  * @param fsl_attr - The current value of the host's `fsl` attribute (or property), or empty string.
  * @returns A {@link JssmInstanceFslResolution} describing the outcome.
@@ -254,7 +252,6 @@ export function resolve_fsl_source(host, fsl_attr) {
  * Resolve `layout="auto"` to a concrete split direction from the viewport
  * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
  * (`'tb'`). Pure, so it's testable without a laid-out DOM.
- *
  * @example
  *   auto_mode(1200, 800);   // => 'lr'
  *   auto_mode(600, 900);    // => 'tb'
@@ -267,7 +264,6 @@ export function auto_mode(width, height) {
  * Pure so it's testable without a laid-out DOM: returns a neutral `50` when the
  * container has no measured size (e.g. jsdom, where `getBoundingClientRect`
  * yields zeros), and otherwise clamps to `[15, 85]` so neither pane collapses.
- *
  * @example
  *   split_ratio(30, 0, 100);   // => 30
  *   split_ratio(5,  0, 100);   // => 15  (clamped low)
@@ -295,7 +291,6 @@ export function split_ratio(coord, start, size) {
  * attributes (`current-state`, `legal-actions`, `terminal`, `complete`)
  * and sets a `--current-state` CSS custom property so consumer CSS can
  * style by state without subclassing.
- *
  * @element fsl-instance
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
@@ -309,12 +304,17 @@ export function split_ratio(coord, start, size) {
  * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
  * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
  * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot stochastic - Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).
  * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */
 export class FslInstance extends LitElement {
+    /**
+     * Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+     *  (inert if it has neither): restore on connect, write debounced on edit.
+     */
     constructor() {
-        super(...arguments);
+        super();
         /**
          * FSL source attribute.  When non-empty, this is the sole channel
          * supplying the machine's source.  Setting both this and a child
@@ -363,8 +363,28 @@ export class FslInstance extends LitElement {
         this._autoMode = 'lr';
         /** Window-resize listener installed while `layout="auto"`, or null. */
         this._autoListener = null;
-        /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
-        this._hiddenPanels = new Set();
+        /**
+         * Per-panel runtime visibility overrides set by the user via the toolbar
+         *  toggles; a slot absent here falls back to its mode-resolved base.
+         */
+        this._overrides = new Map();
+        /**
+         * Control-level default {@link PanelMode}; {@link panelModes} overrides it
+         *  per panel. `default` shows only the editor + renderer; every other panel
+         *  starts hidden and is opt-in.
+         */
+        this.panelMode = 'default';
+        /**
+         * Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+         *  control-level {@link panelMode}.
+         */
+        this.panelModes = {};
+        /**
+         * Panels the FSL "requests" — the embedder-set stand-in for the
+         *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+         *  here are shown; others fall back to the default.
+         */
+        this.requestedPanels = [];
         /**
          * The underlying machine instance, constructed at `connectedCallback`.
          * Exposed raw (not proxied) per the #639/#648 design decision so that
@@ -437,7 +457,7 @@ export class FslInstance extends LitElement {
         };
         /** Document pointer-move during a drag: recompute the split ratio. */
         this._onGutterMove = (e) => {
-            const rect = this.renderRoot.querySelector('.workbench').getBoundingClientRect();
+            const rect = (this.renderRoot.querySelector('.workbench')).getBoundingClientRect();
             const mode = this._effectiveMode();
             this._split = (mode === 'tb' || mode === 'bt')
                 ? split_ratio(e.clientY, rect.top, rect.height)
@@ -454,10 +474,10 @@ export class FslInstance extends LitElement {
             this._split = 50;
             this.requestUpdate();
         };
+        new FslPermalinkSync(this);
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
-     *
      * @throws If accessed before the element has been connected.
      */
     get machine() {
@@ -471,7 +491,6 @@ export class FslInstance extends LitElement {
      * After the action, reflects updated state to host attributes and the
      * `--current-state` CSS custom property, and requests a Lit update so
      * the state-specific `<slot name="state-...">` can re-pick.
-     *
      * @param action - The action name to dispatch.
      * @param data - Optional data payload to pass to the action.
      * @returns `true` if the action succeeded, `false` otherwise.
@@ -486,7 +505,6 @@ export class FslInstance extends LitElement {
      * Convenience wrapper for `machine.transition(state, data)` — moves directly
      * to a state along a legal (non-forced) edge. Reflects the new state and
      * requests an update, exactly as {@link FslInstance.do} does for actions.
-     *
      * @param state - The destination state.
      * @param data - Optional data payload.
      * @returns `true` if the transition succeeded (a legal edge existed).
@@ -501,7 +519,6 @@ export class FslInstance extends LitElement {
      * Convenience wrapper for `machine.force_transition(state, data)` — moves to a
      * state along any edge, including forced-only ones. Reflects the new state and
      * requests an update.
-     *
      * @param state - The destination state.
      * @param data - Optional data payload.
      * @returns `true` if the forced transition succeeded (any edge existed).
@@ -517,12 +534,12 @@ export class FslInstance extends LitElement {
      * state's name.
      */
     state() {
-        return String(this.machine.state());
+        return this.machine.state();
     }
     /** Whether the OS currently prefers a dark color scheme. */
     _prefers_dark() {
-        return typeof window.matchMedia === 'function'
-            && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return typeof matchMedia === 'function'
+            && matchMedia('(prefers-color-scheme: dark)').matches;
     }
     /**
      * Resolve `theme` (mode) × `themeName` to a palette and apply it: write the
@@ -533,7 +550,8 @@ export class FslInstance extends LitElement {
     _applyTheme() {
         const variant = resolve_theme_mode(this.theme, this._prefers_dark());
         this.setAttribute('resolved-theme', variant);
-        for (const [prop, value] of palette_to_vars(resolve_palette(this.themes, this.themeName, variant))) {
+        const vars = palette_to_vars(resolve_palette(this.themes, this.themeName, variant));
+        for (const [prop, value] of vars) {
             this.style.setProperty(prop, value);
         }
         for (const editor of this.querySelectorAll('[slot="editor"]')) {
@@ -550,46 +568,71 @@ export class FslInstance extends LitElement {
       <div class="tabbar" role="tablist" aria-label="Pane">
         <button type="button" role="tab" aria-selected=${this._tab === 'viz'}    @click=${() => this._setTab('viz')}>Graph</button>
         <button type="button" role="tab" aria-selected=${this._tab === 'editor'} @click=${() => this._setTab('editor')}>Code</button>
-      </div>`;
+      </div>
+    `;
     }
     /** Switch the visible pane in the `tabs` layout. */
     _setTab(tab) {
         this._tab = tab;
         this.requestUpdate();
     }
-    /**
-     * Whether the panel slotted under `slot` is currently hidden.
-     *
-     * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
-     * @returns `true` when the panel is hidden.
-     */
-    isPanelHidden(slot) {
-        return this._hiddenPanels.has(slot);
+    /** The built-in default hidden state: only the editor + renderer (viz) show. */
+    _defaultHidden(slot) {
+        return slot !== 'viz' && slot !== 'editor';
     }
     /**
-     * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
-     * collapses that workbench pane (the other fills); hiding an aux panel
-     * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
-     *
+     * Whether the panel slotted under `slot` is currently hidden, resolving its
+     * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+     * `hide`/`show` force the state; otherwise a user toggle wins, then a
+     * `request`ed panel shows, then the built-in default.
+     * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+     * @returns `true` when the panel is hidden.
+     * @example
+     * el.panelModes = { history: 'show' };
+     * el.isPanelHidden('history'); // false
+     */
+    isPanelHidden(slot) {
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide') {
+            return true;
+        }
+        if (mode === 'show') {
+            return false;
+        }
+        const override = this._overrides.get(slot);
+        if (override !== undefined) {
+            return override;
+        }
+        if (mode === 'request' && this.requestedPanels.includes(slot)) {
+            return false;
+        }
+        return this._defaultHidden(slot);
+    }
+    /**
+     * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+     * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+     * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+     * panel toggles.
      * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @param hidden - `true` to hide, `false` to show.
      */
     setPanelHidden(slot, hidden) {
-        if (hidden) {
-            this._hiddenPanels.add(slot);
-        }
-        else {
-            this._hiddenPanels.delete(slot);
-        }
+        this._overrides.set(slot, hidden);
         this.requestUpdate();
     }
     /**
-     * Toggle the visibility of the panel slotted under `slot`.
-     *
+     * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+     * panel's mode is `hide` or `show` — those lock the visibility.
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      */
     togglePanel(slot) {
-        this.setPanelHidden(slot, !this._hiddenPanels.has(slot));
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide' || mode === 'show') {
+            return;
+        }
+        this.setPanelHidden(slot, !this.isPanelHidden(slot));
     }
     /**
      * Install or remove the window-resize listener that resolves `layout="auto"`
@@ -606,6 +649,7 @@ export class FslInstance extends LitElement {
                 }
             };
             this._autoListener = recompute;
+            // eslint-disable-next-line unicorn/prefer-observer-apis -- deliberately a window resize listener: it resolves layout from the VIEWPORT aspect (not an element box) and must work in jsdom, which lacks ResizeObserver
             window.addEventListener('resize', recompute);
             recompute();
         }
@@ -621,7 +665,6 @@ export class FslInstance extends LitElement {
      * Order is important: state reflection happens BEFORE the first render
      * so that consumer CSS rules keyed off `[current-state="..."]` apply on
      * first paint without a flash of unstyled content.
-     *
      * @throws If no FSL source was provided, or if more than one channel
      * supplied a source.
      */
@@ -629,39 +672,63 @@ export class FslInstance extends LitElement {
         super.connectedCallback();
         // Step 1: resolve FSL source.
         const resolved = resolve_fsl_source(this, this.fsl);
-        if (resolved.error !== undefined) {
+        // A permalink-only instance has no declared source, but its own URL segment
+        // will supply one asynchronously: FslPermalinkSync (attached in the
+        // constructor) restores `fsl` just after connect, which rebuilds the machine
+        // via willUpdate -> _rebuild_machine. Defer to that instead of throwing;
+        // render() shows the placeholder until the restore lands.
+        const deferToPermalink = resolved.provided_count === 0 && this._permalinkSegmentPresent();
+        if (resolved.error !== undefined && !deferToPermalink) {
             throw new Error(`fsl-instance: ${resolved.error}`);
         }
-        // Step 2: construct the machine.
-        // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
-        const fsl_source = resolved.fsl;
-        this._machine = this._build_machine(fsl_source);
-        // Step 3: paint initial host attributes + CSS custom properties.
-        this._paint_state_reflection();
-        // Step 4: shadow DOM render is automatic via Lit; requesting an update
-        // here ensures the first paint sees the freshly painted attributes.
-        this.requestUpdate();
-        // #639 mechanism 4: subscribe to library events and re-emit them as
-        // DOM CustomEvents from this host (#638 supplies the event API).
-        this._install_event_reemission();
-        // #641: <jssm-hook> declarative discovery.
-        this._install_declarative_hooks();
-        // #643: <jssm-on> declarative event observation.
-        this._install_jssm_on_children();
-        // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
-        // install live machine-to-DOM projections.
-        this._unsubs.push(...install_bindings(this, this._machine));
-        // #640: <jssm-action> DOM event → machine action wiring.
+        // Steps 2-4 + machine-scoped wiring: only when a source is available now. In
+        // the deferred case these run later, from _rebuild_machine, once the restore
+        // sets `fsl`.
+        if (!deferToPermalink) {
+            // Step 2: construct the machine.
+            // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
+            const fsl_source = resolved.fsl;
+            this._machine = this._build_machine(fsl_source);
+            this._applyEditorConfig();
+            // Step 3: paint initial host attributes + CSS custom properties.
+            this._paint_state_reflection();
+            // Step 4: shadow DOM render is automatic via Lit; requesting an update
+            // here ensures the first paint sees the freshly painted attributes.
+            this.requestUpdate();
+            // #639 mechanism 4: subscribe to library events and re-emit them as
+            // DOM CustomEvents from this host (#638 supplies the event API).
+            this._install_event_reemission();
+            // #641: <jssm-hook> declarative discovery.
+            this._install_declarative_hooks();
+            // #643: <jssm-on> declarative event observation.
+            this._install_jssm_on_children();
+            // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+            // install live machine-to-DOM projections.
+            this._unsubs.push(...install_bindings(this, this._machine));
+        }
+        // #640: <jssm-action> DOM event -> machine action wiring. The listeners read
+        // `this.machine` live on event, so discovery is correct even before a
+        // deferred build completes.
         this._discover_jssm_actions();
         // Theme: register the palette tokens as animatable colors (once, globally, so
         // switches can ease), follow the OS while in `system` mode, then apply the
         // resolved palette.
         register_palette_properties();
-        if (typeof window.matchMedia === 'function') {
-            this._mql = window.matchMedia('(prefers-color-scheme: dark)');
+        if (typeof matchMedia === 'function') {
+            this._mql = matchMedia('(prefers-color-scheme: dark)');
             this._mql.addEventListener('change', this._on_os_theme_change);
         }
         this._applyTheme();
+    }
+    /**
+     * True when this instance owns a URL permalink segment (keyed by its
+     * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+     * its FSL source — so `connectedCallback` can defer the machine build to that
+     * restore instead of throwing on an otherwise-absent source.
+     */
+    _permalinkSegmentPresent() {
+        const key = permalink_key_for(this);
+        return key !== null && read_fragment_param(location.hash, key) !== null;
     }
     /**
      * Discover direct-child `<jssm-on>` elements and install their
@@ -687,12 +754,12 @@ export class FslInstance extends LitElement {
         const machine = this._machine;
         const on_nodes = this.querySelectorAll(':scope > fsl-on, :scope > jssm-on');
         let index = 0;
-        for (const el of Array.from(on_nodes)) {
+        for (const el of on_nodes) {
             index += 1;
             const parsed = parse_jssm_on_element(el);
-            const handler = parsed.handler_name !== undefined
-                ? resolve_named_handler(parsed.handler_name)
-                : compile_inline_body(parsed.inline_body, String(index));
+            const handler = parsed.handler_name === undefined
+                ? compile_inline_body(parsed.inline_body, String(index))
+                : resolve_named_handler(parsed.handler_name);
             // Argument shape: machine.on(name, handler) when no filter, or
             // machine.on(name, filter, handler) when filtered.  Same for once.
             // `as any` collapses the per-event detail typing — the WC is a
@@ -714,7 +781,7 @@ export class FslInstance extends LitElement {
     _install_declarative_hooks() {
         const machine = this._machine;
         const hook_els = this.querySelectorAll(':scope > fsl-hook, :scope > jssm-hook');
-        for (const el of Array.from(hook_els)) {
+        for (const el of hook_els) {
             const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
             const spec = parse_hook_element(el, debug_id, this.registry);
             const wrapped = wrap_user_handler(spec, machine);
@@ -767,7 +834,6 @@ export class FslInstance extends LitElement {
      * host attributes (mechanism 1), CSS custom properties (mechanism 3), and
      * the state-specific slot (mechanism 2) are all current by the time a
      * `fsl-*` listener runs.
-     *
      * @param changed - Lit's changed-property map (forwarded to super).
      */
     /**
@@ -798,7 +864,6 @@ export class FslInstance extends LitElement {
      */
     /**
      * Build a machine from FSL source, seeding {@link data} when it is set.
-     *
      * @param fsl_source - The FSL string to compile.
      * @returns The compiled machine.
      */
@@ -806,6 +871,19 @@ export class FslInstance extends LitElement {
         return (this.data === undefined
             ? sm `${fsl_source}`
             : jssm_from(fsl_source, { data: this.data }));
+    }
+    /**
+     * Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+     *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+     *  mode honors the source. The embedder's value persists when the FSL is
+     *  silent. Called after each (re)build, with `_machine` freshly assigned.
+     */
+    _applyEditorConfig() {
+        var _a;
+        const panels = (_a = this._machine.editor_config()) === null || _a === void 0 ? void 0 : _a.panels;
+        if (panels !== undefined) {
+            this.requestedPanels = panels;
+        }
     }
     _rebuild_machine() {
         if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
@@ -822,6 +900,7 @@ export class FslInstance extends LitElement {
         this._unbind_machine_subscriptions();
         // Swap to the new machine and re-bind everything machine-scoped.
         this._machine = next;
+        this._applyEditorConfig();
         this._paint_state_reflection();
         this._install_event_reemission();
         this._install_declarative_hooks();
@@ -933,7 +1012,7 @@ export class FslInstance extends LitElement {
      */
     _discover_jssm_actions() {
         var _a, _b, _c, _d;
-        const inline_targets = Array.from(this.querySelectorAll('[data-jssm-action]')).filter(el => closest_wc(el, 'action') === null);
+        const inline_targets = [...this.querySelectorAll('[data-jssm-action]')].filter(el => closest_wc(el, 'action') === null);
         for (const el of inline_targets) {
             this._install_action_listener({
                 source: el,
@@ -946,7 +1025,7 @@ export class FslInstance extends LitElement {
             });
         }
         const tags = this.querySelectorAll(':scope > fsl-action, :scope > jssm-action');
-        for (const tag of Array.from(tags)) {
+        for (const tag of tags) {
             const selector = tag.getAttribute('selector');
             const action_name = tag.getAttribute('action');
             if (selector === null || action_name === null) {
@@ -958,7 +1037,7 @@ export class FslInstance extends LitElement {
             const prevent_default = tag.hasAttribute('prevent-default');
             const stop_propagation = tag.hasAttribute('stop-propagation');
             const sources = this.querySelectorAll(selector);
-            for (const src of Array.from(sources)) {
+            for (const src of sources) {
                 this._install_action_listener({
                     source: src,
                     event_name,
@@ -977,6 +1056,12 @@ export class FslInstance extends LitElement {
      */
     _install_action_listener(config) {
         const handler = (e) => {
+            // A permalink-only instance wires its actions at connect but builds its
+            // machine asynchronously (deferred restore). An event in that window is a
+            // no-op rather than a throw via the `machine` getter.
+            if (this._machine === undefined) {
+                return;
+            }
             if (config.prevent_default) {
                 e.preventDefault();
             }
@@ -986,9 +1071,9 @@ export class FslInstance extends LitElement {
             if (config.from_state !== undefined && this.state() !== config.from_state) {
                 return;
             }
-            const data = config.from_property !== undefined
-                ? config.source[config.from_property]
-                : undefined;
+            const data = config.from_property === undefined
+                ? undefined
+                : config.source[config.from_property];
             this.do(config.action_name, data);
         };
         config.source.addEventListener(config.event_name, handler);
@@ -1008,8 +1093,8 @@ export class FslInstance extends LitElement {
     _paint_state_reflection() {
         // Invariant: only called after `connectedCallback` has set `_machine`.
         const m = this._machine;
-        const current_state = String(m.state());
-        const legal_actions = m.list_exit_actions().map(a => String(a)).join(' ');
+        const current_state = m.state();
+        const legal_actions = m.list_exit_actions().map(String).join(' ');
         const is_terminal = m.is_terminal();
         const is_complete = m.is_complete();
         this.setAttribute('current-state', current_state);
@@ -1026,17 +1111,17 @@ export class FslInstance extends LitElement {
      * and a state-specific `<slot name="state-...">` that re-targets on each
      * transition.  Fallback content in each slot keeps a bare
      * `<jssm-instance fsl="...">` from rendering as a blank box.
-     *
      * @returns A Lit `TemplateResult` describing the shadow tree.
      */
     render() {
         const state_slot_name = this._machine === undefined
             ? 'state-unknown'
-            : `state-${String(this._machine.state())}`;
+            : `state-${this._machine.state()}`;
         const header = html `
       <header>
         <slot name="title"><span class="placeholder">fsl-instance</span></slot>
-      </header>`;
+      </header>
+    `;
         const viz = html `<slot name="viz"><span class="placeholder">no viz configured</span></slot>`;
         const editor = html `<slot name="editor"></slot>`;
         const toolbar = html `<section class="toolbar"><slot name="toolbar"></slot></section>`;
@@ -1047,10 +1132,10 @@ export class FslInstance extends LitElement {
           ${header}
           ${toolbar}
           <div class="middle">
-            <section class="dock actions-dock${this._hiddenPanels.has('actions') ? '' : ' open'}" part="actions-dock">
-              <slot name="actions"></slot>
+            <section class="dock events-dock${this.isPanelHidden('hook-log') ? '' : ' open'}" part="events-dock">
+              <slot name="hook-log"></slot>
             </section>
-            <div class="workbench${this._hiddenPanels.has('viz') ? ' hide-viz' : ''}${this._hiddenPanels.has('editor') ? ' hide-editor' : ''}"
+            <div class="workbench${this.isPanelHidden('viz') ? ' hide-viz' : ''}${this.isPanelHidden('editor') ? ' hide-editor' : ''}"
                  data-mode=${mode} style="--fsl-split:${this._split}%">
               ${mode === 'tabs' ? this._renderTabbar() : ''}
               <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
@@ -1059,7 +1144,7 @@ export class FslInstance extends LitElement {
                    @dblclick=${this._onGutterReset}></div>
               <section class="pane editor" ?hidden=${mode === 'tabs' && this._tab !== 'editor'}>${editor}</section>
             </div>
-            <section class="dock data-dock${this._hiddenPanels.has('data-inspector') ? '' : ' open'}" part="data-dock">
+            <section class="dock data-dock${this.isPanelHidden('data-inspector') ? '' : ' open'}" part="data-dock">
               <slot name="data-inspector"></slot>
             </section>
           </div>
@@ -1073,33 +1158,36 @@ export class FslInstance extends LitElement {
       <div class="container">
         ${header}
         ${toolbar}
-        <section class="viz" ?hidden=${this._hiddenPanels.has('viz')}>${viz}</section>
-        <section class="editor" ?hidden=${this._hiddenPanels.has('editor')}>${editor}</section>
+        <section class="viz" ?hidden=${this.isPanelHidden('viz')}>${viz}</section>
+        <section class="editor" ?hidden=${this.isPanelHidden('editor')}>${editor}</section>
         ${this._renderAuxPanels(false)}
         <section class="state-section"><slot name=${state_slot_name}></slot></section>
         <footer><slot name="footer"></slot></footer>
       </div>
     `;
     }
-    /** The stacked middle panels, shared by both layouts. The toolbar slot is
-     *  rendered at the top of {@link render}. In split mode the `actions` and
-     *  `data-inspector` panels are lifted out into easing side docks, so
+    /**
+     * The stacked middle panels, shared by both layouts. The toolbar slot is
+     *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+     *  and `data-inspector` panels are lifted out into easing side docks, so
      *  `docked` is true there and they are skipped here to avoid duplicating
-     *  their slots. The state-section + footer stay in {@link render} so the
-     *  dynamic state-slot name binds at the top level.
-     *
-     *  @param docked - True when actions + data-inspector are rendered as side
-     *  docks (split layouts); they are then omitted from this stack. */
+     *  their slots; `actions` instead lives here as a horizontal bar. The
+     *  state-section + footer stay in {@link render} so the dynamic state-slot
+     *  name binds at the top level.
+     *  @param docked - True when hook-log + data-inspector are rendered as side
+     *  docks (split layouts); they are then omitted from this stack.
+     */
     _renderAuxPanels(docked) {
-        const h = (slot) => this._hiddenPanels.has(slot);
+        const h = (slot) => this.isPanelHidden(slot);
         return html `
-      ${docked ? '' : html `<section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>`}
+      <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
       <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>
       <section class="history" ?hidden=${h('history')}><slot name="history"></slot></section>
       ${docked ? '' : html `<section class="data-inspector" ?hidden=${h('data-inspector')}><slot name="data-inspector"></slot></section>`}
-      <section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>
+      ${docked ? '' : html `<section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>`}
       <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
       <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
+      <section class="stochastic" ?hidden=${h('stochastic')}><slot name="stochastic"></slot></section>
       <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
     `;
     }
@@ -1137,7 +1225,7 @@ FslInstance.styles = css `
 
     /* layout modes: lr/rl (row) · tb/bt (column) · editor/viewer (single) · tabs. */
     .container.is-split { display: flex; flex-direction: column; }
-    /* the middle band: actions dock | workbench | data dock */
+    /* the middle band: events dock | workbench | data dock */
     .middle { display: flex; flex: 1 1 auto; min-height: 0; }
     .workbench { display: flex; flex: 1 1 auto; min-height: 0; min-width: 0; }
     /* side docks ease their width like the help drawer; closed = 0, open = a
@@ -1148,7 +1236,7 @@ FslInstance.styles = css `
       transition: flex-basis 0.28s ease;
     }
     .dock.open { flex-basis: var(--fsl-dock-width, 17em); }
-    .actions-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
+    .events-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
     .data-dock.open    { border-left: 1px solid var(--fsl-color-border, #e5e5e5); }
     /* a docked panel fills the band's height; the data inspector then scrolls
        to the dock instead of its own 16em cap. */
@@ -1229,4 +1317,7 @@ FslInstance.properties = {
     themeName: { type: String, attribute: 'theme-name', reflect: true },
     themes: { type: Object, reflect: false },
     data: { type: Object, reflect: false },
+    panelMode: { type: String, attribute: 'panel-mode', reflect: true },
+    panelModes: { type: Object, attribute: false },
+    requestedPanels: { type: Array, attribute: false },
 };

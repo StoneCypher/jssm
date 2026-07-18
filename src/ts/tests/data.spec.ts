@@ -234,7 +234,7 @@ describe('Assert that hooks and data interact in correct ordering', () => {
 
   // ... and that enter overrides them all correctly
 
-  test('data overrides: enter overrides by_type_forced', () => {
+  test('data overrides: enter overrides by_type_standard', () => {
     const m1 = jssm.from("a 'shoo' -> b;", { data: 'initial', history: 3 });
     m1.hook_standard_transition( () => { return { pass: true, data: 'hook hst wins' } } )
     m1.hook_entry('b', () => { return { pass: true, data: 'hook hen wins' } } );
@@ -242,7 +242,7 @@ describe('Assert that hooks and data interact in correct ordering', () => {
     expect(m1.data()).toBe('hook hen wins');
   });
 
-  test('data overrides: enter overrides by_type_forced', () => {
+  test('data overrides: enter overrides by_type_main', () => {
     const m1 = jssm.from("a 'shoo' => b;", { data: 'initial', history: 3 });
     m1.hook_main_transition( () => { return { pass: true, data: 'hook hmt wins' } } )
     m1.hook_entry('b', () => { return { pass: true, data: 'hook hen wins' } } );
@@ -488,3 +488,18 @@ describe('data/0 for reading current data', () => {
   } );
 
 } );
+
+
+
+// the @internal zero-copy accessor: same-package panels read by reference;
+// the public data() clone boundary is unchanged
+describe('_data_ref', () => {
+
+  test('returns the live reference; data() stays a clone', () => {
+    const m = jssm.from(`x -> y;`, { data: { a: { b: 1 } } });
+    expect( m._data_ref() ).toBe( m._data_ref() );      // stable identity, zero-copy
+    expect( m._data_ref() ).not.toBe( m.data() );       // public clone is a different object
+    expect( m.data() ).toEqual( m._data_ref() );        // same shape
+  });
+
+});

@@ -1,5 +1,5 @@
 
-/* eslint-disable max-len */
+ 
 
 import { sm } from '../jssm';
 
@@ -14,7 +14,7 @@ const glob           = require('glob'),
 
 describe('base data walk/1', () => {
 
-  language_files.map( (language_file, i) => {
+  for (const [i, language_file] of language_files.entries()) {
 
     const testData   = require(language_file),
           testTokens = testData.cases;
@@ -23,15 +23,16 @@ describe('base data walk/1', () => {
 
     describe(`language ${i} "${testData.english_name}" contains all states`, () => {
 
-      testTokens.map(tok =>
+      for (const tok of testTokens) {
+        // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
         test(tok, () =>
           expect( foreignTarget.states().includes(tok) ).toBe(true)
-        )
-      );
+        );
+      }
 
     });
 
-  });
+  }
 
 
 });

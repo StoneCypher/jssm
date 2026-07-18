@@ -1,0 +1,47 @@
+// "Works On My Machine" - programming folklore, the engineer's oldest
+// excuse: the same code, the same test suite, the same nominal action,
+// produces a different verdict depending entirely on which environment
+// runs it - a laptop, a CI runner, production - as if the environment
+// itself were an argument to the test, not just where it happens to run.
+//
+// The topology joke literalizes exactly that: `'run the test suite
+// again'` is bound as a self-loop action at three separate environment
+// states, and at each one it deterministically reproduces THAT
+// environment's own verdict, forever - green stays green on the laptop,
+// red stays red on CI, on fire stays on fire in prod. Edge validity - what
+// running the suite even MEANS - is a property of the state you were
+// already in, not of the code. The folklore excuse itself becomes an
+// action: `'insist it works on my machine'` is a real, chosen edge that
+// jumps straight from the CI failure back to the laptop's green state,
+// changing nothing about the code and everything about which verdict gets
+// reported. And because this is folklore, skipping straight to prod on a
+// deadline is offered as a genuine choice, and the postmortem afterward is
+// not: nobody chooses to write "it worked in dev" into the incident
+// report, it simply follows, forced, once the fire is already lit.
+
+machine_name    : "Works On My Machine";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// three environments, three verdicts, chosen by which one you run in.
+"code committed, ready to run" 'run it on my machine'              -> "on my machine: all green";
+"code committed, ready to run" 'run it on the ci runner'           -> "on ci: red, inexplicably";
+"code committed, ready to run" 'skip straight to prod, deadline is today' -> "in prod: on fire";
+
+// same action, same label, bound identically at all three - and each one
+// deterministically reproduces only its own environment's verdict.
+"on my machine: all green"    'run it again, just to be sure' -> "on my machine: all green";
+"on ci: red, inexplicably"    'run it again, just to be sure' -> "on ci: red, inexplicably";
+"in prod: on fire"            'run it again, just to be sure' -> "in prod: on fire";
+
+// the excuse itself, as an action: nothing about the code changes, only
+// which environment - and therefore which verdict - gets reported.
+"on ci: red, inexplicably" 'insist it works on my machine' -> "on my machine: all green";
+
+// nobody decides to write the postmortem line. it is simply what happens
+// once the fire has been burning long enough.
+"in prod: on fire" ~> "incident retro: it worked in dev, apparently";

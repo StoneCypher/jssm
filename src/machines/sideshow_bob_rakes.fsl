@@ -1,0 +1,79 @@
+// "Sideshow Bob Steps on a Rake" (The Simpsons, "Cape Feare", 1996)
+//
+// The gag has no punchline beyond its own length: Bob walks forward, a rake
+// swings up and cracks him in the face, he staggers upright and keeps
+// walking, and the SAME rake - a new one, identically laid - is waiting one
+// pace further on. It is not really a joke about rakes. It is a joke about
+// TOPOLOGY: a single edge shape, copy-pasted, where the humor curve tracks
+// the repeat count rather than any one occurrence. Nine rakes ship below,
+// unrolled by hand, state by state - because unrolling it IS the bit; a
+// machine that "collapsed" the loop into one recurring state would draw the
+// single thwack correctly and miss the joke entirely.
+//
+// Getting hit is a forced transition (~>, no action label) - Bob never
+// chooses to be struck, it simply happens the instant he steps forward.
+// 'grumble' is the one chosen action available afterward, every single
+// time, all nine times, because that is the honest inventory of Bob's
+// options here: get up, or don't. Watch rake 4 in a real screening and the
+// audience has stopped laughing - the bit has become "long." By rake 8 they
+// are laughing again, harder than at rake 1, because the repetition itself
+// has become the object of the joke. jssm can't grade laughter, but it CAN
+// grade edges, and the count is right there in fslExplain's transition
+// tally: 18 transitions, split evenly - 9 forced (one thwack per rake) and
+// 9 chosen (eight grumbles plus the one final escape), all identically
+// shaped except for the last.
+//
+// Investigated and rejected for the finale: jssm's relative-target ("cycle")
+// arrow-target syntax, `[a b c] 'x' -> +1;`. Against the installed jssm
+// (5.162.1) it DOES parse - fslValidate reports it clean - but it does not
+// compile into real edges. from() materializes the cycle target as a
+// literal state OBJECT ({key:'cycle',value:1}) rather than resolving it to
+// "the next state in the list," and any downstream API expecting a string
+// state name (state_is_terminal, which fsl-mcp's own fslExplain calls per
+// state) throws `JssmError: No such state [object Object]`. jssm's own repo
+// test suite (cycles.spec.ts) matches this exactly - it asserts the AST
+// shape and then leaves the runtime-edge behavior as a commented-out
+// `test.todo('cycle full parses')`. So: no elegant coda here. Rake 9 is
+// unrolled honestly, same as rakes 1 through 8, and this comment is the
+// receipt for why.
+
+machine_name     : "Sideshow Bob Steps on a Rake";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+step_1 ~> "thwack 1";
+"thwack 1" 'grumble' -> step_2;
+
+step_2 ~> "thwack 2";
+"thwack 2" 'grumble' -> step_3;
+
+step_3 ~> "thwack 3";
+"thwack 3" 'grumble' -> step_4;
+
+// rake 4: the audience has done the math by now. this is no longer a
+// surprise, and the bit is running on the fumes of the pattern it already
+// established at rake 1. this is where it stops being funny.
+step_4 ~> "thwack 4";
+"thwack 4" 'grumble' -> step_5;
+
+step_5 ~> "thwack 5";
+"thwack 5" 'grumble' -> step_6;
+
+step_6 ~> "thwack 6";
+"thwack 6" 'grumble' -> step_7;
+
+step_7 ~> "thwack 7";
+"thwack 7" 'grumble' -> step_8;
+
+// rake 8: the laugh comes back, bigger than rake 1's - not because rakes
+// got funnier, but because "he is STILL doing this" has become the whole
+// joke. the repetition graduated from delivery mechanism to punchline.
+step_8 ~> "thwack 8";
+"thwack 8" 'grumble' -> step_9;
+
+step_9 ~> "thwack 9";
+"thwack 9" 'stagger into the treeline' -> "safe, probably";

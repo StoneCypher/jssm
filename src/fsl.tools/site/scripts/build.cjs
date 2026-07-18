@@ -15,6 +15,7 @@
 'use strict';
 const fs   = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 const ROOT      = path.resolve(__dirname, '..');
 const RECIPES   = path.join(ROOT, 'recipes');
@@ -114,6 +115,20 @@ function parseTripleSlug(slug) {
 // ---------- syntax highlighter ----------
 // Heuristic, language-aware enough to make our recipe code look right.
 // Output: an array of {c: 'class', t: 'text'} runs.
+//
+// The `fsl` flavour is the one exception: it is not a heuristic. It goes
+// through `highlight_fsl_runs` from the built `jssm/fence` bundle — the same
+// two-layer (CM6 stream grammar + real parser) highlighter the editor uses —
+// so cookbook FSL can never disagree with the editor. `dist/fence/fence.js`
+// is ESM; this script is CommonJS, so it is loaded via dynamic import once,
+// before `main()` runs (see `loadFence()` at the bottom of this file).
+
+const FENCE_URL = pathToFileURL(path.resolve(__dirname, '../../../../dist/fence/fence.js')).href;
+let highlight_fsl_runs; // set by loadFence()
+
+async function loadFence() {
+  ({ highlight_fsl_runs } = await import(FENCE_URL));
+}
 
 const SYN = {
   s:   '#5fbeb1', // state names (fsl)
@@ -133,14 +148,13 @@ const JS_KEYWORDS = new Set([
   'import','from','export','as','async','await','try','catch','finally','throw',
   'true','false','null','undefined','this','super','in','of','void','yield',
 ]);
-const FSL_KEYWORDS = new Set(['state','start_state','end_state','machine_name']);
 
 function highlight(code, kind) {
   const flavour = pickFlavour(kind);
   if (flavour === 'shell') return highlightShell(code);
   if (flavour === 'json')  return highlightJson(code);
   if (flavour === 'plain') return [{c:'p', t: code}];
-  return highlightJsLike(code, flavour);
+  return highlightJsLike(code, flavour); // flavour: 'fsl' | 'js'
 }
 
 function pickFlavour(kind) {
@@ -153,6 +167,31 @@ function pickFlavour(kind) {
   }
 }
 
+// Maps a parity-highlighter run's `fsl-tok-*` / `fsl-sem-*` classes onto the
+// cookbook's own SYN kind letters. `fsl-tok-labelName` is FSL's token class
+// for quoted action/event names (its grammar has no separate 'string' token —
+// `stream.match(/^'.../, () => 'labelName')` in fsl_language.ts — so it is
+// grouped with `fsl-tok-keyword` under 'k' (SYN: "keywords / strings").
+function fslRunKind(run) {
+  const classes = run.classes || '';
+  if (classes.includes('fsl-sem-state'))                                       return 's';
+  if (classes.includes('fsl-tok-keyword'))                                     return 'k';
+  if (classes.includes('fsl-tok-labelName') || classes.includes('fsl-tok-string')) return 'k';
+  if (classes.includes('fsl-tok-comment'))                                     return 'cm';
+  if (classes.includes('fsl-tok-number'))                                      return 'n';
+  return 'p';
+}
+
+// Cookbook `fsl`-kind blocks are JS snippets with an `sm\`...\`` tagged FSL
+// template embedded (see AGENTS.md's "Code block kinds" table and every
+// recipes/*.cjs fsl block) — not standalone .fsl source. `highlightJsLike`
+// walks the same comment/string/backtick scan it always has (so a comment
+// containing a stray backtick, e.g. "// no edge leaves `delivered`", is still
+// recognized as one comment token before backticks are ever considered); the
+// only thing that changed is what happens once it is inside a `flavour ===
+// 'fsl'` template literal — the interior is handed whole to
+// `highlight_fsl_runs` (the real parity tokenizer) instead of being scanned
+// by a hand-rolled "identifiers are state names" heuristic.
 function highlightJsLike(code, flavour) {
   const out = [];
   const push = (c, t) => { if (t) out.push({c, t}); };
@@ -188,38 +227,49 @@ function highlightJsLike(code, flavour) {
     // template literal — tokenize inside
     if (ch === '`') {
       push('p', '`'); i++;
-      while (i < code.length && code[i] !== '`') {
-        const c = code[i];
-        if (c === '/' && code[i+1] === '/') {
-          const nl = code.indexOf('\n', i);
-          const end = nl === -1 ? code.length : nl;
-          const body = code.slice(i, end);
-          let kind = 'cm';
-          if (/(refus|\bno\b|fail|error|cannot|invalid|reject)/i.test(body)) kind = 'err';
-          push(kind, body); i = end; continue;
+      if (flavour === 'fsl') {
+        // The whole interior is FSL source (or as close to it as this
+        // particular template gets) — classify it with the real parser, not
+        // a per-character guess.
+        let end = code.indexOf('`', i);
+        if (end === -1) end = code.length;
+        for (const run of highlight_fsl_runs(code.slice(i, end))) {
+          push(fslRunKind(run), run.text);
         }
-        if (c === '→') { push('a', '→'); i++; continue; }
-        if (c === '-' && code[i+1] === '>') { push('a', '->'); i += 2; continue; }
-        if (c === "'" || c === '"') {
-          const q = c; let j = i + 1;
-          while (j < code.length && code[j] !== q) { if (code[j] === '\\') j += 2; else j++; }
-          push('k', code.slice(i, Math.min(j+1, code.length)));
-          i = Math.min(j+1, code.length); continue;
+        i = end;
+      } else {
+        while (i < code.length && code[i] !== '`') {
+          const c = code[i];
+          if (c === '/' && code[i+1] === '/') {
+            const nl = code.indexOf('\n', i);
+            const end = nl === -1 ? code.length : nl;
+            const body = code.slice(i, end);
+            let kind = 'cm';
+            if (/(refus|\bno\b|fail|error|cannot|invalid|reject)/i.test(body)) kind = 'err';
+            push(kind, body); i = end; continue;
+          }
+          if (c === '→') { push('a', '→'); i++; continue; }
+          if (c === '-' && code[i+1] === '>') { push('a', '->'); i += 2; continue; }
+          if (c === "'" || c === '"') {
+            const q = c; let j = i + 1;
+            while (j < code.length && code[j] !== q) { if (code[j] === '\\') j += 2; else j++; }
+            push('k', code.slice(i, Math.min(j+1, code.length)));
+            i = Math.min(j+1, code.length); continue;
+          }
+          if (/[A-Za-z_$]/.test(c)) {
+            let j = i + 1;
+            while (j < code.length && /[A-Za-z0-9_$]/.test(code[j])) j++;
+            const word = code.slice(i, j);
+            push('i', word);
+            i = j; continue;
+          }
+          if (/[0-9]/.test(c)) {
+            let j = i + 1;
+            while (j < code.length && /[0-9.]/.test(code[j])) j++;
+            push('n', code.slice(i, j)); i = j; continue;
+          }
+          push('p', c); i++;
         }
-        if (/[A-Za-z_$]/.test(c)) {
-          let j = i + 1;
-          while (j < code.length && /[A-Za-z0-9_$]/.test(code[j])) j++;
-          const word = code.slice(i, j);
-          // Inside fsl template strings, identifiers are state names.
-          push(flavour === 'fsl' ? 's' : 'i', word);
-          i = j; continue;
-        }
-        if (/[0-9]/.test(c)) {
-          let j = i + 1;
-          while (j < code.length && /[0-9.]/.test(code[j])) j++;
-          push('n', code.slice(i, j)); i = j; continue;
-        }
-        push('p', c); i++;
       }
       if (i < code.length) { push('p', '`'); i++; }
       continue;
@@ -240,7 +290,6 @@ function highlightJsLike(code, flavour) {
       const word = code.slice(i, j);
       let kind = 'i';
       if (JS_KEYWORDS.has(word)) kind = 'k';
-      else if (flavour === 'fsl' && FSL_KEYWORDS.has(word)) kind = 'k';
       push(kind, word);
       i = j; continue;
     }
@@ -611,8 +660,15 @@ function main() {
 }
 
 if (require.main === module) {
-  try { main(); }
-  catch (e) { console.error('[build] FAILED:', e.message); process.exit(1); }
+  (async () => {
+    try {
+      await loadFence();
+      main();
+    } catch (e) {
+      console.error('[build] FAILED:', e.message);
+      process.exit(1);
+    }
+  })();
 }
 
 module.exports = { loadRecipes, renderRecipePage, parseTripleSlug };

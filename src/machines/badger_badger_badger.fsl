@@ -1,0 +1,36 @@
+// "Badger Badger Badger" - Weebl (weebls-stuff.com, 2003)
+//
+// The chant's period is baked directly into the graph's depth, not into a
+// counter or a comment: eight states, badger_1 through badger_8, each one
+// accepting the SAME action `'badger'` and advancing exactly one step -
+// the identical label bound seven times over, seven different
+// (source, target) pairs. At badger_8 the label runs out: there is no
+// eighth `'badger'` edge, only a forced (`~>`) fall into "MUSHROOM
+// MUSHROOM", which itself forces onward, unasked, back to badger_1. The
+// badgers never choose to be interrupted and never choose to resume;
+// both are outside their action set entirely, which is the whole meme.
+//
+// The showcase: fslSimulate can legally walk `'badger'` seven times in a
+// row and legalNext is always `['badger']` right up until badger_8, where
+// it is empty - proof the interrupt is structurally forced, never a move
+// the stream itself could take or skip. Raw `force_transition` carries
+// the walk through the mushroom and lands back on badger_1, where
+// `'badger'` is legal again, identical to the first lap.
+
+machine_name    : "Badger Badger Badger";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+badger_1 'badger' -> badger_2;
+badger_2 'badger' -> badger_3;
+badger_3 'badger' -> badger_4;
+badger_4 'badger' -> badger_5;
+badger_5 'badger' -> badger_6;
+badger_6 'badger' -> badger_7;
+badger_7 'badger' -> badger_8;
+badger_8 ~> "MUSHROOM MUSHROOM";
+"MUSHROOM MUSHROOM" ~> badger_1;

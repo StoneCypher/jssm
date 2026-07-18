@@ -1,0 +1,60 @@
+// "The Floor Is Lava" - playground game, runtime injection of a global
+// constraint
+//
+// Three kids are playing normally in three unrelated rooms, minding their
+// own business, when one declaration - "the floor is lava!" - retroactively
+// rewrites the legal-action set for the entire house at once. That is
+// modeled as a literal graph merge: three independent room states, each
+// reachable by its own chosen branch from the same starting point, each
+// carrying its OWN edge for the exact same declaration action, all landing
+// on one shared hub state. The declaration doesn't care which room you were
+// in; it is a single new global rule injected at runtime, and every
+// previously-distinct context collapses into the identical enforcement
+// regime the instant it fires. From the hub onward, "touch the floor" -
+// however it happens, wherever you are standing - always routes to the same
+// terminal, regardless of which piece of furniture you were just on.
+//
+// The showcase: fslSimulate walks all three room branches independently
+// into the hub and confirms each lands on the identical post-declaration
+// state, then walks the furniture-hopping path to survival and, separately,
+// the reckless path to the shared "burned" terminal from two different
+// furniture states.
+
+machine_name    : "The Floor Is Lava";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"playing tag around the house"
+  'wander into the living room' -> "living room floor, playing normally";
+"playing tag around the house"
+  'wander into the kitchen' -> "kitchen floor, playing normally";
+"playing tag around the house"
+  'wander into the hallway' -> "hallway floor, playing normally";
+
+// THE INJECTION - one global constraint, declared from three unrelated
+// contexts, landing on one shared state every time.
+"living room floor, playing normally"
+  'someone yells the floor is lava' -> "lava declared, scramble to furniture";
+"kitchen floor, playing normally"
+  'someone yells the floor is lava' -> "lava declared, scramble to furniture";
+"hallway floor, playing normally"
+  'someone yells the floor is lava' -> "lava declared, scramble to furniture";
+
+"lava declared, scramble to furniture"
+  'leap to the couch' -> "safe on the couch, lava rule in effect";
+"lava declared, scramble to furniture"
+  'freeze, feet still on the floor' -> "burned, lava rule enforced retroactively";
+
+"safe on the couch, lava rule in effect"
+  'hop to the ottoman across the gap' -> "safe on the ottoman, lava rule in effect";
+"safe on the couch, lava rule in effect"
+  'reckless, step onto the floor anyway' -> "burned, lava rule enforced retroactively";
+
+"safe on the ottoman, lava rule in effect"
+  'reckless, step onto the floor anyway' -> "burned, lava rule enforced retroactively";
+"safe on the ottoman, lava rule in effect"
+  'hold out until dinner is called' -> "survived until dinner, you win";

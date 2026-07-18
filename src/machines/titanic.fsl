@@ -1,0 +1,52 @@
+// "Titanic" (1912) - a comedy of engineering hubris, not of the people
+// aboard: this machine is about a marketing claim and a reachability
+// graph that never agreed to check it
+//
+// "Practically unsinkable" was a real phrase, and it was never a proof -
+// it was a state of confidence with no wiring into the actual transition
+// system that determined the ship's fate. Below, that confidence gets
+// its own state, and it is a deliberate island: reachable from nowhere
+// in the ship's real operational graph, connected to nothing but its own
+// self-loop, requiring `allow_islands: true` to compile at all. That is
+// the joke made structural - the claim was never load-bearing, because
+// it was never CONNECTED to the machinery whose behavior it claimed to
+// describe. Meanwhile the real graph has a fully wired, entirely forced
+// path from "full steam ahead" straight to the bottom, and the one
+// chosen evasive action that exists ('hard a-starboard') sits strictly
+// downstream of the iceberg, structurally too late regardless of whether
+// it's taken - both its outcomes converge on the same forced ending. The
+// verify script confirms both halves of the bit by BFS: the disaster is
+// reachable; the unsinkable claim is not.
+
+machine_name     : "Titanic";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the real graph: full speed, dismissed warnings, and a forced ending.
+"maiden voyage departs southampton" 'full steam ahead' -> "cruising at full speed, record-breaking pace";
+
+// dismissing warnings is a stable, repeatable, chosen habit - it changes
+// nothing about what happens next, which is why it self-loops.
+"cruising at full speed, record-breaking pace" 'ignore the iceberg warnings' -> "cruising at full speed, record-breaking pace";
+
+// nobody chooses to hit ice. this is forced, same as everything after it.
+"cruising at full speed, record-breaking pace" ~> "iceberg, dead ahead";
+
+// the one real, chosen, evasive action in the whole machine - and it sits
+// strictly downstream of the collision it's meant to prevent.
+"iceberg, dead ahead" 'hard a-starboard' -> "turning, too late, too slow";
+
+"turning, too late, too slow"                       ~> "hull breached below the waterline";
+"hull breached below the waterline"                 ~> "watertight compartments overtopped one by one";
+"watertight compartments overtopped one by one"     ~> "keel snaps amidships";
+"keel snaps amidships"                              ~> "at the bottom of the north atlantic";
+
+// the island: a confidence with no wires running to the machine it
+// describes. never reachable from the ship's real graph, connects only
+// to itself, and requires the attribute above just to be allowed to exist.
+"the brochure's claim: practically unsinkable" 'repeat the claim' -> "the brochure's claim: practically unsinkable";

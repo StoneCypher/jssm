@@ -26,7 +26,7 @@ const property_test = (idx: number): boolean => {
 
     try {
       test = sm`a -> b; property ${cp} default true;`;
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

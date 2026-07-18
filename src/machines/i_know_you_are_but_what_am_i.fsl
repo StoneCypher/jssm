@@ -1,0 +1,34 @@
+// "I Know You Are, But What Am I?" - playground reflection retort
+//
+// The comeback is a pure reflection operator: it does not answer the
+// insult, it maps the insult back onto whoever threw it, verbatim, and
+// hands the turn right back. Topologically that is two states mirroring
+// each other with the exact same action label bound in both directions -
+// "kid A is stuck holding the insult" and "kid B is stuck holding the
+// insult" each have `'I know you are, but what am I?'` pointing at the
+// OTHER. There is no third option, no de-escalation edge, nothing that
+// resolves the exchange from inside the game; a child could in principle
+// apply this action forever and the graph would keep legalizing it every
+// single time.
+//
+// The only way out is external and involuntary: an adult's forced (`~>`)
+// intervention from either seat, which fslSimulate can never traverse by
+// naming the destination (gotcha #6) - proof that ending the loop was
+// never a move either kid actually had access to.
+
+machine_name    : "I Know You Are, But What Am I?";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"kid A is stuck holding the insult"
+  'I know you are, but what am I?' -> "kid B is stuck holding the insult";
+
+"kid B is stuck holding the insult"
+  'I know you are, but what am I?' -> "kid A is stuck holding the insult";
+
+"kid A is stuck holding the insult" ~> "an adult steps in: recess is over, both of you, inside";
+"kid B is stuck holding the insult" ~> "an adult steps in: recess is over, both of you, inside";

@@ -1,0 +1,36 @@
+// "The Tortoise and the Hare" - Aesop's Fables (Perry Index 226)
+//
+// Slow and steady wins the race. The topology joke is what "steady" means
+// mechanically: the tortoise's entire route is a forced (`~>`) chain, one
+// checkpoint after another, with no self-loop and no decision anywhere in
+// it - once started, it simply completes, because forced edges always
+// fire. The hare's route is the opposite: every step is a chosen action,
+// including one particular chosen action, napping, that loops back to
+// itself. That self-loop is not scenery - it is a real trap. Nothing in
+// the graph forces the hare to wake up; `fslSimulate` can happily stay
+// asleep at that state for as many turns as you like, and only a chosen
+// `'hare wakes with a start'` ever leaves it. The showcase: a forced chain
+// is guaranteed to finish, a chosen self-loop is not guaranteed to end at
+// all, and that asymmetry - not effort, not speed - is the whole race.
+
+machine_name    : "The Tortoise and the Hare";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the tortoise: a forced chain. no self-loop, no choice, no way to stall.
+"race begins at the starting line" 'follow the tortoise, steady pace' -> "tortoise begins, steady pace";
+"tortoise begins, steady pace"                      ~> "tortoise passes checkpoint one, unbothered";
+"tortoise passes checkpoint one, unbothered"        ~> "tortoise passes checkpoint two, still unbothered";
+"tortoise passes checkpoint two, still unbothered"  ~> "tortoise crosses the finish line, slow and sure";
+
+// the hare: all chosen actions, including one that can trap forever.
+"race begins at the starting line" 'follow the hare, quick bursts' -> "hare begins, bursting with speed";
+"hare begins, bursting with speed" 'hare sprints far ahead'                 -> "hare far ahead, feeling great";
+"hare far ahead, feeling great"    'hare decides to nap, plenty of time'    -> "hare naps under a shady tree";
+"hare naps under a shady tree"     'hare snoozes on, still plenty of time'  -> "hare naps under a shady tree";
+"hare naps under a shady tree"     'hare wakes with a start'                -> "hare sprints for the line, too late";
+"hare sprints for the line, too late" 'hare finally reaches the end'        -> "hare crosses the finish line, second place";

@@ -1,0 +1,33 @@
+// "The Crow and the Pitcher" - Aesop's Fables (Perry Index 390)
+//
+// A thirsty crow cannot reach the water at the bottom of a pitcher, so it
+// drops pebbles in one at a time until the water rises within reach. The
+// topology joke is a threshold made entirely out of incremental, identical-
+// looking edges: each level state offers the same two kinds of action - a
+// self-loop, `'try to drink'`, that fires and changes nothing, and a
+// progress edge, `'drop in another pebble'`, that advances exactly one
+// level. Nothing about the graph marks any level as "close" until the
+// final progress edge, which is the only one worded differently -
+// `'drop in the pebble that tips it over the threshold'` - because it is
+// the only one whose target has a genuinely different shape: no self-loop
+// at all, because there is nothing left to try twice for.
+
+machine_name    : "The Crow and the Pitcher";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"pitcher, water far too low, crow thirsty" 'try to drink, beak cannot reach' -> "pitcher, water far too low, crow thirsty";
+"pitcher, water far too low, crow thirsty" 'drop in a pebble' -> "pitcher, one pebble in, water inches up";
+
+"pitcher, one pebble in, water inches up" 'try to drink, beak still cannot reach' -> "pitcher, one pebble in, water inches up";
+"pitcher, one pebble in, water inches up" 'drop in another pebble' -> "pitcher, two pebbles in, water climbing";
+
+"pitcher, two pebbles in, water climbing" 'try to drink, still just short' -> "pitcher, two pebbles in, water climbing";
+"pitcher, two pebbles in, water climbing" 'drop in another pebble' -> "pitcher, three pebbles in, water almost there";
+
+"pitcher, three pebbles in, water almost there" 'try to drink, so close, not quite' -> "pitcher, three pebbles in, water almost there";
+"pitcher, three pebbles in, water almost there" 'drop in the pebble that tips it over the threshold' -> "pitcher, water at the rim, crow drinks at last";

@@ -15,10 +15,10 @@ describe('wc_suffix_matches', () => {
 describe('closest_wc', () => {
   it('finds the nearest ancestor with either prefix for a suffix', () => {
     document.body.innerHTML = '<fsl-instance><div id="k"></div></fsl-instance>';
-    const k = document.getElementById('k')!;
+    const k = document.querySelector('#k')!;
     expect(closest_wc(k, 'instance')?.tagName.toLowerCase()).toBe('fsl-instance');
     document.body.innerHTML = '<jssm-instance><span id="j"></span></jssm-instance>';
-    const j = document.getElementById('j')!;
+    const j = document.querySelector('#j')!;
     expect(closest_wc(j, 'instance')?.tagName.toLowerCase()).toBe('jssm-instance');
   });
 });

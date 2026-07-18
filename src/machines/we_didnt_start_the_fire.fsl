@@ -1,0 +1,50 @@
+// "We Didn't Start the Fire" - Billy Joel (1989)
+//
+// The song is a litany, not a narrative: it enumerates headline after
+// headline with no causal thread stringing one to the next, which is the
+// premise this file takes literally. Eight historical events - chosen and
+// worded independently here, deliberately out of chronological order so the
+// file's own sequence does not retrace the song's - are each modeled as a
+// state with NO edge to any of the other seven. A bare state with no edges
+// at all is silently dropped by this jssm build (the field guide's own
+// documented gotcha), so each one carries the one self-loop needed to
+// register it at all, and every self-loop uses the identical action name -
+// these are eight instances of the same kind of atomic, disconnected fact,
+// not seven different kinds of thing. `allow_islands: true;` is load-bearing
+// for all eight simultaneously. The empirical curiosity, checked below: a
+// state whose only edge is to itself is NOT flagged terminal by this jssm
+// build, even though nothing can ever be reached from it but itself - the
+// list has no exits, but formally, nothing here is an ending either.
+
+machine_name    : "We Didn't Start the Fire";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"the first human footsteps land on the Moon, 1969"
+  'sits in the list, connected to nothing else' -> "the first human footsteps land on the Moon, 1969";
+
+"a long-divided European capital watches its dividing wall come down, 1989"
+  'sits in the list, connected to nothing else' -> "a long-divided European capital watches its dividing wall come down, 1989";
+
+"a US president resigns rather than face impeachment over a break-in scandal, 1974"
+  'sits in the list, connected to nothing else' -> "a US president resigns rather than face impeachment over a break-in scandal, 1974";
+
+"atomic weapons force an unconditional surrender in the Pacific theater, 1945"
+  'sits in the list, connected to nothing else' -> "atomic weapons force an unconditional surrender in the Pacific theater, 1945";
+
+"dozens of American hostages spend over a year captive in Tehran, 1979"
+  'sits in the list, connected to nothing else' -> "dozens of American hostages spend over a year captive in Tehran, 1979";
+
+"a beeping metal sphere becomes the first satellite to orbit the earth, 1957"
+  'sits in the list, connected to nothing else' -> "a beeping metal sphere becomes the first satellite to orbit the earth, 1957";
+
+"a president is shot riding in an open motorcade through Dallas, 1963"
+  'sits in the list, connected to nothing else' -> "a president is shot riding in an open motorcade through Dallas, 1963";
+
+"a public data network opens outside the research labs that built it, 1991"
+  'sits in the list, connected to nothing else' -> "a public data network opens outside the research labs that built it, 1991";

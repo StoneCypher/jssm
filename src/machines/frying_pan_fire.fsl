@@ -1,0 +1,31 @@
+// "Out of the Frying Pan, Into the Fire" - English proverb
+//
+// The idiom is about an escape that makes things worse, and the topology
+// makes that a hard structural guarantee rather than a vibe: the only
+// action that actually leaves a bad state targets a state that is
+// strictly worse, every single time. Staying put is always available as
+// a self-loop - uncomfortable, but survivable - while the escape action
+// is a one-way edge to somewhere hotter. Chaining that twice (pan to
+// fire, fire to coals) shows the pattern is not a one-off gag but a
+// structural property of every escape edge in the graph: none of them
+// ever point back up.
+//
+// Showcase: `fslExplain` over the whole graph shows the self-loop is the
+// only edge that returns to its own source; every other edge's target is
+// annotated, in its own name, as worse than where it started.
+
+machine_name    : "Out of the Frying Pan, Into the Fire";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the frying pan, uncomfortably hot"
+  'grit your teeth and stay put' -> "the frying pan, uncomfortably hot";
+"the frying pan, uncomfortably hot"
+  'leap out to escape the heat' -> "the fire, hotter than the pan ever was";
+
+"the fire, hotter than the pan ever was"
+  'leap again, desperate to escape the fire too' -> "the coals beneath, worse than the fire";

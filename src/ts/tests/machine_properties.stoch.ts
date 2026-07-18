@@ -23,8 +23,10 @@ const word = fc.stringOf(
   { minLength: 2, maxLength: 8 }
 );
 
-/** Arbitrary FSL property literal with its expected parsed value.  The
- *  grammar's JsNumericLiteral carries no sign, so numerics stay >= 0. */
+/**
+ * Arbitrary FSL property literal with its expected parsed value.  The
+ *  grammar's JsNumericLiteral carries no sign, so numerics stay >= 0.
+ */
 const prop_value = fc.oneof(
   fc.integer({ min: 0, max: 100_000 }).map( n => ({ literal: String(n), expected: n as unknown }) ),
   word.map( w => ({ literal: `"${w}"`, expected: w as unknown }) ),
@@ -166,10 +168,10 @@ describe('override()', () => {
         ({ names, fsl }) => {
 
           const by_default = jssm.from(fsl);
-          expect(() => by_default.override(names[names.length - 1])).toThrow();
+          expect(() => by_default.override(names.at(-1))).toThrow();
 
           const disallowed = jssm.from(`allows_override: false;  ${fsl}`);
-          expect(() => disallowed.override(names[names.length - 1])).toThrow();
+          expect(() => disallowed.override(names.at(-1))).toThrow();
 
           const allowed = jssm.from(`allows_override: true;  ${fsl}`);
           expect(() => allowed.override(`${names[0]}_`)).toThrow();
@@ -192,8 +194,7 @@ describe('history buffer', () => {
   /**
    *  Builds the FSL for a plain ring of size k (`h0 -> h1 -> ... -> h0`)
    *  and walks a machine n steps, returning the visited-state sequence
-   *  *before* each step — which is exactly what the history buffer records.
-   *
+   *  before* each step — which is exactly what the history buffer records.
    *  @param k  Ring size.
    *  @param n  Steps to walk.
    *  @param history  Capacity passed to the constructor.
@@ -201,7 +202,7 @@ describe('history buffer', () => {
    */
   function walked_ring(k: number, n: number, history: number) {
 
-    const names = [...new Array(k).keys()].map( i => `h${i}` );
+    const names = Array.from({length: k}, (_, index) => index).map( i => `h${i}` );
     const fsl   = names.map( (nm, i) => `${nm} -> ${names[(i + 1) % k]};` ).join('  ');
 
     const machine = jssm.from(fsl, { history });
@@ -253,7 +254,7 @@ describe('history buffer', () => {
         fc.integer({ min: 1, max: 6 }),
         (k, n, capacity) => {
 
-          const names = [...new Array(k).keys()].map( i => `h${i}` );
+          const names = Array.from({length: k}, (_, index) => index).map( i => `h${i}` );
           const fsl   = names.map( (nm, i) => `${nm} -> ${names[(i + 1) % k]};` ).join('  ');
 
           const machine = jssm.from(fsl);

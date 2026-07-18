@@ -1,0 +1,54 @@
+// "No, This is Patrick" - SpongeBob SquarePants (the "Krusty Krab Pizza"
+// jingle's viral phone-call cold open)
+//
+// SpongeBob dials what he is certain is the Krusty Krab and keeps reaching
+// Patrick's rock instead. The bit is usually told as sheer repetition, but
+// the honest topology is sharper than that: at the moment of redialing
+// there are TWO distinct, differently-named actions available - a careless
+// `'redial the exact same number'` and an earnest `'dial extra carefully
+// this time'` - and jssm's own grammar lets both exist as separate, legal
+// edges from the same state. They are wired to the identical next state
+// anyway. The protocol does not fail to repair because nobody tries harder;
+// it fails to repair because trying harder and not trying are, structurally,
+// the same edge, and no amount of effort on the caller's end can change
+// which state that edge points to.
+//
+// The Krusty Krab itself is preserved as a real, named state in this file -
+// so `fslExplain` can report it as existing - but it is a deliberate island
+// (`allow_islands: true`), with no incoming edge from anywhere reachable.
+// The destination SpongeBob wants is genuinely in the graph. It is nowhere
+// in his reach.
+//
+// Showcase: `fslExplain`'s own terminal count is zero. Every reachable
+// state, including the island's self-loop, keeps an outgoing edge - the
+// call never resolves, by construction, not by narrative fiat.
+
+machine_name    : "No, This is Patrick";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+// two different verbs, one identical destination. earnestness changes
+// nothing about where the call goes next.
+"hung up, dialing the krusty krab again"
+  'redial the exact same number'   -> "the line rings";
+"hung up, dialing the krusty krab again"
+  'dial extra carefully this time' -> "the line rings";
+
+// whoever dials, whichever way, the line is always picked up by the same
+// party - forced, because nobody involved gets a say in who answers.
+"the line rings" ~> "patrick picks up: this is patrick";
+
+// asking anyway just re-dials. the loop has no exit edge at all.
+"patrick picks up: this is patrick"
+  'ask for the krusty krab anyway' -> "hung up, dialing the krusty krab again";
+
+// the actual destination: real, named, fully specified - and an island.
+// no edge above ever points here, so nothing SpongeBob does from inside
+// the loop ever gets him closer to it.
+"the krusty krab, never once reached"
+  'the call that was never placed' -> "the krusty krab, never once reached";

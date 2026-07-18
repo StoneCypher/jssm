@@ -1,0 +1,46 @@
+// Hotel California, as a bug report
+//
+// "You can check out any time you like, but you can never leave" is not a
+// mood, it's a topology bug, and FSL can point at the exact line. The hotel
+// (lobby, room, bar, mirrors on the ceiling) is one small ordinary graph,
+// and the front desk's `'check out'` action is a completely legal, fully
+// wired edge - it EXISTS, and a walk through it SUCCEEDS - landing the
+// guest at "you can check out any time you like", a real, reachable state.
+// The bug is what that state does NOT have: any outbound edge at all, let
+// alone one to `leave`. Meanwhile `leave` itself is declared - it has to be,
+// to exist as a name - but nothing in the reachable hotel points to it; it
+// only points onward, to "the highway", forming a second island the walk
+// can never enter. `allow_islands: true;` is required and is load-bearing:
+// without it this file does not compile, because jssm's default posture is
+// that an unreachable state is a mistake, not a lyric.
+//
+// The showcase is the difference between an action EXISTING and an exit
+// EXISTING: `'check out'` is real and succeeds; `'leave'` is not an action
+// anywhere in this machine, and there is no edge to the state `leave` from
+// wherever checkout leaves you - so the simulator rejects it, correctly,
+// both ways at once.
+
+machine_name     : "Hotel California";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the hotel - a small, plush, fully reachable graph.
+lobby                     'check in'         -> room;
+room                      'go to the bar'    -> bar;
+bar                       'go to the room'   -> room;
+room                      'look up'          -> "mirrors on the ceiling";
+"mirrors on the ceiling"  'look back down'   -> room;
+room                      'return to lobby'  -> lobby;
+
+// the action exists, and legally succeeds - straight into a dead end.
+lobby  'check out' -> "you can check out any time you like";
+
+// the exit does not: `leave` is real, but nothing reachable points to it,
+// and from there the only way is further out, onto the highway. an island,
+// declared but unentered - which is why allow_islands is load-bearing here.
+leave  'drive off' -> "the highway";

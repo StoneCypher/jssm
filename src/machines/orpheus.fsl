@@ -1,0 +1,32 @@
+// "Orpheus and Eurydice" - Greek myth
+//
+// Hades' one condition is simple: lead her out, do not look back, until
+// both of you are fully in daylight. The tunnel out of the underworld is
+// a straight, linear climb, and for every step but the last there is
+// only one legal action - keep walking. The forbidden action, looking
+// back, is not wired in anywhere along that climb at all; it does not
+// exist as a temptation until the very last edge, one step from the
+// surface, where it appears for the first and only time, right next to
+// the action that would have finished the climb instead.
+//
+// The showcase is that "forbidden, and available exactly once, at the
+// worst possible moment" is a topology property: earlier states in this
+// file could not offer the forbidden action even if Orpheus wanted it,
+// because it simply is not an edge there. It only exists at the last
+// bend, which is also where taking it costs the most.
+
+machine_name     : "Orpheus and Eurydice";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"the underworld, Eurydice following behind, unseen" 'begin the ascent, eyes forward' -> "the tunnel, first bend";
+"the tunnel, first bend" 'keep climbing, eyes forward' -> "the tunnel, second bend";
+"the tunnel, second bend" 'keep climbing, eyes forward' -> "the tunnel, last bend, daylight visible ahead";
+
+// the fork exists only here, one step from the surface.
+"the tunnel, last bend, daylight visible ahead" 'take the last step, eyes forward' -> "the surface, both of them free";
+"the tunnel, last bend, daylight visible ahead" 'look back to be sure she is still there' -> "Eurydice pulled back into the dark, gone a second time";

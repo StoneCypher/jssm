@@ -1,0 +1,89 @@
+machine_name      : "Oil Cracking";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : 5.0.0;
+
+machine_reference : [ "https://github.com/StoneCypher/fsl/issues/44"
+                      "https://en.wikipedia.org/wiki/Oil_refinery" ];
+machine_comment   : "Petroleum refinery process flow: crude in through desalting, distillation, cracking, reforming, treating, and blending, out to finished products.  Process units are states; the material streams between them are the actions.";
+
+start_states      : ["Crude Oil"];
+end_states        : [ "Gasoline"
+  "Jet Fuel"
+  "Diesel Fuel"
+  "Fuel Oil"
+  "LPG"
+  "Refinery Fuel"
+  "Sulfur"
+  "Asphalt"
+  "Petroleum Coke" ];
+
+
+
+// primary path: crude -> distillation -> cracking -> blending -> gasoline
+
+"Crude Oil" 'raw crude charge'  => "Desalter";
+"Desalter"  'desalted crude'    => "Atmospheric Distillation";
+
+// atmospheric fraction streams, top of the column downward
+
+"Atmospheric Distillation" 'overhead gas'         -> "Gas Processing";
+"Atmospheric Distillation" 'light naphtha'        -> "Naphtha Hydrotreater";
+"Atmospheric Distillation" 'heavy naphtha'        => "Naphtha Hydrotreater";
+"Atmospheric Distillation" 'kerosene'             -> "Kerosene Merox Treater";
+"Atmospheric Distillation" 'diesel oil'           -> "Distillate Hydrotreater";
+"Atmospheric Distillation" 'atmospheric gas oil'  -> "Hydrocracker";
+"Atmospheric Distillation" 'atmospheric bottoms'  => "Vacuum Distillation";
+
+// light ends recovery
+
+"Gas Processing"    'fuel gas'          -> "Amine Treating";
+"Gas Processing"    'C3 and C4 stream'  -> "Gas Merox Treater";
+"Gas Processing"    'isobutane'         -> "Alkylation Unit";
+"Gas Merox Treater" 'sweetened LPG'     -> "LPG";
+"Amine Treating"    'clean fuel gas'    -> "Refinery Fuel";
+"Amine Treating"    'hydrogen sulfide'  -> "Claus Sulfur Plant";
+"Claus Sulfur Plant" 'recovered sulfur' -> "Sulfur";
+
+// naphtha upgrading for the gasoline pool
+
+"Naphtha Hydrotreater" 'hydrotreated light naphtha' -> "Isomerization Plant";
+"Naphtha Hydrotreater" 'hydrotreated heavy naphtha' => "Catalytic Reformer";
+"Isomerization Plant"  'isomerate'                  -> "Gasoline Blending Pool";
+"Catalytic Reformer"   'reformate'                  => "Gasoline Blending Pool";
+
+// middle distillate treating
+
+"Kerosene Merox Treater" 'sweetened kerosene'      => "Jet Fuel";
+"Distillate Hydrotreater" 'desulfurized distillate' => "Diesel Fuel";
+
+// vacuum tower and the cracking train
+
+"Vacuum Distillation" 'light vacuum gas oil'      -> "FCC Feed Hydrotreater";
+"Vacuum Distillation" 'heavy vacuum gas oil'      => "FCC Feed Hydrotreater";
+"Vacuum Distillation" 'vacuum residuum'           -> "Delayed Coker";
+"Vacuum Distillation" 'vacuum residuum to asphalt' ~> "Asphalt Blowing";
+
+"FCC Feed Hydrotreater"   'treated gas oil'       => "Fluid Catalytic Cracker";
+"Fluid Catalytic Cracker" 'FCC naphtha'           => "FCC Gasoline Hydrotreater";
+"Fluid Catalytic Cracker" 'FCC gas oil'           -> "Fuel Oil";
+"Fluid Catalytic Cracker" 'butenes and pentenes'  -> "Alkylation Unit";
+"FCC Gasoline Hydrotreater" 'FCC gasoline'        => "Gasoline Blending Pool";
+"Alkylation Unit"         'alkylate'              -> "Gasoline Blending Pool";
+
+"Hydrocracker" 'hydrocracked gasoline'      => "Gasoline Blending Pool";
+"Hydrocracker" 'hydrocracked jet and diesel' -> "Diesel Fuel";
+
+// coking the bottom of the barrel
+
+"Delayed Coker"  'coker naphtha'  -> "Naphtha Hydrotreater";
+"Delayed Coker"  'coker gas oil'  -> "FCC Feed Hydrotreater";
+"Delayed Coker"  'petroleum coke' -> "Petroleum Coke";
+"Asphalt Blowing" 'blown asphalt' -> "Asphalt";
+
+// out the gate
+
+"Gasoline Blending Pool" 'blended and shipped' => "Gasoline";

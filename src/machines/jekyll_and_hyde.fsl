@@ -1,0 +1,52 @@
+// "The Strange Case of Dr Jekyll and Mr Hyde" - Robert Louis Stevenson
+// (1886)
+//
+// One body, two states contending for it, and the contest gets less
+// negotiable every time it repeats. Early hand-offs in both directions
+// are ordinary chosen actions gated on drinking something - potion one
+// way, antidote the other - the two states taking clean turns holding the
+// one shared resource. As the supply of the original ingredient runs
+// down, the same contest keeps happening, but the edges stop asking
+// permission: Jekyll to Hyde becomes forced, unwilled, with no potion
+// action bound to it anywhere, and the last dose back is impure enough
+// that the return trip is forced too, permanently, in favor of Hyde.
+//
+// Showcase: a walk through all four hand-offs shows the drink actions
+// disappearing from legalNext exactly where the forced edges take over;
+// a raw jssm probe confirms the potion action is simply unbound - not
+// rejected, not guarded, absent - at the state where the body stops
+// asking who gets to hold it.
+
+machine_name     : "The Strange Case of Dr Jekyll and Mr Hyde";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"Jekyll in control, potion freshly brewed"
+  'drink the potion, become Hyde' -> "Hyde in control, first transformation";
+
+"Hyde in control, first transformation"
+  'drink the antidote, become Jekyll again' -> "Jekyll in control, potion running low";
+
+"Jekyll in control, potion running low"
+  'drink the potion, become Hyde' -> "Hyde in control, transformations more frequent";
+
+"Hyde in control, transformations more frequent"
+  'drink the antidote, become Jekyll again, barely enough left' -> "Jekyll in control, ingredients nearly exhausted";
+
+// the contest stops asking permission: no potion action bound here at all.
+"Jekyll in control, ingredients nearly exhausted"
+  ~> "Hyde in control, unwilled, no potion taken";
+
+"Hyde in control, unwilled, no potion taken"
+  'attempt the antidote, the last true supply' -> "Jekyll in control, one dose left, ingredients substituted";
+
+// the last dose is impure; the return trip is forced too, permanently.
+"Jekyll in control, one dose left, ingredients substituted"
+  ~> "Hyde in control permanently, the last ingredient was impure";
+
+"Hyde in control permanently, the last ingredient was impure"
+  'end it before Hyde takes the body for good' -> "found dead by his own hand, Jekyll and Hyde both ended";

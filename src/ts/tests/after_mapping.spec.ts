@@ -50,11 +50,16 @@ describe('after mapping lifecycle', () => {
 
 test('custom timeout sources', () => {
 
-  const timeout_source       = (f: Function, a: number) => setTimeout(f, a),
-        clear_timeout_source = (h: number) => clearTimeout(h);
+  // jssm's config types a timer handle as `number` (browser-shaped), but node's
+  // `setTimeout` hands back a `NodeJS.Timeout`.  The library's own default
+  // timeout source resolves that same mismatch the same way — see
+  // DEFAULT_TIMEOUT_SOURCE in src/ts/jssm.ts — so this shim mirrors it, keeping
+  // the real handle (which is what `clearTimeout` here is handed) intact.
+  const timeout_source       = (f: () => void, a: number): number => setTimeout(f, a) as unknown as number,
+        clear_timeout_source = (h: number): void => clearTimeout(h);
 
   const m = sm_from(`a after 20s -> b;`, { timeout_source, clear_timeout_source });
-  expect(m.current_state_timeout()).toStrictEqual(['b', 20000]);
+  expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);
 
   m.clear_state_timeout();
   expect(m.current_state_timeout()).toBe(undefined)
@@ -70,9 +75,34 @@ test('custom timeout sources', () => {
 
 
 
+// `timeout_source` used to be declared `(Function, number) => number`, in which
+// `Function` and `number` are *parameter names*, not types — so both parameters
+// were silently `any` and the config accepted any two-argument function at all.
+// The @ts-expect-error below is the regression guard: it only holds while the
+// parameters are genuinely typed, and turns into an error the moment they decay
+// back to `any`.
+
+test('a mis-shaped timeout source is rejected by the type', () => {
+
+  const clear_timeout_source = (h: number): void => clearTimeout(h);
+
+  const m = sm_from(`a after 20s -> b;`, {
+    // @ts-expect-error timeout_source takes (fn: () => void, delay_ms: number); a string delay is not a delay
+    timeout_source: (_f: () => void, _delay: string): number => 0,
+    clear_timeout_source
+  });
+
+  expect(m.state()).toBe('a');
+
+});
+
+
+
+
+
 const delay = (time: number = 1000) =>
 
-  new Promise( handler => setTimeout(handler, time) );
+  new Promise( resolve => setTimeout(resolve, time) );
 
 
 
@@ -217,18 +247,14 @@ describe('after mapping general topics', () => {
 
     test('due to machine', () => {
       const m = sm`a after 1 -> b;`;
-      try {
-        expect( () => m.set_state_timeout('b', 10) ).toThrow();
-      } catch (e) {} finally {}
+      expect( () => m.set_state_timeout('b', 10) ).toThrow();
       m.clear_state_timeout();
     });
 
     test('due to api', () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 10);
-      try {
-        expect( () => m.set_state_timeout('b', 10) ).toThrow();
-      } catch (e) {} finally {}
+      expect( () => m.set_state_timeout('b', 10) ).toThrow();
       m.clear_state_timeout();
     });
 
@@ -434,5 +460,69 @@ describe('after mapping particulars', () => {
   });
 
 
+
+});
+
+
+
+
+
+// The source state's `after` timer must survive a vetoed transition: the machine
+// stays put, so its pending auto-advance must too.  Previously the timer was
+// cleared before the hook chain ran, so a veto killed it and the state could
+// never time out.  StoneCypher/fsl#1945
+describe('a vetoed transition preserves the source state\'s after timer', () => {
+
+  test('the a->b after timer survives a vetoed a->c transition', () => {
+    const scheduled: number[] = [];
+    const cleared: number[]   = [];
+    const timeout_source       = (_f: () => void, a: number): number => { scheduled.push(a); return scheduled.length; };
+    const clear_timeout_source = (h: number): void => { cleared.push(h); };
+
+    const m = sm_from(`a after 20s -> b;\na -> c;`, { timeout_source, clear_timeout_source });
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);   // armed at construct
+
+    m.hook('a', 'c', () => false);            // veto the a->c edge
+    expect(m.transition('c')).toBe(false);     // valid edge, but vetoed
+    expect(m.state()).toBe('a');               // still in a
+
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);   // timer preserved
+    expect(cleared).toStrictEqual([]);         // nothing was cleared by the veto
+  });
+
+  test('a successful transition still clears the departed timer (fsl#1327 preserved)', () => {
+    const cleared: number[] = [];
+    const timeout_source       = (_f: () => void, _a: number): number => 1;
+    const clear_timeout_source = (h: number): void => { cleared.push(h); };
+
+    const m = sm_from(`a after 20s -> b;\na -> c;`, { timeout_source, clear_timeout_source });
+    expect(m.current_state_timeout()).toStrictEqual(['b', 20_000]);
+
+    expect(m.transition('c')).toBe(true);      // manual transition away, no hook
+    expect(m.state()).toBe('c');
+    expect(cleared).toStrictEqual([1]);        // the a->b ghost timer was cleared on commit
+    expect(m.current_state_timeout()).toBe(undefined);   // c has no after
+  });
+
+});
+
+
+
+
+
+// The default after-timer must not by itself keep the Node process alive: an
+// abandoned machine with a pending `after` should be collectable and let the
+// process exit, rather than hanging until the timer fires go() on it.  Node's
+// setTimeout returns a Timeout that reports hasRef() === false once unref'd.
+// StoneCypher/fsl#1952
+describe('the default after-timer is unref\'d', () => {
+
+  test('a machine using the default timeout source has an unref\'d pending timer', () => {
+    const m = sm_from('a after 100s -> b;');   // no custom timeout_source -> the default
+    const handle = (m as unknown as { _timeout_handle: { hasRef(): boolean } })._timeout_handle;
+    expect(typeof handle.hasRef).toBe('function');
+    expect(handle.hasRef()).toBe(false);        // unref'd -> does not hold the event loop
+    m.clear_state_timeout();                      // clean up
+  });
 
 });

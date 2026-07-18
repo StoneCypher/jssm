@@ -1,0 +1,45 @@
+// "More Cowbell" - Saturday Night Live, "Behind the Music: Bruce Dickinson"
+// (NBC, 2000)
+//
+// The producer's prescription is not addressed to any one part of the
+// song - it is applied to the whole take, uniformly, regardless of
+// section. This file writes that as a genuine overlay: a five-state
+// song structure, verse through outro, linked by one chosen
+// `'play the next section'` chain, and then the identical action
+// `'need more cowbell'` self-looped onto every single one of those five
+// states with no exceptions. The consequence is structural, not just
+// thematic: because the prescription reaches every state including the
+// last one, no state in this machine is a true dead end, and the song
+// has no terminal anywhere in it - `fslExplain`'s terminal list comes
+// back empty. There is always more cowbell, which is to say there is
+// never an ending the graph will actually hold still for.
+//
+// Showcase: raw jssm confirms `'need more cowbell'` is bound at all five
+// states, verse to outro; `fslExplain` reports zero terminals for the
+// whole machine.
+
+machine_name    : "More Cowbell";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the prescription: one action, one wording, self-looped identically
+// onto every section of the song below - it does not discriminate.
+"verse one, guitar and bass"       'need more cowbell' -> "verse one, guitar and bass";
+"chorus, full band"                'need more cowbell' -> "chorus, full band";
+"verse two, quieter"               'need more cowbell' -> "verse two, quieter";
+"unscheduled cowbell bridge"       'need more cowbell' -> "unscheduled cowbell bridge";
+"outro, fading, still not fading enough" 'need more cowbell' -> "outro, fading, still not fading enough";
+
+// the song structure: a real, chosen chain from section to section.
+"verse one, guitar and bass" 'play the next section' -> "chorus, full band";
+"chorus, full band"          'play the next section' -> "verse two, quieter";
+"verse two, quieter"         'play the next section' -> "unscheduled cowbell bridge";
+"unscheduled cowbell bridge" 'play the next section' -> "outro, fading, still not fading enough";
+
+// even the outro loops back on itself for another take - the
+// prescription reaches past the song's own ending.
+"outro, fading, still not fading enough" 'take it again from the top' -> "verse one, guitar and bass";

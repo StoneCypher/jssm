@@ -1,0 +1,48 @@
+// "The Tower of Babel" - Hebrew scripture, Genesis 11:1-9
+//
+// One shared action, 'raise the tower together', is bound at every state
+// before the confusion and at NONE of the states after it - the single
+// build protocol every worker used is not merely harder to use once the
+// languages scatter, it does not exist in the action set anymore, at any
+// of the three resulting camps. That is the topology joke: fragmentation
+// is not friction added to a working protocol, it is the protocol's
+// disappearance, replaced by three mutually disjoint action sets (checked
+// directly below, the same way wolf_in_sheeps_clothing.fsl compares two
+// states' action lists via `m.actions()`). None of the three camps has an
+// edge back to a shared state or to a finished tower ever again - each is
+// its own dead-end self-loop, a fully reachable but permanently
+// unfinished construction site.
+
+machine_name    : "The Tower of Babel";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"one language, laying the foundation"
+  'raise the tower together' -> "one language, tower rising fast";
+
+"one language, tower rising fast"
+  'raise the tower together' -> "tower nearing the heavens, one language still";
+
+// forced and unrequested - nobody on the build crew chose this.
+"tower nearing the heavens, one language still" ~> "the languages scatter, mid-sentence";
+
+// the shared action is gone entirely from here on. three new, mutually
+// unintelligible action sets replace it, one per camp, none of them
+// leading anywhere but back to the same camp.
+"the languages scatter, mid-sentence"
+  'retreat to your own camp, reed-tongue'  -> "camp of the reed-tongue, building alone";
+"the languages scatter, mid-sentence"
+  'retreat to your own camp, stone-tongue' -> "camp of the stone-tongue, building alone";
+"the languages scatter, mid-sentence"
+  'retreat to your own camp, river-tongue' -> "camp of the river-tongue, building alone";
+
+"camp of the reed-tongue, building alone"
+  'keep building, alone, slower' -> "camp of the reed-tongue, building alone";
+"camp of the stone-tongue, building alone"
+  'keep building, alone, slower' -> "camp of the stone-tongue, building alone";
+"camp of the river-tongue, building alone"
+  'keep building, alone, slower' -> "camp of the river-tongue, building alone";

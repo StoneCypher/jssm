@@ -1,0 +1,40 @@
+// "Rumpelstiltskin" - Brothers Grimm (KHM 55), the tale where a name
+// functions exactly like a cryptographic key: possessing it unlocks the
+// bargain's escape clause, and the imp is safe precisely as long as the
+// keyspace stays large and unindexed. The queen's three days of guessing
+// are a real brute-force attack, and the topology says, honestly, that
+// brute force alone never wins: every wrong guess is a self-loop back to
+// the exact same state, and there is no edge - none, at any fan-out - from
+// that guessing loop to the state where the name is known. Guessing
+// forever would not have been enough.
+//
+// What actually works is a side-channel leak: a servant follows him into
+// the forest and overhears him sing his own name by the campfire, a piece
+// of information that was never gated behind a guess at all. The topology
+// joke is the contrast made structural - the brute-force loop and the
+// disclosure edge are both real paths out of the same starting state, but
+// only one of them has ever, in this graph, actually reached "the name is
+// known." Real security folklore agrees: attackers rarely crack the key,
+// they just find out someone said it out loud where they could hear it.
+
+machine_name    : "Rumpelstiltskin";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"three days to name the impish stranger"
+  'guess "Caspar"?' -> "three days to name the impish stranger";
+"three days to name the impish stranger"
+  'guess "Melchior"?' -> "three days to name the impish stranger";
+"three days to name the impish stranger"
+  'a servant trails him into the forest, unseen' -> "servant listens at the campfire, unseen";
+
+// no wrong guess, no matter how many, has an edge to here. only the leak does.
+"servant listens at the campfire, unseen"
+  'he sings his own name to himself, thinking nobody hears' -> "the name is known: Rumpelstiltskin";
+
+"the name is known: Rumpelstiltskin"
+  'she speaks the name aloud, third guess of the day' -> "he tears himself in two";

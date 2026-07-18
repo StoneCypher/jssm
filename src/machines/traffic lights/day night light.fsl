@@ -1,0 +1,38 @@
+machine_name    : "Day/Night Traffic Light";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+
+fsl_version     : 5.0.0;
+
+flow : down;
+
+// Every state publishes its current color. `required` makes the compiler reject
+// the machine if any state forgets to define it — so the Properties panel always
+// has a live `color` to show, and it updates on every transition.
+property color required;
+
+// Boot: the DRIVER picks day vs night from the wall clock; the machine itself
+// knows nothing about the time (that keeps it pure and replayable). In JS:
+//   light.action(hour >= 6 && hour < 22 ? 'start_day' : 'start_night');
+Off 'start_day'   -> Red;
+Off 'start_night' -> FlashingAmber;
+
+// Daytime: the normal cycle.
+Red 'next' => Green 'next' => Yellow 'next' => Red;
+
+// Nighttime: amber blinks on and off (1 Hz, like a real late-night signal).
+FlashingAmber after 1s -> Dark;
+Dark          after 1s -> FlashingAmber;
+
+// Either mode can be shut down.
+[Red Green Yellow FlashingAmber Dark] 'stop' ~> Off;
+
+// Per-state current color + styling.
+state        : { corners: rounded; };
+state Off           : { property: color "off";    background-color: dimgray;     text-color: white; };
+state Red           : { property: color "red";    background-color: #fbb; };
+state Green         : { property: color "green";  background-color: lightgreen; };
+state Yellow        : { property: color "yellow"; background-color: lightyellow; };
+state FlashingAmber : { property: color "amber";  background-color: orange; };
+state Dark          : { property: color "off";    background-color: dimgray;     text-color: white; };

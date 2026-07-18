@@ -7,7 +7,7 @@ import { FslInstance } from '../fsl_instance_wc.js';
 function mount(fsl: string): FslInstance {
   const el = document.createElement('fsl-instance') as FslInstance;
   el.setAttribute('fsl', fsl);
-  document.body.appendChild(el);
+  document.body.append(el);
   return el;
 }
 
@@ -40,7 +40,7 @@ describe('fsl-instance live rebuild (#1387)', () => {
   it('ignores an empty fsl change', async () => {
     const el = mount("A 'go' -> B;");
     await el.updateComplete;
-    el.fsl = '   ';
+    el.fsl = ' '.repeat(3);
     await el.updateComplete;
     expect(el.state()).toBe('A');
     el.remove();

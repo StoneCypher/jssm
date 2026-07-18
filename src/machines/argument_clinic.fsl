@@ -1,0 +1,43 @@
+// "The Argument Clinic" - Monty Python's Flying Circus (1972). A
+// customer pays for a five-minute argument, blunders into the Abuse room
+// next door first, and discovers that what's on offer isn't Cleese's own
+// in-sketch definition of an argument - "a connected series of
+// statements intended to establish a proposition" - but its degenerate
+// case: tireless, contentless contradiction.
+//
+// This machine takes that definition at face value and turns it into an
+// edge that exists but is never walked: `contradiction` has a real,
+// legal action straight to "A Proper Argument", sitting in `legalNext`
+// at every visit, and nothing in the demonstrative simulate ever fires
+// it - because nothing in the sketch does either. The tight
+// `statement <-> contradiction` oscillation showcases jssm's
+// independent-action-per-direction two-way arrows ('no it isn\'t'
+// forward, 'yes it is' back); 'pay for another five minutes' re-enters
+// the loop instead of ending it; and an explicit `start_states` seats
+// the customer at `reception`, one door from Abuse and one more from
+// getting hit on the head - reachable, just never on the way there.
+
+machine_name     : "Argument Clinic";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states : [reception];
+
+reception       'ask for an argument'              -> "Wrong Room";
+"Wrong Room"    'this is abuse'                     -> "Argument Room";
+"Wrong Room"    'ask about the lessons next door'   -> "Hit-on-the-Head Lessons";
+"Argument Room" 'state a proposition'               -> statement;
+
+// The oscillation: a contradiction is just a statement's negation, and
+// negating a negation just hands the statement straight back.
+statement 'no it isn\'t' <-> 'yes it is' contradiction;
+
+// Legal. Available in legalNext at every visit. Never taken - see header.
+contradiction 'an argument is a connected series of statements intended to establish a proposition' -> "A Proper Argument";
+
+// Paying resets the clock, not the argument.
+contradiction 'pay for another five minutes' -> "Argument Room";

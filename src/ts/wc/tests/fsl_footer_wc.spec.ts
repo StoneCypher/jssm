@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; footer: FslFo
   host.setAttribute('fsl', fsl);
   const footer = document.createElement('fsl-footer') as FslFooter;
   footer.setAttribute('slot', 'footer');
-  host.appendChild(footer);
-  document.body.appendChild(host);
+  host.append(footer);
+  document.body.append(host);
   await host.updateComplete;
   await footer.updateComplete;
   return { host, footer };
@@ -28,6 +28,17 @@ describe('<fsl-footer>', () => {
     expect(txt).toContain('A');
     expect(txt).toContain('1 action');
     expect(footer.shadowRoot!.querySelector('.badge')).toBeNull();   // A is not terminal
+    host.remove();
+  });
+
+  it('summarizes local + global counts, separating action names from action-starts', async () => {
+    // two action edges share the name 'go'; one plain edge has no action at all.
+    const { host, footer } = await withHost("A 'go' -> B; B 'go' -> A; A -> C;");
+    const txt = footer.shadowRoot!.textContent!;
+    // local (state A): 1 action firable ('go'), 2 transitions out (to B and C)
+    expect(txt).toContain('1 action, 2 transitions');
+    // global: 1 distinct action NAME, but 2 action-starts (two 'go' edges), 3 transitions total
+    expect(txt).toContain('globally 1 action, 2 starts, 3 transitions');
     host.remove();
   });
 
@@ -45,7 +56,7 @@ describe('<fsl-footer>', () => {
 
   it('reflects complete status and cleared attributes through the observer', async () => {
     const { host, footer } = await withHost("A 'go' -> B;");
-    const flush = (): Promise<void> => new Promise(r => setTimeout(r));   // let the observer fire
+    const flush = (): Promise<void> => new Promise(resolve => setTimeout(resolve, 0));   // let the observer fire
 
     host.toggleAttribute('complete', true);              // observer → complete badge
     await flush();
@@ -61,9 +72,20 @@ describe('<fsl-footer>', () => {
     host.remove();
   });
 
+  it('refreshes the global counts on a live machine rebuild (#1387)', async () => {
+    const { host, footer } = await withHost("A 'go' -> B;");
+    expect(footer.shadowRoot!.textContent).toContain('globally 1 action, 1 start, 1 transition');
+
+    host.fsl = "X 'a' -> Y; Y 'b' -> Z; X ~> Z;";   // rebuild → fsl-machine-rebuilt
+    await host.updateComplete;
+    await footer.updateComplete;
+    expect(footer.shadowRoot!.textContent).toContain('globally 2 actions, 2 starts, 3 transitions');
+    host.remove();
+  });
+
   it('renders only the slot when standalone (no fsl-instance ancestor)', async () => {
     const footer = document.createElement('fsl-footer') as FslFooter;
-    document.body.appendChild(footer);
+    document.body.append(footer);
     await footer.updateComplete;
     expect(footer.shadowRoot!.querySelector('.state')).toBeNull();
     expect(footer.shadowRoot!.querySelector('.bar')).not.toBeNull();

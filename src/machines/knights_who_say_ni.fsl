@@ -1,0 +1,41 @@
+// "The Knights Who Say Ni" - Monty Python and the Holy Grail (1975)
+//
+// The Knights' demand looks like it should be about the word "Ni" - it is
+// the thing they say, the thing that hurts to hear, the thing that seems
+// most relevant to who they are. It is not the gate. The gate is a single,
+// arbitrary token - one shrubbery - utterly unrelated to anything the
+// Knights have said out loud, and this file makes the irrelevance of their
+// catchphrase structural rather than merely written: saying their own word
+// back at them is a real, legal action with a real effect (they wince),
+// but its edge is FORCED back to the exact state it left from. Begging and
+// bargaining are self-loops, going nowhere at all. Exactly one action in
+// this whole machine leads anywhere else, and it is the one that never
+// comes up in the dialogue everyone actually remembers.
+//
+// Showcase: `fslSimulate` walking `['say the word they hate back at them']`
+// ends right back at the start with an unchanged `legalNext` - the "on
+// topic" move is a detour, not progress - while `['present a shrubbery']`
+// is the only action anywhere in the graph whose target differs from its
+// source.
+
+machine_name    : "The Knights Who Say Ni";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the obvious moves: reasonable, on-topic, and completely inert.
+"blocked at the sacred path" 'beg for mercy'  -> "blocked at the sacred path";
+"blocked at the sacred path" 'offer gold'     -> "blocked at the sacred path";
+
+// the move that FEELS most relevant - answering "Ni" with "Ni" - produces
+// a real, visible reaction and changes nothing about your position. the
+// wince is forced; recovering from it and finding yourself still blocked
+// is forced right along with it.
+"blocked at the sacred path" 'say the word they hate back at them' -> "they wince, clutching their ears";
+"they wince, clutching their ears" ~> "blocked at the sacred path";
+
+// the one arbitrary token that actually opens the gate.
+"blocked at the sacred path" 'present a shrubbery' -> "a shrubbery! passage granted";

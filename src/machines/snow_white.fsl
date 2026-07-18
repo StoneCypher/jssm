@@ -1,0 +1,38 @@
+// "Snow White" - Brothers Grimm (KHM 53)
+//
+// The poisoned apple is a forced (`~>`) transition: nobody chooses to fall
+// into the sleeping death, it simply happens the instant the bite is taken,
+// the same shape sleeping_beauty.fsl uses for the spindle. This file's own
+// twist is what sits at the sleeping state once you arrive: TWO actions are
+// bound there, not one. The dwarfs grieving vigil is real and legal and
+// fires every time it is tried - and goes nowhere, a self-loop back to the
+// identical sleeping state. Exactly one of the two bound actions actually
+// leaves: true loves first kiss. The joke is checkable directly against
+// `m.actions()` - the sleeping state's action set has length two, and only
+// one of those two names is ever a wake action at all.
+
+machine_name    : "Snow White";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"cottage in the woods, seven dwarfs at the mine"
+  'answer a knock, an old peddler woman with a basket of apples' -> "peddler at the door, one shining red apple offered";
+
+"peddler at the door, one shining red apple offered"
+  'accept the apple, take a bite' -> "one bite taken, the apple half red half poisoned";
+
+// forced and total - the poison does not wait for permission.
+"one bite taken, the apple half red half poisoned" ~> "the sleeping death, breathing but unwaking";
+
+// two actions bound here. only one of them is a wake action.
+"the sleeping death, breathing but unwaking"
+  'the dwarfs keep a grieving vigil' -> "the sleeping death, breathing but unwaking";
+"the sleeping death, breathing but unwaking"
+  'true loves first kiss' -> "awake, color returned, the curse broken";
+
+"awake, color returned, the curse broken"
+  'ride to the castle, wedding bells ringing' -> "kingdom won, poisoned apples avoided from here on";

@@ -1,4 +1,4 @@
-machine_name     : "Issue Tree showing how a compay can incrase profitability";
+machine_name     : "Issue Tree showing how a company can increase profitability";
 machine_author   : "Vat Raghavan <machinshin@gmail.com>";
 machine_license  : MIT;
 machine_comment  : "https://github.com/StoneCypher/fsl/issues/45";

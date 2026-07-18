@@ -80,6 +80,35 @@ describe('pivot_series', () => {
 
 
 
+describe('bundle_size_series', () => {
+
+  test('sums raw bytes across all dist bundles into one line, in run order', () => {
+    const runs = [
+      run({ pr: 1, bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                              'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                              'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const s = mpc.bundle_size_series(runs);
+    expect([...s.keys()]).toEqual(['package (raw, all dist)']);
+    const pts = s.get('package (raw, all dist)');
+    expect(pts.map((p: { ops: number }) => p.ops)).toEqual([1500, 1620]);
+    expect(pts.map((p: { key: string }) => p.key)).toEqual(['1', '2']);
+  });
+
+  test('skips runs lacking a bundles block; empty map when none carry bundles', () => {
+    expect(mpc.bundle_size_series([ run({ pr: 1 }) ]).size).toBe(0);
+    const mixed = mpc.bundle_size_series([
+      run({ pr: 1 }),
+      run({ pr: 2, bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 } } })
+    ]);
+    expect(mixed.get('package (raw, all dist)').map((p: { key: string }) => p.key)).toEqual(['2']);
+  });
+
+});
+
+
+
 describe('data_stamp (determinism)', () => {
 
   test('uses the newest data date, not wall clock', () =>
@@ -106,11 +135,80 @@ describe('summary_line', () => {
 
 
 
+describe('format_tick', () => {
+
+  test('humanizes with k/M/G and trims trailing zeros', () => {
+    expect(mpc.format_tick(1200000)).toBe('1.2M');
+    expect(mpc.format_tick(1500)).toBe('1.5k');
+    expect(mpc.format_tick(2000000)).toBe('2M');
+    expect(mpc.format_tick(42)).toBe('42');
+  });
+
+});
+
+
+
+describe('panel_svg (scale)', () => {
+
+  const series = new Map([[ 's', [ { key: 'a', ops: 100 }, { key: 'b', ops: 200 }, { key: 'c', ops: 300 } ] ]]);
+  const keys   = ['a', 'b', 'c'];
+
+  test('log-scale title and a decade label', () => {
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('(log scale)');
+    expect(svg).toContain('1e2');
+  });
+
+  test('log axis anchors at the data\'s lowest decade, not 1e0', () => {
+    // data 2e5..5e6 -> ylo floor(log10(2e5)) = 5, yhi floor(log10(5e6))+1 = 7
+    const high = new Map([[ 's', [ { key: 'a', ops: 200000 }, { key: 'b', ops: 5000000 } ] ]]);
+    const svg  = mpc.panel_svg('op', high, ['a', 'b'], 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('>1e5<');       // bottom decade = the data's lowest
+    expect(svg).toContain('>1e7<');       // top still rounds up past the max
+    expect(svg).not.toContain('>1e0<');   // no longer anchored at the zeroth decade
+  });
+
+  test('zero_base pins the log anchor back to 1e0', () => {
+    const high = new Map([[ 's', [ { key: 'a', ops: 200000 }, { key: 'b', ops: 5000000 } ] ]]);
+    const svg  = mpc.panel_svg('op', high, ['a', 'b'], 720, 372, 'bytes', 'log', 'lower', true);
+    expect(svg).toContain('>1e0<');
+    expect(svg).toContain('>1e5<');       // interior decades still labeled
+  });
+
+  test('empty series keeps a sane 1e0 anchor (degenerate guard)', () => {
+    const svg = mpc.panel_svg('op', new Map(), [], 720, 372, 'ops/sec', 'log');
+    expect(svg).toContain('(log scale)'); // renders without throwing
+  });
+
+  test('linear title reads "linear scale, last 50" with the given unit', () => {
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'bytes', 'linear');
+    expect(svg).toContain('bytes (linear scale, last 50)');
+  });
+
+  test('linear y-bounds pad 10% of the span on each side', () => {
+    // min 100, max 300 -> span 200 -> pad 20 -> axis 80..320; ticks include both ends
+    const svg = mpc.panel_svg('op', series, keys, 720, 372, 'bytes', 'linear');
+    expect(svg).toContain('>320<');
+    expect(svg).toContain('>80<');
+  });
+
+  test('linear flat data falls back to +/-10% of the value', () => {
+    const flat = new Map([[ 's', [ { key: 'a', ops: 1000 }, { key: 'b', ops: 1000 } ] ]]);
+    const svg  = mpc.panel_svg('op', flat, ['a', 'b'], 720, 372, 'bytes', 'linear');
+    // span 0 -> pad = |1000|*0.1 = 100 -> axis 900..1100
+    expect(svg).toContain('>1.1k<');
+    expect(svg).toContain('>900<');
+  });
+
+});
+
+
+
 describe('render_chart', () => {
 
   test('emits one panel per present operation and a composite header', () => {
     const { svg, panels } = mpc.render_chart(two_runs);
-    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()', 'action()']);
+    expect( [...panels.keys()] ).toEqual(['transition()', 'action()', 'construct()']);
     expect(svg).toContain('jssm performance trend');
     expect(svg).toContain('Data through 20260611-010203');
     expect(svg).toContain('chain-200');     // legend entries survive compositing
@@ -123,26 +221,36 @@ describe('render_chart', () => {
     expect(a).toBe(b);
   });
 
-  test('panels carry an opaque background for dark-mode embedding', () => {
+  test('renders a log+linear pair per operation, panels keyed by op', () => {
     const { panels } = mpc.render_chart(two_runs);
-    for (const svg of panels.values()) {
-      expect(svg).toContain('fill="#ffffff"');
+    expect([...panels.keys()]).toEqual(['transition()', 'action()', 'construct()']);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('(log scale)');
+    expect(pair.linear).toContain('(linear scale, last 50)');
+  });
+
+  test('every panel (log and linear) carries an opaque background', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    for (const pair of panels.values()) {
+      expect(pair.log).toContain('fill="#ffffff"');
+      expect(pair.linear).toContain('fill="#ffffff"');
     }
   });
 
   test('panels draw per-run vertical guides behind the data', () => {
-    const { svg, panels } = mpc.render_chart(two_runs);
-    expect(svg).toContain('stroke="#e8e8e8"');      // the in-between (light) guides
-    for (const p of panels.values()) {
-      expect(p).toContain('stroke="#d0d0d0"');      // the every-fifth (stronger) guide
+    const { panels } = mpc.render_chart(two_runs);
+    for (const pair of panels.values()) {
+      expect(pair.log).toContain('stroke="#e8e8e8"');      // the in-between (light) guides
+      expect(pair.log).toContain('stroke="#d0d0d0"');      // the every-fifth (stronger) guide
+      expect(pair.linear).toContain('stroke="#d0d0d0"');
     }
   });
 
-  test('gridlines paint lightest before heaviest, so decade lines are never overpainted', () => {
+  test('gridlines paint lightest before heaviest', () => {
     const { panels } = mpc.render_chart(two_runs);
-    for (const p of panels.values()) {
-      // light vertical guide (pass 1) must be emitted before the decade line (pass 4)
-      expect(p.indexOf('stroke="#e8e8e8"')).toBeLessThan(p.indexOf('stroke="#b0b0b0"'));
+    for (const pair of panels.values()) {
+      // light vertical guide (pass 1) must be emitted before the heaviest gridline (pass 4)
+      expect(pair.log.indexOf('stroke="#e8e8e8"')).toBeLessThan(pair.log.indexOf('stroke="#b0b0b0"'));
     }
   });
 
@@ -158,21 +266,115 @@ describe('render_chart', () => {
     expect(svg).toContain('fill="#aa4400"');        // 5.144.0 (and first release): base tint
   });
 
-  test('lays panels out in a two-wide grid, row-major', () => {
-    // three panels (construct/transition/action) at default 720 width, 32 row-gap,
-    // 40 col-gap: construct (0,0)->(0 56), transition (1,0)->(760 56), action (0,1)->(0 460)
+  test('lays each pair log-on-top / linear-beneath at the same width', () => {
+    // defaults: panel_width 1296, panel_height 372, panel_gap 32 (intra 32/4=8, inter 128)
+    // first pair: log (0,56), linear (0, 56+372+8=436); second pair at x=1296+40=1336
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
-    expect(svg).toContain('translate(760 56)');
-    expect(svg).toContain('translate(0 460)');
+    expect(svg).toContain('translate(0 436)');
+    expect(svg).toContain('translate(1336 56)');
+    expect(svg).toContain('translate(1336 436)');
   });
 
-  test('panel_gap is configurable and widens the composite height', () => {
+  test('sets the inter-pair-row gap to 4x the base; height matches the pair formula', () => {
+    // pair_height = 2*372 + 8 = 752; inter-pair gap = 32*4 = 128
+    // row1 (action) oy = 56 + (752 + 128) = 936
+    // total_h = 56 + 2*752 + 128 = 1688
+    const { svg } = mpc.render_chart(two_runs);
+    expect(svg).toContain('translate(0 936)');
+    expect(svg).toMatch(/<svg[^>]*height="1688"/);
+  });
+
+  test('panel_gap sets intra-pair gap (and 4x for inter-pair)', () => {
     const height = (s: string) => Number((s.match(/<svg[^>]*height="(\d+)"/) || [])[1]);
-    const gapped = mpc.render_chart(two_runs, 960, 372, 40);
-    const flush  = mpc.render_chart(two_runs, 960, 372, 0);
+    const gapped = mpc.render_chart(two_runs, 720, 372, 32);
+    const flush  = mpc.render_chart(two_runs, 720, 372, 0);
     expect(height(gapped.svg)).toBeGreaterThan(height(flush.svg));
-    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no gap
+    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no intra gap
+  });
+
+  test('linear twin windows to the most recent 50 versions', () => {
+    const many = Array.from({ length: 60 }, (_, i) => run({
+      pr: i + 1, version: `5.0.${i}`,
+      results: [ { name: 'chain-200 transition()', ops: 100 + i } ]
+    }));
+    const { panels } = mpc.render_chart(many);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('>1<');        // oldest PR present in the full-history log panel
+    expect(pair.linear).not.toContain('>1<'); // ...but dropped from the last-50 linear twin (window = PRs 11..60)
+    expect(pair.linear).toContain('>60<');    // newest PR present in both
+  });
+
+  test('adds a single-line package-size panel when runs carry bundles', () => {
+    const bruns = [
+      run({ pr: 1, results: [ { name: 'chain-200 transition()', ops: 100 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, results: [ { name: 'chain-200 transition()', ops: 200 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const { panels } = mpc.render_chart(bruns);
+    expect([...panels.keys()]).toContain('packageBytes');
+    const pair = panels.get('packageBytes');
+    expect(pair.log).toContain('bytes (log scale)');
+    expect(pair.log).toContain('package (raw, all dist)');   // the one legend entry
+    expect(pair.log).not.toContain('ops/sec');
+  });
+
+  test('omits the package-size panel when no run carries bundles', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    expect([...panels.keys()]).not.toContain('packageBytes');
+  });
+
+  test('renders each panel at the 1296px default width', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('<svg width="1296"');
+    expect(pair.linear).toContain('<svg width="1296"');
+  });
+
+  test('titles throughput panels "(higher is better)" in 50%-lighter text', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('<tspan fill-opacity="0.5"> (higher is better)</tspan>');
+    expect(pair.linear).toContain('<tspan fill-opacity="0.5"> (higher is better)</tspan>');
+  });
+
+  test('package-size panel: absolute log twin, auto-fit linear twin, "(lower is better)"', () => {
+    const bruns = [
+      run({ pr: 1, results: [ { name: 'chain-200 transition()', ops: 100 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  500, gzip: 1, brotli: 1 } } }),
+      run({ pr: 2, results: [ { name: 'chain-200 transition()', ops: 200 } ],
+            bundles: { 'jssm.es5.cjs': { raw: 1100, gzip: 1, brotli: 1 },
+                       'jssm.es6.mjs': { raw:  520, gzip: 1, brotli: 1 } } })
+    ];
+    const { panels } = mpc.render_chart(bruns);
+    const pkg = panels.get('packageBytes');
+    // direction suffix
+    expect(pkg.log).toContain('<tspan fill-opacity="0.5"> (lower is better)</tspan>');
+    // last-window linear twin auto-fits as a zoom (min bundle sum is 1500, so a
+    // 0 tick would prove an unwanted zero-floor)
+    expect(pkg.linear).not.toContain('>0<');
+    // full-history log twin keeps the 10^0 anchor (lowest-decade anchoring is
+    // ops-panels only; min sum 1500 would otherwise anchor at 1e3)
+    expect(pkg.log).toContain('>1e0<');
+  });
+
+  test('operation log twins anchor at the data\'s lowest decade', () => {
+    // chain-200 transition() spans 50..200 in two_runs -> anchor 1e1, not 1e0
+    const { panels } = mpc.render_chart(two_runs);
+    const pair = panels.get('transition()');
+    expect(pair.log).toContain('>1e1<');
+    expect(pair.log).not.toContain('>1e0<');
+  });
+
+  test('operation linear twins keep their auto-fit floor (not zero-based)', () => {
+    // chain-200 transition() spans 100..200; a zero floor would put a 0 tick on
+    // the axis, so its absence confirms only the package panel is zero-floored.
+    const { panels } = mpc.render_chart(two_runs);
+    expect(panels.get('transition()').linear).not.toContain('>0<');
   });
 
 });
@@ -189,18 +391,41 @@ describe('build_data_json', () => {
     expect(j.runs[0].results[0].name).toBe('chain-200 transition()');
   });
 
+  test('carries the bundles block per run', () => {
+    const j = mpc.build_data_json([ run({ pr: 1,
+      bundles: { 'jssm.es5.cjs': { raw: 1000, gzip: 400, brotli: 300 } } }) ]);
+    expect(j.runs[0].bundles['jssm.es5.cjs'].raw).toBe(1000);
+  });
+
 });
 
 
 
 describe('build_comment_body', () => {
 
-  test('embeds each chart url and the publishing sha', () => {
-    const urls = new Map([['construct()', 'https://x/construct.svg']]);
+  test('embeds each op\'s log and linear image and the publishing sha', () => {
+    const urls = new Map([[ 'construct()',
+      { log: 'https://x/construct.svg', linear: 'https://x/construct.linear.svg' } ]]);
     const body = mpc.build_comment_body(urls, two_runs, 'abc123');
-    expect(body).toContain('![construct() ops/sec trend](https://x/construct.svg)');
+    expect(body).toContain('![construct() trend (log)](https://x/construct.svg)');
+    expect(body).toContain('![construct() trend (linear, last 50)](https://x/construct.linear.svg)');
     expect(body).toContain('abc123');
     expect(body).toContain('2 measured PRs');
+  });
+
+});
+
+
+
+describe('publish_charts (dry-run urls)', () => {
+
+  test('returns a log and a linear url per op, pinned to the stamp dir', () => {
+    const exec   = mpc.make_executor(true);
+    const panels = new Map([[ 'construct()', { log: '<svg/>', linear: '<svg/>' } ]]);
+    const { urls } = mpc.publish_charts(exec, panels, '20260101-000000');
+    const u = urls.get('construct()');
+    expect(u.log).toContain('/charts/20260101-000000/construct.svg');
+    expect(u.linear).toContain('/charts/20260101-000000/construct.linear.svg');
   });
 
 });
@@ -276,6 +501,26 @@ describe('collect_runs (seamed)', () => {
 
     const runs = mpc.collect_runs(fake_exec, '.');
     expect( runs.map(mpc.key_of) ).toEqual(['598', '700', 'v5.143.4']);
+  });
+
+  test('threads the bundles block onto each run when present', () => {
+    const listing = 'c8g.medium/pr-42/scaling.json';
+    const canned: Record<string, string> = {
+      'FETCH_HEAD:c8g.medium/pr-42/scaling.json':
+        '{"version":"5.0.0","date":"2026-06-01T00:00:00.000Z","results":[],' +
+        '"bundles":{"jssm.es5.cjs":{"raw":1000,"gzip":400,"brotli":300}}}'
+    };
+    const fake_exec = {
+      dryRun: false,
+      run: (_cmd: string, args: string[]) => {
+        if (args[0] === 'fetch')   { return ''; }
+        if (args[0] === 'ls-tree') { return listing; }
+        if (args[0] === 'show')    { return canned[args[1]]; }
+        throw new Error(`unexpected git args ${args.join(' ')}`);
+      }
+    };
+    const runs = mpc.collect_runs(fake_exec, '.');
+    expect( runs[0].bundles['jssm.es5.cjs'].raw ).toBe(1000);
   });
 
   test('returns null when the fetch fails, so builds degrade gracefully', () => {

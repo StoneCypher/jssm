@@ -29,7 +29,6 @@ import type { Machine } from '../../jssm.js';
  * children, then removes it on teardown via the returned `cleanup` function.
  * Hides the document.body lifecycle so each test reads as one logical
  * scenario.
- *
  * @param fsl - FSL source for the machine.
  * @param hook_attrs - Array of attribute maps for each hook element to create.
  *                    Each entry may contain a `body` key to set textContent
@@ -50,25 +49,25 @@ function make_instance_with_hooks(
     const hook = document.createElement(tag);
     const body = attrs.body;
     for (const [k, v] of Object.entries(attrs)) {
-      if (k === 'body' || k === '_tag') continue;
-      hook.setAttribute(k, v);
+      if (k !== 'body' && k !== '_tag') {
+        hook.setAttribute(k, v);
+      }
     }
     if (body !== undefined) {
       hook.textContent = body;
     }
-    el.appendChild(hook);
+    el.append(hook);
   }
 
-  document.body.appendChild(el);
+  document.body.append(el);
 
-  return { el, cleanup: () => { document.body.removeChild(el); } };
+  return { el, cleanup: () => { el.remove(); } };
 
 }
 
 /**
  * As {@link make_instance_with_hooks} but captures any error thrown from
  * `connectedCallback` (jsdom routes such throws through window 'error').
- *
  * @returns The captured Error, or `null` if nothing was thrown.
  */
 function capture_connect_error(build: () => void): Error | null {
@@ -77,11 +76,11 @@ function capture_connect_error(build: () => void): Error | null {
     e.preventDefault();
     captured = e.error instanceof Error ? e.error : new Error(String(e.message));
   };
-  window.addEventListener('error', handler);
+  addEventListener('error', handler);
   try {
     build();
   } finally {
-    window.removeEventListener('error', handler);
+    removeEventListener('error', handler);
   }
   return captured;
 }
@@ -120,7 +119,10 @@ describe('normalize_hook_kind', () => {
 describe('make_hook_proxy', () => {
 
   it('exposes data with get and set, and reflects writes back to ctx', () => {
-    const ctx: RawHookContext = { data: 1, from: 'a', to: 'b', action: 'flip' };
+    // `RawHookContext.data` is `unknown`; narrowing it to `number` here is what
+    // lets `make_hook_proxy<number>` accept the context while the value stays a
+    // genuine RawHookContext.
+    const ctx: RawHookContext & { data?: number } = { data: 1, from: 'a', to: 'b', action: 'flip' };
     const machine = { state: () => 'a' };
     const p = make_hook_proxy<number>(ctx, machine);
 
@@ -167,7 +169,7 @@ describe('compile_inline_body', () => {
 
   it('compiles a body into a callable that mutates m.data', () => {
     const fn = compile_inline_body<number>('m.data = (m.data ?? 0) + 1;', 't1');
-    const ctx: RawHookContext = { data: 4 };
+    const ctx: RawHookContext & { data?: number } = { data: 4 };
     const p = make_hook_proxy<number>(ctx, { state: () => 'x' });
     fn(p);
     expect(ctx.data).toBe(5);
@@ -183,7 +185,7 @@ describe('compile_inline_body', () => {
     // Throw inside the body so we get a stack with the source url.
     const fn = compile_inline_body('throw new Error("k");', 'my-id-7');
     let stack = '';
-    try { fn(make_hook_proxy({}, { state: () => 'x' })); } catch (e: any) { stack = String(e.stack || ''); }
+    try { fn(make_hook_proxy({}, { state: () => 'x' })); } catch (error: any) { stack = String(error.stack || ''); }
     expect(stack).toContain('jssm-hook:my-id-7');
   });
 
@@ -438,14 +440,14 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.setAttribute('handler', '__jssm_clash');
-    el.appendChild(hook);
+    el.append(hook);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     try {
       el.do('go');
       expect(reg_called).toEqual(['registry']);
     } finally {
-      document.body.removeChild(el);
+      el.remove();
       delete (globalThis as any).__jssm_clash;
     }
   });
@@ -473,8 +475,8 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
       hook.setAttribute('to', 'green');
       hook.setAttribute('handler', 'whatever');
       hook.textContent = 'm.data = 1;';
-      el.appendChild(hook);
-      document.body.appendChild(el);
+      el.append(hook);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/specify handler="name" OR inline body, not both/);
@@ -487,8 +489,8 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
       const hook = document.createElement('jssm-hook');
       hook.setAttribute('from', 'red');
       hook.setAttribute('to', 'green');
-      el.appendChild(hook);
-      document.body.appendChild(el);
+      el.append(hook);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/must specify either/);
@@ -502,8 +504,8 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
       hook.setAttribute('from', 'red');
       hook.setAttribute('to', 'green');
       hook.setAttribute('handler', 'no-such-fn-anywhere');
-      el.appendChild(hook);
-      document.body.appendChild(el);
+      el.append(hook);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/handler not found/);
@@ -635,8 +637,8 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
       const hook = document.createElement('jssm-hook');
       hook.setAttribute('kind', 'not-a-real-kind');
       hook.textContent = 'm.data = 1;';
-      el.appendChild(hook);
-      document.body.appendChild(el);
+      el.append(hook);
+      document.body.append(el);
     });
     expect(err).not.toBeNull();
     expect(err!.message).toMatch(/unknown hook kind/);
@@ -694,11 +696,11 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.textContent = 'throw new Error("boom");';
-    el.appendChild(hook);
-    document.body.appendChild(el);
+    el.append(hook);
+    document.body.append(el);
     try {
       let stack = '';
-      try { el.do('go'); } catch (e: any) { stack = String(e?.stack || ''); }
+      try { el.do('go'); } catch (error: any) { stack = String(error?.stack || ''); }
       // jssm may swallow the throw and route via emit; if we couldn't grab
       // it directly, grab the proxy + call manually to inspect the source url.
       if (!/jssm-hook:sm-7-1/.test(stack)) {
@@ -706,13 +708,13 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
         // through a known-shape path.  Easier: re-compile via the public
         // primitive and check the stack to confirm the prefix shape works.
         const fn = compile_inline_body('throw new Error("k");', 'sm-7-1');
-        try { fn(make_hook_proxy({}, { state: () => 'x' })); } catch (e: any) {
-          stack = String(e.stack || '');
+        try { fn(make_hook_proxy({}, { state: () => 'x' })); } catch (error: any) {
+          stack = String(error.stack || '');
         }
       }
       expect(stack).toContain('jssm-hook:sm-7-1');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
   });
 
@@ -720,8 +722,8 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     // No <jssm-hook> children — disconnect must still be a no-op for hook cleanup.
     const el = document.createElement('jssm-instance') as JssmInstance;
     el.setAttribute('fsl', 'A -> B;');
-    document.body.appendChild(el);
-    expect(() => document.body.removeChild(el)).not.toThrow();
+    document.body.append(el);
+    expect(() => { el.remove(); }).not.toThrow();
   });
 
   it('disconnect is safe when machine never constructed (never-connected element)', () => {
@@ -741,15 +743,15 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.textContent = 'm.data = "should-not-fire";';
-    wrapper.appendChild(hook);
-    el.appendChild(wrapper);
-    document.body.appendChild(el);
+    wrapper.append(hook);
+    el.append(wrapper);
+    document.body.append(el);
     try {
       el.do('go');
       // The hook is nested under <div>, so it must be ignored.
       expect(el.machine.data()).toBeUndefined();
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
   });
 
@@ -762,20 +764,20 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     h1.setAttribute('from', 'red');
     h1.setAttribute('to', 'green');
     h1.textContent = 'm.data = "a";';
-    el.appendChild(h1);
+    el.append(h1);
 
     const h2 = document.createElement('fsl-hook');
     h2.setAttribute('kind', 'entry');
     h2.setAttribute('to', 'green');
     h2.textContent = 'm.data = (m.data ?? "") + "b";';
-    el.appendChild(h2);
+    el.append(h2);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     try {
       el.do('go');
       expect(el.machine.data()).toBe('ab');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
   });
 
@@ -804,20 +806,20 @@ describe('<jssm-hook> synonym coverage — instance discovers both prefixes', ()
     h1.setAttribute('from', 'red');
     h1.setAttribute('to', 'green');
     h1.textContent = 'm.data = (m.data ?? "") + "fsl";';
-    el.appendChild(h1);
+    el.append(h1);
 
     const h2 = document.createElement('jssm-hook');
     h2.setAttribute('kind', 'entry');
     h2.setAttribute('to', 'green');
     h2.textContent = 'm.data = (m.data ?? "") + "+jssm";';
-    el.appendChild(h2);
+    el.append(h2);
 
-    document.body.appendChild(el);
+    document.body.append(el);
     try {
       el.do('go');
       expect(el.machine.data()).toBe('fsl+jssm');
     } finally {
-      document.body.removeChild(el);
+      el.remove();
     }
   });
 

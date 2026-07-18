@@ -1,0 +1,54 @@
+// "Cinderella" - European folk tale (Perrault / Grimm composite)
+//
+// The stroke of midnight is the one deadline in all of fairy tale that
+// nobody negotiates with. jssm actually ships a genuine primitive for
+// exactly this shape: an `after` arrow-decoration compiles to a real
+// wall-clock timeout (`set_state_timeout` / `auto_set_state_timeout` in
+// jssm.ts, backed by an injectable `timeout_source`) that fires an
+// automatic `go()` once the configured delay elapses - `"the ball" after
+// 30 min -> "the rags again";` is honest, working FSL, not a metaphor.
+// It is also the wrong tool for a machine that ships inside a
+// deterministic, synchronous verify script: an `after` clause needs a
+// real (or fake) timer tick to ever fire, and nothing here should depend
+// on wall-clock time to validate. So the midnight edge below is expressed
+// the way jssm expresses "happens on its own schedule, not on your call"
+// even without a clock in the room: a forced transition (`~>`). No action
+// unbinds it, no action names it, and per this project's own house rules
+// fslSimulate cannot traverse a forced edge under any name - the same
+// guarantee an `after` timer gives you, minus the actual waiting.
+//
+// The rest of the graph is the free-will control: 'keep dancing' is a
+// real, repeatable, chosen self-loop. Dance once or dance a thousand
+// times - the state graph cannot tell the difference, and neither can
+// midnight, which fires off the same forced edge regardless of how the
+// choice space was exercised. Agency picks the song; it never picks the
+// clock.
+
+machine_name     : "Cinderella";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// act I - the only rescue that was ever a chosen action.
+"scrubbing the hearth"                 'the fairy godmother arrives' -> "bibbidi-bobbidi-boo";
+"bibbidi-bobbidi-boo"                  'transform'                   -> "gown, coach, and glass slippers";
+"gown, coach, and glass slippers"      'ride to the palace'          -> "dancing with the prince";
+
+// act II - free will, fully exercised, changes nothing about the deadline.
+"dancing with the prince" 'keep dancing' -> "dancing with the prince";
+
+// act III - midnight. no action label anywhere on this edge or the next
+// two: nothing in the graph's action set ever reaches these states, no
+// matter how the dance was danced. this is the `after`-clause's shape,
+// hand-drawn.
+"dancing with the prince"           ~> "the clock strikes twelve";
+"the clock strikes twelve"          ~> "a dead sprint down the palace steps";
+"a dead sprint down the palace steps" ~> "rags, a pumpkin, and one bare foot";
+
+// denouement - two real chosen actions from the same state; only one of
+// them was ever going to end well, and the graph doesn't play favorites.
+"rags, a pumpkin, and one bare foot" 'try the slipper on a stepsister' -> "it doesn't fit";
+"rags, a pumpkin, and one bare foot" 'try the slipper on cinderella'   -> "happily ever after";

@@ -1,0 +1,36 @@
+// "Humpty Dumpty" - English nursery rhyme
+//
+// "All the king's horses and all the king's men couldn't put Humpty
+// together again" is usually read as a failure of effort or of numbers -
+// not enough horses, not enough men. This graph disagrees: the rescue
+// attempt is a real, chosen action ('send the king's horses and men'),
+// fully present, fully executed, exactly as the rhyme says. What fails is
+// not the attempt; it's the destination. There is no state anywhere in
+// this file representing "whole again" - it was never declared, so it
+// cannot be reached, chosen, or even named. The rollback's own forced
+// outcome edge routes to "still shattered, rollback failed" because
+// that is the only state left downstream of the fall to route to. The
+// wall is a stable, repeatable, chosen self-loop right up until it isn't
+// - one forced edge, no way back, ever, to anywhere resembling the top.
+
+machine_name     : "Humpty Dumpty";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// precarious complacency - stable and repeatable, for now.
+"sitting on the wall" 'sit contentedly' -> "sitting on the wall";
+
+// nobody chooses to fall off a wall.
+"sitting on the wall" ~> "the great fall";
+"the great fall"      ~> "shattered on the ground";
+
+// the rescue is real, chosen, and fully mobilized, exactly as advertised.
+"shattered on the ground" 'send the king\'s horses and men' -> "rollback attempt underway";
+
+// the attempt is genuine; the destination it needed was never declared.
+// this edge is the only place left for it to go.
+"rollback attempt underway" ~> "still shattered, rollback failed";

@@ -13,7 +13,6 @@ import { fslTokens } from './fsl_tokens.js';
  * `<details>` sections). Presentational and self-contained — it owns no machine
  * binding. The reflected `open` attribute drives visibility, so embedders can
  * animate it (e.g. a width transition on the host) purely from CSS.
- *
  * @element fsl-help
  * @csspart drawer - The drawer container.
  * @csspart head - The header bar.
@@ -43,7 +42,8 @@ export class FslHelp extends LitElement {
           <button class="close" part="close" @click=${this._onClose} aria-label="Close documentation" title="Close">&times;</button>
         </div>
         <div class="body" part="body"><slot></slot></div>
-      </aside>`;
+      </aside>
+    `;
     }
 }
 FslHelp.styles = css `

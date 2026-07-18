@@ -1,0 +1,63 @@
+// "This Is the House That Jack Built" - traditional English cumulative
+// nursery rhyme (earliest printed text 1755, "Nurse Truelove's New-Year's
+// Gift"; almost certainly older in oral form)
+//
+// A cumulative tale's whole mechanism is that each new verse does not just
+// add one fact, it RECITES THE ENTIRE CHAIN BEHIND IT, in order, every time:
+// "this is the rat that ate the malt that lay in the house that Jack
+// built." Most machines would model that by looping back through the same
+// ten states and replaying the walk out loud. This one does something more
+// literal: the state name IS the verse. "the rat" is not a bare label with
+// a history implied elsewhere - the state is titled
+// "the rat that ate the malt that lay in the house that Jack built", the
+// full recitation, in full, as the identity of the place you are standing.
+// Each edge does not just move to the next link; it moves to a state whose
+// own NAME already contains, verbatim, the name of the state you left. The
+// cumulation is not a runtime behavior bolted on top of the graph - it is
+// the graph's naming scheme, which is the only way a plain FSM ever gets to
+// "replay the full path" without an external log.
+//
+// The showcase, verified below: walk the ten chosen actions in order and
+// look at the returned path array. Every entry from the second on is
+// required, mechanically, to CONTAIN the previous entry as a literal
+// substring - not "should," structurally must, because that containment is
+// how the rhyme's cumulative recitation is encoded here. The verify script
+// checks this directly rather than just asserting it in prose.
+
+machine_name    : "This Is the House That Jack Built";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the house that Jack built"
+  'malt appears' -> "the malt that lay in the house that Jack built";
+
+"the malt that lay in the house that Jack built"
+  'a rat eats the malt' -> "the rat that ate the malt that lay in the house that Jack built";
+
+"the rat that ate the malt that lay in the house that Jack built"
+  'a cat kills the rat' -> "the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a dog worries the cat' -> "the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a cow tosses the dog' -> "the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a maiden milks the cow' -> "the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a man kisses the maiden' -> "the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a priest marries the man' -> "the priest all shaven and shorn that married the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the priest all shaven and shorn that married the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a rooster wakes the priest' -> "the rooster that crowed in the morn that woke the priest all shaven and shorn that married the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";
+
+"the rooster that crowed in the morn that woke the priest all shaven and shorn that married the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built"
+  'a farmer keeps the rooster' -> "the farmer sowing his corn that kept the rooster that crowed in the morn that woke the priest all shaven and shorn that married the man all tattered and torn that kissed the maiden all forlorn that milked the cow with the crumpled horn that tossed the dog that worried the cat that killed the rat that ate the malt that lay in the house that Jack built";

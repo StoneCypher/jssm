@@ -2,6 +2,7 @@ import { LitElement, html, css, TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
 import type { Machine } from '../jssm.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { fslTokens } from './fsl_tokens.js';
 
 /**
  * Structural shape used to detect a parent `<fsl-instance>` (or the deprecated
@@ -25,7 +26,6 @@ export interface JssmInstanceHost extends HTMLElement {
  * v1 shows the FSL `property` bag (`machine.props()`). The render-time visual
  * style resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline
  * concern and is not surfaced here.
- *
  * @element fsl-effective-properties
  * @cssproperty [--fsl-effective-properties-gap=0.25rem] - Gap between rows.
  */
@@ -33,10 +33,15 @@ export class FslEffectiveProperties extends LitElement {
 
   static styles = css`
     :host { display: block; }
+    .props, .placeholder {
+      padding: 0.5rem 0.7rem; font: 0.8rem var(--_fsl-font-mono);
+      color: var(--_fsl-text); background: var(--_fsl-surface);
+    }
     .props { display: grid; gap: var(--fsl-effective-properties-gap, 0.25rem); }
     .row { display: flex; gap: 0.5rem; }
-    .name { font-weight: 600; opacity: 0.7; }
-    .placeholder { opacity: 0.6; font-style: italic; }
+    .name { font-weight: 600; color: var(--_fsl-muted); }
+    .placeholder { color: var(--_fsl-muted); font-style: italic; }
+    ${fslTokens}
   `;
 
   /** Parent host reference; cleared on disconnect. */
@@ -72,6 +77,7 @@ export class FslEffectiveProperties extends LitElement {
       }
       this._sub = host.machine.on('transition', () => this._refresh(host));
       this._refresh(host);   // initial snapshot
+      return;
     });
   }
 
@@ -92,18 +98,17 @@ export class FslEffectiveProperties extends LitElement {
   /**
    * Read the resolved property bag (`machine.props()`) into reactive entries,
    * triggering a re-render.
-   *
    * @param host - The bound parent host whose machine to snapshot.
    */
   private _refresh(host: JssmInstanceHost): void {
     const bag = host.machine.props() as Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- FSL property values are primitives (string/number/boolean) at runtime; String() is the intended display coercion
     this._entries = Object.entries(bag).map(([k, v]) => [k, String(v)] as [string, string]);
   }
 
   /**
    * Lit render method. Placeholder until bound; an empty-state message when the
    * machine declares no properties; otherwise a name → value grid.
-   *
    * @returns A Lit `TemplateResult` for the panel.
    */
   render(): TemplateResult {

@@ -1,0 +1,35 @@
+// "Old Mother Hubbard" - English nursery rhyme, first published by Sarah
+// Catherine Martin in 1805.
+//
+// Read as a topology problem, the first verse is a null-read story: a fetch
+// resolves to nothing, and that nothing gets handed onward rather than
+// short-circuited. Opening the cupboard is a real, chosen action; what it
+// returns is not - the shelf's emptiness is a forced (~>) fact about the
+// resource, not a decision anyone in the graph makes. The dog's observation
+// of that emptiness is equally forced: the dog is not choosing to have no
+// bone, its state is determined entirely by whatever the read one step
+// upstream produced. Notably, no edge labeled anything like "receive a
+// bone" exists anywhere in this file - the absence is structural, the same
+// "deprecated, not merely denied" shape as boy_who_cried_wolf.fsl's third
+// alarm.
+
+machine_name    : "Old Mother Hubbard";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the fetch itself is a real, chosen action.
+"sets out for the cupboard, hopeful" 'open the cupboard door' -> "the cupboard, opened";
+
+// what the read returns is not a decision - the shelf simply is what it is.
+"the cupboard, opened" ~> "the shelf, empty, the fetch resolves to nothing";
+
+// the dog's state is determined entirely by the read one step upstream.
+"the shelf, empty, the fetch resolves to nothing" ~> "the dog, watching, receives nothing";
+
+// no edge anywhere in this file hands the dog a bone. this is the only
+// chosen action left: accepting the null.
+"the dog, watching, receives nothing" 'the dog goes without' -> "the dog has none";

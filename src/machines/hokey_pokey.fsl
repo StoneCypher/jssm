@@ -1,0 +1,38 @@
+// "Hokey Pokey" - traditional novelty dance / camp song
+//
+// The verse's own words ARE the topology: "foot out" -> `'you put your
+// right foot in'` -> "foot in" -> `'you put your right foot out'` ->
+// "foot out again" -> `'you put your right foot in'` -> "foot in again"
+// -> `'you shake it all about'` -> "shaking it all about" - four edges,
+// four actions, and each one is the literal next lyric, in order, with
+// nothing paraphrased. `fslExplain`'s state list, read in declaration
+// order, recites the verse back at you.
+//
+// And the closing line is not a terminal, it is a lie about being one:
+// "that's what it's all about" has exactly one outgoing edge,
+// `'and you turn yourself around'`, straight back to "foot out" - so the
+// "machine" never actually stops being about anything, it just starts
+// the next body part. `fslExplain` reports zero terminal states, which
+// is the punchline made checkable: a dance that structurally cannot end
+// is what it's all about.
+
+machine_name    : "Hokey Pokey";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"foot out"
+  'you put your right foot in' -> "foot in";
+"foot in"
+  'you put your right foot out' -> "foot out again";
+"foot out again"
+  'you put your right foot in' -> "foot in again";
+"foot in again"
+  'you shake it all about' -> "shaking it all about";
+"shaking it all about"
+  'you do the hokey pokey' -> "that's what it's all about";
+"that's what it's all about"
+  'and you turn yourself around' -> "foot out";

@@ -1,0 +1,42 @@
+// "The Dog and Its Reflection" - Aesop's Fables (Perry Index 133)
+//
+// A dog crossing a footbridge, a bone clamped in its jaw, looks down and
+// sees its own reflection in the water. Mistaking it for a second dog
+// carrying a bigger bone, it snaps at the reflection - and its own bone
+// falls into the stream, lost for nothing.
+//
+// The topology joke: greed is not forced here. The bridge state forks into
+// a reflection state, and the reflection state itself forks AGAIN - one
+// chosen action is restraint (shrug it off, keep the bone you have), the
+// other is the greed action, and only the greed action's edge drops the
+// payload. jssm shows both edges live at the same state with the same
+// preconditions; nothing about the graph structure REQUIRES the loss, the
+// same way nothing about the fable requires it. The state name itself
+// carries the payload ("bone in mouth" vs "mouth empty, bone gone") rather
+// than a separate property, so `fslExplain`'s state list already tells the
+// whole story before a single transition fires.
+
+machine_name    : "The Dog and Its Reflection";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"on the footbridge, bone firmly in mouth"
+  'ignore the water, keep walking'   -> "far bank, bone still in mouth";
+
+"on the footbridge, bone firmly in mouth"
+  'glance down at the water'         -> "at the reflection, bone in mouth, greed rising";
+
+// the fork that IS the fable: from the exact same state, restraint and
+// greed are both legal, and only one of them costs anything.
+"at the reflection, bone in mouth, greed rising"
+  'shrug it off, keep walking'                       -> "far bank, bone still in mouth";
+
+"at the reflection, bone in mouth, greed rising"
+  'snap at the bigger bone in the water'              -> "bone lost in the stream, mouth empty";
+
+"far bank, bone still in mouth"
+  'trot home, satisfied'             -> "home, bone eaten in peace";

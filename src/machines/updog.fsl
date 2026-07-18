@@ -1,0 +1,40 @@
+// "What's Updog?" - playground exploit, greeting-protocol family
+//
+// The whole con is an injection attack on ordinary small talk: the mark
+// supplies the trigger phrase themselves, and once they do, it doesn't
+// matter what led up to it. That's modeled here as a literal graph merge -
+// two different states ("bit immediately" vs "stalled first, then got
+// re-baited") each have their own edge, under their own action label, but
+// both point at the exact same target state. The "protocol handler" - the
+// attacker's canned reply - never checks which path the mark took to get
+// there, only that the token matches. That is the injection: a downstream
+// consumer that authenticates on shape alone, blind to context, treats a
+// hand-crafted phrase exactly like a legitimate step in the exchange.
+//
+// The showcase: fslSimulate walks both routes into "trigger fired, payload
+// window open" and shows both land on an identical state object, then fires
+// the canned reply from there to reach "gotcha" - the same punchline no
+// matter which door the mark walked through.
+
+machine_name    : "What's Updog?";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"conversation opens"
+  'the mark opens with guess what' -> "bait set, victim curious";
+
+// TWO ROUTES IN - different states, different actions, same destination.
+"bait set, victim curious"
+  'victim bites immediately, asks what is updog' -> "trigger fired, payload window open";
+"bait set, victim curious"
+  'victim stalls, asks just what' -> "bait restated, patience tested";
+
+"bait restated, patience tested"
+  'attacker restates the bait, not much, what is updog' -> "trigger fired, payload window open";
+
+"trigger fired, payload window open"
+  'attacker fires the canned reply, not much, what is up with you' -> "gotcha, mark realizes the con";

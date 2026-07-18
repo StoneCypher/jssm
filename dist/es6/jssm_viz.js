@@ -1,7 +1,6 @@
 import * as jssm from './jssm.js';
 import { JssmError } from './jssm_error.js';
 import { default_viz_colors } from './jssm_viz_colors.js';
-import { version, build_time } from './version.js';
 import { membership_distance } from './jssm_compiler.js';
 /**
  *  Cached resolved viz.js instance.  Populated on first call to
@@ -9,29 +8,55 @@ import { membership_distance } from './jssm_compiler.js';
  */
 let viz_instance = null;
 /**
+ *  Graphviz engine injected via {@link configure} for environments where the
+ *  default `@viz-js/viz` WASM build cannot load (e.g. strict-CSP webviews).
+ *  When set, it is used for every render instead of the default.  Internal.
+ */
+let injected_viz = null;
+/**
  *  DOM parser injected via {@link configure} for environments without a
  *  global `DOMParser` (e.g. Node).  Internal.
  */
 let injected_dom_parser = null;
 /**
- *  Returns a cached @viz-js/viz instance, lazily instantiated on first call.
- *  Internal helper for the rendering functions.
- *
+ *  Returns the Graphviz engine the render path should use: the engine
+ *  injected via {@link configure}`({ viz })` when one is set (checked
+ *  *before* the default import, so the `@viz-js/viz` WASM module is never
+ *  even loaded in environments that injected their own); otherwise a cached
+ *  `@viz-js/viz` instance, lazily instantiated on first call.  Internal
+ *  helper for the rendering functions.
  *  @internal
  */
 async function get_viz() {
+    if (injected_viz !== null) {
+        return injected_viz;
+    }
     if (viz_instance === null) {
         const mod = await import('@viz-js/viz');
+        // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- deliberate lazy-singleton init of the module-level viz cache
         viz_instance = await mod.instance();
     }
     return viz_instance;
 }
 /**
- *  Inject runtime configuration for jssm/viz.  Currently only accepts a
- *  custom `DOMParser` constructor for use by `*_svg_element` functions in
- *  environments that do not provide one globally (e.g. Node + jsdom).
+ *  Inject runtime configuration for jssm/viz — a custom `DOMParser`
+ *  constructor for the `*_svg_element` functions, a replacement Graphviz
+ *  engine for every render path, or both.
  *
- *  Idempotent — last call wins.  No-op if called with no recognized keys.
+ *  Each key is handled independently.  Idempotent — last call wins per key;
+ *  an omitted (or `undefined`) key leaves any earlier injection for that key
+ *  in place, so neither injection can be un-set.  No-op if called with no
+ *  recognized keys.
+ *
+ *  Precedence differs by key, on purpose:
+ *
+ *  - `DOMParser` is a *fallback* — `globalThis.DOMParser` (browsers, jsdom
+ *    test environments) still wins when present.
+ *  - `viz` is an *override* — once injected it is used for every render, and
+ *    the default `@viz-js/viz` import is never even attempted.  This is what
+ *    lets WASM-hostile environments (strict-CSP webviews such as VS Code's
+ *    markdown preview) supply an asm.js Graphviz build at runtime, without
+ *    bundler aliasing.  See {@link VizEngine} for the exact contract.
  *
  *  ```typescript
  *  // Node, with jsdom:
@@ -42,24 +67,43 @@ async function get_viz() {
  *  const el = await fsl_to_svg_element('a -> b;');
  *  ```
  *
+ *  ```typescript
+ *  // strict-CSP webview, with an asm.js Graphviz:
+ *  import { configure, fsl_to_svg_string } from 'jssm/viz';
+ *
+ *  configure({ viz: my_asm_graphviz });  // anything with renderString(dot, opts)
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  ```
  *  @param opts Configuration overrides.
  *  @param opts.DOMParser Constructor compatible with the WHATWG `DOMParser`
  *  interface.  Used as a fallback when `globalThis.DOMParser` is undefined.
- *
+ *  @param opts.viz A ready-to-use Graphviz engine implementing
+ *  {@link VizEngine} (`renderString(dot, opts)`).  Overrides the default
+ *  `@viz-js/viz` engine for all subsequent renders.
  *  @throws {JssmError} if `DOMParser` is provided and is not a constructor.
+ *  @throws {JssmError} if `viz` is provided and lacks a callable `renderString`.
+ *  @see VizEngine
  */
 function configure(opts) {
+    var _a;
     if (opts.DOMParser !== undefined) {
         if (typeof opts.DOMParser !== 'function') {
             throw new JssmError(undefined, 'jssm/viz: configure({ DOMParser }) — value must be a constructor');
         }
+        // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- deliberate lazy injection of the module-level DOMParser cache
         injected_dom_parser = opts.DOMParser;
+    }
+    if (opts.viz !== undefined) {
+        if (typeof ((_a = opts.viz) === null || _a === void 0 ? void 0 : _a.renderString) !== 'function') {
+            throw new JssmError(undefined, 'jssm/viz: configure({ viz }) — value must be an object with a renderString(dot, options) method');
+        }
+        // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- deliberate lazy injection of the module-level viz engine override
+        injected_viz = opts.viz;
     }
 }
 /**
  *  Look up a color from the default viz palette by key, returning empty
  *  string if the key is unknown (so it disappears in feature concatenation).
- *
  *  @internal
  */
 function vc(col) {
@@ -68,22 +112,88 @@ function vc(col) {
 }
 /**
  *  Escape a string for safe interpolation inside a DOT double-quoted
- *  attribute value.  Replaces every `"` with `\"` so that group names,
- *  state labels, and chip labels containing literal double-quotes produce
- *  valid, parseable DOT source.
+ *  attribute value.  Escapes every `\` and `"` so that group names, state
+ *  labels, and chip labels containing either character produce valid,
+ *  parseable DOT source.
+ *
+ *  Backslash is escaped *first*: a label ending in `\` would otherwise emit
+ *  `label="a\"`, whose `\"` escapes the closing quote and corrupts the DOT so
+ *  the whole render throws.  Escaping `\`→`\\` before `"`→`\"` avoids
+ *  double-escaping the backslashes the quote step introduces.  StoneCypher/fsl#1951
  *
  *  ```typescript
- *  doublequote('a"b');  // 'a\\"b'
- *  doublequote('safe'); // 'safe'
+ *  doublequote('a"b');   // 'a\\"b'
+ *  doublequote('a\\');   // 'a\\\\'
+ *  doublequote('safe');  // 'safe'
  *  ```
- *
  *  @param txt Any string that will be placed inside `"…"` in a DOT attribute.
- *  @returns The string with every `"` replaced by `\"`.
- *
+ *  @returns The string with every `\` and `"` backslash-escaped.
  *  @internal
  */
 function doublequote(txt) {
-    return txt.replace(/"/g, '\\"');
+    return txt.replace(/\\/g, String.raw `\\`).replace(/"/g, String.raw `\"`);
+}
+/**
+ *  URL schemes that are safe to emit into a rendered diagram's `<a xlink:href>`.
+ *  Anything not in this set (notably `javascript:`, `data:`, `vbscript:`) is a
+ *  script-execution vector once the SVG is injected into a live DOM.
+ *  @internal
+ */
+const SAFE_URL_SCHEMES = new Set(['http', 'https', 'mailto', 'ftp', 'ftps', 'tel']);
+/**
+ *  Sanitize a state's `url` before it is embedded in DOT (and thence in the
+ *  rendered SVG's `xlink:href`).  A URL with a scheme is kept only when that
+ *  scheme is on the {@link SAFE_URL_SCHEMES} allowlist; a schemeless URL
+ *  (relative path, `#anchor`, query) is always safe and kept as-is.  An unsafe
+ *  URL is dropped (returns `''`) and a warning is emitted, so the diagram still
+ *  renders — just without the dangerous link.
+ *
+ *  Leading ASCII control characters and whitespace are stripped **before**
+ *  inspecting the scheme, because browsers ignore them when parsing a URL — so
+ *  `java\tscript:alert(1)` is recognized and dropped rather than smuggled past.
+ *
+ *  ```typescript
+ *  render_safe_url('https://example.com');       // 'https://example.com'
+ *  render_safe_url('#node');                      // '#node'
+ *  render_safe_url('javascript:alert(1)');        // ''  (dropped + warned)
+ *  ```
+ *  @param raw The raw `url` value from a state's config.
+ *  @returns The original URL if its scheme is safe or absent, otherwise `''`.
+ *  @internal
+ */
+function render_safe_url(raw) {
+    if (!raw) {
+        return '';
+    }
+    // eslint-disable-next-line no-control-regex -- browsers strip these before scheme parsing
+    const stripped = raw.replace(/[\u{0}-\u{20}]+/gu, '');
+    const scheme_match = /^([a-z][a-z0-9+.-]*):/i.exec(stripped);
+    if (scheme_match) {
+        const scheme = scheme_match[1].toLowerCase();
+        if (!SAFE_URL_SCHEMES.has(scheme)) {
+            console.warn(`jssm-viz: dropping state url with unsafe scheme "${scheme}:"`);
+            return '';
+        }
+    }
+    return raw;
+}
+/**
+ *  Reverse {@link doublequote}: turn DOT's `\"` escape back into the literal
+ *  `"` that graphviz renders into SVG `<text>` content.  Used by
+ *  {@link state_svg_label_texts} to reconstruct a node's on-screen label from
+ *  the DOT label it was handed, so the fence renderer keys against exactly what
+ *  was drawn.
+ *
+ *  ```typescript
+ *  undoublequote('a\\"b');  // 'a"b'
+ *  undoublequote('safe');   // 'safe'
+ *  ```
+ *  @param txt A DOT-escaped attribute string (as produced by `doublequote`).
+ *  @returns The string with every `\"` collapsed back to `"`.
+ *  @internal
+ */
+function undoublequote(txt) {
+    return txt.replace(/\\"/g, '"');
 }
 /**
  *  Convert a state name into a URL-friendly slug suitable for use as the
@@ -104,11 +214,14 @@ function doublequote(txt) {
  *  slug_for('!!!');          // ''
  *  slug_for('  Foo  Bar  '); // 'foo-bar'
  *  ```
+ *  Exported so consumers which must match rendered SVG node `<title>`s back
+ *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
+ *  the *same* function the dot generator used, rather than a drifting copy.
  *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
- *
+ *  @see slug_states
  *  @internal
  */
 function slug_for(state) {
@@ -142,16 +255,14 @@ function slug_for(state) {
  *  slug_states(['!!!', '???']);
  *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
  *  ```
- *
  *  @param states States in declaration order.
  *  @returns A `Map` from each state name to its unique slug.
- *
  *  @internal
  */
 function slug_states(states) {
     const used = new Set();
     const out = new Map();
-    states.forEach((s, i) => {
+    for (const [i, s] of states.entries()) {
         const base = slug_for(s) || `node-${i + 1}`;
         let candidate = base;
         let n = 2;
@@ -161,7 +272,7 @@ function slug_states(states) {
         }
         used.add(candidate);
         out.set(s, candidate);
-    });
+    }
     return out;
 }
 /**
@@ -181,7 +292,6 @@ function slug_states(states) {
  *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
  *  // '"red-light"'
  *  ```
- *
  *  @internal
  */
 function node_of(state, state_index) {
@@ -200,18 +310,16 @@ function node_of(state, state_index) {
  *  a 9-character `#`-prefixed string.
  *
  *  Graphviz dot does not support alpha; this is a lossy projection.
- *
  *  @internal
  */
 function color8to6(color8) {
     if ((color8.length !== 9) || (color8[0] !== '#')) {
         throw new JssmError(undefined, `not a color8: ${color8}`);
     }
-    return `#${color8.substring(1, 7)}`;
+    return `#${color8.slice(1, 7)}`;
 }
 /**
  *  Variant of {@link color8to6} that passes `undefined` through.
- *
  *  @internal
  */
 function u_color8to6(color8) {
@@ -222,7 +330,6 @@ function u_color8to6(color8) {
  *  so theme-supplied shapes are honoured along with per-state declarations.
  *  Returns `undefined` if neither a theme nor a state declaration supplies a
  *  shape.
- *
  *  @internal
  */
 function shape_for_state(u_jssm, state) {
@@ -233,7 +340,6 @@ function shape_for_state(u_jssm, state) {
  *  so theme-supplied images are honoured along with per-state declarations.
  *  Returns `undefined` if neither a theme nor a state declaration supplies an
  *  image.
- *
  *  @internal
  */
 function image_for_state(u_jssm, state) {
@@ -249,7 +355,6 @@ function image_for_state(u_jssm, state) {
  *  Production callers should pass the result of `u_jssm.style_for(state)`
  *  so theme-supplied values are honoured uniformly with the rest of the
  *  rendering pipeline.
- *
  *  @internal
  */
 function compose_style_string(style) {
@@ -268,7 +373,6 @@ function compose_style_string(style) {
  *  style via {@link jssm.Machine.style_for}, then delegating to
  *  {@link compose_style_string}.  Theme-supplied `corners` and `lineStyle`
  *  are honoured along with per-state declarations.
- *
  *  @internal
  */
 function style_for_state(u_jssm, state) {
@@ -277,21 +381,30 @@ function style_for_state(u_jssm, state) {
 /**
  *  Convert an FSL flow direction (`up`/`right`/`down`/`left`) to a graphviz
  *  `rankdir=` declaration line.  Throws on unknown input.
- *
  *  @internal
  */
 function flow_direction_to_rankdir(flow_direction) {
     switch (flow_direction) {
-        case 'up': return 'rankdir=BT;';
-        case 'right': return 'rankdir=LR;';
-        case 'down': return 'rankdir=TB;';
-        case 'left': return 'rankdir=RL;';
-        default: throw new JssmError(undefined, `unknown flow direction '${flow_direction}'`);
+        case 'up': {
+            return 'rankdir=BT;';
+        }
+        case 'right': {
+            return 'rankdir=LR;';
+        }
+        case 'down': {
+            return 'rankdir=TB;';
+        }
+        case 'left': {
+            return 'rankdir=RL;';
+        }
+        default: {
+            throw new JssmError(undefined, `unknown flow direction '${flow_direction}'`);
+        }
     }
 }
 /**
  *  Map a single `transition: {}` config item (`{ key, value }`) to a Graphviz
- *  *edge*-scope attribute `name="value"` pair, or `undefined` when the key has
+ *  edge*-scope attribute `name="value"` pair, or `undefined` when the key has
  *  no edge-meaningful projection.  Mirrors the per-node mapping in
  *  {@link state_node_line}, but targets the attribute names Graphviz uses on
  *  edges:
@@ -304,16 +417,23 @@ function flow_direction_to_rankdir(flow_direction) {
  *  Node-only keys (`background-color`, `shape`, `corners`, `image`, `url`,
  *  `state-label`, `border-color`) have no edge meaning and yield `undefined`,
  *  so they are dropped from the `edge [ … ]` default statement.
- *
  *  @internal
  */
 function edge_attr_for(key, value) {
     switch (key) {
         case 'color':
-        case 'graph_default_edge_color': return `color="${doublequote(value)}"`;
-        case 'text-color': return `fontcolor="${doublequote(value)}"`;
-        case 'line-style': return `style="${doublequote(value)}"`;
-        default: return undefined;
+        case 'graph_default_edge_color': {
+            return `color="${doublequote(value)}"`;
+        }
+        case 'text-color': {
+            return `fontcolor="${doublequote(value)}"`;
+        }
+        case 'line-style': {
+            return `style="${doublequote(value)}"`;
+        }
+        default: {
+            return undefined;
+        }
     }
 }
 /**
@@ -329,7 +449,6 @@ function edge_attr_for(key, value) {
  *  edge_defaults_body([{ key: 'color', value: '#0000ffff' }]);
  *  // 'color="#0000ffff"'
  *  ```
- *
  *  @internal
  */
 function edge_defaults_body(config) {
@@ -343,7 +462,7 @@ function edge_defaults_body(config) {
 }
 /**
  *  Map a single `graph: {}` config item (`{ key, value }`) to a Graphviz
- *  *graph*-scope attribute `name="value"` pair, or `undefined` when the key is
+ *  graph*-scope attribute `name="value"` pair, or `undefined` when the key is
  *  either not graph-meaningful or already handled by another machine path
  *  (`graph_layout` → SVG engine, `flow` → `rankdir`, `theme` → style cascade,
  *  `dot_preamble` → preamble).  `background-color` is handled separately — it
@@ -352,14 +471,19 @@ function edge_defaults_body(config) {
  *
  *  - `color`      → graph `color` (cluster/graph border).
  *  - `text-color` → graph `fontcolor`.
- *
  *  @internal
  */
 function graph_attr_for(key, value) {
     switch (key) {
-        case 'color': return `color="${doublequote(value)}"`;
-        case 'text-color': return `fontcolor="${doublequote(value)}"`;
-        default: return undefined;
+        case 'color': {
+            return `color="${doublequote(value)}"`;
+        }
+        case 'text-color': {
+            return `fontcolor="${doublequote(value)}"`;
+        }
+        default: {
+            return undefined;
+        }
     }
 }
 /**
@@ -373,7 +497,6 @@ function graph_attr_for(key, value) {
  *  This is the single reconciliation point for the graph background: the value
  *  it returns flows into {@link dot_template}'s one `bgcolor="…"` slot, so the
  *  `graph: {}` value wins over the legacy alias and is never emitted twice.
- *
  *  @internal
  */
 function graph_bg_color_from_config(config, fallback) {
@@ -381,7 +504,7 @@ function graph_bg_color_from_config(config, fallback) {
         return fallback;
     }
     const item = config.find(i => i.key === 'background-color');
-    return item ? item.value : fallback;
+    return item ? (item.value) : fallback;
 }
 /**
  *  Project the graph-scope attributes of a {@link JssmGraphConfig} that are NOT
@@ -389,7 +512,6 @@ function graph_bg_color_from_config(config, fallback) {
  *  one Graphviz graph attribute statement per key (e.g. `color="…";`).  Returns
  *  the empty string when nothing applies, so machines without graph-scope color
  *  attributes are byte-identical to before.
- *
  *  @internal
  */
 function graph_attrs_body(config) {
@@ -418,7 +540,6 @@ function graph_attrs_body(config) {
  *  `graph: {}` block) is emitted just after `bgcolor`; the background colour
  *  itself flows through the single `graph_bg_color` slot so it is never
  *  double-emitted.
- *
  *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
  *  @param graph_bg_color CSS-style color string for `bgcolor`.
  *  @param nodes Rendered node-declaration block.
@@ -429,7 +550,6 @@ function graph_attrs_body(config) {
  *  @param edge_defaults Attribute body for the machine's `transition: {}` edge defaults.
  *  @param extra_graph_attrs Graph-scope attribute statements from the `graph: {}` block.
  *  @returns A complete graphviz dot source string.
- *
  *  @internal
  */
 function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '', footer = '', edge_defaults = '', extra_graph_attrs = '') {
@@ -463,7 +583,6 @@ ${footer}
  *  rather than via `state_is_final`, which returns the disjunction
  *  (terminal OR complete) and would collapse the three named buckets
  *  into two — see the type docstring above.
- *
  *  @internal
  */
 function classify_states(u_jssm, l_states) {
@@ -490,15 +609,22 @@ function classify_states(u_jssm, l_states) {
  *  Pick the default fill color for a state, by state-kind precedence
  *  (final > complete > terminal > none).  Returns empty string if no
  *  kind applies.
- *
  *  @internal
  */
 function default_fillcolor_for(kind) {
     switch (kind) {
-        case 'final': return vc('fill_final');
-        case 'complete': return vc('fill_complete');
-        case 'terminal': return vc('fill_terminal');
-        default: return '';
+        case 'final': {
+            return vc('fill_final');
+        }
+        case 'complete': {
+            return vc('fill_complete');
+        }
+        case 'terminal': {
+            return vc('fill_terminal');
+        }
+        default: {
+            return '';
+        }
     }
 }
 /**
@@ -519,7 +645,6 @@ function default_fillcolor_for(kind) {
  *  text inside.  Useful for diagrams where the state shape carries meaning
  *  on its own (e.g. a tutorial graphic, an icon-only diagram, or a
  *  presentation slide).
- *
  *  @internal
  */
 function state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels, chips) {
@@ -531,15 +656,20 @@ function state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels,
     // `label="Output "foo""` that crashes the graphviz/emscripten renderer.
     // chips are already escaped by label_with_chips.  StoneCypher/fsl#474
     const label = hide_state_labels ? '' : label_with_chips(doublequote(u_jssm.display_text(s)), chips);
+    // Every attribute value is user-controllable (via state config) and is
+    // embedded inside `"…"` in DOT.  `label` was doublequoted above; the rest are
+    // escaped here so a value containing a literal `"` cannot break out of its
+    // attribute and inject arbitrary Graphviz attributes onto the node.
+    // StoneCypher/fsl#1944.  (Backslash escaping is a separate fix, fsl#1951.)
     const features = [
         ['label', label],
-        ['shape', style.shape || ''],
-        ['color', style.borderColor || ''],
-        ['style', compose_style_string(style)],
-        ['fontcolor', style.textColor || ''],
-        ['image', style.image || ''],
-        ['URL', style.url || ''],
-        ['fillcolor', fillcolor]
+        ['shape', doublequote(style.shape || '')],
+        ['color', doublequote(style.borderColor || '')],
+        ['style', doublequote(compose_style_string(style))],
+        ['fontcolor', doublequote(style.textColor || '')],
+        ['image', doublequote(style.image || '')],
+        ['URL', doublequote(render_safe_url(style.url || ''))],
+        ['fillcolor', doublequote(fillcolor)]
     ]
         .filter(r => r[1])
         .map(r => `${r[0]}="${r[1]}"`)
@@ -551,7 +681,6 @@ function state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels,
  *  through {@link jssm.Machine.style_for} so theme-supplied values are
  *  honoured uniformly.  Extracted so the group-cluster builder can emit the
  *  identical node statement inside a `subgraph cluster_… { … }` block.
- *
  *  @internal
  */
 function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_state_labels = false, chips = new Map()) {
@@ -563,20 +692,18 @@ function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide
  *  Compose a multi-line `action\nprobability` label for a transition.
  *  Returns `undefined` when both fields are absent, so callers can skip
  *  emitting the attribute entirely.
- *
  *  @internal
  */
 function transition_label(tr) {
     if (!tr) {
         return undefined;
     }
-    const parts = [`${tr.action || ''}`, `${tr.probability || ''}`].filter(x => x !== '');
-    return parts.length ? parts.join('\n') : undefined;
+    const parts = [tr.action || '', tr.probability || ''].filter(x => x !== '');
+    return parts.length > 0 ? parts.join('\n') : undefined;
 }
 /**
  *  Pick the graphviz arrowhead style for a transition, by transition kind
  *  (forced > main > normal).
- *
  *  @internal
  */
 function arrow_for(tr) {
@@ -594,29 +721,43 @@ function arrow_for(tr) {
 /**
  *  Pick the line color for a transition end-position from a precomputed
  *  state-kind classification (final > complete > terminal > base).
- *
  *  @internal
  */
 function line_color(kind, lkind, suffix) {
     switch (kind) {
-        case 'final': return vc(`${lkind}_final${suffix}`);
-        case 'complete': return vc(`${lkind}_complete${suffix}`);
-        case 'terminal': return vc(`${lkind}_terminal${suffix}`);
-        default: return vc(`${lkind}${suffix}`);
+        case 'final': {
+            return vc(`${lkind}_final${suffix}`);
+        }
+        case 'complete': {
+            return vc(`${lkind}_complete${suffix}`);
+        }
+        case 'terminal': {
+            return vc(`${lkind}_terminal${suffix}`);
+        }
+        default: {
+            return vc(`${lkind}${suffix}`);
+        }
     }
 }
 /**
  *  Pick the text color for a transition label end-position from a precomputed
  *  state-kind classification (final > complete > terminal > none).
- *
  *  @internal
  */
 function text_color(kind, suffix) {
     switch (kind) {
-        case 'final': return vc(`text_final${suffix}`);
-        case 'complete': return vc(`text_complete${suffix}`);
-        case 'terminal': return vc(`text_terminal${suffix}`);
-        default: return '';
+        case 'final': {
+            return vc(`text_final${suffix}`);
+        }
+        case 'complete': {
+            return vc(`text_complete${suffix}`);
+        }
+        case 'terminal': {
+            return vc(`text_terminal${suffix}`);
+        }
+        default: {
+            return '';
+        }
     }
 }
 /**
@@ -630,14 +771,13 @@ function text_color(kind, suffix) {
  *  silently produced empty strings for years; only the simpler
  *  `taillabel="..."` form below kept user-visible labels rendering.
  *  Fixed during the merge.
- *
  *  @internal
  */
 function colored_label(tr, which, color) {
     if (!tr) {
         return '';
     }
-    const text = [tr.name, tr.probability, tr.action].filter(q => q).join('<br/>');
+    const text = [tr.name, tr.probability, tr.action].filter(Boolean).join('<br/>');
     if (!text) {
         return '';
     }
@@ -650,12 +790,16 @@ function colored_label(tr, which, color) {
  *  uses an internally-owned `Set<string>` keyed by `"from|to"` for O(1)
  *  duplicate detection, replacing the previous `[string, string][]`
  *  accumulator and O(n) `find` probe.
- *
  *  @internal
  */
 function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
     const strike = new Set();
     const kind_of = (s) => { var _a; return (_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base'; };
+    // `farrange` forces its members' left-to-right order by relaxing the rank
+    // constraint of every real edge incident to a member, so the invisible
+    // ordering chain (emitted in arranges_for) wins over the members' own edges.
+    const farrange_members = new Set(((u_jssm._farrange_declaration) || []).flat().map(String));
+    const cf = (s, ex) => (farrange_members.has(s) || farrange_members.has(ex)) ? 'constraint=false;' : '';
     // Render one solo directed edge `s -> ex` for transition `tr`.
     const solo_edge = (s, ex, tr) => {
         const ex_kind = kind_of(ex);
@@ -665,7 +809,7 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
         const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
         const arrowHead = arrow_for(tr);
         const edgeInline = `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, tr.kind, '_solo')}"`;
-        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
     };
     return l_states.map((s) => u_jssm.list_exits(s).map((ex) => {
         if (strike.has(`${s}|${ex}`)) {
@@ -675,7 +819,7 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
         if (forward.length === 0) {
             return '';
         } // belt-and-suspenders; list_exits should always have a corresponding transition
-        const reverse = (s !== ex) ? u_jssm.edges_between(ex, s) : [];
+        const reverse = (s === ex) ? [] : u_jssm.edges_between(ex, s);
         // Bidirectional merge stays the default for the common case: exactly one
         // edge each way between two distinct states draws as a single `dir=both`
         // edge with head/tail labels.  Parallel edges (#325) or self-loops fall
@@ -699,7 +843,7 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
             const arrowTail = arrow_for(pair_tr);
             const edgeInline = `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${line_color(ex_kind, edge_tr.kind, '_1')}:${line_color(s_kind, pair_tr.kind, '_2')}"`;
             strike.add(`${ex}|${s}`);
-            return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+            return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
         }
         // one directed line per forward edge — parallel action edges (#325) and
         // self-loops (#531) draw each transition separately.  The reverse edges,
@@ -708,18 +852,31 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
     }).join(' ')).join(' ');
 }
 /**
- *  Render `arrange`, `arrange_start`, and `arrange_end` declarations to
- *  rank-grouped subgraphs (`rank=same`/`rank=min`/`rank=max`).
+ *  Render `arrange`, `arrange_start`, `arrange_end`, `oarrange`, and `farrange`
+ *  declarations to rank-grouped subgraphs (`rank=same`/`rank=min`/`rank=max`).
  *
+ *  `arrange*` emit only a rank group. `oarrange`/`farrange` additionally emit an
+ *  invisible left-to-right ordering chain (`a->b->c [style=invis]`) so the listed
+ *  states keep their written order on the rank. `oarrange` is best-effort (it
+ *  yields to hard rank constraints, never reshaping the graph); `farrange`'s
+ *  ordering is forced by also relaxing its members' real edges via
+ *  `constraint=false`, emitted in {@link states_to_edges_string}.
  *  @internal
  */
 function arranges_for(u_jssm, state_index) {
     const group = (decls, rank) => decls
         ? decls.map(d => `{rank=${rank}; ${d.map(di => node_of(di, state_index)).join('; ')};};`).join('\n')
         : '';
+    // For each group, an invisible chain pinning left-to-right order: one
+    // `prev->cur [style=invis]` edge per adjacent pair (empty for <2 members).
+    const order_chain = (decls) => decls
+        ? decls.map(d => d.slice(1).map((di, i) => `${node_of(d[i], state_index)}->${node_of(di, state_index)} [style=invis];`).join(' ')).join('\n')
+        : '';
     return group(u_jssm._arrange_declaration, 'same')
         + group(u_jssm._arrange_start_declaration, 'min')
-        + group(u_jssm._arrange_end_declaration, 'max');
+        + group(u_jssm._arrange_end_declaration, 'max')
+        + group(u_jssm._oarrange_declaration, 'same') + order_chain(u_jssm._oarrange_declaration)
+        + group(u_jssm._farrange_declaration, 'same') + order_chain(u_jssm._farrange_declaration);
 }
 /**
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
@@ -736,12 +893,10 @@ function arranges_for(u_jssm, state_index) {
  *  cluster_id_for('Active Players', 0);  // 'cluster_active_players_0'
  *  cluster_id_for('!!!', 3);             // 'cluster_g3'
  *  ```
- *
  *  @param group The FSL group name.
  *  @param index The group's stable declaration-order index (0-based); included
  *  in the emitted id to prevent slug collisions.
  *  @returns A valid Graphviz subgraph identifier starting with `cluster_`.
- *
  *  @internal
  */
 function cluster_id_for(group, index) {
@@ -759,7 +914,6 @@ function cluster_id_for(group, index) {
  *  label_with_chips('Foo', []);              // 'Foo'
  *  label_with_chips('Foo', ['a', 'b']);      // 'Foo [a] [b]'
  *  ```
- *
  *  @internal
  */
 function label_with_chips(label, chips) {
@@ -781,14 +935,14 @@ function label_with_chips(label, chips) {
  *  // for `&inner:[a]; &outer:[&inner b];`
  *  // group_parent_map(reg, ['inner','outer']) === Map { 'inner' => 'outer' }
  *  ```
- *
  *  @internal
  */
 function group_parent_map(registry, order) {
     var _a;
     const parent = new Map();
     for (const parent_name of order) {
-        for (const member of (_a = registry.get(parent_name)) !== null && _a !== void 0 ? _a : []) {
+        const members = (_a = registry.get(parent_name)) !== null && _a !== void 0 ? _a : [];
+        for (const member of members) {
             if ((member.kind === 'group') && (!parent.has(member.name))) {
                 parent.set(member.name, parent_name);
             }
@@ -801,7 +955,6 @@ function group_parent_map(registry, order) {
  *  ancestor set *including the group itself*.  Used both to nest clusters and
  *  to decide which of a state's memberships its primary cluster already
  *  represents (so the rest become chips).
- *
  *  @internal
  */
 function group_ancestry(group, parents) {
@@ -819,7 +972,6 @@ function group_ancestry(group, parents) {
  *  declaration order — the same precedence the config cascade uses, so a
  *  state's cluster placement agrees with the group whose style won.  Returns
  *  `undefined` for a state in no group.
- *
  *  @internal
  */
 function primary_group_for(u_jssm, state, order) {
@@ -842,11 +994,9 @@ function primary_group_for(u_jssm, state, order) {
  *  ungrouped state) plus the *chip* groups — memberships the primary cluster's
  *  ancestry does not already represent, i.e. genuine overlap that nesting
  *  cannot show.
- *
  *  @returns `{ placement, chips }` where `placement` maps state → primary
  *  group, and `chips` maps state → the overflow group names (declaration
  *  order).
- *
  *  @internal
  */
 function plan_cluster_groups(u_jssm, l_states, order, parents) {
@@ -860,7 +1010,7 @@ function plan_cluster_groups(u_jssm, l_states, order, parents) {
         placement.set(s, primary);
         const represented = group_ancestry(primary, parents);
         const overflow = order.filter(g => u_jssm.groupsOf(s).has(g) && (!represented.has(g)));
-        if (overflow.length) {
+        if (overflow.length > 0) {
             chips.set(s, overflow);
         }
     }
@@ -882,14 +1032,12 @@ function plan_cluster_groups(u_jssm, l_states, order, parents) {
  *  // for `&inner:[a]; &outer:[&inner b]; a -> b;` the result contains
  *  //   subgraph cluster_outer { label="outer"; … subgraph cluster_inner { … } }
  *  ```
- *
  *  @returns `{ clusters, ungrouped_nodes }` — the cluster DOT block and the
  *  node statements for states in no group.
- *
  *  @internal
  */
 function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, hide_state_labels) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     const order = u_jssm.groups();
     const parents = group_parent_map(u_jssm._group_registry, order);
     const { placement, chips } = plan_cluster_groups(u_jssm, l_states, order, parents);
@@ -898,14 +1046,22 @@ function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, h
     // states are inlined directly into the parent cluster.
     const spread_children_of = new Map();
     const is_spread_child = new Set();
+    // Records `member` as a spread child of parent group `p` when it is a
+    // spread-mode group member whose primary parent is `p`.
+    const note_spread_child = (p, member) => {
+        var _a;
+        if (!(member.kind === 'group' && member.mode === 'spread' && parents.get(member.name) === p)) {
+            return;
+        }
+        const bucket = (_a = spread_children_of.get(p)) !== null && _a !== void 0 ? _a : [];
+        bucket.push(member.name);
+        spread_children_of.set(p, bucket);
+        is_spread_child.add(member.name);
+    };
     for (const p of order) {
-        for (const member of (_a = u_jssm._group_registry.get(p)) !== null && _a !== void 0 ? _a : []) {
-            if (member.kind === 'group' && member.mode === 'spread' && parents.get(member.name) === p) {
-                const bucket = (_b = spread_children_of.get(p)) !== null && _b !== void 0 ? _b : [];
-                bucket.push(member.name);
-                spread_children_of.set(p, bucket);
-                is_spread_child.add(member.name);
-            }
+        const p_members = (_a = u_jssm._group_registry.get(p)) !== null && _a !== void 0 ? _a : [];
+        for (const member of p_members) {
+            note_spread_child(p, member);
         }
     }
     // children[g] = nested (non-spread) sub-groups whose primary parent is g, in declaration order
@@ -913,7 +1069,7 @@ function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, h
     for (const g of order) {
         const p = parents.get(g);
         if (p !== undefined && !is_spread_child.has(g)) {
-            const bucket = (_c = children.get(p)) !== null && _c !== void 0 ? _c : [];
+            const bucket = (_b = children.get(p)) !== null && _b !== void 0 ? _b : [];
             bucket.push(g);
             children.set(p, bucket);
         }
@@ -923,7 +1079,7 @@ function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, h
     for (const s of l_states) {
         const g = placement.get(s);
         if (g !== undefined) {
-            const bucket = (_d = members.get(g)) !== null && _d !== void 0 ? _d : [];
+            const bucket = (_c = members.get(g)) !== null && _c !== void 0 ? _c : [];
             bucket.push(s);
             members.set(g, bucket);
         }
@@ -944,7 +1100,7 @@ function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, h
         }
         return `subgraph ${cluster_id_for(g, index)} { label="${doublequote(g)}"; ${body} };`;
     };
-    const roots = order.filter(g => parents.get(g) === undefined && !is_spread_child.has(g));
+    const roots = order.filter(g => !parents.has(g) && !is_spread_child.has(g));
     const clusters = roots.map(g => render_cluster(g, order.indexOf(g))).filter(Boolean).join(' ');
     const ungrouped_nodes = l_states
         .filter(s => !placement.has(s))
@@ -962,7 +1118,6 @@ function groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, h
  *  // for `&inner:[a]; &outer:[&inner b]; a -> b;`
  *  // chips_for_all_groups(m, ['a','b']) === Map { 'a' => ['inner','outer'], 'b' => ['outer'] }
  *  ```
- *
  *  @internal
  */
 function chips_for_all_groups(u_jssm, l_states) {
@@ -971,7 +1126,7 @@ function chips_for_all_groups(u_jssm, l_states) {
     for (const s of l_states) {
         const groups = u_jssm.groupsOf(s);
         const mine = order.filter(g => groups.has(g));
-        if (mine.length) {
+        if (mine.length > 0) {
             chips.set(s, mine);
         }
     }
@@ -991,7 +1146,6 @@ function chips_for_all_groups(u_jssm, l_states) {
  *
  *  A machine that declares no groups produces the same flat node list in every
  *  mode, so `'cluster'`/`'chips'` are no-ops there.
- *
  *  @internal
  */
 function node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels, mode) {
@@ -1004,6 +1158,68 @@ function node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels,
     }
     const { clusters, ungrouped_nodes } = groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, hide_labels);
     return `${clusters}${(clusters && ungrouped_nodes) ? ' ' : ''}${ungrouped_nodes}`;
+}
+/**
+ *  The per-state group-chip map that {@link node_block_for} appends to labels
+ *  in a given render mode.  Mirrors that function's mode dispatch and calls the
+ *  very same chip sources — {@link chips_for_all_groups} for `'chips'`,
+ *  {@link plan_cluster_groups} (with identical inputs) for `'cluster'` — so a
+ *  reconstructed label can never disagree with the one graphviz was handed.
+ *  `'off'`, and any machine that declares no groups, yields an empty map.
+ *  @internal
+ */
+function chips_for_render_mode(u_jssm, l_states, mode) {
+    if ((mode === 'off') || (u_jssm.groups().length === 0)) {
+        return new Map();
+    }
+    if (mode === 'chips') {
+        return chips_for_all_groups(u_jssm, l_states);
+    }
+    const order = u_jssm.groups();
+    const parents = group_parent_map(u_jssm._group_registry, order);
+    return plan_cluster_groups(u_jssm, l_states, order, parents).chips;
+}
+/**
+ *  The exact text graphviz places in each state's SVG `<text>` element(s) when
+ *  a machine is rendered via {@link machine_to_dot} / {@link fsl_to_svg_string}:
+ *  the state's display text plus any group chips the node builder appends, with
+ *  DOT's `\"` escaping undone (SVG carries the literal character).  A label that
+ *  wraps across lines becomes several `<text>` elements; this returns the lines
+ *  joined by `\n`, exactly how `extract_state_fills` reads them back — so
+ *  the derived key and the extracted key meet at the same string.
+ *
+ *  This is the single source of truth the static fence renderer keys its
+ *  highlight and recolor lookups against, so those lookups can never drift from
+ *  what was actually drawn — plain labels, group chips, and multi-line wraps
+ *  alike.  It is built by running the node builder's own
+ *  `label_with_chips(doublequote(display_text), chips)` and inverting the one
+ *  escaping step, so it follows any change to the label format for free.
+ *  @param u_jssm The machine being rendered.
+ *  @param opts Render flags; only `render_groups` affects the label text
+ *  (default `'cluster'`, matching `fsl_to_svg_string`).
+ *  @returns A map from each state name to its rendered SVG label text.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *  import { state_svg_label_texts } from 'jssm/viz';
+ *
+ *  // a state in two groups renders a chip suffix in its node label
+ *  state_svg_label_texts(sm`&g1 : [a b]; &g2 : [a]; a -> b;`).get('a');  // 'a [g1]'
+ *  state_svg_label_texts(sm`a -> b;`).get('a');                          // 'a'
+ *  ```
+ *  @see extract_state_fills
+ */
+function state_svg_label_texts(u_jssm, opts = {}) {
+    var _a, _b;
+    const l_states = u_jssm.states();
+    const mode = (_a = opts.render_groups) !== null && _a !== void 0 ? _a : 'cluster';
+    const chips = chips_for_render_mode(u_jssm, l_states, mode);
+    const out = new Map();
+    for (const s of l_states) {
+        const dot_label = label_with_chips(doublequote(u_jssm.display_text(s)), (_b = chips.get(s)) !== null && _b !== void 0 ? _b : []);
+        out.set(s, undoublequote(dot_label));
+    }
+    return out;
 }
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
@@ -1033,7 +1249,6 @@ function node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels,
  *  // or as label chips, with no cluster boxes
  *  const chipped = machine_to_dot(sm`&g : [a b]; a -> b;`, { render_groups: 'chips' });
  *  ```
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
@@ -1043,7 +1258,7 @@ function machine_to_dot(u_jssm, opts = {}) {
     const l_states = u_jssm.states();
     const state_index = slug_states(l_states);
     const state_kinds = classify_states(u_jssm, l_states);
-    const hide_labels = opts.hide_state_labels === true;
+    const hide_labels = opts.hide_state_labels;
     const mode = (_a = opts.render_groups) !== null && _a !== void 0 ? _a : 'cluster';
     const nodes = node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels, mode);
     const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
@@ -1076,7 +1291,6 @@ function machine_to_dot(u_jssm, opts = {}) {
  *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
  *  // 'digraph G { ... label="caption"; }'
  *  ```
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
@@ -1085,15 +1299,15 @@ function fsl_to_dot(fsl, opts = {}) {
     return machine_to_dot(jssm.sm `${fsl}`, opts);
 }
 /**
- *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
- *  underlying viz instance is lazy-initialized on first call and cached for
- *  the lifetime of the module.
+ *  Render a graphviz dot source string to SVG using `@viz-js/viz`, or the
+ *  engine injected via {@link configure}`({ viz })` when one is set.  The
+ *  default viz instance is lazy-initialized on first call and cached for
+ *  the lifetime of the module; an injected engine bypasses it entirely.
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
  *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
- *
  *  @param dot Graphviz dot source.
  *  @param options Optional renderer overrides.
  *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
@@ -1103,7 +1317,7 @@ function fsl_to_dot(fsl, opts = {}) {
  */
 async function dot_to_svg(dot, options) {
     const viz = await get_viz();
-    return viz.renderString(dot, Object.assign({ format: 'svg' }, (options !== null && options !== void 0 ? options : {})));
+    return viz.renderString(dot, Object.assign({ format: 'svg' }, options));
 }
 /**
  *  Render an FSL string directly to SVG.
@@ -1112,7 +1326,6 @@ async function dot_to_svg(dot, options) {
  *  const svg = await fsl_to_svg_string('a -> b;');
  *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
  *  ```
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
@@ -1122,7 +1335,6 @@ async function fsl_to_svg_string(fsl, opts = {}) {
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
@@ -1134,12 +1346,11 @@ async function machine_to_svg_string(u_jssm, opts = {}) {
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
  *  jsdom test environment), fall back to the value passed to {@link configure},
  *  throw `JssmError` if neither is available.
- *
  *  @internal
  */
 function get_dom_parser() {
-    if (typeof globalThis.DOMParser === 'function') {
-        return globalThis.DOMParser;
+    if (typeof DOMParser === 'function') {
+        return DOMParser;
     }
     if (injected_dom_parser !== null) {
         return injected_dom_parser;
@@ -1149,7 +1360,6 @@ function get_dom_parser() {
 /**
  *  Render dot source to a parsed `SVGSVGElement`.  Browser-by-default; in
  *  Node, requires a `DOMParser` to have been injected via {@link configure}.
- *
  *  @param dot Graphviz dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available.
@@ -1163,7 +1373,6 @@ async function dot_to_svg_element(dot) {
 }
 /**
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
- *
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
@@ -1174,7 +1383,6 @@ async function fsl_to_svg_element(fsl, opts = {}) {
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
- *
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
@@ -1186,24 +1394,24 @@ async function machine_to_svg_element(u_jssm, opts = {}) {
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
  *  jssm-viz.  Will be removed in the next major.
- *
  *  @deprecated Use {@link machine_to_dot} instead.
  */
 function dot(machine) {
     return machine_to_dot(machine);
 }
-export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, version, build_time };
-/** @internal — test-only access to private helpers. */
+export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, state_svg_label_texts, slug_for, };
+/** @internal */
 export const _test = {
     doublequote,
     color8to6, u_color8to6, vc, node_of,
     slug_for, slug_states,
     shape_for_state, image_for_state, style_for_state,
-    cluster_id_for, label_with_chips,
+    cluster_id_for, label_with_chips, undoublequote,
     group_parent_map, group_ancestry,
     primary_group_for, plan_cluster_groups,
     groups_to_subgraph_string, chips_for_all_groups,
-    node_block_for,
+    node_block_for, chips_for_render_mode,
     edge_attr_for, edge_defaults_body,
     graph_attr_for, graph_attrs_body, graph_bg_color_from_config
 };
+export { version, build_time } from './version.js';

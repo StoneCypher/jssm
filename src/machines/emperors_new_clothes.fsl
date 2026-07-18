@@ -1,0 +1,56 @@
+// "The Emperor's New Clothes" - Hans Christian Andersen (1837)
+//
+// Every adult's endorsement in this tale is a real, chosen action: the
+// minister, the old official, the courtiers, even the emperor himself each
+// affirmatively agree the cloth is there, one link at a time, each one
+// afraid to be the exception. That chain could run forever - there is
+// always another courtier willing to agree - which is why nothing about
+// the consensus-building half of this machine is forced; it is choice all
+// the way down, stacking chosen (`->`) edges into "the parade," at which
+// point `legalNext` goes empty: once the parade has started, there is no
+// chosen action left for anyone in it to take. Momentum has fully replaced
+// agency.
+//
+// The one edge nobody in the crowd chooses is the one that ends it: a
+// child, who has no stake in the social contract the adults are all
+// enforcing on each other, simply says what she sees. That is modeled here
+// as a FORCED transition (`~>`, no action label) precisely because a small
+// child blurting the truth is not a strategic decision weighed against
+// social cost the way every adult's endorsement was - it is closer to a
+// reflex, structurally unavailable to the consensus-choosing crowd and
+// unstoppable once it fires.
+//
+// The showcase: `fslSimulate` walks the full five-step consensus cleanly,
+// then reports an empty legalNext at "the parade" - and separately rejects
+// `'a child speaks without stake in the lie'` as a chosen action from the
+// very start, because it was never an action to begin with, only a forced
+// edge waiting past the point where anyone else could still choose.
+
+machine_name    : "The Emperor's New Clothes";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the swindlers claim the cloth is invisible to fools"
+  'the minister agrees, dares not admit he sees nothing' -> "one endorsement";
+
+"one endorsement"
+  'the old official agrees' -> "two endorsements";
+
+"two endorsements"
+  'the courtiers agree' -> "three endorsements";
+
+"three endorsements"
+  'the emperor agrees, he sees nothing either' -> "consensus reached, the clothes are real";
+
+"consensus reached, the clothes are real"
+  'parade through town' -> "the parade";
+
+// no chosen action reaches from here. only the one voice with nothing at
+// stake in the consensus can end it, and she does not choose to - she just
+// says what she sees.
+"the parade"                             ~> "a child speaks without stake in the lie";
+"a child speaks without stake in the lie" ~> "the emperor has no clothes";

@@ -2,18 +2,18 @@
  * @vitest-environment jsdom
  */
 
-/* eslint-disable max-len */
+ 
 
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 // jsdom does not expose TextDecoder / TextEncoder; @viz-js/viz (WebAssembly
 // loader) needs them.  Copy the Node built-ins onto globalThis before any
 // test runs.
 beforeAll(() => {
-  if (typeof globalThis.TextDecoder === 'undefined') {
+  if (globalThis.TextDecoder === undefined) {
     (globalThis as any).TextDecoder = TextDecoder;
   }
-  if (typeof globalThis.TextEncoder === 'undefined') {
+  if (globalThis.TextEncoder === undefined) {
     (globalThis as any).TextEncoder = TextEncoder;
   }
 });

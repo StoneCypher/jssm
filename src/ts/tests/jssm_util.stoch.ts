@@ -7,6 +7,9 @@ import {
   array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep
 } from '../jssm_util';
 
+/** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
+const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
+
 
 
 
@@ -31,11 +34,9 @@ const RUNS = 100;
  *  distinct by construction, where value `i` appears `counts[i]` times.
  *  Because the expectation is derived from the construction recipe rather
  *  than from the code under test, tests built on this are real tests.
- *
  *  @param counts  Multiplicity for each constructed value; index = value.
  *  @returns       The constructed array (in value order, not shuffled) and
  *                 the `[value, count]` pairs where `count > 1`.
- *
  *  @example
  *    build_multiset([2, 1, 3])
  *    // { arr: [0, 0, 1, 2, 2, 2], repeats: [[0, 2], [2, 3]] }
@@ -44,9 +45,9 @@ function build_multiset(counts: number[]): { arr: number[], repeats: [number, nu
 
   const arr: number[] = [];
 
-  counts.forEach( (count, value) => {
+  for (const [value, count] of counts.entries()) {
     for (let i = 0; i < count; ++i) { arr.push(value); }
-  });
+  }
 
   const repeats = counts
     .map( (count, value): [number, number] => [value, count] )
@@ -78,7 +79,7 @@ describe('seq', () => {
         (n) => {
           const s = seq(n);
           expect(s.length).toBe(n);
-          s.forEach( (v, i) => expect(v).toBe(i) );
+          for (const [i, v] of s.entries()) { expect(v).toBe(i); }
         }
       ),
       { numRuns: RUNS }
@@ -104,7 +105,7 @@ describe('seq', () => {
 
     fc.assert(
       fc.property(
-        fc.double({ min: 0, max: 1000 }).filter( d => !Number.isInteger(d) ),
+        fc.double({ min: 0, max: 1000 }).filter( d => !Number.isSafeInteger(d) ),
         (d) => {
           expect(() => seq(d)).toThrow(TypeError);
         }
@@ -166,7 +167,7 @@ describe('unique / arr_uniq_p', () => {
         fc.array(fc.integer({ min: 0, max: 5 }), { maxLength: 10 }),
         fc.integer({ min: 1, max: 3 }),
         (arr, nan_count) => {
-          const with_nans = [...arr, ...new Array(nan_count).fill(NaN)];
+          const with_nans = [...arr, ...Array.from({ length: nan_count }, () => NaN)];
           expect(unique(with_nans).some(Number.isNaN)).toBe(false);
         }
       ),
@@ -289,9 +290,9 @@ describe('histograph', () => {
 
           const histo: Map<number, number> = histograph(shuffled);
 
-          counts.forEach( (count, value) => {
+          for (const [value, count] of counts.entries()) {
             expect(histo.get(value)).toBe(count);
-          });
+          }
 
           const total = [...histo.values()].reduce( (acc, v) => acc + v, 0 );
           expect(total).toBe(shuffled.length);
@@ -351,16 +352,16 @@ describe('gen_splitmix32', () => {
         (saw_seed) => {
 
           const rng     = gen_splitmix32(saw_seed);
-          const buckets = new Array(10).fill(0);
+          const buckets = Array.from({length: 10}, () => 0);
 
           for (let i = 0; i < 10_000; ++i) {
             ++buckets[Math.floor(rng() * 10)];
           }
 
-          buckets.forEach( count => {
+          for (const count of buckets) {
             expect(count).toBeGreaterThan(750);
             expect(count).toBeLessThan(1250);
-          });
+          }
 
         }
       ),
@@ -509,7 +510,7 @@ describe('weighted_rand_select', () => {
             seen.add(weighted_rand_select(options, undefined, rng).name);
           }
 
-          expect([...seen].sort()).toEqual(['a', 'b', 'c']);
+          expect([...seen].sort(code_unit_compare)).toEqual(['a', 'b', 'c']);
 
         }
       ),
@@ -520,7 +521,9 @@ describe('weighted_rand_select', () => {
 
   test('rejects non-arrays, empty arrays, and non-object members with TypeError', () => {
 
+    // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
     expect(() => weighted_rand_select('not an array')).toThrow(TypeError);
+    // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
     expect(() => weighted_rand_select(7)).toThrow(TypeError);
     expect(() => weighted_rand_select(undefined)).toThrow(TypeError);
     expect(() => weighted_rand_select([])).toThrow(TypeError);
@@ -530,6 +533,7 @@ describe('weighted_rand_select', () => {
       fc.property(
         fc.oneof(fc.string(), fc.integer(), fc.boolean()),
         (not_an_array) => {
+          // @ts-expect-error deliberately passing a non-array to prove the TypeError guard
           expect(() => weighted_rand_select(not_an_array)).toThrow(TypeError);
         }
       ),
@@ -564,7 +568,7 @@ describe('weighted_sample_select', () => {
           const samples = weighted_sample_select(n, options, 'probability', rng);
 
           expect(samples.length).toBe(n);
-          samples.forEach( (s: unknown) => expect(options).toContain(s) );
+          for (const s of samples as unknown[]) { expect(options).toContain(s); }
 
         }
       ),
@@ -601,7 +605,7 @@ describe('weighted_histo_key', () => {
           const total = [...histo.values()].reduce( (acc, v) => acc + v, 0 );
           expect(total).toBe(n);
 
-          [...histo.keys()].forEach( k => expect(['red', 'green', 'blue']).toContain(k) );
+          for (const k of histo.keys()) expect(['red', 'green', 'blue']).toContain(k) ;
 
         }
       ),

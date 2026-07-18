@@ -37,10 +37,8 @@ const HEX_ALL   = [...HEX_LOWER, 'A','B','C','D','E','F'] as const;
 /**
  *  Parse a state declaration of the form `state F : { color : <literal> ; };`
  *  and return the canonicalised colour value at `tree[0].value[0].value`.
- *
  *  @param  literal  FSL colour source: a named colour, a `#rgb`-form, etc.
  *  @returns         The canonicalised colour string (typically `#rrggbbaa`).
- *
  *  @example
  *    parse_state_color('red')        // → '#ff0000ff'
  *    parse_state_color('#fff')       // → '#ffffffff'
@@ -61,7 +59,6 @@ function parse_state_color(literal: string): string {
  *  digit count drawn from the supplied alphabet (lowercase / uppercase /
  *  mixed).  fast-check arbitraries delegate to this so each generated
  *  hex form is a separate test point.
- *
  *  @param  digits    Number of hex digits after the `#`.
  *  @param  alphabet  Choice of digit casing (use HEX_LOWER, HEX_UPPER, HEX_ALL).
  *  @returns          fast-check Arbitrary that yields strings like `#abc`.
@@ -164,7 +161,7 @@ describe('SvgColorLabel — case-insensitivity and shape', () => {
   test('Every parsed named colour matches the documented `#rrggbbaa` shape', () => {
 
      for (const camel_name of jssm.named_colors) {
-       expect(parse_state_color(camel_name)).toMatch(/^#[0-9a-fA-F]{8}$/);
+       expect(parse_state_color(camel_name)).toMatch(/^#[0-9a-f]{8}$/i);
      }
 
   });

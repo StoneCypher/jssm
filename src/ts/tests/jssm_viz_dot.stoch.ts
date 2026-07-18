@@ -153,17 +153,15 @@ describe('flow directives map to graphviz rankdir', () => {
  *  Extracts the node entry (`"name" [features];`) for one state from
  *  rendered dot source.  Node entries have a space before the bracket;
  *  edge entries (`"a"->"b" [...]`) never match because of the `->`.
- *
  *  @param rendered  Complete dot source.
  *  @param name      The state whose node entry to find.
  *  @returns         The features text inside the brackets, or undefined.
- *
  *  @example
  *    node_features_for('... "aa" [label="aa" shape="box"]; ...', 'aa')
  *    // 'label="aa" shape="box"'
  */
 function node_features_for(rendered: string, name: string): string | undefined {
-  const m = rendered.match( new RegExp(`"${name}" \\[([^\\]]*)\\];`) );
+  const m = rendered.match( new RegExp(String.raw`"${name}" \[([^\]]*)\];`) );
   return m === null ? undefined : m[1];
 }
 

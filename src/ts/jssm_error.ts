@@ -49,20 +49,18 @@ class JssmError extends Error {
 
     const follow_ups = [];
 
-    if (machine) {
-      if (machine.state() !== undefined) { follow_ups.push(`at "${machine.state()}"`); }
-    }
+    if (machine && machine.state() !== undefined) { follow_ups.push(`at "${machine.state()}"`); }
 
     if (requested_state !== undefined) { follow_ups.push(`requested "${requested_state}"`); }
 
     const complex_msg = `${
-      (machine?.instance_name() !== undefined)
-        ? `[[${machine.instance_name()}]]: `
-        : ''
+      (machine?.instance_name() === undefined)
+        ? ''
+        : `[[${machine.instance_name()}]]: `
     }${
       message
     }${
-      follow_ups.length
+      follow_ups.length > 0
         ? ` (${follow_ups.join(', ')})`
         : ''
     }`;

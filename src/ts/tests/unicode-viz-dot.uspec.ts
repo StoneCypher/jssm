@@ -24,7 +24,7 @@ const viz_dot_test = (idx: number): boolean => {
 
     try {
       dot = machine_to_dot(sm`${cp} -> b;`);
-    } catch (e) {
+    } catch {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 

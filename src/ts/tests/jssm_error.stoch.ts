@@ -26,11 +26,9 @@ const RUNS = 100;
  *  Minimal stand-in for a `Machine` as far as `JssmError` is concerned:
  *  just `state()` and `instance_name()`.  Lets the tests drive every
  *  machine-context combination without compiling FSL each time.
- *
  *  @param state          Value `state()` should return.
  *  @param instance_name  Value `instance_name()` should return.
  *  @returns              An object satisfying JssmError's machine usage.
- *
  *  @example
  *    stub_machine('Red', 'traffic')  // → { state: () => 'Red', instance_name: () => 'traffic' }
  */

@@ -1,0 +1,39 @@
+// "The Trial" - Franz Kafka (1925)
+//
+// Every door in the courthouse opens onto another waiting room. This
+// file is the maze without the arrest: a handful of chosen actions out
+// of `arrested` walk a defendant through a small, richly connected knot
+// of antechambers, and however you choose among them, every single edge
+// you can legally take lands you back in an antechamber - never once at
+// a verdict. legalNext at any reachable state in this file is just a
+// list of ways to see another waiting room.
+//
+// `"the verdict"` is declared, and it's real - a state has to exist to
+// be named - but the only edge touching it is its own self-loop, there
+// purely to satisfy the rule that an edgeless state gets silently
+// dropped; without it, "the verdict" wouldn't compile into the file at
+// all, let alone be reachable. It isn't terminal even in principle: it
+// only ever reads itself aloud, once, then again. `allow_islands: true`
+// is load-bearing for the same reason it is in `hotel_california.fsl`
+// and `waiting_for_godot.fsl` - a state can be fully declared,
+// syntactically legitimate, and completely unreachable, all at once.
+
+machine_name     : "The Trial";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+arrested              'ask for clarification' -> "the registry";
+"the registry"        'request the file'      -> "the file room";
+"the file room"       'appeal to the court'   -> "the waiting gallery";
+"the waiting gallery" 'ask for clarification' -> "the registry";
+"the registry"        'try another door'      -> "the appeals desk";
+"the appeals desk"    'request the file'      -> "the file room";
+
+// every edge above lands somewhere with "registry," "file," "gallery,"
+// or "desk" in the name - never here.
+"the verdict" 'read it aloud' -> "the verdict";

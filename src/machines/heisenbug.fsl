@@ -1,0 +1,45 @@
+// "Heisenbug" - programming folklore, named after the Heisenberg
+// uncertainty principle: a bug that changes its behavior, or disappears
+// outright, the moment you try to observe it - attach a debugger, add
+// logging, run it under a profiler - and reappears the instant you stop
+// watching.
+//
+// The topology joke takes the physics metaphor literally at the level of
+// the transition function itself: `'run the failing test'` is bound as an
+// action from TWO different states, "watching off" and "watching on," and
+// it targets a DIFFERENT destination depending on which one you were in -
+// the identical nominal action, same label, same intent, resolved by
+// jssm's (state, action) lookup into two incompatible outcomes. The bug's
+// "true" behavior is never itself a state; observation is not a bystander
+// reading a value, it is folded into the graph as the thing that decides
+// which edge fires. Toggling the debugger between runs is its own pair of
+// chosen actions, so the walk can be steered deliberately between "always
+// reproduces" and "always green" - and, being folklore, the graph still
+// ends the only way this ever ends: someone gives up and force-closes it.
+
+machine_name    : "Heisenbug";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// two otherwise-identical states, differing only in whether instrumentation
+// is attached - the observation context, not the code, lives here.
+"bug ticket filed, watching off" 'attach the debugger before running' -> "bug ticket filed, watching on";
+"bug ticket filed, watching on"  'detach the debugger, run it blind'  -> "bug ticket filed, watching off";
+
+// the SAME action, run from each of those two states, resolves to two
+// different outcomes - the transition function takes observation as an
+// argument, not just the code under test.
+"bug ticket filed, watching off" 'run the failing test' -> "reproduced, exactly as the user reported";
+"bug ticket filed, watching on"  'run the failing test' -> "green across the board, must be fixed";
+
+// toggling instrumentation after the fact flips the outcome again, proving
+// it was never about the code - only about who was looking, and when.
+"reproduced, exactly as the user reported" 'attach the debugger to catch it live' -> "green across the board, must be fixed";
+"green across the board, must be fixed"    'detach and run it blind again'       -> "reproduced, exactly as the user reported";
+
+// nobody decides to stop chasing it - it is simply what happens.
+"green across the board, must be fixed" ~> "ticket closed: works as intended, cannot reproduce";

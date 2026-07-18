@@ -1,8 +1,20 @@
 /**
- * Render targets supported in v1. Future targets (mermaid, plantuml, scxml,
- * ascii, fsl) will be added in v0.2+.
+ * The render targets supported in v1, in canonical order (the CLI `--target`
+ * enum and `--help` list order).  This tuple is the single runtime source of
+ * truth: both the {@link RenderTarget} type and the `fsl-render` CLI's
+ * `--target` enum derive from it, so a new target is declared in exactly one
+ * place.  Future targets (mermaid, plantuml, scxml, ascii, fsl) land here in
+ * v0.2+.
+ * @example
+ * RENDER_TARGETS.includes('gif' as RenderTarget);  // true
  */
-export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
+export const RENDER_TARGETS = ['svg', 'dot', 'png', 'jpeg', 'html', 'gif'] as const;
+
+/**
+ * A render target the CLI and library can produce.  Derived from
+ * {@link RENDER_TARGETS} so the type can never drift from the runtime enum.
+ */
+export type RenderTarget = typeof RENDER_TARGETS[number];
 
 /**
  * Options accepted by `render()` and `renderSet()`.
@@ -11,6 +23,9 @@ export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
  * exclusive: `width`/`height` fit to an exact pixel extent, `scale` is a
  * zoom percentage (100 = 3x the SVG's natural size). They are silently
  * ignored for text targets (svg/dot/html).
+ *
+ * `delay` and `maxFrames` apply only to the `gif` target and are silently
+ * ignored otherwise.
  */
 export interface RenderOptions {
   target: RenderTarget;
@@ -18,6 +33,10 @@ export interface RenderOptions {
   height?: number;
   scale?: number;
   quality?: number;
+  /** Per-frame delay in centiseconds (gif only; default 70). */
+  delay?: number;
+  /** Walk-length ceiling on the animated gif's frame count (gif only; default 64). */
+  maxFrames?: number;
 }
 
 /**
@@ -30,10 +49,10 @@ export interface TextResult {
 }
 
 /**
- * A raster-shaped render result (png / jpeg).
+ * A raster-shaped render result (png / jpeg / gif).
  */
 export interface RasterResult {
-  target: Extract<RenderTarget, 'png' | 'jpeg'>;
+  target: Extract<RenderTarget, 'png' | 'jpeg' | 'gif'>;
   kind: 'raster';
   buffer: Uint8Array;
 }

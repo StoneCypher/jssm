@@ -19,7 +19,7 @@
  *   1  makever, peg                       (write version.ts / fsl_parser — disjoint)
  *   2  typescript, cem, typecheck_cli     (read src, write dist/cem/—; no src writes)
  *   3  doctests                           (writes src/ts/tests/generated — isolated)
- *   4  the 9 rollup bundles + eslint + audit  (read stable dist/es6 + src/ts)
+ *   4  the 9 rollup bundles + eslint + audit + typecheck_tests  (read stable dist/es6 + src/ts)
  *   5  minify + per-bundle terser         (minify rewrites fsl_parser AFTER bundles read it)
  *   6  rm_nonmin                          (removes minify's *.nonmin.js)
  *   7  vitest, changelog
@@ -50,6 +50,8 @@ const FEATURES = {
   // --- Stage 1: generated sources (disjoint writes under src/ts) ---
   makever: { script: 'makever', stages: [1], mandatory: true },
   peg:     { script: 'peg',     stages: [1], mandatory: true },
+  // writes src/ts/wc/generated/fsl_docs_content.ts from src/help + the manifest
+  make_help_content: { script: 'make_help_content', stages: [1], optional: true, defaultEnabled: true },
 
   // --- Stage 2: compile + source-only analyzers (read src, no src writes) ---
   typescript:    { script: 'typescript',    stages: [2], mandatory: true },
@@ -69,10 +71,16 @@ const FEATURES = {
   make_wc_instance_cdn: { script: 'make_wc_instance_cdn', stages: [4], optional: true, defaultEnabled: true },
   make_wc_editor_es6:   { script: 'make_wc_editor_es6',   stages: [4], optional: true, defaultEnabled: true },
   make_wc_widgets_es6:  { script: 'make_wc_widgets_es6',  stages: [4], optional: true, defaultEnabled: true },
+  make_wc_docs_es6:     { script: 'make_wc_docs_es6',     stages: [4], optional: true, defaultEnabled: true },
   make_cm6:             { script: 'make_cm6',             stages: [4], optional: true, defaultEnabled: true },
+  make_fence:           { script: 'make_fence',           stages: [4], optional: true, defaultEnabled: true },
+  make_grammar:         { script: 'make_grammar',         stages: [4], optional: true, defaultEnabled: true },
   make_cli:             { script: 'make_cli',             stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
+  // stage 4, not 2: doctests write src/ts/tests/generated at stage 3, so the
+  // test sources are only stable to read from stage 4 onward
+  typecheck_tests:      { script: 'typecheck_tests',      stages: [4], optional: true, defaultEnabled: true },
 
   // --- Stage 5: minification (after bundles have read fsl_parser) ---
   minify:       { script: 'minify',       stages: [5], optional: true, defaultEnabled: true },
@@ -84,29 +92,42 @@ const FEATURES = {
   min_viz_es6:  { script: 'min_viz_es6',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_cjs:  { script: 'min_viz_cjs',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_cli:      { script: 'min_cli',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_cli'] },
+  // in-place like min_cli (no nonmin intermediate); --module because the cdn
+  // bundles are ESM.  terser's default comment filter keeps the lit @license
+  // blocks the bundles carry.
+  min_cdn:      { script: 'min_cdn',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_wc_viz_cdn', 'make_wc_instance_cdn'] },
+  // in-place, --module (the fence bundle is ESM).  Shipped unminified through
+  // 5.163.2 at 6.5 MB — 42% of the installed package; minified it is ~2.3 MB.
+  min_fence:    { script: 'min_fence',    stages: [5], optional: true, defaultEnabled: true, requires: ['make_fence'] },
 
   // --- Stage 6: cleanup of minify's intermediate nonmin artifact ---
   rm_nonmin: { script: 'rm_nonmin', stages: [6], optional: true, defaultEnabled: true, requires: ['minify'] },
 
-  // --- Stage 7: tests + changelog (disjoint outputs) ---
-  vitest:    { script: 'vitest',    stages: [7], optional: true, defaultEnabled: true,
-               requires: ['make_wc_viz_es6', 'make_wc_viz_cdn', 'make_wc_instance_es6', 'make_wc_instance_cdn', 'make_wc_editor_es6', 'make_wc_widgets_es6', 'doctests'] },
-  changelog: { script: 'changelog', stages: [7], optional: true, defaultEnabled: true },
+  // --- Stage 7: the two remaining src-mutators (disjoint targets: changelog
+  // writes src/doc_md, perf_chart writes src/generated_docs — same disjoint-
+  // mutator precedent as makever ∥ peg in stage 1) ---
+  changelog:  { script: 'changelog',  stages: [7], optional: true, defaultEnabled: true },
+  perf_chart: { script: 'perf_chart', stages: [7], optional: true, defaultEnabled: true },
 
-  // --- Stage 8: perf_chart (writes src/generated_docs — isolated from cloc's src read) ---
-  perf_chart: { script: 'perf_chart', stages: [8], optional: true, defaultEnabled: true },
+  // --- Stage 8: src is now stable; every remaining reader runs beside vitest
+  // (the longest single step) with disjoint outputs — vitest→coverage/spec|stoch|docs,
+  // cloc→coverage/cloc, typedoc→docs/docs, site→docs/ (copy), teaching-surface
+  // report-only.  Previously typedoc + double-cloc + site serialized AFTER
+  // vitest for no data reason; this hides them behind the vitest wall. ---
+  vitest:    { script: 'vitest',    stages: [8], optional: true, defaultEnabled: true,
+               requires: ['make_wc_viz_es6', 'make_wc_viz_cdn', 'make_wc_instance_es6', 'make_wc_instance_cdn', 'make_wc_editor_es6', 'make_wc_widgets_es6', 'make_wc_docs_es6', 'doctests'] },
+  cloc: { script: 'cloc', stages: [8], optional: true, defaultEnabled: true },
+  docs: { script: 'docs', stages: [8], optional: true, defaultEnabled: true },
+  site: { script: 'site', stages: [8], optional: true, defaultEnabled: true, requires: ['min_iife'] },
+  // report-only: prints teaching-surface coverage drift; never fails the build (reads cem + the es6 bundle for fences)
+  check_teaching_surface: { script: 'check_teaching_surface', stages: [8], optional: true, defaultEnabled: true, requires: ['cem', 'min_es6'] },
 
-  // --- Stage 9: src-readers + doc generators (src now stable; disjoint doc subdirs) ---
-  cloc: { script: 'cloc', stages: [9], optional: true, defaultEnabled: true },
-  docs: { script: 'docs', stages: [9], optional: true, defaultEnabled: true },
-  site: { script: 'site', stages: [9], optional: true, defaultEnabled: true, requires: ['min_iife'] },
+  // --- Stage 9: doc generators that write under docs/ after site ---
+  make_cookbook:  { script: 'make_cookbook',  stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
+  site_fsl_tools: { script: 'site_fsl_tools', stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
 
-  // --- Stage 10: doc generators that write under docs/ after site ---
-  make_cookbook:  { script: 'make_cookbook',  stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },
-  site_fsl_tools: { script: 'site_fsl_tools', stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },
-
-  // --- Stage 11: readme (consumes vitest metrics + cloc report) ---
-  readme: { script: 'readme', stages: [11], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },
+  // --- Stage 10: readme (consumes vitest metrics + cloc report) ---
+  readme: { script: 'readme', stages: [10], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },
 };
 
 /** Feature names that always run and cannot be disabled. */

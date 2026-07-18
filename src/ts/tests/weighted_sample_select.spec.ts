@@ -11,10 +11,10 @@ describe('weighted_sample_select/2', () => {
                   { label: 'orange', probability: 0.4 },
                   { label: 'banana', probability: 0.5 } ];
 
-  const none = jssm.weighted_sample_select(0, fruit),
-        one  = jssm.weighted_sample_select(1, fruit),
-        some = jssm.weighted_sample_select(2, fruit),
-        over = jssm.weighted_sample_select(4, fruit);
+  const none = jssm.weighted_sample_select(0, fruit, 'probability'),
+        one  = jssm.weighted_sample_select(1, fruit, 'probability'),
+        some = jssm.weighted_sample_select(2, fruit, 'probability'),
+        over = jssm.weighted_sample_select(4, fruit, 'probability');
 
   test('0 returns []',                () => expect(none.length).toBe(0) );
   test('1 returns [any]',             () => expect(one.length ).toBe(1) );

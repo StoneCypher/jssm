@@ -1,7 +1,9 @@
 
-/* eslint-disable max-len */
+ 
 
 import * as jssm from '../jssm';
+
+import type { JssmArrow } from '../jssm_types';
 
 
 
@@ -18,12 +20,13 @@ describe('arrow_direction', () => {
                   '<-⇒',  '<-↛',  '<=→',  '<=↛',  '<~→',  '<~⇒'  ],
 
         check  = (lab, dir) =>
+                   // eslint-disable-next-line vitest/valid-title -- title is data-driven by design
                    it(lab, () =>
                      expect( jssm.arrow_direction(lab) ).toBe(dir) );
 
-  lefts.map(  e => check(e, 'left')  );
-  rights.map( e => check(e, 'right') );
-  boths.map(  e => check(e, 'both')  );
+  for (const e of lefts)  { check(e, 'left');  }
+  for (const e of rights) { check(e, 'right'); }
+  for (const e of boths)  { check(e, 'both');  }
 
   test.todo('Bunch of commented out tests here, not clear why');
 
@@ -118,6 +121,112 @@ describe('arrow error catchery', () => {
 
   test('unknown arrow right kind throws', () =>
     expect( () => jssm.arrow_right_kind('boop' as any) ).toThrow() );
+
+});
+
+
+
+
+
+// The tests above pass their arrows through `any`-typed loop variables and casts,
+// so they exercise the classifiers at runtime without ever pinning the *type*.
+// `JssmArrow` used to declare only the 15 ASCII arrows while the classifiers
+// accepted all 42 -- `arrow_direction('→')` was a compile error on working code.
+// These pass literals directly, so their literal types must be members of the
+// union: if `JssmArrow` ever narrows again, this block stops compiling.
+
+describe('JssmArrow admits every spelling the classifiers accept', () => {
+
+  test('unicode one-way arrows are typed', () => {
+    expect( jssm.arrow_direction('→')  ).toBe('right');
+    expect( jssm.arrow_direction('⇐')  ).toBe('left');
+    expect( jssm.arrow_left_kind('↚')  ).toBe('forced');
+    expect( jssm.arrow_right_kind('⇒') ).toBe('main');
+  });
+
+  test('mixed ascii/unicode two-way arrows are typed', () => {
+    expect( jssm.arrow_direction('←⇒')   ).toBe('both');
+    expect( jssm.arrow_left_kind('⇐↛')   ).toBe('main');
+    expect( jssm.arrow_right_kind('<~⇒') ).toBe('main');
+    expect( jssm.arrow_left_kind('<-↛')  ).toBe('legal');
+  });
+
+  // The whole vocabulary, annotated as JssmArrow[]: a missing member is a
+  // compile error, and a member the classifiers reject is a runtime throw.  So
+  // this pins the type and the implementation against each other, both ways.
+  test('all 42 arrows are both typed and classifiable', () => {
+
+    const every_arrow: JssmArrow[] = [
+      '->',   '→',    '=>',   '⇒',    '~>',   '↛',
+      '<-',   '←',    '<=',   '⇐',    '<~',   '↚',
+      '<->',  '↔',    '<=>',  '⇔',    '<~>',  '↮',
+      '<-=>', '←⇒',   '←=>',  '<-⇒',
+      '<-~>', '←↛',   '←~>',  '<-↛',
+      '<=->', '⇐→',   '⇐->',  '<=→',
+      '<=~>', '⇐↛',   '⇐~>',  '<=↛',
+      '<~->', '↚→',   '↚->',  '<~→',
+      '<~=>', '↚⇒',   '↚=>',  '<~⇒'
+    ];
+
+    expect(every_arrow.length).toBe(42);
+    expect(new Set(every_arrow).size).toBe(42);
+
+    for (const arrow of every_arrow) {
+      expect( () => jssm.arrow_direction(arrow)  ).not.toThrow();
+      expect( () => jssm.arrow_left_kind(arrow)  ).not.toThrow();
+      expect( () => jssm.arrow_right_kind(arrow) ).not.toThrow();
+    }
+
+  });
+
+});
+
+
+
+
+
+// The 12 mixed ascii/unicode two-way arrow spellings are accepted by the
+// classifiers and declared in JssmArrow, but the grammar used to reject them,
+// so `from('a ←=> b;')` threw a SyntaxError.  Each must now parse and compile
+// identically to its pure-ascii spelling.  StoneCypher/fsl#1949
+describe('mixed ascii/unicode arrows parse identically to their ascii form', () => {
+
+  // [mixed spelling, canonical ascii spelling]
+  const mixed: Array<[string, string]> = [
+    ['←=>',  '<-=>'], ['<-⇒', '<-=>'],
+    ['←~>',  '<-~>'], ['<-↛', '<-~>'],
+    ['⇐->',  '<=->'], ['<=→', '<=->'],
+    ['⇐~>',  '<=~>'], ['<=↛', '<=~>'],
+    ['↚->',  '<~->'], ['<~→', '<~->'],
+    ['↚=>',  '<~=>'], ['<~⇒', '<~=>']
+  ];
+
+  for (const [spelling, ascii] of mixed) {
+    test(`${spelling} parses like ${ascii}`, () => {
+      expect(() => jssm.from(`a ${spelling} b;`)).not.toThrow();
+      const m_mixed = jssm.from(`a ${spelling} b;`);
+      const m_ascii = jssm.from(`a ${ascii} b;`);
+      expect(m_mixed.list_edges()).toStrictEqual(m_ascii.list_edges());
+    });
+  }
+
+  test('all 42 arrow spellings parse without throwing', () => {
+    const every: string[] = [
+      '->', '→', '=>', '⇒', '~>', '↛',
+      '<-', '←', '<=', '⇐', '<~', '↚',
+      '<->', '↔', '<=>', '⇔', '<~>', '↮',
+      '<-=>', '←⇒', '←=>', '<-⇒',
+      '<-~>', '←↛', '←~>', '<-↛',
+      '<=->', '⇐→', '⇐->', '<=→',
+      '<=~>', '⇐↛', '⇐~>', '<=↛',
+      '<~->', '↚→', '↚->', '<~→',
+      '<~=>', '↚⇒', '↚=>', '<~⇒'
+    ];
+    expect(every.length).toBe(42);
+    for (const a of every) {
+      expect(() => jssm.from(`a ${a} b;`)).not.toThrow();
+    }
+  });
 
 });
 

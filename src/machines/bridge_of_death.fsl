@@ -1,0 +1,51 @@
+// "The Bridge of Death" - Monty Python and the Holy Grail (1975)
+//
+// The Bridgekeeper's three-question gate is an ordinary access-control
+// chain: answer correctly and you advance one question; answer wrong and
+// you're cast into the gorge. What makes it a topology joke rather than
+// just a quiz is the reflection attack at question three - Lancelot (well,
+// really Sir Robin, but the mechanism is the same regardless of who's
+// asking) throws an unanswerable question BACK at the questioner, and the
+// gorge-casting edge, which every wrong answer above routes to the
+// traveler, routes instead to the Bridgekeeper himself. Same shape of
+// edge, same destination gorge, entirely different source and entirely
+// different victim - the attack works by redirecting who the "you failed"
+// edge is about, not by avoiding failure at all.
+//
+// Showcase: `fslExplain` shows three ordinary wrong-answer edges landing
+// on `"the traveler is cast into the gorge"` from three different
+// questions, and one differently-sourced edge - the reflection - landing
+// on `"the bridgekeeper is cast into the gorge instead"` from the same
+// question-three state the correct answer also leaves from.
+
+machine_name    : "The Bridge of Death";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// question one: name.
+"question one: what is your name"
+  'answer truthfully'  -> "question two: what is your quest";
+"question one: what is your name"
+  'answer incorrectly' -> "the traveler is cast into the gorge";
+
+// question two: quest.
+"question two: what is your quest"
+  'answer truthfully'  -> "question three: your favourite colour";
+"question two: what is your quest"
+  'answer incorrectly' -> "the traveler is cast into the gorge";
+
+// question three: colour - the last ordinary question, and the one where
+// the reflection attack becomes an option.
+"question three: your favourite colour"
+  'answer truthfully'  -> "passage granted, the bridge holds";
+"question three: your favourite colour"
+  'answer incorrectly' -> "the traveler is cast into the gorge";
+
+// the reflection: don't answer, ask an unanswerable question BACK. same
+// gorge, same shape of edge, but now the bridgekeeper is the one falling.
+"question three: your favourite colour"
+  'ask the air-speed velocity of an unladen swallow' -> "the bridgekeeper is cast into the gorge instead";

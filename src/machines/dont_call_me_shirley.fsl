@@ -1,0 +1,38 @@
+// "Dont Call Me Shirley" - Airplane! (1980)
+//
+// "Surely you cant be serious." "I am serious - and dont call me Shirley."
+// The joke only works because the same sound gets parsed two different
+// ways by two different listeners on every single pass, and this machine
+// is that misparse loop, nothing more: two states in a genuine cycle, not
+// a self-loop, because the two readings really are different states, not
+// one state repeated. The deadpan variant means no escalation anywhere in
+// the graph - every trip around the loop uses the exact same two actions
+// as the trip before it, flat, unchanged, exactly like the delivery. The
+// only way out is an action that is not a repetition of "surely" at all -
+// using an actual name breaks the misparse, because there is nothing left
+// in the sentence for the loop to mishear.
+//
+// Showcase: `fslSimulate` walks the loop twice around, back to its own
+// start state each time, `legalNext` identical on every visit; a
+// separate simulate takes the exit action instead and reaches a terminal
+// the loop itself has no edge to.
+
+machine_name    : "Dont Call Me Shirley";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the misparse loop: two real states, two real actions, no escalation -
+// every lap uses the identical pair, deadpan, forever.
+"surely, meant as an adverb"
+  'say surely you cant be serious' -> "shirley, heard as a proper noun";
+"shirley, heard as a proper noun"
+  'say surely again, undeterred' -> "surely, meant as an adverb";
+
+// the only exit: an action that supplies an actual name, leaving the
+// loop nothing left to mishear.
+"shirley, heard as a proper noun"
+  'give up, use his actual first name' -> "conversation ends, first names only from here on";

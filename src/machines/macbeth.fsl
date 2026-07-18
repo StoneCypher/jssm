@@ -1,0 +1,43 @@
+// "Macbeth" - William Shakespeare (c. 1606)
+//
+// Two prophecies are handed down as structurally impossible: a wood that
+// cannot walk, and a death that cannot come from anyone born of woman.
+// Impossible, in this graph, only ever means "believed unreachable" - both
+// warnings are modeled as one ordinary hill-fortress state carrying two
+// ordinary chosen actions in its legalNext the entire time, plainly legal,
+// never disguised as anything else. Kept heraldic-abstract throughout: a
+// standing wood seen walking, a blade not of woman born - the specific
+// proper nouns are beside the point, the guard condition is.
+//
+// Showcase: legalNext at the fortress state lists both "impossible"
+// actions from the very first visit, before either has ever fired,
+// proving the belief was never about the graph. Two independent walks
+// then trigger the prophecies in opposite orders and converge on the
+// identical forced fall regardless of which fired first - the guard
+// evaluates true either way, and it never needed the other one's help.
+
+machine_name     : "Macbeth";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"the crown seized by violence, three prophecies given"
+  'take the throne by the sword' -> "the hill fortress manned, two wards unbroken";
+
+// the fortress: confidence loops indefinitely, but both "impossible"
+// actions are legal here from the first moment the state is entered.
+"the hill fortress manned, two wards unbroken"
+  'hold the hill, both wards still unbroken' -> "the hill fortress manned, two wards unbroken";
+"the hill fortress manned, two wards unbroken"
+  'the standing wood is seen walking, cut branches for cover' -> "the first impossible thing happens";
+"the hill fortress manned, two wards unbroken"
+  'a blade not of woman born reaches the gate' -> "the second impossible thing happens";
+
+// either ward broken is already fatal; the fall does not wait on the other one.
+"the first impossible thing happens"  ~> "the crown falls regardless of the other ward";
+"the second impossible thing happens" ~> "the crown falls regardless of the other ward";
+
+"the crown falls regardless of the other ward" ~> "the throne passes on, the wards proven true after all";

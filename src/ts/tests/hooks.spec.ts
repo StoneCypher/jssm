@@ -607,7 +607,7 @@ test('All-transition hook rejection prevents subsequent hooks', () => {
 
 
 
-describe('Basic hooks on API callpoint', () => {
+describe('Hook handlers fire on API callpoint', () => {
 
 
 
@@ -780,7 +780,7 @@ describe('Basic hooks on fluent API', () => {
           handler2 = jest.fn(x => true),
           handler3 = jest.fn(x => true);
 
-    let state_ex = undefined;
+    let state_ex;
 
     expect( () => {
 
@@ -901,10 +901,10 @@ describe('After hook callback', () => {
 
   test('Callback fires', async () => {
 
-    let hook_fired: false | Object = false;
+    let hook_fired: false | object = false;
 
     const foo = jssm.from('a after 0.01s -> b;', { data: 'foo' });
-    foo.hook_after( 'a', (res: Object) => { hook_fired = res; } );
+    foo.hook_after( 'a', (res: object) => { hook_fired = res; } );
     expect(foo.state()).toBe('a');
 
     await jssm.sleep(1000);
@@ -975,7 +975,7 @@ describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
         non_action    = ['basic', 'entry', 'exit', 'any', 'standard', 'main', /* 'forced', */ 'any_transition'], // TODO main, forced
-        action_driven = ['action', 'gl_action', 'any_action'],
+        action_driven = new Set(['action', 'gl_action', 'any_action']),
         matrix_hook   = [... non_action, ... action_driven],
 
         plans         = [];
@@ -1020,48 +1020,40 @@ describe('Hooks can change data (full matrix)', () => {
   };
 
 
-  matrix_priors.forEach(usePrior =>
-
-    // good rules - senders - cause the change
-    matrix_hook.forEach( (good, g) => {
+  for (const usePrior of matrix_priors) for (const [g, good] of matrix_hook.entries()) {
 
       plans.push({ use_prior: usePrior, setter: good, blocker: undefined, g, b: undefined });
 
       // bad rules - blockers - block the change
-      matrix_hook.forEach( (bad, b) => {
+      blocker_loop: for (const [b, bad] of matrix_hook.entries()) {
 
         // TODO - temporarily skip blocked-by-main and blocked-by-forced
-        if (bad === 'main')   { return; }
-        if (bad === 'forced') { return; }
+        if (bad === 'main')   { continue blocker_loop; }
+        if (bad === 'forced') { continue blocker_loop; }
 
         // single edge machines can't have both standard-and-main,
         // standard-and-forced, or main-and-forced in the same edge.  therefore
         // if the sender is one, don't test the other two (but do still test
         // self collision
-        if (good === 'standard') { if ((bad === 'main')     || (bad === 'forced')) { return; } }
-        if (good === 'main')     { if ((bad === 'standard') || (bad === 'forced')) { return; } }
-        if (good === 'forced')   { if ((bad === 'standard') || (bad === 'main')  ) { return; } }
-
-        let should_push = true;
+        if (good === 'standard' && ((bad === 'main')     || (bad === 'forced'))) { continue blocker_loop; }
+        if (good === 'main')     { if ((bad === 'standard') || (bad === 'forced')) { continue blocker_loop; } }
+        else if (good === 'forced' && ((bad === 'standard') || (bad === 'main')  )) { continue blocker_loop; }
 
         // if the sender isn't action driven, the blocker can't be either,
         // because the blocking event won't occur
-        if ( (!(action_driven.includes(good))) && action_driven.includes(bad) ) {
-          should_push = false;
-        }
+        const should_push = action_driven.has(good) || (!(action_driven.has(bad)));
 
         if (should_push) {
           plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
         }
 
-      });
+      }
 
       // now execute the plans (steeples evil fingers)
-      plans.forEach(({ use_prior, setter, blocker, b, g }) => {
+      for (const { use_prior, setter, blocker, b, g } of plans) {
 
         let wwo,
-            ctx,
-            arrow;
+            ctx;
 
         if (use_prior) {
           ctx = { data: 'original value' };
@@ -1071,15 +1063,7 @@ describe('Hooks can change data (full matrix)', () => {
           wwo = "without";
         }
 
-        switch (setter) {
-
-          case 'main':
-            arrow = '=>'; break;
-
-          default:
-            arrow = '->'; break;
-
-        }
+        const arrow = (setter === 'main') ? '=>' : '->';
 
         const foo = jssm.from(`a 'foo' ${arrow} b;`, ctx);
 
@@ -1093,7 +1077,7 @@ describe('Hooks can change data (full matrix)', () => {
 
         // what do we do to actually trigger it?  depends on if we are testing
         // an action trigger or a transition trigger
-        if (action_driven.includes(setter)) {
+        if (action_driven.has(setter)) {
           foo.action('foo');
         } else {
           foo.transition('b');
@@ -1114,10 +1098,10 @@ describe('Hooks can change data (full matrix)', () => {
             expect( foo.data() ).toBe('creation value') );
         }
 
-      });
+      }
 
-    })
-  );
+    }
+  
 
 });
 
@@ -1497,7 +1481,7 @@ describe('abstract_everything_hook_step', () => {
   });
 
   test('generates pass for function returning undefined', () => {
-    const fn = jest.fn( () => undefined );
+    const fn = jest.fn( () => {} );
     expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
       .toStrictEqual({ pass: true });
     expect(fn).toHaveBeenCalled();
@@ -1851,5 +1835,217 @@ test('Standard transition hook fires when the taken edge is not the first outbou
   expect(foo.transition('c')).toBe(true);   // a -> c is a's *second* outbound edge
   expect(foo.state()).toBe('c');
   expect(saw).toBe(1);
+
+});
+
+
+
+
+
+// `HookContext` used to declare only `data` and `next_data`, while the runtime
+// has always handed hooks seven fields — and the hook docblocks document
+// `from`/`to`/`action` in their own examples.  Reading `ctx.from` in TypeScript
+// was a compile error on a documented, load-bearing field.  These read the
+// fields off the context with no cast, so if the type ever loses them again,
+// the suite stops compiling.
+
+describe('the hook context carries the transition it fired on', () => {
+
+  test('from, to and action are readable off the context', () => {
+
+    const foo = sm`a 'go' -> b;`;
+    const seen: Array<{ from?: string, to?: string, action?: string }> = [];
+
+    foo.hook_any_transition( ctx => {
+      seen.push({ from: ctx.from, to: ctx.to, action: ctx.action });
+      return true;
+    });
+
+    expect(foo.action('go')).toBe(true);
+    expect(seen).toStrictEqual([{ from: 'a', to: 'b', action: 'go' }]);
+
+  });
+
+  test('action is undefined when no action drove the transition', () => {
+
+    const foo = sm`a -> b;`;
+    const seen: Array<string | undefined> = [];
+
+    foo.hook_any_transition( ctx => { seen.push(ctx.action); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(seen).toStrictEqual([undefined]);
+
+  });
+
+  test('forced reports which door the transition came through', () => {
+
+    const foo = sm`a ~> b; b -> a;`;
+    const forced_flags: Array<boolean | undefined> = [];
+
+    foo.hook_any_transition( ctx => { forced_flags.push(ctx.forced); return true; } );
+
+    // an ordinary transition refuses a forced-only edge, so nothing fires
+    expect(foo.transition('b')).toBe(false);
+    expect(forced_flags).toStrictEqual([]);
+
+    expect(foo.force_transition('b')).toBe(true);
+    expect(forced_flags).toStrictEqual([true]);
+
+    expect(foo.transition('a')).toBe(true);
+    expect(forced_flags).toStrictEqual([true, false]);
+
+  });
+
+  // trans_type is resolved lazily: jssm only looks up the traversed edge's kind
+  // when a transition-KIND hook exists to switch on it.  So the field is present
+  // for a machine that registers one, and elided for a machine that doesn't --
+  // which is exactly why it is declared optional.  Both halves pinned here.
+
+  test('trans_type names the arrow kind when a transition-kind hook is installed', () => {
+
+    const foo = sm`a -> b; b => c; c ~> a;`;
+    const kinds: Array<string | undefined> = [];
+
+    // installing a standard-transition hook is what makes jssm resolve the kind
+    foo.hook_standard_transition( () => true );
+    foo.hook_any_transition( ctx => { kinds.push(ctx.trans_type); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.transition('c')).toBe(true);
+    expect(foo.force_transition('a')).toBe(true);
+
+    expect(kinds).toStrictEqual(['legal', 'main', 'forced']);
+
+  });
+
+  test('trans_type is elided when no transition-kind hook needs it', () => {
+
+    const foo = sm`a -> b;`;
+    const kinds: Array<string | undefined> = [];
+
+    foo.hook_any_transition( ctx => { kinds.push(ctx.trans_type); return true; } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(kinds).toStrictEqual([undefined]);
+
+  });
+
+});
+
+
+
+
+// A pre-hook may redirect the transition destination by returning a complex
+// result with `state`.  It is applied at commit, validated as a real state,
+// last-writer-wins; the committed state + post-hooks/events/after-timer reflect
+// it.  StoneCypher/fsl#1947
+describe('a hook complex-result can override the destination state', () => {
+
+  test('{ pass: true, state } redirects the committed destination', () => {
+    const m = sm`a => b; a => c;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'c' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('c');
+  });
+
+  test('overriding to a nonexistent state throws', () => {
+    const m = sm`a => b;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'nope' }));
+    expect(() => m.transition('b')).toThrow(/not a state in this machine/);
+  });
+
+  test('override to the same state is a no-op', () => {
+    const m = sm`a => b;`;
+    m.hook_any_transition(() => ({ pass: true, state: 'b' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('b');
+  });
+
+  test('override and data both apply', () => {
+    const m = sm`a => b; a => c;`;
+    m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, state: 'c', data: 'changed' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.state()).toBe('c');
+    expect(m.data()).toBe('changed');
+  });
+
+  test('a post-hook sees the override as its to', () => {
+    const m = sm`a => b; a => c;`;
+    const seen: Array<string | undefined> = [];
+    m.hook_any_transition(() => ({ pass: true, state: 'c' }));
+    m.post_hook_any_transition((ctx: any) => { seen.push(ctx.to); });
+    expect(m.transition('b')).toBe(true);
+    expect(seen).toStrictEqual(['c']);
+  });
+
+  test('a vetoing hook still blocks even if it carries state', () => {
+    const m = sm`a => b; a => c;`;
+    m.hook_any_transition(() => ({ pass: false, state: 'c' }));
+    expect(m.transition('b')).toBe(false);
+    expect(m.state()).toBe('a');
+  });
+
+});
+
+
+
+
+// Two data channels (fsl#1948): a complex result's `data` overrides what later
+// hooks in the chain observe (and is the default committed value); `next_data`
+// overrides only the committed value.  These were indistinguishable before
+// because every test set data === next_data.
+describe('hook complex-result data vs next_data are distinct channels', () => {
+
+  test('next_data alone is committed', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, next_data: 'NX' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('NX');
+  });
+
+  test('data alone is committed (backward compatible)', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, data: 'CH' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('CH');
+  });
+
+  test('when both are present, next_data wins the commit', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    m.hook_any_transition(() => ({ pass: true, data: 'CH', next_data: 'NX' }));
+    expect(m.transition('b')).toBe(true);
+    expect(m.data()).toBe('NX');
+  });
+
+  test('data is observed by a later hook in the same chain', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    let observed: any;
+    m.hook_any_transition(() => ({ pass: true, data: 'INCHAIN' }));   // step 3
+    m.hook_entry('b', (ctx: any) => { observed = ctx.data; return true; });  // step 8
+    expect(m.transition('b')).toBe(true);
+    expect(observed).toBe('INCHAIN');
+    expect(m.data()).toBe('INCHAIN');
+  });
+
+  test('next_data is NOT observed in-chain (commit-only)', () => {
+    const m = sm`a => b;`; m.set_data('orig');
+    let observed: any;
+    m.hook_any_transition(() => ({ pass: true, next_data: 'COMMIT' }));   // step 3
+    m.hook_entry('b', (ctx: any) => { observed = ctx.data; return true; });     // step 8
+    expect(m.transition('b')).toBe(true);
+    expect(observed).toBe('orig');
+    expect(m.data()).toBe('COMMIT');
+  });
+
+  test('a falsy next_data still commits (fsl#1264/#935)', () => {
+    for (const v of [false, null, 0, '']) {
+      const m = sm`a => b;`; m.set_data('orig');
+      m.hook_any_transition(() => ({ pass: true, next_data: v }));
+      expect(m.transition('b')).toBe(true);
+      expect(m.data()).toBe(v);
+    }
+  });
 
 });

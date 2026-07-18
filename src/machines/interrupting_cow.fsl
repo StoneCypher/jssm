@@ -1,0 +1,42 @@
+// "Interrupting Cow"
+//
+// The knock-knock joke is a four-beat protocol: knock, then "who's
+// there?", then the name, then "<name> who?", then the punchline. Every
+// beat below is a legal, named action (`->`) - an ordinary, chooseable
+// conversation, exactly the kind of thing FSL is usually used to model.
+// This machine plays it straight for three whole beats.
+//
+// Then the interrupting cow shows up. From `answer` - the exact instant
+// the name has landed and the listener's legal move is to ask "___
+// who?" - there is ALSO a forced transition (`~>`) straight to MOO,
+// carrying no action name at all. That's the whole joke, expressed as
+// topology: your line is an action, reachable by simply naming it - a
+// legal move in the graph, requestable on request. The cow's line is a
+// forced transition, and verified here, that means MORE than "no
+// action name": jssm's `transition()` only honors *legal* moves, so not
+// even naming "MOO" as a destination gets you there by request - only
+// the engine's own `force_transition()` can, a door that sits outside
+// the action/transition surface a caller has access to. The cow's
+// interruption cannot be asked for, by anyone playing by the rules.
+// It simply happens to the scene, and once it has, MOO is terminal -
+// the "who?" you were legally, correctly about to ask can never land.
+
+machine_name     : "Interrupting Cow";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// THE PROTOCOL - a normal, action-driven lane. Every beat is a chosen,
+// named move, all the way to the punchline.
+knock_knock       'ask'               -> "who's there";
+"who's there"     'give name'         -> answer;
+answer            'ask who'           -> "answer who?";
+"answer who?"     'deliver punchline' -> punchline;
+
+// THE COW - a forced preemption. No action, no permission needed, no
+// turn to wait for, and - unlike the legal 'ask who' beside it - no way
+// to ask for it either. It simply exists the moment `answer` does.
+answer ~> MOO;

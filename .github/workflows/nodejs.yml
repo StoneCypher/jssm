@@ -80,6 +80,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
     - name: npm install and ci_test (vet + make_ci + vitest)
       run: |
         npm install && npm run ci_test
@@ -110,6 +111,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     # Cache the browser between runs, keyed on the lockfile (which changes when
     # the playwright version does). Cache hit → `playwright install` is a fast
@@ -132,18 +134,19 @@ jobs:
 
   unicode-atoms:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Use Node.js 24.x
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over atoms
       run: |
@@ -153,7 +156,7 @@ jobs:
 
   unicode-strings:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -165,6 +168,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over strings
       run: |
@@ -174,7 +178,7 @@ jobs:
 
   unicode-atom-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -186,6 +190,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over atom labels
       run: |
@@ -195,7 +200,7 @@ jobs:
 
   unicode-string-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -207,6 +212,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over string labels
       run: |
@@ -216,7 +222,7 @@ jobs:
 
   unicode-actions:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -228,6 +234,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over action statements
       run: |
@@ -237,7 +244,7 @@ jobs:
 
   unicode-edge-labels:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -248,6 +255,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over edge labels
       run: |
@@ -257,7 +265,7 @@ jobs:
 
   unicode-machine-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -268,6 +276,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over machine property names
       run: |
@@ -277,7 +286,7 @@ jobs:
 
   unicode-error-messages:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -288,6 +297,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over error messages
       run: |
@@ -297,7 +307,7 @@ jobs:
 
   unicode-group-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -308,6 +318,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over group / named-list names
       run: |
@@ -317,7 +328,7 @@ jobs:
 
   unicode-state-decl-names:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -328,6 +339,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over state-declaration names
       run: |
@@ -337,7 +349,7 @@ jobs:
 
   unicode-hooks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -348,6 +360,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over hook subjects and actions
       run: |
@@ -357,7 +370,7 @@ jobs:
 
   unicode-machine-metadata:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -368,6 +381,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over machine metadata fields
       run: |
@@ -377,7 +391,7 @@ jobs:
 
   unicode-state-properties:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -388,6 +402,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over state properties
       run: |
@@ -397,7 +412,7 @@ jobs:
 
   unicode-image-url:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -408,6 +423,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over image and url style items
       run: |
@@ -417,7 +433,7 @@ jobs:
 
   unicode-arrange:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -428,6 +444,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over arrange declarations
       run: |
@@ -437,7 +454,7 @@ jobs:
 
   unicode-config-state-lists:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -448,6 +465,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over config state lists
       run: |
@@ -457,7 +475,7 @@ jobs:
 
   unicode-config-state-blocks:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -468,6 +486,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over config default-state blocks
       run: |
@@ -477,7 +496,7 @@ jobs:
 
   unicode-viz-dot:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
@@ -488,10 +507,36 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Check full unicode over viz / dot rendering
       run: |
         npm install && npm run prep && npm run vitest-unicode-viz-dot
+
+
+
+  # Conventional Commits enforcement on the PR's commit range (fsl#1851).
+  # Merge commits are exempt by commitlint's default ignores; the house-style
+  # relaxations (long bodies, proper-noun subjects) live in
+  # commitlint.config.mjs. Installs only the two commitlint packages — the
+  # full dependency tree is not needed to lint commit messages.
+  commitlint:
+
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+    - name: lint PR commit range as Conventional Commits
+      run: |
+        npm install --no-save @commitlint/cli @commitlint/config-conventional && npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
 
 
@@ -525,13 +570,22 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test (trimmed; full bundles+minify covered by pr-check and full-build)
+        cache: npm
+    # Runtime-only (no vet): these legs verify the LIBRARY across Node
+    # versions and platforms. The eslint-10 lint stack (unicorn 71 etc.)
+    # requires Node >=22 and crashes on the 20.x floor leg; linting is
+    # engine-independent anyway, so it runs once on the Node 24 jobs
+    # (test-pr / test-main-full) instead.
+    - name: npm install, build, and test (runtime-only; vet runs on the Node 24 jobs)
       run: |
-        npm install && npm run ci_test
+        npm install && npm run ci_test_runtime
       env:
         CI: true
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
+      # Coverage upload is an external service; a flake here must never fail the
+      # matrix leg (fail-fast would skip the release job and strand a publish).
+      continue-on-error: true
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
@@ -556,11 +610,47 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
     - name: npm install and full build (site, docs, cookbook, changelog, cloc, readme)
       run: |
         npm install && npm run build
       env:
         CI: true
+
+    # Package-shape gate (fsl#1850): validates that the published package's
+    # types resolve under node10/node16/bundler, CJS and ESM. Runs against
+    # the just-built dist; .attw.json exempts the three by-design classes
+    # (node10 subpath resolution, untyped runtime-only wc/cdn bundles,
+    # ESM-only subpaths) so the remaining rules gate hard.
+    - name: attw package-shape gate
+      run: |
+        npm run attw
+
+    # Declaration-surface parity gate (fsl#1940): the paired root .d.cts /
+    # .d.ts twins (jssm, jssm_viz, cli) must export identical name sets.
+    # attw passes when each surface is self-consistent; only this
+    # cross-surface name-set diff catches one fork of a pair silently
+    # dropping an export the other keeps.
+    - name: declaration parity gate
+      run: |
+        npm run decl_parity
+
+    # Surface the build's line-count report in the run summary (fsl#986).
+    - name: CLOC report to job summary
+      run: |
+        node src/buildjs/cloc_summary_md.cjs >> "$GITHUB_STEP_SUMMARY"
+
+    # deploy-docs republishes exactly this tree instead of running a second
+    # full build per main push; gh-pages therefore serves the same docs/ the
+    # gating build produced.
+    - name: Upload built docs for deploy-docs
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-docs
+        path: docs/
+        retention-days: 1
+        include-hidden-files: true
 
 
 
@@ -579,16 +669,13 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
-    - name: Use Node.js 24.x
-      uses: actions/setup-node@v5
+    # The docs tree comes straight from test-main-full's build — no second
+    # full build, no Node toolchain needed; the publish below is plain git.
+    - name: Download the docs tree built by test-main-full
+      uses: actions/download-artifact@v4
       with:
-        node-version: 24.x
-
-    - name: Build the site
-      run: |
-        npm install && npm run build
-      env:
-        CI: true
+        name: built-docs
+        path: docs
 
     # Publish docs/ to gh-pages with plain git and the built-in GITHUB_TOKEN —
     # no third-party action. A throwaway single-commit repo is created inside
@@ -611,7 +698,7 @@ jobs:
 
   benchmark:
 
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -623,10 +710,42 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Run the benchmarks
       run: |
         npm install && npm run benny
+
+
+
+  # Dragon tier: the grammar-adversarial `*.maximal.ts` fuzz suite
+  # (`npm run vitest-dragon`). Runs on every push and PR and must complete green.
+  # A red run is a real find, not flake — these tests assert parser invariants
+  # that were probed before they were written, so a failure is a genuine bug (or
+  # a harness break), never a spurious generative miss. Deliberately NOT listed in
+  # `release.needs`: per the dragon doctrine the detector never gates a publish; a
+  # confirmed find gates instead via the minimal `*.spec.ts` regression it gets
+  # promoted into (which the normal spec suite already gates). See
+  # notes/dragons-egg.md ("Find-handling convention").
+  dragon:
+
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+        cache: npm
+    - name: npm install and run the dragon suite
+      run: |
+        npm install && npm run vitest-dragon
+      env:
+        CI: true
 
 
 
@@ -644,10 +763,11 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
 
     - name: Verify the version was bumped
       run: |
-        npm install
+        npm install semver --no-save --no-audit --no-fund
         git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.cjs
@@ -689,6 +809,7 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
+        cache: npm
         registry-url: https://registry.npmjs.org/
 
     - name: Push tags

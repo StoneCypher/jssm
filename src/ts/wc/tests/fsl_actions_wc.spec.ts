@@ -13,8 +13,8 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; el: FslAction
   host.setAttribute('fsl', fsl);
   const el = document.createElement('fsl-actions') as FslActions;
   el.setAttribute('slot', 'actions');
-  host.appendChild(el);
-  document.body.appendChild(host);
+  host.append(el);
+  document.body.append(host);
   await host.updateComplete;
   await el.updateComplete;
   return { host, el };
@@ -97,7 +97,7 @@ describe('<fsl-actions>', () => {
 
   it('renders empty when standalone (no fsl-instance ancestor)', async () => {
     const el = document.createElement('fsl-actions') as FslActions;
-    document.body.appendChild(el);
+    document.body.append(el);
     await el.updateComplete;
     expect(el.shadowRoot!.querySelector('.empty')!.textContent).toContain('no machine');
     el.remove();

@@ -1,0 +1,245 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FSL",
+  "scopeName": "source.fsl",
+  "fileTypes": [
+    "fsl"
+  ],
+  "patterns": [
+    {
+      "name": "comment.block.fsl",
+      "begin": "/\\*",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.fsl"
+        }
+      },
+      "end": "\\*/",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.fsl"
+        }
+      }
+    },
+    {
+      "name": "comment.line.double-slash.fsl",
+      "begin": "//",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.fsl"
+        }
+      },
+      "end": "$"
+    },
+    {
+      "name": "string.quoted.double.fsl",
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.fsl"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.fsl"
+        }
+      },
+      "patterns": [
+        {
+          "name": "constant.character.escape.fsl",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "string.quoted.single.action.fsl",
+      "begin": "'",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.fsl"
+        }
+      },
+      "end": "'",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.fsl"
+        }
+      },
+      "patterns": [
+        {
+          "name": "constant.character.escape.fsl",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "constant.numeric.version.fsl",
+      "match": "\\b[0-9]+\\.[0-9]+\\.[0-9]+\\b"
+    },
+    {
+      "name": "constant.other.color.rgb-value.fsl",
+      "match": "#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{4}|[0-9a-fA-F]{3})\\b"
+    },
+    {
+      "name": "constant.numeric.percentage.fsl",
+      "match": "[0-9]+(?:\\.[0-9]+)?\\s*%"
+    },
+    {
+      "name": "keyword.control.transition.legal-main.fsl",
+      "match": "(?:<-=>|←=>|<-⇒|←⇒)"
+    },
+    {
+      "name": "keyword.control.transition.main-legal.fsl",
+      "match": "(?:<=->|⇐->|<=→|⇐→)"
+    },
+    {
+      "name": "keyword.control.transition.legal-forced.fsl",
+      "match": "(?:<-~>|←~>|<-↛|←↛)"
+    },
+    {
+      "name": "keyword.control.transition.forced-legal.fsl",
+      "match": "(?:<~->|↚->|<~→|↚→)"
+    },
+    {
+      "name": "keyword.control.transition.main-forced.fsl",
+      "match": "(?:<=~>|⇐~>|<=↛|⇐↛)"
+    },
+    {
+      "name": "keyword.control.transition.forced-main.fsl",
+      "match": "(?:<~=>|↚=>|<~⇒|↚⇒)"
+    },
+    {
+      "name": "keyword.control.transition.legal-legal.fsl",
+      "match": "(?:<->|↔)"
+    },
+    {
+      "name": "keyword.control.transition.main-main.fsl",
+      "match": "(?:<=>|⇔)"
+    },
+    {
+      "name": "keyword.control.transition.forced-forced.fsl",
+      "match": "(?:<~>|↮)"
+    },
+    {
+      "name": "keyword.control.transition.legal-none.fsl",
+      "match": "(?:<-|←)"
+    },
+    {
+      "name": "keyword.control.transition.none-legal.fsl",
+      "match": "(?:->|→)"
+    },
+    {
+      "name": "keyword.control.transition.main-none.fsl",
+      "match": "(?:<=|⇐)"
+    },
+    {
+      "name": "keyword.control.transition.none-main.fsl",
+      "match": "(?:=>|⇒)"
+    },
+    {
+      "name": "keyword.control.transition.forced-none.fsl",
+      "match": "(?:<~|↚)"
+    },
+    {
+      "name": "keyword.control.transition.none-forced.fsl",
+      "match": "(?:~>|↛)"
+    },
+    {
+      "name": "keyword.control.arrange.fsl",
+      "match": "\\b(?:arrange-start|arrange-end|oarrange|farrange|arrange)\\b"
+    },
+    {
+      "name": "keyword.control.fsl",
+      "match": "\\b(?:state|property)\\b"
+    },
+    {
+      "match": "\\b(on)\\s+(enter|exit)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.control.fsl"
+        },
+        "2": {
+          "name": "keyword.control.fsl"
+        }
+      }
+    },
+    {
+      "name": "keyword.control.fsl",
+      "match": "\\bdo\\b(?=\\s+')"
+    },
+    {
+      "name": "keyword.control.fsl",
+      "match": "\\bafter\\b(?=\\s+[0-9])"
+    },
+    {
+      "name": "entity.other.attribute-name.fsl",
+      "match": "\\b(?:fsl_version|machine_name|npm_name|machine_author|machine_contributor|machine_comment|machine_definition|machine_reference|machine_version|machine_license|machine_language|theme|dot_preamble|flow|hooks|default_size|graph_layout|start_states|end_states|failed_outputs|graph_bg_color|allows_override|allow_islands|transition|graph|editor|start_state|end_state|active_state|terminal_state|hooked_state|stochastic_run_count|panels)\\b(?=\\s*:)"
+    },
+    {
+      "name": "support.type.property-name.fsl",
+      "match": "\\b(?:background-color|border-color|text-color|edge-color|edge_color|line-style|linestyle|arc_label|head_label|tail_label|corners|shape|image|color|label|url)\\b(?=\\s*:)"
+    },
+    {
+      "name": "constant.language.fsl",
+      "match": "\\b(?:true|false|null|undefined)\\b"
+    },
+    {
+      "name": "keyword.operator.spread.fsl",
+      "match": "\\.\\.\\.(?=\\s*&)"
+    },
+    {
+      "match": "(&)\\s*([0-9A-Za-z._!$^*?][0-9A-Za-z._+()*&$#@!?^-]*)",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.group.fsl"
+        },
+        "2": {
+          "name": "variable.other.group.fsl"
+        }
+      }
+    },
+    {
+      "match": "([+\\-]\\|)([0-9]+)",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.stripe.fsl"
+        },
+        "2": {
+          "name": "constant.numeric.fsl"
+        }
+      }
+    },
+    {
+      "match": "([+\\-])([0-9]+)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.operator.cycle.fsl"
+        },
+        "2": {
+          "name": "constant.numeric.fsl"
+        }
+      }
+    },
+    {
+      "name": "constant.numeric.fsl",
+      "match": "\\b[0-9]+(?:\\.[0-9]+)?\\b"
+    },
+    {
+      "name": "punctuation.terminator.fsl",
+      "match": ";"
+    },
+    {
+      "name": "punctuation.separator.key-value.fsl",
+      "match": ":"
+    },
+    {
+      "name": "punctuation.definition.list.fsl",
+      "match": "[\\[\\]]"
+    },
+    {
+      "name": "punctuation.definition.block.fsl",
+      "match": "[{}]"
+    }
+  ]
+}

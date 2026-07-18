@@ -1,6 +1,7 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { renderSet } from '../../cli/subcommands/render/renderSet';
+import type { RenderSetItemErr } from '../../cli/subcommands/render/renderSet';
 
 const trafficLight = readFileSync(resolve(__dirname, 'fixtures/machines/traffic-light.fsl'), 'utf8');
 const atm = readFileSync(resolve(__dirname, 'fixtures/machines/atm.fsl'), 'utf8');
@@ -26,7 +27,12 @@ describe('renderSet', () => {
     expect(results[0].ok).toBe(true);
     expect(results[1].ok).toBe(false);
     expect(results[2].ok).toBe(true);
-    const failure = results[1];
+    // The `as RenderSetItemErr` is needed only because the project pins
+    // `strictNullChecks: false`, under which TypeScript will not narrow a
+    // boolean-literal discriminant (`ok: true | false`).  `results[1].ok` is
+    // already asserted false above; drop the annotation when strict mode lands
+    // (fsl#712).
+    const failure = results[1] as RenderSetItemErr;
     if (!failure.ok) {
       expect(failure.error.message).toMatch(/render failed|parse/i);
     }

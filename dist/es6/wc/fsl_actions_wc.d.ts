@@ -9,10 +9,8 @@ import { LitElement, type TemplateResult } from 'lit';
  * appear, and each group is omitted when empty, so a self-loop-only state shows
  * just its actions and a terminal state shows `no actions available`. Standalone
  * (no host ancestor) renders empty.
- *
  * @element fsl-actions
  * @csspart actions - The container.
- *
  * @example
  * // For `A 'x' -> B; A 'y' => C; A ~> D;` while in A:
  * //   Actions:      [ x ] [ y ]

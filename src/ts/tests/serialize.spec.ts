@@ -402,14 +402,24 @@ describe('Version checking in deserialization', () => {
 
     ser.jssm_version = '999.0.0';
 
+    // Capture rather than assert-inside-catch: `fail()` is a jest global that
+    // vitest does not provide, so the old `fail('Should have thrown an error')`
+    // threw a ReferenceError that its own catch then swallowed and asserted
+    // against.  If deserialize stops throwing, `caught` stays undefined and the
+    // instanceof check below fails loudly.
+    let caught: unknown;
+
     try {
       jssm.deserialize(machine_str, ser);
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error.message).toContain('999.0.0');
-      expect(error.message).toContain(jssm.version);
-      expect(error.message).toContain('Please upgrade jssm');
-    }
+    } catch (error) { caught = error; }
+
+    expect(caught).toBeInstanceOf(Error);
+
+    const message = (caught as Error).message;
+
+    expect(message).toContain('999.0.0');
+    expect(message).toContain(jssm.version);
+    expect(message).toContain('Please upgrade jssm');
 
   });
 
@@ -504,6 +514,38 @@ describe('Deserialization', () => {
   });
 
 
+
+  // deserialize used to overwrite _state directly after from() had already armed
+  // the *initial* state's after-timer, leaving a ghost timer for the wrong state
+  // and no timer for the restored state.  StoneCypher/fsl#1946
+  test('deserialize leaves no ghost after-timer for a state that has no after', () => {
+    const fsl = 'a -> b; a after 60s -> z;';
+    const src = jssm.from(fsl, {});
+    src.transition('b');                                  // now in b, which has no after
+    const d = jssm.deserialize(fsl, src.serialize());
+    expect(d.state()).toBe('b');
+    expect(d.current_state_timeout()).toBe(undefined);    // was ['z',60000] before the fix
+    d.clear_state_timeout();                              // don't leak a real 60s timer
+  });
+
+  test('deserialize arms the restored state\'s own after-timer', () => {
+    const fsl = 'x -> a; a after 60s -> z;';
+    const src = jssm.from(fsl, {});
+    src.transition('a');                                  // now in a, which has an after
+    const d = jssm.deserialize(fsl, src.serialize());
+    expect(d.state()).toBe('a');
+    expect(d.current_state_timeout()).toStrictEqual(['z', 60_000]);   // was undefined before the fix
+    d.clear_state_timeout();
+  });
+
+  test('deserialize into the initial after-state arms its timer exactly once', () => {
+    const fsl = 'a after 60s -> z;';
+    const src = jssm.from(fsl, {});
+    const d = jssm.deserialize(fsl, src.serialize());
+    expect(d.state()).toBe('a');
+    expect(d.current_state_timeout()).toStrictEqual(['z', 60_000]);
+    d.clear_state_timeout();
+  });
 
 
 

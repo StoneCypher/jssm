@@ -1,0 +1,49 @@
+// "The Scorpion and the Frog" - fable of disputed origin (often misattributed
+// to Aesop; the earliest known form is a 20th-century Russian folk motif). A
+// scorpion asks a frog to carry it across a river, promising not to sting.
+// The frog, reasonably, points out that a sting would drown them both.
+// The scorpion argues that would be against its own interest. The frog
+// agrees, they set off, and midway across the scorpion stings it anyway.
+// As they both sink the frog asks why. The scorpion says: "I could not
+// help it. It is my nature."
+//
+// The topology joke lives in the middle of the crossing, not at either
+// bank. Every edge up to "midriver" is a CHOSEN action - the ask, the risk
+// assessment, the agreement - because that part of the story really is a
+// negotiation. The sting itself is not: it is a forced transition (~>) out
+// of "midriver," unlabeled, because nothing in the scorpion's own account
+// treats it as a decision. And the forced sting edge feeds a second forced
+// edge straight into a single shared terminal - one state for two
+// separate bodies - because a river crossing is not survivable for the
+// carrier once the passenger's nature fires, whichever one of them you are
+// asking about. A last chosen action, 'ask why, already sinking', hangs
+// off the sting state for the frog's one line of dialogue - and it too
+// drains into the same terminal, because by then the question is
+// rhetorical: nothing the frog says changes where this ends.
+
+machine_name     : "The Scorpion and the Frog";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["riverbank, scorpion waiting"];
+
+"riverbank, scorpion waiting" 'ask for a ride across' -> "frog weighs the risk";
+"frog weighs the risk" 'accept, a sting would drown us both' -> "midriver, low in the water";
+
+// the crossing itself is safe, chosen, and gets exactly this far. from here
+// there is no chosen action back to the bank and none forward across it -
+// only the one forced edge below.
+"midriver, low in the water" ~> "the sting";
+
+// the sting is not a decision either - the frog gets exactly one line
+// afterward, and it changes nothing about the destination.
+"the sting" ~> "both sink";
+"the sting" 'ask why, already sinking' -> "both sink";
+
+// "both sink" has no outgoing edge: one terminal, shared by both walkers,
+// because the frog's nature and the scorpion's dishonesty about it are the
+// same sentence.
