@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-557 merges; 411 releases
+558 merges; 412 releases
 
 
 
@@ -12,8 +12,170 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__163__1">5.163.1</a>, <a href="#5__163__0">5.163.0</a>, <a href="#5__162__35">5.162.35</a>, <a href="#5__162__34">5.162.34</a>, <a href="#5__162__33">5.162.33</a>, <a href="#5__162__32">5.162.32</a>, <a href="#5__162__31">5.162.31</a>, <a href="#5__162__30">5.162.30</a>, <a href="#5__162__29">5.162.29</a>, <a href="#5__162__28">5.162.28</a>, <a href="#5__162__27">5.162.27</a>, <a href="#5__162__26">5.162.26</a>, <a href="#5__162__25">5.162.25</a>, <a href="#5__162__24">5.162.24</a>, <a href="#5__162__23">5.162.23</a>, <a href="#5__162__22">5.162.22</a>, <a href="#5__162__21">5.162.21</a>, <a href="#5__162__20">5.162.20</a>, <a href="#5__162__19">5.162.19</a>, <a href="#5__162__18">5.162.18</a>, <a href="#5__162__17">5.162.17</a>, <a href="#5__162__16">5.162.16</a>, <a href="#5__162__15">5.162.15</a>, <a href="#5__162__13">5.162.13</a>, <a href="#5__162__12">5.162.12</a>, <a href="#5__162__11">5.162.11</a>, <a href="#5__162__10">5.162.10</a>, <a href="#5__162__9">5.162.9</a>, <a href="#5__162__8">5.162.8</a>, <a href="#5__162__7">5.162.7</a>, <a href="#5__162__6">5.162.6</a>, <a href="#5__162__5">5.162.5</a>, <a href="#5__162__4">5.162.4</a>, <a href="#5__162__3">5.162.3</a>, <a href="#5__162__2">5.162.2</a>, <a href="#5__162__1">5.162.1</a>, <a href="#5__162__0">5.162.0</a>, <a href="#5__161__0">5.161.0</a>, <a href="#5__160__0">5.160.0</a>, <a href="#5__159__2">5.159.2</a>, <a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__163__2">5.163.2</a>, <a href="#5__163__1">5.163.1</a>, <a href="#5__163__0">5.163.0</a>, <a href="#5__162__35">5.162.35</a>, <a href="#5__162__34">5.162.34</a>, <a href="#5__162__33">5.162.33</a>, <a href="#5__162__32">5.162.32</a>, <a href="#5__162__31">5.162.31</a>, <a href="#5__162__30">5.162.30</a>, <a href="#5__162__29">5.162.29</a>, <a href="#5__162__28">5.162.28</a>, <a href="#5__162__27">5.162.27</a>, <a href="#5__162__26">5.162.26</a>, <a href="#5__162__25">5.162.25</a>, <a href="#5__162__24">5.162.24</a>, <a href="#5__162__23">5.162.23</a>, <a href="#5__162__22">5.162.22</a>, <a href="#5__162__21">5.162.21</a>, <a href="#5__162__20">5.162.20</a>, <a href="#5__162__19">5.162.19</a>, <a href="#5__162__18">5.162.18</a>, <a href="#5__162__17">5.162.17</a>, <a href="#5__162__16">5.162.16</a>, <a href="#5__162__15">5.162.15</a>, <a href="#5__162__13">5.162.13</a>, <a href="#5__162__12">5.162.12</a>, <a href="#5__162__11">5.162.11</a>, <a href="#5__162__10">5.162.10</a>, <a href="#5__162__9">5.162.9</a>, <a href="#5__162__8">5.162.8</a>, <a href="#5__162__7">5.162.7</a>, <a href="#5__162__6">5.162.6</a>, <a href="#5__162__5">5.162.5</a>, <a href="#5__162__4">5.162.4</a>, <a href="#5__162__3">5.162.3</a>, <a href="#5__162__2">5.162.2</a>, <a href="#5__162__1">5.162.1</a>, <a href="#5__162__0">5.162.0</a>, <a href="#5__161__0">5.161.0</a>, <a href="#5__160__0">5.160.0</a>, <a href="#5__159__2">5.159.2</a>, <a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 8:37:45 AM
+
+Commit [eb85df75eb739de4dcad1baa39df4ef0448f0c52](https://github.com/StoneCypher/jssm/commit/eb85df75eb739de4dcad1baa39df4ef0448f0c52)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): package-size last-50 twin auto-fits as a zoom
+  * zero_base now anchors only the full-history log twin; every windowed
+linear twin auto-fits, so the package panel reads absolute long-term and
+zoomed recent, per review of the rendered chart.  Chart regenerated with
+trail data through 20260718-052334.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:56:30 AM
+
+Commit [5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2](https://github.com/StoneCypher/jssm/commit/5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(scripts): graviton trail-audit tool (parallel noise-floor re-measurement)
+  * Re-measures historical trail releases with strict interleaved sampling,
+round-robin partitioned across parallel graviton instances so instance
+identity never confounds with code era.  Compares audited medians against
+the trail's recorded general.json values, quantifying the trail's noise
+floor; verdicts upload to the _trail_audit/ S3 prefix, which the nightly
+perf_results_sync excludes.  --versions accepts list, range, last:N, and
+all; a >50-suite-passes-per-instance guardrail refuses runaway plans
+without --i-know.  Dry-run seam covers the full command plan.
+  * 58 spec assertions, no network, no dist requires.
+  * Checkpoint commit: version bump and full build follow before PR, serial
+with #970.  StoneCypher/fsl#1959 is the motivating investigation.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:45:00 AM
+
+Commit [ab115e6709f23a9a6eafdcae334d8bde1638a94f](https://github.com/StoneCypher/jssm/commit/ab115e6709f23a9a6eafdcae334d8bde1638a94f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): perf-chart readability pass (5.163.3)
+  * Panel order is now transition, action, construct, has_state, edges_between,
+list_exit_actions, probable_action_exits, package size.  All panels 1.8x
+wider.  Titles carry a 50%-lighter '(higher/lower is better)' suffix driven
+by a per-panel direction declaration.  Operation log twins anchor at the
+data's lowest decade instead of 10^0; the package-size panel keeps absolute
+anchoring (10^0 log, zero-floored linear) via the zero_base channel.
+  * 46 prior + 4 new spec assertions; 50/50 passing.  Chart regenerated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 3:43:06 AM
+
+Commit [449953f3eb8600d9558b810948c242fdf3f7809e](https://github.com/StoneCypher/jssm/commit/449953f3eb8600d9558b810948c242fdf3f7809e)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260718-052334
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 3:42:50 AM
+
+Commit [9351bd80760bf70c58d40260f7a0bad20f423640](https://github.com/StoneCypher/jssm/commit/9351bd80760bf70c58d40260f7a0bad20f423640)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 17, 2026 10:13:35 PM
+
+Commit [662ec03873660936cb449b8d2ec51640853edd87](https://github.com/StoneCypher/jssm/commit/662ec03873660936cb449b8d2ec51640853edd87)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for c9975786a5317d7bb58a883f201598072c4a5526
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__163__2" />
+
+## [5.163.2] - Jul 17, 2026 10:10:35 PM
+
+Commit [c9975786a5317d7bb58a883f201598072c4a5526](https://github.com/StoneCypher/jssm/commit/c9975786a5317d7bb58a883f201598072c4a5526)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [08b32650, 3f2dd9b2]
+
+  * Merge pull request #969 from StoneCypher/chore_26-07-17_example-machines
+  * chore(examples): add 186 example FSL machines (5.163.2)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 17, 2026 10:06:33 PM
+
+Commit [3f2dd9b2b63087b09ff119048a6c0bfce0974f29](https://github.com/StoneCypher/jssm/commit/3f2dd9b2b63087b09ff119048a6c0bfce0974f29)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(examples): add 186 example FSL machines (5.163.2)
+  * Adds a corpus of 186 whimsical example machines under src/machines/ —
+fables, sketches, songs, and programmer-culture jokes rendered as finite
+state machines (the cheese shop's forty self-loops, the Monty Hall switch,
+the anti-life equation as an incident report, "works on my machine", and so
+on). Each carries the fsl#112 header block (machine_name / machine_author /
+machine_license / fsl_version) and parses under the current grammar, enforced
+by src/ts/tests/example_machines.spec.ts.
+  * Authorship: every one of these machines is by John Haugeland. The shared
+header block was cloned from the existing example corpus, and the clone
+carried the prior contributor's machine_author line with it; that byline was
+corrected to the actual author across all 186 files before this first commit,
+so no misattribution reaches git. The genuine MachinShin/Vat Raghavan
+machines from 2021 are untouched and keep their rightful credit.
+  * Regenerates every tracked artifact (README, CHANGELOG, docs, dist bundles,
+grammar) at 5.163.2 via npm run build.
 
 
 
@@ -76,6 +238,36 @@ stop the group-ref regex from eating a trailing comma in `[&A, &B]`.
 grammar is regenerated. Real-engine (vscode-textmate) verified — `on -> off` is
 no longer a keyword while `on enter X do 'y'` still is; the freshness + coverage
 spec stays green. No behaviour change to the parser or library.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 17, 2026 3:59:10 AM
+
+Commit [3d520626d0834314ba6b1207185f9d2b9c0e20bb](https://github.com/StoneCypher/jssm/commit/3d520626d0834314ba6b1207185f9d2b9c0e20bb)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260717-040847
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 17, 2026 3:58:58 AM
+
+Commit [3d773b94d6aac6b7d39999808e4f03572d57f476](https://github.com/StoneCypher/jssm/commit/3d773b94d6aac6b7d39999808e4f03572d57f476)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -205,6 +397,36 @@ StoneCypher/fsl#1959
 
 &nbsp;
 
+## [Untagged] - Jul 16, 2026 4:13:54 AM
+
+Commit [00f9f814bbe5135877ba26ccb1d34051c7a62521](https://github.com/StoneCypher/jssm/commit/00f9f814bbe5135877ba26ccb1d34051c7a62521)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260716-050132
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 16, 2026 4:13:38 AM
+
+Commit [456b899f4e91305a8abbc7777b49bae62c56ddd8](https://github.com/StoneCypher/jssm/commit/456b899f4e91305a8abbc7777b49bae62c56ddd8)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__162__34" />
 
 ## [5.162.34] - Jul 15, 2026 9:49:19 PM
@@ -244,6 +466,36 @@ samples/side), so this is a style/ownership change, not a perf fix — the real
 dispatch regression and its residual are tracked in StoneCypher/fsl#1959.
   * No behavior change; full build green, 7865 spec + 903 stoch tests pass at 100%
 coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 15, 2026 12:25:46 PM
+
+Commit [5e7acb99eed7f9e95f7d122463eb3692ab932032](https://github.com/StoneCypher/jssm/commit/5e7acb99eed7f9e95f7d122463eb3692ab932032)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260715-174530
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 15, 2026 12:25:30 PM
+
+Commit [5d384961daf762ba14346259fff2c9a0c59b2461](https://github.com/StoneCypher/jssm/commit/5d384961daf762ba14346259fff2c9a0c59b2461)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -609,6 +861,36 @@ Merges [ba1a65fd, a7ba2ffa]
 
   * Merge pull request #957 from StoneCypher/fix_26-07-13_doublequote-backslash
   * fix(viz): escape backslash in doublequote so a backslash in a label doesn't crash the render (5.162.26)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 15, 2026 4:03:21 AM
+
+Commit [1ecdbc51904164e8cc074faa54ffa918e21b8846](https://github.com/StoneCypher/jssm/commit/1ecdbc51904164e8cc074faa54ffa918e21b8846)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260715-051531
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 15, 2026 4:03:09 AM
+
+Commit [2f34644e0be27306909f977682aadf48ca155a45](https://github.com/StoneCypher/jssm/commit/2f34644e0be27306909f977682aadf48ca155a45)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -1082,6 +1364,36 @@ green.
 
 &nbsp;
 
+## [Untagged] - Jul 14, 2026 3:57:40 AM
+
+Commit [60453b96c67b15f8aa4242cfbbd2c52792e572b2](https://github.com/StoneCypher/jssm/commit/60453b96c67b15f8aa4242cfbbd2c52792e572b2)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260714-064251
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 14, 2026 3:57:25 AM
+
+Commit [aa5d3afb456a70789edfb65f65f56c26d4d339d1](https://github.com/StoneCypher/jssm/commit/aa5d3afb456a70789edfb65f65f56c26d4d339d1)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__162__17" />
 
 ## [5.162.17] - Jul 13, 2026 11:30:23 PM
@@ -1269,6 +1581,36 @@ only to paper over the missing HookContext fields; it is now just `HookContext`.
   * Verified: typecheck_tests clean, eslint clean, two consecutive `npm run make`
 runs green (the tsc stack overflow is gone), 7788 spec + 903 stoch + 22 docs
 passing, full `npm run build` green.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 13, 2026 5:18:36 AM
+
+Commit [b22aaa0df23db49c6a26859e3fe6de4c6bd17fcb](https://github.com/StoneCypher/jssm/commit/b22aaa0df23db49c6a26859e3fe6de4c6bd17fcb)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260712-200012
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 13, 2026 5:18:19 AM
+
+Commit [22e6ad573d731fadef60ac05718c2bd59009db6d](https://github.com/StoneCypher/jssm/commit/22e6ad573d731fadef60ac05718c2bd59009db6d)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -1641,6 +1983,36 @@ Merges [d67f4d34, 2409ad28]
 
 &nbsp;
 
+## [Untagged] - Jul 12, 2026 3:45:42 AM
+
+Commit [bb9ee8a23cc551df5946c20232ba436d999ff5a2](https://github.com/StoneCypher/jssm/commit/bb9ee8a23cc551df5946c20232ba436d999ff5a2)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260711-221300
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 12, 2026 3:45:27 AM
+
+Commit [ff6a0a9bb8cf9affb22762141d03ac74b82a617b](https://github.com/StoneCypher/jssm/commit/ff6a0a9bb8cf9affb22762141d03ac74b82a617b)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 12, 2026 3:22:28 AM
 
 Commit [2409ad28c27a7f6f2eb4c29396cff635d687ec7b](https://github.com/StoneCypher/jssm/commit/2409ad28c27a7f6f2eb4c29396cff635d687ec7b)
@@ -1741,6 +2113,36 @@ raising the es2017 runtime floor; super-linear regex backtracking in the
 fence/docs parsers was fixed for real; several test assertions that had
 provably never executed were repaired rather than suppressed.
   * Satisfies the fsl lint cluster: #545 #727 #728 #729 #730 #731 #732 #1317.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 11, 2026 3:36:21 AM
+
+Commit [d17e335c3744436387188e8933840ed40f6d1339](https://github.com/StoneCypher/jssm/commit/d17e335c3744436387188e8933840ed40f6d1339)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260710-232513
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 11, 2026 3:36:09 AM
+
+Commit [229ce636b6e03e68796a7a83a7c8bdc463fbfb8b](https://github.com/StoneCypher/jssm/commit/229ce636b6e03e68796a7a83a7c8bdc463fbfb8b)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -2105,6 +2507,36 @@ change.
 
 &nbsp;
 
+## [Untagged] - Jul 10, 2026 5:10:05 AM
+
+Commit [b61e6bc28e3a9f93922b43a855c84dc82419b3df](https://github.com/StoneCypher/jssm/commit/b61e6bc28e3a9f93922b43a855c84dc82419b3df)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260710-120334
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 10, 2026 5:09:46 AM
+
+Commit [30f55a44c8e775bc9f44fe5cdaa960cfc0c44de9](https://github.com/StoneCypher/jssm/commit/30f55a44c8e775bc9f44fe5cdaa960cfc0c44de9)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__162__2" />
 
 ## [5.162.2] - Jul 10, 2026 4:50:58 AM
@@ -2143,6 +2575,51 @@ a frozen orphan build artifact (last regenerated at the jssm-viz fold; the
 current build writes the gitignored .js variant instead) and typedoc never
 reads it, so it is intentionally left untouched here.
   * Claude-Session: https://claude.ai/code/session_01UkgdvpZXXXWG2jnfpap4yu
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 7, 2026 5:11:30 AM
+
+Commit [d808c22ff3f8586f5ea43eb9771b74b6e60df666](https://github.com/StoneCypher/jssm/commit/d808c22ff3f8586f5ea43eb9771b74b6e60df666)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260707-035134
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 7, 2026 5:11:15 AM
+
+Commit [c53ecd4f541b3adcb1a7493e0d0cdf7882093231](https://github.com/StoneCypher/jssm/commit/c53ecd4f541b3adcb1a7493e0d0cdf7882093231)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 6, 2026 8:40:11 PM
+
+Commit [2985f2faad6dbef424f2e7dd2b1eb952d9790d12](https://github.com/StoneCypher/jssm/commit/2985f2faad6dbef424f2e7dd2b1eb952d9790d12)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chart: graviton perf trend 20260706-044624
 
 
 
@@ -2264,6 +2741,21 @@ as clearly distinct.
 
 &nbsp;
 
+## [Untagged] - Jul 6, 2026 3:26:53 PM
+
+Commit [8b1b74b8690d6cd564c0bb2441523bd24bc5d376](https://github.com/StoneCypher/jssm/commit/8b1b74b8690d6cd564c0bb2441523bd24bc5d376)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chart: graviton perf trend 20260706-044624
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__161__0" />
 
 ## [5.161.0] - Jul 6, 2026 3:24:30 PM
@@ -2298,6 +2790,36 @@ while this branch also held 5.160.0. Re-bump to 5.161.0, reinstall to main's TS6
 toolchain, and full-rebuild all artifacts from merged source (my perf-chart
 renderer + main's TS6 changes). Spec suite 7274 tests / 100% coverage green.
   * Claude-Session: https://claude.ai/code/session_01Gyj8SYdxHyyRQo8xyxYCZr
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 6, 2026 6:00:30 AM
+
+Commit [12b1325bf3df55ab1d6959d143144fc462fa0fa0](https://github.com/StoneCypher/jssm/commit/12b1325bf3df55ab1d6959d143144fc462fa0fa0)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260706-044624
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 6, 2026 6:00:17 AM
+
+Commit [67b369e26d33cecb6986d9627c5262f6a251346f](https://github.com/StoneCypher/jssm/commit/67b369e26d33cecb6986d9627c5262f6a251346f)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -2756,6 +3278,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jul 5, 2026 4:14:52 AM
+
+Commit [2ca17b46f9d796b58dafde5b98804deec36c89f4](https://github.com/StoneCypher/jssm/commit/2ca17b46f9d796b58dafde5b98804deec36c89f4)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260705-051513
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 5, 2026 4:14:35 AM
+
+Commit [921e9ba59a2a87fb0fc6856be72545cdf83f8411](https://github.com/StoneCypher/jssm/commit/921e9ba59a2a87fb0fc6856be72545cdf83f8411)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__159__2" />
 
 ## [5.159.2] - Jul 4, 2026 10:03:00 PM
@@ -3058,6 +3610,36 @@ every dispatch family gained; this is the suspected mechanism.
 
 &nbsp;
 
+## [Untagged] - Jul 4, 2026 4:01:57 AM
+
+Commit [c3c6a0d6120f02fc881a7153d87220f7e4e9f216](https://github.com/StoneCypher/jssm/commit/c3c6a0d6120f02fc881a7153d87220f7e4e9f216)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260703-190649
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 4, 2026 4:01:45 AM
+
+Commit [5eb313e856e4c74ca18b0135e883aa3a5ba1d3be](https://github.com/StoneCypher/jssm/commit/5eb313e856e4c74ca18b0135e883aa3a5ba1d3be)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__158__0" />
 
 ## [5.158.0] - Jul 3, 2026 11:54:32 AM
@@ -3164,6 +3746,36 @@ Commit [e9321d7bb42d6a5c9534409c830801b2144ae7f7](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * test: carrying smoke uses library source, not dist — ci-lite cleans dist without rebuilding the core bundle
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 3, 2026 4:42:48 AM
+
+Commit [c97d575884f63d867167e6214511cc7e15e3bbb5](https://github.com/StoneCypher/jssm/commit/c97d575884f63d867167e6214511cc7e15e3bbb5)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260703-061555
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 3, 2026 4:42:36 AM
+
+Commit [0c6fdbb0120b1429cf2e52b2a33bb45638898b93](https://github.com/StoneCypher/jssm/commit/0c6fdbb0120b1429cf2e52b2a33bb45638898b93)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -5047,6 +5659,36 @@ Merges [2b3214b3, 64d4a58d]
 
 &nbsp;
 
+## [Untagged] - Jul 2, 2026 3:17:37 AM
+
+Commit [8ffc919c2f3f31725d6cb6f1f0c7fee5c566b222](https://github.com/StoneCypher/jssm/commit/8ffc919c2f3f31725d6cb6f1f0c7fee5c566b222)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260702-090255
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 2, 2026 3:17:21 AM
+
+Commit [7e505046d4f2984794f0ba1fab6e167be6994120](https://github.com/StoneCypher/jssm/commit/7e505046d4f2984794f0ba1fab6e167be6994120)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 2, 2026 2:53:38 AM
 
 Commit [0f6cc9df8f17ea77100fdedc0b3f48f941e01298](https://github.com/StoneCypher/jssm/commit/0f6cc9df8f17ea77100fdedc0b3f48f941e01298)
@@ -5527,6 +6169,36 @@ Merges [54b7ba95, 44d54bdd]
 #       src/doc_md/CHANGELOG.long.md
 #       src/doc_md/CHANGELOG.md
 #       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 29, 2026 3:59:55 AM
+
+Commit [c22072ac66706b1a53500de7b1fd61ccc38158e7](https://github.com/StoneCypher/jssm/commit/c22072ac66706b1a53500de7b1fd61ccc38158e7)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260629-044520
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 29, 2026 3:59:43 AM
+
+Commit [5e4fcf88e65ffda16d86518c67a7bcc49ab7703b](https://github.com/StoneCypher/jssm/commit/5e4fcf88e65ffda16d86518c67a7bcc49ab7703b)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -6836,6 +7508,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jun 28, 2026 12:17:59 PM
+
+Commit [19908efc8bc5e092f29959486a7906d7691a1eba](https://github.com/StoneCypher/jssm/commit/19908efc8bc5e092f29959486a7906d7691a1eba)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260628-174121
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:17:44 PM
+
+Commit [eeaf226f8bc96ff6a0aea86b89fda430b54694f0](https://github.com/StoneCypher/jssm/commit/eeaf226f8bc96ff6a0aea86b89fda430b54694f0)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 28, 2026 10:34:04 AM
 
 Commit [57cb5f5f737b207c615ce991a47c140f366a130f](https://github.com/StoneCypher/jssm/commit/57cb5f5f737b207c615ce991a47c140f366a130f)
@@ -7392,6 +8094,36 @@ starts, 7 transitions". Global counts refresh on fsl-machine-rebuilt (#1387).
 
 &nbsp;
 
+## [Untagged] - Jun 28, 2026 3:13:22 AM
+
+Commit [d8d1e906d514b014e16607de8624177cc83e87b0](https://github.com/StoneCypher/jssm/commit/d8d1e906d514b014e16607de8624177cc83e87b0)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260628-084043
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:13:06 AM
+
+Commit [00d96180b6ef6a0910304236dfb1e70b1563ed56](https://github.com/StoneCypher/jssm/commit/00d96180b6ef6a0910304236dfb1e70b1563ed56)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__148__2" />
 
 ## [5.148.2] - Jun 28, 2026 1:28:18 AM
@@ -7463,6 +8195,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
   * fix(cli): exported LLM system prompt taught invalid state-decl syntax (5.148.2)
   * The export-system-prompt example used 'state Red {' / 'state Green {', which the FSL grammar rejects — state declarations require 'state Name : { ... }'. Corrected both, and added a regression test that parses every fsl block in the exported prompt. Release artifacts rebuilt; 5.148.1 -> 5.148.2.
   * Found by the help-bar fence doctest (StoneCypher/jssm#872).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:18:13 AM
+
+Commit [fd44560af323ad08643b8e143a30568b4332eadb](https://github.com/StoneCypher/jssm/commit/fd44560af323ad08643b8e143a30568b4332eadb)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260628-074150
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:18:01 AM
+
+Commit [57395fe792f3f38e9618243ef01b2b0bed238af8](https://github.com/StoneCypher/jssm/commit/57395fe792f3f38e9618243ef01b2b0bed238af8)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -7629,6 +8391,36 @@ Commit [130d6b757642521fabe289e0960c3f7891602e4c](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * test(sketch): playwright smoke for the docs browser
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:03:31 AM
+
+Commit [d0fea01e3e02f5c5ad41ff582ffc2a6be824c9b7](https://github.com/StoneCypher/jssm/commit/d0fea01e3e02f5c5ad41ff582ffc2a6be824c9b7)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260628-064027
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:03:16 AM
+
+Commit [45fc445ca28932fd6f79d2b901ffa284c74c1eb6](https://github.com/StoneCypher/jssm/commit/45fc445ca28932fd6f79d2b901ffa284c74c1eb6)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -7897,6 +8689,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
   * - extract_grammar_surface.cjs / extract_surfaces.cjs: per-surface ground-truth extractors (PEG rules; TS exports for api/viz/editor; CEM tags for webcomponent; bins+subcommands+targets+flags for cli; prompt headings for llm-prompt).
   * - check_partition.cjs: classification-completeness check (#1) across every surface.
   * - src/data/teaching-surface.json: 52 features partitioning 254 ground-truth units across 7 surfaces; verified OK. Surfaces 2-7 v5-provisional pending jssm#822.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:32:06 PM
+
+Commit [818a954756526462b82a7b105f00a7e17cb88de9](https://github.com/StoneCypher/jssm/commit/818a954756526462b82a7b105f00a7e17cb88de9)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260628-050618
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:31:49 PM
+
+Commit [0c9267e9ec61e1f001a94e645fddc72f9ec7ed60](https://github.com/StoneCypher/jssm/commit/0c9267e9ec61e1f001a94e645fddc72f9ec7ed60)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -8837,6 +9659,36 @@ renders inert controls. ::part(toolbar) + tokens for white-labeling. 100%.
 
 &nbsp;
 
+## [Untagged] - Jun 26, 2026 6:15:56 PM
+
+Commit [ed6d3f6cf28e072ee279f4ef08c94a538a7b9bca](https://github.com/StoneCypher/jssm/commit/ed6d3f6cf28e072ee279f4ef08c94a538a7b9bca)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260627-010956
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:15:45 PM
+
+Commit [1bc17fa7d6515f9425a47ed48541c0f9b9d961d8](https://github.com/StoneCypher/jssm/commit/1bc17fa7d6515f9425a47ed48541c0f9b9d961d8)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 26, 2026 6:15:38 PM
 
 Commit [6dcf370906ba7cf3b3158a116bdb78e30963e08e](https://github.com/StoneCypher/jssm/commit/6dcf370906ba7cf3b3158a116bdb78e30963e08e)
@@ -9163,6 +10015,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
   * feat(wc): register <fsl-editor> canonical tag
   * define_canonical('fsl-editor', FslEditor) — canonical fsl-* only, no
 deprecated jssm- synonym (new-component policy). Full suite 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:02:16 PM
+
+Commit [a2f7dcf615e34bf5665d24386ed1fc8ccfb1b0d3](https://github.com/StoneCypher/jssm/commit/a2f7dcf615e34bf5665d24386ed1fc8ccfb1b0d3)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260625-044801
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:02:02 PM
+
+Commit [8715c490fef76592a389cf7cd70fdee492245fa5](https://github.com/StoneCypher/jssm/commit/8715c490fef76592a389cf7cd70fdee492245fa5)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -9643,6 +10525,36 @@ Merges [352fa2b9, 7d4a7d9f]
 #       src/doc_md/CHANGELOG.long.md
 #       src/doc_md/CHANGELOG.md
 #       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:22:18 PM
+
+Commit [30545637c1d8d3f49adf979b6593594e8d8e35d6](https://github.com/StoneCypher/jssm/commit/30545637c1d8d3f49adf979b6593594e8d8e35d6)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-210714
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:22:07 PM
+
+Commit [19c438447153f172b834a13f4f191a0cf5e11a54](https://github.com/StoneCypher/jssm/commit/19c438447153f172b834a13f4f191a0cf5e11a54)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -10600,6 +11512,36 @@ Merges [e99dc07a, 0ce6fbe4]
 
 &nbsp;
 
+## [Untagged] - Jun 23, 2026 6:29:33 AM
+
+Commit [b2b3b745d7f7648eec5e5922e028d3bc438beb86](https://github.com/StoneCypher/jssm/commit/b2b3b745d7f7648eec5e5922e028d3bc438beb86)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-105354
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:18 AM
+
+Commit [b2d20e8027b2485248fd6b033a158a32c66b611d](https://github.com/StoneCypher/jssm/commit/b2d20e8027b2485248fd6b033a158a32c66b611d)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__145__6" />
 
 ## [5.145.6] - Jun 23, 2026 6:24:06 AM
@@ -10712,6 +11654,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
   * chore(release): 5.146.0 — jssm/cm6 FSL CodeMirror language support
   * Cuts 5.146.0, releasing the jssm/cm6 subpath: an FSL CodeMirror 6 StreamLanguage tokenizer reconciled against the live grammar with a drift-guard test, deprecated-keyword highlighting via a custom tag, and a bundled ESM export with optional @codemirror/@lezer peers. Regenerates dist, type declarations, docs, changelog, readme, cloc, and perf chart. Full build green: vet, make (incl. make_cm6), stoch (758), spec (6654, 100% coverage), docs (16).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:31:20 AM
+
+Commit [7212b8b7bb5df111a01bc25f79eb37effa72706e](https://github.com/StoneCypher/jssm/commit/7212b8b7bb5df111a01bc25f79eb37effa72706e)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-035047
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:31:08 AM
+
+Commit [1ab0291af0195aa931067818c4e832d30ef18dcd](https://github.com/StoneCypher/jssm/commit/1ab0291af0195aa931067818c4e832d30ef18dcd)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -12231,6 +13203,36 @@ Merges [611c9753, 4ab26fd5]
 
 &nbsp;
 
+## [Untagged] - Jun 22, 2026 4:14:39 AM
+
+Commit [8cd3882f1ad54f9254a394581e5b0e300085e8a9](https://github.com/StoneCypher/jssm/commit/8cd3882f1ad54f9254a394581e5b0e300085e8a9)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260621-223632
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:14:29 AM
+
+Commit [c005f8e737f910457ed67b74cbdebf88c9ffb55c](https://github.com/StoneCypher/jssm/commit/c005f8e737f910457ed67b74cbdebf88c9ffb55c)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 21, 2026 9:24:46 PM
 
 Commit [4326c7f7af8f1636af796a48a8f8fb3c3b6ef6d8](https://github.com/StoneCypher/jssm/commit/4326c7f7af8f1636af796a48a8f8fb3c3b6ef6d8)
@@ -12411,6 +13413,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
   * hooked_state viz styling wired live into resolve_state_config at tier 2.5, with the static config cache invalidated on set_hook and remove_hook so styling stays coherent when hooks change after a style is memoized.
   * Boundary hooks: group and state boundary tables are walked into the registry as group- and state-scoped post rows, with a new group scope, HookBoundaryKind, and group query. Group hooks match by name only, with no propagation to member states.
   * New exported types: HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery. Source-only, generated artifacts excluded.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 18, 2026 3:50:11 AM
+
+Commit [35f487824f9165a8d878936bd5cc248e065b8e62](https://github.com/StoneCypher/jssm/commit/35f487824f9165a8d878936bd5cc248e065b8e62)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260618-045852
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 18, 2026 3:49:56 AM
+
+Commit [274749e1c9baef68b65cd4037e13ccd076bce7f6](https://github.com/StoneCypher/jssm/commit/274749e1c9baef68b65cd4037e13ccd076bce7f6)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -12817,6 +13849,36 @@ Commit [8c0b72ff2b302b0da33d0abf718d83b3f1a0f81c](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * docs(notes): mark groups/attributes/hooks issues landed; prune completed wishlist items
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 7:18:14 PM
+
+Commit [99e5ba4a2fb3f54f9289e4bf4ff9bdf9da2f3a22](https://github.com/StoneCypher/jssm/commit/99e5ba4a2fb3f54f9289e4bf4ff9bdf9da2f3a22)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260613-002355
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 7:18:05 PM
+
+Commit [22cb8efa5c11f3f1611098045668d063e0764453](https://github.com/StoneCypher/jssm/commit/22cb8efa5c11f3f1611098045668d063e0764453)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
 
 
 
@@ -16998,6 +18060,231 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jun 4, 2026 10:38:44 PM
+
+Commit [ead327a135fdb06dd0244bd748e80e6356e4fec2](https://github.com/StoneCypher/jssm/commit/ead327a135fdb06dd0244bd748e80e6356e4fec2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #598 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:38:24 PM
+
+Commit [8da2e799b0da1a726a20d8759dda06b2af9fa5f5](https://github.com/StoneCypher/jssm/commit/8da2e799b0da1a726a20d8759dda06b2af9fa5f5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #599 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:38:24 PM
+
+Commit [dc7414de698d76425431080c93e3a63a019e2c5d](https://github.com/StoneCypher/jssm/commit/dc7414de698d76425431080c93e3a63a019e2c5d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #600 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:25:38 PM
+
+Commit [11488eb8092d39ccea8842defb68053899f069da](https://github.com/StoneCypher/jssm/commit/11488eb8092d39ccea8842defb68053899f069da)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #601 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:25:23 PM
+
+Commit [3e0f38ca3fe4f06fcff23e1142f8e82239bd2781](https://github.com/StoneCypher/jssm/commit/3e0f38ca3fe4f06fcff23e1142f8e82239bd2781)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #602 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:18:02 PM
+
+Commit [e9fd1702f070d3c9b2ae4e4c24ac19504597c587](https://github.com/StoneCypher/jssm/commit/e9fd1702f070d3c9b2ae4e4c24ac19504597c587)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #604 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:17:48 PM
+
+Commit [2569bee3e2fc20a425390fb128a62dbd68010edb](https://github.com/StoneCypher/jssm/commit/2569bee3e2fc20a425390fb128a62dbd68010edb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #603 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:17:22 PM
+
+Commit [ffc6b7acd8a1ed1b9e39c9657274acc0ef75ba52](https://github.com/StoneCypher/jssm/commit/ffc6b7acd8a1ed1b9e39c9657274acc0ef75ba52)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #606 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:16:32 PM
+
+Commit [a0cf88e7fc6da92bd42ce839cffd08547a6e18ae](https://github.com/StoneCypher/jssm/commit/a0cf88e7fc6da92bd42ce839cffd08547a6e18ae)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #612 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:16:32 PM
+
+Commit [2091e638d1a6312243949c1985c09e8003563c8d](https://github.com/StoneCypher/jssm/commit/2091e638d1a6312243949c1985c09e8003563c8d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #611 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:06:17 PM
+
+Commit [01a2729446873698459c78a7af34f38c74853dad](https://github.com/StoneCypher/jssm/commit/01a2729446873698459c78a7af34f38c74853dad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #616 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:04:48 PM
+
+Commit [f349ca0119ad3315cb6d01099f1468fb09cbbc60](https://github.com/StoneCypher/jssm/commit/f349ca0119ad3315cb6d01099f1468fb09cbbc60)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #617 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:03:09 PM
+
+Commit [c0d00211726719865ae6f686eaa4eb7395246a85](https://github.com/StoneCypher/jssm/commit/c0d00211726719865ae6f686eaa4eb7395246a85)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #618 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:01:48 PM
+
+Commit [3ad9f7ba54b6181a7bac5e4ef9322c1d80d43aab](https://github.com/StoneCypher/jssm/commit/3ad9f7ba54b6181a7bac5e4ef9322c1d80d43aab)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #633 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 10:00:20 PM
+
+Commit [adab54ff2df17ff27923145f6858dd23b1021994](https://github.com/StoneCypher/jssm/commit/adab54ff2df17ff27923145f6858dd23b1021994)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #634 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 <a name="5__141__11" />
 
 ## [5.141.11] - Jun 4, 2026 7:50:10 PM
@@ -17396,6 +18683,21 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jun 4, 2026 4:02:41 PM
+
+Commit [204936f866a1262cd02a59033f620fac9fdf298e](https://github.com/StoneCypher/jssm/commit/204936f866a1262cd02a59033f620fac9fdf298e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #682 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 3, 2026 12:47:32 AM
 
 Commit [97ca0bc549c96be5d7f0d93399189b492a478cb9](https://github.com/StoneCypher/jssm/commit/97ca0bc549c96be5d7f0d93399189b492a478cb9)
@@ -17463,6 +18765,111 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jun 4, 2026 3:42:15 PM
+
+Commit [6fb16a247b745d7b332ce2052decd9eecc743a78](https://github.com/StoneCypher/jssm/commit/6fb16a247b745d7b332ce2052decd9eecc743a78)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #681 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:41:10 PM
+
+Commit [5bbe826e459b5d8404ced44c106da8d8f72ae6dc](https://github.com/StoneCypher/jssm/commit/5bbe826e459b5d8404ced44c106da8d8f72ae6dc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #680 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:40:07 PM
+
+Commit [d4de38fa14a06ac283a88c26e0fbbb3999af5497](https://github.com/StoneCypher/jssm/commit/d4de38fa14a06ac283a88c26e0fbbb3999af5497)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #677 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:30:08 PM
+
+Commit [f7c92bbad6f8afc72f02d0b744327056a8f11e3c](https://github.com/StoneCypher/jssm/commit/f7c92bbad6f8afc72f02d0b744327056a8f11e3c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #674 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:29:09 PM
+
+Commit [d7f2f776f4a0a224b4707469dc7c3c4b870d0262](https://github.com/StoneCypher/jssm/commit/d7f2f776f4a0a224b4707469dc7c3c4b870d0262)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #671 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:28:09 PM
+
+Commit [fdc18fa982afee9565073a87206db36ecfa000fb](https://github.com/StoneCypher/jssm/commit/fdc18fa982afee9565073a87206db36ecfa000fb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #649 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:27:31 PM
+
+Commit [81a000e3e9909086f5ddad31d4ce0191af8ceebf](https://github.com/StoneCypher/jssm/commit/81a000e3e9909086f5ddad31d4ce0191af8ceebf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #637 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 4, 2026 3:17:50 PM
 
 Commit [f71a971f51f147a82862aca05031b30ebd5e1613](https://github.com/StoneCypher/jssm/commit/f71a971f51f147a82862aca05031b30ebd5e1613)
@@ -17471,6 +18878,21 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(graviton_perf): retry perf_results push on non-fast-forward (concurrent-safe)
   * Parallel runs each publish a distinct <instance-type>/pr-<num>/ path, so there is no content conflict, but the second pusher still hits a non-fast-forward reject when a concurrent run advances the branch. pushPerfResults now fetches + rebases onto origin/perf_results and retries (bounded); distinct files mean the rebase always replays cleanly. 4 new unit tests cover first-try success, retry-on-reject, retry exhaustion, and dry-run. 60/60 spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:11:02 PM
+
+Commit [59ee143000a04f6d809cca773645666d795f456b](https://github.com/StoneCypher/jssm/commit/59ee143000a04f6d809cca773645666d795f456b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #679 (normal)
 
 
 
