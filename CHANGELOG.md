@@ -22,6 +22,73 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 18, 2026 8:37:45 AM
+
+Commit [eb85df75eb739de4dcad1baa39df4ef0448f0c52](https://github.com/StoneCypher/jssm/commit/eb85df75eb739de4dcad1baa39df4ef0448f0c52)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): package-size last-50 twin auto-fits as a zoom
+  * zero_base now anchors only the full-history log twin; every windowed
+linear twin auto-fits, so the package panel reads absolute long-term and
+zoomed recent, per review of the rendered chart.  Chart regenerated with
+trail data through 20260718-052334.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:56:30 AM
+
+Commit [5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2](https://github.com/StoneCypher/jssm/commit/5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(scripts): graviton trail-audit tool (parallel noise-floor re-measurement)
+  * Re-measures historical trail releases with strict interleaved sampling,
+round-robin partitioned across parallel graviton instances so instance
+identity never confounds with code era.  Compares audited medians against
+the trail's recorded general.json values, quantifying the trail's noise
+floor; verdicts upload to the _trail_audit/ S3 prefix, which the nightly
+perf_results_sync excludes.  --versions accepts list, range, last:N, and
+all; a >50-suite-passes-per-instance guardrail refuses runaway plans
+without --i-know.  Dry-run seam covers the full command plan.
+  * 58 spec assertions, no network, no dist requires.
+  * Checkpoint commit: version bump and full build follow before PR, serial
+with #970.  StoneCypher/fsl#1959 is the motivating investigation.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:45:00 AM
+
+Commit [ab115e6709f23a9a6eafdcae334d8bde1638a94f](https://github.com/StoneCypher/jssm/commit/ab115e6709f23a9a6eafdcae334d8bde1638a94f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): perf-chart readability pass (5.163.3)
+  * Panel order is now transition, action, construct, has_state, edges_between,
+list_exit_actions, probable_action_exits, package size.  All panels 1.8x
+wider.  Titles carry a 50%-lighter '(higher/lower is better)' suffix driven
+by a per-panel direction declaration.  Operation log twins anchor at the
+data's lowest decade instead of 10^0; the package-size panel keeps absolute
+anchoring (10^0 log, zero-floored linear) via the zero_base channel.
+  * 46 prior + 4 new spec assertions; 50/50 passing.  Chart regenerated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 18, 2026 3:43:06 AM
 
 Commit [449953f3eb8600d9558b810948c242fdf3f7809e](https://github.com/StoneCypher/jssm/commit/449953f3eb8600d9558b810948c242fdf3f7809e)
@@ -144,60 +211,3 @@ Merges [8f58a659, 0aa99558]
 
   * Merge pull request #968 from StoneCypher/fix_26-07-17_grammar-keyword-scoping
   * fix(grammar): scope FSL hook keywords to hook shape (5.163.1)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 17, 2026 1:41:21 PM
-
-Commit [0aa99558b0d2a134050e7a2a4c3f0180ff6abf7b](https://github.com/StoneCypher/jssm/commit/0aa99558b0d2a134050e7a2a4c3f0180ff6abf7b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(grammar): scope FSL hook keywords to hook shape (5.163.1)
-  * The TextMate grammar's control keywords were a flat word list, so `on`,
-`enter`, `exit`, `do`, and `after` were coloured as keywords even when used as
-ordinary state names — the canonical toggle `on 'flip' -> off;` mis-coloured
-`on`. Scope them contextually instead: the hook keywords `on`/`enter`/`exit`/`do`
-fire only in hook shape (`on <enter|exit> … do '…'`), and `after` only before a
-number; keep `state`/`property` flat (low collision), and drop `default`/`required`
-(scoping `default` would wrongly colour the `theme: default` config value). Also
-stop the group-ref regex from eating a trailing comma in `[&A, &B]`.
-  * Generator-only change in src/buildjs/build_fsl_tmlanguage.cjs; the committed
-grammar is regenerated. Real-engine (vscode-textmate) verified — `on -> off` is
-no longer a keyword while `on enter X do 'y'` still is; the freshness + coverage
-spec stays green. No behaviour change to the parser or library.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 17, 2026 3:59:10 AM
-
-Commit [3d520626d0834314ba6b1207185f9d2b9c0e20bb](https://github.com/StoneCypher/jssm/commit/3d520626d0834314ba6b1207185f9d2b9c0e20bb)
-
-Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
-
-  * chart: graviton perf trend 20260717-040847
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 17, 2026 3:58:58 AM
-
-Commit [3d773b94d6aac6b7d39999808e4f03572d57f476](https://github.com/StoneCypher/jssm/commit/3d773b94d6aac6b7d39999808e4f03572d57f476)
-
-Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
-
-  * perf: nightly sync of graviton runner results from S3

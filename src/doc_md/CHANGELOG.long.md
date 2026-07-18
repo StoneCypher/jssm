@@ -22,6 +22,73 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 18, 2026 8:37:45 AM
+
+Commit [eb85df75eb739de4dcad1baa39df4ef0448f0c52](https://github.com/StoneCypher/jssm/commit/eb85df75eb739de4dcad1baa39df4ef0448f0c52)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): package-size last-50 twin auto-fits as a zoom
+  * zero_base now anchors only the full-history log twin; every windowed
+linear twin auto-fits, so the package panel reads absolute long-term and
+zoomed recent, per review of the rendered chart.  Chart regenerated with
+trail data through 20260718-052334.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:56:30 AM
+
+Commit [5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2](https://github.com/StoneCypher/jssm/commit/5ff2fefd507d45cf99ead1d7b1db0dd20c4af6b2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(scripts): graviton trail-audit tool (parallel noise-floor re-measurement)
+  * Re-measures historical trail releases with strict interleaved sampling,
+round-robin partitioned across parallel graviton instances so instance
+identity never confounds with code era.  Compares audited medians against
+the trail's recorded general.json values, quantifying the trail's noise
+floor; verdicts upload to the _trail_audit/ S3 prefix, which the nightly
+perf_results_sync excludes.  --versions accepts list, range, last:N, and
+all; a >50-suite-passes-per-instance guardrail refuses runaway plans
+without --i-know.  Dry-run seam covers the full command plan.
+  * 58 spec assertions, no network, no dist requires.
+  * Checkpoint commit: version bump and full build follow before PR, serial
+with #970.  StoneCypher/fsl#1959 is the motivating investigation.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 18, 2026 7:45:00 AM
+
+Commit [ab115e6709f23a9a6eafdcae334d8bde1638a94f](https://github.com/StoneCypher/jssm/commit/ab115e6709f23a9a6eafdcae334d8bde1638a94f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(chart): perf-chart readability pass (5.163.3)
+  * Panel order is now transition, action, construct, has_state, edges_between,
+list_exit_actions, probable_action_exits, package size.  All panels 1.8x
+wider.  Titles carry a 50%-lighter '(higher/lower is better)' suffix driven
+by a per-panel direction declaration.  Operation log twins anchor at the
+data's lowest decade instead of 10^0; the package-size panel keeps absolute
+anchoring (10^0 log, zero-floored linear) via the zero_base channel.
+  * 46 prior + 4 new spec assertions; 50/50 passing.  Chart regenerated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 18, 2026 3:43:06 AM
 
 Commit [449953f3eb8600d9558b810948c242fdf3f7809e](https://github.com/StoneCypher/jssm/commit/449953f3eb8600d9558b810948c242fdf3f7809e)
