@@ -1,0 +1,133 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>JssmStateDeclaration | JSSM, a JavaScript state machine - the FSM for FSL</title><meta name="description" content="Documentation for JSSM, a JavaScript state machine - the FSM for FSL"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><link rel="stylesheet" href="../assets/custom.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="../index.html" class="title">JSSM, a JavaScript state machine - the FSM for FSL</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb" aria-label="Breadcrumb">
+<li><a href="../modules/jssm_types.html">jssm_types</a></li>
+<li><a href="" aria-current="page">JssmStateDeclaration</a></li></ul>
+<h1>Type Alias JssmStateDeclaration</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The fully-condensed declaration for a single state, including its raw
+rule list (<code>declarations</code>) and the well-known styling fields jssm-viz
+understands.  Returned by <a href="../classes/jssm.Machine.html#state_declaration" class="tsd-kind-method">jssm!Machine.state_declaration</a>.</p>
+</div></section>
+<div class="tsd-signature"><span class="tsd-signature-keyword">type</span> <span class="tsd-kind-type-alias">JssmStateDeclaration</span> <span class="tsd-signature-symbol">=</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#backgroundcolor">backgroundColor</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#bordercolor">borderColor</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#color">color</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#corners">corners</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types._internal_.JssmCorner.html" class="tsd-signature-type tsd-kind-type-alias">JssmCorner</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#declarations">declarations</a><span class="tsd-signature-symbol">:</span> <a href="jssm_types.JssmStateDeclarationRule.html" class="tsd-signature-type tsd-kind-type-alias">JssmStateDeclarationRule</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#image">image</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#linestyle">lineStyle</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types._internal_.JssmLineStyle.html" class="tsd-signature-type tsd-kind-type-alias">JssmLineStyle</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#property">property</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">unknown</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#shape">shape</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmShape.html" class="tsd-signature-type tsd-kind-type-alias">JssmShape</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#state">state</a><span class="tsd-signature-symbol">:</span> <a href="jssm_types._internal_.StateType.html" class="tsd-signature-type tsd-kind-type-alias">StateType</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#statelabel">stateLabel</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#textcolor">textColor</a><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#url">url</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L597">src/ts/jssm_types.ts:597</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h5 class="tsd-index-heading uppercase">Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading tsd-anchor-link" id="properties">Properties<a href="#properties" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-index-list"><a href="#backgroundcolor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>background<wbr/>Color?</span></a>
+<a href="#bordercolor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>border<wbr/>Color?</span></a>
+<a href="#color" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color?</span></a>
+<a href="#corners" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>corners?</span></a>
+<a href="#declarations" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>declarations</span></a>
+<a href="#image" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>image?</span></a>
+<a href="#linestyle" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>line<wbr/>Style?</span></a>
+<a href="#property" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>property?</span></a>
+<a href="#shape" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shape?</span></a>
+<a href="#state" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>state</span></a>
+<a href="#statelabel" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>state<wbr/>Label?</span></a>
+<a href="#textcolor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>text<wbr/>Color?</span></a>
+<a href="#url" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>url?</span></a>
+</div></section></div></details></section></section>
+<details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h2 class="tsd-anchor-link" id="properties-1">Properties<a href="#properties-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
+<section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="backgroundcolor"><code class="tsd-tag">Optional</code><span>background<wbr/>Color</span><a href="#backgroundcolor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">backgroundColor</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L609">src/ts/jssm_types.ts:609</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="bordercolor"><code class="tsd-tag">Optional</code><span>border<wbr/>Color</span><a href="#bordercolor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">borderColor</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L610">src/ts/jssm_types.ts:610</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="color"><code class="tsd-tag">Optional</code><span>color</span><a href="#color" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">color</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L602">src/ts/jssm_types.ts:602</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="corners"><code class="tsd-tag">Optional</code><span>corners</span><a href="#corners" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">corners</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types._internal_.JssmCorner.html" class="tsd-signature-type tsd-kind-type-alias">JssmCorner</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L603">src/ts/jssm_types.ts:603</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="declarations"><span>declarations</span><a href="#declarations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">declarations</span><span class="tsd-signature-symbol">:</span> <a href="jssm_types.JssmStateDeclarationRule.html" class="tsd-signature-type tsd-kind-type-alias">JssmStateDeclarationRule</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L599">src/ts/jssm_types.ts:599</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="image"><code class="tsd-tag">Optional</code><span>image</span><a href="#image" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">image</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L612">src/ts/jssm_types.ts:612</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="linestyle"><code class="tsd-tag">Optional</code><span>line<wbr/>Style</span><a href="#linestyle" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">lineStyle</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types._internal_.JssmLineStyle.html" class="tsd-signature-type tsd-kind-type-alias">JssmLineStyle</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L604">src/ts/jssm_types.ts:604</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="property"><code class="tsd-tag">Optional</code><span>property</span><a href="#property" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">property</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">unknown</span> <span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L616">src/ts/jssm_types.ts:616</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="shape"><code class="tsd-tag">Optional</code><span>shape</span><a href="#shape" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">shape</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmShape.html" class="tsd-signature-type tsd-kind-type-alias">JssmShape</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L601">src/ts/jssm_types.ts:601</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="state"><span>state</span><a href="#state" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">state</span><span class="tsd-signature-symbol">:</span> <a href="jssm_types._internal_.StateType.html" class="tsd-signature-type tsd-kind-type-alias">StateType</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L615">src/ts/jssm_types.ts:615</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="statelabel"><code class="tsd-tag">Optional</code><span>state<wbr/>Label</span><a href="#statelabel" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">stateLabel</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L606">src/ts/jssm_types.ts:606</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="textcolor"><code class="tsd-tag">Optional</code><span>text<wbr/>Color</span><a href="#textcolor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">textColor</span><span class="tsd-signature-symbol">?:</span> <a href="jssm_types.JssmColor.html" class="tsd-signature-type tsd-kind-type-alias">JssmColor</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L608">src/ts/jssm_types.ts:608</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member">
+<h3 class="tsd-anchor-link" id="url"><code class="tsd-tag">Optional</code><span>url</span><a href="#url" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">url</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/StoneCypher/jssm/blob/f4f9496177f19972dd3894733c9da9091b96f7d1/src/ts/jssm_types.ts#L613">src/ts/jssm_types.ts:613</a></li></ul></aside></section></section></details></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<details open class="tsd-accordion tsd-page-navigation-section"><summary class="tsd-accordion-summary" data-key="section-Properties"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>Properties</summary>
+<div><a href="#backgroundcolor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>background<wbr/>Color</span></a><a href="#bordercolor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>border<wbr/>Color</span></a><a href="#color"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>color</span></a><a href="#corners"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>corners</span></a><a href="#declarations"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>declarations</span></a><a href="#image"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>image</span></a><a href="#linestyle"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>line<wbr/>Style</span></a><a href="#property"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>property</span></a><a href="#shape"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>shape</span></a><a href="#state"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>state</span></a><a href="#statelabel"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>state<wbr/>Label</span></a><a href="#textcolor"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>text<wbr/>Color</span></a><a href="#url"><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Property"><use href="../assets/icons.svg#icon-1024"></use></svg><span>url</span></a></div></details></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../modules.html">JSSM, a JavaScript state machine - the FSM for FSL</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

@@ -1,0 +1,141 @@
+
+.tsd-panel-group > h1,
+.tsd-panel-group > h2,
+.tsd-panel-group > h3 { padding-left: 0; }
+.tsd-panel            { border-radius: 0.35em; }
+
+.tsd-panel > .tsd-signatures .tsd-signature.tsd-kind-icon { background-color: #eee; }
+
+#quicktab td    { text-align: right; }
+#quicktab td+td { text-align: center; }
+
+#quicktab th    { text-align: right; font-weight: normal; }
+#quicktab th+th { text-align: center; }
+
+pre { border-radius: 0.3em; }
+
+/* theme variables (fsl#1185)
+
+   typedoc's theme picker stamps <html> with data-theme="light" or "dark";
+   picking "OS" stamps data-theme="os", which matches neither selector and
+   falls through to prefers-color-scheme.  these colors used to live in bare
+   prefers-color-scheme media blocks, so they tracked the OS and ignored the
+   picker — a dark OS plus a "Light" picker setting left the comparison and
+   shootout tables black-on-dark against a white page.  the four-block
+   cascade below mirrors typedoc's own (node_modules/typedoc/static/style.css):
+   light defaults, an OS-dark media override, then data-theme overrides that
+   trump both.  dark chrome values delegate to typedoc's own variables so the
+   dark look stays exactly typedoc-default there */
+
+:root {
+  --color-background:    #def;      /* typedoc's page background, tinted */
+  --jssm-title-bg:       #bdf;
+  --jssm-toolbar-bg:     #acf;
+  --jssm-toolbar-border: #9be;
+  --jssm-table-border:   #9be;
+  --jssm-table-row:      #def;
+  --jssm-table-row-alt:  #d0e0f0;
+  --jssm-table-th:       #bdf;
+  --jssm-fail:           #b00;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background:    var(--dark-color-background);
+    --jssm-title-bg:       transparent;
+    --jssm-toolbar-bg:     var(--color-background-secondary);
+    --jssm-toolbar-border: var(--color-accent);
+    --jssm-table-border:   #335;
+    --jssm-table-row:      #445;
+    --jssm-table-row-alt:  #446;
+    --jssm-table-th:       #335;
+    --jssm-fail:           #f66;
+  }
+}
+
+:root[data-theme="light"] {
+  --color-background:    #def;
+  --jssm-title-bg:       #bdf;
+  --jssm-toolbar-bg:     #acf;
+  --jssm-toolbar-border: #9be;
+  --jssm-table-border:   #9be;
+  --jssm-table-row:      #def;
+  --jssm-table-row-alt:  #d0e0f0;
+  --jssm-table-th:       #bdf;
+  --jssm-fail:           #b00;
+}
+
+:root[data-theme="dark"] {
+  --color-background:    var(--dark-color-background);
+  --jssm-title-bg:       transparent;
+  --jssm-toolbar-bg:     var(--color-background-secondary);
+  --jssm-toolbar-border: var(--color-accent);
+  --jssm-table-border:   #335;
+  --jssm-table-row:      #445;
+  --jssm-table-row-alt:  #446;
+  --jssm-table-th:       #335;
+  --jssm-fail:           #f66;
+}
+
+body .tsd-page-title     { background-color: var(--jssm-title-bg); }
+body .tsd-page-toolbar   { background-color: var(--jssm-toolbar-bg); border-bottom-color: var(--jssm-toolbar-border); }
+body .with-border-bottom { background-color: var(--jssm-toolbar-bg); border-color: var(--jssm-toolbar-border); }
+
+html body .tsd-panel table td,
+html body .tsd-panel table th { border-color: var(--jssm-table-border); }
+
+html body .tsd-panel table tr                 { background-color: var(--jssm-table-row);     }
+html body .tsd-panel table tr:nth-child(even) { background-color: var(--jssm-table-row-alt); }
+html body .tsd-panel table tr th              { background-color: var(--jssm-table-th);      }
+
+fail { font-style: italic; color: var(--jssm-fail); }
+
+
+
+
+
+.rot_th_tab                   { vertical-align: bottom; }
+.rot_th_tab th                { position: relative; font-weight: normal; }
+.rot_th_tab th:first-of-type  { height: 7em; vertical-align: bottom; }
+.rot_th_tab td:nth-of-type(2),
+.rot_th_tab th:nth-of-type(2) { vertical-align: bottom; font-weight: normal; text-align: center; }
+.rot_th_tab th+th+th,
+.rot_th_tab td+td+td          { padding: 6px 4px; min-width: 1.3em; }
+.rot                          { transform-origin: 0 0; transform: rotate(-90deg); display: inline-block; position: absolute; left: 0.25em; bottom: -0.75em; font-weight: 400; }
+
+html li.pages-entry-depth-0 { padding-left: 15px; }
+html li.pages-entry-depth-1 { padding-left: 30px; }
+html li.pages-entry-depth-2 { padding-left: 45px; }
+html li.pages-entry-depth-3 { padding-left: 60px; }
+html li.pages-entry-depth-4 { padding-left: 75px; }
+html li.pages-entry-depth-5 { padding-left: 90px; }
+
+.youtube-embed        { position: relative; padding-bottom: 56.25%; /* enforces 16:9 aspect */ }
+.youtube-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1px solid black; }
+
+.frot_th_tab                         { vertical-align: bottom; }
+.frot_th_tab table tbody th          { position: relative; font-weight: normal; padding: 6px 4px; }
+.frot_th_tab tr.headings th          { height: 12em; width: 1.25em; }
+.frot_th_tab td, .frot_th_tab th     { vertical-align: bottom; font-weight: normal; text-align: center; }
+.frot_th_tab table tbody td          { padding: 6px 4px; min-width: 1em; max-width: 1em; }
+.frot                                { transform-origin: 0 0; transform: rotate(-90deg); display: inline-block; position: absolute; left: 0em; bottom: -0.75em; font-weight: 400; }
+.frot_th_tab th span                 { width: 12em; text-align: left; }
+.frot_th_tab .rot                    { left: 0.2em; }
+.frot_th_tab table tr+tr th          { width: 11em; text-align: right; }
+.frot_th_tab th.tablenotch           { background: transparent; border-top-color: transparent; border-left-color: transparent; }
+
+.tsd-panel .frot_th_tab table tbody tr.headings { background: transparent; }
+           .frot_th_tab tr+tr th+th             { width: 1.25em; text-align: center; }
+
+.tsd-panel .frot_th_tab table tr.faketitle    { background: transparent; }
+.tsd-panel .frot_th_tab table tr.faketitle td { background: transparent; border: 0; text-align: left; font-weight: bold; font-size: 150%; padding: 1.5em 0 0.5em 0; }
+
+.sums td { font-weight: bold; }
+
+dt+dd { margin-top: 0.25em; }
+dd+dt { margin-top: 1em; }
+dt    { font-weight: bold; font-size: 110%; }
+dd    { line-height: 120%; padding: 0; margin: 0 0 0 2em; }
+
+dl tt  { background-color: rgba(0,0,0,   0.1); border-radius: 0.25em; display: inline-block; padding: 0 0.1em; }
+dl syn { background-color: rgba(0,0,128, 0.1); border-radius: 0.25em; display: inline-block; padding: 0 0.1em; }
