@@ -1,0 +1,38 @@
+// "Three Billy Goats Gruff" - Norwegian folktale (Asbjornsen and Moe)
+//
+// The troll's toll gate looks like a single obstacle but is actually
+// beaten by a delegation protocol: each of the first two goats has a
+// real, chosen action that talks the troll into waiting for a bigger
+// goat still to come, forwarding the whole encounter - troll included -
+// onto the next state instead of resolving it. The gate is never
+// defeated by force until the biggest goat arrives; it is defeated by
+// referral. Each small/medium goat also has a second, worse action
+// available - trying to cross without paying - which is a real edge to
+// a real dead-end state, so the delegation choice is a genuine
+// alternative to a genuine risk, not the only option on the graph.
+//
+// Showcase: `fslExplain` shows the toll gate itself never appears as a
+// terminal - every goat-at-the-toll state has an out-degree of two - and
+// only the biggest goat's state has an edge that actually clears the
+// bridge rather than forwarding or ending the walk.
+
+machine_name    : "Three Billy Goats Gruff";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"bridge, troll blocking the toll, small goat arrives"
+  'talk the troll into waiting for a bigger goat' -> "bridge, troll blocking the toll, medium goat arrives";
+"bridge, troll blocking the toll, small goat arrives"
+  'try to cross without paying the toll' -> "small goat, eaten on the spot";
+
+"bridge, troll blocking the toll, medium goat arrives"
+  'talk the troll into waiting for the biggest goat yet' -> "bridge, troll blocking the toll, big goat arrives";
+"bridge, troll blocking the toll, medium goat arrives"
+  'try to cross without paying the toll' -> "medium goat, eaten on the spot";
+
+"bridge, troll blocking the toll, big goat arrives"
+  'lower your horns and butt the troll into the river' -> "bridge clear, troll gone, all three goats across";

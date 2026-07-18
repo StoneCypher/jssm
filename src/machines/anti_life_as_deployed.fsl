@@ -1,0 +1,80 @@
+// "Anti-Life, As Deployed"
+//
+// The Anti-Life Equation is Jack Kirby's DC macguffin: a formula which, once
+// grasped, mathematically proves that free will does not exist - and thereby
+// grants total control over any mind that holds it. Kirby printed it once:
+//
+//   loneliness + alienation + fear + despair + self-worth / mockery
+//   / condemnation / misunderstanding * guilt * shame * failure * judgment
+//   n=y where y=hope and n=folly, love=lies, life=death, self=dark side
+//
+// Two separate AI sessions were asked what to make of it, without shared
+// memory, and produced complementary halves of one joke.
+//
+// The first wrote the CODE REVIEW. Transcribed into a typed, dimensioned
+// FSL, the equation fails three ways: it doesn't typecheck (you cannot add a
+// feeling to a feeling-volume); it doesn't parse as intended (multiplication
+// binds tighter than addition - forty years of cosmic dread, undone by a
+// missing paren); and repaired, it is UNSAT - "hope = folly", "love = lies",
+// "life = death" admit no consistent model, so domination is provably
+// unreachable IN ANY SOUND MIND. Verdict: rejected. WONTFIX.
+//
+// The second wrote the INCIDENT REPORT: the machine below, run through the
+// fsl-mcp tooling. Act I is the sound mind the reviewer certified - free
+// will is exactly the action set, and walked by chosen actions alone the
+// path orbits sorrow -> connection -> hope -> love -> life -> self -> hope.
+// A healthy mind, left to its own choices, keeps returning to hope. (This
+// was not planned. The graph did it.)
+//
+// Act II is the exploit: three forced transitions with no action labels.
+// Ask the simulator to walk into "love = lies" voluntarily and it REFUSES -
+// rejected, with legalNext = [rest, doubt]. You cannot CHOOSE anti-life; it
+// is not in your action set. Even standing at `self` in crisis, your legal
+// moves are rest and doubt: the machine formally permits doubting yourself
+// and formally forbids destroying yourself.
+//
+// Act III is production: past the substitutions every edge is forced, every
+// road ends at the terminal state "dark side", and no ticket can be filed,
+// because filing a ticket is an action.
+//
+// The joke, in one breath: the review proves this can never run on a sound
+// mind; the incident report shows it running anyway; so the weapon's whole
+// mechanism lives in the gap between the two documents. Darkseid read
+// "UNSAT in any consistent mind" not as a rejection but as a spec: don't
+// fix the bug - deprecate the reviewer. Patch the users until the bug is
+// true. Free will is the action set, but Darkseid holds the object
+// reference: the fall is not an argument you accept, it is
+// force_transition(), called from outside, at the API layer, by something
+// that was never playing the action game at all.
+//
+// QA proved it could never run; ops confirmed it's running; the diff
+// between those reports is called Apokolips.
+
+machine_name    : "Anti-Life, As Deployed";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// ACT I - a sound mind. free will is exactly the action set.
+sorrow     'reach out' -> connection;
+connection 'drift'     -> sorrow;
+connection 'open up'   -> hope;
+hope       'share'     -> love;
+love       'build'     -> life;
+life       'reflect'   -> self;
+self       'rest'      -> hope;
+self       'doubt'     -> sorrow;
+
+// ACT II - the exploit. no action labels. these cannot be chosen,
+// only done TO you, by something holding the machine reference.
+self           ~> "love = lies";
+"love = lies"  ~> "life = death";
+"life = death" ~> "hope = folly";
+
+// ACT III - production. the incident report region. all forced.
+"hope = folly" ~> loneliness;
+loneliness     ~> alienation ~> dread ~> anguish;
+anguish        ~> "dark side";

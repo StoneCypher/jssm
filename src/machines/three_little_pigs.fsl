@@ -1,0 +1,36 @@
+// "The Three Little Pigs" - English nursery tale (Joseph Jacobs, 1890)
+//
+// The wolf's one repeated move - huff and puff - is a single action label
+// used against three different houses. The topology joke is that the
+// SAME action name is bound at the straw house and the stick house, where
+// it succeeds and forwards the wolf (and the fleeing pig) to the next
+// house, and is simply not part of the action set at all at the brick
+// house - not rejected on a technicality, just structurally absent, the
+// same deprecation shape as boy_who_cried_wolf.fsl's third cry. The brick
+// house instead offers the wolf a completely different, much worse action.
+
+machine_name    : "The Three Little Pigs";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the straw house, first pig inside"
+  'huff and puff'  -> "straw house down, pig runs to the stick house";
+
+"straw house down, pig runs to the stick house"
+  'huff and puff'  -> "stick house down, pig runs to the brick house";
+
+// no 'huff and puff' edge exists from here at all - the action that
+// worked twice in a row is not bound at this state, the way a method can
+// simply be missing from an interface rather than throwing when called.
+"stick house down, pig runs to the brick house"
+  'try the chimney instead' -> "wolf drops into a pot of boiling water";
+
+"stick house down, pig runs to the brick house"
+  'give up and slink home'  -> "wolf retreats, all three pigs safe inside";
+
+"wolf drops into a pot of boiling water"
+  'leap out, thoroughly cooked and humbled' -> "wolf never bothers pigs again";

@@ -1,0 +1,48 @@
+// "The Picture of Dorian Gray" - Oscar Wilde (1890)
+//
+// Two components, sharing nothing but an action vocabulary. The visible
+// component is a single state: whatever indulgence gets named, it
+// self-loops right back to "unchanged," because that is the entire
+// premise - the seen machine never updates. The hidden component is a
+// plain chain that advances one full stage every time the identical
+// action name fires, carrying every consequence the visible side was
+// spared. allow_islands is load-bearing: no edge anywhere connects the
+// two, exactly as no glance in a mirror ever revealed the attic.
+//
+// Showcase: two independent from() references, one seated in each
+// component, are stepped with the identical action names in lockstep -
+// the visible reference reports the same state every single time, the
+// hidden reference never repeats one. Only the final action breaks the
+// pattern on the visible side directly, and only a forced edge, walked
+// separately with force_transition, lets the hidden side pay everything
+// back at once.
+
+machine_name     : "The Picture of Dorian Gray";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the visible component: one state, self-looping forever, never updated.
+"Dorian, seen in every mirror, unchanged"
+  'commit a small cruelty, unnoticed' -> "Dorian, seen in every mirror, unchanged";
+"Dorian, seen in every mirror, unchanged"
+  'commit a greater cruelty, still unnoticed' -> "Dorian, seen in every mirror, unchanged";
+"Dorian, seen in every mirror, unchanged"
+  'commit the worst cruelty yet, still unnoticed' -> "Dorian, seen in every mirror, unchanged";
+"Dorian, seen in every mirror, unchanged"
+  'slash the canvas, unable to bear the sight of it' -> "Dorian, found dead, aged in an instant, the portrait young again";
+
+// the hidden component: no edge to or from the visible side, ever - the
+// same action names, spent on a fully separate chain that keeps score.
+"the portrait, freshly painted, beautiful"
+  'commit a small cruelty, unnoticed' -> "the portrait, one small cruelty etched into the face";
+"the portrait, one small cruelty etched into the face"
+  'commit a greater cruelty, still unnoticed' -> "the portrait, visibly cruel now, hidden away in the attic";
+"the portrait, visibly cruel now, hidden away in the attic"
+  'commit the worst cruelty yet, still unnoticed' -> "the portrait, monstrous, locked away entirely";
+"the portrait, monstrous, locked away entirely"
+  ~> "the portrait, young and beautiful again, the last debt paid";

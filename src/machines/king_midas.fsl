@@ -1,0 +1,33 @@
+// "King Midas and the Golden Touch" - Greek myth, by way of Ovid and
+// Hawthorne's retelling for children.
+//
+// Midas is granted a wish: everything he touches turns to gold. The
+// topology joke is that this is not four separate powers, one per object -
+// it is a single rewrite applied to the whole action space at once. Four
+// distinct, differently-worded actions - touching a rose, a goblet, a
+// feast, and, at last, his own running daughter - all fire from the same
+// state and all land on the exact same target state, `"everything he
+// touches is gold now"`. jssm does not need four gold-states to model four
+// gold-outcomes; the merge (several sources, several action labels, one
+// shared target - the same shape used by `the_floor_is_lava.fsl`) proves
+// there was never a carve-out waiting for the one touch that should have
+// had one. The wish does not consult what it is touching. That omission is
+// the whole tragedy, and it is checkable: no edge from the granted state
+// goes anywhere else.
+
+machine_name    : "King Midas and the Golden Touch";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// four different objects, four different actions, one identical rewrite target.
+"midas granted the golden touch" 'touch the rose'                              -> "everything he touches is gold now";
+"midas granted the golden touch" 'touch the goblet of wine'                    -> "everything he touches is gold now";
+"midas granted the golden touch" 'touch the feast'                             -> "everything he touches is gold now";
+"midas granted the golden touch" 'touch his own daughter, running to embrace him' -> "everything he touches is gold now";
+
+"everything he touches is gold now" 'weep over the golden, motionless girl' -> "midas begs the gods to reverse the gift";
+"midas begs the gods to reverse the gift" 'wash in the river as instructed' -> "the golden touch is undone, midas never touches bare-handed again";

@@ -1,0 +1,55 @@
+// "Unsubscribe Flow" - dark-pattern email folklore
+//
+// Four confirmation states stand between "subscribed" and "unsubscribed",
+// and every single one of them offers a chosen escape hatch straight back
+// to the very first state - not the previous screen, the original one.
+// "Keep me subscribed", "actually, never mind", "resubscribe instead",
+// and finally just declining to click a confirmation link: four
+// differently-worded doors, and all four reopen onto the same room. Only
+// one path through the whole machine is a straight, uninterrupted march
+// forward - four correct actions in a row, no wrong turns entertained -
+// and it is the only path that reaches the terminal at all.
+//
+// Showcase: fslSimulate takes the escape hatch at the first are-you-sure
+// screen and confirms the walk's path revisits the exact starting state.
+// A second walk takes all four forward actions in sequence and reaches
+// the sole terminal, with path.length one greater than the number of
+// escape-hatch-free actions taken.
+
+machine_name    : "Unsubscribe Flow";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the only state that has ever been the actual start of this journey.
+"subscribed, receiving daily emails"
+  'click unsubscribe' -> "are you sure, here is what you will miss";
+
+// confirmation one - the escape hatch returns to the very first state.
+"are you sure, here is what you will miss"
+  'yes, unsubscribe' -> "are you really sure, one more thing";
+"are you sure, here is what you will miss"
+  'no, keep me subscribed' -> "subscribed, receiving daily emails";
+
+// confirmation two - same pattern, different wording on the door back.
+"are you really sure, one more thing"
+  'yes, still want to unsubscribe' -> "before you go, pick a reason";
+"are you really sure, one more thing"
+  'actually, never mind' -> "subscribed, receiving daily emails";
+
+// confirmation three - two ways forward, one way back, all doors familiar.
+"before you go, pick a reason"
+  'submit a reason and unsubscribe' -> "one final confirmation email sent";
+"before you go, pick a reason"
+  'skip the reason and unsubscribe' -> "one final confirmation email sent";
+"before you go, pick a reason"
+  'nevermind, resubscribe instead' -> "subscribed, receiving daily emails";
+
+// confirmation four - the last door, hidden behind an actual email.
+"one final confirmation email sent"
+  'click the confirmation link' -> "unsubscribed, at last";
+"one final confirmation email sent"
+  'ignore the email, remain subscribed by default' -> "subscribed, receiving daily emails";

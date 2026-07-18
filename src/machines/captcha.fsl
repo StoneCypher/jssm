@@ -1,0 +1,55 @@
+// "CAPTCHA" - web-security folklore, the escalating-hydrant variant
+//
+// Every wrong guess anywhere in this machine goes to exactly one place:
+// all the way back to the unclicked checkbox, four states earlier -
+// there is no partial credit, no resume point, just a full restart of a
+// human-verification protocol whose whole premise was supposed to be
+// quick. The correct path escalates instead of easing up: traffic lights,
+// then hydrants, then hydrants disguised as motorcycles, then a final
+// challenge that never actually contains a hydrant at all. The only
+// action that gets a human past that last screen is refusing to play
+// along - selecting nothing, because there was never anything there to
+// select. Every other available action, including the anxious ones that
+// technically try to comply, routes back to square one.
+//
+// Showcase: fslSimulate takes one wrong guess mid-ladder and confirms the
+// walk lands back on the exact starting checkbox state, not some nearby
+// checkpoint. A second walk climbs the full four-stage ladder and takes
+// the correct action of selecting nothing, reaching the one terminal this
+// machine has.
+
+machine_name    : "CAPTCHA";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// stage 0 - the checkbox every failure sends you back to.
+"the checkbox, unclicked"
+  'click i am not a robot' -> "traffic light grid, nine squares";
+
+// stage 1 - a genuinely reasonable request, still.
+"traffic light grid, nine squares"
+  'select all squares with a traffic light' -> "hydrant grid, nine squares, one ambiguous";
+"traffic light grid, nine squares"
+  'guess wrong and get flagged as suspicious' -> "the checkbox, unclicked";
+
+// stage 2 - the hydrants proper, escalation begins.
+"hydrant grid, nine squares, one ambiguous"
+  'select all squares with a hydrant, excluding the ambiguous one' -> "hydrant grid, but the hydrants are now motorcycles";
+"hydrant grid, nine squares, one ambiguous"
+  'guess wrong and get flagged as suspicious' -> "the checkbox, unclicked";
+
+// stage 3 - the categories have started to lie to you on purpose.
+"hydrant grid, but the hydrants are now motorcycles"
+  'select all squares containing what might be a hydrant' -> "the philosophical hydrant challenge";
+"hydrant grid, but the hydrants are now motorcycles"
+  'guess wrong and get flagged as suspicious' -> "the checkbox, unclicked";
+
+// stage 4 - there was never a hydrant. the correct move is to say so.
+"the philosophical hydrant challenge"
+  'select nothing, because there is no hydrant' -> "verified human, somehow";
+"the philosophical hydrant challenge"
+  'select a square anyway, out of anxiety' -> "the checkbox, unclicked";

@@ -1,0 +1,38 @@
+// "This Is Fine" - KC Green, "On Fire" (Gunshow, 2013)
+//
+// The whole strip is one coping mechanism running against an escalating
+// disaster it never engages with. Structurally: three fire-severity
+// states, each carrying the identical self-loop action `'sip coffee'` -
+// the dog's entire action vocabulary, unchanged no matter how bad things
+// get - while the fire itself only ever advances via forced (`~>`) edges
+// the dog never chooses, requests, or can prevent. `actions()` at every
+// "fine" state returns the exact same one-element set; the escalation is
+// invisible from inside the dog's own menu.
+//
+// The showcase: fslSimulate can walk `'sip coffee'` any number of times
+// at any severity and the state never budges (an honest self-loop, not a
+// dead end); no sequence of chosen actions ever reaches the room actually
+// being not fine - that transition is forced-only and, per gotcha #6,
+// unreachable by naming it. Only raw `force_transition` can walk the fire
+// forward, and even then, the dog's very next legal move is still
+// `'sip coffee'`.
+
+machine_name    : "This Is Fine";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"everything is fine (small fire)"
+  'sip coffee' -> "everything is fine (small fire)";
+"everything is fine (small fire)" ~> "everything is fine (bigger fire)";
+
+"everything is fine (bigger fire)"
+  'sip coffee' -> "everything is fine (bigger fire)";
+"everything is fine (bigger fire)" ~> "everything is fine (structure failing)";
+
+"everything is fine (structure failing)"
+  'sip coffee' -> "everything is fine (structure failing)";
+"everything is fine (structure failing)" ~> "this was, in fact, not fine";

@@ -1,0 +1,34 @@
+// "It's Not a Bug, It's a Feature" - programming folklore, the reflexive
+// defense: whatever the code just did, decide afterward that it was
+// intended, and describe it that way going forward. The behavior does not
+// change. Only the label does.
+//
+// The topology joke is a direct, checkable claim about the graph, not
+// just a line of dialogue: from "edge case hit, unexpected output
+// produced," TWO differently-named chosen actions - `'log it as a bug'`
+// and `'log it as a feature'` - both resolve to the exact same target
+// state, "ticket closed, no code changed." `fslExplain` proves it: two
+// distinct action labels, two distinct edges, one identical destination.
+// Relabeling the failure did not add a branch, did not change where the
+// walk ends up, did not touch the code at all - the only thing either
+// action does is choose which word gets written on an otherwise identical
+// arrival. The release ships anyway, edge case and all, because closing
+// the ticket - under either name - was always the whole transaction.
+
+machine_name    : "It's Not a Bug, It's a Feature";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"nominal input, works as expected" 'feed it the edge case' -> "edge case hit, unexpected output produced";
+
+// two differently-named decisions, one identical destination - the
+// relabeling changes nothing about the topology, only the word used on
+// the way past it.
+"edge case hit, unexpected output produced" 'log it as a bug'     -> "ticket closed, no code changed";
+"edge case hit, unexpected output produced" 'log it as a feature' -> "ticket closed, no code changed";
+
+"ticket closed, no code changed" 'ship the next release anyway' -> "shipped, edge case still there";

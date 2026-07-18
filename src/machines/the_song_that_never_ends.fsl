@@ -1,0 +1,32 @@
+// "This Is the Song That Never Ends" - Shari Lewis & Lamb Chop
+//
+// The title isn't a description of the song, it's the song's only
+// verifiable formal property, and this file makes that literal. Three
+// lyric-states chain forward on chosen actions, and the last edge closes
+// the loop as a FORCED transition - because nobody chooses to keep
+// singing it, the song just continues, exactly the way the lyric
+// insists: "because." There is no terminal state anywhere in this file,
+// and that absence is the entire joke: run `fslExplain` and `terminals`
+// comes back empty, the same way asking a small child to please stop
+// singing it comes back empty.
+//
+// Contrast with `lather_rinse_repeat.fsl`: that loop is missing an exit
+// condition by omission - nobody wrote one. This one is missing a
+// terminal by design - the forced edge exists specifically to foreclose
+// one, which is also why `fslSimulate` can walk right up to the edge of
+// eternity and no further: legalNext at the last lyric is empty, because
+// continuing was never a chosen action to begin with.
+
+machine_name     : "This Is the Song That Never Ends";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"this is the song that never ends"      'yes it goes on and on my friends' -> "some people started singing it";
+"some people started singing it"        'not knowing what it was'          -> "they will continue singing it forever";
+
+// just because. nobody chooses this edge; the song simply does it.
+"they will continue singing it forever" ~> "this is the song that never ends";

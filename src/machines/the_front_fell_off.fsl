@@ -1,0 +1,50 @@
+// "The Front Fell Off" - John Clarke & Bryan Dawe, "A Current Affair" /
+// "The 7:30 Report" (Australian television, 1990s), on the Sea Empress
+// oil tanker spill
+//
+// The deadpan bureaucrat's account of the tanker disaster is a machine
+// that has lost states at sea in two senses at once, and this file wires
+// both of them. Literally: the ship itself is a forced chain - front
+// falling off, then towed beyond the environment, then no longer anyone's
+// problem - because none of it was ever a decision anyone in the
+// interview made. Structurally: two follow-up facts the reporter never
+// gets a straight answer about - the cargo manifest, the lifeboat count -
+// are declared, fully wired states with real self-loop actions, and
+// simply never connected to the interview chain at all. They are exactly
+// as "lost" as the front of the ship: present in the file, unreachable
+// from the conversation, requiring `allow_islands: true` to compile.
+//
+// Showcase: `fslExplain` reports states that no edge anywhere in the main
+// chain ever names as a target - the islands - alongside a four-state
+// forced tail that `fslSimulate` can walk right up to and never through.
+
+machine_name    : "The Front Fell Off";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+// the interview proper: one real question, then a chain nobody chose.
+"tanker, fully assembled, moored in the harbour"
+  'ask whether that is unusual' -> "the front fell off, into the ocean";
+
+// the reporter keeps asking how. the answer never gets any more specific
+// than the state it is already in - a self-loop, not progress.
+"the front fell off, into the ocean"
+  'ask again exactly how that could happen' -> "the front fell off, into the ocean";
+
+// nobody decided this next part. it is simply what happens.
+"the front fell off, into the ocean"
+  ~> "towed out beyond the environment";
+"towed out beyond the environment"
+  ~> "no longer considered to be Australias problem";
+
+// two more facts, fully declared, fully self-consistent, and never once
+// connected to the interview above - lost states, same as the front.
+"the cargo manifest, last seen going down with the front"
+  'file the paperwork anyway' -> "the cargo manifest, last seen going down with the front";
+"the lifeboat count, never satisfactorily accounted for"
+  'shrug, note it for the record' -> "the lifeboat count, never satisfactorily accounted for";

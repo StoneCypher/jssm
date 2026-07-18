@@ -1,0 +1,44 @@
+// "Catch-22" - Joseph Heller (1961)
+//
+// The novel's title bit, reduced to a graph: a flier who is genuinely
+// unfit for duty can be excused from it, but the only way to be assessed
+// is to ask - and asking to be excused from danger is exactly the
+// behavior of a mind protecting itself, which is to say a sane one. The
+// catch isn't a gate that blocks the exit edge; it's a rule that quietly
+// revokes your standing to use it in the same breath you invoke it.
+//
+// Topologically: requesting the evaluation is a real, legal, chosen
+// action, but everything downstream of it is FORCED (`~>`) - the finding
+// was never anyone's to choose, so `"under review"` has exactly one
+// outbound edge and it isn't one `fslSimulate` can take. The actual
+// exemption - `"certified insane"` leading to `grounded` - sits fully
+// declared and fully wired, and utterly unreachable: nothing in the loop
+// anyone can actually walk ever names it as a target. `allow_islands` is
+// load-bearing for that half, the same trick `hotel_california.fsl` uses
+// for its own exit that exists without ever being arrived at.
+
+machine_name     : "Catch-22";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+// the only door anyone can actually walk through.
+"flight duty"  'request an evaluation' -> "under review";
+
+// the finding: asking proved the mind that asked it was intact. nobody
+// chose this outcome - it was never a decision to make - so the edge is
+// forced, and legalNext at "under review" comes back empty.
+"under review" ~> "found perfectly sane";
+
+// sane fliers fly. the loop isn't punitive, it's just where the one
+// legal action from here goes.
+"found perfectly sane" 'return to duty' -> "flight duty";
+
+// the exemption is real, fully specified, and never arrived at. no edge
+// reachable from "flight duty" ever points here, and none reachable from
+// here ever points back - two islands that happen to share a coastline.
+"certified insane" 'exemption granted' -> grounded;

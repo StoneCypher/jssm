@@ -1,0 +1,43 @@
+// "We'll Cross That Bridge When We Come to It" - English proverb
+//
+// The idiom is a promise not to resolve a question before it is actually
+// relevant, and the topology renders that literally as lazy evaluation: a
+// thunk that is not forced until it is reached. Every state on the way to
+// the bridge offers exactly one real action, `'keep walking'`, that makes
+// progress, plus a `'worry about the bridge'` self-loop that changes
+// nothing at all - fretting early is offered, but it is provably a no-op,
+// because the state it targets is itself. Only at "the bridge, finally
+// underfoot" does an action exist that actually inspects the bridge and
+// picks a branch; nothing upstream of that state can even name that
+// choice, because the edges that decide it are not bound anywhere else.
+//
+// Showcase: `fslExplain` shows the self-loops contribute zero net
+// displacement no matter how many times they fire, and the two real
+// branch actions - the payoff of the deferred evaluation - are bound
+// exclusively at the bridge state, nowhere earlier.
+
+machine_name    : "We'll Cross That Bridge When We Come to It";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// upstream of the bridge: worrying is legal, chosen, and provably inert.
+"planning the trip, the bridge is only a rumor"
+  'worry about the bridge before it is even real' -> "planning the trip, the bridge is only a rumor";
+"planning the trip, the bridge is only a rumor"
+  'keep walking toward it' -> "on the road, bridge still out of sight";
+
+"on the road, bridge still out of sight"
+  'worry about the bridge some more' -> "on the road, bridge still out of sight";
+"on the road, bridge still out of sight"
+  'keep walking' -> "the bridge, finally underfoot";
+
+// only here does the thunk get forced: the branch actions do not exist,
+// even by name, at either state above.
+"the bridge, finally underfoot"
+  'test the first plank, it holds firm' -> "crossed, exactly when the bridge was actually there";
+"the bridge, finally underfoot"
+  'test the first plank, it gives way' -> "turned back, exactly when the bridge was actually there";

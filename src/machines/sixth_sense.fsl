@@ -1,0 +1,50 @@
+// "The Sixth Sense" - M. Night Shyamalan (1999)
+//
+// A therapist takes on an unusual new case: a boy who insists he sees
+// things other people cannot. The graph below happens to carry two
+// perfectly legitimate declared start states - jssm's start_states,
+// plural - sitting exactly one forced hop apart, and fslSimulate, given
+// no instructions otherwise, always seats itself at whichever one comes
+// first in that list. Keep reading only once that detail starts to bother
+// you.
+//
+// It seats itself at the state before the one most retellings treat as
+// where the story begins. One state - unnoticed, forced, unavoidable, no
+// action bound to it anywhere - sits between the two declared starts, and
+// it is the entire reveal: the therapist was already dead before the case
+// everyone remembers as "the beginning" ever opens. Showcase: fslExplain
+// reports both start states; a walk seated at the true start cannot even
+// supply a first chosen action, because its only outgoing edge is forced;
+// a second, independent from() seated at the other declared start skips
+// the hidden state entirely and reaches every downstream state one hop
+// sooner, none the wiser.
+
+machine_name     : "The Sixth Sense";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+start_states     : ["a former patient breaks in, a shot fired in the dark" "a new case begins, a boy who says he sees things"];
+
+// the true start: no chosen action leaves it, only a forced one.
+"a former patient breaks in, a shot fired in the dark"
+  ~> "collapsed, unnoticed, the wound never treated";
+
+"collapsed, unnoticed, the wound never treated"
+  'wake the next morning, certain the wound has healed' -> "a new case begins, a boy who says he sees things";
+
+// the narrator's declared start: identical graph from here on, one hop
+// short of the state that explains everything about it.
+"a new case begins, a boy who says he sees things"
+  'session after session, trust slowly built' -> "the boy admits at last what he actually sees";
+
+"the boy admits at last what he actually sees"
+  'help him listen to what the dead actually need' -> "the fear in the boy begins to lift";
+
+"the fear in the boy begins to lift"
+  'go home to tell her it will be alright' -> "an ordinary evening, a ring rolls off the nightstand";
+
+"an ordinary evening, a ring rolls off the nightstand"
+  'notice the wound was never bandaged at all' -> "the truth surfaces, the collapse was never survived";

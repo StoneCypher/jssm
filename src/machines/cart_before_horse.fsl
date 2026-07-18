@@ -1,0 +1,30 @@
+// "Don't put the cart before the horse" - English proverb, in use since at
+// least the 16th century, describing any plan executed in the wrong order.
+//
+// The topology takes the idiom completely literally: harnessing is a
+// chosen action, taken once, at the start, and it alone decides which
+// direction the exact same later action - 'giddyup' - will point.
+// Harnessed correctly, 'giddyup' is a forward edge toward the market.
+// Harnessed backward, 'giddyup' is not a dead self-loop or a rejected
+// action - it is a live, legal, chosen edge that runs in the opposite
+// direction, back into the barn wall, because the cart out front is now
+// doing the steering. Same action name, same grammar, opposite direction -
+// the inversion happened once, at harness time, and every step downstream
+// just inherits it.
+
+machine_name    : "Cart Before the Horse";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the one decision that determines everything downstream.
+"horse and cart, unharnessed" 'harness properly, horse first, cart behind' -> "properly harnessed, horse leading";
+"horse and cart, unharnessed" 'harness backward, cart first, horse behind' -> "improperly harnessed, cart leading";
+
+// the identical action name, pointed in opposite directions by a decision
+// already made one step upstream.
+"properly harnessed, horse leading"  'giddyup' -> "arrived at the market, cart full";
+"improperly harnessed, cart leading" 'giddyup' -> "backed straight into the barn wall";

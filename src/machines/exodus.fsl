@@ -1,0 +1,46 @@
+// "Exodus: The Long Way Round" - Hebrew scripture, Books of Exodus, Numbers,
+// and Deuteronomy
+//
+// Deuteronomy 1:2 is oddly specific about the geography: Horeb to
+// Kadesh-barnea, by the Mount Seir road, is an eleven-day walk. The
+// wandering that the rest of the story actually narrates lasted forty
+// years instead, on account of the spies' report and the refusal to
+// advance. The topology takes that discrepancy literally rather than
+// poetically: the underlying GRAPH is short - one branch point, one
+// direct edge-pair to the destination. What inflates the walk is not
+// extra graph, it's extra REPETITION of a single self-loop the graph
+// already contains, fired an unbounded number of times before a forced
+// generational handoff finally releases it. Both the direct branch and
+// the looped branch converge on the identical destination state, same as
+// jonah.fsl's whale detour - the map never grew, only the walk did.
+
+machine_name    : "Exodus: The Long Way Round";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"Horeb, freed from Egypt, camped at the mountain"
+  'send scouts ahead to survey the land' -> "Kadesh-barnea, the scouts have returned";
+
+// the direct route: two chosen edges, the eleven-day road Deuteronomy names.
+"Kadesh-barnea, the scouts have returned"
+  'trust the report, advance now' -> "Canaan, the destination reached";
+
+// the doomed detour: one chosen refusal, then a self-loop the walk can
+// repeat as many times as forty years demands, with no other edge available.
+"Kadesh-barnea, the scouts have returned"
+  'refuse to advance, the report is too frightening' -> "sentenced to wander until this generation is gone";
+
+"sentenced to wander until this generation is gone"
+  'wander another year in the wilderness' -> "sentenced to wander until this generation is gone";
+
+// forced, eventual, and entirely outside the wandering generation's own
+// action set - the handoff to the generation that finally gets to advance.
+"sentenced to wander until this generation is gone"
+  ~> "a new generation stands again at the border";
+
+"a new generation stands again at the border"
+  'cross over into the land at last' -> "Canaan, the destination reached";

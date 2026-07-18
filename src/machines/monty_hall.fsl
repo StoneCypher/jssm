@@ -1,0 +1,52 @@
+// "The Monty Hall Problem" - probability puzzle popularized by the game
+// show "Let's Make a Deal" and Marilyn vos Savant's 1990 column defending
+// the counter-intuitive answer
+//
+// The whole controversy is a fight over a posterior probability, and this
+// file encodes the posterior directly in the graph rather than arguing
+// about it in comments: the contestant's original pick hides the car on a
+// weighted 33% branch and a goat on the complementary 67% branch (`33% ->`
+// / `67% ->`, jssm's own probabilistic-arrow syntax - see
+// `probable_exits_for` / `probabilistic_transition`). The host's reveal is
+// FORCED either way, because Monty always can and always does show a
+// goat - but which reveal state you land in still carries the branch's
+// probability mass with it. `'switch'` from the 67% branch is wired to the
+// car; `'switch'` from the 33% branch is wired to a goat. The two-thirds
+// answer isn't asserted anywhere in this file. It's just where the weight
+// was put.
+//
+// Showcase: running many seeded `probabilistic_transition()` trials that
+// always choose `'switch'` lands on the car roughly two-thirds of the
+// time; the same trials always choosing `'stay'` land on the car roughly
+// one-third of the time - the empirical frequency falls out of the
+// topology, not out of a comment asserting it should.
+
+machine_name    : "The Monty Hall Problem";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the hidden variable: your original pick, weighted by the actual odds.
+// one door in three hides the car; the other two hide a goat between them.
+"you choose a door" 33% -> "your door hides the car";
+"you choose a door" 67% -> "your door hides a goat";
+
+// monty's reveal is forced either way - he always can show a goat, and
+// always does - but the branch you arrived from still carries its weight.
+"your door hides the car" ~> "monty reveals a goat; switching would lose";
+"your door hides a goat"  ~> "monty reveals the other goat; switching would win";
+
+// from the 33% branch: staying keeps the car, switching throws it away.
+"monty reveals a goat; switching would lose"
+  'stay'   -> "you kept the car";
+"monty reveals a goat; switching would lose"
+  'switch' -> "you switched away from the car";
+
+// from the 67% branch: staying keeps the goat, switching wins the car.
+"monty reveals the other goat; switching would win"
+  'stay'   -> "you kept your goat";
+"monty reveals the other goat; switching would win"
+  'switch' -> "you switched into the car";

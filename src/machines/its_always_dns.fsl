@@ -1,0 +1,55 @@
+// "It's Always DNS" - sysadmin/network-engineering folklore
+//
+// Four completely unrelated incidents open this file: a dead website, a
+// broken SSO login, a CI pipeline that cannot reach its registry, a mail
+// relay gone silent. Each gets its own investigation state, its own
+// diagnostic busywork - a self-loop for "reread the logs, still nothing" -
+// so the operator genuinely believes they are chasing four different bugs.
+// They are not. Every single one of those four states carries a FORCED
+// edge (`~>`, no action - nobody chooses this, it is simply what turns out
+// to be true) into the exact same merge state, which itself forces onward
+// into the exact same terminal. The topology does not narrate the joke;
+// it enacts it: four independent entry points, zero independent exits.
+// Whatever you thought you were debugging, the graph already decided
+// where you end up.
+//
+// Showcase: raw jssm walks all four incident branches independently (via
+// their real, chosen diagnostic actions) and then force_transitions each
+// one twice - and every single branch, regardless of which symptom named
+// it, lands on the identical terminal state. fslSimulate confirms the
+// chosen half of each branch can only ever reach its own self-loop;
+// legalNext never contains the forced edge, by name or otherwise.
+
+machine_name    : "Its Always DNS";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// four unrelated incidents, four unrelated-looking first responses.
+"an outage begins, cause completely unknown"
+  'the website stopped resolving'              -> "checking the load balancer";
+"an outage begins, cause completely unknown"
+  'sso logins started failing'                  -> "checking the identity provider";
+"an outage begins, cause completely unknown"
+  'the ci pipeline cant reach the registry'     -> "checking the container registry";
+"an outage begins, cause completely unknown"
+  'internal email stopped delivering'           -> "checking the mail relay";
+
+// real, chosen busywork at each branch - time spent checking everything
+// except the one thing.
+"checking the load balancer"        'restart the load balancer, just in case'   -> "checking the load balancer";
+"checking the identity provider"    'roll the identity provider certs, just in case' -> "checking the identity provider";
+"checking the container registry"  'clear the registry cache, just in case'    -> "checking the container registry";
+"checking the mail relay"           'restart the mail relay, just in case'      -> "checking the mail relay";
+
+// nobody chooses this part. all four branches, forced, into one merge.
+"checking the load balancer"       ~> "the resolver cache, finally checked";
+"checking the identity provider"   ~> "the resolver cache, finally checked";
+"checking the container registry"  ~> "the resolver cache, finally checked";
+"checking the mail relay"          ~> "the resolver cache, finally checked";
+
+// and the merge itself only ever goes one place.
+"the resolver cache, finally checked" ~> "it was dns, it is always dns";

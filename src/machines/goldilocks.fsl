@@ -1,0 +1,75 @@
+// "Goldilocks and the Three Bears" - English fairy tale (Robert Southey,
+// 1837, in its earliest print form)
+//
+// Three separate parameter sweeps - porridge, chairs, beds - each fan out
+// from one state into papa's (too much), mama's (too little), and baby's
+// (just right), and each sweep only ever exits toward the next phase via
+// the "just right" branch. That is the topology joke: "just right" is not
+// a value judgment layered on afterward, it is structurally the ONLY
+// branch of each three-way fork that has an outbound edge to the rest of
+// the story. Papa's and mama's branches dead-end back into the same
+// sampling state (try again, sample another bowl/chair/bed) rather than
+// ever proceeding, so the graph itself enforces convergence on the middle
+// option. The bears' return is a forced (`~>`) interrupt Goldilocks never
+// chooses - she only ever chooses which bowl, chair, and bed to try.
+
+machine_name    : "Goldilocks and the Three Bears";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// sweep one: porridge. only "just right" ever leaves this sweep.
+"porridge tasting begins"
+  'try papas bowl'  -> "porridge too hot, sets the bowl back down";
+"porridge too hot, sets the bowl back down"
+  'try another bowl' -> "porridge tasting begins";
+
+"porridge tasting begins"
+  'try mamas bowl'  -> "porridge too cold, sets the bowl back down";
+"porridge too cold, sets the bowl back down"
+  'try another bowl' -> "porridge tasting begins";
+
+"porridge tasting begins"
+  'try babys bowl'  -> "porridge just right, eaten completely";
+"porridge just right, eaten completely"
+  'move on to the chairs' -> "chair testing begins";
+
+// sweep two: chairs. same shape, different furniture, same convergence.
+"chair testing begins"
+  'try papas chair' -> "chair too hard, gets up again";
+"chair too hard, gets up again"
+  'try another chair' -> "chair testing begins";
+
+"chair testing begins"
+  'try mamas chair' -> "chair too soft, gets up again";
+"chair too soft, gets up again"
+  'try another chair' -> "chair testing begins";
+
+"chair testing begins"
+  'try babys chair' -> "chair just right, and it breaks completely";
+"chair just right, and it breaks completely"
+  'get up in embarrassment, move on to the beds' -> "bed testing begins";
+
+// sweep three: beds. the last sweep ends in sleep, not a choice.
+"bed testing begins"
+  'try papas bed' -> "bed too hard, gets up again";
+"bed too hard, gets up again"
+  'try another bed' -> "bed testing begins";
+
+"bed testing begins"
+  'try mamas bed' -> "bed too soft, gets up again";
+"bed too soft, gets up again"
+  'try another bed' -> "bed testing begins";
+
+"bed testing begins"
+  'try babys bed' -> "bed just right, fast asleep";
+
+// the bears' return is not a branch Goldilocks ever selects.
+"bed just right, fast asleep"                  ~> "the three bears arrive home";
+"the three bears arrive home"                  ~> "someone has been sleeping in my bed, and she is still there";
+
+"someone has been sleeping in my bed, and she is still there"
+  'wake up and flee out the window' -> "gone, out the window, into the woods";

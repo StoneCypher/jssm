@@ -1,0 +1,45 @@
+// "Hilbert's Grand Hotel" - David Hilbert (1924 lecture, popularized as a
+// paradox)
+//
+// The hotel has a room for every guest already, and somehow a room for
+// one more besides: shift every current guest from room k to room k+1,
+// and room 1 stands empty. jssm's own relative-offset targets parse but
+// do not compile to real edges - the exact trap this file avoids by
+// hand-unrolling five actual rungs of the shift, each one a single named
+// action moving between two fully spelled-out states. The renumbering
+// itself is a single transition per arrival, exactly as the paradox
+// states it, not a sequence of individual room moves.
+//
+// A finite unroll cannot show the argument, only gesture at it: every
+// rung modeled here still carries the identical arrival action in
+// legalNext, unconsumed, right up to wherever the file happens to stop.
+// The closing edge handles a countably infinite bus at once, shifting
+// room k to room 2k and freeing every odd room in a single hop - the same
+// trick, scaled up. The file has to end somewhere; the argument, notably,
+// does not - the last state below is a stopping point for prose, not a
+// boundary the hotel itself would ever recognize.
+
+machine_name     : "Hilbert's Grand Hotel";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the shift, unrolled by hand, one named rung at a time - never +1.
+"the hotel, rooms 1 through 4 filled, no vacancy"
+  'a new guest arrives, every guest shifts from room k to room k+1, room 1 freed for them' -> "the hotel, rooms 1 through 5 filled, no vacancy";
+
+"the hotel, rooms 1 through 5 filled, no vacancy"
+  'a new guest arrives, every guest shifts from room k to room k+1, room 1 freed for them' -> "the hotel, rooms 1 through 6 filled, no vacancy";
+
+"the hotel, rooms 1 through 6 filled, no vacancy"
+  'a new guest arrives, every guest shifts from room k to room k+1, room 1 freed for them' -> "the hotel, rooms 1 through 7 filled, no vacancy";
+
+"the hotel, rooms 1 through 7 filled, no vacancy"
+  'a new guest arrives, every guest shifts from room k to room k+1, room 1 freed for them' -> "the hotel, rooms 1 through 8 filled, no vacancy";
+
+// the bonus rung: an entire countably infinite bus, seated in one hop.
+"the hotel, rooms 1 through 8 filled, no vacancy"
+  'a countably infinite bus arrives, every guest shifts from room k to room 2k, every odd room freed for the bus' -> "the hotel, every even room the original guests, every odd room newly filled by the bus";

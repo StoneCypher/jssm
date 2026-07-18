@@ -1,0 +1,40 @@
+// "Pepe Silvia" - It's Always Sunny in Philadelphia, "The Gang Gets Held
+// Hostage" (by way of the corkboard-and-red-string clip that outlived the
+// episode). Charlie is a mailroom clerk who cannot find anywhere to deliver
+// mail addressed to "PJ Sylvia," mishears/misreads it as "Pepe Silvia," and
+// builds an entire elaborate conspiracy out of it - years of service,
+// cover-ups, a person who both exists everywhere and nowhere - when the
+// mundane truth is one mis-filed letter and an empty mailroom.
+//
+// The topology joke is two disconnected components in one file, which is
+// why `allow_islands: true` is load-bearing here rather than decorative:
+// the real mailroom is a two-edge, three-state non-event, and it shares NO
+// edge, in either direction, with the dense, self-referential conspiracy
+// web Charlie is actually narrating. `start_states` only ever enters the
+// mundane island; the conspiracy island is fully reachable internally
+// (every state has an edge, satisfying the no-bare-state rule) but from the
+// designated start it is not reachable at all - a graph hallucinated
+// entirely on top of, and disjoint from, the empty room it is supposed to
+// describe.
+
+machine_name     : "Pepe Silvia";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+allow_islands    : true;
+
+start_states: ["clerk sorts an ordinary letter"];
+
+// island one: the mundane, entirely reachable, three-state truth.
+"clerk sorts an ordinary letter" 'squint at the illegible handwriting' -> "letter misread as pepe silvia";
+"letter misread as pepe silvia" 'shrug, refile it under the correct name' -> "filed correctly, nothing happened";
+
+// island two: the conspiracy, dense and internally connected, and reached
+// from nowhere in island one - no edge above ever points in here.
+"pepe silvia has been at the post office five years"    'cross-reference the mail cart logs'      -> "pepe silvia signs for packages nobody sent";
+"pepe silvia signs for packages nobody sent"            'pin the delivery slips to the corkboard' -> "pepe silvia is a cover story, a construct, a ghost";
+"pepe silvia is a cover story, a construct, a ghost"    'connect the red string across the room'  -> "the whole mailroom is a conspiracy and only charlie sees it";
+"the whole mailroom is a conspiracy and only charlie sees it" 'scream the name at the ceiling'    -> "pepe silvia has been at the post office five years";

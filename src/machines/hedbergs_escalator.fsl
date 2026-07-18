@@ -1,0 +1,34 @@
+// "Hedberg's Escalator" - Mitch Hedberg: "An escalator can never break, it
+// can only become stairs. You would never see an 'Escalator Temporarily
+// Out Of Order' sign, just 'Escalator Temporarily Stairs. Sorry for the
+// convenience.'"
+//
+// The topology joke is that the failure state is not a sink. It has as
+// many outgoing edges as the machine it replaced - climb the rest of the
+// way up, or walk back down - which is exactly what a real "broken"
+// terminal in this file's other machines does NOT get to do. The escalator
+// only ever loses power via a forced (`~>`) edge, because breaking is never
+// a chosen act, but landing in "stairs" hands you back a fully bidirectional,
+// perfectly ordinary walking machine: a working machine, just of a humbler
+// type, not a dead end.
+
+machine_name     : "Hedberg's Escalator";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["escalator idle at the bottom"];
+
+"escalator idle at the bottom" 'step on, ride up' -> "escalator ascending smoothly";
+"escalator ascending smoothly" 'reach the top, step off' -> "escalator idle at the top";
+
+// the failure is never chosen - it simply happens, mid-ride.
+"escalator ascending smoothly" ~> "temporarily stairs, sorry for the convenience";
+
+// and once it happens, the "failure" state is a complete, working, two-way
+// machine of its own - same as the escalator it replaced, just on foot.
+"temporarily stairs, sorry for the convenience" 'climb the rest of the way, on foot' -> "escalator idle at the top";
+"temporarily stairs, sorry for the convenience" 'walk back down instead, on foot'    -> "escalator idle at the bottom";

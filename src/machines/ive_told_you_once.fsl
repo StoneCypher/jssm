@@ -1,0 +1,39 @@
+// "Ive Told You Once" - Monty Python's Flying Circus, "The Argument
+// Clinic" (1972), the repetition-as-argument bit, sold separately from
+// the full booth in argument_clinic.fsl
+//
+// The parent sketch's premise is that contradiction is not argument -
+// this file is the smaller, adjacent bit riding on the exact same
+// premise from the opposite angle: that mere repetition is not argument
+// either. Two states, one genuine cycle, no third state waiting in the
+// wings and no escalation dressing it up as progress - saying a thing
+// again is modeled as literally the same edge as saying it the first
+// time, back and forth, forever, because nothing about the second
+// telling actually differs from the first. This is the whole booth, on
+// its own, without the reception desk or the Abuse room next door - a
+// micro-loop, sold separately. Only stepping outside repetition entirely
+// - demanding an argument instead of another retelling - has an edge
+// leading anywhere else.
+//
+// Showcase: `fslSimulate` walks the repetition back and forth several
+// times with `legalNext` unchanged at every visit; a separate simulate
+// takes the one exit action to a terminal the loop itself never reaches.
+
+machine_name    : "Ive Told You Once";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the entire booth: repeating a claim and denying it just repeated are
+// the same move, back and forth, with nothing new added by another lap.
+"ive told you once, said flatly"
+  'repeat the claim, no louder than before' -> "no you havent, said flatly";
+"no you havent, said flatly"
+  'deny it was ever said, just as flatly' -> "ive told you once, said flatly";
+
+// the one action that is not another lap of the same two lines.
+"no you havent, said flatly"
+  'demand an actual argument for once' -> "kicked out, five minutes never actually spent arguing";

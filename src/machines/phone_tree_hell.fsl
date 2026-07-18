@@ -1,0 +1,46 @@
+// "Phone Tree Hell" - modern life
+//
+// Every branch of this menu promises, eventually, a human being: "press 0
+// for a representative," twice over, in two different submenus. Neither
+// promise is kept. Both "press 0" edges route to "on hold," which offers
+// its own loop of interchangeable announcements (smooth jazz, the
+// scripted reassurance, back to jazz) and one legitimate escape hatch
+// ('press 9') that only ever leads back to the main menu - never forward.
+// "a human agent" is declared in this file, the same way "the wall" and
+// "the highway" are declared in zenos_dichotomy.fsl and hotel_california.fsl
+// - a bare state with no incoming edges would be silently dropped by jssm,
+// so a self-loop keeps it real, nameable, and part of the machine's
+// vocabulary. It is simply never the target of anything else in the file.
+// The showcase: however long the caller's path through this graph runs -
+// any number of loops through hold, any number of trips back to the main
+// menu - "a human agent" never becomes reachable, and asking `fslSimulate`
+// to walk there directly, by name, from anywhere reachable is rejected
+// every time.
+
+machine_name    : "Phone Tree Hell";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+allow_islands   : true;
+
+"main menu" 'press 1 for sales'            -> "sales menu";
+"main menu" 'press 2 for support'          -> "support menu";
+"main menu" 'press 0 for a representative' -> "on hold";
+
+"sales menu" 'press 1 for a new account'      -> "on hold";
+"sales menu" 'press 2 for an existing account' -> "on hold";
+"sales menu" 'press 9 for the main menu'      -> "main menu";
+
+"support menu" 'press 1 to hear this menu again' -> "support menu";
+"support menu" 'press 2 for a representative'    -> "on hold";
+"support menu" 'press 9 for the main menu'       -> "main menu";
+
+"on hold" 'listen to smooth jazz'                    -> "on hold";
+"on hold" 'hear "your call is important to us"'      -> "on hold";
+"on hold" 'press 9 to return to the main menu'       -> "main menu";
+
+// declared, promised by two different menu options, reached by none of them.
+"a human agent" 'pick up the call (nobody ever does)' -> "a human agent";

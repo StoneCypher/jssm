@@ -1,0 +1,31 @@
+// "Lather, Rinse, Repeat" - shampoo bottle instructions, folklore's
+// candidate for the first infinite loop ever printed for a mass audience
+//
+// Three words, no stated exit condition, and therefore - by omission,
+// not by design - a fully specified infinite loop: nothing on the
+// bottle, and nothing in this file, ever says when your hair is clean
+// enough to stop. `repeat` is a real, chosen destination, and its own
+// only outbound edge sends you straight back to `lather` - but that edge
+// is forced (`~>`) rather than chosen, because the label never offered a
+// choice about it in the first place. It says "repeat," full stop; there
+// is no clause for "until."
+//
+// This is the smallest possible three-state version of the shape: two
+// chosen edges you actually perform (lathering, rinsing), and one forced
+// edge that IS the omission, made visible. `fslSimulate` can carry you
+// through both actions you actually take; legalNext at `repeat` comes
+// back empty, because there was never an action defined for stopping.
+
+machine_name     : "Lather, Rinse, Repeat";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+lather 'apply and work into a lather' -> rinse;
+rinse  'rinse thoroughly'             -> repeat;
+
+// the bottle never wrote an exit clause, so there isn't one to take.
+repeat ~> lather;

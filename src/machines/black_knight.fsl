@@ -1,0 +1,51 @@
+// "The Black Knight" - Monty Python and the Holy Grail (1975)
+//
+// Played strictly for cartoon logic, no gore: "limb" is just a count the
+// Knight is losing, one swing at a time, and the joke is entirely
+// structural. At every stage of the decrement chain - four limbs down to
+// zero - the same action, `'declare none shall pass'`, is bound as an
+// identical self-loop, unaffected by how many limbs remain to back the
+// claim. It does not get weaker as the count drops; it is not even a
+// different edge. The chain itself decrements by a real, chosen action
+// (a swing), each stage adding its own denial self-loop on top of the
+// universal one, right down to zero, where the gate assertion is still
+// there, completely unchanged, blocking a bridge that no longer has
+// anyone attached to it. Only a separate, unrelated action - simply
+// walking around him - actually ends the encounter.
+//
+// Showcase: raw jssm confirms `'declare none shall pass'` is present in
+// `m.actions()` at all five limb-count states, including zero; `fslSimulate`
+// walks all four swings to "zero limbs" and shows `legalNext` still
+// contains the gate action, unchanged since four limbs ago.
+
+machine_name    : "The Black Knight";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the gate assertion: identical action, identical self-loop, bound at
+// every single stage of the chain below, limb count notwithstanding.
+"four limbs, blocking the bridge"                        'declare none shall pass' -> "four limbs, blocking the bridge";
+"three limbs, insisting it is a scratch"                  'declare none shall pass' -> "three limbs, insisting it is a scratch";
+"two limbs, insisting it is a flesh wound"                'declare none shall pass' -> "two limbs, insisting it is a flesh wound";
+"one limb, insisting he is invincible"                    'declare none shall pass' -> "one limb, insisting he is invincible";
+"zero limbs, a torso, still blocking the bridge"          'declare none shall pass' -> "zero limbs, a torso, still blocking the bridge";
+
+// each stage's own denial, on top of the universal one above.
+"three limbs, insisting it is a scratch"         'insist it is a scratch'          -> "three limbs, insisting it is a scratch";
+"two limbs, insisting it is a flesh wound"       'insist it is a flesh wound'      -> "two limbs, insisting it is a flesh wound";
+"one limb, insisting he is invincible"           'insist he is invincible'         -> "one limb, insisting he is invincible";
+"zero limbs, a torso, still blocking the bridge" 'threaten to bite his legs off'   -> "zero limbs, a torso, still blocking the bridge";
+
+// the decrement chain: a real, chosen action, four times.
+"four limbs, blocking the bridge"                 'swing the sword, take an arm'        -> "three limbs, insisting it is a scratch";
+"three limbs, insisting it is a scratch"          'swing the sword, take the other arm' -> "two limbs, insisting it is a flesh wound";
+"two limbs, insisting it is a flesh wound"        'swing the sword, take a leg'         -> "one limb, insisting he is invincible";
+"one limb, insisting he is invincible"            'swing the sword, take the last leg'  -> "zero limbs, a torso, still blocking the bridge";
+
+// the only action in the whole machine that actually ends anything.
+"zero limbs, a torso, still blocking the bridge"
+  'simply step around him' -> "arthur rides on, the knight still shouting behind him";

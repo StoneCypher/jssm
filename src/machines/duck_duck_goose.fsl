@@ -1,0 +1,40 @@
+// "Duck Duck Goose" - playground circle game
+//
+// The whole game is a self-loop with an escape hatch bolted on: "circle:
+// tapping heads" has `'duck'` pointing back at itself - legal to fire any
+// number of times, zero included - and exactly one other action,
+// `'goose!'`, that breaks the loop into a footrace. The mechanism note
+// says "repeat duck until the goose transition," and that is exactly the
+// graph: nothing distinguishes duck #1 from duck #40, and the ONLY
+// structural way out is the differently-labeled edge sitting next to the
+// self-loop the whole time.
+//
+// The chase itself forks on a real outcome - caught before the empty
+// seat, or safe into it - and BOTH branches converge back on "circle:
+// tapping heads" via the same `'round two'` action, because the game does
+// not actually end, it just re-deals who is It. fslSimulate can walk
+// several `'duck'`s, a `'goose!'`, either chase resolution, and land back
+// on the exact state it started from, ready to legally `'duck'` again.
+
+machine_name    : "Duck Duck Goose";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"circle: tapping heads"
+  'duck' -> "circle: tapping heads";
+"circle: tapping heads"
+  'goose!' -> "the chase is on";
+
+"the chase is on"
+  'caught before the empty seat' -> "caught: back to the circle, still it";
+"the chase is on"
+  'reached the empty seat first' -> "safe: back to the circle, new it";
+
+"caught: back to the circle, still it"
+  'round two' -> "circle: tapping heads";
+"safe: back to the circle, new it"
+  'round two' -> "circle: tapping heads";

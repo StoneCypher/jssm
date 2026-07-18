@@ -1,0 +1,32 @@
+// "Bohemian Rhapsody" - Queen (1975, written by Freddie Mercury)
+//
+// The track is famous for refusing to repeat a section once it has left it:
+// ballad gives way to an operatic passage, the operatic passage gives way to
+// a hard rock section, and the hard rock section dissolves into a quiet
+// outro - four musicological movements, each entered exactly once, none of
+// them ever regained. This machine is a strict path graph, not a cycle or a
+// tree: every state has at most one outgoing edge, every state (after the
+// first) has at most one incoming edge, and no edge anywhere targets a state
+// that a walk has already visited. `states.length === transitions.length + 1`
+// is the whole showcase - the structural signature of "no return edges,"
+// checked directly rather than merely asserted in a comment.
+
+machine_name    : "Bohemian Rhapsody";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"ballad section, spare piano and a confessional vocal"
+  'the mood turns cinematic, an orchestral swell builds' -> "ballad section, orchestral swell rising";
+
+"ballad section, orchestral swell rising"
+  'the harmony fractures into overlapping voices' -> "operatic section, voices multiply and stack";
+
+"operatic section, voices multiply and stack"
+  'the guitars crash in' -> "hard rock section, tempo locked to a driving pulse";
+
+"hard rock section, tempo locked to a driving pulse"
+  'the tempo falls away to almost nothing' -> "outro, tempo dissolved to silence";

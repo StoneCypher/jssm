@@ -1,0 +1,83 @@
+// "Groundhog Day" (1993) - Phil Connors relives February 2nd on a forced
+// loop until, off-screen and unmeasured by the story itself, he becomes a
+// decent person. The topology joke: the entire day - waking to the clock
+// radio, walking past Ned Ryerson, watching the day burn down to 6:00 AM,
+// and rolling over into another February 2nd - is a chain of FORCED
+// transitions (~>, no action label). Phil doesn't choose to hear the radio
+// again; it happens to him. What he DOES choose is how he spends the hours
+// in between - piano, crime, kindness, self-pity - and every one of those
+// chosen branches still drains back into the same forced "6:00 AM" sink.
+// Free will picks the scenery; it never touches the plumbing.
+//
+// The real point of this file is what it CANNOT express. Pure FSL is
+// memoryless: a state is just a name, and jssm decides what's legal next
+// from nothing but the CURRENT state - it has no loop counter, no notion of
+// "the six-thousandth February 2nd," no way to know Phil has gotten kinder.
+// So the movie's actual exit condition - loop until you've earned it - has
+// no honest encoding as a plain graph of states and edges. What ships below
+// instead is the shape of the escape hatch with the mechanism removed:
+// `become_worthy` and `february_3rd` are real states, reachable only by a
+// FORCED edge off "6:00 AM" that no chosen action in this file ever points
+// at, and that no fslSimulate walk can legally choose into from anywhere
+// reachable (see the verify script - it is rejected every time, from every
+// state that can reach it). THE HOOK FIRES HERE: in a live jssm consumer,
+// an external counter - or an `on enter` hook carrying its own closure
+// state, tracking loop count / kindness score / whatever the app wants to
+// measure - is the only thing that would ever call
+// `machine.force_transition('become_worthy')`. That call is not expressible
+// in FSL itself; it is exactly the gap jssm's JS hook API exists to fill.
+// This machine is the argument for that API, not a workaround for its
+// absence.
+
+machine_name     : "Groundhog Day";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// pinned past "wake" and "radio," because neither is reachable by choice
+// from anywhere in this graph - they only ever happen TO Phil, never BY
+// him. a start state he could actually act from has to be pinned here
+// instead of left to the default first-mentioned-state inference.
+start_states: ["ned ryerson"];
+
+// the day nobody chooses: the idle path, all forced, no action labels.
+// this is what happens if Phil does nothing whatsoever.
+wake                 ~> radio;
+radio                ~> "ned ryerson";
+"ned ryerson"        ~> "the day burns down";
+"the day burns down" ~> "6:00 AM";
+"6:00 AM"            ~> wake;
+
+// chosen scenery: five different ways to spend the hours - and all five
+// drain into the same "6:00 AM," same as doing nothing at all does.
+"ned ryerson" 'learn piano'         -> "piano lessons";
+"piano lessons" 'practice till dark' -> "6:00 AM";
+
+"ned ryerson" 'small kindness'                -> "an afternoon that helps someone";
+"an afternoon that helps someone" 'let it go unnoticed' -> "6:00 AM";
+
+"ned ryerson" 'rob the armored car'          -> "a life of crime, briefly";
+"a life of crime, briefly" 'get away with it, again' -> "6:00 AM";
+
+"ned ryerson" 'try Rita again'         -> "rejected, again";
+"rejected, again" 'nurse it at the Tip Top' -> "6:00 AM";
+
+"ned ryerson" 'give up entirely' -> "the usual barstool";
+"the usual barstool" 'drink till closing' -> "6:00 AM";
+
+// the one legal door back to morning - Phil CAN choose to let the day end,
+// same destination as the forced version above. (an action label is load-
+// bearing here: jssm rejects a second unlabeled edge between the same pair
+// of states as a duplicate, so "chosen" and "forced" only coexist on this
+// exact pair because one of them names itself.)
+"6:00 AM" 'let it end' -> wake;
+
+// the escape hatch, with its mechanism removed. reachable only by a forced
+// edge that nothing chosen ever points at - THE HOOK FIRES HERE. only an
+// external counter or a stateful on-enter hook decides when this fires,
+// because pure FSL has no memory of how many Februaries came before.
+"6:00 AM"     ~> become_worthy;
+become_worthy ~> february_3rd;

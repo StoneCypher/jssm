@@ -1,0 +1,40 @@
+// "The NeverEnding Story" - Michael Ende
+//
+// The title makes a promise this file structurally cannot keep by the same
+// means the title itself can't: FSL source is finite text, so a machine
+// compiled from it can only ever declare a finite number of states - there
+// is no such thing as an infinite `states()` array, in this format or any
+// other. What "neverending" CAN honestly mean, in a finite grammar, is not
+// infinite STATES but an unbounded WALK: a cycle. Below, Bastian opens the
+// book, Fantasia nearly dissolves into the Nothing, the Childlike Empress
+// gets her new name, Fantasia is saved, and the last page is turned - six
+// chosen actions, one linear pass, all the states this file will ever have.
+// Then the tension resolves exactly the way the real book's own final line
+// does: a forced edge (`~>`), no action, no choice, straight from "the last
+// page" back to "Bastian in the attic." The story doesn't ask whether you
+// want to reread it. It just starts again.
+//
+// Showcase: `fslExplain` reports a small, fixed, finite state count -
+// verified below - while `fslSimulate` can walk the same six-state loop as
+// many times as patience allows, landing back on identical states with
+// identical names every circuit. Finite graph, unbounded walk: that is the
+// most a finite grammar can honestly offer a title like this one.
+
+machine_name    : "The NeverEnding Story";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"Bastian in the attic"                     'open the book'         -> "the book is opened";
+"the book is opened"                       'begin reading'         -> "Fantasia";
+"Fantasia"                                 'watch the Nothing spread' -> "the Nothing spreads";
+"the Nothing spreads"                      'reach the Empress'     -> "the Childlike Empress needs a new name";
+"the Childlike Empress needs a new name"   'speak the name aloud'  -> "Fantasia is saved";
+"Fantasia is saved"                        'turn to the last page' -> "the last page";
+
+// the book's own final line invites a reread - forced, because the story
+// doesn't ask, it just begins again.
+"the last page" ~> "Bastian in the attic";

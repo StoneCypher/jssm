@@ -1,0 +1,45 @@
+// "Stone Soup" - European folk tale (widely attested; this telling follows
+// the common "hungry travelers, one stone, a whole village" shape rather
+// than any single national variant)
+//
+// Where for_want_of_a_nail.fsl and old_lady_swallowed_a_fly.fsl escalate
+// toward disaster, this one escalates toward dinner. Every edge here is
+// chosen (`->`) - nobody is forced to contribute a carrot, that is exactly
+// the con - and every edge shares the identical action label, `'add an
+// ingredient, just to help'`, reused across four different (source,
+// target) pairs the same way four_yorkshiremen.fsl reuses `'you were
+// lucky'`. The repetition IS the running gag: each villager insists their
+// own addition is the one that will finally make the soup work, and the
+// machine records all four insistences with the same undecorated verb,
+// because from the topology's point of view they are the same move, made
+// four times, by four different people who each think they are the
+// exception.
+//
+// The showcase: `fslSimulate` walks all four identical additions plus the
+// closing share, landing cleanly on a communal terminal state - no forced
+// edges anywhere in this file, because nothing about generosity, even
+// self-congratulatory generosity, needs to be involuntary for the joke to
+// land. The stone never does anything. The soup gets made anyway.
+
+machine_name    : "Stone Soup";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"just a stone and a pot of water"
+  'add an ingredient, just to help' -> "stone soup with carrots";
+
+"stone soup with carrots"
+  'add an ingredient, just to help' -> "stone soup with carrots and cabbage";
+
+"stone soup with carrots and cabbage"
+  'add an ingredient, just to help' -> "stone soup with carrots, cabbage, and barley";
+
+"stone soup with carrots, cabbage, and barley"
+  'add an ingredient, just to help' -> "a real stew, somehow, from a stone";
+
+"a real stew, somehow, from a stone"
+  'ladle it out for everyone' -> "the whole village eats together, nobody mentions the stone";

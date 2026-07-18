@@ -1,0 +1,38 @@
+// "Have You Tried Turning It Off And On Again?" - The IT Crowd (Roy's line)
+//
+// Four completely different disasters, one universal fix: `'have you
+// tried turning it off and on again?'` is bound as the SAME action label
+// from four unrelated broken states, and every single one of them
+// converges on the identical target, "it's working now". The graph does
+// not distinguish a frozen computer from a blue screen from a
+// spiritually jammed printer - Roy's script does not either. That is the
+// joke rendered as topology: four-to-one convergence under one label, no
+// branching diagnostic logic required because there was never any
+// diagnosis in the first place.
+//
+// It is also a genuine cycle, not a one-shot fix: `'it won't last,
+// though'` sends "it's working now" back into "computer frozen", so the
+// SAME machine gets to perform the SAME universal repair again, on a
+// state it has already fixed once before. fslSimulate can walk a full
+// lap - break, fix, break, fix - and land on identical legalNext each
+// time, which is the whole point: nothing was ever learned.
+
+machine_name    : "Have You Tried Turning It Off And On Again?";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"computer frozen"
+  'have you tried turning it off and on again?' -> "it's working now";
+"wifi dropped"
+  'have you tried turning it off and on again?' -> "it's working now";
+"printer jammed (spiritually)"
+  'have you tried turning it off and on again?' -> "it's working now";
+"blue screen of doom"
+  'have you tried turning it off and on again?' -> "it's working now";
+
+"it's working now"
+  'it won\'t last, though' -> "computer frozen";

@@ -1,0 +1,51 @@
+// "99 Bottles of Beer" - traditional folk song (round-the-campfire /
+// round-the-bus-seat variant)
+//
+// A countdown loop is really a chain, not a cycle - each verse takes one
+// bottle off the wall and hands you a shorter version of the same
+// problem, until the problem runs out honestly. That's the whole
+// showcase: unlike almost everything else in this batch,
+// `bottles_0` has NO outbound edge at all. It is a genuine terminal,
+// reached by exhausting the chain rather than by being walled off from
+// it - the rarest thing in this entire batch, next to none of the loop
+// jokes shipped alongside it.
+//
+// Ninety-nine verses of "take one down, pass it around" is the same
+// three words with a smaller number attached, ninety-six times in a row,
+// so this file unrolls a tasteful subset instead of typing that edge out
+// literally: the top of the count, then a single compressing edge with a
+// comment marking exactly what it stands in for, then the bottom of the
+// count all the way to the honest zero. That compressing edge is an
+// abridgement of length, not of mechanism - relative jumps like `+1`
+// parse but don't compile to working edges in this jssm build, so this
+// is hand-unrolled the whole way, just not at every single number.
+
+machine_name     : "99 Bottles of Beer";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+bottles_99 'take one down, pass it around' -> bottles_98;
+
+// the next ninety-four verses are exactly the edge above, over and over,
+// with only the number changing: "bottles_98 -> bottles_97", then
+// "97 -> 96", all the way down to "5 -> 4". reproducing all ninety-six
+// of those edges here would just be this file typing the same three
+// words repeatedly with a smaller number each time - so one edge stands
+// in for the whole run, abridged for file sanity, not for honesty.
+bottles_98 'take one down, pass it around' -> bottles_4;
+
+bottles_4 'take one down, pass it around' -> bottles_3;
+bottles_3 'take one down, pass it around' -> bottles_2;
+bottles_2 'take one down, pass it around' -> bottles_1;
+
+// grammar's own joke: the song downgrades "bottles" the moment there's
+// only one of them left to sing about.
+bottles_1 'take it down, pass it around' -> bottles_0;
+
+// and here the song, unlike the folklore shelved around it, actually
+// stops. bottles_0 has no outbound edge anywhere in this file - a
+// genuinely honest terminal.

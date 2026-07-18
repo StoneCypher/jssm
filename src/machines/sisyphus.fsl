@@ -1,0 +1,31 @@
+// "Sisyphus" - Greek myth, by way of Camus
+//
+// Four chosen heaves get the boulder from the base to the summit - real
+// effort, real choice, one action name per stretch of slope. Then the myth
+// closes its one hand: "the summit" has exactly one outbound edge in this
+// entire file, and it is forced (`~>`), not chosen. That is the whole
+// curse, rendered as topology rather than told as backstory - Sisyphus
+// doesn't get an action to decline the boulder's return, or even one to
+// linger at the top a while first, because no such edge exists to decline.
+// jssm's own legality rules enforce the punishment for free: `fslSimulate`
+// can walk him up choosing every heave, but per this project's forced-edge
+// rule, it can never walk him back down either, not even by naming "the
+// base of the mountain" as the destination - a forced-only edge binds to
+// `force_transition` alone, so the only way to watch the boulder fall is to
+// force it yourself, same as the gods do, over and over, forever.
+
+machine_name    : "Sisyphus";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the base of the mountain"    'heave'            -> "a quarter up the slope";
+"a quarter up the slope"      'heave again'       -> "halfway up the slope";
+"halfway up the slope"        'heave harder'      -> "three-quarters up the slope";
+"three-quarters up the slope" 'one final heave'   -> "the summit";
+
+// the one outbound edge at the summit, and it is not a choice.
+"the summit" ~> "the base of the mountain";

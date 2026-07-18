@@ -1,0 +1,42 @@
+// "Rickroll" - internet bait-and-switch meme (circa 2007), built on the
+// same source material as `never_gonna_give_you_up.fsl` in this batch
+//
+// The prank's topology is a single merge, in the tradition of
+// `king_midas.fsl`: four plausible, differently-worded, differently
+// motivated link-click actions, all sitting on the exact same source
+// state, all landing on the exact same target state regardless of what
+// any of them claimed to lead to. The destination itself refuses to be
+// skipped - a real, chosen self-loop absorbs any attempt to seek past it,
+// same shape as the shop's inexhaustible inventory in `cheese_shop.fsl` -
+// and the only way out is closing the tab, which does not end anything,
+// it just returns you to a fresh page of equally plausible links.
+// `fslExplain` reports zero terminal states on purpose: there is no
+// version of this graph where you get out for good, only one where you
+// get out for now.
+
+machine_name    : "Rickroll";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// four distinct pitches, one shared, secret destination.
+"browsing: several promising links visible"
+  'click the link promising exclusive footage' -> "now playing: the famous video";
+"browsing: several promising links visible"
+  'click the link promising the full article' -> "now playing: the famous video";
+"browsing: several promising links visible"
+  'click the link promising a prize claim' -> "now playing: the famous video";
+"browsing: several promising links visible"
+  'click the shortened link from a friend, surely safe this time' -> "now playing: the famous video";
+
+// the video refuses to be skipped - a real, chosen action, and it goes
+// nowhere but back to itself.
+"now playing: the famous video"
+  'try to seek ahead' -> "now playing: the famous video";
+
+// closing the tab does not end the graph, it just resets the bait.
+"now playing: the famous video"
+  'close the tab, resigned' -> "browsing: several promising links visible";

@@ -1,0 +1,43 @@
+// "Murphy's Law" - American engineering folklore ("anything that can go
+// wrong, will go wrong"), attributed to Edward A. Murphy Jr. after a 1949
+// Air Force deceleration-sled test, though the aphorism itself long
+// predates him. It is stated as if it were a probability - given enough
+// trials, failure shows up eventually - but the folk version treats it as
+// a certainty about THIS trial, the one you are currently trusting.
+//
+// The topology joke takes that certainty literally rather than
+// statistically. Three unrelated, ordinary, independently fallible systems
+// - buttered toast, an umbrella, a queue - each get one chosen action that
+// looks like ordinary competence: buttering, packing, picking a line. Each
+// of those competent-looking states has exactly one outgoing edge, and it
+// is forced (~>), unlabeled, into its own flavor of failure - no
+// alternative chosen action ever exists there to keep things fine. All
+// three failures then drain into a single shared terminal, "Murphy nods,"
+// because the law was never really about toast, umbrellas, or queues in
+// particular - it is one law wearing three costumes, and every fallible
+// edge in this file eventually forces.
+
+machine_name     : "Murphy's Law";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["an ordinary day"];
+
+// three independent, ordinary, fallible systems - chosen with confidence.
+"an ordinary day" 'butter the toast'                -> "toast buttered, holding it flat";
+"an ordinary day" 'carry the umbrella, just in case' -> "sky clear, umbrella in hand";
+"an ordinary day" 'pick the fastest-looking queue'   -> "confident, third in line";
+
+// each one has exactly one way forward, and it is not a choice.
+"toast buttered, holding it flat" ~> "toast lands butter-side down";
+"sky clear, umbrella in hand"     ~> "forgotten on the bus";
+"confident, third in line"        ~> "line stops moving entirely";
+
+// three different disasters, one shared acknowledgment.
+"toast lands butter-side down" ~> "Murphy nods";
+"forgotten on the bus"          ~> "Murphy nods";
+"line stops moving entirely"    ~> "Murphy nods";

@@ -1,0 +1,20 @@
+// "Why Did the Chicken Cross the Road?" - anonymous anti-joke
+//
+// The anti-joke works by refusing the setup: there is no trick, no pun, no
+// hidden mechanism, just the literal answer everyone already knows. This
+// file takes that literally, as a topology: two states, one edge, nothing
+// else - not a decoy action, not a self-loop, not a second terminal. The
+// punchline is not written in prose anywhere in this file; it is
+// `fslExplain`s own summary line, which - read cold, with no joke framing
+// around it at all - already says exactly what the anti-joke says: it
+// started on one side, and it ends on the other. Deadpan is the bit.
+
+machine_name    : "Why Did the Chicken Cross the Road?";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"one side of the road" 'cross the road' -> "the other side of the road";

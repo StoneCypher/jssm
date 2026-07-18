@@ -1,0 +1,48 @@
+// "The DMV" - modern life
+//
+// The hopeful path is a plain queue: take a number, wait through three
+// intermediate positions, step up to the window - four chosen actions,
+// linear, honest. But every single state in this file, including the
+// window itself, mid-transaction, also carries its own forced (`~>`) edge
+// straight to "the window closes." A state machine has no clock, so "it is
+// now noon" cannot be modeled as a timer - the only honest way a memoryless
+// graph can express "this happens regardless of where you are" is to wire
+// the same forced edge onto every state that exists, so no chosen path,
+// however far along the queue, can ever out-run it. Reaching the window is
+// a real, reachable success state right up until the instant it isn't -
+// and that instant is not something any visitor's choices control.
+//
+// Showcase: `fslSimulate` can walk the whole queue by choice, but it can
+// never choose "the window closes" from anywhere - naming it directly is
+// rejected at every single state that has it, because a forced-only edge
+// is not a legal move no matter what stands next to it. Only
+// `force_transition`, driven from outside (the DMV's clock, not the
+// visitor), actually closes the window.
+
+machine_name    : "The DMV";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the queue: chosen, linear, hopeful.
+"the lobby"  'take a number'          -> "number 94";
+"number 94"  'wait through the queue' -> "number 63";
+"number 63"  'wait through the queue' -> "number 32";
+"number 32"  'wait through the queue' -> "number 1";
+"number 1"   'step up to the window' -> "the window";
+
+// noon does not check your position in line - every state gets the same
+// forced edge, including the window itself.
+"the lobby"  ~> "the window closes";
+"number 94"  ~> "the window closes";
+"number 63"  ~> "the window closes";
+"number 32"  ~> "the window closes";
+"number 1"   ~> "the window closes";
+"the window" ~> "the window closes";
+
+// the only way forward from here is to accept it and try again tomorrow.
+"the window closes" 'accept it' -> "come back tomorrow";
+"come back tomorrow" 'take a number' -> "the lobby";

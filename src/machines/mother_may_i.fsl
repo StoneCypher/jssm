@@ -1,0 +1,48 @@
+// "Mother, May I?" - playground game, permission-request protocol
+//
+// Every step forward requires an explicit request-and-grant round trip:
+// "Mother, may I take two steps?" granted, only then does progress happen.
+// This machine's twist versus simon_says.fsl's flat auth-prefix check is
+// REVOCATION: taking the steps without asking doesn't eject you from the
+// game, it unwinds your progress - a chosen edge from every advanced state
+// straight back to "start line," regardless of how far you had gotten. Three
+// different states, three different distances, one shared revocation
+// target: however much ground you covered, skipping the permission round
+// trip is worth exactly the same penalty every time. A denied request, by
+// contrast, spends a turn but costs no ground - a self-loop at the start
+// line shows a plain "no" is not the same failure mode as skipping the ask
+// entirely.
+//
+// The showcase: fslSimulate walks the fully-authorized path to the finish
+// line, then walks two authorized steps followed by one un-asked step from
+// "four steps taken" and lands back at "start line" - progress erased,
+// game continuing, nobody eliminated.
+
+machine_name    : "Mother, May I?";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"start line"
+  'ask mother, may I take a shortcut, denied' -> "start line";
+
+"start line"
+  'ask mother, may I take two giant steps, granted' -> "two steps taken";
+"two steps taken"
+  'took the steps without asking, mother revokes, back to start' -> "start line";
+
+"two steps taken"
+  'ask mother, may I take two more steps, granted' -> "four steps taken";
+"four steps taken"
+  'took the steps without asking, mother revokes, back to start' -> "start line";
+
+"four steps taken"
+  'ask mother, may I take two more steps, granted' -> "six steps taken";
+"six steps taken"
+  'took the steps without asking, mother revokes, back to start' -> "start line";
+
+"six steps taken"
+  'ask mother, may I take the last two steps, granted' -> "finish line, you win";

@@ -1,0 +1,46 @@
+// "The Lumberjack Song" - Monty Python's Flying Circus (1969)
+//
+// The verse drifts - sleeps all night, works all day, then the reveal
+// about the clothes, then the girlfriend walking out - but the backing
+// chorus never gets the memo. This file models the drift as a real chain
+// of distinct states, each one reached by a chosen `'reveal another
+// detail'` action, and layers one more action on top of every state in
+// that chain under the exact same label and the exact same self-loop
+// shape: `'sing the chorus: hes a lumberjack and hes okay'`. The chorus's
+// action is not four different lyrics tracking four different truths -
+// it is one action, unmodified, replayed against whichever state happens
+// to be current, including the one where that claim just stopped being
+// true. The girlfriend's exit is FORCED - nobody in the song decides it,
+// it simply follows from the reveal - and the chorus keeps its self-loop
+// right on through that edge, singing the machine's very first premise
+// at its very last state.
+//
+// Showcase: raw jssm confirms the chorus action is bound, identically
+// worded, at all four verse states; `fslSimulate` drifts the persona
+// forward and shows the chorus self-loop still legal - and still
+// unchanged - one step past the forced exit.
+
+machine_name    : "The Lumberjack Song";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// the chorus: one action, one wording, self-looped identically onto
+// every stage of the drift below - it never updates to match the verse.
+"lumberjack, sleeps all night and works all day"    'sing the chorus: hes a lumberjack and hes okay' -> "lumberjack, sleeps all night and works all day";
+"lumberjack, chops down trees and eats his lunch"   'sing the chorus: hes a lumberjack and hes okay' -> "lumberjack, chops down trees and eats his lunch";
+"lumberjack, wears high heels, suspenders and a bra" 'sing the chorus: hes a lumberjack and hes okay' -> "lumberjack, wears high heels, suspenders and a bra";
+"lumberjack, girlfriend gone, chorus still going"    'sing the chorus: hes a lumberjack and hes okay' -> "lumberjack, girlfriend gone, chorus still going";
+
+// the drift: a real, chosen chain, the identity changing verse to verse.
+"lumberjack, sleeps all night and works all day"
+  'reveal another detail' -> "lumberjack, chops down trees and eats his lunch";
+"lumberjack, chops down trees and eats his lunch"
+  'reveal another detail' -> "lumberjack, wears high heels, suspenders and a bra";
+
+// nobody in the song chooses this. it is simply what the reveal costs.
+"lumberjack, wears high heels, suspenders and a bra"
+  ~> "lumberjack, girlfriend gone, chorus still going";

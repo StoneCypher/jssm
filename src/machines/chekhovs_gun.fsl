@@ -1,0 +1,46 @@
+// "Chekhov's Gun" - Anton Chekhov's own dramaturgical rule, stated in
+// letters to fellow writers more than once: "One must not put a loaded
+// rifle on the stage if no one is thinking of firing it." If a gun is
+// shown hanging on the wall in Act I, the play owes the audience its
+// discharge by Act III - and if it is never going to fire, it should never
+// have been hung there at all.
+//
+// The topology joke encodes this as an actual liveness property, not just
+// a comment about one. Two branches leave Act I: hang the gun and remark
+// on it, or skip the prop and say nothing. Only the branch that shows the
+// gun ever reaches a state - "act III: gun still on the wall" - whose
+// single available edge is a forced transition (~>) to "the gun fires."
+// No chosen action exists there; the setup, once made, is not optional to
+// pay off. The branch that skipped the prop reaches its own Act III with
+// no obligations at all, and its own curtain is a perfectly ordinary
+// chosen action - because nothing was promised, so nothing was owed. The
+// rule is not asserted in prose; it is the literal difference in what
+// legalNext offers at the two Act III states.
+
+machine_name     : "Chekhov's Gun";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["act I: the drawing room"];
+
+// the branch that sets up the promise.
+"act I: the drawing room"        'hang the gun on the wall, remark on it' -> "act I: gun shown, condition armed";
+"act I: gun shown, condition armed" 'proceed to act II'                   -> "act II: rising tension, gun waiting";
+"act II: rising tension, gun waiting" 'curtain falls on act II'           -> "act III: gun still on the wall";
+
+// the promise, once made, is not chosen to keep - it is the only edge left.
+"act III: gun still on the wall" ~> "the gun fires";
+"the gun fires" 'curtain' -> "curtain call, earned";
+
+// the branch that makes no promise at all.
+"act I: the drawing room"        'skip the prop, no remark'   -> "act I: no gun, no condition";
+"act I: no gun, no condition"    'proceed to act II'           -> "act II: rising tension, nothing waiting";
+"act II: rising tension, nothing waiting" 'curtain falls on act II' -> "act III: no obligations";
+
+// nothing was set up, so nothing is owed - the curtain here is an
+// ordinary, freely available choice.
+"act III: no obligations" 'curtain, quietly' -> "curtain call, unearned";

@@ -1,0 +1,56 @@
+// "Romeo and Juliet" - William Shakespeare (c. 1597)
+//
+// The tragedy needs no potions and no daggers to fail as engineering: it
+// fails as a message race. Friar Lawrence sends a sealed letter to Romeo in
+// Mantua explaining that Juliet only sleeps; ordinary gossip about her
+// funeral travels the same road and arrives first. The graph below has
+// exactly one fork - a single state offering two equally legal, equally
+// chosen actions, the letter winning and the rumor winning - and it is the
+// caller, not the machine, who decides which one fires, exactly the way an
+// unordered channel decides which of two messages a listener sees first.
+//
+// One branch of that fork stays free choice all the way to a quiet,
+// uncelebrated ending. The other is free choice for exactly one more hop,
+// then forced end to end - once Romeo acts on stale information, nothing
+// that follows is optional again. Showcase: two independent from()
+// references seated at the identical fork state take the two different
+// branches and never converge; force_transition walks the misinformed
+// branch's all-forced tail, since fslSimulate cannot cross a forced edge
+// under any name.
+
+machine_name     : "Romeo and Juliet";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+// the setup: free choice, no fate involved yet.
+"Verona, two feuding houses, an uneasy peace"
+  'marry in secret, with the Friar presiding' -> "married in secret, the feud unresolved";
+
+"married in secret, the feud unresolved"
+  'a duel goes wrong, Romeo banished' -> "Romeo banished to Mantua, Juliet promised to another";
+
+"Romeo banished to Mantua, Juliet promised to another"
+  'drink the sleeping draught, feigning death' -> "feigning death in the tomb, the plan sealed";
+
+// the fork: one state, two equally legal actions. the machine never picks
+// a winner - whichever action the caller invokes is simply what happened.
+"feigning death in the tomb, the plan sealed"
+  'the sealed letter reaches Romeo first, the plan still intact' -> "Romeo informed, the plan intact";
+"feigning death in the tomb, the plan sealed"
+  'word of the death reaches Romeo first, the letter still delayed' -> "Romeo misinformed, believing the death is real";
+
+// branch one: free choice, all the way to a quiet, uncelebrated ending.
+"Romeo informed, the plan intact"
+  'wait in hiding for her to wake, exactly as arranged' -> "reunited at the tomb, both alive";
+
+// branch two: one more free choice, then nothing is optional again.
+"Romeo misinformed, believing the death is real"
+  'buy poison from the apothecary' -> "at the tomb, poison already in hand";
+
+"at the tomb, poison already in hand"      ~> "dead by poison, moments before she wakes";
+"dead by poison, moments before she wakes" ~> "she wakes, finds him already dead";
+"she wakes, finds him already dead"        ~> "dead by her own hand, the tomb sealed on both";

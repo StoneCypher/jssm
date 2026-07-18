@@ -1,0 +1,40 @@
+// "The Moth Joke" - in the style of Norm Macdonald
+//
+// A shaggy dog story does not take questions. Every edge below is forced
+// (`~>`), chained in one long statement the way dead_parrot.fsl chains its
+// euphemism ladder - there is not one chosen action anywhere in the telling,
+// because the listener (and the moth's podiatrist) never gets a turn to
+// interrupt, redirect, or skip ahead. Twelve beats of digression - a
+// failing marriage, a grandfather's war, a debt, a long pause - and every
+// one of them happens TO the listener, not by their choice, before the
+// entire epic finally, forcibly, resolves into a punchline four words long:
+// "the light was on." The joke IS the ratio: the states above the terminal
+// outnumber it twelve to one, and the terminal itself is the only one of
+// them with nothing further to say - zero outbound edges, checked below.
+//
+// Showcase: because every edge here is forced, `fslSimulate` cannot advance
+// this machine even one step by naming any destination directly, including
+// the punchline itself - there is no legal shortcut through a shaggy dog
+// story. Only `force_transition`, walked the long way, gets there.
+
+machine_name    : "The Moth Joke";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"a moth walks into a podiatrist's office"
+  ~> "the podiatrist looks up from his newspaper"
+  ~> "the moth sits down without being asked"
+  ~> "a long, uncomfortable silence"
+  ~> "the moth describes his failing marriage"
+  ~> "the moth describes his mounting debts"
+  ~> "the moth describes a war his grandfather fought in, for some reason"
+  ~> "the podiatrist tries three times to ask about the moth's feet"
+  ~> "the moth ignores him and keeps talking"
+  ~> "the moth arrives, at last, at why he came in tonight"
+  ~> "the podiatrist asks the obvious question"
+  ~> "the moth pauses for dramatic effect"
+  ~> "the light was on";

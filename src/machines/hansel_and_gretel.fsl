@@ -1,0 +1,41 @@
+// "Hansel and Gretel" - German fairy tale, collected by the Brothers Grimm
+// (1812)
+//
+// Hansel's breadcrumb trail is an audit log of the walk into the forest,
+// and "follow the crumb trail home" is a real, bound, working action right
+// up until a forced (`~>`) event - the birds eating every crumb - removes
+// it from the state's action set entirely. Not rejected, not blocked: the
+// log is simply gone, and the action that read it goes with it, the same
+// structural deprecation boy_who_cried_wolf.fsl uses for a lost alarm.
+// What is left afterward is a graph with no way back, only forward, into
+// a fork the children never asked for.
+
+machine_name    : "Hansel and Gretel";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"home, pockets full of crumbs"
+  'walk into the forest, dropping crumbs behind' -> "deep in the woods, the trail laid behind us";
+
+// the log is intact here: the audit trail exists as a working action.
+"deep in the woods, the trail laid behind us"
+  'follow the crumb trail back home' -> "home again, safe";
+
+// forced, unchosen, and total: the trail is destroyed, not merely blocked.
+"deep in the woods, the trail laid behind us" ~> "birds descend and eat every last crumb";
+
+// no 'follow the crumb trail back home' edge exists from here at all -
+// the audit log the action depended on is gone, so the action is gone
+// with it. only forward remains.
+"birds descend and eat every last crumb"
+  'press on deeper, no way back now' -> "the candy house, gleaming in the moonlight";
+
+"the candy house, gleaming in the moonlight"
+  'shove the witch into her own oven' -> "free, and laden with the witches jewels";
+
+"the candy house, gleaming in the moonlight"
+  'stay and nibble the walls'         -> "captured, locked in the witches cage";

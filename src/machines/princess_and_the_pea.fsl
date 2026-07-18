@@ -1,0 +1,47 @@
+// "The Princess and the Pea" - Hans Christian Andersen (1835)
+//
+// The tale is a sensitivity test, and a real one needs both a signal and a
+// control. Twenty mattresses are stacked, one at a time, in a plain linear
+// chain - the point being that nothing about the chain itself filters,
+// dampens, or discards anything; it is twenty identical passthrough hops,
+// none of them a self-loop, none of them a branch. Only at the very end,
+// after all twenty layers, does the graph fork - and it forks on WHO tries
+// to sleep, not on which layer they are tested at. The true princess and an
+// impostor both traverse the identical twenty-layer chain; the layers never
+// discriminate. The verdict - bruised and sleepless, or rested and
+// undetected - is decided once, at the one state built to measure it.
+
+machine_name    : "The Princess and the Pea";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"bed frame, pea placed for the test"       'stack mattress 1'  -> "mattress 1 stacked";
+"mattress 1 stacked"                       'stack mattress 2'  -> "mattress 2 stacked";
+"mattress 2 stacked"                       'stack mattress 3'  -> "mattress 3 stacked";
+"mattress 3 stacked"                       'stack mattress 4'  -> "mattress 4 stacked";
+"mattress 4 stacked"                       'stack mattress 5'  -> "mattress 5 stacked";
+"mattress 5 stacked"                       'stack mattress 6'  -> "mattress 6 stacked";
+"mattress 6 stacked"                       'stack mattress 7'  -> "mattress 7 stacked";
+"mattress 7 stacked"                       'stack mattress 8'  -> "mattress 8 stacked";
+"mattress 8 stacked"                       'stack mattress 9'  -> "mattress 9 stacked";
+"mattress 9 stacked"                       'stack mattress 10' -> "mattress 10 stacked";
+"mattress 10 stacked"                      'stack mattress 11' -> "mattress 11 stacked";
+"mattress 11 stacked"                      'stack mattress 12' -> "mattress 12 stacked";
+"mattress 12 stacked"                      'stack mattress 13' -> "mattress 13 stacked";
+"mattress 13 stacked"                      'stack mattress 14' -> "mattress 14 stacked";
+"mattress 14 stacked"                      'stack mattress 15' -> "mattress 15 stacked";
+"mattress 15 stacked"                      'stack mattress 16' -> "mattress 16 stacked";
+"mattress 16 stacked"                      'stack mattress 17' -> "mattress 17 stacked";
+"mattress 17 stacked"                      'stack mattress 18' -> "mattress 18 stacked";
+"mattress 18 stacked"                      'stack mattress 19' -> "mattress 19 stacked";
+"mattress 19 stacked"                      'stack mattress 20' -> "mattress 20 stacked, the bed made up for the night";
+
+// the fork happens once, on who sleeps - not on which layer they reach.
+"mattress 20 stacked, the bed made up for the night"
+  'the true princess tries to sleep' -> "morning: bruised black and blue, sensitivity confirmed";
+"mattress 20 stacked, the bed made up for the night"
+  'an impostor tries to sleep' -> "morning: rested and refreshed, sensitivity absent";

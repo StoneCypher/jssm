@@ -1,0 +1,45 @@
+// "Uno" (Mattel, originally Merle Robbins, 1971), specifically the Reverse
+// card, whose entire function is to flip which direction turn order flows
+// around the table. With three or more players, playing Reverse does not
+// skip anyone and does not target anyone - it just changes which neighbor
+// is "next."
+//
+// The topology joke is to stop treating "direction" as an invisible
+// variable sitting beside the graph and make it part of the state itself:
+// every player has a forward-facing state and a mirror-image
+// reverse-facing state, and the two triangles of 'play a card' edges run
+// in OPPOSITE rotational order around the same three players. 'play
+// reverse' never advances a turn at all - it is not a member of either
+// triangle, it is the one action that crosses BETWEEN them, always
+// landing on the same player's mirrored state. That is the whole card,
+// reduced to an edge: reverse does not move you around the table, it
+// moves the table around you. Playing it twice in a row, with no card
+// played between, is its own undo - the same authentic property real
+// multi-player Uno has, where two reverses cancel back to the original
+// direction.
+
+machine_name    : "Uno: the Reverse Card";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+// forward triangle: one -> two -> three -> one
+"player one, forward"   'play a card' -> "player two, forward";
+"player two, forward"   'play a card' -> "player three, forward";
+"player three, forward" 'play a card' -> "player one, forward";
+
+// reverse triangle: same three players, opposite rotation: one -> three -> two -> one
+"player one, reverse"   'play a card' -> "player three, reverse";
+"player three, reverse" 'play a card' -> "player two, reverse";
+"player two, reverse"   'play a card' -> "player one, reverse";
+
+// the reverse card itself: crosses between triangles, same player each time.
+"player one, forward"   'play reverse' -> "player one, reverse";
+"player one, reverse"   'play reverse' -> "player one, forward";
+"player two, forward"   'play reverse' -> "player two, reverse";
+"player two, reverse"   'play reverse' -> "player two, forward";
+"player three, forward" 'play reverse' -> "player three, reverse";
+"player three, reverse" 'play reverse' -> "player three, forward";

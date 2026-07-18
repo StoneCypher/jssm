@@ -1,0 +1,39 @@
+// "The Holy Hand Grenade of Antioch" - Monty Python and the Holy Grail
+// (1975), the Book of Armaments counting liturgy
+//
+// The Brother Maynard bit is a counting protocol with an oddly narrow
+// legal input: not "count accurately," but "reach exactly three, by
+// passing through two on the way, and stop." Every other count that
+// sounds close - stopping AT two, skipping straight to four, continuing
+// on to five - is modeled here as its own dead-end state, reachable but
+// terminal, going nowhere further. Only the one path that touches one,
+// passes through two without lingering, and lands on three has an edge
+// out the other side at all.
+//
+// Showcase: `fslExplain` reports four terminals for a five-state main
+// chain - three of them are counting mistakes (two, four, five), and only
+// the fourth, reached by the exact prescribed count, has the
+// `'throw the holy hand grenade'` action available to leave it by.
+
+machine_name    : "The Holy Hand Grenade of Antioch";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the pin, held" 'count one' -> "one";
+
+// two is legal only as a step toward three - stopping here is a real,
+// reachable, but dead-end state.
+"one" 'count two, en route to three' -> "two, en route";
+"one" 'skip ahead to four'           -> "four, shalt thou not count";
+
+"two, en route" 'stop, satisfied with two'          -> "two, a forbidden resting place";
+"two, en route" 'count three, the number of the counting' -> "three, the number of the counting";
+
+// three is the only number with a way out. four was already a dead end
+// above; five is worse, and just as dead.
+"three, the number of the counting" 'count onward to five, right out' -> "five, right out";
+"three, the number of the counting" 'throw the holy hand grenade'      -> "detonation, precisely on schedule";

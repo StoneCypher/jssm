@@ -1,0 +1,42 @@
+// "Icarus" - Greek myth, by way of Ovid's Metamorphoses. Daedalus builds
+// wings of feathers and wax for himself and his son to escape Crete, and
+// warns Icarus of two symmetric dangers: fly too low and sea spray soaks
+// the feathers, fly too high and the sun softens the wax. Icarus, delighted
+// by flight, ignores the warning about height. The wax gives way and he
+// falls into the sea that now bears his name.
+//
+// The topology joke is that the myth's two warnings are NOT actually
+// symmetric, and the graph says so structurally rather than in prose. The
+// low-altitude mistake - skimming the water - is a chosen, recoverable
+// loop: "sea spray, feathers damp" has a chosen action right back to safe
+// altitude, because that danger is a warning you can act on after the
+// fact. The high-altitude mistake has no such loop. The instant "cruising
+// altitude" is left for the sun, the destination state has no chosen exit
+// at all - only two forced transitions (~>) in a row, straight into the
+// sea - because past that particular threshold there is nothing left to
+// decide; the height alone already settled it before the wax noticed.
+
+machine_name     : "Icarus";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states: ["workshop, wings fitted"];
+
+"workshop, wings fitted" 'leap from the tower' -> "low altitude, safe";
+
+// the low warning: survivable, and recoverable by choice.
+"low altitude, safe"          'skim too close to the water'  -> "sea spray, feathers damp";
+"sea spray, feathers damp"    'climb back up, chastened'     -> "low altitude, safe";
+
+// the sane middle path, always available, never mandatory.
+"low altitude, safe"          'climb to cruising altitude'   -> "cruising altitude, safe";
+"cruising altitude, safe"     'hold this height'              -> "cruising altitude, safe";
+
+// the high warning: past this one chosen action, nothing is chosen again.
+"cruising altitude, safe"     'climb toward the sun, thrilled by the height' -> "past the threshold, wax already softening";
+"past the threshold, wax already softening" ~> "wax gives way entirely";
+"wax gives way entirely" ~> "the sea";

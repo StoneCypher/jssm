@@ -1,0 +1,29 @@
+// "Tantalus" - Greek myth
+//
+// Tantalus stands chin-deep in water, under fruit-heavy branches, and
+// starves and thirsts forever: reach for the fruit and the branch lifts
+// away; bend to drink and the water recedes. The reaching and the
+// bending are both real, legal, chosen actions - they exist and they
+// fire - but neither of them is the one that would actually satisfy
+// him, because that action was never wired into this file at all.
+// Grasping the fruit or drinking the water are not rejected by some rule
+// checked at runtime; those names are simply not bound to any edge here,
+// and no amount of looping changes that.
+//
+// The showcase is fslSimulate rejecting the same unbound action forever,
+// on every single pass through the loop - binding-time rejection is not
+// a one-time punishment here, it is the eternal one.
+
+machine_name     : "Tantalus";
+machine_author   : "John Haugeland <stonecypher@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+"beneath the branches, chin-deep in water" 'stretch toward the fruit' -> "branch lifts, fruit just out of reach";
+"branch lifts, fruit just out of reach" ~> "beneath the branches, chin-deep in water";
+
+"beneath the branches, chin-deep in water" 'bend to drink' -> "water recedes, pool just out of reach";
+"water recedes, pool just out of reach" ~> "beneath the branches, chin-deep in water";

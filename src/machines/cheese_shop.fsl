@@ -1,0 +1,54 @@
+// "The Cheese Shop" - Monty Python's Flying Circus, "Cheese Shop" sketch
+// (Series 3, Episode 6, 1972)
+//
+// The sketch's real structure is not a sequence of jokes, it's ONE joke
+// asked forty-odd different ways: every possible request, however
+// reasonable, resolves to the exact state it started from. This file wires
+// that literally - every `'ask for ...'` action is a self-loop, same
+// source, same target, distinguished only by which cheese it names. No
+// number of correctly-formed requests ever changes the customer's state,
+// because the shop's actual inventory (zero) was never a function of
+// which cheese got asked for. Ten of the sketch's requests are modeled
+// here as a tasteful, representative sample; the sketch itself runs past
+// forty (see the comment marker below) and every single one of them would
+// compile to the identical self-loop if added.
+//
+// Showcase: `fslExplain` reports one state with ten legal self-loop actions
+// plus one exit, and `fslSimulate` shows that walking any prefix of the ten
+// requests leaves `endState` unchanged throughout - the exhaustive
+// enumeration IS the joke, not a setup for one.
+
+machine_name    : "The Cheese Shop";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+"the cheese shop, hope undimmed"
+  'ask for red leicester' -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for tilsit'        -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for caerphilly'    -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for bel paese'     -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for red windsor'   -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for stilton'       -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for gruyere'       -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for emmental'      -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for gouda'         -> "the cheese shop, hope undimmed";
+"the cheese shop, hope undimmed"
+  'ask for cheddar'       -> "the cheese shop, hope undimmed";
+
+// ... (the actual sketch runs past forty cheeses; every one of them would
+// compile to the same self-loop shown above. this is a tasteful subset.)
+
+"the cheese shop, hope undimmed"
+  'give up, there is no cheese' -> "the street, hope dimmed at last";

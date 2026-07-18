@@ -1,0 +1,27 @@
+// "Rock, Paper, Scissors" - folk game, ancient lineage (documented in China
+// as early as the Han dynasty, formalized worldwide since), the textbook
+// example of a NONTRANSITIVE relation: rock beats scissors, scissors beats
+// paper, paper beats rock, and yet no throw is better than the other two -
+// dominance here simply refuses to compose into an ordering.
+//
+// The topology joke is that this machine has no branch points, no state
+// privileged over any other, and above all no terminal: three states,
+// three edges, each state with exactly one outgoing edge and exactly one
+// incoming edge, forming a single directed cycle of length three.
+// `fslExplain` reports zero terminals here, on purpose - "beats," in this
+// game, is not a partial order with a maximum element, it is a closed
+// loop, and the graph is the proof of that, not a metaphor for it. Try to
+// skip ahead - throw the counter to your own counter directly - and the
+// edge simply is not there: every state's `legalNext` is a singleton.
+
+machine_name    : "Rock, Paper, Scissors";
+machine_author  : "John Haugeland <stonecypher@gmail.com>";
+machine_license : MIT;
+machine_comment : "#madewithfsl";
+machine_language: en;
+machine_version : 1.0.0;
+fsl_version     : 1.0.0;
+
+rock     'covered by paper'   -> paper;
+paper    'sliced by scissors' -> scissors;
+scissors 'smashed by rock'    -> rock;
