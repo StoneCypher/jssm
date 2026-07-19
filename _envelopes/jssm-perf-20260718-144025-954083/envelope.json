@@ -1,0 +1,203 @@
+{
+  "meta": {
+    "base": "eafe53fa586ec23eda9d5422d4220dc5d3f969d7",
+    "head": "c9975786a5317d7bb58a883f201598072c4a5526",
+    "samples": 5,
+    "instanceType": "c8g.medium"
+  },
+  "verdict": {
+    "cases": [
+      {
+        "name": "Data-carrying basic hook, 100 cycles by transition",
+        "base_ops": 44983,
+        "head_ops": 41679,
+        "delta_pct": -7.344996998866238
+      },
+      {
+        "name": "Cycle a main transition tl 100 times by action v2",
+        "base_ops": 40610,
+        "head_ops": 37690,
+        "delta_pct": -7.190347205121891
+      },
+      {
+        "name": "Blind cycle a global-action traffic light 100 times by action v2",
+        "base_ops": 39912,
+        "head_ops": 37335,
+        "delta_pct": -6.456704750450992
+      },
+      {
+        "name": "Blind cycle an any-action traffic light 100 times by action",
+        "base_ops": 40322,
+        "head_ops": 37772,
+        "delta_pct": -6.324091066911364
+      },
+      {
+        "name": "Blind cycle an enter hooked traffic light 100 times by action",
+        "base_ops": 36791,
+        "head_ops": 34701,
+        "delta_pct": -5.680737136799761
+      },
+      {
+        "name": "Blind cycle an exit hooked traffic light 100 times by action",
+        "base_ops": 35559,
+        "head_ops": 33563,
+        "delta_pct": -5.613206220647375
+      },
+      {
+        "name": "Blind cycle a main-transition hooked light by transition",
+        "base_ops": 47902,
+        "head_ops": 45247,
+        "delta_pct": -5.542566072397812
+      },
+      {
+        "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+        "base_ops": 37618,
+        "head_ops": 35697,
+        "delta_pct": -5.106597905258121
+      },
+      {
+        "name": "Blind cycle a named-hooked traffic light 100 times by action v2",
+        "base_ops": 33814,
+        "head_ops": 32137,
+        "delta_pct": -4.9594842372981605
+      },
+      {
+        "name": "Blind cycle an enter hooked traffic light 100 times by transition",
+        "base_ops": 44168,
+        "head_ops": 42141,
+        "delta_pct": -4.58929541749683
+      },
+      {
+        "name": "Cycle a force-transition hooked light 100 times by force_transition v2",
+        "base_ops": 43719,
+        "head_ops": 42057,
+        "delta_pct": -3.8015508131476015
+      },
+      {
+        "name": "Cycle a forced transition tl 100 times by action v2",
+        "base_ops": 36926,
+        "head_ops": 35645,
+        "delta_pct": -3.4691003628879375
+      },
+      {
+        "name": "Blind cycle an any-transition traffic light 100 times by transition",
+        "base_ops": 43931,
+        "head_ops": 42562,
+        "delta_pct": -3.1162504837130953
+      },
+      {
+        "name": "Blind cycle an exit hooked traffic light 100 times by transition",
+        "base_ops": 43939,
+        "head_ops": 42639,
+        "delta_pct": -2.958647215457794
+      },
+      {
+        "name": "Compile `a -> b;` using .from",
+        "base_ops": 52268,
+        "head_ops": 50863,
+        "delta_pct": -2.6880691819086246
+      },
+      {
+        "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+        "base_ops": 48457,
+        "head_ops": 47530,
+        "delta_pct": -1.9130363002249418
+      },
+      {
+        "name": "Carry an after hook (timer-only, cannot fire in dispatch), 100 cycles by transition",
+        "base_ops": 53503,
+        "head_ops": 52484,
+        "delta_pct": -1.904566099097247
+      },
+      {
+        "name": "Carry a named hook that cannot fire, 100 cycles by transition v2",
+        "base_ops": 53643,
+        "head_ops": 52656,
+        "delta_pct": -1.8399418377048264
+      },
+      {
+        "name": "Rejected action, 100 calls by action",
+        "base_ops": 732013,
+        "head_ops": 719621,
+        "delta_pct": -1.6928661103013196
+      },
+      {
+        "name": "Kitchen sink (15 hooks) 100 times v2",
+        "base_ops": 19124,
+        "head_ops": 18811,
+        "delta_pct": -1.6366868855887888
+      },
+      {
+        "name": "Post global action hook, 100 cycles by action",
+        "base_ops": 52144,
+        "head_ops": 51326,
+        "delta_pct": -1.5687327401043265
+      },
+      {
+        "name": "Cycle a standard transition tl 100 times by action v2",
+        "base_ops": 37385,
+        "head_ops": 36990,
+        "delta_pct": -1.056573492042263
+      },
+      {
+        "name": "Blind cycle a traffic light 100 times by action",
+        "base_ops": 78492,
+        "head_ops": 78039,
+        "delta_pct": -0.5771288793762421
+      },
+      {
+        "name": "Post basic hook, 100 cycles by action",
+        "base_ops": 50793,
+        "head_ops": 50862,
+        "delta_pct": 0.1358454905203473
+      },
+      {
+        "name": "Post named hook, 100 cycles by action",
+        "base_ops": 47332,
+        "head_ops": 47584,
+        "delta_pct": 0.5324093636440463
+      },
+      {
+        "name": "Compile `a -> b;` using sm",
+        "base_ops": 45169,
+        "head_ops": 45436,
+        "delta_pct": 0.5911133742168302
+      },
+      {
+        "name": "Blind cycle a traffic light 100 times by transition",
+        "base_ops": 71510,
+        "head_ops": 72139,
+        "delta_pct": 0.879597259124598
+      },
+      {
+        "name": "Blind cycle a standard-transition hooked light by transition",
+        "base_ops": 43683,
+        "head_ops": 44112,
+        "delta_pct": 0.9820754069088661
+      },
+      {
+        "name": "Post entry hook, 100 cycles by transition",
+        "base_ops": 49877,
+        "head_ops": 50578,
+        "delta_pct": 1.405457425266155
+      },
+      {
+        "name": "Post basic hook, 100 cycles by transition",
+        "base_ops": 50291,
+        "head_ops": 51144,
+        "delta_pct": 1.6961285319440855
+      },
+      {
+        "name": "Post exit hook, 100 cycles by transition",
+        "base_ops": 49319,
+        "head_ops": 50584,
+        "delta_pct": 2.564934406618139
+      }
+    ],
+    "counts": {
+      "compared": 31,
+      "only_base": [],
+      "only_head": []
+    }
+  }
+}

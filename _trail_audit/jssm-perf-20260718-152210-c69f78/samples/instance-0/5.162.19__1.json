@@ -1,0 +1,201 @@
+{
+  "name": "General performance suite",
+  "date": "2026-07-18T15:26:38.176Z",
+  "version": "5.162.19",
+  "results": [
+    {
+      "name": "Blind cycle a traffic light 100 times by transition",
+      "ops": 46032,
+      "margin": 0.88,
+      "percentSlower": 93.65
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 49292,
+      "margin": 1.5,
+      "percentSlower": 93.21
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+      "ops": 33478,
+      "margin": 0.77,
+      "percentSlower": 95.38
+    },
+    {
+      "name": "Carry a named hook that cannot fire, 100 cycles by transition v2",
+      "ops": 39617,
+      "margin": 0.39,
+      "percentSlower": 94.54
+    },
+    {
+      "name": "Blind cycle an any-transition traffic light 100 times by transition",
+      "ops": 33234,
+      "margin": 0.34,
+      "percentSlower": 95.42
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by transition",
+      "ops": 32532,
+      "margin": 0.83,
+      "percentSlower": 95.52
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by transition",
+      "ops": 32575,
+      "margin": 1.18,
+      "percentSlower": 95.51
+    },
+    {
+      "name": "Blind cycle a standard-transition hooked light by transition",
+      "ops": 28089,
+      "margin": 1.19,
+      "percentSlower": 96.13
+    },
+    {
+      "name": "Blind cycle a main-transition hooked light by transition",
+      "ops": 27576,
+      "margin": 1.11,
+      "percentSlower": 96.2
+    },
+    {
+      "name": "Cycle a force-transition hooked light 100 times by force_transition v2",
+      "ops": 38014,
+      "margin": 1.79,
+      "percentSlower": 94.76
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+      "ops": 27364,
+      "margin": 1.28,
+      "percentSlower": 96.23
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by action v2",
+      "ops": 25882,
+      "margin": 0.92,
+      "percentSlower": 96.43
+    },
+    {
+      "name": "Blind cycle an any-action traffic light 100 times by action",
+      "ops": 28879,
+      "margin": 2.01,
+      "percentSlower": 96.02
+    },
+    {
+      "name": "Blind cycle a global-action traffic light 100 times by action v2",
+      "ops": 28206,
+      "margin": 0.88,
+      "percentSlower": 96.11
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by action",
+      "ops": 27058,
+      "margin": 1.15,
+      "percentSlower": 96.27
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by action",
+      "ops": 27385,
+      "margin": 0.99,
+      "percentSlower": 96.22
+    },
+    {
+      "name": "Cycle a standard transition tl 100 times by action v2",
+      "ops": 30140,
+      "margin": 1.17,
+      "percentSlower": 95.85
+    },
+    {
+      "name": "Cycle a main transition tl 100 times by action v2",
+      "ops": 29602,
+      "margin": 1.26,
+      "percentSlower": 95.92
+    },
+    {
+      "name": "Cycle a forced transition tl 100 times by action v2",
+      "ops": 28777,
+      "margin": 1.25,
+      "percentSlower": 96.03
+    },
+    {
+      "name": "Data-carrying basic hook, 100 cycles by transition",
+      "ops": 32009,
+      "margin": 1.47,
+      "percentSlower": 95.59
+    },
+    {
+      "name": "Rejected action, 100 calls by action",
+      "ops": 725416,
+      "margin": 0.64,
+      "percentSlower": 0
+    },
+    {
+      "name": "Carry an after hook (timer-only, cannot fire in dispatch), 100 cycles by transition",
+      "ops": 39746,
+      "margin": 1.28,
+      "percentSlower": 94.52
+    },
+    {
+      "name": "Post basic hook, 100 cycles by transition",
+      "ops": 36181,
+      "margin": 1.1,
+      "percentSlower": 95.01
+    },
+    {
+      "name": "Post basic hook, 100 cycles by action",
+      "ops": 36231,
+      "margin": 1.11,
+      "percentSlower": 95.01
+    },
+    {
+      "name": "Post named hook, 100 cycles by action",
+      "ops": 32584,
+      "margin": 1.94,
+      "percentSlower": 95.51
+    },
+    {
+      "name": "Post entry hook, 100 cycles by transition",
+      "ops": 35283,
+      "margin": 1.09,
+      "percentSlower": 95.14
+    },
+    {
+      "name": "Post exit hook, 100 cycles by transition",
+      "ops": 34461,
+      "margin": 1.31,
+      "percentSlower": 95.25
+    },
+    {
+      "name": "Post global action hook, 100 cycles by action",
+      "ops": 36440,
+      "margin": 0.83,
+      "percentSlower": 94.98
+    },
+    {
+      "name": "Kitchen sink (15 hooks) 100 times v2",
+      "ops": 16141,
+      "margin": 1.44,
+      "percentSlower": 97.77
+    },
+    {
+      "name": "Compile `a -> b;` using sm",
+      "ops": 34226,
+      "margin": 13.16,
+      "percentSlower": 95.28
+    },
+    {
+      "name": "Compile `a -> b;` using .from",
+      "ops": 39979,
+      "margin": 2.33,
+      "percentSlower": 94.49
+    }
+  ],
+  "fastest": {
+    "name": "Rejected action, 100 calls by action",
+    "index": 20
+  },
+  "slowest": {
+    "name": "Kitchen sink (15 hooks) 100 times v2",
+    "index": 28
+  }
+}
