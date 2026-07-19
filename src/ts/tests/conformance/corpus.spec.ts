@@ -76,14 +76,23 @@ function prop_deltas(
 }
 
 
-/** Apply one stimulus to the machine, returning whether it fired. */
+/**
+ * Apply one stimulus to the machine, returning whether it fired.
+ *
+ * The runtime distinguishes an *omitted* data argument (preserve the current
+ * blob) from an *explicit* `undefined` (commit `undefined`) by call arity
+ * (`arguments.length >= 2` in `transition()` / `action()` /
+ * `force_transition()`), so `data` is threaded through the driving call only
+ * when the stimulus actually carries the key — mirroring §11 data-stick.
+ */
 function apply_stimulus(m: jssm.Machine<unknown>, s: CorpusStimulus): boolean {
+  const has_data = Object.hasOwn(s, 'data');
   switch (s.kind) {
-    case 'action': {        return m.action(s.arg as string, s.data);
+    case 'action': {        return has_data ? m.action(s.arg as string, s.data) : m.action(s.arg as string);
     }
-    case 'transition': {    return m.transition(s.arg as string, s.data);
+    case 'transition': {    return has_data ? m.transition(s.arg as string, s.data) : m.transition(s.arg as string);
     }
-    case 'force': {         return m.force_transition(s.arg as string, s.data);
+    case 'force': {         return has_data ? m.force_transition(s.arg as string, s.data) : m.force_transition(s.arg as string);
     }
     case 'probabilistic': { return m.probabilistic_transition();
     }

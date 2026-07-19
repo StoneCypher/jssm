@@ -273,6 +273,13 @@ describe('require_scalar / stringify_for_error', () => {
     expect( stringify_for_error(null) ).toBe('null');
   });
 
+  test('stringify_for_error renders booleans, bigints, and symbols', () => {
+    expect( stringify_for_error(true) ).toBe('true');
+    // eslint-disable-next-line unicorn/prefer-bigint-literals -- the test tsconfig targets below ES2020, where a bigint literal is TS2737
+    expect( stringify_for_error(BigInt(7)) ).toBe('7');
+    expect( stringify_for_error(Symbol('k')) ).toBe('Symbol(k)');
+  });
+
   test('stringify_for_error brand-renders objects, even null-prototype ones', () => {
     expect( stringify_for_error({}) ).toBe('[object Object]');
     expect( stringify_for_error([1, 2]) ).toBe('[object Array]');

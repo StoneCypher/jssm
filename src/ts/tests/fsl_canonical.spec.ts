@@ -1,5 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { canonicalize, canonical_config, CANONICAL_FORMAT_VERSION } from '../fsl_canonical';
+import { canonicalize, canonical_config, code_unit_compare, CANONICAL_FORMAT_VERSION } from '../fsl_canonical';
+
+describe('code_unit_compare', () => {
+  it('orders by UTF-16 code unit, all three arms', () => {
+    expect(code_unit_compare('a', 'b')).toBe(-1);
+    expect(code_unit_compare('b', 'a')).toBe(1);
+    expect(code_unit_compare('a', 'a')).toBe(0);
+  });
+
+  it('matches the default comparator-less sort order (RFC 8785 key rule)', () => {
+    // eslint-disable-next-line unicorn/require-array-sort-compare -- the platform's comparator-free string sort IS the reference behavior under test; supplying a comparator would make this tautological
+    expect(['z', 'ä', 'Z'].sort(code_unit_compare)).toEqual(['z', 'ä', 'Z'].sort());
+    expect(['z', 'ä', 'Z'].sort(code_unit_compare)).toEqual(['Z', 'z', 'ä']);
+  });
+});
 
 describe('canonicalize (RFC 8785)', () => {
   it('sorts object keys by UTF-16 code unit, regardless of insertion order', () => {

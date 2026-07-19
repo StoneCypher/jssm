@@ -6,6 +6,7 @@ import {
   MachineRequirements,
   make_manifest,
   make_requirements,
+  feature_compare,
   check_capabilities,
   check_capabilities_all
 } from '../fsl_capabilities';
@@ -88,6 +89,23 @@ describe('fsl_capabilities', () => {
     test('accepts an empty requirement set', () => {
       const r = make_requirements([]);
       expect(r.required.size).toBe(0);
+    });
+
+  });
+
+
+  describe('feature_compare', () => {
+
+    test('orders feature names by UTF-16 code unit, all three arms', () => {
+      expect(feature_compare('double', 'int256')).toBe(-1);
+      expect(feature_compare('tapes', 'sensors')).toBe(1);
+      expect(feature_compare('tapes', 'tapes')).toBe(0);
+    });
+
+    test('matches the default comparator-less sort order', () => {
+      const features: FslFeature[] = ['tapes', 'double', 'int256'];
+      // eslint-disable-next-line unicorn/require-array-sort-compare -- the platform's comparator-free string sort IS the reference behavior under test; supplying a comparator would make this tautological
+      expect([...features].sort(feature_compare)).toEqual([...features].sort());
     });
 
   });

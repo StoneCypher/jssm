@@ -337,6 +337,7 @@ export {
   CapabilityCheckResult,
   make_manifest,
   make_requirements,
+  feature_compare,
   check_capabilities,
   check_capabilities_all
 };

@@ -60,4 +60,4 @@ function canonical_config(state: unknown, data: unknown): string {
   return canonicalize({ v: CANONICAL_FORMAT_VERSION, state, data });
 }
 
-export { CANONICAL_FORMAT_VERSION, canonicalize, canonical_config };
+export { CANONICAL_FORMAT_VERSION, code_unit_compare, canonicalize, canonical_config };

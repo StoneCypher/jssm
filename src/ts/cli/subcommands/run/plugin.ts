@@ -83,8 +83,12 @@ export async function cli(argv: string[]): Promise<number> {
   } else {
     const acc = result.steps.filter(s => s.accepted).length;
     const rej = result.steps.length - acc;
-    // final_state is typed unknown; jssm states are strings today, but render
-    // any non-string explicitly rather than letting it collapse to [object Object]
+    // final_state is typed unknown, but it is fed from machine.state():
+    // StateType, and StateType is string today — the non-string arm is
+    // unreachable until states can be non-strings. Kept so a future
+    // non-string state renders as JSON rather than collapsing to
+    // [object Object].
+    /* v8 ignore next */
     const shownState = typeof result.final_state === 'string' ? result.final_state : JSON.stringify(result.final_state);
     let human = `state: ${shownState}\n`
               + `data:  ${JSON.stringify(result.final_data)}\n`

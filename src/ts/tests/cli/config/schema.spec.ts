@@ -4,6 +4,7 @@ import { ConfigSchemaError } from '../../../cli/config/types';
 describe('cli/config/schema', () => {
 
   it('CONFIG_SCHEMA is a valid JSON Schema draft 07 object', () => {
+    // eslint-disable-next-line unicorn/prefer-https -- draft-07's canonical meta-schema id is http; a literal identifier, never fetched
     expect(CONFIG_SCHEMA.$schema).toBe('http://json-schema.org/draft-07/schema#');
     expect(CONFIG_SCHEMA.type).toBe('object');
     expect(CONFIG_SCHEMA.additionalProperties).toBe(false);

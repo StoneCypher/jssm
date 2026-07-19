@@ -52,6 +52,18 @@ describe('mermaidToModel', () => {
     expect(model.edges[0]).toEqual({ from: 's0', to: 's1', kind: 'legal' });
   });
 
+  it('treats a bare `id:` declaration with no label as an empty display name', () => {
+    const model = mermaidToModel('stateDiagram-v2\n  s0:');
+    expect(model.states).toEqual(['']);
+    expect(model.edges).toEqual([]);
+  });
+
+  it('parses a trailing-colon transition with no label as an unlabeled edge', () => {
+    const model = mermaidToModel('stateDiagram-v2\n  s0 --> s1 :');
+    expect(model.states).toEqual(['s0', 's1']);
+    expect(model.edges).toEqual([{ from: 's0', to: 's1', kind: 'legal' }]);
+  });
+
   it('unescapes #quot; back to a double quote in names and labels', () => {
     const model = mermaidToModel('stateDiagram-v2\n  s0: a#quot;b\n  s0 --> s0 : x#quot;y');
     expect(model.states).toEqual(['a"b']);

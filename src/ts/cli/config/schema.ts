@@ -18,6 +18,7 @@ const emptySection = { type: 'object', additionalProperties: true } as const;
 
 /** The JSON Schema (draft-07) used at runtime and published for editor autocomplete. */
 export const CONFIG_SCHEMA = {
+  // eslint-disable-next-line unicorn/prefer-https -- draft-07's canonical meta-schema id is http; it is an identifier Ajv matches literally, never fetched
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://stonecypher.github.io/jssm/schemas/fsl-config.json',
   title: 'fsl Configuration',

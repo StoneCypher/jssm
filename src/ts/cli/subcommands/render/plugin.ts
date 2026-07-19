@@ -146,7 +146,10 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const sizeFlags = [width, height, scale].filter(x => x !== undefined);
+  // Exclusivity is a statement about user intent, so it tests the flags as
+  // given; the resolved config always carries a scale default, which must not
+  // collide with an explicit --width or --height.
+  const sizeFlags = [parsed.flags.width, parsed.flags.height, parsed.flags.scale].filter(x => x !== undefined);
   if (sizeFlags.length > 1) {
     printErr('--width, --height, and --scale are mutually exclusive');
     return 1;

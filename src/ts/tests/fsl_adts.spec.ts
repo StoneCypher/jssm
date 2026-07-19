@@ -6,7 +6,7 @@ import {
   option_of_nullable, nullable_of_option, nullable_check,
   make_alias_env, resolve_alias,
   fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag,
-  canonical_json, snapshot_value, hash_value, deep_equal,
+  key_compare, canonical_json, snapshot_value, hash_value, deep_equal,
   assert_acyclic, deep_freeze_copy
 
 } from '../fsl_adts';
@@ -423,6 +423,26 @@ describe('function-value hashing (§15)', () => {
     const a = fn_value('lambda#add', { base: 10 });
     const c = fn_value('lambda#add', { base: 11 });
     expect(fn_hash(a)).not.toBe(fn_hash(c));
+  });
+
+});
+
+
+
+
+
+describe('key_compare (§15)', () => {
+
+  test('orders by UTF-16 code unit, all three arms', () => {
+    expect(key_compare('a', 'b')).toBe(-1);
+    expect(key_compare('b', 'a')).toBe(1);
+    expect(key_compare('a', 'a')).toBe(0);
+  });
+
+  test('matches the default comparator-less sort order (uppercase first)', () => {
+    // eslint-disable-next-line unicorn/require-array-sort-compare -- the platform's comparator-free string sort IS the reference behavior under test; supplying a comparator would make this tautological
+    expect(['b', 'a', 'Z'].sort(key_compare)).toStrictEqual(['b', 'a', 'Z'].sort());
+    expect(['b', 'a', 'Z'].sort(key_compare)).toStrictEqual(['Z', 'a', 'b']);
   });
 
 });

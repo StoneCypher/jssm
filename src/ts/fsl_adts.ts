@@ -1418,7 +1418,7 @@ export {
   fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag,
 
   // snapshot / hash / equality (§15)
-  canonical_json, snapshot_value, hash_value, deep_equal,
+  key_compare, canonical_json, snapshot_value, hash_value, deep_equal,
 
   // acyclicity helpers (§13)
   assert_acyclic, deep_freeze_copy
