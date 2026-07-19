@@ -7969,8 +7969,13 @@ export type {
 
 export {FslDirections} from './jssm_types.js';
 export type {JssmParseOptions} from './jssm_types.js';
+export {JssmError} from './jssm_error.js';
 export {arrow_direction, arrow_left_kind, arrow_right_kind} from './jssm_arrow.js';
-export {compile, wrap_parse as parse, make} from './jssm_compiler.js';
-export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32} from './jssm_util.js';
+export {compile, wrap_parse as parse, make, membership_distance} from './jssm_compiler.js';
+export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32, name_bind_prop_and_state} from './jssm_util.js';
+export {replay} from './fsl_replay.js';
+export type {ReplayResult, ReplayStep} from './fsl_replay.js';
+export {parse_tape, serialize_tape, ReplayError, SUPPORTED_TAPE_VERSION} from './fsl_stimulus_tape.js';
+export type {Stimulus, TapeHeader, StimulusTape, ReplayErrorKind} from './fsl_stimulus_tape.js';
 export {build_time, version} from './version.js';
 export * as constants from './jssm_constants.js';

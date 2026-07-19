@@ -3,7 +3,8 @@
  *  of FSL markdown fences — HTML parts stacks with editor-parity
  *  highlighting, animated walk GIFs, and a whole-document Markdown
  *  transformer — plus the reusable primitives behind them (GIF89a encoder,
- *  walk planner, SVG patching).
+ *  walk planner, SVG patching, resvg-backed rasterizer and its bundled
+ *  fallback font).
  *  @see render_fence_html
  *  @see transform_markdown
  */
@@ -15,3 +16,7 @@ export { plan_walk }                                               from './fsl_w
 export { highlight_fsl_runs, highlight_fsl_html }                  from './fsl_fence_highlight.js';
 export type { HighlightRun }                                       from './fsl_fence_highlight.js';
 export { extract_state_fills, patch_state_fill }                   from './fsl_svg_patch.js';
+export { rasterize, rasterizeRgba }                                from './fsl_rasterize.js';
+export type { RasterOptions, RgbaRaster }                          from './fsl_rasterize.js';
+export { RenderError, RasterizationUnsupportedError }              from './fsl_rasterize_errors.js';
+export { bundledFontBytes }                                        from './fsl_rasterize_font.js';
