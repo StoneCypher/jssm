@@ -28,7 +28,6 @@
  *  {@link Machine.states}, {@link Machine.state}, {@link Machine.list_exits},
  *  {@link Machine.state_is_terminal}, {@link Machine.state_is_final} and
  *  {@link Machine.has_state}, and never mutates the machine.
- *
  *  @example
  *  Prove a designed failure state is unreachable from start:
  *  ```typescript
@@ -43,7 +42,7 @@ import { Machine } from './jssm';
 /**
  *  State names are strings in jssm; verification speaks the same alphabet.
  */
-declare type StateName = string;
+type StateName = string;
 /**
  *  Atomic state predicates — the leaves of a {@link StatePredicate}.  Each names
  *  a property of a *single* machine state evaluated at a single point on a trace
@@ -57,7 +56,7 @@ declare type StateName = string;
  *  - `tautology`   — always true (the unit of {@link p_and}).
  *  - `contradiction` — always false (the unit of {@link p_or}).
  */
-declare type PredicateAtom = {
+type PredicateAtom = {
     readonly atom: 'in_state';
     readonly name: StateName;
 } | {
@@ -82,7 +81,7 @@ declare type PredicateAtom = {
  *  serializable, and inspectable, matching §17's "properties are first-class,
  *  fill-the-holes" posture.  Evaluate one with {@link eval_predicate}.
  */
-declare type StatePredicate = PredicateAtom | {
+type StatePredicate = PredicateAtom | {
     readonly atom: 'not';
     readonly arg: StatePredicate;
 } | {
@@ -105,7 +104,7 @@ declare type StatePredicate = PredicateAtom | {
  *  {@link unreachable}, or the named Dwyer aliases {@link absence} /
  *  {@link existence}.
  */
-declare type SafetyProperty = {
+type SafetyProperty = {
     readonly kind: 'always';
     readonly pred: StatePredicate;
 } | {
@@ -120,10 +119,9 @@ declare type SafetyProperty = {
 };
 /**
  *  Options controlling a {@link check_safety} run.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
+ *  @template mDT - The machine's data type; usually omitted.
  */
-declare type SafetyOptions = {
+type SafetyOptions = {
     /**
      *  States considered "error" states for the {@link is_error} atom.  §17's
      *  error states (`state Crashed: { error; }`) are not yet surfaced by the v5
@@ -142,13 +140,13 @@ declare type SafetyOptions = {
  *  The outcome of {@link check_safety}.
  *
  *  `holds` is the verdict.  `trace` is the load-bearing evidence: for a
- *  *failed* invariant it is the shortest path to the first violating state; for
+ *  failed* invariant it is the shortest path to the first violating state; for
  *  a *satisfied* reachability it is the shortest path to a witnessing state; in
  *  the vacuous cases (`always` that holds, `unreachable` that holds) it is
  *  `undefined`.  `states_explored` reports the size of the reachable set the
  *  BFS visited, for cost reporting.
  */
-declare type SafetyResult = {
+type SafetyResult = {
     readonly property: SafetyProperty;
     readonly holds: boolean;
     readonly trace?: ReadonlyArray<StateName>;
@@ -156,9 +154,7 @@ declare type SafetyResult = {
 };
 /**
  *  Predicate: the state has exactly this name.
- *
  *  @param name - The state name to match.
- *
  *  @example
  *  ```typescript
  *  in_state('Done');   // { atom: 'in_state', name: 'Done' }
@@ -168,9 +164,7 @@ declare const in_state: (name: StateName) => StatePredicate;
 /**
  *  Predicate: the state's name is one of `names`.  An empty set is a
  *  contradiction (matches nothing).
- *
  *  @param names - The accepted state names.
- *
  *  @example
  *  ```typescript
  *  in_any(['red', 'amber']);   // true in 'red' or 'amber'
@@ -179,7 +173,6 @@ declare const in_state: (name: StateName) => StatePredicate;
 declare const in_any: (names: ReadonlyArray<StateName>) => StatePredicate;
 /**
  *  Predicate: the state is terminal — it has no outgoing transitions.
- *
  *  @example
  *  ```typescript
  *  is_terminal;   // true only in dead-end states
@@ -188,7 +181,6 @@ declare const in_any: (names: ReadonlyArray<StateName>) => StatePredicate;
 declare const is_terminal: StatePredicate;
 /**
  *  Predicate: the state is final — terminal, or flagged `complete`.
- *
  *  @example
  *  ```typescript
  *  is_final;   // true in completing states
@@ -197,7 +189,6 @@ declare const is_terminal: StatePredicate;
 declare const is_final: StatePredicate;
 /**
  *  Predicate: the state is one of the caller-supplied error states (§17).
- *
  *  @example
  *  ```typescript
  *  is_error;   // true in states named by SafetyOptions.error_states
@@ -214,9 +205,7 @@ declare const tautology: StatePredicate;
 declare const contradiction: StatePredicate;
 /**
  *  Negate a predicate.
- *
  *  @param arg - The predicate to invert.
- *
  *  @example
  *  ```typescript
  *  p_not(in_state('Crashed'));   // true everywhere except 'Crashed'
@@ -225,9 +214,7 @@ declare const contradiction: StatePredicate;
 declare const p_not: (arg: StatePredicate) => StatePredicate;
 /**
  *  Conjoin predicates.  With no arguments this is {@link tautology}.
- *
  *  @param args - The predicates that must all hold.
- *
  *  @example
  *  ```typescript
  *  p_and(is_terminal, p_not(is_final));   // a terminal that isn't "complete"
@@ -236,9 +223,7 @@ declare const p_not: (arg: StatePredicate) => StatePredicate;
 declare const p_and: (...args: ReadonlyArray<StatePredicate>) => StatePredicate;
 /**
  *  Disjoin predicates.  With no arguments this is {@link contradiction}.
- *
  *  @param args - The predicates of which at least one must hold.
- *
  *  @example
  *  ```typescript
  *  p_or(is_error, is_terminal);   // either an error state or a dead end
@@ -248,15 +233,12 @@ declare const p_or: (...args: ReadonlyArray<StatePredicate>) => StatePredicate;
 /**
  *  Coerce a predicate-or-state-name into a predicate.  A bare string is read as
  *  {@link in_state}, so callers can write `absence('Crashed')`.
- *
  *  @param p - Either a {@link StatePredicate} or a state name.
  */
 declare const as_predicate: (p: StatePredicate | StateName) => StatePredicate;
 /**
  *  Safety property: `P` holds in **every** reachable state (an invariant).
- *
  *  @param pred - The invariant predicate, or a state name (= must always be in it).
- *
  *  @example
  *  ```typescript
  *  always(p_not(is_error));   // "never reach an error state"
@@ -265,9 +247,7 @@ declare const as_predicate: (p: StatePredicate | StateName) => StatePredicate;
 declare const always: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: `P` holds in **no** reachable state (`always not P`).
- *
  *  @param pred - The forbidden predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  never(is_error);            // no error state is reachable
@@ -278,9 +258,7 @@ declare const never: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: **some** reachable state satisfies `P`.  Succeeds with a
  *  witness trace.
- *
  *  @param pred - The target predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  reachable('Done');          // 'Done' can be reached from start
@@ -290,9 +268,7 @@ declare const reachable: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: **no** reachable state satisfies `P` — the same query as
  *  {@link never}, named for symmetry with {@link reachable}.
- *
  *  @param pred - The target predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  unreachable('Crashed');     // 'Crashed' is never reached
@@ -302,9 +278,7 @@ declare const unreachable: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Dwyer **absence** pattern (globally): the target never occurs — alias for
  *  {@link unreachable}.
- *
  *  @param pred - The state name or predicate that must be absent.
- *
  *  @example
  *  ```typescript
  *  absence('Deadlock');        // "Deadlock is absent globally"
@@ -314,9 +288,7 @@ declare const absence: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Dwyer **existence** pattern (globally): the target eventually occurs on some
  *  path — alias for {@link reachable}.
- *
  *  @param pred - The state name or predicate that must exist.
- *
  *  @example
  *  ```typescript
  *  existence('Done');          // "Done exists globally"
@@ -327,16 +299,12 @@ declare const existence: (pred: StatePredicate | StateName) => SafetyProperty;
  *  Evaluate a {@link StatePredicate} against a single machine state.  Pure and
  *  total — every atom and connective is handled, recursion bottoms out at the
  *  finite predicate AST.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine, consulted read-only for state metadata.
  *  @param state   - The state name to test.
  *  @param pred    - The predicate to evaluate.
  *  @param errors  - The set of error-state names (for the {@link is_error} atom).
- *
  *  @returns `true` iff `state` satisfies `pred`.
- *
  *  @example
  *  ```typescript
  *  import { sm } from 'jssm';
@@ -349,12 +317,9 @@ declare const eval_predicate: <mDT>(machine: Machine<mDT>, state: StateName, pre
  *  Breadth-first reachability from `starts`, recording, for each reached state,
  *  the immediate predecessor on its shortest path — enough to reconstruct a
  *  counterexample trace.  Pure: returns a fresh map, mutates nothing.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine, consulted read-only via {@link Machine.list_exits}.
  *  @param starts  - The frontier seed (already validated to exist).
- *
  *  @returns A map from each reachable state to its predecessor (`null` for a
  *  seed), in BFS discovery order.
  */
@@ -363,10 +328,8 @@ declare const reachable_predecessors: <mDT>(machine: Machine<mDT>, starts: Reado
  *  Reconstruct the shortest trace from a seed to `target`, walking the
  *  predecessor map produced by {@link reachable_predecessors} backwards and then
  *  reversing.
- *
  *  @param predecessor - The BFS predecessor map.
  *  @param target      - The state to trace back from (must be a key).
- *
  *  @returns The path of state names from a start state to `target`, inclusive.
  */
 declare const trace_to: (predecessor: ReadonlyMap<StateName, StateName | null>, target: StateName) => ReadonlyArray<StateName>;
@@ -374,14 +337,10 @@ declare const trace_to: (predecessor: ReadonlyMap<StateName, StateName | null>, 
  *  Resolve the start frontier for a run: the caller's {@link SafetyOptions.start_states}
  *  if given, else the machine's current state.  Every name is validated against
  *  the machine.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine to resolve against.
  *  @param starts  - The requested start states, or `undefined` for the default.
- *
  *  @returns The validated, de-duplicated start frontier.
- *
  *  @throws {Error} If a requested start state is not known to the machine.
  */
 declare const resolve_starts: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray<StateName> | undefined) => ReadonlyArray<StateName>;
@@ -399,18 +358,13 @@ declare const resolve_starts: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray
  *
  *  Read-only: the machine is never mutated.  Deterministic: BFS discovery order
  *  fixes which shortest trace is reported.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine  - The machine to check.
  *  @param property - The safety property, e.g. from {@link always} / {@link absence}.
  *  @param options  - Error states and/or an explicit start frontier.
- *
  *  @returns A {@link SafetyResult} carrying the verdict and any counterexample
  *  or witness trace.
- *
  *  @throws {Error} If an explicit start state is not known to the machine.
- *
  *  @example
  *  An invariant that holds, then one that fails with a counterexample:
  *  ```typescript
@@ -429,7 +383,6 @@ declare const resolve_starts: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray
  *  bad.holds;    // false
  *  bad.trace;    // ['idle', 'work', 'done'] — the replayable counterexample
  *  ```
- *
  *  @see absence
  *  @see reachable
  */
@@ -442,14 +395,13 @@ declare const check_safety: <mDT>(machine: Machine<mDT>, property: SafetyPropert
  *  Labels are the only thing the safety checker reads about a node; the
  *  identifier is for building paths and counterexamples.  A label absent from
  *  the set is **false** at that node (closed-world); there is no third value.
- *
  *  @example
  *  ```typescript
  *  const crashed: VerificationNode = { id: 'Crashed', labels: ['error', 'terminal'] };
  *  const running: VerificationNode = { id: 'Running', labels: [] };
  *  ```
  */
-declare type VerificationNode = {
+type VerificationNode = {
     readonly id: string;
     readonly labels?: ReadonlyArray<string>;
 };
@@ -460,13 +412,12 @@ declare type VerificationNode = {
  *  over-approximation rule: if an edge might fire, assume it can).  The optional
  *  `label` carries the triggering event name for human-readable
  *  counterexamples, but does not affect the verdict.
- *
  *  @example
  *  ```typescript
  *  const e: VerificationEdge = { from: 'Green', to: 'Yellow', label: 'tick' };
  *  ```
  */
-declare type VerificationEdge = {
+type VerificationEdge = {
     readonly from: string;
     readonly to: string;
     readonly label?: string;
@@ -479,7 +430,6 @@ declare type VerificationEdge = {
  *  There is intentionally **no reference to the live {@link Machine} class**:
  *  this is pure data, so the checker can be tested, serialized, and reused over
  *  fixtures no runtime ever produced.
- *
  *  @example
  *  ```typescript
  *  const traffic: VerificationGraph = {
@@ -497,7 +447,7 @@ declare type VerificationEdge = {
  *  };
  *  ```
  */
-declare type VerificationGraph = {
+type VerificationGraph = {
     readonly nodes: ReadonlyArray<VerificationNode>;
     readonly edges: ReadonlyArray<VerificationEdge>;
     readonly start_states: ReadonlyArray<StateName>;
@@ -516,14 +466,13 @@ declare type VerificationGraph = {
  *  Distinct from the machine-coupled {@link SafetyProperty}: this form is a
  *  flat label query over graph data, not a {@link StatePredicate} AST over a
  *  live machine.  The optional `name` is echoed to the result for diagnostics.
- *
  *  @example
  *  ```typescript
  *  const no_crash:   GraphSafetyProperty = { kind: 'invariant',    label: 'safe' };
  *  const reaches_ok: GraphSafetyProperty = { kind: 'reachability', label: 'done' };
  *  ```
  */
-declare type GraphSafetyProperty = {
+type GraphSafetyProperty = {
     readonly kind: 'reachability' | 'invariant';
     readonly label: string;
     readonly name?: string;
@@ -541,7 +490,6 @@ declare type GraphSafetyProperty = {
  *
  *  Distinct from the machine-coupled {@link SafetyResult}: the witness field is
  *  named `witness` (not `trace`) and there is no `states_explored`.
- *
  *  @example
  *  ```typescript
  *  // proved reachability
@@ -550,7 +498,7 @@ declare type GraphSafetyProperty = {
  *  ({ holds: false, witness: ['Boot', 'Running', 'Crashed'], property: { kind: 'invariant', label: 'safe' } });
  *  ```
  */
-declare type GraphSafetyResult = {
+type GraphSafetyResult = {
     readonly holds: boolean;
     readonly witness?: ReadonlyArray<StateName>;
     readonly property: GraphSafetyProperty;
@@ -559,12 +507,9 @@ declare type GraphSafetyResult = {
  *  Tests whether a node carries a given label.  A node with no `labels` array,
  *  or one whose array omits `label`, does **not** carry it (closed-world).
  *  Pure.
- *
  *  @param node  - The node whose labels are inspected.
  *  @param label - The atomic proposition to look for.
- *
  *  @returns `true` when `node` carries `label`, otherwise `false`.
- *
  *  @example
  *  ```typescript
  *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'x');   // true
@@ -578,11 +523,8 @@ declare const node_has_label: (node: VerificationNode, label: string) => boolean
  *  of ids directly reachable in one step.  Nodes appearing only as edge
  *  sources, only as edge targets, or only in the node list are all represented,
  *  so callers can index any declared id without an undefined hole.  Pure.
- *
  *  @param graph - The verification graph to index.
- *
  *  @returns A `Map` from node id to its array of one-step successor ids.
- *
  *  @example
  *  ```typescript
  *  build_adjacency({
@@ -604,14 +546,11 @@ declare const build_adjacency: (graph: VerificationGraph) => Map<StateName, Stat
  *  Finite and terminating on any graph: each node is enqueued at most once.
  *  Start states with no declared node still seed the frontier (the search stays
  *  total over slightly-malformed fixtures rather than throwing).  Pure.
- *
  *  @param graph     - The verification graph to search.
  *  @param predicate - Tested against the *node object* for each id reached; the
  *                     id is paired with its declared node, or a bare `{ id }`
  *                     stand-in when the id has no declared node.
- *
  *  @returns The shortest path to a satisfying node, or `undefined` if none.
- *
  *  @example
  *  ```typescript
  *  bfs_find_path(graph, node => node_has_label(node, 'error'));
@@ -632,17 +571,12 @@ declare const bfs_find_path: (graph: VerificationGraph, predicate: (node: Verifi
  *    `holds: true`, no witness.
  *
  *  Pure: depends only on its arguments and returns a fresh result.
- *
  *  @param graph    - The lowered, host-agnostic graph to verify over.
  *  @param property - The safety property to discharge.
- *
  *  @returns A {@link GraphSafetyResult} — proved (`holds: true`) or refuted
  *  (`holds: false`, with a counterexample `witness` where one exists).
- *
  *  @throws {Error} If `property.kind` is not a recognized safety kind.
- *
  *  @see check_all_graph_safety
- *
  *  @example
  *  ```typescript
  *  // an invariant that holds (proved, no witness)
@@ -663,12 +597,9 @@ declare const check_graph_safety: (graph: VerificationGraph, property: GraphSafe
  *  Discharge a batch of {@link GraphSafetyProperty} values against one graph,
  *  preserving input order.  A thin, pure convenience over
  *  {@link check_graph_safety} for a property suite (`test reaches Done;` etc.).
- *
  *  @param graph      - The graph to verify over.
  *  @param properties - The properties to discharge, in order.
- *
  *  @returns One {@link GraphSafetyResult} per input property, in the same order.
- *
  *  @example
  *  ```typescript
  *  check_all_graph_safety(traffic, [

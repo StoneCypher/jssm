@@ -82,9 +82,9 @@ const ln2 = Math.LN2;
 /** The natural logarithm of ten (ln 10). */
 const ln10 = Math.LN10;
 /** Positive infinity (∞). */
-const inf = Number.POSITIVE_INFINITY;
+const inf = Infinity;
 /** IEEE not-a-number; never equal to itself. */
-const nan = Number.NaN;
+const nan = NaN;
 /** The double-precision machine epsilon (smallest 1 + ε ≠ 1). */
 const EPSILON = Number.EPSILON;
 // ---------------------------------------------------------------------------
@@ -118,7 +118,7 @@ const isnan = (x) => Number.isNaN(x);
  *  @returns  `true` iff `x` is `±∞`.
  *
  */
-const isinf = (x) => x === Number.POSITIVE_INFINITY || x === Number.NEGATIVE_INFINITY;
+const isinf = (x) => x === Infinity || x === -Infinity;
 /*******
  *
  *  Tests whether a value is a finite number (neither `NaN` nor `±∞`).
@@ -605,7 +605,7 @@ const tan = (deg) => Math.tan(radians(deg));
  *
  */
 const asin = (x) => {
-    if (x < -1 || x > 1) {
+    if (Math.abs(x) > 1) {
         throw new FslMathError(FslErrorKind.domain_error, 'asin argument must be in [-1, 1]');
     }
     return degrees(Math.asin(x));
@@ -624,7 +624,7 @@ const asin = (x) => {
  *
  */
 const acos = (x) => {
-    if (x < -1 || x > 1) {
+    if (Math.abs(x) > 1) {
         throw new FslMathError(FslErrorKind.domain_error, 'acos argument must be in [-1, 1]');
     }
     return degrees(Math.acos(x));
@@ -744,7 +744,7 @@ const acosh = (x) => {
  *
  */
 const atanh = (x) => {
-    if (x <= -1 || x >= 1) {
+    if (Math.abs(x) >= 1) {
         throw new FslMathError(FslErrorKind.domain_error, 'atanh argument must be in (-1, 1)');
     }
     return Math.atanh(x);
@@ -1062,10 +1062,10 @@ const ctz = (x, width = 32) => {
  *
  */
 const rotl = (x, n, width = 32) => {
-    const v = require_uint_of_width(x, width);
     if (!Number.isSafeInteger(n) || n < 0) {
         throw new FslMathError(FslErrorKind.domain_error, 'rotl amount must be a non-negative integer');
     }
+    const v = require_uint_of_width(x, width);
     const s = n % width;
     // Arithmetic (not JS bitwise) so the 32-bit signed `<<` cliff is avoided:
     // shift the low part up, OR in the high part that wrapped around.
@@ -1092,10 +1092,10 @@ const rotl = (x, n, width = 32) => {
  *
  */
 const rotr = (x, n, width = 32) => {
-    const v = require_uint_of_width(x, width);
     if (!Number.isSafeInteger(n) || n < 0) {
         throw new FslMathError(FslErrorKind.domain_error, 'rotr amount must be a non-negative integer');
     }
+    const v = require_uint_of_width(x, width);
     const s = n % width;
     return rotl(v, width - s, width);
 };
@@ -1213,10 +1213,11 @@ const mode = (xs) => {
     let best = xs[0];
     let bestCount = 0;
     for (const [value, count] of counts) {
-        if (count > bestCount || (count === bestCount && value < best)) {
-            best = value;
-            bestCount = count;
+        if (!(count > bestCount || (count === bestCount && value < best))) {
+            continue;
         }
+        best = value;
+        bestCount = count;
     }
     return best;
 };

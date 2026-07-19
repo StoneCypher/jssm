@@ -12,6 +12,6 @@ const version    : string = "6.0.0-alpha.12";
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time : number = 1784433718950;
+const build_time : number = 1784434406779;
 
 export { version, build_time };

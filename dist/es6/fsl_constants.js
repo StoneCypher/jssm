@@ -37,7 +37,7 @@
  */
 const codata_2018 = Object.freeze({
     c: Object.freeze({ name: 'speed of light in vacuum', value: 299792458, unit: 'm s^-1', uncertainty: 0, codata_year: 2018 }),
-    G: Object.freeze({ name: 'Newtonian constant of gravitation', value: 6.67430e-11, unit: 'm^3 kg^-1 s^-2', uncertainty: 1.5e-15, codata_year: 2018 }),
+    G: Object.freeze({ name: 'Newtonian constant of gravitation', value: 6.6743e-11, unit: 'm^3 kg^-1 s^-2', uncertainty: 1.5e-15, codata_year: 2018 }),
     h: Object.freeze({ name: 'Planck constant', value: 6.62607015e-34, unit: 'J Hz^-1', uncertainty: 0, codata_year: 2018 }),
     hbar: Object.freeze({ name: 'reduced Planck constant', value: 1.054571817e-34, unit: 'J s', uncertainty: 0, codata_year: 2018 }),
     e: Object.freeze({ name: 'elementary charge', value: 1.602176634e-19, unit: 'C', uncertainty: 0, codata_year: 2018 }),
@@ -58,7 +58,6 @@ const codata_2018 = Object.freeze({
  *  Every supported CODATA adjustment, keyed by year.  The single source of
  *  truth the lookup accessors read; extend this (and {@link CodataYear}) to
  *  add another adjustment.
- *
  *  @example
  *  import { physical_constants_by_year } from 'jssm';
  *  physical_constants_by_year[2018].c.value;  // => 299792458
@@ -69,7 +68,6 @@ const physical_constants_by_year = Object.freeze({
 /**
  *  The most recent CODATA adjustment year this library ships, and the default
  *  year {@link physical_constant} reads when no year is pinned.
- *
  *  @example
  *  import { latest_codata_year } from 'jssm';
  *  latest_codata_year;  // => 2018
@@ -79,7 +77,6 @@ const latest_codata_year = 2018;
  *  A human-readable provenance tag for this constants library — the source
  *  body (`CODATA`) joined with {@link latest_codata_year}.  Handy for
  *  provenance lines in serialized machine state or diagnostics.
- *
  *  @example
  *  import { CONSTANTS_VERSION } from 'jssm';
  *  CONSTANTS_VERSION;  // => 'CODATA 2018'
@@ -95,12 +92,10 @@ const CONSTANTS_VERSION = `CODATA ${latest_codata_year}`;
  *  `Array.prototype.sort` argument.  Pulled out as a named helper so the
  *  ordering rule is a directly testable unit rather than an inline closure
  *  that a single-element list would never exercise.
- *
  *  @param a - The left year.
  *  @param b - The right year.
  *  @returns A negative number when `a` precedes `b`, positive when it
  *           follows, `0` when they are equal.
- *
  *  @example
  *  import { ascending_year_order } from 'jssm';
  *  [2022, 2018].sort(ascending_year_order);  // => [2018, 2022]
@@ -110,9 +105,7 @@ function ascending_year_order(a, b) {
 }
 /**
  *  List the CODATA adjustment years this library ships data for, ascending.
- *
  *  @returns The supported {@link CodataYear} values, lowest first.
- *
  *  @example
  *  import { supported_codata_years } from 'jssm';
  *  supported_codata_years();  // => [2018]
@@ -124,15 +117,12 @@ function supported_codata_years() {
 /**
  *  List the constant symbols available for a given CODATA year (the latest
  *  year by default).
- *
  *  @param year - The {@link CodataYear} to enumerate; defaults to
  *                {@link latest_codata_year}.
  *  @returns The {@link PhysicalConstantSymbol} keys defined for that year.
- *
  *  @example
  *  import { physical_constant_symbols } from 'jssm';
  *  physical_constant_symbols().includes('c');  // => true
- *
  *  @example
  *  import { physical_constant_symbols } from 'jssm';
  *  physical_constant_symbols(2018).length;     // => 17
@@ -143,16 +133,13 @@ function physical_constant_symbols(year = latest_codata_year) {
 /**
  *  Test whether a constant is defined for a given CODATA year without
  *  throwing — the non-throwing companion to {@link physical_constant}.
- *
  *  @param symbol - The {@link PhysicalConstantSymbol} to look for.
  *  @param year   - The {@link CodataYear} to look in; defaults to
  *                  {@link latest_codata_year}.
  *  @returns `true` when the year is supported and defines `symbol`.
- *
  *  @example
  *  import { known_physical_constant } from 'jssm';
  *  known_physical_constant('h');             // => true
- *
  *  @example
  *  import { known_physical_constant } from 'jssm';
  *  known_physical_constant('c', 1999 as 2018);  // => false  (unsupported year)
@@ -171,20 +158,16 @@ function known_physical_constant(symbol, year = latest_codata_year) {
  *  default) and returns its full {@link PhysicalConstant} record (value, SI
  *  unit, standard uncertainty, and year).  Pin `year` for reproducible,
  *  version-stable reads; omit it to track the latest shipped adjustment.
- *
  *  @param symbol - The {@link PhysicalConstantSymbol} to read (e.g. `'c'`).
  *  @param year   - The {@link CodataYear} to read from; defaults to
  *                  {@link latest_codata_year}.
  *  @returns The {@link PhysicalConstant} record for `symbol` in `year`.
- *
  *  @throws {RangeError} When `year` is not a supported CODATA adjustment, or
  *                       when `symbol` is not defined for that year.
- *
  *  @example
  *  import { physical_constant } from 'jssm';
  *  physical_constant('c').value;   // => 299792458
  *  physical_constant('c').unit;    // => 'm s^-1'
- *
  *  @example
  *  import { physical_constant } from 'jssm';
  *  physical_constant('G', 2018).uncertainty;  // => 1.5e-15
@@ -230,18 +213,14 @@ class UnknownConstantError extends Error {
  *  companion to {@link physical_constant}, for callsites that hold an
  *  untyped string (parser output, user input) rather than a statically-known
  *  {@link PhysicalConstantSymbol}.  Resolves against the latest CODATA year.
- *
  *  @param symbol - The short symbol to read (e.g. `'c'`); any string is
  *                  accepted, and an unrecognized one throws.
  *  @returns The {@link PhysicalConstant} record for `symbol`.
- *
  *  @throws {UnknownConstantError} When `symbol` is not a registered constant.
- *
  *  @example
  *  import { lookup_constant } from 'jssm';
  *  lookup_constant('c').value;   // => 299792458
  *  lookup_constant('k').unit;    // => 'J K^-1'
- *
  *  @see physical_constant
  *  @see UnknownConstantError
  */

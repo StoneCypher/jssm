@@ -49,7 +49,7 @@ declare const base_dimension_names: readonly ["length", "mass", "time", "current
  *  A single SI base dimension name (`'length'`, `'mass'`, …).  The literal
  *  union derived from {@link base_dimension_names}.
  */
-declare type BaseDimensionName = (typeof base_dimension_names)[number];
+type BaseDimensionName = (typeof base_dimension_names)[number];
 /**
  *  The dimension of a quantity: an exponent vector over the seven SI base
  *  dimensions.  `length` 1 / `time` -1 is a velocity; an all-zero vector is
@@ -57,7 +57,7 @@ declare type BaseDimensionName = (typeof base_dimension_names)[number];
  *  the specific exponents are what make two differently-dimensioned quantities
  *  fail to mix.
  */
-declare type Dimension = Readonly<Record<BaseDimensionName, number>>;
+type Dimension = Readonly<Record<BaseDimensionName, number>>;
 /*******
  *
  *  Builds a {@link Dimension} from a partial exponent map, defaulting every
@@ -548,7 +548,7 @@ declare const si_prefixes: readonly [{
  *  One SI prefix, as carried in {@link si_prefixes}: a long name, a symbol, and
  *  the power-of-ten scale factor it denotes.
  */
-declare type SiPrefix = (typeof si_prefixes)[number];
+type SiPrefix = (typeof si_prefixes)[number];
 /*******
  *
  *  Expands a base unit into a map keyed by prefix symbol of every prefixed
@@ -575,7 +575,6 @@ declare function with_si_prefixes<D extends Dimension>(base: Unit<D>): Record<st
 /**
  *  The SI prelude: base units, common prefixed units, derived units, and the
  *  dimensionless `one`.  Frozen — a stable, shared prelude no machine mutates.
- *
  *  @example
  *  import { SI, quantity, value_in } from './fsl_units';
  *  const dist = quantity(5, SI.kilometre);

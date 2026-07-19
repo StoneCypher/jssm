@@ -19,7 +19,7 @@
  *  ```
  *
  */
-declare type StepResult<Config> = {
+type StepResult<Config> = {
     kind: 'stable';
 } | {
     kind: 'fired';
@@ -51,7 +51,7 @@ declare type StepResult<Config> = {
  *           stable or which configuration the fired microstep produced.
  *
  */
-declare type StepFn<Config> = (config: Config) => StepResult<Config>;
+type StepFn<Config> = (config: Config) => StepResult<Config>;
 /*******
  *
  *  The maximum number of microsteps the scheduler will fire in a single
@@ -90,7 +90,7 @@ declare const default_microstep_bound: number;
  *  ```
  *
  */
-declare type SchedulerOptions<Config> = {
+type SchedulerOptions<Config> = {
     bound?: number | 'unbounded';
     pre?: (config: Config) => void;
     post?: (config: Config) => void;
@@ -108,7 +108,7 @@ declare type SchedulerOptions<Config> = {
  *  ```
  *
  */
-declare type MacrostepResult<Config> = {
+type MacrostepResult<Config> = {
     config: Config;
     microsteps: number;
 };
@@ -147,7 +147,8 @@ declare class MicrostepOverflowError<Config> extends Error {
  *  Returns `Number.POSITIVE_INFINITY` for the deliberate `'unbounded'` opt-out,
  *  the {@link default_microstep_bound} when unspecified, and the supplied value
  *  otherwise — after rejecting values that could not honestly bound a loop (a
- *  negative cap, a fraction, or `NaN`).
+ *  negative cap, a fraction, `NaN`, or an integer too large to count exactly —
+ *  beyond `Number.MAX_SAFE_INTEGER`, use `'unbounded'` instead).
  *
  *  ```typescript
  *  resolve_bound(undefined);      // 100000
@@ -160,7 +161,7 @@ declare class MicrostepOverflowError<Config> extends Error {
  *  @returns The effective numeric cap (possibly `Infinity`).
  *
  *  @throws {RangeError} If `bound` is a number that is negative, non-integer,
- *                       or `NaN`.
+ *                       `NaN`, or not a safe integer (above 2^53 − 1).
  *
  *  @internal
  *

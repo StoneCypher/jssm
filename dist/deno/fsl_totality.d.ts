@@ -43,7 +43,7 @@
  *  @typeParam N - The node-id type (usually `string`).
  *
  */
-declare type TotalityEdge<N> = {
+type TotalityEdge<N> = {
     from: N;
     to: N;
 };
@@ -61,7 +61,7 @@ declare type TotalityEdge<N> = {
  *  @typeParam N - The node-id type (usually `string`).
  *
  */
-declare type TotalityGraph<N> = {
+type TotalityGraph<N> = {
     nodes: N[];
     edges: TotalityEdge<N>[];
 };
@@ -76,7 +76,7 @@ declare type TotalityGraph<N> = {
  *  @typeParam N - The node-id type.
  *
  */
-declare type CycleResult<N> = {
+type CycleResult<N> = {
     acyclic: true;
     cycle?: undefined;
 } | {
@@ -97,7 +97,7 @@ declare type CycleResult<N> = {
  *                    defensively.  Treated as non-terminating for safety.
  *
  */
-declare type CascadeOutcome = 'settled' | 'cycle' | 'unbounded';
+type CascadeOutcome = 'settled' | 'cycle' | 'unbounded';
 /*******
  *
  *  The result of simulating one reaction's eventless-microstep cascade.
@@ -105,7 +105,7 @@ declare type CascadeOutcome = 'settled' | 'cycle' | 'unbounded';
  *  @typeParam N - The node-id type.
  *
  */
-declare type CascadeResult<N> = {
+type CascadeResult<N> = {
     /** Why the cascade stopped — see {@link CascadeOutcome}. */
     outcome: CascadeOutcome;
     /** `true` iff the reaction stabilized (`outcome === 'settled'`). */

@@ -154,7 +154,6 @@ declare function undoublequote(txt: string): string;
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.

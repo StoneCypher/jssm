@@ -7,6 +7,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _Machine_instances, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
 import { circular_buffer } from 'circular_buffer_js';
 import { make, transitive_members, membership_distance } from './jssm_compiler.js';
+import { canonical_config } from './fsl_canonical.js';
 import { theme_mapping, base_theme } from './jssm_theme.js';
 import { seq, weighted_rand_select, histograph, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, } from './jssm_util.js';
 import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
@@ -64,6 +65,57 @@ import { JssmError } from './jssm_error.js';
  *  @internal
  *
  */
+/*********
+ *
+ *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
+ *  a {@link JssmError} on a type or range violation.  Used both at construction
+ *  (initial values) and on every `set_val` write.
+ *
+ */
+function validate_val_value(name, vtype, value, machine) {
+    switch (vtype.kind) {
+        case 'boolean': {
+            if (typeof value !== 'boolean') {
+                throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        case 'string': {
+            if (typeof value !== 'string') {
+                throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        case 'int': {
+            // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
+            if (!Number.isInteger(value)) {
+                throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
+            }
+            if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < vtype.lo) {
+                throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${vtype.lo}`);
+            }
+            if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > vtype.hi) {
+                throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${vtype.hi}`);
+            }
+            break;
+        }
+        case 'enum': {
+            if (!vtype.members.includes(value)) {
+                throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
+        // only ever emits four kinds of, so this default is unreachable at runtime;
+        // the `never` assignment turns an unhandled future kind into a compile error.
+        /* v8 ignore start */
+        default: {
+            const _exhaustive = vtype;
+            throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
+        }
+        /* v8 ignore stop */
+    }
+}
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
         switch (d.key) {
@@ -404,7 +456,7 @@ const DEFAULT_TIMEOUT_SOURCE = (f, a) => {
 const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         _Machine_instances.add(this);
         this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
         this._create_started = this._time_source();
@@ -506,6 +558,10 @@ class Machine {
         this._state_properties = new Map();
         this._required_properties = new Set();
         this._state_property_first_state = new Map();
+        this._val_keys = new Set();
+        this._val_types = new Map();
+        this._val_values = new Map();
+        this._required_vals = new Set();
         this._state_style = state_style_condense(default_state_config, this);
         this._active_state_style = state_style_condense(default_active_state_config, this);
         this._hooked_state_style = state_style_condense(default_hooked_state_config, this);
@@ -765,6 +821,48 @@ class Machine {
                     this._required_properties.add(pr.name);
                 }
             }
+        }
+        if (Array.isArray(val_definition)) {
+            for (const vd of val_definition) {
+                this._val_keys.add(vd.name);
+                this._val_types.set(vd.name, vd.val_type);
+                if (Object.prototype.hasOwnProperty.call(vd, 'required') && (vd.required === true)) {
+                    if (Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+                        throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
+                    }
+                    this._required_vals.add(vd.name);
+                }
+            }
+            const supplied = (vals && (typeof vals === 'object')) ? vals : {};
+            for (const name of Object.keys(supplied)) {
+                if (!this._val_keys.has(name)) {
+                    throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
+                }
+            }
+            this._val_keys.forEach(name => {
+                const vtype = this._val_types.get(name);
+                let value;
+                if (Object.prototype.hasOwnProperty.call(supplied, name)) {
+                    value = supplied[name];
+                }
+                else {
+                    const vd = val_definition.find(d => d.name === name);
+                    if (vd && Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+                        value = vd.default_value;
+                    }
+                    else if (this._required_vals.has(name)) {
+                        throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
+                    }
+                    else {
+                        // vals are non-null by default (megaspec §4.4): a val that is
+                        // neither supplied, defaulted, nor required has no value of its
+                        // declared type, so it is a construction error rather than undefined.
+                        throw new JssmError(this, `The val "${name}" has no value: give it a default, declare it required, or supply it at construction (vals are non-null by default)`);
+                    }
+                }
+                validate_val_value(name, vtype, value, this);
+                this._val_values.set(name, value);
+            });
         }
         if (Array.isArray(state_property)) {
             for (const sp of state_property) {
@@ -1193,6 +1291,125 @@ class Machine {
     known_props() {
         return [...this._property_keys];
     }
+    /*********
+     *
+     *  Read the current value of a declared machine `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val ok : boolean default true; a -> b;`;
+     *
+     *  m.val('ok');   // true
+     *  ```
+     *
+     *  @param name The declared val name to read.
+     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val(name) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        return this._val_values.get(name);
+    }
+    /*********
+     *
+     *  Set the value of a declared machine `val`, validating it against the val's
+     *  declared type.  This is the runtime mutation surface; source-level `assign`
+     *  arrives in a later phase.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int default 0; a -> b;`;
+     *
+     *  m.set_val('n', 5);
+     *  m.val('n');   // 5
+     *  ```
+     *
+     *  @param name  The declared val name to write.
+     *  @param value The new value; must satisfy the val's declared type.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *
+     */
+    set_val(name, value) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        validate_val_value(name, this._val_types.get(name), value, this);
+        this._val_values.set(name, value);
+    }
+    /*********
+     *
+     *  Return a plain object mapping every declared val name to its current value.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+     *
+     *  m.vals();   // { a: 1, b: false }
+     *  ```
+     *
+     *  @returns An object of every declared val name to its current value.
+     *
+     */
+    vals() {
+        const result = {};
+        this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
+        return result;
+    }
+    /*********
+     *
+     *  Check whether a string is the name of a declared `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; x -> y;`;
+     *
+     *  m.known_val('a');   // true
+     *  m.known_val('z');   // false
+     *  ```
+     *
+     *  @param name The candidate val name.
+     *  @returns Whether the name is a declared val.
+     *
+     */
+    known_val(name) {
+        return this._val_keys.has(name);
+    }
+    /*********
+     *
+     *  List every declared `val` name, in declaration order.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+     *
+     *  m.known_vals();   // ['a', 'b']
+     *  ```
+     *
+     *  @returns The declared val names in declaration order.
+     *
+     */
+    known_vals() {
+        return [...this._val_keys];
+    }
+    /*********
+     *
+     *  Return the declared type descriptor of a `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+     *
+     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+     *  ```
+     *
+     *  @param name The declared val name.
+     *  @returns The val's declared type descriptor.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val_type(name) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        return this._val_types.get(name);
+    }
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
@@ -1354,6 +1571,18 @@ class Machine {
             history_capacity: this._history.capacity,
             timestamp: this._time_source(),
         };
+    }
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration
+     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+     *  hashing.  Excludes envelope fields (timestamp/comment/history).
+     *  @returns The canonical config string.
+     *  @example
+     *    import { sm } from 'jssm';
+     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+     */
+    canonical() {
+        return canonical_config(this._state, this._data);
     }
     /**
      * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
@@ -1824,9 +2053,7 @@ class Machine {
      *  m.themes = 'ocean';
      *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
      *  ```
-     *
      *  @param to - A theme name or array of theme names to apply.
-     *
      *  @see resolve_state_config
      */
     set themes(to) {
@@ -2086,7 +2313,6 @@ class Machine {
      *  transition.  A terminal start therefore completes with length zero even
      *  when `max_steps` is zero, and a terminal reached on the final permitted
      *  transition is completed rather than step-capped.
-     *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
      *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}

@@ -1,11 +1,11 @@
 import type { StimulusTape } from './fsl_stimulus_tape';
-declare type ReplayStep = {
+type ReplayStep = {
     index: number;
     op: string;
     name?: string;
     accepted: boolean;
 };
-declare type ReplayResult = {
+type ReplayResult = {
     final_state: unknown;
     final_data: unknown;
     steps: ReplayStep[];
@@ -14,12 +14,10 @@ declare type ReplayResult = {
 };
 /**
  * Replay `tape` against the machine compiled from `source`.
- *
  * @param source - FSL source text.
  * @param tape - The parsed stimulus tape.
  * @returns The deterministic {@link ReplayResult}.
  * @throws ReplayError `source_hash_mismatch` / `no_pending_timer`.
- *
  * @example
  *   replay("a 'go' -> b;", parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"action","name":"go"}'));
  */

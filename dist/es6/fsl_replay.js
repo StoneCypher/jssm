@@ -10,12 +10,10 @@ import { canonical_config } from './fsl_canonical';
 import { ReplayError } from './fsl_stimulus_tape';
 /**
  * Replay `tape` against the machine compiled from `source`.
- *
  * @param source - FSL source text.
  * @param tape - The parsed stimulus tape.
  * @returns The deterministic {@link ReplayResult}.
  * @throws ReplayError `source_hash_mismatch` / `no_pending_timer`.
- *
  * @example
  *   replay("a 'go' -> b;", parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"action","name":"go"}'));
  */
@@ -29,7 +27,7 @@ function replay(source, tape) {
     let pending = null;
     const machine = new Machine(Object.assign(Object.assign({}, make(source)), { time_source: () => 0, timeout_source: (f, _ms) => { pending = f; return 1; }, clear_timeout_source: (_h) => { pending = null; } }));
     const steps = [];
-    tape.stimuli.forEach((s, index) => {
+    for (const [index, s] of tape.stimuli.entries()) {
         let accepted;
         if (s.op === 'action') {
             accepted = machine.action(s.name, s.data);
@@ -49,7 +47,7 @@ function replay(source, tape) {
         steps.push(s.op === 'timer'
             ? { index, op: 'timer', accepted }
             : { index, op: s.op, name: s.name, accepted });
-    });
+    }
     const final_state = machine.state();
     const final_data = machine.data();
     return {
