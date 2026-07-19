@@ -53,6 +53,17 @@ const FENCE_ALPHA_11 = [
   '',
 ].join('\n');
 
+// mirrors the REAL packages/jssm-cli/package.json shape: BOTH sibling pins
+// plus the file: root dep, all on one compact dependencies line
+const CLI_ALPHA_11 = [
+  '{',
+  '  "name": "jssm-cli",',
+  '  "version": "6.0.0-alpha.11",',
+  '  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.11", "jssm-fence": "6.0.0-alpha.11" }',
+  '}',
+  '',
+].join('\n');
+
 describe('stampWorkspaceManifests', () => {
 
   test('rewrites version and sibling pins to the root version', () => {
@@ -136,6 +147,59 @@ describe('stampWorkspaceManifests', () => {
 
     expect(stamped).toEqual([]);
     expect(readFileSync(join(dir, 'packages/jssm-fence/package.json'), 'utf8')).toBe(already);
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('the real jssm-cli shape: both sibling pins stamp, file: dep survives byte-identical', () => {
+
+    const dir = fixtureWorkspace({ 'jssm-viz': VIZ_ALPHA_11, 'jssm-fence': FENCE_ALPHA_11, 'jssm-cli': CLI_ALPHA_11 });
+
+    makever.stampWorkspaceManifests(rootPkg('6.0.0-alpha.12'), { cwd: dir });
+
+    const cli_text = readFileSync(join(dir, 'packages/jssm-cli/package.json'), 'utf8'),
+          cli = JSON.parse(cli_text);
+
+    expect(cli.version).toBe('6.0.0-alpha.12');
+    expect(cli.dependencies['jssm-viz']).toBe('6.0.0-alpha.12');
+    expect(cli.dependencies['jssm-fence']).toBe('6.0.0-alpha.12');
+    expect(cli_text).toContain('"dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.12", "jssm-fence": "6.0.0-alpha.12" }');
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('a manifest with no top-level version field throws loudly, naming the file', () => {
+
+    const no_version = [
+      '{',
+      '  "name": "jssm-viz",',
+      '  "dependencies": { "jssm": "file:../.." }',
+      '}',
+      '',
+    ].join('\n');
+
+    const dir = fixtureWorkspace({ 'jssm-viz': no_version });
+
+    expect(() => makever.stampWorkspaceManifests(rootPkg('6.0.0-alpha.12'), { cwd: dir }))
+      .toThrow(/jssm-viz[\\/]package\.json.*version/);
+
+    // and the loud failure must not have half-written the file
+    expect(readFileSync(join(dir, 'packages/jssm-viz/package.json'), 'utf8')).toBe(no_version);
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('a workspace dir resolved by the glob but lacking a manifest throws loudly, naming the path', () => {
+
+    const dir = fixtureWorkspace({ 'jssm-viz': VIZ_ALPHA_11 });
+
+    mkdirSync(join(dir, 'packages', 'jssm-broken'), { recursive: true });
+
+    expect(() => makever.stampWorkspaceManifests(rootPkg('6.0.0-alpha.12'), { cwd: dir }))
+      .toThrow(/jssm-broken[\\/]package\.json/);
 
     rmSync(dir, { recursive: true, force: true });
 

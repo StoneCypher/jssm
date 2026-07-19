@@ -36,9 +36,10 @@
  * scripts — one a build-DAG stage, the other a separate CI job — so
  * duplicating this small resolver is the sanctioned pattern here, not an
  * exception to it). Unlike the release gate, an empty or absent
- * `workspaces` field just means "nothing to stamp" — there is no
- * "promised but missing" hard-failure case, since stamping is a best-effort
- * build step, not a release gate.
+ * `workspaces` field just means "nothing to stamp"; but like the release
+ * gate, a directory the glob DID resolve that lacks a manifest is a hard
+ * error — a promised workspace package that's missing means a broken tree,
+ * and skipping it silently would let the lockstep drift.
  *
  * @example
  * // Build DAG invocation (stage 1, package.json's "makever" script)
@@ -250,7 +251,12 @@ const resolveWorkspaceDirNames = (root_pkg, list_dir_names = listRealDirNames) =
  * @param root_version - The lockstep version to stamp
  * @param sibling_names - Other workspace package names that might be pinned in this manifest's `dependencies`
  * @returns Whether the file was written (`false` means it already matched)
- * @throws {Error} when `manifest_path` can't be read, or the rewritten text fails to re-parse with the expected version — a malformed rewrite must never be written silently
+ * @throws {Error} when `manifest_path` can't be read, or when the stamped
+ *   text does not re-parse to a manifest whose `version` equals
+ *   `root_version` — which covers both a malformed rewrite and a manifest
+ *   with no top-level `version` field at all (the text replace silently
+ *   matches nothing in that case, so this assert runs unconditionally,
+ *   BEFORE the no-change short-circuit, and can never be bypassed by it)
  *
  * @example
  * stampWorkspaceManifest('packages/jssm-fence/package.json', '6.0.1', ['jssm-viz']);
@@ -261,8 +267,6 @@ const stampWorkspaceManifest = (manifest_path, root_version, sibling_names) => {
   const raw_text = fs.readFileSync(manifest_path, 'utf8'),
         new_text = stampWorkspaceManifestText(raw_text, root_version, sibling_names);
 
-  if (new_text === raw_text) { return false; }
-
   let reparsed;
 
   try {
@@ -272,8 +276,10 @@ const stampWorkspaceManifest = (manifest_path, root_version, sibling_names) => {
   }
 
   if (reparsed.version !== root_version) {
-    throw new Error(`makever: stamping ${manifest_path} failed to set version to ${root_version}`);
+    throw new Error(`makever: ${manifest_path} has no top-level "version" field holding ${root_version} after stamping — the manifest is missing its version field, or the stamp failed; refusing to proceed silently`);
   }
+
+  if (new_text === raw_text) { return false; }
 
   fs.writeFileSync(manifest_path, new_text);
 
@@ -292,11 +298,17 @@ const stampWorkspaceManifest = (manifest_path, root_version, sibling_names) => {
  *
  * @param root_pkg - Parsed root package.json; its `version` and `workspaces` fields drive the stamp
  * @param options.cwd - Directory `packages/*` is resolved against (defaults to the process's cwd; overridable for tests)
- * @returns Relative paths (`packages/<name>/package.json`) of manifests that were actually rewritten; `[]` when the tree is already lockstep
+ * @returns Relative paths of manifests that were actually rewritten, built
+ *   with `path.join` so the separator is platform-native (`packages\\<name>\\package.json`
+ *   on Windows, `packages/<name>/package.json` on POSIX); `[]` when the tree
+ *   is already lockstep
+ * @throws {Error} when a directory the `workspaces` glob resolved to has no
+ *   `package.json` — the glob promised a workspace package, so a missing
+ *   manifest is a broken tree, never something to skip silently
  *
  * @example
  * stampWorkspaceManifests({ version: '6.0.1', workspaces: ['packages/*'] });
- * // => ['packages/jssm-viz/package.json'] (only the files that needed a bump)
+ * // => [path.join('packages', 'jssm-viz', 'package.json')] (only the files that needed a bump)
  */
 const stampWorkspaceManifests = (root_pkg, { cwd = process.cwd() } = {}) => {
 
@@ -309,7 +321,9 @@ const stampWorkspaceManifests = (root_pkg, { cwd = process.cwd() } = {}) => {
     const relative_path = path.join('packages', name, 'package.json'),
           manifest_path  = path.join(cwd, relative_path);
 
-    if (!fs.existsSync(manifest_path)) { continue; }
+    if (!fs.existsSync(manifest_path)) {
+      throw new Error(`makever: workspace directory "${name}" was resolved from the workspaces glob but has no manifest at ${manifest_path} — a promised workspace package is missing, refusing to skip it silently`);
+    }
 
     const sibling_names = workspace_names.filter((n) => n !== name && n !== 'jssm');
 
@@ -351,11 +365,21 @@ export { version, build_time };
 
 
 
-/** CLI entry point: writes `src/ts/version.ts`, then stamps every workspace manifest to the root's lockstep version. */
+/** CLI entry point: writes `src/ts/version.ts`, stamps every workspace manifest to the root's lockstep version, and logs one line naming what (if anything) was stamped, for build-log auditability. */
 const main = () => {
+
   const pkg = JSON.parse(fs.readFileSync('package.json'));
+
   writeVersionFile(pkg);
-  stampWorkspaceManifests(pkg);
+
+  const stamped = stampWorkspaceManifests(pkg);
+
+  if (stamped.length > 0) {
+    console.log(`makever: stamped ${pkg.version} into ${stamped.join(', ')}`);
+  } else {
+    console.log(`makever: workspace manifests already at lockstep ${pkg.version}`);
+  }
+
 };
 
 
