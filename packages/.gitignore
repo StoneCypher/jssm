@@ -1,1 +1,5 @@
-*/dist/
+# Member package dist/ is intentionally NOT ignored: like the root jssm
+# package, each member publishes its committed dist (the release job packs
+# tracked files with no rebuild), so the merge-down `npm run build` commits
+# packages/*/dist just as it commits root dist. Gitignoring it here made the
+# release checkout pack empty member tarballs.

@@ -19,5 +19,24 @@
   },
   "files": ["dist/", "custom-elements.json", "README.md"],
   "dependencies": { "jssm": "file:../.." },
-  "optionalDependencies": { "@viz-js/viz": "^3.26.0" }
+  "optionalDependencies": { "@viz-js/viz": "^3.26.0" },
+  "peerDependencies": {
+    "@codemirror/autocomplete": ">=6",
+    "@codemirror/commands": ">=6",
+    "@codemirror/language": ">=6",
+    "@codemirror/lint": ">=6",
+    "@codemirror/state": ">=6",
+    "@codemirror/view": ">=6 <6.43.3 || >6.43.4",
+    "@lezer/highlight": ">=1",
+    "lit": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "lit": { "optional": true },
+    "@codemirror/autocomplete": { "optional": true },
+    "@codemirror/commands": { "optional": true },
+    "@codemirror/language": { "optional": true },
+    "@codemirror/lint": { "optional": true },
+    "@codemirror/state": { "optional": true },
+    "@codemirror/view": { "optional": true }
+  }
 }
