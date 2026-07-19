@@ -5,10 +5,10 @@
  *
  * Lives at the fence/core level rather than under `cli/`: jssm-fence may not
  * depend on jssm-cli (package layering runs core -> viz -> fence -> cli), and
- * the fence renderer needs this rasterizer directly. The former
- * `cli/subcommands/render/rasterize.ts` (and its `bundled-font.ts` sibling)
- * now re-export from here and this module, respectively, for backward
- * compatibility with the CLI's own imports.
+ * the fence renderer needs this rasterizer directly. For backward
+ * compatibility with the CLI's own imports, the former
+ * `cli/subcommands/render/rasterize.ts` now re-exports from this module, and
+ * its `bundled-font.ts` sibling re-exports from `fsl_rasterize_font.ts`.
  */
 import { RasterizationUnsupportedError, RenderError } from './fsl_rasterize_errors.js';
 import { bundledFontBytes } from './fsl_rasterize_font.js';

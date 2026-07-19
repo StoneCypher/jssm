@@ -1,5 +1,9 @@
 import type { RenderTarget, RenderOptions, RenderResult, RasterResult, TextResult } from '../../cli/types';
 import { RenderError, RasterizationUnsupportedError, TypegenError, RENDER_TARGETS } from '../../cli/types';
+import {
+  RenderError                   as SourceRenderError,
+  RasterizationUnsupportedError as SourceRasterizationUnsupportedError,
+} from '../../fsl_rasterize_errors';
 import { SPEC } from '../../cli/subcommands/render/plugin';
 
 describe('cli/types', () => {
@@ -53,6 +57,15 @@ describe('cli/types', () => {
     expect(e.path).toBeUndefined();
     expect(e.line).toBeUndefined();
     expect(e.column).toBeUndefined();
+  });
+
+  it('re-exports the SAME error classes as fsl_rasterize_errors (reference identity, not copies)', () => {
+    // The error classes moved to fence-owned fsl_rasterize_errors.ts;
+    // cli/types.ts re-exports them. If either path ever declared its own
+    // copy, instanceof would break across the fence/cli package boundary at
+    // runtime — pin reference identity, not just shape.
+    expect(RenderError).toBe(SourceRenderError);
+    expect(RasterizationUnsupportedError).toBe(SourceRasterizationUnsupportedError);
   });
 
 });
