@@ -27,6 +27,77 @@ describe('PUBLISH_ORDER', () => {
 
 });
 
+describe('assertPublishOrderCoverage — PUBLISH_ORDER coverage guard', () => {
+
+  test('the real packages/* members are all covered by the real PUBLISH_ORDER (non-vacuity: this is exactly the current repo shape)', () => {
+    expect(() => pw.assertPublishOrderCoverage(['jssm-viz', 'jssm-fence', 'jssm-cli'])).not.toThrow();
+  });
+
+  test('a workspace member with no PUBLISH_ORDER slot throws, naming it', () => {
+    expect(() => pw.assertPublishOrderCoverage(['jssm-viz', 'jssm-new-package'])).toThrow(/"jssm-new-package"/);
+  });
+
+  test('the thrown message names PUBLISH_ORDER, so the fix is discoverable from the error alone', () => {
+    expect(() => pw.assertPublishOrderCoverage(['jssm-new-package'])).toThrow(/PUBLISH_ORDER/);
+  });
+
+  test('multiple missing members are all named, with pluralized wording', () => {
+    let caught: Error | undefined;
+    try { pw.assertPublishOrderCoverage(['jssm-new-a', 'jssm-new-b']); } catch (e) { caught = e as Error; }
+    expect(caught).toBeDefined();
+    expect(caught!.message).toContain('"jssm-new-a"');
+    expect(caught!.message).toContain('"jssm-new-b"');
+    expect(caught!.message).toContain('have no entry');
+  });
+
+  test('a single missing member uses singular wording', () => {
+    expect(() => pw.assertPublishOrderCoverage(['jssm-new-package'])).toThrow(/has no entry/);
+  });
+
+  test('an empty resolved set never throws (nothing to cover)', () => {
+    expect(() => pw.assertPublishOrderCoverage([])).not.toThrow();
+  });
+
+  test('an explicit publish_order argument overrides PUBLISH_ORDER itself', () => {
+    expect(() => pw.assertPublishOrderCoverage(['a', 'b'], ['a', 'b', 'c'])).not.toThrow();
+    expect(() => pw.assertPublishOrderCoverage(['a', 'd'], ['a', 'b', 'c'])).toThrow(/"d"/);
+  });
+
+});
+
+describe('resolveWorkspaceDirNames', () => {
+
+  test('resolves packages/* via the injected directory lister', () => {
+    const names = pw.resolveWorkspaceDirNames({ workspaces: ['packages/*'] }, () => ['jssm-viz', 'jssm-fence', 'jssm-cli']);
+    expect(names).toEqual(['jssm-cli', 'jssm-fence', 'jssm-viz']);
+  });
+
+  test('no workspaces field resolves to no packages', () => {
+    expect(pw.resolveWorkspaceDirNames({ name: 'jssm' }, () => [])).toEqual([]);
+  });
+
+  test('a glob that resolves to nothing on disk yields no packages (no DEFAULT_WORKSPACE_PACKAGES fallback here)', () => {
+    expect(pw.resolveWorkspaceDirNames({ workspaces: ['packages/*'] }, () => [])).toEqual([]);
+  });
+
+});
+
+describe('expandWorkspacePattern', () => {
+
+  test('a literal path (no wildcard) yields its own basename', () => {
+    expect(pw.expandWorkspacePattern('packages/jssm-cli', () => { throw new Error('must not list dir'); })).toEqual(['jssm-cli']);
+  });
+
+  test('a trailing /* wildcard lists the base directory', () => {
+    const names = pw.expandWorkspacePattern('packages/*', (dir: string) => {
+      expect(dir).toBe('packages');
+      return ['jssm-viz', 'jssm-fence', 'jssm-cli'];
+    });
+    expect(names).toEqual(['jssm-viz', 'jssm-fence', 'jssm-cli']);
+  });
+
+});
+
 describe('manifestPathFor', () => {
 
   test('the root package resolves to the repo-root manifest', () => {

@@ -57,6 +57,16 @@
  * for all four packages, root included, keeps the loop uniform and avoids
  * relative-path bugs across POSIX/Windows.
  *
+ * {@link PUBLISH_ORDER}'s dependency ORDER is hand-maintained (a new
+ * package's position relative to its siblings is an editorial call this file
+ * does not automate), but its COVERAGE is guarded: {@link resolvePackages}
+ * cross-checks the hardcoded list against the root manifest's `workspaces`
+ * glob (`resolveWorkspaceDirNames`, duplicated from `makever.cjs`/
+ * `verify_version_bump.cjs` by the same "independent CLI entry points" design
+ * noted above) and throws if a real `packages/*` member has no
+ * {@link PUBLISH_ORDER} slot — so a 4th workspace package added later fails
+ * loudly here instead of silently never being published.
+ *
  * @example
  * // CI's actual invocation (.github/workflows/nodejs.yml, release job)
  * //   $ node src/scripts/publish_workspaces.cjs
@@ -131,28 +141,150 @@ const readManifest = (manifest_path) => {
 
 
 
+// ---------------------------------------------------------------------------
+// PUBLISH_ORDER coverage guard (fsl#1969 follow-up): dynamically resolve the
+// real on-disk workspace members and assert PUBLISH_ORDER has a slot for
+// every one of them. Mirrors makever.cjs's/verify_version_bump.cjs's own
+// `workspaces` glob resolution (duplicated by design — see this file's
+// module DocBlock) rather than importing across the buildjs/scripts split.
+// ---------------------------------------------------------------------------
+
+/** Reads real subdirectory names off disk; a missing base directory (no `packages/` yet) resolves to `[]` rather than throwing. Mirrors `makever.cjs`'s/`verify_version_bump.cjs`'s function of the same name. */
+const listRealDirNames = (dir) => {
+  try {
+    return fs.readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name);
+  } catch {
+    return [];
+  }
+};
+
+
+
 /**
- * Resolves every package this run publishes, in {@link PUBLISH_ORDER}: reads
- * each one's own manifest for its current version, and sanity-checks that the
+ * Expands one `workspaces` glob pattern into directory names. Only the
+ * trailing-`/*` form (e.g. `packages/*`, the sole pattern this repo uses)
+ * needs a directory listing; a literal path resolves to its own basename with
+ * no filesystem access. Mirrors `makever.cjs`'s/`verify_version_bump.cjs`'s
+ * function of the same name (duplicated by design — see this file's module
+ * DocBlock).
+ *
+ * @param pattern - One entry from package.json's `workspaces` array (e.g. `'packages/*'`)
+ * @param list_dir_names - Given a directory path, returns the names of its subdirectories
+ * @returns Directory/package names this pattern resolves to
+ *
+ * @example
+ * expandWorkspacePattern('packages/*', (dir) => ['jssm-viz', 'jssm-cli']);
+ * // => ['jssm-viz', 'jssm-cli']
+ */
+const expandWorkspacePattern = (pattern, list_dir_names) => {
+  if (!pattern.endsWith('/*')) { return [pattern.split('/').pop()]; }
+  return list_dir_names(pattern.slice(0, -2));
+};
+
+
+
+/**
+ * Resolves the on-disk workspace package directory names declared by the root
+ * manifest's `workspaces` field — the same dynamic derivation
+ * `makever.cjs`/`verify_version_bump.cjs` use, duplicated here so
+ * {@link assertPublishOrderCoverage} can compare {@link PUBLISH_ORDER}
+ * against real disk state rather than trusting the hardcoded list to have
+ * kept up.
+ *
+ * @param root_pkg - Parsed root package.json
+ * @param list_dir_names - Given a directory path, returns the names of its subdirectories (defaults to a real fs read)
+ * @returns Workspace package directory names, sorted; `[]` when `workspaces` is absent or resolves to nothing on disk
+ *
+ * @example
+ * resolveWorkspaceDirNames({ workspaces: ['packages/*'] }, () => ['jssm-viz', 'jssm-fence', 'jssm-cli']);
+ * // => ['jssm-cli', 'jssm-fence', 'jssm-viz']
+ */
+const resolveWorkspaceDirNames = (root_pkg, list_dir_names = listRealDirNames) => {
+
+  if (!root_pkg.workspaces) { return []; }
+
+  const patterns = Array.isArray(root_pkg.workspaces) ? root_pkg.workspaces : (root_pkg.workspaces.packages ?? []),
+        names     = new Set();
+
+  for (const pattern of patterns) {
+    for (const name of expandWorkspacePattern(pattern, list_dir_names)) { names.add(name); }
+  }
+
+  return [...names].sort();
+
+};
+
+
+
+/**
+ * Asserts every dynamically-resolved workspace package name has a slot in
+ * {@link PUBLISH_ORDER} — the COVERAGE half of the ordering contract.
+ * PUBLISH_ORDER's ORDER stays hand-maintained (a new package's dependency
+ * position relative to its siblings is an editorial decision this function
+ * does not make), but coverage must never silently lapse: a `packages/*`
+ * member with no PUBLISH_ORDER entry would build and ship in the workspace,
+ * yet this script would never publish it, and nothing today would say so.
+ *
+ * @param workspace_names - Names resolved off disk (see {@link resolveWorkspaceDirNames})
+ * @param publish_order - The order list to check against (defaults to {@link PUBLISH_ORDER})
+ * @throws {Error} naming every workspace package with no {@link PUBLISH_ORDER} entry
+ *
+ * @example
+ * assertPublishOrderCoverage(['jssm-viz', 'jssm-fence', 'jssm-cli']); // does not throw
+ * @example
+ * assertPublishOrderCoverage(['jssm-viz', 'jssm-new']);
+ * // throws: workspace package(s) "jssm-new" ... has no entry in PUBLISH_ORDER
+ */
+const assertPublishOrderCoverage = (workspace_names, publish_order = PUBLISH_ORDER) => {
+
+  const missing = workspace_names.filter((name) => !publish_order.includes(name));
+
+  if (missing.length === 0) { return; }
+
+  const quoted = missing.map((name) => `"${name}"`).join(', '),
+        plural = missing.length > 1;
+
+  throw new Error(
+    `publish_workspaces: workspace package(s) ${quoted} resolved from package.json's "workspaces" glob but ` +
+    `${plural ? 'have' : 'has'} no entry in PUBLISH_ORDER — add ${plural ? 'them' : 'it'} to PUBLISH_ORDER at the ` +
+    'correct dependency position before this package can ever be published',
+  );
+
+};
+
+
+
+/**
+ * Resolves every package this run publishes, in {@link PUBLISH_ORDER}: first
+ * asserts {@link assertPublishOrderCoverage} against the real on-disk
+ * `packages/*` members (so a workspace member missing from PUBLISH_ORDER
+ * fails loudly here, before anything is read for it), then reads each listed
+ * package's own manifest for its current version, and sanity-checks that the
  * manifest's declared `name` actually matches the slot it was found in (a
  * mismatch means the workspace tree is not shaped the way this script
  * assumes, and must never be silently published under the wrong identity).
  *
  * @returns One `{ name, version }` per package, in publish order
- * @throws {Error} when a manifest is unreadable, or its `name` field disagrees with its expected slot
+ * @throws {Error} when a real workspace member has no {@link PUBLISH_ORDER} entry, when a manifest is unreadable, or when a manifest's `name` field disagrees with its expected slot
  */
-const resolvePackages = () => PUBLISH_ORDER.map((name) => {
+const resolvePackages = () => {
 
-  const manifest_path = manifestPathFor(name),
-        manifest      = readManifest(manifest_path);
+  assertPublishOrderCoverage(resolveWorkspaceDirNames(readManifest('./package.json')));
 
-  if (manifest.name !== name) {
-    throw new Error(`${manifest_path}: manifest name "${manifest.name}" does not match the expected package "${name}"`);
-  }
+  return PUBLISH_ORDER.map((name) => {
 
-  return { name, version: manifest.version };
+    const manifest_path = manifestPathFor(name),
+          manifest      = readManifest(manifest_path);
 
-});
+    if (manifest.name !== name) {
+      throw new Error(`${manifest_path}: manifest name "${manifest.name}" does not match the expected package "${name}"`);
+    }
+
+    return { name, version: manifest.version };
+
+  });
+
+};
 
 
 
@@ -622,6 +754,10 @@ module.exports = {
   PUBLISH_ORDER,
   manifestPathFor,
   readManifest,
+  listRealDirNames,
+  expandWorkspacePattern,
+  resolveWorkspaceDirNames,
+  assertPublishOrderCoverage,
   resolvePackages,
   escapeRegExp,
   replaceJsonStringField,

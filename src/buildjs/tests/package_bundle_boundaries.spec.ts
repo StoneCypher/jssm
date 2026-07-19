@@ -148,6 +148,79 @@ function bare_specifiers(src: string): string[] {
 
 
 
+/*******
+ *
+ *  Manifest reconciliation: EXPECTED_EXTERNALS is a hand-maintained
+ *  allowlist of what each bundle MAY reach, but nothing above checks that
+ *  reach is actually installable — the ajv-missing-from-jssm-cli and
+ *  lit/@codemirror-missing-from-jssm-viz gaps were both externals the
+ *  allowlist already expected, with no npm dependency backing them, so a
+ *  consumer's `require`/`import` would 404 at runtime with every assertion
+ *  above green. The functions and test below close that gap by reading each
+ *  published package's OWN package.json at test time and asserting every
+ *  external its bundles reach is either a node builtin, the package itself
+ *  (a bundle importing its own published entry point), or declared under
+ *  `dependencies`/`optionalDependencies`/`peerDependencies`.
+ *
+ */
+
+/**
+ * Node builtin module names accepted as externals with no manifest
+ * declaration required. The built bundles emit these with a `node:` prefix
+ * (Node's module resolution reserves that scheme for core modules, so the
+ * prefix alone is authoritative); the bare, unprefixed form is accepted too
+ * as a defensive fallback should a future bundle emit one without it.
+ */
+const NODE_BUILTINS = new Set([
+  'assert', 'buffer', 'child_process', 'crypto', 'events', 'fs', 'fs/promises',
+  'module', 'os', 'path', 'process', 'stream', 'url', 'util',
+]);
+
+/**
+ * Extracts the npm package name a bare import specifier resolves against,
+ * stripping any subpath: `lit/decorators.js` -> `lit`, `@codemirror/view` ->
+ * `@codemirror/view` (a scoped package's own name already has a slash, so
+ * only a THIRD segment is a subpath), `@lezer/highlight` -> `@lezer/highlight`.
+ *
+ * @param specifier - a bare (non-relative) module specifier
+ * @returns the package name the specifier is imported from
+ *
+ * @example
+ * package_name_of('lit/decorators.js'); // => 'lit'
+ * @example
+ * package_name_of('@codemirror/view'); // => '@codemirror/view'
+ */
+function package_name_of(specifier: string): string {
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
+}
+
+/**
+ * Builds the set of dependency names one package.json declares across
+ * `dependencies`, `optionalDependencies`, and `peerDependencies` — the full
+ * closure of names a consumer installing the package (with its optional and
+ * peer deps satisfied) is guaranteed to have resolvable.
+ *
+ * @param pkg_json - a parsed package.json object
+ * @returns the union of declared dependency names across the three sections
+ *
+ * @example
+ * declared_dependency_closure({ dependencies: { jssm: 'file:../..' }, peerDependencies: { lit: '>=3' } });
+ * // => Set(['jssm', 'lit'])
+ */
+function declared_dependency_closure(pkg_json: Record<string, unknown>): Set<string> {
+  const sections = ['dependencies', 'optionalDependencies', 'peerDependencies'] as const;
+  const names = new Set<string>();
+  for (const section of sections) {
+    const map = pkg_json[section] as Record<string, string> | undefined;
+    if (map) { for (const name of Object.keys(map)) { names.add(name); } }
+  }
+  return names;
+}
+
+/** The three packages published from `packages/*`, checked against their own manifests below. */
+const PUBLISHED_PACKAGES: string[] = ['jssm-viz', 'jssm-fence', 'jssm-cli'];
+
 const packages_built = ALL_BUNDLES.every(b => existsSync(resolve(root, b)));
 
 describe.skipIf(!packages_built)('externalized package bundle boundaries (requires built packages/*/dist — run make)', () => {
@@ -161,6 +234,38 @@ describe.skipIf(!packages_built)('externalized package bundle boundaries (requir
   describe('external reach is exactly the expected bare specifier set', () => {
     test.each(ALL_BUNDLES)('%s', (bundle: string) => {
       expect(bare_specifiers(contents.get(bundle)!)).toEqual(EXPECTED_EXTERNALS[bundle]);
+    });
+  });
+
+  describe('every expected external is backed by a real dependency declaration', () => {
+    test.each(PUBLISHED_PACKAGES)('%s: bundle externals reconcile against package.json', (pkg_name: string) => {
+
+      const pkg_json_path = resolve(root, 'packages', pkg_name, 'package.json');
+      const pkg_json       = JSON.parse(readFileSync(pkg_json_path, 'utf8')) as Record<string, unknown>;
+      const declared       = declared_dependency_closure(pkg_json);
+
+      const own_bundles = ALL_BUNDLES.filter(b => b.startsWith(`packages/${pkg_name}/`));
+      const externals    = new Set<string>();
+      for (const bundle of own_bundles) {
+        for (const ext of EXPECTED_EXTERNALS[bundle]) { externals.add(ext); }
+      }
+
+      for (const ext of externals) {
+
+        const bare_form       = ext.startsWith('node:') ? ext.slice('node:'.length) : ext;
+        const is_node_builtin = ext.startsWith('node:') || NODE_BUILTINS.has(bare_form);
+        const is_self         = ext === pkg_name;
+        const is_declared     = declared.has(ext) || declared.has(package_name_of(ext));
+
+        expect(
+          is_node_builtin || is_self || is_declared,
+          `${pkg_name} bundles externalize "${ext}", but it is not a node builtin, the package itself, or declared ` +
+          `under dependencies/optionalDependencies/peerDependencies in packages/${pkg_name}/package.json — the ` +
+          'boundary allowlist expects a module that the published manifest never promises to install',
+        ).toBe(true);
+
+      }
+
     });
   });
 
