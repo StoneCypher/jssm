@@ -17,5 +17,5 @@
     ".": { "types": "./dist/lib.d.ts", "require": "./dist/lib.cjs", "import": "./dist/lib.mjs" }
   },
   "files": ["dist/", "README.md"],
-  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.12", "jssm-fence": "6.0.0-alpha.12" }
+  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.12", "jssm-fence": "6.0.0-alpha.12", "ajv": "^8.20.0" }
 }

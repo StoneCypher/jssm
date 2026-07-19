@@ -341,7 +341,6 @@
     "@vitest/coverage-v8": "^4.1.6",
     "@vitest/eslint-plugin": "^1.6.23",
     "@viz-js/viz": "^3.26.0",
-    "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
     "better_git_changelog": "^1.6.20",
@@ -379,6 +378,7 @@
     "xml2js": "^0.6.2"
   },
   "dependencies": {
+    "ajv": "^8.20.0",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
   },
