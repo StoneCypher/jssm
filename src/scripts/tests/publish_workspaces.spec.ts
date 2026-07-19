@@ -1,16 +1,22 @@
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const pw = require('../publish_workspaces.cjs');
 
-// All tests here exercise the PURE, side-effect-free logic only: publish
-// ordering + skip-guard planning, the file:-dependency rewrite/restore text
-// transform (both directions), publish-argv construction, and the
-// unpublished/no-matching-version stderr classifier. No child_process, no
-// real filesystem write, no npm/network call is reachable from any test
-// below — the live `npm view`/`npm publish` plumbing (isVersionPublished,
-// runNpmPublish, publishMember, publishRoot, main) is exercised for real only
-// by a live `--dry-run` run, exactly like verify_version_bump.cjs's own
+// Tests here cover two layers. First, the PURE, side-effect-free logic:
+// publish ordering + skip-guard planning, the file:-dependency
+// rewrite/restore text transform (both directions), publish-argv
+// construction, and the unpublished/no-matching-version stderr classifier.
+// Second, publishMember's rewrite-publish-restore orchestration, exercised
+// against a temp-dir manifest fixture through its injectable collaborators
+// (publish/cwd/write_file) — including the restore-under-thrown-publish and
+// restore-double-fault regression paths — with no child_process and no npm
+// spawn ever reachable. The remaining live plumbing (isVersionPublished,
+// runNpmPublish, publishRoot, main) is exercised for real only by a live
+// `--dry-run` run, exactly like verify_version_bump.cjs's own
 // getPublishedVersion/main are left to CI rather than unit-tested.
 
 describe('PUBLISH_ORDER', () => {
@@ -254,6 +260,179 @@ describe('rewriteDependencyValue', () => {
     const out = pw.rewriteDependencyValue(DECOY, 'jssm', '6.0.0-alpha.12');
     expect(out).toContain('"dependencies": { "jssm": "6.0.0-alpha.12" }');
     expect(out).toContain('"devDependencies": { "jssm": "^1.0.0" }');
+  });
+
+});
+
+// ---------------------------------------------------------------------------
+// publishMember — rewrite-publish-restore orchestration, against a temp-dir
+// manifest fixture via the injectable publish/cwd/write_file collaborators.
+// These are the restore-under-failure regression tests: a publish failure
+// must leave the manifest byte-identical to its original, and a restore
+// failure must never silently swallow a publish failure (the double fault).
+// ---------------------------------------------------------------------------
+
+/** Writes a fixture member manifest (`packages/<name>/package.json`) into a fresh temp dir and returns the dir. */
+function fixtureMember(name: string, text: string): string {
+  const dir = mkdtempSync(join(tmpdir(), 'jssm-publish-'));
+  const pkg_dir = join(dir, 'packages', name);
+  mkdirSync(pkg_dir, { recursive: true });
+  writeFileSync(join(pkg_dir, 'package.json'), text);
+  return dir;
+}
+
+describe('publishMember — restore-under-failure regressions', () => {
+
+  let log_spy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => { log_spy = vi.spyOn(console, 'log').mockImplementation(() => undefined); });
+  afterEach(() => { log_spy.mockRestore(); });
+
+  test('a successful publish sees the REWRITTEN manifest, and the original bytes are restored afterward', () => {
+
+    const dir = fixtureMember('jssm-fence', FENCE_MANIFEST);
+    const manifest_path = join(dir, 'packages', 'jssm-fence', 'package.json');
+
+    let seen_during_publish = '';
+
+    pw.publishMember('jssm-fence', '6.0.0-alpha.12', true, {
+      cwd     : dir,
+      publish : () => { seen_during_publish = readFileSync(manifest_path, 'utf8'); },
+    });
+
+    expect(seen_during_publish).toContain('"jssm": "6.0.0-alpha.12"');
+    expect(seen_during_publish).not.toContain('file:../..');
+    expect(readFileSync(manifest_path, 'utf8')).toBe(FENCE_MANIFEST);
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('a thrown publish failure restores the manifest byte-identically AND propagates the original error unchanged', () => {
+
+    const dir = fixtureMember('jssm-viz', VIZ_MANIFEST);
+    const manifest_path = join(dir, 'packages', 'jssm-viz', 'package.json');
+    const publish_failure = new Error('npm publish exploded');
+
+    let caught: unknown;
+
+    try {
+      pw.publishMember('jssm-viz', '6.0.0-alpha.12', true, {
+        cwd     : dir,
+        publish : () => { throw publish_failure; },
+      });
+    } catch (e) { caught = e; }
+
+    expect(caught).toBe(publish_failure);
+    expect(readFileSync(manifest_path, 'utf8')).toBe(VIZ_MANIFEST);
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('a manifest with no jssm dependency throws BEFORE any write: manifest untouched, publish never invoked', () => {
+
+    const NO_JSSM_DEP = [
+      '{',
+      '  "name": "jssm-viz",',
+      '  "version": "6.0.0-alpha.12",',
+      '  "dependencies": { "left-pad": "^1.0.0" }',
+      '}',
+      '',
+    ].join('\n');
+
+    const dir = fixtureMember('jssm-viz', NO_JSSM_DEP);
+    const manifest_path = join(dir, 'packages', 'jssm-viz', 'package.json');
+
+    let publish_invoked = false;
+    let write_invoked = false;
+
+    expect(() => pw.publishMember('jssm-viz', '6.0.0-alpha.12', true, {
+      cwd        : dir,
+      publish    : () => { publish_invoked = true; },
+      write_file : () => { write_invoked = true; },
+    })).toThrow(/expected a "jssm": "file:\.\.\/\.\." dependency/);
+
+    expect(publish_invoked).toBe(false);
+    expect(write_invoked).toBe(false);
+    expect(readFileSync(manifest_path, 'utf8')).toBe(NO_JSSM_DEP);
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('publish ok but restore write fails: a restore error naming the manifest path propagates, with the write failure as its cause', () => {
+
+    const dir = fixtureMember('jssm-viz', VIZ_MANIFEST);
+    const manifest_path = join(dir, 'packages', 'jssm-viz', 'package.json');
+    const disk_full = new Error('disk full');
+
+    let write_calls = 0;
+    const write_file = (p: string, text: string) => {
+      write_calls += 1;
+      if (write_calls === 2) { throw disk_full; }   // first call = rewrite, second = restore
+      writeFileSync(p, text);
+    };
+
+    let caught: Error | undefined;
+
+    try {
+      pw.publishMember('jssm-viz', '6.0.0-alpha.12', true, { cwd: dir, publish: () => undefined, write_file });
+    } catch (e) { caught = e as Error; }
+
+    expect(caught).toBeDefined();
+    expect(caught!.message).toContain('restoring');
+    expect(caught!.message).toContain(manifest_path);
+    expect(caught!.message).toContain('manual recovery');
+    expect(caught!.cause).toBe(disk_full);
+
+    // and the manifest really is left rewritten — the state the message warns about
+    expect(readFileSync(manifest_path, 'utf8')).toContain('"jssm": "6.0.0-alpha.12"');
+
+    rmSync(dir, { recursive: true, force: true });
+
+  });
+
+  test('double fault: publish fails AND restore fails — one error carries BOTH on its cause, and both are logged', () => {
+
+    const dir = fixtureMember('jssm-viz', VIZ_MANIFEST);
+    const manifest_path = join(dir, 'packages', 'jssm-viz', 'package.json');
+    const publish_failure = new Error('npm publish exploded');
+    const disk_full = new Error('disk full');
+
+    let write_calls = 0;
+    const write_file = (p: string, text: string) => {
+      write_calls += 1;
+      if (write_calls === 2) { throw disk_full; }
+      writeFileSync(p, text);
+    };
+
+    let caught: Error | undefined;
+
+    try {
+      pw.publishMember('jssm-viz', '6.0.0-alpha.12', true, {
+        cwd     : dir,
+        publish : () => { throw publish_failure; },
+        write_file,
+      });
+    } catch (e) { caught = e as Error; }
+
+    expect(caught).toBeDefined();
+    expect(caught!.message).toContain('publish failed AND restoring');
+    expect(caught!.message).toContain(manifest_path);
+    expect(caught!.message).toContain('manual recovery');
+
+    const cause = caught!.cause as { publish_error: Error; restore_error: Error };
+    expect(cause.publish_error).toBe(publish_failure);
+    expect(cause.restore_error).toBe(disk_full);
+
+    const logged = log_spy.mock.calls.map((c) => c.join(' ')).join('\n');
+    expect(logged).toContain('RESTORE FAILED');
+    expect(logged).toContain('npm publish exploded');
+    expect(logged).toContain('disk full');
+
+    rmSync(dir, { recursive: true, force: true });
+
   });
 
 });

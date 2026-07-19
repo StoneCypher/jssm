@@ -20,6 +20,10 @@
  * the exact lockstep version, publishes, and restores the `file:../..` form
  * in a `finally` — atomic per package: a crash mid-publish (a thrown error,
  * not a killed process) still leaves the manifest exactly as it found it.
+ * If the restore write itself fails, both failures are logged and surfaced
+ * together, naming the manifest as needing manual recovery — a restore
+ * failure never silently swallows the publish failure (see
+ * {@link publishMember}).
  *
  * Per-package idempotency guard: before touching anything, `npm view
  * <name>@<version> version` asks the registry whether this EXACT version is
@@ -461,18 +465,38 @@ const publishRoot = (dry_run) => {
 /**
  * Publishes one workspace member: transiently rewrites its `"jssm":
  * "file:../.."` dependency to the exact lockstep version, publishes, and
- * restores the `file:../..` form in a `finally` — so the working-tree
- * manifest is back to its pre-publish state whether the publish succeeded,
- * failed, or threw, and a caller can always re-run this safely.
+ * restores the manifest's original bytes in a `finally` — so the
+ * working-tree manifest is back to its pre-publish state whether the
+ * publish succeeded or threw, and a caller can always re-run this safely.
+ *
+ * If the restore write ITSELF fails (a genuine double fault — a disk error
+ * at the worst possible moment), the restore failure must not silently
+ * replace the publish failure: both are logged, the manifest is named as
+ * possibly left rewritten and needing manual recovery, and a single error
+ * propagates carrying both underlying errors on its `cause`
+ * (`cause.publish_error` / `cause.restore_error`). When the publish itself
+ * had succeeded and only the restore failed, the propagated error carries
+ * just the restore failure as its `cause`.
+ *
+ * The collaborators are injectable (defaulted) purely so the failure paths
+ * are unit-testable against a temp-dir fixture without ever spawning npm —
+ * production callers pass nothing.
  *
  * @param name - A workspace member name (`jssm-viz`, `jssm-fence`, or `jssm-cli`)
  * @param version - The exact lockstep version to publish (and to rewrite the `jssm` dependency to)
  * @param dry_run - Passed through to {@link buildPublishArgs}
- * @throws {Error} when the manifest has no `"jssm"` entry in `dependencies` to rewrite, or the publish itself fails (the manifest is restored first, in both cases)
+ * @param options.publish - The publish invoker, given the {@link buildPublishArgs} argv (defaults to {@link runNpmPublish})
+ * @param options.cwd - Directory the member's manifest path is resolved against (defaults to the process's cwd; overridable for temp-dir test fixtures)
+ * @param options.write_file - The file writer used for both the rewrite and the restore (defaults to `fs.writeFileSync`; injectable so tests can force a restore failure)
+ * @throws {Error} when the manifest has no `"jssm"` entry in `dependencies` to rewrite (thrown BEFORE anything is written — the manifest is untouched); when the publish itself fails (the manifest is restored first, and the publish's own error propagates unchanged); or when the restore write fails (see above — the manifest may be left rewritten)
+ *
+ * @example
+ * // production shape: rewrite, npm publish -w jssm-viz --dry-run, restore
+ * publishMember('jssm-viz', '6.0.0-alpha.12', true);
  */
-const publishMember = (name, version, dry_run) => {
+const publishMember = (name, version, dry_run, { publish = runNpmPublish, cwd = process.cwd(), write_file = fs.writeFileSync } = {}) => {
 
-  const manifest_path  = manifestPathFor(name),
+  const manifest_path  = path.join(cwd, manifestPathFor(name)),
         original_text  = fs.readFileSync(manifest_path, 'utf8'),
         rewritten_text = rewriteDependencyValue(original_text, 'jssm', version);
 
@@ -481,13 +505,44 @@ const publishMember = (name, version, dry_run) => {
   }
 
   console.log(`${name}: rewriting jssm dependency to ${version} for publish`);
-  fs.writeFileSync(manifest_path, rewritten_text);
+  write_file(manifest_path, rewritten_text);
+
+  let publish_error;
 
   try {
-    runNpmPublish(buildPublishArgs(name, dry_run));
+    publish(buildPublishArgs(name, dry_run));
+  } catch (e) {
+    publish_error = e;
+    throw e;
   } finally {
-    fs.writeFileSync(manifest_path, original_text);
-    console.log(`${name}: restored jssm dependency to file:../..`);
+
+    try {
+      write_file(manifest_path, original_text);
+      console.log(`${name}: restored ${manifest_path} to its original bytes (jssm dependency back to its file: form)`);
+    } catch (restore_error) {
+
+      // A throw from a finally block replaces any in-flight exception, which
+      // is exactly the double-fault hazard: the restore failure must carry
+      // the publish failure along rather than swallow it. Log both loudly,
+      // then propagate one error holding both on its cause.
+      console.log(`${name}: RESTORE FAILED: could not write ${manifest_path} back to its original bytes: ${restore_error.message}`);
+      console.log(`${name}: ${manifest_path} may be left with its jssm dependency rewritten to ${version} and needs manual recovery (restore the "jssm": "file:../.." form)`);
+
+      if (publish_error !== undefined) {
+        console.log(`${name}: the publish itself had ALSO failed: ${publish_error.message}`);
+        throw new Error(
+          `${name}: publish failed AND restoring ${manifest_path} failed; the manifest may be left rewritten and needs manual recovery (both underlying errors are on this error's cause as publish_error/restore_error)`,
+          { cause: { publish_error, restore_error } },
+        );
+      }
+
+      throw new Error(
+        `${name}: published, but restoring ${manifest_path} failed; the manifest may be left rewritten and needs manual recovery`,
+        { cause: restore_error },
+      );
+
+    }
+
   }
 
 };
@@ -503,15 +558,26 @@ const publishMember = (name, version, dry_run) => {
  * plans skip/publish decisions against live `npm view` lookups, and — for
  * each package needing a publish, in {@link PUBLISH_ORDER} — rewrites (if a
  * workspace member), publishes, and restores. Stops at the first failure
- * (the manifest is always restored first) rather than continuing past a
- * broken link in the dependency chain; exits 0 once every package is either
- * skipped or successfully published.
+ * (the manifest restore has already been attempted by then) rather than
+ * continuing past a broken link in the dependency chain; exits 0 once every
+ * package is either skipped or successfully published. A hard failure during
+ * the resolve/plan phase — an unreadable or mismatched manifest, or an `npm
+ * view` failure that isn't a clean "not published yet" — prints its own
+ * `Hard error:` line and exits 1 (mirroring `verify_version_bump.cjs`'s
+ * handling) rather than escaping as a raw stack dump.
  */
 const main = () => {
 
-  const dry_run  = process.argv.includes('--dry-run'),
-        packages = resolvePackages(),
-        plan     = planPublishes(packages, ({ name, version }) => isVersionPublished(name, version));
+  const dry_run = process.argv.includes('--dry-run');
+
+  let plan;
+
+  try {
+    plan = planPublishes(resolvePackages(), ({ name, version }) => isVersionPublished(name, version));
+  } catch (e) {
+    console.log(`Hard error: ${e.message}`);
+    process.exit(1);
+  }
 
   if (allSkipped(plan)) {
     console.log('all packages already published at their current versions; nothing to publish');
