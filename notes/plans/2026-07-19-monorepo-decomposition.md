@@ -75,11 +75,11 @@
     "./custom-elements.json": "./custom-elements.json"
   },
   "files": ["dist/", "custom-elements.json", "README.md"],
-  "dependencies": { "jssm": "6.0.0-alpha.12" },
+  "dependencies": { "jssm": "file:../.." },
   "optionalDependencies": { "@viz-js/viz": "^3.26.0" }
 }
 ```
-- `jssm-fence`: main/module/types → `./dist/fence.js` (+ d.ts); deps `jssm` + `jssm-viz` (lockstep exact); peer `@resvg/resvg-wasm` optional (mirror root's optionalDependencies handling — read root package.json for how resvg is declared and copy that classification).
+- `jssm-fence`: single-ESM-file package — `"type": "module"`, main/types → `./dist/fence.js` (+ d.ts), exports `.` carries ONLY `types`/`import`/`default` (NO `require` condition: fence.js builds as ESM, mirroring root's `./fence` subpath which is import/default-only; review finding 2026-07-19). Deps `jssm` (file:../..) + `jssm-viz` (lockstep exact); `@resvg/resvg-wasm` mirrors root's optionalDependencies classification.
 - `jssm-cli`: `bin`: `{ "fsl": "./dist/fsl.cjs", "jssm": "./dist/fsl.cjs", "fsl-render": "./dist/fsl-render.cjs", "fsl-export-system-prompt": "./dist/fsl-export-system-prompt.cjs" }`; main/module → `./dist/lib.cjs`/`./dist/lib.mjs`, types `./dist/lib.d.ts`; deps `jssm`, `jssm-viz`, `jssm-fence` (lockstep exact).
 - Version pinning style: EXACT lockstep versions (`"jssm-viz": "6.0.0-alpha.12"`, not `^`) for deps BETWEEN workspace members — lockstep publish means the matching version always exists, and exact pins make the trail attribution unambiguous.
 - EXCEPTION (discovered at execution, 2026-07-19): the dependency on the ROOT package `jssm` must be `"jssm": "file:../.."` in every member manifest. npm workspaces link members to each other, but the workspace ROOT is not a member — a version dep on `jssm` resolves against the registry, where alphas never publish (ETARGET). Consequences: Task 5's makever stamps member versions and sibling pins but NEVER touches the `file:../..` dep; Task 6's publisher must transiently rewrite `file:../..` → the exact lockstep version in each manifest, publish, and restore the file: form (rewrite-publish-restore, atomic per package, --dry-run included).
@@ -123,7 +123,7 @@
 ### Task 5: Version sync — makever stamps the workspaces
 
 **Files:**
-- Modify: `src/buildjs/makever.cjs` — after generating `src/ts/version.ts`, also rewrite the `version` field AND every lockstep internal dependency (`jssm`, `jssm-viz`, `jssm-fence` entries in `dependencies`) of each `packages/*/package.json` to the root version. This makes /sc-commit's root bump propagate automatically; no second bump mechanism.
+- Modify: `src/buildjs/makever.cjs` — after generating `src/ts/version.ts`, also rewrite the `version` field AND every lockstep SIBLING dependency (`jssm-viz`, `jssm-fence` entries in `dependencies`) of each `packages/*/package.json` to the root version. NEVER touch the `"jssm": "file:../.."` root dependency — it stays in file: form in git (see the Task 2 exception above; only Task 6's publisher rewrites it, transiently). This makes /sc-commit's root bump propagate automatically; no second bump mechanism.
 - Test: extend/author its spec (check `src/buildjs/tests/` for an existing makever spec first) — feed a temp dir fixture of a workspace manifest, assert version + dep pins rewritten.
 
 - [ ] **Step 1:** Failing test; **Step 2:** implement (JSON parse → mutate → stringify with 2-space indent + trailing newline, matching npm's own formatting so `npm install` doesn't reformat); **Step 3:** `npm run ci_build`; **Step 4:** commit `feat(release): makever propagates the lockstep version into workspace manifests`.

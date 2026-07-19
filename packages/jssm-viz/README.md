@@ -9,7 +9,7 @@ npm install jssm-viz
 
 This package split out of the `jssm` package (previously available as the
 `jssm/viz` subpath) in v6. It also supersedes the standalone `jssm-viz`
-package that was deprecated prior to 5.105 and folded into `jssm` itself;
+package that was deprecated when jssm 5.109.0 folded it into `jssm` itself;
 this v6 package restores `jssm-viz` as an independently installable module.
 
 For documentation, issues, and the full monorepo, see
