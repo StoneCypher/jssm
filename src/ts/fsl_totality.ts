@@ -236,7 +236,7 @@ function build_adjacency<N>(graph: TotalityGraph<N>): Map<N, N[]> {
 
   for (const edge of graph.edges) {
     // every endpoint is declared (validate_graph), so get() is defined
-    (adjacency.get(edge.from) as N[]).push(edge.to);
+    (adjacency.get(edge.from)).push(edge.to);
   }
 
   return adjacency;
@@ -316,14 +316,14 @@ function find_cycle<N>(graph: TotalityGraph<N>): CycleResult<N> {
     while (stack.length > 0) {
 
       const frame: Frame = stack[stack.length - 1];
-      const succs: N[]   = adjacency.get(frame.node) as N[];
+      const succs: N[]   = adjacency.get(frame.node);
 
       if (frame.next < succs.length) {
 
         const child: N = succs[frame.next];
         frame.next += 1;
 
-        const child_colour: number = colour.get(child) as number;
+        const child_colour: number = colour.get(child);
 
         if (child_colour === GREY) {
           // back edge into the active stack: slice the cycle out of `path`
@@ -464,10 +464,9 @@ function microstep_cascade<N>(
   let   current : N        = start;
   let   steps   : number   = 0;
 
-  // eslint-disable-next-line fp/no-loops
   while (true) {
 
-    const succs: N[] = adjacency.get(current) as N[];
+    const succs: N[] = adjacency.get(current);
 
     // fixpoint: no eventless successor — the reaction has settled
     if (succs.length === 0) {

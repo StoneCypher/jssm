@@ -22,12 +22,10 @@ type ReplayResult = {
 
 /**
  * Replay `tape` against the machine compiled from `source`.
- *
  * @param source - FSL source text.
  * @param tape - The parsed stimulus tape.
  * @returns The deterministic {@link ReplayResult}.
  * @throws ReplayError `source_hash_mismatch` / `no_pending_timer`.
- *
  * @example
  *   replay("a 'go' -> b;", parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"action","name":"go"}'));
  */
@@ -49,7 +47,7 @@ function replay(source: string, tape: StimulusTape): ReplayResult {
   });
 
   const steps: ReplayStep[] = [];
-  tape.stimuli.forEach((s, index) => {
+  for (const [index, s] of tape.stimuli.entries()) {
     let accepted: boolean;
     if (s.op === 'action') {
       accepted = machine.action(s.name, s.data);
@@ -65,7 +63,7 @@ function replay(source: string, tape: StimulusTape): ReplayResult {
     steps.push(s.op === 'timer'
       ? { index, op: 'timer', accepted }
       : { index, op: s.op, name: s.name, accepted });
-  });
+  }
 
   const final_state = machine.state();
   const final_data  = machine.data();

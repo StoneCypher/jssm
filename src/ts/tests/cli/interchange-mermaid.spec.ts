@@ -66,9 +66,9 @@ describe('mermaidToModel', () => {
     try {
       mermaidToModel('  s0 --> s1');
       throw new Error('expected mermaidToModel to throw');
-    } catch (e) {
-      expect(e).toBeInstanceOf(InterchangeError);
-      expect((e as InterchangeError).reason).toBe('parse');
+    } catch (error) {
+      expect(error).toBeInstanceOf(InterchangeError);
+      expect((error as InterchangeError).reason).toBe('parse');
     }
   });
 

@@ -8,9 +8,9 @@ describe('exportMachine', () => {
       // @ts-expect-error exercising the runtime guard
       exportMachine('a -> b;', { format: 'yaml' });
       throw new Error('expected throw');
-    } catch (e) {
-      expect(e).toBeInstanceOf(InterchangeError);
-      expect((e as InterchangeError).reason).toBe('unknown-format');
+    } catch (error) {
+      expect(error).toBeInstanceOf(InterchangeError);
+      expect((error as InterchangeError).reason).toBe('unknown-format');
     }
   });
 
@@ -19,8 +19,8 @@ describe('exportMachine', () => {
     try {
       exportMachine('a -> b;', { format: 'tla+' });
       throw new Error('expected throw');
-    } catch (e) {
-      expect((e as InterchangeError).reason).toBe('unsupported');
+    } catch (error) {
+      expect((error as InterchangeError).reason).toBe('unsupported');
     }
   });
 
@@ -47,9 +47,9 @@ describe('exportMachine', () => {
     try {
       exportMachine('this is not valid fsl !!', { format: 'json' });
       throw new Error('expected throw');
-    } catch (e) {
-      expect(e).toBeInstanceOf(InterchangeError);
-      expect((e as InterchangeError).reason).toBe('parse');
+    } catch (error) {
+      expect(error).toBeInstanceOf(InterchangeError);
+      expect((error as InterchangeError).reason).toBe('parse');
     }
   });
 
@@ -59,7 +59,7 @@ describe('exportMachine', () => {
     const { exportMachine: mockedExport } = await import('../../cli/subcommands/export/export');
     const { InterchangeError: IE } = await import('../../cli/subcommands/interchange/types');
     let thrown: unknown;
-    try { mockedExport('whatever', { format: 'json' }); } catch (e) { thrown = e; }
+    try { mockedExport('whatever', { format: 'json' }); } catch (error) { thrown = error; }
     expect(thrown).toBeInstanceOf(IE);
     expect((thrown as Error).message).toContain('plain-string-parse-failure');
     vi.doUnmock('../../jssm');

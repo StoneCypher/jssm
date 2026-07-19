@@ -40,11 +40,9 @@ type StimulusTape = { header: TapeHeader; stimuli: Stimulus[] };
 
 /**
  * Parse JSONL tape text into a {@link StimulusTape}.
- *
  * @param text - JSONL: a header object line, then stimulus lines.
  * @returns The parsed header + stimuli.
  * @throws ReplayError kind `malformed_tape` / `unsupported_format_version` / `unknown_op`.
- *
  * @example
  *   parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"timer"}');
  */
@@ -84,10 +82,8 @@ function parse_tape(text: string): StimulusTape {
 /**
  * Serialize a {@link StimulusTape} back to canonical JSONL (stable key order
  * per line, so the bytes are deterministic).
- *
  * @param tape - The tape to serialize.
  * @returns JSONL text.
- *
  * @example
  *   serialize_tape({ header: { fsl_tape: 1, machine: {} }, stimuli: [{ op: 'timer' }] });
  */

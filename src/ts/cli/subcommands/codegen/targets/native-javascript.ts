@@ -10,11 +10,11 @@ function emitTransitionTable(surface: MachineSurface, indent: string): string {
   for (const s of surface.states) byFrom.set(s, []);
   for (const t of surface.transitions) {
     // Surface states always contains every edge endpoint, so this is defined.
-    byFrom.get(t.from)!.push({ action: t.action, to: t.to });
+    byFrom.get(t.from).push({ action: t.action, to: t.to });
   }
 
   const stateLines = surface.states.map(state => {
-    const edges = byFrom.get(state)!;
+    const edges = byFrom.get(state);
     const edgeBody = edges
       .map(e => `${indent}    '${jsStringLiteralBody(e.action)}': '${jsStringLiteralBody(e.to)}'`)
       .join(',\n');
@@ -31,11 +31,9 @@ function emitTransitionTable(surface: MachineSurface, indent: string): string {
  * `action(name)` reproduce the machine's transition behavior with no runtime
  * dependency. This is the `native:javascript` target — FSL cross-compiled to
  * plain JS.
- *
  * @param surface - The extracted machine surface
  * @param symbol - The class name to emit
  * @returns JavaScript source text (an ES module exporting `symbol`)
- *
  * @example
  *   const src = emitNativeJavascript(
  *     { states: ['a','b'], initial: 'a', actions: ['go'],

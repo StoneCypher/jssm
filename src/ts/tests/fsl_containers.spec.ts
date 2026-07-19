@@ -137,7 +137,6 @@ describe('set — set of (number | string) (§4.2)', () => {
     expect( () => set_of(Infinity) ).toThrow();
     // @ts-expect-error — deliberately illegal member type for the runtime guard
     expect( () => set_of(true) ).toThrow();
-    // @ts-expect-error — deliberately illegal member type for the runtime guard
     expect( () => set_of(null) ).toThrow();
   });
 
@@ -272,6 +271,12 @@ describe('require_scalar / stringify_for_error', () => {
     expect( stringify_for_error('x') ).toBe('"x"');
     expect( stringify_for_error(undefined) ).toBe('undefined');
     expect( stringify_for_error(null) ).toBe('null');
+  });
+
+  test('stringify_for_error brand-renders objects, even null-prototype ones', () => {
+    expect( stringify_for_error({}) ).toBe('[object Object]');
+    expect( stringify_for_error([1, 2]) ).toBe('[object Array]');
+    expect( stringify_for_error(Object.create(null)) ).toBe('[object Object]');
   });
 
 });
@@ -467,7 +472,7 @@ describe('deep_clone — by-value snapshot (§15)', () => {
   });
 
   test('clones nested containers, arrays, and objects deeply', () => {
-    const original = list_of(set_of(2, 1), { x: [1, 2] });
+    const original = list_of<FslSet | { x: number[] }>(set_of(2, 1), { x: [1, 2] });
     const cloned   = deep_clone(original);
     expect( equals(cloned, original) ).toBe(true);
     expect( (cloned.items[0] as FslSet).members === (original.items[0] as FslSet).members ).toBe(false);
@@ -620,7 +625,7 @@ describe('typed container errors (§11)', () => {
 
   test('ContainerKeyError carries kind, role, key, and is an FslError', () => {
     let caught: unknown;
-    try { require_scalar({}, 'member'); } catch (e) { caught = e; }
+    try { require_scalar({}, 'member'); } catch (error) { caught = error; }
     expect( caught ).toBeInstanceOf(ContainerKeyError);
     const err = caught as ContainerKeyError;
     expect( err.name ).toBe('ContainerKeyError');
@@ -632,7 +637,7 @@ describe('typed container errors (§11)', () => {
 
   test('require_scalar defaults role to key and rejects NaN / Infinity', () => {
     const grab = (fn: () => unknown): ContainerKeyError => {
-      try { fn(); } catch (e) { return e as ContainerKeyError; }
+      try { fn(); } catch (error) { return error as ContainerKeyError; }
       throw new Error('expected throw');
     };
     expect( grab(() => require_scalar(NaN)).role ).toBe('key');
@@ -643,7 +648,7 @@ describe('typed container errors (§11)', () => {
 
   test('ContainerRangeError carries the out_of_bounds kind and is an FslError', () => {
     let caught: unknown;
-    try { list_at(list_of(1), 9); } catch (e) { caught = e; }
+    try { list_at(list_of(1), 9); } catch (error) { caught = error; }
     expect( caught ).toBeInstanceOf(ContainerRangeError);
     const err = caught as ContainerRangeError;
     expect( err.name ).toBe('ContainerRangeError');

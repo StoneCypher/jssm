@@ -8,10 +8,8 @@
  *
  * Pure module — does not throw on invalid FSL; returns `{}` instead, so
  * config layering never blocks on parser errors.
- *
  * @param machineSource - FSL source text.
  * @returns A `PartialConfig` derived from machine attributes (empty in v1).
- *
  * @example
  *   extractMachineAttributes("a 'next' -> b;");
  *   // {}

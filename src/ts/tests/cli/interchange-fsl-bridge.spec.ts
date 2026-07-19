@@ -12,7 +12,7 @@ import type { InterchangeModel } from '../../cli/subcommands/interchange/types';
 // and state lists. Used to assert round-trip fidelity without depending on the
 // (deterministic but incidental) emission order.
 function modelsEquivalent(a: InterchangeModel, b: InterchangeModel): boolean {
-  const states = (m: InterchangeModel): string => JSON.stringify([...m.states].sort());
+  const states = (m: InterchangeModel): string => JSON.stringify([...m.states].sort((x, y) => x.localeCompare(y)));
   const edges  = (m: InterchangeModel): string =>
     JSON.stringify([...m.edges].map((e) => ({ ...e }))
       .sort((x, y) => JSON.stringify(x).localeCompare(JSON.stringify(y))));
@@ -30,11 +30,11 @@ describe('interchange fsl-bridge: quoteState', () => {
   });
 
   it('escapes embedded double quotes', () => {
-    expect(quoteState('a"b')).toBe('"a\\"b"');
+    expect(quoteState('a"b')).toBe(String.raw`"a\"b"`);
   });
 
   it('escapes embedded backslashes (before quotes, so order is correct)', () => {
-    expect(quoteState('a\\b')).toBe('"a\\\\b"');
+    expect(quoteState(String.raw`a\b`)).toBe(String.raw`"a\\b"`);
   });
 
   it('round-trips a quoted name through the FSL parser', () => {
@@ -57,11 +57,11 @@ describe('interchange fsl-bridge: quoteAction', () => {
   });
 
   it('escapes embedded single quotes', () => {
-    expect(quoteAction("o'clock")).toBe("'o\\'clock'");
+    expect(quoteAction("o'clock")).toBe(String.raw`'o\'clock'`);
   });
 
   it('escapes embedded backslashes', () => {
-    expect(quoteAction('a\\b')).toBe("'a\\\\b'");
+    expect(quoteAction(String.raw`a\b`)).toBe(String.raw`'a\\b'`);
   });
 
 });
@@ -103,10 +103,10 @@ describe('interchange fsl-bridge: fslToModel', () => {
     try {
       fslToModel('this is not -> valid fsl !!! @@@');
       throw new Error('expected InterchangeError');
-    } catch (e) {
-      expect(e).toBeInstanceOf(InterchangeError);
-      expect((e as InterchangeError).reason).toBe('parse');
-      expect((e as InterchangeError).format).toBe('fsl');
+    } catch (error) {
+      expect(error).toBeInstanceOf(InterchangeError);
+      expect((error as InterchangeError).reason).toBe('parse');
+      expect((error as InterchangeError).format).toBe('fsl');
     }
   });
 

@@ -190,7 +190,8 @@ class MicrostepOverflowError<Config> extends Error {
  *  Returns `Number.POSITIVE_INFINITY` for the deliberate `'unbounded'` opt-out,
  *  the {@link default_microstep_bound} when unspecified, and the supplied value
  *  otherwise — after rejecting values that could not honestly bound a loop (a
- *  negative cap, a fraction, or `NaN`).
+ *  negative cap, a fraction, `NaN`, or an integer too large to count exactly —
+ *  beyond `Number.MAX_SAFE_INTEGER`, use `'unbounded'` instead).
  *
  *  ```typescript
  *  resolve_bound(undefined);      // 100000
@@ -203,7 +204,7 @@ class MicrostepOverflowError<Config> extends Error {
  *  @returns The effective numeric cap (possibly `Infinity`).
  *
  *  @throws {RangeError} If `bound` is a number that is negative, non-integer,
- *                       or `NaN`.
+ *                       `NaN`, or not a safe integer (above 2^53 − 1).
  *
  *  @internal
  *
@@ -212,11 +213,11 @@ class MicrostepOverflowError<Config> extends Error {
 function resolve_bound(bound: number | 'unbounded' | undefined): number {
 
   if (bound === undefined)     { return default_microstep_bound;       }
-  if (bound === 'unbounded')   { return Number.POSITIVE_INFINITY;      }
+  if (bound === 'unbounded')   { return Infinity;      }
 
-  if (!Number.isInteger(bound) || bound < 0) {
+  if (!Number.isSafeInteger(bound) || bound < 0) {
     throw new RangeError(
-      'microstep bound must be a non-negative integer or the string "unbounded"'
+      'microstep bound must be a non-negative safe integer or the string "unbounded"'
     );
   }
 

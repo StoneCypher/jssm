@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { cli } from '../../cli/subcommands/run/plugin';
 import { source_hash } from '../../fsl_hash';
 

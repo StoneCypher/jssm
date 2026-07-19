@@ -85,7 +85,7 @@ describe('code-point unit', () => {
 
   test('getcp returns scalar value or undefined', () => {
     expect( getcp('abc', 0) ).toBe(0x61);
-    expect( getcp('a\u{1F600}', -1) ).toBe(0x1F600);
+    expect( getcp('a\u{1F600}', -1) ).toBe(0x1_F6_00);
     expect( getcp('abc', 9) ).toBeUndefined();
   });
 
@@ -305,16 +305,16 @@ describe('gcb_class', () => {
   });
 
   test('combining mark is Extend (binary-search hit)', () => {
-    expect( gcb_class(0x0301) ).toBe(GcbClass.Extend);
+    expect( gcb_class(0x03_01) ).toBe(GcbClass.Extend);
   });
 
   test('regional indicator resolves ahead of the emoji-plane range', () => {
-    expect( gcb_class(0x1F1E6) ).toBe(GcbClass.Regional_Indicator);
+    expect( gcb_class(0x1_F1_E6) ).toBe(GcbClass.Regional_Indicator);
   });
 
   test('Hangul LV vs LVT split is computed', () => {
-    expect( gcb_class(0xAC00) ).toBe(GcbClass.LV);    // 가  (no trailing consonant)
-    expect( gcb_class(0xAC01) ).toBe(GcbClass.LVT);   // 각  (has a trailing consonant)
+    expect( gcb_class(0xAC_00) ).toBe(GcbClass.LV);    // 가  (no trailing consonant)
+    expect( gcb_class(0xAC_01) ).toBe(GcbClass.LVT);   // 각  (has a trailing consonant)
   });
 
   test('line terminators classify correctly', () => {
@@ -326,18 +326,18 @@ describe('gcb_class', () => {
   test('a code point below every range is Other (search runs off the low end)', () => {
     // Nothing classifies code point 0? — 0x0000 is Control; pick a gap value
     // above the last range to exercise the high-side miss too.
-    expect( gcb_class(0x10FFFF) ).toBe(GcbClass.Other);
+    expect( gcb_class(0x10_FF_FF) ).toBe(GcbClass.Other);
   });
 
   test('ZWJ and pictographic classify', () => {
-    expect( gcb_class(0x200D) ).toBe(GcbClass.ZWJ);
-    expect( gcb_class(0x1F600) ).toBe(GcbClass.Extended_Pictographic);
+    expect( gcb_class(0x20_0D) ).toBe(GcbClass.ZWJ);
+    expect( gcb_class(0x1_F6_00) ).toBe(GcbClass.Extended_Pictographic);
   });
 
   test('Hangul jamo L / V / T classify', () => {
-    expect( gcb_class(0x1100) ).toBe(GcbClass.L);
-    expect( gcb_class(0x1160) ).toBe(GcbClass.V);
-    expect( gcb_class(0x11A8) ).toBe(GcbClass.T);
+    expect( gcb_class(0x11_00) ).toBe(GcbClass.L);
+    expect( gcb_class(0x11_60) ).toBe(GcbClass.V);
+    expect( gcb_class(0x11_A8) ).toBe(GcbClass.T);
   });
 
 });

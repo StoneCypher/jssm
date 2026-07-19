@@ -66,7 +66,7 @@ describe('constants', () => {
     expect(sqrt2).toBe(Math.SQRT2);
     expect(ln2).toBe(Math.LN2);
     expect(ln10).toBe(Math.LN10);
-    expect(inf).toBe(Number.POSITIVE_INFINITY);
+    expect(inf).toBe(Infinity);
     expect(Number.isNaN(nan)).toBe(true);
     expect(EPSILON).toBe(Number.EPSILON);
   });
@@ -434,7 +434,7 @@ describe('bit operations', () => {
     expect(popcount(0b1011, 8)).toBe(3);
     expect(popcount(0, 8)).toBe(0);
     expect(popcount(255, 8)).toBe(8);
-    expect(popcount(0xFFFFFFFF, 32)).toBe(32);
+    expect(popcount(0xFF_FF_FF_FF, 32)).toBe(32);
   });
 
   test('popcount defaults to 32-bit width', () => {
@@ -445,7 +445,7 @@ describe('bit operations', () => {
     expect(clz(1, 8)).toBe(7);
     expect(clz(0, 8)).toBe(8);
     expect(clz(128, 8)).toBe(0);
-    expect(clz(0b00010000, 8)).toBe(3);
+    expect(clz(0b0001_0000, 8)).toBe(3);
   });
 
   test('ctz', () => {
@@ -455,20 +455,20 @@ describe('bit operations', () => {
   });
 
   test('rotl', () => {
-    expect(rotl(0b10000000, 1, 8)).toBe(0b00000001);
-    expect(rotl(0b00000001, 1, 8)).toBe(0b00000010);
-    expect(rotl(0b00000001, 0, 8)).toBe(0b00000001);
-    expect(rotl(0b00000001, 8, 8)).toBe(0b00000001);
+    expect(rotl(0b1000_0000, 1, 8)).toBe(0b0000_0001);
+    expect(rotl(0b0000_0001, 1, 8)).toBe(0b0000_0010);
+    expect(rotl(0b0000_0001, 0, 8)).toBe(0b0000_0001);
+    expect(rotl(0b0000_0001, 8, 8)).toBe(0b0000_0001);
     expect(rotl(1, 1, 32)).toBe(2);
-    expect(rotl(0x80000000, 1, 32)).toBe(1);
+    expect(rotl(0x80_00_00_00, 1, 32)).toBe(1);
   });
 
   test('rotr', () => {
-    expect(rotr(0b00000001, 1, 8)).toBe(0b10000000);
-    expect(rotr(0b00000010, 1, 8)).toBe(0b00000001);
-    expect(rotr(0b00000001, 0, 8)).toBe(0b00000001);
-    expect(rotr(0b00000001, 8, 8)).toBe(0b00000001);
-    expect(rotr(1, 1, 32)).toBe(0x80000000);
+    expect(rotr(0b0000_0001, 1, 8)).toBe(0b1000_0000);
+    expect(rotr(0b0000_0010, 1, 8)).toBe(0b0000_0001);
+    expect(rotr(0b0000_0001, 0, 8)).toBe(0b0000_0001);
+    expect(rotr(0b0000_0001, 8, 8)).toBe(0b0000_0001);
+    expect(rotr(1, 1, 32)).toBe(0x80_00_00_00);
   });
 
   test('bit ops reject a bad width', () => {

@@ -31,7 +31,7 @@ describe('replay', () => {
     const t = parse_tape(['{"fsl_tape":1,"machine":{"source_hash":"provisional:dead"}}',
                           '{"op":"action","name":"coin"}'].join('\n'));
     try { replay(SRC, t); expect.unreachable(); }
-    catch (e) { expect((e as ReplayError).kind).toBe('source_hash_mismatch'); }
+    catch (error) { expect((error as ReplayError).kind).toBe('source_hash_mismatch'); }
   });
 
   it('stamps source_hash when absent', () => {
@@ -40,7 +40,7 @@ describe('replay', () => {
 
   it('errors on a timer with no pending timeout', () => {
     try { replay(SRC, tape('{"op":"timer"}')); expect.unreachable(); }
-    catch (e) { expect((e as ReplayError).kind).toBe('no_pending_timer'); }
+    catch (error) { expect((error as ReplayError).kind).toBe('no_pending_timer'); }
   });
 
   it('drives a transition op', () => {

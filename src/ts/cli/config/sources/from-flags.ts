@@ -18,7 +18,6 @@ export type FlagMapping = Record<string, string | null>;
  *   flag values can be strings, numbers, booleans, arrays, or undefined).
  * @param mapping - Per-subcommand flag → config-path table.
  * @returns A `PartialConfig` representing the flag overrides.
- *
  * @example
  *   flagsToConfig({ target: 'png' }, { target: 'render.defaultTarget' });
  *   // { render: { defaultTarget: 'png' } }
@@ -28,20 +27,18 @@ export function flagsToConfig(
   mapping: FlagMapping,
 ): PartialConfig {
   const out: Record<string, unknown> = {};
-  for (const flagName of Object.keys(flags)) {
+  for (const [flagName, value] of Object.entries(flags)) {
     const target = mapping[flagName];
     if (target == null) continue;                  // null mapping = skip
-    const value = flags[flagName];
     if (value === undefined) continue;             // undefined flag = no override
     setDotted(out, target, value);
   }
-  return out as PartialConfig;
+  return out;
 }
 
 /**
  * Set a value at a dotted path within a nested object, creating
  * intermediate objects as needed. Mutates the `target` in place.
- *
  * @example
  *   const out = {};
  *   setDotted(out, 'render.scale', 4);
@@ -52,7 +49,7 @@ const setDotted = (target: Record<string, unknown>, path: string, value: unknown
   let cur: Record<string, unknown> = target;
   for (let i = 0; i < parts.length - 1; i++) {
     const k = parts[i];
-    if (!(k in cur) || typeof cur[k] !== 'object' || cur[k] === null) cur[k] = {};
+    if (!Object.prototype.hasOwnProperty.call(cur, k) || typeof cur[k] !== 'object' || cur[k] === null) cur[k] = {};
     cur = cur[k] as Record<string, unknown>;
   }
   cur[parts[parts.length - 1]] = value;

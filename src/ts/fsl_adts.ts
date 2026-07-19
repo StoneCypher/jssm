@@ -588,6 +588,58 @@ type AliasEnv = Readonly<Record<string, FslAcyclic>>;
 
 /*******
  *
+ *  Walks one string-alias chain from `start` and throws when the chain revisits
+ *  a name (a cycle, including self-reference).  Module-private helper for
+ *  {@link make_alias_env}, which calls it once per defined name; each hop
+ *  follows a string definition that names another defined alias, and the walk
+ *  ends at the first hop that is not one.
+ *
+ *  ```typescript
+ *  // acyclic chain: returns quietly
+ *  assert_alias_chain_acyclic(
+ *    'Handle',
+ *    { Name: { base: 'string' }, Handle: 'Name' },
+ *    new Set(['Name', 'Handle'])
+ *  );
+ *  ```
+ *
+ *  @param start - The alias name the walk begins at.
+ *  @param defs  - The raw alias definitions.
+ *  @param names - The set of defined alias names, precomputed by the caller.
+ *
+ *  @throws {JssmError} If the chain from `start` revisits a name.
+ *
+ *  @see make_alias_env
+ *
+ */
+
+function assert_alias_chain_acyclic(
+  start : string,
+  defs  : Record<string, FslAcyclic>,
+  names : ReadonlySet<string>
+): void {
+
+  const seen = new Set<string>();
+  let   cur_name = start;
+
+  for (;;) {
+    if (seen.has(cur_name)) {
+      throw new JssmError(undefined, `alias cycle detected through "${cur_name}"`);
+    }
+    seen.add(cur_name);
+    const next = defs[cur_name];
+    if ((typeof next !== 'string') || (!names.has(next))) { return; }
+    cur_name = next;
+  }
+
+}
+
+
+
+
+
+/*******
+ *
  *  Builds a {@link AliasEnv} from a plain record of alias definitions (§4.4),
  *  rejecting every alias whose definition points at a name that does not exist
  *  in the same batch — so a finished environment never contains a dangling
@@ -627,15 +679,7 @@ function make_alias_env(defs: Record<string, FslAcyclic>): AliasEnv {
 
   // Walk every string-alias chain; a chain that revisits a name is a cycle.
   for (const start of names) {
-    const seen = new Set<string>();
-    let   cur: FslAcyclic = start;
-    while ((typeof cur === 'string') && names.has(cur)) {
-      if (seen.has(cur)) {
-        throw new JssmError(undefined, `alias cycle detected through "${cur}"`);
-      }
-      seen.add(cur);
-      cur = defs[cur];
-    }
+    assert_alias_chain_acyclic(start, defs, names);
   }
 
   return Object.freeze({ ...defs });
@@ -675,15 +719,17 @@ function make_alias_env(defs: Record<string, FslAcyclic>): AliasEnv {
 
 function resolve_alias(env: AliasEnv, name: string): FslAcyclic {
 
-  let cur: FslAcyclic = name;
+  let cur_name = name;
 
   // make_alias_env has already proven the string chains acyclic, so this walk
   // terminates: each hop consumes a distinct in-env string alias.
-  while ((typeof cur === 'string') && Object.prototype.hasOwnProperty.call(env, cur)) {
-    cur = env[cur];
+  while (Object.prototype.hasOwnProperty.call(env, cur_name)) {
+    const next = env[cur_name];
+    if (typeof next !== 'string') { return next; }
+    cur_name = next;
   }
 
-  return cur;
+  return cur_name;
 
 }
 
@@ -945,11 +991,42 @@ function lambda_tag(normalized_source: string): string {
 function canonical_number(n: number): string {
 
   if (Number.isNaN(n))                { return 'nan';  }
-  if (n === Number.POSITIVE_INFINITY) { return 'inf';  }
-  if (n === Number.NEGATIVE_INFINITY) { return '-inf'; }
+  if (n === Infinity) { return 'inf';  }
+  if (n === -Infinity) { return '-inf'; }
   if (n === 0)                        { return '0';    }   // collapses -0 to +0
 
   return String(n);
+
+}
+
+
+
+
+/*******
+ *
+ *  Orders two object keys by UTF-16 code unit — exactly the order the default
+ *  comparator-less `Array.prototype.sort` gives an all-string array — so the
+ *  §15 canonical serialization and the key-set walks stay byte-stable and
+ *  locale-independent.
+ *
+ *  ```typescript
+ *  ['b', 'a', 'Z'].sort(key_compare);   // ['Z', 'a', 'b']
+ *  ```
+ *
+ *  @param a - The left key.
+ *  @param b - The right key.
+ *
+ *  @returns `-1`, `0`, or `1` as `a` sorts before, equal to, or after `b`.
+ *
+ *  @see canonical_json
+ *
+ */
+
+function key_compare(a: string, b: string): -1 | 0 | 1 {
+
+  if (a < b) { return -1; }
+  if (a > b) { return 1;  }
+  return 0;
 
 }
 
@@ -1002,7 +1079,7 @@ function canonical_json(value: FslAcyclic): string {
     return `[${value.map(canonical_json).join(',')}]`;
   }
 
-  const keys = Object.keys(value).sort();
+  const keys = Object.keys(value).sort(key_compare);
   const body = keys.map(k => `${JSON.stringify(k)}:${canonical_json(value[k])}`).join(',');
 
   return `{${body}}`;
@@ -1068,11 +1145,11 @@ function snapshot_value(value: FslAcyclic): string {
 function fnv1a_hex(text: string): string {
 
   // FNV-1a 32-bit: a pinned, host-independent mix over the input's code units.
-  let h = 0x811c9dc5;
+  let h = 0x81_1C_9D_C5;
 
   for (let i = 0; i < text.length; i++) {
     h ^= text.charCodeAt(i);
-    h  = Math.imul(h, 0x01000193);
+    h  = Math.imul(h, 0x01_00_01_93);
   }
 
   // >>> 0 forces unsigned; pad so the width is stable across magnitudes.
@@ -1197,8 +1274,8 @@ function deep_equal(a: FslAcyclic, b: FslAcyclic): boolean {
 
   const a_rec = a as Record<string, FslAcyclic>;
   const b_rec = b as Record<string, FslAcyclic>;
-  const a_keys = Object.keys(a_rec).sort();
-  const b_keys = Object.keys(b_rec).sort();
+  const a_keys = Object.keys(a_rec).sort(key_compare);
+  const b_keys = Object.keys(b_rec).sort(key_compare);
 
   return (a_keys.length === b_keys.length)
       && a_keys.every((k, i) => (k === b_keys[i]) && deep_equal(a_rec[k], b_rec[k]));
@@ -1252,9 +1329,9 @@ function assert_acyclic(value: FslAcyclic): void {
     seen.add(node);
 
     if (Array.isArray(node)) {
-      node.forEach(el => walk(el, seen));
+      for (const el of node) walk(el, seen);
     } else {
-      Object.values(node).forEach(v => walk(v, seen));
+      for (const v of Object.values(node)) walk(v, seen);
     }
 
     seen.delete(node);

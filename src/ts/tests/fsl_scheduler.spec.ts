@@ -57,7 +57,7 @@ describe('resolve_bound', () => {
   });
 
   test('"unbounded" resolves to positive infinity', () => {
-    expect(resolve_bound('unbounded')).toBe(Number.POSITIVE_INFINITY);
+    expect(resolve_bound('unbounded')).toBe(Infinity);
   });
 
   test('a non-negative integer passes through unchanged', () => {
@@ -78,6 +78,11 @@ describe('resolve_bound', () => {
 
   test('NaN throws RangeError', () => {
     expect(() => resolve_bound(NaN)).toThrow(RangeError);
+  });
+
+  test('an unsafe integer (beyond 2^53 - 1) throws RangeError', () => {
+    expect(() => resolve_bound(2 ** 53)).toThrow(RangeError);
+    expect(resolve_bound(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER);
   });
 
 });
@@ -120,21 +125,21 @@ describe('settle_microsteps', () => {
 
   test('fires the pre hook once with the initial config', () => {
     const seen: number[] = [];
-    settle_microsteps(counter_step(2), 0, { pre: c => seen.push(c) });
+    settle_microsteps(counter_step(2), 0, { pre: c => { seen.push(c); } });
     expect(seen).toStrictEqual([0]);
   });
 
   test('fires the post hook once with the stable config', () => {
     const seen: number[] = [];
-    settle_microsteps(counter_step(2), 0, { post: c => seen.push(c) });
+    settle_microsteps(counter_step(2), 0, { post: c => { seen.push(c); } });
     expect(seen).toStrictEqual([2]);
   });
 
   test('orders pre before post around the settle', () => {
     const order: string[] = [];
     settle_microsteps(counter_step(1), 0, {
-      pre  : () => order.push('pre'),
-      post : () => order.push('post')
+      pre  : () => { order.push('pre'); },
+      post : () => { order.push('post'); }
     });
     expect(order).toStrictEqual(['pre', 'post']);
   });
@@ -160,8 +165,8 @@ describe('settle_microsteps', () => {
     expect(() =>
       settle_microsteps(runaway_step, 0, {
         bound : 5,
-        pre   : () => order.push('pre'),
-        post  : () => order.push('post')
+        pre   : () => { order.push('pre'); },
+        post  : () => { order.push('post'); }
       })
     ).toThrow(MicrostepOverflowError);
     expect(order).toStrictEqual(['pre']);   // post never reached
@@ -199,8 +204,8 @@ describe('MicrostepOverflowError', () => {
     try {
       settle_microsteps(runaway_step, 0, { bound: 4 });
       throw new Error('expected an overflow');
-    } catch (e) {
-      const err = e as MicrostepOverflowError<number>;
+    } catch (error) {
+      const err = error as MicrostepOverflowError<number>;
       expect(err).toBeInstanceOf(MicrostepOverflowError);
       expect(err).toBeInstanceOf(Error);
       expect(err.kind).toBe('microstep_overflow');
@@ -242,7 +247,7 @@ describe('run_macrostep', () => {
     const seen: number[] = [];
     const out = run_macrostep(counter_step(2), 0, {
       bound : 10,
-      post  : c => seen.push(c)
+      post  : c => { seen.push(c); }
     });
     expect(out.config).toBe(2);
     expect(seen).toStrictEqual([2]);

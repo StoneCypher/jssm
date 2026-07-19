@@ -3,8 +3,10 @@ import { state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 
-/** One edge of the machine, as returned by `machine.list_edges()` (edge
- *  endpoints are `StateType = string` in jssm). */
+/**
+ * One edge of the machine, as returned by `machine.list_edges()` (edge
+ *  endpoints are `StateType = string` in jssm).
+ */
 interface FooterEdge { from: string; action?: unknown; }
 
 /** Host whose state + machine the footer summarizes. */

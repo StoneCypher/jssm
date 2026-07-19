@@ -107,9 +107,7 @@ export interface ConversionResult {
  * discriminates the failure class so callers can branch without string
  * matching — `unsupported` is the "documented opt-in, not yet implemented"
  * case, distinct from `parse` (bad input) and `unknown-format` (typo'd flag).
- *
  * @throws is itself — this is the error type other interchange code throws.
- *
  * @example
  *   try { exportMachine(fsl, { format: 'scxml' }); }
  *   catch (e) {

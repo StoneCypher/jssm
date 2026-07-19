@@ -121,12 +121,12 @@ export async function cli(argv: string[]): Promise<number> {
       explicitConfigPath: parsed.flags.config as string | undefined,
       skipConfig:         parsed.flags['no-config'] === true,
     });
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
-  const target    = config.render.defaultTarget as RenderTarget;
+  const target    = config.render.defaultTarget;
   const output    = parsed.flags.output as string | undefined;
   const outDir    = (parsed.flags['out-dir'] as string | undefined) ?? config.render.outDir;
   const stdout    = parsed.flags.stdout === true;

@@ -16,11 +16,11 @@ function emitTransitionTable(surface: MachineSurface, indent: string): string {
   for (const s of surface.states) byFrom.set(s, []);
   for (const t of surface.transitions) {
     // Surface states always contains every edge endpoint, so this is defined.
-    byFrom.get(t.from)!.push({ action: t.action, to: t.to });
+    byFrom.get(t.from).push({ action: t.action, to: t.to });
   }
 
   const stateLines = surface.states.map(state => {
-    const edges = byFrom.get(state)!;
+    const edges = byFrom.get(state);
     const edgeBody = edges
       .map(e => `${indent}    '${jsStringLiteralBody(e.action)}': '${jsStringLiteralBody(e.to)}'`)
       .join(',\n');
@@ -37,11 +37,9 @@ function emitTransitionTable(surface: MachineSurface, indent: string): string {
  * union types and full method signatures, so the generated machine is typed
  * for its host the way a hand-written one would be. This is the
  * `native:typescript` target.
- *
  * @param surface - The extracted machine surface
  * @param symbol - The class name to emit (state/action types derive from it)
  * @returns TypeScript source text (a module exporting `symbol` and its types)
- *
  * @example
  *   const src = emitNativeTypescript(
  *     { states: ['a','b'], initial: 'a', actions: ['go'],

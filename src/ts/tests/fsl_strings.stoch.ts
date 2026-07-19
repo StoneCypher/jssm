@@ -207,7 +207,7 @@ describe('byte unit (UTF-8) laws', () => {
   test('every UTF-8 byte is a uint8', () => {
     fc.assert(fc.property(uni(), (s) => {
       for (const b of to_utf8_bytes(s)) {
-        expect( Number.isInteger(b) && b >= 0 && b <= 255 ).toBe(true);
+        expect( Number.isSafeInteger(b) && b >= 0 && b <= 255 ).toBe(true);
       }
     }), { numRuns: RUNS });
   });
@@ -222,8 +222,8 @@ describe('byte unit (UTF-8) laws', () => {
   test('getbyte reads back exactly the encoded bytes', () => {
     fc.assert(fc.property(uni(), (s) => {
       const bytes = to_utf8_bytes(s);
-      for (let i = 0; i < bytes.length; ++i) {
-        expect( getbyte(s, i) ).toBe(bytes[i]);
+      for (const [i, byte] of bytes.entries()) {
+        expect( getbyte(s, i) ).toBe(byte);
       }
     }), { numRuns: RUNS });
   });
@@ -234,8 +234,8 @@ describe('byte unit (UTF-8) laws', () => {
       const i        = raw % original.length;
       const edited   = setbyte(s, i, v) as Array<number>;
       expect( edited[i] ).toBe(v);
-      for (let j = 0; j < original.length; ++j) {
-        if (j !== i) { expect( edited[j] ).toBe( original[j] ); }
+      for (const [j, element] of original.entries()) {
+        if (j !== i) { expect( edited[j] ).toBe( element ); }
       }
     }), { numRuns: RUNS });
   });
@@ -276,8 +276,8 @@ describe('grapheme unit laws', () => {
   test('grapheme_at agrees with the segmented array', () => {
     fc.assert(fc.property(uni(), (s) => {
       const gs = to_graphemes(s);
-      for (let i = 0; i < gs.length; ++i) {
-        expect( grapheme_at(s, i) ).toBe(gs[i]);
+      for (const [i, g] of gs.entries()) {
+        expect( grapheme_at(s, i) ).toBe(g);
       }
       expect( grapheme_at(s, gs.length) ).toBeUndefined();
     }), { numRuns: RUNS });

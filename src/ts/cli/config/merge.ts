@@ -16,7 +16,6 @@ import type { PartialConfig } from './types';
 
 /**
  * Return true if `v` is a plain object (not an array, not null, not a class instance).
- *
  * @param v - Value to test.
  */
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
@@ -24,7 +23,6 @@ const isPlainObject = (v: unknown): v is Record<string, unknown> =>
 
 /**
  * Merge two values according to the layer-merge semantics.
- *
  * @param a - The earlier (lower-precedence) value.
  * @param b - The later (higher-precedence) value.
  * @returns The merged result; neither input is mutated.
@@ -34,8 +32,8 @@ const mergeTwo = (a: unknown, b: unknown): unknown => {
   if (b === null) return null;
   if (isPlainObject(a) && isPlainObject(b)) {
     const out: Record<string, unknown> = { ...a };
-    for (const k of Object.keys(b)) {
-      const merged = mergeTwo(a[k], b[k]);
+    for (const [k, value] of Object.entries(b)) {
+      const merged = mergeTwo(a[k], value);
       if (merged === undefined) {
         delete out[k];
       } else {
@@ -54,27 +52,23 @@ const mergeTwo = (a: unknown, b: unknown): unknown => {
  * Layers are applied left-to-right: the last layer has the highest precedence.
  * The merge is deep for plain objects but arrays REPLACE rather than concatenate
  * (consistent with how most CLI config systems treat array-valued settings).
- *
  * @param layers - From lowest precedence (first) to highest (last).
  * @returns A new object; inputs are never mutated.
- *
  * @example
  *   mergeConfigs([
  *     { render: { scale: 3 } },
  *     { render: { scale: 7 } },
  *   ]);
  *   // { render: { scale: 7 } }
- *
  * @example
  *   mergeConfigs([]);
  *   // {}
- *
  * @see mergeTwo for the per-value merge semantics.
  */
 export function mergeConfigs(layers: ReadonlyArray<PartialConfig>): PartialConfig {
   let acc: PartialConfig = {};
   for (const layer of layers) {
-    acc = mergeTwo(acc, layer) as PartialConfig;
+    acc = mergeTwo(acc, layer);
   }
   return acc;
 }

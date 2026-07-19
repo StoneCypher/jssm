@@ -23,10 +23,8 @@ interface JsonDocument {
 
 /**
  * Serialize an {@link InterchangeModel} to pretty-printed interchange JSON.
- *
  * @param model - The structural model to encode
  * @returns A two-space-indented JSON document string, newline-terminated
- *
  * @example
  *   modelToJson({ states: ['a','b'], edges: [{from:'a',to:'b',kind:'legal'}] });
  *   // '{\n  "format": "fsl-interchange",\n  ... }\n'
@@ -52,11 +50,9 @@ const VALID_KINDS: ReadonlySet<string> = new Set(['legal', 'main', 'forced']);
  * Validates structurally — every edge must name string `from`/`to` and a known
  * `kind` — so a malformed or foreign document fails loudly rather than
  * producing a half-built model.
- *
  * @param text - The JSON document text
  * @returns The decoded structural model
  * @throws InterchangeError (reason `'parse'`) on invalid JSON or shape
- *
  * @example
  *   jsonToModel('{"format":"fsl-interchange","version":1,"states":["a"],"edges":[]}');
  *   // { states: ['a'], edges: [] }
@@ -65,8 +61,8 @@ export function jsonToModel(text: string): InterchangeModel {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
-  } catch (e) {
-    throw new InterchangeError(`invalid JSON: ${(e as Error).message}`, { reason: 'parse', format: 'json' });
+  } catch (error) {
+    throw new InterchangeError(`invalid JSON: ${(error as Error).message}`, { reason: 'parse', format: 'json' });
   }
 
   if (typeof raw !== 'object' || raw === null) {
@@ -74,7 +70,7 @@ export function jsonToModel(text: string): InterchangeModel {
   }
   const doc = raw as Record<string, unknown>;
 
-  if (!Array.isArray(doc.states) || !doc.states.every((s) => typeof s === 'string')) {
+  if (!Array.isArray(doc.states) || doc.states.some((s) => typeof s !== 'string')) {
     throw new InterchangeError('JSON `states` must be an array of strings', { reason: 'parse', format: 'json' });
   }
   if (!Array.isArray(doc.edges)) {
@@ -102,9 +98,9 @@ export function jsonToModel(text: string): InterchangeModel {
     return out;
   });
 
-  const model: InterchangeModel = { states: doc.states as string[], edges };
+  const model: InterchangeModel = { states: doc.states, edges };
   if (Array.isArray(doc.start_states) && doc.start_states.every((s) => typeof s === 'string')) {
-    model.start_states = doc.start_states as string[];
+    model.start_states = doc.start_states;
   }
   return model;
 }

@@ -1,7 +1,7 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
-import { pathToFileURL } from 'url';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { extractSurface } from '../../cli/subcommands/codegen/surface';
 import { emitNativeJavascript } from '../../cli/subcommands/codegen/targets/native-javascript';
 import { emitNativeTypescript } from '../../cli/subcommands/codegen/targets/native-typescript';

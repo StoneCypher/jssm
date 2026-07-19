@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { parseFslArgs } from '../../cli-utils';
 import { exportMachine } from './export';
 import type { ExportFormat } from '../interchange/types';
@@ -27,7 +27,6 @@ const printErr = (msg: string): void => { writeStderr(`fsl-export: error: ${msg}
 
 /**
  * Read an entire readable stream to a UTF-8 string. Used for `-`/stdin input.
- *
  * @param stream - The readable stream to drain
  * @returns The stream's full contents decoded as UTF-8
  */
@@ -50,10 +49,8 @@ async function readStream(stream: NodeJS.ReadableStream): Promise<string> {
  *
  * Exported as `cli(argv)` so the dispatcher can invoke it in-process; never
  * throws to the caller and never calls `process.exit()` directly.
- *
  * @param argv - Args after the subcommand name (e.g. `['m.fsl', '--format=mermaid']`)
  * @returns 0 on success, 1 on user error, 2 on internal error
- *
  * @example
  *   const code = await cli(['traffic.fsl', '--format=json']);
  *   // code === 0, JSON written to stdout
@@ -65,8 +62,8 @@ export async function cli(argv: string[]): Promise<number> {
   let parsed: ReturnType<typeof parseFslArgs>;
   try {
     parsed = parseFslArgs(argv, SPEC);
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
@@ -100,8 +97,8 @@ export async function cli(argv: string[]): Promise<number> {
   } else {
     try {
       fsl = await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       return 1;
     }
   }
@@ -109,12 +106,12 @@ export async function cli(argv: string[]): Promise<number> {
   let result: ReturnType<typeof exportMachine>;
   try {
     result = exportMachine(fsl, { format });
-  } catch (e) {
-    if (e instanceof InterchangeError) {
-      printErr(e.message);
+  } catch (error) {
+    if (error instanceof InterchangeError) {
+      printErr(error.message);
       return 1;
     }
-    printErr((e as Error).message ?? String(e));
+    printErr((error as Error).message ?? String(error));
     return 2;
   }
 
@@ -127,8 +124,8 @@ export async function cli(argv: string[]): Promise<number> {
   if (output !== undefined && output !== '-') {
     try {
       await fs.writeFile(output, result.output);
-    } catch (e) {
-      printErr(`cannot write ${output}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot write ${output}: ${(error as Error).message}`);
       return 1;
     }
     return 0;

@@ -3,15 +3,15 @@ import { jsStringLiteralBody, toSymbol } from '../../cli/subcommands/codegen/emi
 describe('jsStringLiteralBody', () => {
 
   it('escapes backslashes and single quotes', () => {
-    expect(jsStringLiteralBody("it's a \\ thing")).toBe("it\\'s a \\\\ thing");
+    expect(jsStringLiteralBody(String.raw`it's a \ thing`)).toBe(String.raw`it\'s a \\ thing`);
   });
 
   it('escapes newline, carriage return, and tab', () => {
-    expect(jsStringLiteralBody('a\nb\rc\td')).toBe('a\\nb\\rc\\td');
+    expect(jsStringLiteralBody('a\nb\rc\td')).toBe(String.raw`a\nb\rc\td`);
   });
 
   it('escapes form feed, vertical tab, backspace, and NUL', () => {
-    expect(jsStringLiteralBody('a\fb\vc\bd\0e')).toBe('a\\fb\\vc\\bd\\x00e');
+    expect(jsStringLiteralBody('a\fb\vc\bd\0e')).toBe(String.raw`a\fb\vc\bd\x00e`);
   });
 
   it('leaves ordinary text untouched', () => {

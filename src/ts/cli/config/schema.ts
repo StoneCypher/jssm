@@ -72,26 +72,22 @@ const validator = ajv.compile(CONFIG_SCHEMA as object);
 /**
  * Validate a parsed config object against the schema. Throws
  * `ConfigSchemaError` with the full ajv violation array on failure.
- *
  * @param config - The parsed object from a config file (or assembled in code)
  * @param opts.path - Source path for the error message (optional but recommended)
  * @throws ConfigSchemaError if the object violates the schema
- *
  * @example
  *   validateConfig({ render: { defaultTarget: 'svg' } }, { path: '/x.json' });
  *   // returns void
- *
  * @example
  *   validateConfig({ render: { defaultTarget: 'tiff' } }, { path: '/x.json' });
  *   // throws ConfigSchemaError
- *
  * @see CONFIG_SCHEMA
  * @see ConfigSchemaError
  */
 export function validateConfig(config: unknown, opts: { path?: string } = {}): asserts config is PartialConfig {
   const ok = validator(config);
   if (!ok) {
-    const violations = validator.errors as ErrorObject[];
+    const violations = validator.errors;
     const summary = violations.map(v => `${v.instancePath || '/'}: ${v.message}`).join('; ');
     throw new ConfigSchemaError(`config schema violation${opts.path ? ` in ${opts.path}` : ''}: ${summary}`, {
       path: opts.path,

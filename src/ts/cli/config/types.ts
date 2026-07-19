@@ -36,23 +36,23 @@ export interface RenderConfig {
 }
 
 /** Lint subcommand configuration — empty in v1; fields land with issue #620. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface LintConfig {}
 
 /** Format subcommand configuration — empty in v1; fields land with the v6 `format` verb (megaspec §25; formerly issue #621's `fmt`). */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface FormatConfig {}
 
 /** Test subcommand configuration — empty in v1; fields land with issue #622. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface TestConfig {}
 
 /** Check subcommand configuration — empty in v1; fields land with issue #623. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface CheckConfig {}
 
 /** Typegen subcommand configuration — empty in v1; fields land with issue #624. Typegen exports *types* so a consumer of the machine gets a typed surface; it is distinct from codegen, which emits an implementation. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface TypegenConfig {}
 
 /** Codegen subcommand configuration (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
@@ -64,34 +64,33 @@ export interface CodegenConfig {
 }
 
 /** Init (project scaffolder) subcommand configuration — empty in v1; fields land with the v6 `init` verb (megaspec §25; formerly issue #625's `new`). */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface InitConfig {}
 
 /** Import (SCXML / xstate / mermaid / dot → FSL) subcommand configuration — empty in v1; fields land with the v6 `import` verb (megaspec §25). */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface ImportConfig {}
 
 /** Export (FSL → SCXML / xstate / mermaid / grammar artifacts) subcommand configuration — empty in v1; fields land with the v6 `export` verb (megaspec §25). */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface ExportConfig {}
 
 /** MCP server subcommand configuration — empty in v1; fields land with issue #628. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface McpConfig {}
 
 /** LSP server subcommand configuration — empty in v1; fields land with issue #629. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface LspConfig {}
 
 /** REPL subcommand configuration — empty in v1; fields land with issue #630. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- deliberate v1 placeholder: exported extension point whose fields land later; any replacement type would change public assignability
 export interface ReplConfig {}
 
 /**
  * The registry section: a map from machine/system name to the file that
  * defines it, consumed by every name-resolving verb (megaspec §25). Empty
  * in v1 — reserved here so configs written today validate tomorrow.
- *
  * @example
  *   { "traffic": "./machines/traffic-light.fsl" }
  */

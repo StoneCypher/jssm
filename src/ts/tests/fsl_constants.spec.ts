@@ -92,12 +92,12 @@ describe('physical_constant_symbols', () => {
 
   test('lists every expected symbol for the latest year (default arg)', () => {
     const got = physical_constant_symbols();
-    expect([...got].sort()).toEqual([...expected_symbols].sort());
+    expect([...got].sort((a, b) => a.localeCompare(b))).toEqual([...expected_symbols].sort((a, b) => a.localeCompare(b)));
   });
 
   test('lists every expected symbol for an explicit year', () => {
     const got = physical_constant_symbols(2018);
-    expect([...got].sort()).toEqual([...expected_symbols].sort());
+    expect([...got].sort((a, b) => a.localeCompare(b))).toEqual([...expected_symbols].sort((a, b) => a.localeCompare(b)));
   });
 
   test('returns 17 symbols for 2018', () => {
@@ -144,7 +144,7 @@ describe('physical_constant', () => {
 
   test('reads the speed of light by default', () => {
     const c = physical_constant('c');
-    expect(c.value).toBe(299792458);
+    expect(c.value).toBe(299_792_458);
     expect(c.unit).toBe('m s^-1');
     expect(c.uncertainty).toBe(0);
     expect(c.codata_year).toBe(2018);
@@ -152,7 +152,7 @@ describe('physical_constant', () => {
 
   test('reads a constant with a pinned year', () => {
     const g = physical_constant('G', 2018);
-    expect(g.value).toBe(6.67430e-11);
+    expect(g.value).toBe(6.6743e-11);
     expect(g.uncertainty).toBe(1.5e-15);
     expect(g.unit).toBe('m^3 kg^-1 s^-2');
   });
@@ -294,7 +294,7 @@ describe('lookup_constant', () => {
 
   test('hit: returns the registered constant by symbol', () => {
     const c = lookup_constant('c');
-    expect(c.value).toBe(299792458);
+    expect(c.value).toBe(299_792_458);
     expect(c.name).toBe('speed of light in vacuum');
     expect(c).toBe(physical_constants_by_year[latest_codata_year].c);
   });
@@ -321,10 +321,10 @@ describe('lookup_constant', () => {
     try {
       lookup_constant('zzz');
       throw new Error('lookup_constant should have thrown');
-    } catch (e) {
-      expect(e instanceof UnknownConstantError).toBe(true);
-      expect((e as UnknownConstantError).symbol).toBe('zzz');
-      expect((e as UnknownConstantError).name).toBe('UnknownConstantError');
+    } catch (error) {
+      expect(error instanceof UnknownConstantError).toBe(true);
+      expect((error as UnknownConstantError).symbol).toBe('zzz');
+      expect((error as UnknownConstantError).name).toBe('UnknownConstantError');
     }
   });
 

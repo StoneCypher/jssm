@@ -569,7 +569,7 @@ function describe_dimension(d: Dimension): string {
   const parts = base_dimension_names
     .filter(name => d[name] !== 0)
     .map(name => (d[name] === 1) ? name : `${name}^${d[name]}`);
-  return parts.length ? parts.join('·') : 'dimensionless';
+  return parts.length > 0 ? parts.join('·') : 'dimensionless';
 }
 
 
@@ -784,7 +784,6 @@ const frequency_dim    = make_dimension({ time: -1 });
 /**
  *  The SI prelude: base units, common prefixed units, derived units, and the
  *  dimensionless `one`.  Frozen — a stable, shared prelude no machine mutates.
- *
  *  @example
  *  import { SI, quantity, value_in } from './fsl_units';
  *  const dist = quantity(5, SI.kilometre);

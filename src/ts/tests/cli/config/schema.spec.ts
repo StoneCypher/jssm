@@ -71,9 +71,9 @@ describe('cli/config/schema', () => {
     try {
       validateConfig({ render: { scale: 'big' } } as any, { path: '/foo/.fsl/config.json' });
       throw new Error('should have thrown');
-    } catch (e) {
-      expect(e).toBeInstanceOf(ConfigSchemaError);
-      const err = e as ConfigSchemaError;
+    } catch (error) {
+      expect(error).toBeInstanceOf(ConfigSchemaError);
+      const err = error as ConfigSchemaError;
       expect(err.path).toBe('/foo/.fsl/config.json');
       expect(err.violations.length).toBeGreaterThan(0);
     }
@@ -83,9 +83,9 @@ describe('cli/config/schema', () => {
     try {
       validateConfig({ render: { scale: 'big' } } as any);
       throw new Error('should have thrown');
-    } catch (e) {
-      expect(e).toBeInstanceOf(ConfigSchemaError);
-      const err = e as ConfigSchemaError;
+    } catch (error) {
+      expect(error).toBeInstanceOf(ConfigSchemaError);
+      const err = error as ConfigSchemaError;
       expect(err.path).toBeUndefined();
       expect(err.message).not.toContain(' in ');
     }

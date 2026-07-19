@@ -20,11 +20,9 @@ export type CodegenSetItem = CodegenSetItemOk | CodegenSetItemErr;
  * input. Errors are captured per-input rather than aborting the batch — so a
  * caller learns exactly which documents generated and which failed, mirroring
  * `renderSet`.
- *
  * @param inputs - FSL source strings
  * @param opts - Codegen options applied to every input
  * @returns Per-input results, same length and order as `inputs`
- *
  * @example
  *   const results = codegenSet([fslA, fslB], { target: 'native:javascript' });
  *   for (const item of results) {
@@ -36,8 +34,8 @@ export function codegenSet(inputs: string[], opts: CodegenOptions): CodegenSetIt
   return inputs.map((fsl, index): CodegenSetItem => {
     try {
       return { ok: true, index, artifact: codegen(fsl, opts) };
-    } catch (e) {
-      return { ok: false, index, error: e as Error };
+    } catch (error) {
+      return { ok: false, index, error: error as Error };
     }
   });
 }

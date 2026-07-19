@@ -13,7 +13,7 @@
  * Node-only.
  */
 
-import { readFile } from 'fs/promises';
+import { readFile } from 'node:fs/promises';
 import type { PartialConfig, ResolvedConfig } from './types';
 import type { FlagMapping } from './sources/from-flags';
 import { mergeConfigs } from './merge';
@@ -54,14 +54,11 @@ export interface LoadConfigOptions {
  *   3. Project config (walking up from cwd or anchored at `projectRoot`)
  *   4. Machine source attributes (from `machinePath` if provided)
  *   5. CLI flag overrides (`flags` + `flagMapping`)
- *
  * @param opts - Options controlling which layers to load and how to discover them.
  * @returns A complete `ResolvedConfig` with defaults populated.
  * @throws Any of the `Config*Error` classes if a discovered file is malformed.
- *
  * @example
  *   const cfg = await loadConfig({ cwd: process.cwd(), flags, flagMapping });
- *
  * @example
  *   // GitHub Action use
  *   const cfg = await loadConfig({

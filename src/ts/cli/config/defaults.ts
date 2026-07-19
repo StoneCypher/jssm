@@ -16,8 +16,8 @@ import type { ResolvedConfig } from './types';
  */
 const deepFreeze = <T>(o: T): T => {
   if (o && typeof o === 'object') {
-    for (const k of Object.keys(o)) {
-      deepFreeze((o as Record<string, unknown>)[k]);
+    for (const value of Object.values(o as Record<string, unknown>)) {
+      deepFreeze(value);
     }
     Object.freeze(o);
   }
@@ -26,7 +26,6 @@ const deepFreeze = <T>(o: T): T => {
 
 /**
  * The built-in defaults.
- *
  * @example
  *   import { defaults } from 'jssm/cli';
  *   const cfg = mergeConfigs([defaults, userConfig]);

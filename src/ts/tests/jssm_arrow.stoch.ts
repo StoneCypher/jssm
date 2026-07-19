@@ -68,7 +68,6 @@ type KindChar = (typeof KINDS)[number]['ch'];
  *  Every string handed to this function is a real, accepted arrow; the
  *  rejection suite passes its junk to the classifiers directly, so nothing
  *  invalid is laundered through here.
- *
  *  @param spelling  Any spelling of a real arrow, ASCII or unicode.
  *  @returns         The same string, typed as an arrow.
  *  @example

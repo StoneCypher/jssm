@@ -80,7 +80,8 @@ describe('codegenSet', () => {
     expect(results[0].ok).toBe(true);
     expect(results[1].ok).toBe(false);
     expect(results[2].ok).toBe(true);
-    if (!results[1].ok) expect(results[1].error).toBeInstanceOf(CodegenError);
+    const second = results[1];
+    if (second.ok === false) expect(second.error).toBeInstanceOf(CodegenError);
   });
 
   it('returns an empty array for empty input', () => {

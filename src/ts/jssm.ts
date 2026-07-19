@@ -167,32 +167,37 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
 
 function validate_val_value(name: string, vtype: JssmValType, value: any, machine: any): void {
   switch (vtype.kind) {
-    case 'boolean':
+    case 'boolean': {
       if (typeof value !== 'boolean') {
         throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
       }
       break;
-    case 'string':
+    }
+    case 'string': {
       if (typeof value !== 'string') {
         throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
       }
       break;
-    case 'int':
+    }
+    case 'int': {
+      // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
       if (!Number.isInteger(value)) {
         throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
       }
-      if (vtype.hasOwnProperty('lo') && value < (vtype as { lo: number }).lo) {
+      if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < (vtype as { lo: number }).lo) {
         throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${(vtype as { lo: number }).lo}`);
       }
-      if (vtype.hasOwnProperty('hi') && value > (vtype as { hi: number }).hi) {
+      if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > (vtype as { hi: number }).hi) {
         throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${(vtype as { hi: number }).hi}`);
       }
       break;
-    case 'enum':
+    }
+    case 'enum': {
       if (!vtype.members.includes(value)) {
         throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
       }
       break;
+    }
     // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
     // only ever emits four kinds of, so this default is unreachable at runtime;
     // the `never` assignment turns an unhandled future kind into a compile error.
@@ -1342,33 +1347,33 @@ class Machine<mDT> {
 
     if (Array.isArray(val_definition)) {
 
-      val_definition.forEach(vd => {
+      for (const vd of val_definition) {
         this._val_keys.add(vd.name);
         this._val_types.set(vd.name, vd.val_type);
-        if (vd.hasOwnProperty('required') && (vd.required === true)) {
-          if (vd.hasOwnProperty('default_value')) {
+        if (Object.prototype.hasOwnProperty.call(vd, 'required') && (vd.required === true)) {
+          if (Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
             throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
           }
           this._required_vals.add(vd.name);
         }
-      });
+      }
 
       const supplied: { [name: string]: any } = (vals && (typeof vals === 'object')) ? vals : {};
 
-      Object.keys(supplied).forEach(name => {
+      for (const name of Object.keys(supplied)) {
         if (!this._val_keys.has(name)) {
           throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
         }
-      });
+      }
 
       this._val_keys.forEach(name => {
-        const vtype = this._val_types.get(name) as JssmValType;
+        const vtype = this._val_types.get(name);
         let value: any;
         if (Object.prototype.hasOwnProperty.call(supplied, name)) {
           value = supplied[name];
         } else {
           const vd = val_definition.find(d => d.name === name);
-          if (vd && vd.hasOwnProperty('default_value')) {
+          if (vd && Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
             value = vd.default_value;
           } else if (this._required_vals.has(name)) {
             throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
@@ -1977,7 +1982,7 @@ class Machine<mDT> {
     if (!this._val_keys.has(name)) {
       throw new JssmError(this, `No such val "${name}"`);
     }
-    validate_val_value(name, this._val_types.get(name) as JssmValType, value, this);
+    validate_val_value(name, this._val_types.get(name), value, this);
     this._val_values.set(name, value);
   }
 
@@ -2063,7 +2068,7 @@ class Machine<mDT> {
     if (!this._val_keys.has(name)) {
       throw new JssmError(this, `No such val "${name}"`);
     }
-    return this._val_types.get(name) as JssmValType;
+    return this._val_types.get(name);
   }
 
 
@@ -2285,7 +2290,6 @@ class Machine<mDT> {
    *  The RFC 8785 canonical-config identity of the current configuration
    *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
    *  hashing.  Excludes envelope fields (timestamp/comment/history).
-   *
    *  @returns The canonical config string.
    *  @example
    *    import { sm } from 'jssm';
@@ -2861,9 +2865,7 @@ class Machine<mDT> {
    *  m.themes = 'ocean';
    *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
    *  ```
-   *
    *  @param to - A theme name or array of theme names to apply.
-   *
    *  @see resolve_state_config
    */
   set themes(to: FslTheme | FslTheme[]) {
@@ -3170,7 +3172,6 @@ class Machine<mDT> {
    *  transition.  A terminal start therefore completes with length zero even
    *  when `max_steps` is zero, and a terminal reached on the final permitted
    *  transition is completed rather than step-capped.
-   *
    *  @param start - State to begin the walk from.
    *  @param max_steps - Maximum transitions before the walk is step-capped.
    *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
@@ -4526,7 +4527,6 @@ class Machine<mDT> {
    *  definedness test except the two nested maps, which scan their (small)
    *  inner maps.  The flags are combined with `.includes(true)` over boolean
    *  arrays rather than `||` chains so the method carries no branches of its own.
-   *
    *  @internal
    */
   #recompute_hook_flags(): void {

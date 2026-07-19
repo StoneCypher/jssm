@@ -59,15 +59,15 @@ function prop_deltas(
   const delta: Record<string, CorpusScalar> = {};
 
   // every key present after the step (props() always returns the full map)
-  for (const key of Object.keys(after)) {
-    if (!Object.is(before[key], after[key])) {
-      delta[key] = after[key];
+  for (const [key, value] of Object.entries(after)) {
+    if (!Object.is(before[key], value)) {
+      delta[key] = value;
     }
   }
   // a key that vanished (cannot happen with the current runtime, but keep the
   // delta total): record it as undefined
   for (const key of Object.keys(before)) {
-    if (!(key in after)) {
+    if (!Object.hasOwn(after, key)) {
       delta[key] = undefined;
     }
   }
@@ -79,10 +79,14 @@ function prop_deltas(
 /** Apply one stimulus to the machine, returning whether it fired. */
 function apply_stimulus(m: jssm.Machine<unknown>, s: CorpusStimulus): boolean {
   switch (s.kind) {
-    case 'action':        return m.action(s.arg as string, s.data);
-    case 'transition':    return m.transition(s.arg as string, s.data);
-    case 'force':         return m.force_transition(s.arg as string, s.data);
-    case 'probabilistic': return m.probabilistic_transition();
+    case 'action': {        return m.action(s.arg as string, s.data);
+    }
+    case 'transition': {    return m.transition(s.arg as string, s.data);
+    }
+    case 'force': {         return m.force_transition(s.arg as string, s.data);
+    }
+    case 'probabilistic': { return m.probabilistic_transition();
+    }
     default: {
       // exhaustiveness — a new stimulus kind must extend this switch
       const _never: never = s.kind;
@@ -103,7 +107,7 @@ function run_vector(v: CorpusVector): CorpusTraceStep[] {
 
   const trace: CorpusTraceStep[] = [];
 
-  v.stimuli.forEach((s, step) => {
+  for (const [step, s] of v.stimuli.entries()) {
     const from   = m.state();
     const before = read_props(m);
 
@@ -123,7 +127,7 @@ function run_vector(v: CorpusVector): CorpusTraceStep[] {
       emissions   : [],          // pre-v6 runtime has no output tape
       rollback    : !accepted    // refusal is the runtime's only "rollback" sense
     });
-  });
+  }
 
   return trace;
 }
@@ -146,7 +150,8 @@ describe('conformance corpus — structural invariants', () => {
 
   test('every vector lands in the tier its document is filed under', () => {
     for (const tier of ['T1', 'T2', 'T3'] as const) {
-      for (const v of CORPUS_BY_TIER[tier]) {
+      const tier_vectors = CORPUS_BY_TIER[tier];
+      for (const v of tier_vectors) {
         expect(v.tier).toBe(tier);
       }
     }
@@ -200,11 +205,11 @@ describe('conformance corpus — canonical trace matches reference runtime', () 
         expect(actual.length).toBe(v.trace.length);
       });
 
-      v.trace.forEach((expected, i) => {
+      for (const [i, expected] of v.trace.entries()) {
         test(`macrostep ${i}: ${expected.from} -> ${expected.to} (${expected.accepted ? 'accepted' : 'refused'})`, () => {
           expect(actual[i]).toStrictEqual(expected);
         });
-      });
+      }
 
       test('terminal state matches', () => {
         const m = jssm.from(v.document, { rng_seed: v.seed, data: v.initial_data });

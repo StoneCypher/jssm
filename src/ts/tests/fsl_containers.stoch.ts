@@ -96,7 +96,7 @@ describe('list invariants', () => {
   test('list operations never mutate the input', () => {
     fc.assert(fc.property(list_arb, scalar_arb, (xs, v) => {
       const l    = list_from(xs);
-      const snap = l.items.slice();
+      const snap = [...l.items];
       list_set(l, 0, v); list_push(l, v); list_pop(l); list_slice(l, 0, 1);
       expect( l.items ).toEqual(snap);
     }), { numRuns: RUNS });
@@ -210,7 +210,7 @@ describe('structural protocol invariants', () => {
   test('snapshot is canonical: equal values give equal JSON snapshots', () => {
     fc.assert(fc.property(list_arb, xs => {
       const a = set_from(xs);
-      const b = set_from(xs.slice().reverse());
+      const b = set_from([...xs].reverse());
       expect( JSON.stringify(snapshot(a)) ).toBe( JSON.stringify(snapshot(b)) );
     }), { numRuns: RUNS });
   });
@@ -219,11 +219,12 @@ describe('structural protocol invariants', () => {
     // JSON cannot represent -0 (it serialises to "0"), so a snapshot carrying
     // -0 round-trips to +0.  Fold -0 to 0 on the expected side before the
     // structural compare — the snapshot is canonical JSON, where -0 ≡ 0.
-    const fold_neg_zero = (v: any): any =>
-      Array.isArray(v)                          ? v.map(fold_neg_zero)
-      : (v !== null && typeof v === 'object')   ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fold_neg_zero(x)]))
-      : Object.is(v, -0)                         ? 0
-      :                                            v;
+    const fold_neg_zero = (v: any): any => {
+      if (Array.isArray(v))                        { return v.map(fold_neg_zero); }
+      if (v !== null && typeof v === 'object')     { return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fold_neg_zero(x)])); }
+      if (Object.is(v, -0))                        { return 0; }
+      return v;
+    };
     fc.assert(fc.property(fc.oneof(list_arb.map(list_from), set_arb, map_arb), c => {
       const json = JSON.stringify(snapshot(c));
       expect( JSON.parse(json) ).toEqual( fold_neg_zero(snapshot(c)) );

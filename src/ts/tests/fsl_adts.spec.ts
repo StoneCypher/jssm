@@ -129,7 +129,7 @@ describe('variant_field', () => {
   });
 
   test('throws on a non-variant', () => {
-    expect(() => variant_field({ } as unknown as AdtValue, 'w')).toThrow();
+    expect(() => variant_field({} as unknown as AdtValue, 'w')).toThrow();
   });
 
 });
@@ -141,7 +141,7 @@ describe('variant_field', () => {
 describe('match (§4.3 / §7)', () => {
 
   const area = (s: AdtValue): number => match<number>(s, {
-    circle : f => 3.14159 * (f.value as number ?? (f.radius as number)) * (f.radius as number),
+    circle : f => Math.PI * (f.value as number ?? (f.radius as number)) * (f.radius as number),
     rect   : f => (f.w as number) * (f.h as number)
   }, () => 0);
 

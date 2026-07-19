@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { loadConfigFile } from '../../../cli/config/sources/from-file';
 import { ConfigParseError, ConfigIOError, ConfigSchemaError } from '../../../cli/config/types';
 
@@ -33,8 +33,9 @@ describe('cli/config/sources/from-file', () => {
   });
 
   it('throws ConfigSchemaError when the config violates the schema', async () => {
-    const tmpDir = await import('os').then(os => os.tmpdir());
-    const fs = await import('fs/promises');
+    const os = await import('node:os');
+    const tmpDir = os.tmpdir();
+    const fs = await import('node:fs/promises');
     const tmp = `${tmpDir}/fsl-config-bad-${process.pid}.json`;
     await fs.writeFile(tmp, JSON.stringify({ render: { defaultTarget: 'tiff' } }));
     try {

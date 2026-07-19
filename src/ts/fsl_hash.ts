@@ -9,7 +9,7 @@
  * claim — this only answers "does this tape's machine match the doc given".
  */
 
-const FNV_PRIME_32 = 0x01000193;
+const FNV_PRIME_32 = 0x01_00_01_93;
 
 // One 32-bit FNV-1a lane (kept inside uint32 via `>>> 0` and `Math.imul`).
 function fnv32(text: string, seed: number): number {
@@ -24,13 +24,12 @@ function fnv32(text: string, seed: number): number {
 /**
  * @param text - FSL source.
  * @returns `"provisional:" + 16 hex digits` (two decorrelated FNV-1a-32 lanes).
- *
  * @example
  *   source_hash('a -> b;'); // e.g. 'provisional:9f1c4e2a3b7d0061'
  */
 function source_hash(text: string): string {
-  const a = fnv32(text, 0x811c9dc5);   // standard FNV offset basis
-  const b = fnv32(text, 0x9e3779b1);   // golden-ratio seed, to decorrelate the lanes
+  const a = fnv32(text, 0x81_1C_9D_C5);   // standard FNV offset basis
+  const b = fnv32(text, 0x9E_37_79_B1);   // golden-ratio seed, to decorrelate the lanes
   return 'provisional:' + a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0');
 }
 

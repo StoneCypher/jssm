@@ -96,7 +96,7 @@ describe('describe_fields', () => {
       expected_type : 'int',
       actual_type   : 'string',
       contract      : 'require',
-      bound         : 100000,
+      bound         : 100_000,
     })).toBe(
       ' (entity "count", index 5, length 3, value 256, min 0, max 255, ' +
       'expected int, actual string, contract require, bound 100000)'
@@ -173,7 +173,7 @@ describe('FslError class', () => {
       expected_type   : 'int',
       actual_type     : 'string',
       contract        : 'ensure',
-      bound           : 100000,
+      bound           : 100_000,
       source_location : a_location,
     });
     expect(e.kind).toBe('overflow');
@@ -186,7 +186,7 @@ describe('FslError class', () => {
     expect(e.expected_type).toBe('int');
     expect(e.actual_type).toBe('string');
     expect(e.contract).toBe('ensure');
-    expect(e.bound).toBe(100000);
+    expect(e.bound).toBe(100_000);
     expect(e.source_location).toBe(a_location);
   });
 
@@ -209,7 +209,7 @@ describe('FslError class', () => {
   test('is throwable and catchable with its kind intact', () => {
     let caught: unknown;
     try { throw new FslError('contract_violation', 'contract violated', { contract: 'invariant' }); }
-    catch (e) { caught = e; }
+    catch (error) { caught = error; }
     expect(caught instanceof FslError).toBe(true);
     expect((caught as FslError).kind).toBe('contract_violation');
   });
@@ -345,9 +345,9 @@ describe('per-kind constructors', () => {
 
 
   test('microstep_overflow_error names the bound it hit', () => {
-    const e = microstep_overflow_error(100000, a_location);
+    const e = microstep_overflow_error(100_000, a_location);
     expect(e.kind).toBe('microstep_overflow');
-    expect(e.bound).toBe(100000);
+    expect(e.bound).toBe(100_000);
     expect(e.source_location).toBe(a_location);
     expect(e.message).toBe('microstep_overflow: microstep bound exceeded (bound 100000)');
   });

@@ -36,16 +36,14 @@ const escapeLabel = (name: string): string => name.replace(/"/g, '#quot;');
  */
 const buildIdMap = (states: string[]): Map<string, string> => {
   const map = new Map<string, string>();
-  states.forEach((s, i) => map.set(s, `s${i}`));
+  for (const [i, s] of states.entries()) map.set(s, `s${i}`);
   return map;
 };
 
 /**
  * Serialize an {@link InterchangeModel} to a mermaid `stateDiagram-v2` block.
- *
  * @param model - The structural model to encode
  * @returns The mermaid diagram text, newline-terminated
- *
  * @example
  *   modelToMermaid({ states: ['a','b'], edges: [{from:'a',to:'b',kind:'legal'}] });
  *   // 'stateDiagram-v2\n  s0: a\n  s1: b\n  s0 --> s1\n'
@@ -61,7 +59,7 @@ export function modelToMermaid(model: InterchangeModel): string {
   for (const edge of model.edges) {
     const fromId = ids.get(edge.from) ?? edge.from;
     const toId   = ids.get(edge.to) ?? edge.to;
-    const label  = edge.action !== undefined ? ` : ${escapeLabel(edge.action)}` : '';
+    const label  = edge.action === undefined ? '' : ` : ${escapeLabel(edge.action)}`;
     lines.push(`  ${fromId} --> ${toId}${label}`);
   }
 
@@ -71,8 +69,8 @@ export function modelToMermaid(model: InterchangeModel): string {
 /** Reverse of {@link escapeLabel}. */
 const unescapeLabel = (label: string): string => label.replace(/#quot;/g, '"');
 
-const TRANSITION_RE = /^([A-Za-z0-9_]+)\s*-->\s*([A-Za-z0-9_]+)(?:\s*:\s*(.*))?$/;
-const NODE_RE       = /^([A-Za-z0-9_]+)\s*:\s*(.*)$/;
+const TRANSITION_RE = /^(\w+)\s*-->\s*(\w+)(?:\s*:\s*(\S.*)?)?$/;
+const NODE_RE       = /^(\w+)\s*:\s*(\S.*)?$/;
 
 /**
  * Parse a mermaid `stateDiagram-v2` block into an {@link InterchangeModel}.
@@ -83,12 +81,10 @@ const NODE_RE       = /^([A-Za-z0-9_]+)\s*:\s*(.*)$/;
  * their id to the human name; ids never declared keep their raw id as the
  * state name. Because mermaid carries no arrow kind, every transition decodes
  * as `legal` — the documented, reported loss of the export direction.
- *
  * @param text - The mermaid diagram text
  * @returns The decoded structural model
  * @throws InterchangeError (reason `'parse'`) if no diagram header is present
  *   or a non-blank line matches none of the recognized shapes
- *
  * @example
  *   mermaidToModel('stateDiagram-v2\n  s0 --> s1');
  *   // { states: ['s0','s1'], edges: [{from:'s0',to:'s1',kind:'legal'}] }
@@ -101,10 +97,12 @@ export function mermaidToModel(text: string): InterchangeModel {
   let sawHeader = false;
 
   const note = (id: string): void => {
-    if (!labelOf.has(id)) {
-      labelOf.set(id, id);
-      order.push(id);
+    if (labelOf.has(id)) {
+    	return;
     }
+
+    labelOf.set(id, id);
+    order.push(id);
   };
 
   for (const rawLine of rawLines) {
@@ -129,7 +127,7 @@ export function mermaidToModel(text: string): InterchangeModel {
     if (nd) {
       const [, id, label] = nd;
       note(id);
-      labelOf.set(id, unescapeLabel(label.trim()));
+      labelOf.set(id, unescapeLabel((label ?? '').trim()));
       continue;
     }
 
@@ -147,7 +145,7 @@ export function mermaidToModel(text: string): InterchangeModel {
   // names, not mermaid ids.
   // Every id reaching here was registered by note() (which seeds labelOf with
   // the id itself), so the lookup is always defined.
-  const nameOf = (id: string): string => labelOf.get(id) as string;
+  const nameOf = (id: string): string => labelOf.get(id);
   return {
     states: order.map(nameOf),
     edges:  edges.map((e) => ({ ...e, from: nameOf(e.from), to: nameOf(e.to) })),

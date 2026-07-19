@@ -30,18 +30,15 @@ const KNOWN_FORMATS: ReadonlySet<string> = new Set<ExportFormat>([
  * artifacts `gbnf`/`lark`/`ebnf`) are recognized but raise an `unsupported`
  * {@link InterchangeError} until their own phase lands — so the flag surface
  * is discoverable and stable now.
- *
  * @param fsl - FSL source text
  * @param opts.format - The target interchange format
  * @returns The produced text plus any fidelity notes (`lossy`)
  * @throws InterchangeError (reason `'parse'`) if the FSL fails to compile
  * @throws InterchangeError (reason `'unknown-format'`) for an unrecognized format
  * @throws InterchangeError (reason `'unsupported'`) for a known-but-pending format
- *
  * @example
  *   const { output } = exportMachine("a -> b;", { format: 'json' });
  *   // output is a JSON document describing states ['a','b'] and one edge
- *
  * @example
  *   exportMachine("a -> b;", { format: 'scxml' });
  *   // throws InterchangeError { reason: 'unsupported' }

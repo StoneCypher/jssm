@@ -71,7 +71,7 @@ describe('typegen: TypeScript rendering', () => {
   });
 
   test('escapes a single quote in a state name', () => {
-    expect( typegen(`"a'b" -> c;`, { name: 'Q' }) ).toContain("\\'");
+    expect( typegen(`"a'b" -> c;`, { name: 'Q' }) ).toContain(String.raw`\'`);
   });
 
 });

@@ -47,7 +47,7 @@ describe('val (stochastic)', () => {
     fc.assert(
       fc.property(ident, fc.integer({ min: -1000, max: 1000 }), (name, n) => {
         const m = jssm.from(`val ${name} : int default ${n}; a -> b;`);
-        return m.val(name) === n;
+        expect(m.val(name)).toBe(n);
       }),
       { numRuns: RUNS }
     );
@@ -57,7 +57,7 @@ describe('val (stochastic)', () => {
     fc.assert(
       fc.property(ident, fc.boolean(), (name, b) => {
         const m = jssm.from(`val ${name} : boolean default ${b}; a -> b;`);
-        return m.val(name) === b;
+        expect(m.val(name)).toBe(b);
       }),
       { numRuns: RUNS }
     );
@@ -75,9 +75,10 @@ describe('val (stochastic)', () => {
           const src = `val ${name} : int ${lo}..${hi} default ${v}; s -> t;`;
           const inRange = (v >= lo) && (v <= hi);
           if (inRange) {
-            return jssm.from(src).val(name) === v;
+            expect(jssm.from(src).val(name)).toBe(v);
+          } else {
+            expect(() => jssm.from(src)).toThrow();
           }
-          try { jssm.from(src); return false; } catch { return true; }
         }
       ),
       { numRuns: RUNS }
@@ -88,7 +89,7 @@ describe('val (stochastic)', () => {
     fc.assert(
       fc.property(ident, fc.integer({ min: 11, max: 1000 }), (name, v) => {
         const m = jssm.from(`val ${name} : int 0..10 default 0; a -> b;`);
-        try { m.set_val(name, v); return false; } catch { return true; }
+        expect(() => m.set_val(name, v)).toThrow();
       }),
       { numRuns: RUNS }
     );

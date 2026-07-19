@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { resolve, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, join } from 'node:path';
 import { cli } from '../../cli/subcommands/codegen/plugin';
 
 const fixturesDir = resolve(__dirname, 'fixtures/machines');
@@ -109,7 +109,7 @@ describe('fsl-codegen plugin cli()', () => {
 
   it('single input that cannot be read returns 1 with cannot-read error', async () => {
     const bogus = process.platform === 'win32'
-      ? 'C:\\no\\such\\dir\\nope.fsl'
+      ? String.raw`C:\no\such\dir\nope.fsl`
       : '/no/such/dir/nope.fsl';
     const code = await cli([bogus]);
     expect(code).toBe(1);
@@ -153,7 +153,7 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('reads FSL from piped stdin when no input path is given', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from("a 'go' -> b;\n"), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -179,7 +179,7 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('treats path "-" as stdin', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from("a 'go' -> b;\n"), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -193,7 +193,7 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('reads from bare "-" with no other flags (defaults to stdout)', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(Readable.from("a 'go' -> b;\n"), { isTTY: false });
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
@@ -267,12 +267,13 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('readStream handles an immediately-closed stdin (no chunks yielded)', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
-      new Readable({ read() { this.push(null); } }),
+      new Readable({ read: () => {} }),
       { isTTY: false },
     );
+    fakeStdin.push(null);
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
     try {
       const code = await cli(['--stdout']);
@@ -285,14 +286,15 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('readStream passes through Buffer chunks unchanged (Buffer.isBuffer branch)', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
-      new Readable({
-        read() { this.push(Buffer.from("a 'go' -> b;\n")); this.push(null); },
-      }),
+      new Readable({ read: () => {} }),
       { isTTY: false },
     );
+    fakeStdin.push(Buffer.from("a 'go' -> b;\n"));
+    // eslint-disable-next-line unicorn/prefer-single-call -- Readable.push, not Array#push: push(null) is the stream EOF signal
+    fakeStdin.push(null);
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
     try {
       const code = await cli(['--stdout']);
@@ -304,15 +306,15 @@ describe('fsl-codegen plugin cli()', () => {
   });
 
   it('readStream wraps string chunks into Buffer (Buffer.from branch)', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const realStdin = process.stdin;
     const fakeStdin = Object.assign(
-      new Readable({
-        objectMode: true,
-        read() { this.push("a 'go' -> b;\n"); this.push(null); },
-      }),
+      new Readable({ objectMode: true, read: () => {} }),
       { isTTY: false },
     );
+    fakeStdin.push("a 'go' -> b;\n");
+    // eslint-disable-next-line unicorn/prefer-single-call -- Readable.push, not Array#push: push(null) is the stream EOF signal
+    fakeStdin.push(null);
     Object.defineProperty(process, 'stdin', { value: fakeStdin, configurable: true });
     try {
       const code = await cli(['--stdout']);

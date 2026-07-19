@@ -9,9 +9,9 @@ describe('importMachine', () => {
       // @ts-expect-error exercising the runtime guard
       importMachine('{}', { format: 'yaml' });
       throw new Error('expected throw');
-    } catch (e) {
-      expect(e).toBeInstanceOf(InterchangeError);
-      expect((e as InterchangeError).reason).toBe('unknown-format');
+    } catch (error) {
+      expect(error).toBeInstanceOf(InterchangeError);
+      expect((error as InterchangeError).reason).toBe('unknown-format');
     }
   });
 
@@ -19,8 +19,8 @@ describe('importMachine', () => {
     try {
       importMachine('<scxml/>', { format: 'scxml' });
       throw new Error('expected throw');
-    } catch (e) {
-      expect((e as InterchangeError).reason).toBe('unsupported');
+    } catch (error) {
+      expect((error as InterchangeError).reason).toBe('unsupported');
     }
   });
 

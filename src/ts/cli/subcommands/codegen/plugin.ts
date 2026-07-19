@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import { basename, dirname, extname, join } from 'path';
+import { promises as fs } from 'node:fs';
+import { basename, dirname, extname, join } from 'node:path';
 import { parseFslArgs } from '../../cli-utils';
 import { loadConfig } from '../../config/loader';
 import { codegen } from './codegen';
@@ -61,7 +61,7 @@ const writeStderr = (s: string): void => { process.stderr.write(s); };
 const printErr = (msg: string, path?: string, line?: number): void => {
   writeStderr(`fsl-codegen: error: ${msg}\n`);
   if (path) {
-    const loc = line !== undefined ? `  at ${path} line ${line}` : `  at ${path}`;
+    const loc = line === undefined ? `  at ${path}` : `  at ${path} line ${line}`;
     writeStderr(loc + '\n');
   }
 };
@@ -74,7 +74,7 @@ function jsonError(label: string, e: Error): string {
     status: undecided ? 'undecided' : 'error',
     source: label,
     message: e.message,
-    ...(e instanceof CodegenError && e.line !== undefined ? { line: e.line } : {}),
+    ...(e instanceof CodegenError && e.line !== undefined && { line: e.line }),
   };
   return JSON.stringify(body) + '\n';
 }
@@ -89,7 +89,7 @@ function jsonOk(label: string, artifact: CodegenArtifact, outputPath?: string): 
     host: artifact.host,
     extension: artifact.extension,
     symbol: artifact.symbol,
-    ...(outputPath ? { outputPath } : {}),
+    ...(outputPath && { outputPath }),
     content: artifact.content,
   };
   return JSON.stringify(body) + '\n';
@@ -104,10 +104,8 @@ function jsonOk(label: string, artifact: CodegenArtifact, outputPath?: string): 
  * `process.exit()` directly (the plugin contract). Honors the agent verb
  * contract: `--json` structured output, meaningful exit codes, no TTY
  * assumptions.
- *
  * @param argv - Args after the subcommand name (e.g. `['m.fsl', '--target=native:javascript']`)
  * @returns 0 on success, 1 on user error, 2 on an unexpected internal error
- *
  * @example
  *   const code = await cli(['traffic-light.fsl', '--stdout']);
  *   // code === 0, TypeScript source written to stdout
@@ -119,8 +117,8 @@ export async function cli(argv: string[]): Promise<number> {
   let parsed: ReturnType<typeof parseFslArgs>;
   try {
     parsed = parseFslArgs(argv, SPEC);
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
@@ -143,8 +141,8 @@ export async function cli(argv: string[]): Promise<number> {
       explicitConfigPath: parsed.flags.config as string | undefined,
       skipConfig:         parsed.flags['no-config'] === true,
     });
-  } catch (e) {
-    printErr((e as Error).message);
+  } catch (error) {
+    printErr((error as Error).message);
     return 1;
   }
 
@@ -184,8 +182,8 @@ export async function cli(argv: string[]): Promise<number> {
     let fsl: string;
     try {
       fsl = path === '-' ? await readStream(process.stdin) : await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       return 1;
     }
     const label = path === '-' ? '<stdin>' : path;
@@ -221,8 +219,8 @@ export async function cli(argv: string[]): Promise<number> {
     let fsl: string;
     try {
       fsl = await fs.readFile(path, 'utf8');
-    } catch (e) {
-      printErr(`cannot read ${path}: ${(e as Error).message}`);
+    } catch (error) {
+      printErr(`cannot read ${path}: ${(error as Error).message}`);
       worstCode = Math.max(worstCode, 1);
       continue;
     }
@@ -250,14 +248,14 @@ async function generateOne(
   let artifact: CodegenArtifact;
   try {
     artifact = codegen(fsl, opts);
-  } catch (e) {
-    const err = e as Error;
+  } catch (error) {
+    const err = error as Error;
     if (emit.json) {
       writeStdout(jsonError(label, err));
     } else if (err instanceof CodegenError) {
       printErr(err.message, label, err.line);
     } else {
-      printErr(`${err.message ?? String(err)}`, label);
+      printErr(err.message ?? String(err), label);
     }
     // An undecided result (gated certify / budget) is still a user-facing
     // refusal, not an internal crash: exit 1, distinguished only by status.
@@ -270,8 +268,8 @@ async function generateOne(
   }
   try {
     await fs.writeFile(out.outputPath, artifact.content);
-  } catch (e) {
-    const err = e as Error;
+  } catch (error) {
+    const err = error as Error;
     if (emit.json) writeStdout(jsonError(label, err));
     else           printErr(`cannot write ${out.outputPath}: ${err.message}`, label);
     return 1;

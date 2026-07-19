@@ -239,7 +239,7 @@ describe('fsl_totality microstep_cascade/3', () => {
   });
 
   test('with the cap disabled (Infinity) a long acyclic chain still settles', () => {
-    const result = microstep_cascade(chain, 'a', Number.POSITIVE_INFINITY);
+    const result = microstep_cascade(chain, 'a', Infinity);
     expect( result.outcome ).toBe( 'settled' );
   });
 

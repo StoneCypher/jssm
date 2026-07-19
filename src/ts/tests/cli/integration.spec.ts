@@ -22,18 +22,18 @@ async function run(cmd: string, args: string[], envOrOpts: Record<string, string
     ? (envOrOpts as RunOptions)
     : { env: envOrOpts as Record<string, string> };
   const env = opts.env ?? {};
-  return new Promise(res => {
+  return new Promise(resolve => {
     const child = spawn(cmd, args, {
       env: { ...process.env, ...env },
       cwd: opts.cwd,
     });
     const out: Buffer[] = [];
     const err: Buffer[] = [];
-    child.stdout.on('data', d => out.push(d));
-    child.stderr.on('data', d => err.push(d));
+    child.stdout.on('data', d => { out.push(d); });
+    child.stderr.on('data', d => { err.push(d); });
     child.on('exit', code => {
       const stdoutBuf = Buffer.concat(out);
-      res({
+      resolve({
         stdout: stdoutBuf.toString('utf8'),
         stderr: Buffer.concat(err).toString('utf8'),
         code: code ?? 1,
@@ -120,7 +120,7 @@ describe('cli integration — config file (issue #631)', () => {
     expect(a.code).toBe(0);
     expect(b.code).toBe(0);
     expect(a.stdout).toBe(b.stdout);
-  }, 30000);
+  }, 30_000);
 
   it('--config <path> loads that file', async () => {
     // basic-config has render.defaultTarget = 'png'. So omitting --target
@@ -134,7 +134,7 @@ describe('cli integration — config file (issue #631)', () => {
     expect(r.code).toBe(0);
     // PNG magic bytes: 89 50 4E 47 ...
     expect(r.stdoutBuf.slice(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4E, 0x47]));
-  }, 30000);
+  }, 30_000);
 
   it('discovered .fsl/config.json sets render defaults when run in that directory', async () => {
     // cd into a project with .fsl/config.json present and invoke fsl render
@@ -148,7 +148,7 @@ describe('cli integration — config file (issue #631)', () => {
     expect(r.code).toBe(0);
     // basic-config sets defaultTarget=png
     expect(r.stdoutBuf.slice(0, 4)).toEqual(Buffer.from([0x89, 0x50, 0x4E, 0x47]));
-  }, 30000);
+  }, 30_000);
 
   it('explicit --target overrides config', async () => {
     const env = await isolatedEnv();
@@ -159,5 +159,5 @@ describe('cli integration — config file (issue #631)', () => {
     );
     expect(r.code).toBe(0);
     expect(r.stdout.slice(0, 5)).toBe('<?xml');  // SVG, not PNG
-  }, 30000);
+  }, 30_000);
 });

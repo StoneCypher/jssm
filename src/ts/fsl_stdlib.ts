@@ -108,10 +108,10 @@ const ln2     : number = Math.LN2;
 const ln10    : number = Math.LN10;
 
 /** Positive infinity (∞). */
-const inf     : number = Number.POSITIVE_INFINITY;
+const inf     : number = Infinity;
 
 /** IEEE not-a-number; never equal to itself. */
-const nan     : number = Number.NaN;
+const nan     : number = NaN;
 
 /** The double-precision machine epsilon (smallest 1 + ε ≠ 1). */
 const EPSILON : number = Number.EPSILON;
@@ -157,7 +157,7 @@ const isnan = (x: number): boolean =>
  */
 
 const isinf = (x: number): boolean =>
-  x === Number.POSITIVE_INFINITY || x === Number.NEGATIVE_INFINITY;
+  x === Infinity || x === -Infinity;
 
 
 /*******
@@ -739,7 +739,7 @@ const tan = (deg: number): number =>
  */
 
 const asin = (x: number): number => {
-  if (x < -1 || x > 1) {
+  if (Math.abs(x) > 1) {
     throw new FslMathError(FslErrorKind.domain_error, 'asin argument must be in [-1, 1]');
   }
   return degrees(Math.asin(x));
@@ -761,7 +761,7 @@ const asin = (x: number): number => {
  */
 
 const acos = (x: number): number => {
-  if (x < -1 || x > 1) {
+  if (Math.abs(x) > 1) {
     throw new FslMathError(FslErrorKind.domain_error, 'acos argument must be in [-1, 1]');
   }
   return degrees(Math.acos(x));
@@ -911,7 +911,7 @@ const acosh = (x: number): number => {
  */
 
 const atanh = (x: number): number => {
-  if (x <= -1 || x >= 1) {
+  if (Math.abs(x) >= 1) {
     throw new FslMathError(FslErrorKind.domain_error, 'atanh argument must be in (-1, 1)');
   }
   return Math.atanh(x);
@@ -1254,10 +1254,10 @@ const ctz = (x: number, width: number = 32): number => {
  */
 
 const rotl = (x: number, n: number, width: number = 32): number => {
-  const v = require_uint_of_width(x, width);
   if (!Number.isSafeInteger(n) || n < 0) {
     throw new FslMathError(FslErrorKind.domain_error, 'rotl amount must be a non-negative integer');
   }
+  const v = require_uint_of_width(x, width);
   const s = n % width;
   // Arithmetic (not JS bitwise) so the 32-bit signed `<<` cliff is avoided:
   // shift the low part up, OR in the high part that wrapped around.
@@ -1287,10 +1287,10 @@ const rotl = (x: number, n: number, width: number = 32): number => {
  */
 
 const rotr = (x: number, n: number, width: number = 32): number => {
-  const v = require_uint_of_width(x, width);
   if (!Number.isSafeInteger(n) || n < 0) {
     throw new FslMathError(FslErrorKind.domain_error, 'rotr amount must be a non-negative integer');
   }
+  const v = require_uint_of_width(x, width);
   const s = n % width;
   return rotl(v, width - s, width);
 };
@@ -1430,10 +1430,12 @@ const mode = (xs: readonly number[]): number => {
   let best = xs[0];
   let bestCount = 0;
   for (const [value, count] of counts) {
-    if (count > bestCount || (count === bestCount && value < best)) {
-      best = value;
-      bestCount = count;
+    if (!(count > bestCount || (count === bestCount && value < best))) {
+    	continue;
     }
+
+    best = value;
+    bestCount = count;
   }
   return best;
 };

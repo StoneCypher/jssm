@@ -8,9 +8,9 @@
  * Node-only — uses `fs` and `os`.
  */
 
-import { access, constants } from 'fs/promises';
-import { homedir } from 'os';
-import { join, dirname, parse } from 'path';
+import { access, constants } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { join, dirname, parse } from 'node:path';
 import type { PartialConfig } from '../types';
 import { loadConfigFile } from './from-file';
 
@@ -18,7 +18,6 @@ const CONFIG_BASENAME = join('.fsl', 'config.json');
 
 /**
  * Check whether a path exists and is readable without throwing.
- *
  * @param path - Absolute path to test.
  * @returns `true` if the path is accessible for reading; `false` otherwise.
  */
@@ -34,15 +33,12 @@ const exists = async (path: string): Promise<boolean> => {
 /**
  * Look for `~/.fsl/config.json` (or `<home>/.fsl/config.json` if `home`
  * is provided for testing).
- *
  * @param opts.home - Override the home directory (test seam). Defaults to `os.homedir()`.
  * @returns The parsed config, or `null` if the file does not exist.
  * @throws ConfigParseError / ConfigSchemaError / ConfigIOError if the file exists but is malformed.
- *
  * @example
  *   const userCfg = await discoverUserGlobalConfig();
  *   // null on a fresh machine, a PartialConfig if the user wrote one.
- *
  * @see discoverProjectConfig
  */
 export async function discoverUserGlobalConfig(opts: { home?: string } = {}): Promise<PartialConfig | null> {
@@ -54,15 +50,12 @@ export async function discoverUserGlobalConfig(opts: { home?: string } = {}): Pr
 /**
  * Walk up from `from` looking for a directory containing `.fsl/config.json`.
  * Returns the first one found; null if none up to the filesystem root.
- *
  * @param opts.from - Directory to start walking from. Walks toward the filesystem root.
  * @returns The parsed config, or `null` if none exists in any ancestor.
  * @throws ConfigParseError / ConfigSchemaError / ConfigIOError if a file is found but malformed.
- *
  * @example
  *   const projCfg = await discoverProjectConfig({ from: process.cwd() });
  *   // { render: { defaultTarget: 'svg', scale: 3, quality: 85 }, ... }
- *
  * @see discoverUserGlobalConfig
  */
 export async function discoverProjectConfig(opts: { from: string }): Promise<PartialConfig | null> {

@@ -4,7 +4,7 @@ import type { Reader, PartialConfig } from '../../../cli/config/types';
 
 // Build a reader from an in-memory file map for testing.
 const makeReader = (files: Record<string, string>): Reader => async (path: string) => {
-  if (!(path in files)) throw Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' });
+  if (!Object.hasOwn(files, path)) throw Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' });
   return files[path];
 };
 
@@ -137,7 +137,7 @@ describe('cli/config/extends', () => {
     };
     const out = await resolveExtends(
       { extends: './base.json', render: { scale: 9 } },
-      'C:\\proj\\.fsl\\config.json',
+      String.raw`C:\proj\.fsl\config.json`,
       reader,
     );
     expect(seen).toEqual(['C:/proj/.fsl/base.json']);

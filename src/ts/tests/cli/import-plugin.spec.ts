@@ -1,12 +1,12 @@
-import { promises as fs } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { cli } from '../../cli/subcommands/import/plugin';
 
 const MERMAID = 'stateDiagram-v2\n  s0 --> s1 : go\n';
 
 const withStdin = async (text: string, fn: () => Promise<void>): Promise<void> => {
-  const { Readable } = await import('stream');
+  const { Readable } = await import('node:stream');
   const real = process.stdin;
   const fake = Object.assign(Readable.from(text), { isTTY: false });
   Object.defineProperty(process, 'stdin', { value: fake, configurable: true });
@@ -87,7 +87,7 @@ describe('fsl-import plugin cli()', () => {
   });
 
   it('returns 1 when the input file cannot be read', async () => {
-    const bogus = process.platform === 'win32' ? 'C:\\no\\such\\f.mmd' : '/no/such/f.mmd';
+    const bogus = process.platform === 'win32' ? String.raw`C:\no\such\f.mmd` : '/no/such/f.mmd';
     expect(await cli([bogus, '--format=mermaid'])).toBe(1);
     expect(stderrChunks.join('')).toContain('cannot read');
   });
@@ -146,12 +146,15 @@ describe('fsl-import plugin cli()', () => {
   });
 
   it('reads Buffer chunks from stdin (the Buffer.isBuffer branch)', async () => {
-    const { Readable } = await import('stream');
+    const { Readable } = await import('node:stream');
     const real = process.stdin;
     const fake = Object.assign(
-      new Readable({ read() { this.push(Buffer.from(MERMAID)); this.push(null); } }),
+      new Readable({ read: () => {} }),
       { isTTY: false },
     );
+    fake.push(Buffer.from(MERMAID));
+    // eslint-disable-next-line unicorn/prefer-single-call -- Readable.push, not Array#push: push(null) is the stream EOF signal
+    fake.push(null);
     Object.defineProperty(process, 'stdin', { value: fake, configurable: true });
     try {
       expect(await cli(['--format=mermaid', '--quiet'])).toBe(0);

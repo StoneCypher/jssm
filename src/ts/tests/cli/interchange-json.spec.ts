@@ -61,9 +61,9 @@ describe('interchange json: jsonToModel', () => {
 
   it('throws on invalid JSON syntax', () => {
     expect(() => jsonToModel('{not json')).toThrow(InterchangeError);
-    try { jsonToModel('{not json'); } catch (e) {
-      expect((e as InterchangeError).reason).toBe('parse');
-      expect((e as InterchangeError).message).toMatch(/invalid JSON/);
+    try { jsonToModel('{not json'); } catch (error) {
+      expect((error as InterchangeError).reason).toBe('parse');
+      expect((error as InterchangeError).message).toMatch(/invalid JSON/);
     }
   });
 

@@ -1,5 +1,5 @@
-import { resolve } from 'path';
-import * as os from 'os';
+import { resolve } from 'node:path';
+import * as os from 'node:os';
 import {
   discoverUserGlobalConfig,
   discoverProjectConfig,
@@ -27,11 +27,11 @@ describe('cli/config/sources/from-discovery', () => {
       // configurable). Instead, verify the no-args path: it must not throw and
       // must return either null or a plain PartialConfig object.
       const out = await discoverUserGlobalConfig();
-      if (out !== null) {
+      if (out === null) {
+        expect(out).toBeNull();
+      } else {
         expect(typeof out).toBe('object');
         expect(Array.isArray(out)).toBe(false);
-      } else {
-        expect(out).toBeNull();
       }
     });
 

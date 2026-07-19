@@ -25,18 +25,16 @@ const ARROW: Record<InterchangeEdge['kind'], string> = {
  * FSL state names may be bare atoms or double-quoted strings (`Label = Atom /
  * String` in the grammar). The quoted form accepts every character except a
  * bare `"` or `\`, both of which are backslash-escaped here — so quoting is
- * *always* safe regardless of the name's contents (spaces, punctuation,
+ * always* safe regardless of the name's contents (spaces, punctuation,
  * Unicode). Always quoting keeps the emitter simple and the output uniform.
- *
  * @param name - The state name to quote
  * @returns The name as a double-quoted FSL label
- *
  * @example
  *   quoteState('Red Light');   // '"Red Light"'
  *   quoteState('a"b');         // '"a\\"b"'
  */
 export function quoteState(name: string): string {
-  const escaped = name.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const escaped = name.replace(/\\/g, '\\\\').replace(/"/g, String.raw`\"`);
   return `"${escaped}"`;
 }
 
@@ -45,16 +43,14 @@ export function quoteState(name: string): string {
  *
  * FSL action labels are single-quoted (`'Proceed'`); the grammar omits a bare
  * `'` and a bare `\` from the unescaped set, so both are backslash-escaped.
- *
  * @param action - The action label to quote
  * @returns The action as a single-quoted FSL action label
- *
  * @example
  *   quoteAction('Shut down');  // "'Shut down'"
  *   quoteAction("o'clock");    // "'o\\'clock'"
  */
 export function quoteAction(action: string): string {
-  const escaped = action.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const escaped = action.replace(/\\/g, '\\\\').replace(/'/g, String.raw`\'`);
   return `'${escaped}'`;
 }
 
@@ -66,11 +62,9 @@ export function quoteAction(action: string): string {
  * onto the small interchange surface. Construction details FSL carries but the
  * interchange model does not (hooks, contracts, vals, themes) are simply not
  * read here — `export` targets that care report them as lossy.
- *
  * @param fsl - FSL source text
  * @returns The structural model: states, edges, and start states
  * @throws InterchangeError (reason `'parse'`) if the FSL fails to compile
- *
  * @example
  *   const m = fslToModel("a -> b;");
  *   // m.states === ['a', 'b']; m.edges[0] === { from: 'a', to: 'b', kind: 'legal' }
@@ -79,8 +73,8 @@ export function fslToModel(fsl: string): InterchangeModel {
   let machine: ReturnType<typeof from>;
   try {
     machine = from(fsl);
-  } catch (e) {
-    throw new InterchangeError(`cannot parse FSL: ${(e as Error).message ?? String(e)}`, {
+  } catch (error) {
+    throw new InterchangeError(`cannot parse FSL: ${(error as Error).message ?? String(error)}`, {
       reason: 'parse',
       format: 'fsl',
     });
@@ -89,17 +83,17 @@ export function fslToModel(fsl: string): InterchangeModel {
   const states = machine.states();
   const edges: InterchangeEdge[] = machine.list_edges().map((tr) => {
     const edge: InterchangeEdge = {
-      from: String(tr.from),
-      to:   String(tr.to),
+      from: tr.from,
+      to:   tr.to,
       kind: kindToInterchange(tr.kind),
     };
     if (tr.action !== undefined && tr.action !== null) {
-      edge.action = String(tr.action);
+      edge.action = tr.action;
     }
     return edge;
   });
 
-  return { states, edges, start_states: [String(machine.state())] };
+  return { states, edges, start_states: [machine.state()] };
 }
 
 /**
@@ -129,14 +123,11 @@ export interface FslRenderResult {
  * (`"x" -> "x";`), the minimal construct that registers the node. That self-loop
  * is an edge the source did not have, so the returned {@link FslRenderResult}
  * names every such state in `isolatedStates` for the caller to mark lossy.
- *
  * @param model - The structural model to render
  * @returns The FSL source plus the list of states materialized as self-loops
- *
  * @example
  *   modelToFsl({ states: ['a','b'], edges: [{from:'a',to:'b',kind:'legal'}] });
  *   // { fsl: '"a" -> "b";\n', isolatedStates: [] }
- *
  * @example
  *   modelToFsl({ states: ['lonely'], edges: [] });
  *   // { fsl: '"lonely" -> "lonely";\n', isolatedStates: ['lonely'] }
@@ -148,7 +139,7 @@ export function modelToFsl(model: InterchangeModel): FslRenderResult {
   for (const edge of model.edges) {
     connected.add(edge.from);
     connected.add(edge.to);
-    const action = edge.action !== undefined ? ` ${quoteAction(edge.action)}` : '';
+    const action = edge.action === undefined ? '' : ` ${quoteAction(edge.action)}`;
     lines.push(`${quoteState(edge.from)}${action} ${ARROW[edge.kind]} ${quoteState(edge.to)};`);
   }
 
@@ -157,10 +148,12 @@ export function modelToFsl(model: InterchangeModel): FslRenderResult {
   // it so the conversion's added-edge cost stays visible.
   const isolatedStates: string[] = [];
   for (const state of model.states) {
-    if (!connected.has(state)) {
-      isolatedStates.push(state);
-      lines.push(`${quoteState(state)} ${ARROW.legal} ${quoteState(state)};`);
+    if (connected.has(state)) {
+    	continue;
     }
+
+    isolatedStates.push(state);
+    lines.push(`${quoteState(state)} ${ARROW.legal} ${quoteState(state)};`);
   }
 
   return { fsl: lines.join('\n') + (lines.length > 0 ? '\n' : ''), isolatedStates };

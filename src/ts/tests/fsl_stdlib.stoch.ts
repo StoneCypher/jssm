@@ -101,7 +101,7 @@ describe('arithmetic / rounding laws', () => {
     fc.assert(fc.property(finite, x => {
       expect(floor(x) <= x).toBe(true);
       expect(x <= ceil(x)).toBe(true);
-      if (!Number.isInteger(x)) { expect(ceil(x) - floor(x)).toBe(1); }
+      if (!Number.isSafeInteger(x)) { expect(ceil(x) - floor(x)).toBe(1); }
     }), { numRuns: RUNS });
   });
 
@@ -114,7 +114,7 @@ describe('arithmetic / rounding laws', () => {
   test('round result is an integer within 0.5 of the input', () => {
     fc.assert(fc.property(finite, x => {
       const r = round(x);
-      expect(Number.isInteger(r)).toBe(true);
+      expect(Number.isSafeInteger(r)).toBe(true);
       expect(Math.abs(r - x) <= 0.5 + EPS).toBe(true);
     }), { numRuns: RUNS });
   });
@@ -154,7 +154,7 @@ describe('arithmetic / rounding laws', () => {
 
   test('hypot equals sqrt of the sum of squares', () => {
     fc.assert(fc.property(finite, finite, (a, b) => {
-      expect(near(hypot(a, b), Math.sqrt(a * a + b * b), 1e-6)).toBe(true);
+      expect(near(hypot(a, b), Math.hypot(a, b), 1e-6)).toBe(true);
     }), { numRuns: RUNS });
   });
 

@@ -9,10 +9,12 @@
  * load).
  */
 
+import { describe, it, expect, vi } from 'vitest';
+
 const installExitCapture = (): { captured: Promise<number>; restore: () => void } => {
   const realExit = process.exit;
   let resolveCaptured!: (code: number) => void;
-  const captured = new Promise<number>((res) => { resolveCaptured = res; });
+  const captured = new Promise<number>((resolve) => { resolveCaptured = resolve; });
   (process as any).exit = (code: number) => { resolveCaptured(code); };
   return {
     captured,

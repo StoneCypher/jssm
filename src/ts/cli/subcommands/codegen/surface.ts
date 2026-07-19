@@ -39,11 +39,9 @@ export interface MachineSurface {
  * ones a generated `action(name)` dispatcher can fire. Eventless / unnamed
  * edges (automatic transitions with no caller-visible trigger) are surfaced
  * separately in `eventless`, which a target emits as a `step()` transition.
- *
  * @param fsl - FSL source text
  * @returns The extracted surface
  * @throws CodegenError if the FSL fails to parse or compile
- *
  * @example
  *   const s = extractSurface("a 'go' -> b;");
  *   // s.states  === ['a', 'b']
@@ -57,13 +55,13 @@ export function extractSurface(fsl: string): MachineSurface {
   let machine;
   try {
     machine = from(fsl);
-  } catch (e) {
-    throw new CodegenError(`codegen failed to compile FSL: ${(e as Error).message}`);
+  } catch (error) {
+    throw new CodegenError(`codegen failed to compile FSL: ${(error as Error).message}`);
   }
 
-  const states  = machine.states().map(s => String(s));
+  const states  = machine.states().map(String);
   const initial = String(machine.state());
-  const actions = machine.list_actions().map(a => String(a));
+  const actions = machine.list_actions().map(String);
   const finals  = states.filter(s => machine.state_is_final(s));
 
   const transitions: SurfaceTransition[] = [];

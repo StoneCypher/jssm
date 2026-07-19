@@ -28,18 +28,15 @@ const KNOWN_FORMATS: ReadonlySet<string> = new Set<ImportFormat>([
  * imports as a `legal` `->` edge, reported in `lossy`). The remaining §25
  * sources (`scxml`, `xstate`, `dot`) are recognized but raise an `unsupported`
  * {@link InterchangeError} until their phase lands.
- *
  * @param source - The interchange-format source text
  * @param opts.format - The format `source` is written in
  * @returns The produced FSL plus any fidelity notes (`lossy`)
  * @throws InterchangeError (reason `'parse'`) if the source fails to parse
  * @throws InterchangeError (reason `'unknown-format'`) for an unrecognized format
  * @throws InterchangeError (reason `'unsupported'`) for a known-but-pending format
- *
  * @example
  *   const { output } = importMachine('stateDiagram-v2\n  s0 --> s1', { format: 'mermaid' });
  *   // output is FSL: '"s0" -> "s1";\n'
- *
  * @example
  *   importMachine('<scxml/>', { format: 'scxml' });
  *   // throws InterchangeError { reason: 'unsupported' }

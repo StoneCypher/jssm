@@ -52,7 +52,7 @@ export const vectors: ReadonlyArray<CorpusVector> = [
     title : 'A different seed produces a different reproducible walk (seed 12345)',
     document :
       `a 50% -> b; a 50% -> c; b -> a; c -> a;`,
-    seed  : 12345,
+    seed  : 12_345,
     stimuli : [
       { kind: 'probabilistic' }, { kind: 'probabilistic' },
       { kind: 'probabilistic' }, { kind: 'probabilistic' },

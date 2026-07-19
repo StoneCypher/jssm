@@ -291,7 +291,7 @@ describe('fsl_tape: EmitPipeline (the emit pipeline slot)', () => {
     const seen: Array<[string, unknown]> = [];
     p.stage('a', 1);
     p.stage('b', 2);
-    p.drain(e => seen.push([e.channel, e.value]));
+    p.drain(e => { seen.push([e.channel, e.value]); });
     expect(seen).toEqual([['a', 1], ['b', 2]]);
     expect(p.is_empty()).toBe(true);
   });
@@ -573,8 +573,7 @@ describe('fsl_tape: Tape iterability', () => {
     const t = new Tape<number>('output', 10);
     t.append(10);
     t.append(20);
-    const seen: number[] = [];
-    for (const v of t) { seen.push(v); }
+    const seen: number[] = [...t];
     expect(seen).toEqual([10, 20]);
   });
 

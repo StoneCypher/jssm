@@ -1,6 +1,6 @@
-import { resolve } from 'path';
-import { writeFile, rm } from 'fs/promises';
-import { tmpdir } from 'os';
+import { resolve } from 'node:path';
+import { writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { loadConfig } from '../../../cli/config/loader';
 
 const fixtureRoot = resolve(__dirname, 'fixtures');
