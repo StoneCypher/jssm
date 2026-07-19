@@ -79,6 +79,27 @@ and TypeScript typings.  A Deno build is included.  Node 10 or newer.
 
 <br/>
 
+## Package family
+
+As of v6, this repository publishes four packages in lockstep versions.
+The `jssm` core stays dependency-light; the other three depend on the
+published core instead of embedding it, so you install only what you use.
+
+| Package | What it is |
+|---|---|
+| `jssm` | The state-machine language and runtime (this package) |
+| `jssm-viz` | Graphviz-based visualization: SVG/PNG/JPEG renders and the web components |
+| `jssm-fence` | Markdown fence rendering for FSL code blocks |
+| `jssm-cli` | The `fsl` command line: render, codegen, import/export, run |
+
+During the 6.0 cycle, `jssm` itself still carries its historical `/viz`,
+`/fence`, `/cli`, and related subpaths; 6.0.0 slims the core package by
+retiring those embedded copies in favor of the packages above.
+
+
+
+<br/>
+
 ## Visualization
 
 `jssm` ships with a visualization subpath that renders state machines to
