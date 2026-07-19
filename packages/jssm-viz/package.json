@@ -1,0 +1,23 @@
+{
+  "name": "jssm-viz",
+  "version": "6.0.0-alpha.12",
+  "description": "Graphviz-based visualization for jssm state machines (split from the jssm package in v6)",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-viz" },
+  "main": "./dist/jssm_viz.cjs",
+  "module": "./dist/jssm_viz.mjs",
+  "types": "./dist/jssm_viz.d.ts",
+  "exports": {
+    ".": { "types": "./dist/jssm_viz.d.ts", "require": "./dist/jssm_viz.cjs", "import": "./dist/jssm_viz.mjs" },
+    "./wc/viz": "./dist/wc/viz.js", "./wc/viz/define": "./dist/wc/viz.define.js",
+    "./wc/instance": "./dist/wc/instance.js", "./wc/instance/define": "./dist/wc/instance.define.js",
+    "./wc/editor": "./dist/wc/editor.js", "./wc/editor/define": "./dist/wc/editor.define.js",
+    "./wc/widgets": "./dist/wc/widgets.js", "./wc/widgets/define": "./dist/wc/widgets.define.js",
+    "./wc/docs": "./dist/wc/docs.js", "./wc/docs/define": "./dist/wc/docs.define.js",
+    "./cdn/viz": "./dist/cdn/viz.js", "./cdn/instance": "./dist/cdn/instance.js",
+    "./custom-elements.json": "./custom-elements.json"
+  },
+  "files": ["dist/", "custom-elements.json", "README.md"],
+  "dependencies": { "jssm": "file:../.." },
+  "optionalDependencies": { "@viz-js/viz": "^3.26.0" }
+}

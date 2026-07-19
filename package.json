@@ -4,6 +4,9 @@
   "engines": {
     "node": ">=10.0.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "publishConfig": {
     "access": "public"
   },
