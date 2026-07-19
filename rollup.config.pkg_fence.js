@@ -1,4 +1,5 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
+import path        from 'path';
 
 /**
  * Externalized jssm-fence package bundle — same input graph as
@@ -18,12 +19,19 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 const external = (id) => id === '@resvg/resvg-wasm';
 
 /**
- * dist/es6 modules (by basename) whose needed symbols are on jssm core's
- * public surface: the core entry (`sm`/`parse_fence_info`/`fsl_fence_lang`),
- * `jssm_error.js` (`JssmError`, needed by the GIF encoder), and the language
- * service's semantic spans (`fslSemanticSpans`).
+ * Absolute paths of the dist/es6 modules whose needed symbols are on jssm
+ * core's public surface: the core entry (`sm`/`parse_fence_info`/
+ * `fsl_fence_lang`), `jssm_error.js` (`JssmError`, needed by the GIF
+ * encoder), and the language service's semantic spans (`fslSemanticSpans`).
+ * Anchored to importer-resolved absolute paths (not basenames) so a future
+ * same-named module elsewhere in the graph cannot misfire.
  */
-const CORE_SURFACE_MODULES = new Set(['jssm.js', 'jssm_error.js', 'semantic_spans.js']);
+const CORE_SURFACE_MODULES = new Set([
+  'jssm.js', 'jssm_error.js', 'language_service/semantic_spans.js',
+].map(m => path.resolve('dist/es6', m)));
+
+/** Absolute path of the viz entry, rewritten to the `jssm-viz` package id. */
+const VIZ_ENTRY = path.resolve('dist/es6', 'jssm_viz.js');
 
 /**
  * Rollup plugin that rewrites the fence graph's cross-package relative
@@ -39,9 +47,9 @@ function externalize_upstream_packages() {
     name: 'externalize-upstream-packages',
     resolveId(source, importer) {
       if (!importer || !source.startsWith('.')) { return null; }
-      const base = source.split('/').pop();
-      if (base === 'jssm_viz.js')          { return { id: 'jssm-viz', external: true }; }
-      if (CORE_SURFACE_MODULES.has(base))  { return { id: 'jssm',     external: true }; }
+      const resolved = path.resolve(path.dirname(importer), source);
+      if (resolved === VIZ_ENTRY)              { return { id: 'jssm-viz', external: true }; }
+      if (CORE_SURFACE_MODULES.has(resolved))  { return { id: 'jssm',     external: true }; }
       return null;
     },
   };

@@ -12,6 +12,7 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs    from '@rollup/plugin-commonjs';
 import replace     from '@rollup/plugin-replace';
+import path        from 'path';
 
 const vizPlugins = (browser) => [
   nodeResolve({
@@ -42,16 +43,18 @@ const wcPlugins = [
 ];
 
 /**
- * dist/es6 modules (by basename) whose needed symbols are re-exported from
- * jssm core's public surface, so their relative imports rewrite to the bare
- * external id `jssm`: the core entry itself, `version.js`
+ * Absolute paths of the dist/es6 modules whose needed symbols are re-exported
+ * from jssm core's public surface, so their relative imports rewrite to the
+ * bare external id `jssm`: the core entry itself, `version.js`
  * (`version`/`build_time`), `jssm_error.js` (`JssmError`), `jssm_compiler.js`
  * (`membership_distance`), `jssm_util.js` (`name_bind_prop_and_state`), and
- * `jssm_arrow.js` (`arrow_left_kind`/`arrow_right_kind`).
+ * `jssm_arrow.js` (`arrow_left_kind`/`arrow_right_kind`).  Anchored to
+ * importer-resolved absolute paths (not basenames) so a future same-named
+ * module elsewhere in the graph cannot misfire.
  */
 const CORE_SURFACE_MODULES = new Set([
   'jssm.js', 'version.js', 'jssm_error.js', 'jssm_compiler.js', 'jssm_util.js', 'jssm_arrow.js',
-]);
+].map(m => path.resolve('dist/es6', m)));
 
 /**
  * Rollup plugin that rewrites relative imports of core-surface modules to the
@@ -66,8 +69,8 @@ function externalize_core_as_jssm() {
     name: 'externalize-core-as-jssm',
     resolveId(source, importer) {
       if (!importer || !source.startsWith('.')) { return null; }
-      const base = source.split('/').pop();
-      if (CORE_SURFACE_MODULES.has(base)) { return { id: 'jssm', external: true }; }
+      const resolved = path.resolve(path.dirname(importer), source);
+      if (CORE_SURFACE_MODULES.has(resolved)) { return { id: 'jssm', external: true }; }
       return null;
     },
   };
