@@ -1,0 +1,89 @@
+name: package size archaeology
+
+# Keeps the per-package size archive on the perf_results branch current:
+# for every published version of each tracked package (the jssm family), the
+# uncompressed byte size of every file that version shipped. This is the raw
+# data behind the stacked-area package-size charts (fsl#1965).
+#
+# The collector script lives in the repo (checked out at the default ref); the
+# DATA lives on the perf_results branch (checked out into a subdir), exactly
+# like the graviton perf flow. The FIRST run is a full backfill of every
+# historical version (hundreds of tarball fetches, several minutes); every run
+# after that adds only newly-published versions, so nightly commits are tiny.
+#
+# Like the perf sync, the GITHUB_TOKEN push does not trigger downstream
+# workflows — the chart renderer picks this data up on its own schedule.
+
+on:
+  schedule:
+    - cron: '43 8 * * *'   # nightly, off-herd minute; staggered from perf sync (17 9)
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: Comma-separated package names (blank = the jssm family default)
+        required: false
+        default: ''
+      limit:
+        description: Max NEW versions to add per package this run (blank = no limit)
+        required: false
+        default: ''
+      force:
+        description: Re-fetch and overwrite versions already recorded
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: package-sizes
+  cancel-in-progress: false   # never cancel an in-progress backfill
+
+jobs:
+
+  collect:
+    name: collect and commit per-package sizes
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # The collector script lives in the repo (default ref: main on schedule,
+      # the dispatched branch on manual runs — lets the tool be tested before
+      # it reaches main).
+      - name: Check out the repo (for the script)
+        uses: actions/checkout@v4
+
+      # The archive itself lives on perf_results, alongside the graviton data.
+      - name: Check out perf_results (for the data)
+        uses: actions/checkout@v4
+        with:
+          ref: perf_results
+          path: perf_results_co
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Collect package sizes
+        run: |
+          ARGS="--out perf_results_co/package_sizes"
+          if [ -n "${{ inputs.packages }}" ]; then ARGS="$ARGS --packages ${{ inputs.packages }}"; fi
+          if [ -n "${{ inputs.limit }}" ];    then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          echo "collect_package_sizes.cjs $ARGS"
+          node src/scripts/collect_package_sizes.cjs $ARGS
+
+      - name: Commit and push anything new
+        run: |
+          cd perf_results_co
+          git config user.email "stonecypher@users.noreply.github.com"
+          git config user.name  "jssm package-size bot"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no new versions"
+          else
+            git commit -m "perf: update per-package size archaeology"
+            git push origin perf_results
+          fi
