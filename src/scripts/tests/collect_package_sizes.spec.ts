@@ -10,7 +10,7 @@ const cps = require('../collect_package_sizes.cjs');
 // here. The tar reader is additionally validated end-to-end against a real npm
 // tarball during development (61/61 files, total == packument unpackedSize).
 
-const { parseArgs, octalField, parseTar, runPool } = cps;
+const { parseArgs, octalField, parseTar, runPool, deprecationOf, makeRecord, syncDeprecations } = cps;
 
 
 /**
@@ -151,6 +151,48 @@ describe('runPool', () => {
     );
     expect(ok.sort((a, b) => a - b)).toEqual([1, 3, 4]);
     expect(errs).toEqual([[2, 'boom']]);
+  });
+
+});
+
+
+describe('deprecation', () => {
+
+  const packument = {
+    versions: {
+      '1.0.0': { deprecated: 'use 2.x' },
+      '1.1.0': { deprecated: '' },          // empty string == un-deprecated
+      '2.0.0': {},                           // never deprecated
+    },
+  };
+
+  it('deprecationOf reads the message, treating empty string as not-deprecated', () => {
+    expect(deprecationOf(packument, '1.0.0')).toBe('use 2.x');
+    expect(deprecationOf(packument, '1.1.0')).toBeNull();
+    expect(deprecationOf(packument, '2.0.0')).toBeNull();
+    expect(deprecationOf(packument, '9.9.9')).toBeNull();   // unknown version
+  });
+
+  it('makeRecord omits deprecated unless set, in canonical key order', () => {
+    expect(makeRecord('t', null, { a: 1 })).toEqual({ published: 't', files: { a: 1 } });
+    expect(Object.keys(makeRecord('t', 'x', { a: 1 }))).toEqual(['published', 'deprecated', 'files']);
+  });
+
+  it('syncDeprecations adds, clears, and leaves records, reporting the change count', () => {
+    const archive = {
+      versions: {
+        '1.0.0': { published: 't0', files: { a: 1 } },                       // will gain deprecation
+        '1.1.0': { published: 't1', deprecated: 'stale', files: { a: 1 } },  // will lose deprecation
+        '2.0.0': { published: 't2', files: { a: 1 } },                       // unchanged
+      },
+    };
+    const changed = syncDeprecations(archive, packument);
+    expect(changed).toBe(2);
+    expect(archive.versions['1.0.0'].deprecated).toBe('use 2.x');
+    expect(archive.versions['1.1.0'].deprecated).toBeUndefined();
+    expect(archive.versions['2.0.0']).toEqual({ published: 't2', files: { a: 1 } });
+    // idempotent: a second sync changes nothing
+    expect(syncDeprecations(archive, packument)).toBe(0);
   });
 
 });

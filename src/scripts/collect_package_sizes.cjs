@@ -14,9 +14,14 @@
  *  One JSON file per package, keyed by version (so publishing a new version is
  *  one localised, human-reviewable diff), each version carrying its ISO publish
  *  time (the charts stack on a TIME axis, because independently-versioned
- *  packages have no shared version axis). Sizes are authoritative once written:
- *  a version already present is never re-fetched unless `--force`, because old
- *  tarballs can vanish and re-listing is slow.
+ *  packages have no shared version axis) and, when set, its npm deprecation
+ *  message. Sizes are authoritative once written: a version already present is
+ *  never re-fetched unless `--force`, because old tarballs can vanish and
+ *  re-listing is slow. Deprecation, by contrast, is MUTABLE — a version can be
+ *  deprecated or un-deprecated long after it published — so it is re-synced
+ *  from the packument on every run (cheap; no tarball re-download). The charts
+ *  read deprecation to mute a family/package's colour and sink its stack
+ *  position; that interpretation, like family and colour, lives downstream.
  *
  *  Per-file sizes are not in npm's packument (it exposes only the per-version
  *  `dist.unpackedSize`/`fileCount` totals), so each new version's tarball is
@@ -197,6 +202,66 @@ async function fetchPackument(registry, pkg) {
 }
 
 
+/**
+ *  The npm deprecation message for one version, or null. npm stores deprecation
+ *  as a per-version string (`npm deprecate pkg@ver "msg"`); an empty string means
+ *  un-deprecated (`npm deprecate pkg@ver ""`), so it reads as null here.
+ *
+ *  @param packument - The registry packument.
+ *  @param version - Version to inspect.
+ *  @returns The deprecation message, or null if the version is not deprecated.
+ */
+function deprecationOf(packument, version) {
+  const manifest = packument.versions && packument.versions[version];
+  const d = manifest && manifest.deprecated;
+  return (typeof d === 'string' && d !== '') ? d : null;
+}
+
+
+/**
+ *  Build a version record in canonical key order (published, then deprecated
+ *  only when set, then files), so records read and diff uniformly whether they
+ *  were just fetched or had their deprecation refreshed later.
+ *
+ *  @param published - ISO publish time, or null.
+ *  @param deprecated - Deprecation message, or null/falsy for not-deprecated.
+ *  @param files - Map of path to byte size.
+ *  @returns The version record.
+ */
+function makeRecord(published, deprecated, files) {
+  return deprecated ? { published, deprecated, files } : { published, files };
+}
+
+
+/**
+ *  Refresh the deprecation status of every already-recorded version from the
+ *  packument, in place. Unlike file sizes (immutable once written), npm
+ *  deprecation is mutable — a version can be deprecated or un-deprecated long
+ *  after it published — so this runs every collection, cheaply, off the
+ *  packument we already fetched (no tarball re-download).
+ *
+ *  @param archive - The package archive (mutated).
+ *  @param packument - The registry packument.
+ *  @returns The number of records whose deprecation status changed.
+ *
+ *  @example
+ *    syncDeprecations(archive, packument);   // 2  (two versions newly deprecated)
+ */
+function syncDeprecations(archive, packument) {
+  let changed = 0;
+  for (const v of Object.keys(archive.versions)) {
+    const rec = archive.versions[v];
+    const dep = deprecationOf(packument, v);
+    const cur = rec.deprecated || null;
+    if (dep !== cur) {
+      archive.versions[v] = makeRecord(rec.published, dep, rec.files);
+      changed++;
+    }
+  }
+  return changed;
+}
+
+
 /** The on-disk archive file for one package. */
 function archiveFile(outDir, pkg) {
   return path.join(outDir, `${pkg}.json`);
@@ -221,7 +286,7 @@ function loadArchive(outDir, pkg) {
     schema:  SCHEMA_VERSION,
     package: pkg,
     unit:    'bytes',
-    note:    'Per-version sizes of every file each published tarball shipped. Append-only; authoritative once written. Family/colour/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.',
+    note:    'Per-version sizes of every file each published tarball shipped, plus each version\'s npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.',
     versions: {},
   };
 }
@@ -297,6 +362,11 @@ async function collectPackage(pkg, opts) {
   const archive = loadArchive(opts.outDir, pkg);
   const times   = packument.time || {};
 
+  // Refresh mutable deprecation status on everything already recorded (cheap,
+  // off the packument) before fetching any new tarball.
+  const depChanged = syncDeprecations(archive, packument);
+  if (depChanged > 0) { console.log(`${pkg}: ${depChanged} deprecation status change(s)`); }
+
   // Oldest-first, so --limit backfills chronologically; then keep only the
   // versions we still need (with a real tarball), capped at --limit.
   const wanted = Object.keys(packument.versions || {})
@@ -307,10 +377,11 @@ async function collectPackage(pkg, opts) {
 
   let added = 0;
   const record = (version, files) => {
-    archive.versions[version] = { published: times[version] || null, files };
+    archive.versions[version] = makeRecord(times[version] || null, deprecationOf(packument, version), files);
     added++;
     const total = Object.values(files).reduce((s, n) => s + n, 0);
-    console.log(`${pkg}@${version}: ${Object.keys(files).length} files, ${(total / 1048576).toFixed(2)} MB`);
+    const dep = deprecationOf(packument, version) ? ' [deprecated]' : '';
+    console.log(`${pkg}@${version}: ${Object.keys(files).length} files, ${(total / 1048576).toFixed(2)} MB${dep}`);
     if (!opts.dryRun && added % FLUSH_EVERY === 0) { saveArchive(opts.outDir, pkg, archive); }
   };
 
@@ -322,8 +393,8 @@ async function collectPackage(pkg, opts) {
     (version, err)   => console.warn(`${pkg}@${version}: fetch failed (${err.message}) — will retry next run`),
   );
 
-  if (!opts.dryRun && added > 0) { saveArchive(opts.outDir, pkg, archive); }
-  console.log(`${pkg}: +${added} version(s)${opts.dryRun ? ' (dry-run, not written)' : ''}`);
+  if (!opts.dryRun && (added > 0 || depChanged > 0)) { saveArchive(opts.outDir, pkg, archive); }
+  console.log(`${pkg}: +${added} version(s), ${depChanged} deprecation change(s)${opts.dryRun ? ' (dry-run, not written)' : ''}`);
   return added;
 }
 
@@ -349,4 +420,4 @@ if (require.main === module) {
   main().catch(e => { console.error(`collect_package_sizes failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { parseArgs, octalField, parseTar, archiveFile, loadArchive, saveArchive, runPool, collectPackage };
+module.exports = { parseArgs, octalField, parseTar, deprecationOf, makeRecord, syncDeprecations, archiveFile, loadArchive, saveArchive, runPool, collectPackage };
