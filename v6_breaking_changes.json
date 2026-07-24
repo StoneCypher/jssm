@@ -26,6 +26,18 @@
       "breaks": "Any 5.x code using 'new Machine(...)' or class-method calls (m.transition(x)) through the default 'jssm' import.",
       "migration": "Zero-edit escape hatch: change the import specifier to 'jssm/compat' (import { Machine } from 'jssm/compat') for verbatim 5.x behavior. Or migrate to the bare-function form: transition(m, x) instead of m.transition(x).",
       "implementation": "Extract the state-record type + bare functions from the current class internals; regenerate Machine as a delegating wrapper over them; split entry points + sideEffects:false + a bundle-size test; run the 5.x suite against the compat class as the contract check (megaspec §27, §20 phasing). Not yet landed."
+    },
+    {
+      "id": "esm-only-main-package",
+      "title": "Main jssm package ships ESM only; es5/iife relocate to compatibility packages",
+      "status": "accepted",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-07-21: the default jssm package drops to a single ESM ('just-module') build. es5 and iife are NOT dropped -- they relocate to dedicated compatibility packages, and iife additionally serves from the CDN. A wasm build may remain in the main package (undecided; does not block the ESM split). Composes with the shipped monorepo decomposition (core / viz / fence / cli already separate packages) as the orthogonal format axis. Motivated by flensing the fat 5.x monolith (5.163.4 was 10.9M, mostly format redundancy + duplicated type defs es5.d.cts vs es6.d.ts; the old nonmin/map leaks like 5.32.10 / 5.112.3 are already gone). Provisional compat-package names resolve to @fsl/statemachine-js-cjs / -iife under the eventual FSL-org rename (jssm -> @fsl/statemachine-js, alongside @fsl/statemachine-rust / -wasm / -ts; 'statemachine' chosen as an npm relevance-ranking keyword).",
+      "summary": "v6's default jssm install carries only the ESM build; the es5, iife, and cjs formats it used to bundle are removed from the main package and republished as compatibility packages (iife additionally on the CDN).",
+      "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
+      "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
+      "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
     }
   ]
 }

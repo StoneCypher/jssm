@@ -772,6 +772,9 @@ jobs:
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.cjs
 
+    - name: Verify no published bloat
+      run: node ./src/buildjs/verify_no_published_bloat.cjs
+
 
 
   release:
