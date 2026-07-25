@@ -75,6 +75,17 @@ jobs:
           echo "collect_package_sizes.cjs $ARGS"
           node src/scripts/collect_package_sizes.cjs $ARGS
 
+      # The non-npm side of the ecosystem. These repos ship no measurable bytes,
+      # so the size chart draws them as zero-mass lifespan rails instead of
+      # streams -- but it can only do that if their dates travel with the
+      # archives. Never fatal: a rate-limited or failed lookup should not lose a
+      # night of size collection, and the chart renders fine without rails.
+      - name: Refresh the ecosystem repo timeline
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node src/scripts/build_repo_timeline.cjs --out perf_results_co
+
       - name: Commit and push anything new
         run: |
           cd perf_results_co

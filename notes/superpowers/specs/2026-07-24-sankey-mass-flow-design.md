@@ -124,17 +124,40 @@ with the streams would be worse than no rail at all.
 
 ## Where the code lives
 
+Promoted out of the `build/` prototype and into the release pipeline.
+
 | File | Role |
 |---|---|
-| `build/flow_model.cjs` | Pure model: `stepAt`, `deriveEvents`, `decompositions`, `collapseColumns`, `columnLabel`, `sampleTime`, `buildFlow`, `conservationViolations`. No DOM, no I/O. |
-| `build/flow_selftest.cjs` | 22 checks over fixtures **and** the real archive. |
-| `build/mockup_ecosystem_chart.cjs` | Layout and render only — no ecosystem knowledge. Inlines the model verbatim. |
-| `build/shoot_flow.cjs` | Playwright render-verification: asserts ribbons, nodes, on-canvas bounds, conservation in both scales, and node-click drill-down. |
+| `src/scripts/flow_model.cjs` | Pure model: `stepAt`, `deriveEvents`, `decompositions`, `collapseColumns`, `columnLabel`, `sampleTime`, `buildFlow`, `conservationViolations`. No DOM, no I/O. |
+| `src/scripts/size_families.cjs` | The file-family classifier, needed by both sides. |
+| `src/scripts/make_size_chart.cjs` | Loader, gate, layout, render. |
+| `src/scripts/tests/flow_model.spec.ts` | 28 specs. |
+| `src/scripts/tests/make_size_chart.spec.ts` | 26 specs. |
+| `build/shoot_flow.cjs` | Playwright render-verification: ribbons, nodes, on-canvas bounds, conservation in both scales, node-click drill-down. |
 
-The model is **inlined verbatim** into the generated HTML, cut at a `node-only`
-marker so its CommonJS export does not follow it into the browser. The browser
-and the self-test therefore run literally the same source — one copy, one proof.
-The generator throws if the marker ever goes missing.
+Both pure modules end with a `node-only` marker. The generator reads their
+source, cuts at the marker so the CommonJS export does not follow into the
+browser, and injects each as its own script tag — so the page runs *literally*
+the source the specs cover. One copy, one proof. The generator throws if a
+marker ever goes missing, rather than shipping a broken page.
+
+**Data.** Archives come from the `perf_results` branch via `git show`, the same
+way `make_perf_chart` reads its runs; `--from <dir>` reads a local directory
+instead, for iterating without a network round trip. `collect_package_sizes`
+now tracks the five retired ecosystem packages alongside the live monorepo —
+their archives never change again, but the chart cannot draw a retirement whose
+bytes it never measured. The `package_sizes` workflow also refreshes
+`repos.json` onto the branch, non-fatally, so rail dates travel with the
+archives.
+
+**Output** is `docs/size_chart.html`, which is gitignored. A 600 KB page
+regenerated nightly into a tracked directory would churn the repo on every
+release; as a site artifact it costs nothing. `size_chart` runs at DAG stage 9
+beside the other `docs/` writers, after `site`.
+
+**Determinism.** No wall-clock reads anywhere: the `today` column comes from
+the last release in the data, versions sort by publish time, packages sort by
+name, and rails sort by start date. Unchanged data produces an identical page.
 
 ## Scales
 
@@ -152,17 +175,36 @@ switches scale, hover reports what moved and why, and **clicking a node drills
 into that package's own file families** — landing in the existing single-package
 view. The x toggle is disabled, since the flow has its own derived axis.
 
+## The conservation build gate
+
+`make_size_chart.cjs` runs `conservationViolations()` over exactly the records
+the browser will draw, and **exits non-zero** when the graph fails to balance —
+so a chart that misrepresents its own data fails the build instead of
+publishing. It reports the offending column, package, mass, inflow, and outflow
+rather than just failing.
+
+This is a gate on a derived artifact's *faithfulness to its input*, which is
+unusual: `vet` proves the generator typechecks, and nothing else proves its
+output tells the truth. It matters here because the data is live — the nightly
+keeps adding versions and repos, and new data breaks old assumptions.
+
+The limit is worth stating so it isn't over-trusted later. Conservation proves
+the **routing** is consistent with the measured masses. It cannot prove the
+archive was collected correctly, nor that a supersession edge reflects reality.
+It catches a mis-routed ribbon or a malformed new package; it would not catch
+`jssm-viz-cli` being wrongly marked as superseded by `jssm`.
+
+Offline builds are unaffected: an unreachable branch warns and exits 0, leaving
+any existing page in place. Only a *reachable but unbalanced* graph fails.
+
 ## Follow-ups
 
-- Promote all of `build/` to `src/scripts` + `make_perf_chart` in one clean pass
-  (the next planned task); `build/` is gitignored, so none of this is durable
-  yet. The self-test becomes a vitest spec at that point.
-- **Wire conservation as a build gate** during that same pass (approved). The
-  generator exits non-zero on any unbalanced node, so a chart that
-  misrepresents its own data fails CI instead of publishing. Worth stating the
-  limit: conservation proves the *routing* is consistent with the node masses;
-  it says nothing about whether the archive was collected correctly or whether
-  a supersession edge reflects reality. It catches mis-routed ribbons and
-  malformed new packages, not bad curation.
+- The `build/` prototypes still exist and are gitignored. They are superseded by
+  the `src/scripts` versions (verified: identical render output, 54 specs) and
+  will vanish on the next `npm run clean`.
+- Rails need one nightly run before they appear in CI output — `repos.json` is
+  not yet on `perf_results`, and only `jssm` / `jssm-viz` archives are, so a CI
+  render today shows 2 streams and no rails. Both self-heal on the next
+  `package_sizes` run; nothing needs a manual push.
 - The five `build/pkgsizes/*.json` archives and `repos.json` still need to land
   on `perf_results`; only `jssm` and `jssm-viz` are pushed today.
