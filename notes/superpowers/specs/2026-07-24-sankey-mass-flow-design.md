@@ -89,18 +89,38 @@ This is also why `jssm-viz`'s 15.8 MB shows as `not carried forward` rather than
 as a fat ribbon into `jssm`: the viz work *was* interned, but the interned form
 is far smaller, and `jssm` did not gain 15.8 MB. The diagram says so.
 
-## Non-npm repos
+## Non-npm repos — zero-mass rails
 
-They carry no measurable mass, so they cannot be streams in a mass diagram. The
-design calls for **zero-mass hairline rails** — spanning first-commit to
-last-commit, coloured by the verbatim category from `repos.json`, sorted to the
-edge with a gap, following the precedent already set for zero-shipping entries
-in the area chart's key.
+They carry no measurable mass, so they cannot be streams in a mass diagram.
+They get **zero-mass hairline rails** instead: a line spanning the repo's GitHub
+lifespan, banded below the flow, grouped under the maintainer's verbatim
+category and coloured by it. Same precedent as the area chart's key, where
+zero-shipping entries sort to the end behind a gap — present and readable,
+never pretending to a mass they do not have. An archived repo's rail is dashed;
+a same-day repo still gets a visible 4px mark rather than vanishing.
 
-**Not built.** `repos.json` currently carries no dates at all (its own note says
-"membership-over-time is layered on later"), and the file has never been
-generated into the tree. Rails are a clean additive layer once those dates
-exist; nothing in the current model blocks them.
+**Dates.** `repos.json` gained `created` / `lastPush` from `gh repo list`.
+`created` is repo-*creation*, not first-commit: every repo here was started on
+GitHub so the two coincide, but an imported history would start its rail late,
+and that caveat is recorded in the dataset's own note so a future import cannot
+break the assumption silently.
+
+**Cross-owner repos.** A `CATEGORIES` entry may now be written `owner/name`.
+Those are not returned by `gh repo list <ourOwner>`, so they are fetched
+individually. This is how work adopted upstream —
+`highlightjs/highlightjs-fsl`, the alpha grammar promoted into the highlight.js
+org two days after `alpha-highlightjs-fsl`'s last push — stays in the
+ecosystem's story instead of silently dropping out of it.
+
+**Supersession on rails is a pointer, not a ribbon.** A rail's `obsoletedBy`
+edge is drawn as a faint dashed curve to its successor (another rail, or the
+package stream it was folded into). These edges move *work*, not bytes, so they
+deliberately do not read as mass crossing the diagram.
+
+**Axis caveat.** A rail's x position is interpolated between the flow's event
+columns, which are evenly spaced in x but not in time. A rail therefore shares
+the flow's distortion — which is the point, since a rail that did not line up
+with the streams would be worse than no rail at all.
 
 ## Where the code lives
 
@@ -134,9 +154,15 @@ view. The x toggle is disabled, since the flow has its own derived axis.
 
 ## Follow-ups
 
-- Rails, when `repos.json` grows first/last-commit dates.
 - Promote all of `build/` to `src/scripts` + `make_perf_chart` in one clean pass
   (the next planned task); `build/` is gitignored, so none of this is durable
   yet. The self-test becomes a vitest spec at that point.
+- **Wire conservation as a build gate** during that same pass (approved). The
+  generator exits non-zero on any unbalanced node, so a chart that
+  misrepresents its own data fails CI instead of publishing. Worth stating the
+  limit: conservation proves the *routing* is consistent with the node masses;
+  it says nothing about whether the archive was collected correctly or whether
+  a supersession edge reflects reality. It catches mis-routed ribbons and
+  malformed new packages, not bad curation.
 - The five `build/pkgsizes/*.json` archives and `repos.json` still need to land
   on `perf_results`; only `jssm` and `jssm-viz` are pushed today.

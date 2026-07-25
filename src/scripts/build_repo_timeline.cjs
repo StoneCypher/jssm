@@ -51,6 +51,7 @@ const CATEGORIES = [
   ]],
   ['current', [
     'jssm', 'jssm-mcp', 'vscode-fsl', 'fsl-mcp', 'codemirror-lang-fsl', 'fsl-textmate',
+    'highlightjs/highlightjs-fsl || upstream home of the highlight.js grammar; lives under the highlightjs org, not StoneCypher',
   ]],
   ['remaindered because interned into main', [
     'jssm-viz', 'jssm-viz-cli', 'jssm-viz-demo',
@@ -63,6 +64,7 @@ const CATEGORIES = [
 // Supersession graph: repo -> [successor repo, optional aspect]. These are the
 // alluvial's flow edges; note how many resolve to jssm (the consolidation inflow).
 const OBSOLETION = {
+  'alpha-highlightjs-fsl': ['highlightjs/highlightjs-fsl', 'grammar upstreamed'],
   'fsl-code':       ['vscode-fsl'],
   'fsl-lezer':      ['codemirror-lang-fsl'],
   'fsl-lezer-demo': ['codemirror-lang-fsl'],
@@ -100,14 +102,22 @@ function parseArgs(argv) {
 /**
  *  Fetch every repo's metadata for an owner via `gh`, as a Map keyed by name.
  *
+ *  `created`/`lastPush` are the repo's lifespan, which is what the Sankey draws
+ *  a non-npm repo's rail across. `created` is repo-creation, not first-commit:
+ *  for a repo whose history was imported from elsewhere the rail therefore
+ *  starts when the work arrived on GitHub, not when it began. Every repo in
+ *  this dataset was started on GitHub, so the two coincide; the distinction is
+ *  recorded because a future import would silently break that assumption.
+ *  `lastPush` is the last push, which for an archived repo is its freeze point.
+ *
  *  @param owner - GitHub account login.
- *  @returns Map(name -> { visibility, archived, fork, description }).
+ *  @returns Map(name -> { visibility, archived, fork, description, created, lastPush }).
  *  @throws {Error} If `gh` is unavailable or the call fails.
  */
 function fetchRepoMeta(owner) {
   const out = execFileSync('gh', [
     'repo', 'list', owner, '--limit', '2000',
-    '--json', 'name,description,isPrivate,isArchived,isFork',
+    '--json', 'name,description,isPrivate,isArchived,isFork,createdAt,pushedAt',
   ], { encoding: 'utf8', windowsHide: true });
   const meta = new Map();
   for (const r of JSON.parse(out)) {
@@ -116,6 +126,52 @@ function fetchRepoMeta(owner) {
       archived:    !!r.isArchived,
       fork:        !!r.isFork,
       description: r.description || null,
+      created:     r.createdAt || null,
+      lastPush:    r.pushedAt  || null,
+    });
+  }
+  for (const [name, m] of fetchForeignMeta()) { meta.set(name, m); }
+  return meta;
+}
+
+
+/**
+ *  Fetch the repos that live under a DIFFERENT owner, one call each.
+ *
+ *  An entry written `owner/name` in {@link CATEGORIES} is not returned by
+ *  `gh repo list <ourOwner>`, so it is looked up individually and keyed by its
+ *  full `owner/name`. This is how work that got adopted upstream -- a grammar
+ *  merged into the highlight.js org, say -- stays visible in the timeline
+ *  instead of silently dropping out of the ecosystem's story.
+ *
+ *  @returns Map(`owner/name` -> the same shape {@link fetchRepoMeta} produces).
+ *  @throws {Error} If `gh` is unavailable or a named repo cannot be read.
+ *
+ *  @example
+ *  fetchForeignMeta().get('highlightjs/highlightjs-fsl').visibility   // => 'public'
+ */
+function fetchForeignMeta() {
+  const full = [];
+  for (const [, entries] of CATEGORIES) {
+    for (const entry of entries) {
+      const name = entry.split(' || ')[0];
+      if (name.includes('/')) { full.push(name); }
+    }
+  }
+  const meta = new Map();
+  for (const name of full) {
+    const out = execFileSync('gh', [
+      'repo', 'view', name,
+      '--json', 'description,isPrivate,isArchived,isFork,createdAt,pushedAt',
+    ], { encoding: 'utf8', windowsHide: true });
+    const r = JSON.parse(out);
+    meta.set(name, {
+      visibility:  r.isPrivate ? 'private' : 'public',
+      archived:    !!r.isArchived,
+      fork:        !!r.isFork,
+      description: r.description || null,
+      created:     r.createdAt || null,
+      lastPush:    r.pushedAt  || null,
     });
   }
   return meta;
@@ -149,6 +205,8 @@ function buildDataset(meta) {
         visibility:  m ? m.visibility : null,
         archived:    m ? m.archived : null,
         description: m ? m.description : null,
+        created:     m ? m.created : null,
+        lastPush:    m ? m.lastPush : null,
       });
     }
   }
@@ -157,7 +215,7 @@ function buildDataset(meta) {
     if (r.obsoletedBy && !names.has(r.obsoletedBy)) { throw new Error(`obsoletedBy target not in dataset: ${r.name} -> ${r.obsoletedBy}`); }
   }
   return {
-    note: 'Curated ecosystem-repo timeline seed for the fsl#1965 alluvial/Sankey addendum. `category` is verbatim from the maintainer and kept separate from any derived colour so it drives palette management downstream. `note` preserves maintainer asides; `obsoletedBy` is the supersession edge (several resolve to jssm — the monorepo consolidation inflow). Membership-over-time is layered on later. Regenerated by src/scripts/build_repo_timeline.cjs.',
+    note: 'Curated ecosystem-repo timeline seed for the fsl#1965 alluvial/Sankey addendum. `category` is verbatim from the maintainer and kept separate from any derived colour so it drives palette management downstream. `note` preserves maintainer asides; `obsoletedBy` is the supersession edge (several resolve to jssm — the monorepo consolidation inflow). `created`/`lastPush` give each repo a lifespan, which is what the Sankey draws a non-npm repo\'s zero-mass rail across; `created` is repo-creation rather than first-commit, so an imported history would start its rail late. Regenerated by src/scripts/build_repo_timeline.cjs.',
     categoryOrder,
     repos,
   };
