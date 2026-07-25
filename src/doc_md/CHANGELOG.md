@@ -22,6 +22,24 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 25, 2026 1:28:00 PM
+
+Commit [2fa0b2e55eb13c1ca872280e0b4f19821a7eee9d](https://github.com/StoneCypher/jssm/commit/2fa0b2e55eb13c1ca872280e0b4f19821a7eee9d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(deps): better_git_changelog 1.6.21, unblocking the changelog step
+  * 1.6.20 read 'git log --reflog' with node's default 1 MiB maxBuffer, so once this repo's log output passed 1 MiB (1.10 MB on the v6 branch; main is at 922 KB) the changelog step died with ENOBUFS and took npm run build with it. 1.6.21 caps every size-scaling git read at 256 MiB.
+  * Fixed upstream rather than worked around here: StoneCypher/better_git_changelog#35. main was ~126 KB from the same cliff on its own, so this was a fuse the v6 merge would have lit rather than a v6-specific problem.
+  * Regenerates CHANGELOG.md and CHANGELOG.long.md, which the release job publishes as the GitHub release notes.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 25, 2026 11:45:10 AM
 
 Commit [7c4d3de7e8d0802323dcea91875b5aee813b3f0f](https://github.com/StoneCypher/jssm/commit/7c4d3de7e8d0802323dcea91875b5aee813b3f0f)
@@ -192,21 +210,3 @@ v6_breaking_changes.json: the main package drops to a single ESM build
 while es5 and iife relocate to compatibility packages (iife also serving
 from the CDN), with the @fsl/statemachine-js naming destination noted.
   * Claude-Session: https://claude.ai/code/session_01GRhYnMn9uzb2kfHxRhTJ59
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 20, 2026 3:10:31 PM
-
-Commit [b7762fac3abffbb63255fb6c2e5413d401c1ceda](https://github.com/StoneCypher/jssm/commit/b7762fac3abffbb63255fb6c2e5413d401c1ceda)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * perf: seed ecosystem-repo timeline dataset (31 repos, 8 categories)
-  * Curated seed for the fsl#1965 alluvial/Sankey addendum, produced by
-src/scripts/build_repo_timeline.cjs: repo, maintainer category (verbatim),
-asides, and the supersession graph (6 edges resolve to jssm).
