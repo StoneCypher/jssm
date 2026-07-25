@@ -462,7 +462,7 @@ let flowMode=false, FLOW=null, FGEO=null;
 // flow uses the full width (no side legend) and its own taller canvas, because
 // the rotated event labels need room to fall away below the axis
 const FLX=96, FRX=1264, FTY=56, FBY=444; let FH=606;
-const RY0=FBY+104, RROW=9.5, RHEAD=16;     // zero-mass rail band, below the event labels
+const RY0=FBY+104, RROW=11, RHEAD=16;      // zero-mass rail band, below the event labels
 const REPOS=(D.repos&&D.repos.repos)||[], RCATS=(D.repos&&D.repos.categoryOrder)||[];
 const NODEW=13, NODEGAP=12, STUB=34;
 const KINDSTYLE={
@@ -523,6 +523,12 @@ function flowColX(ci,n){ return FLX+(n<=1?0:ci/(n-1))*(FRX-FLX-NODEW); }
 // maintainer's verbatim category. Same precedent as the area chart's key, where
 // zero-shipping entries sort to the end behind a gap -- present and readable,
 // never pretending to a mass they do not have.
+// Rails are thin by nature, and a short-lived repo can end up a few pixels of
+// hairline that reads as a smudge. RAILW is the floor for how THICK a rail
+// draws, and RAILMIN the floor for how LONG: together they guarantee every
+// repo is a legible mark no matter how brief its life. An archived repo still
+// dashes -- the cue is the dash pattern, not a thinner line.
+const RAILW=3, RAILMIN=6;
 const CATHUE=new Map(RCATS.map((c,i)=>[c,(i*360/Math.max(1,RCATS.length)+18)%360]));
 function catColor(c){ return 'hsl('+(CATHUE.get(c)||0).toFixed(0)+' 34% 52%)'; }
 
@@ -551,20 +557,21 @@ function renderRails(times,xs){
     svg+='<text x="'+FLX+'" y="'+y+'" font-size="9.5" fill="'+catColor(cat)+'">'+esc(cat)+'</text>';
     y+=RHEAD;
     for(const r of group.sort((a,b)=>a.t0-b.t0)){
-      const x0=X(r.t0), x1=Math.max(X(r.t1),X(r.t0)+4);   // a same-day repo is still a visible mark
+      const x0=X(r.t0), x1=Math.max(X(r.t1),X(r.t0)+RAILMIN);   // a same-day repo is still a visible mark
       const rail={r:r,x0:x0,x1:x1,y:y,color:catColor(cat)};
       RAILS.push(rail);
       svg+='<line x1="'+x0.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y.toFixed(1)+
-           '" stroke="'+rail.color+'" stroke-width="'+(r.archived?1:2)+'"'+(r.archived?' stroke-dasharray="3 2"':'')+'/>';
-      svg+='<circle cx="'+x0.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.1" fill="'+rail.color+'"/>';
-      svg+='<circle cx="'+x1.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.1" fill="'+rail.color+'"/>';
+           '" stroke="'+rail.color+'" stroke-width="'+RAILW+'" stroke-linecap="round"'+
+           (r.archived?' stroke-dasharray="4 3"':'')+'/>';
+      svg+='<circle cx="'+x0.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'"/>';
+      svg+='<circle cx="'+x1.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'"/>';
       // label right of the rail when there is room, else left of it
       const w=r.name.length*5.1;
       const right=x1+6+w<FRX;
       svg+='<text x="'+((right?x1+6:x0-6)).toFixed(1)+'" y="'+(y+3.2).toFixed(1)+'" font-size="9" text-anchor="'+
            (right?'start':'end')+'" fill="#6b6a65">'+esc(r.name)+'</text>';
-      svg+='<rect x="'+(x0-3).toFixed(1)+'" y="'+(y-4.5).toFixed(1)+'" width="'+(x1-x0+6).toFixed(1)+
-           '" height="9" fill="transparent" data-fr="'+(RAILS.length-1)+'" class="rail"/>';
+      svg+='<rect x="'+(x0-4).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" width="'+(x1-x0+8).toFixed(1)+
+           '" height="10" fill="transparent" data-fr="'+(RAILS.length-1)+'" class="rail"/>';
       y+=RROW;
     }
     y+=5;
