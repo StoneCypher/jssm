@@ -45,7 +45,8 @@ describe('parseArgs', () => {
   it('defaults to the jssm family, no limit, and a sane concurrency', () => {
     const o = parseArgs(['--out', 'data']);
     expect(o.outDir).toBe('data');
-    expect(o.packages).toEqual(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli']);
+    expect(o.packages).toEqual(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli',
+                                'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl']);
     expect(o.limit).toBe(Infinity);
     expect(o.concurrency).toBe(12);
     expect(o.force).toBe(false);

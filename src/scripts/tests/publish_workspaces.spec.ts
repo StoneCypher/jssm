@@ -178,21 +178,57 @@ describe('allSkipped', () => {
 
 });
 
+describe('distTagFor — npm never infers a channel from a prerelease', () => {
+
+  test('a full release takes latest', () => {
+    expect(pw.distTagFor('5.163.4')).toBe('latest');
+  });
+
+  test('an alpha publishes under alpha, so latest is left where it is', () => {
+    expect(pw.distTagFor('6.0.0-alpha.12')).toBe('alpha');
+  });
+
+  test('beta and rc get their own channels', () => {
+    expect(pw.distTagFor('6.0.0-beta.1')).toBe('beta');
+    expect(pw.distTagFor('6.0.0-rc.3')).toBe('rc');
+  });
+
+  test('a numeric-only prerelease throws rather than silently taking latest', () => {
+    expect(() => pw.distTagFor('6.0.0-12')).toThrow(/no named channel/);
+  });
+
+  test('a non-semver version throws rather than guessing a tag', () => {
+    expect(() => pw.distTagFor('not-a-version')).toThrow(/valid semver/);
+  });
+
+});
+
 describe('buildPublishArgs', () => {
 
   test('the root package publishes bare (no -w)', () => {
-    const args = pw.buildPublishArgs('jssm', false);
-    expect(args).toEqual(['publish', '--provenance', '--access', 'public']);
+    const args = pw.buildPublishArgs('jssm', false, 'latest');
+    expect(args).toEqual(['publish', '--provenance', '--access', 'public', '--tag', 'latest']);
   });
 
   test('a workspace member publishes with -w <name>', () => {
-    const args = pw.buildPublishArgs('jssm-viz', false);
-    expect(args).toEqual(['publish', '--provenance', '--access', 'public', '-w', 'jssm-viz']);
+    const args = pw.buildPublishArgs('jssm-viz', false, 'latest');
+    expect(args).toEqual(['publish', '--provenance', '--access', 'public', '--tag', 'latest', '-w', 'jssm-viz']);
   });
 
   test('--dry-run is appended last, for both root and members', () => {
-    expect(pw.buildPublishArgs('jssm', true)).toEqual(['publish', '--provenance', '--access', 'public', '--dry-run']);
-    expect(pw.buildPublishArgs('jssm-cli', true)).toEqual(['publish', '--provenance', '--access', 'public', '-w', 'jssm-cli', '--dry-run']);
+    expect(pw.buildPublishArgs('jssm', true, 'alpha')).toEqual(['publish', '--provenance', '--access', 'public', '--tag', 'alpha', '--dry-run']);
+    expect(pw.buildPublishArgs('jssm-cli', true, 'alpha')).toEqual(['publish', '--provenance', '--access', 'public', '--tag', 'alpha', '-w', 'jssm-cli', '--dry-run']);
+  });
+
+  test('an alpha never publishes without its tag — the release-blocking case', () => {
+    const args = pw.buildPublishArgs('jssm', false, pw.distTagFor('6.0.0-alpha.12'));
+    expect(args).toContain('--tag');
+    expect(args[args.indexOf('--tag') + 1]).toBe('alpha');
+    expect(args).not.toContain('latest');
+  });
+
+  test('refuses to build argv with no tag, rather than falling through to npm\'s latest default', () => {
+    expect(() => pw.buildPublishArgs('jssm', false)).toThrow(/explicit dist_tag/);
   });
 
 });

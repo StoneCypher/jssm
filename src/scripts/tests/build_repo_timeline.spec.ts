@@ -24,10 +24,22 @@ describe('buildDataset', () => {
   const ds = buildDataset(meta);
 
   it('assembles every curated repo with no dup/dangling errors', () => {
-    expect(ds.repos.length).toBe(31);
+    expect(ds.repos.length).toBe(32);
     expect(ds.categoryOrder.length).toBe(8);
     expect(ds.categoryOrder[0]).toBe('replaced by newer work');
     expect(ds.categoryOrder[ds.categoryOrder.length - 1]).toBe('wanted, never took off, new work waiting on org transfer');
+  });
+
+  it('carries a cross-owner repo under its full owner/name', () => {
+    const up = ds.repos.find(r => r.name === 'highlightjs/highlightjs-fsl');
+    expect(up).toBeDefined();
+    expect(up.category).toBe('current');
+  });
+
+  it('records the alpha grammar being upstreamed', () => {
+    const alpha = ds.repos.find(r => r.name === 'alpha-highlightjs-fsl');
+    expect(alpha.obsoletedBy).toBe('highlightjs/highlightjs-fsl');
+    expect(alpha.obsoletedByWhat).toBe('grammar upstreamed');
   });
 
   it('keeps category labels verbatim, with fsl-textmate corrected to current', () => {

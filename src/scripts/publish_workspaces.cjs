@@ -48,6 +48,13 @@
  * `npm view` is a read-only registry lookup and always runs live, dry-run or
  * not, so the rehearsal reports real skip/publish decisions.
  *
+ * Every publish carries an explicit `--tag`, derived from the version by
+ * {@link distTagFor}: npm does NOT infer a channel from a prerelease
+ * identifier, so a bare publish of `6.0.0-alpha.12` would move `latest` to the
+ * alpha and every `npm install jssm` would resolve to a prerelease. One tag is
+ * computed per run from the lockstep version, so the root and its members can
+ * never land on different channels.
+ *
  * `npm publish` is invoked with `--provenance --access public`, bare for the
  * root package (cwd is the repo root) and with `-w <name>` for each member
  * (also run from the repo root, rather than `cd`-ing into `packages/<name>`):
@@ -86,7 +93,8 @@
 
 const { execFileSync } = require('child_process'),
       fs               = require('fs'),
-      path             = require('path');
+      path             = require('path'),
+      semver           = require('semver');
 
 
 
@@ -538,21 +546,72 @@ const isVersionPublished = (name, version) => {
 
 
 /**
- * Builds the `npm publish` argv for one package — pure, so the root-vs-member
- * and dry-run shaping is unit-testable without spawning anything.
+ * The npm dist-tag a version must publish under.
+ *
+ * npm does NOT infer a dist-tag from a version's prerelease identifier: a bare
+ * `npm publish` of `6.0.0-alpha.12` moves `latest` to the alpha, so every
+ * `npm install jssm` in the world resolves to a prerelease. A prerelease
+ * therefore publishes under its own identifier (`alpha`, `beta`, `rc`) and
+ * only a full release may take `latest`.
+ *
+ * The tag is derived from the version rather than configured, so a release
+ * cannot mis-tag itself by forgetting a flag.
+ *
+ * @param version - The lockstep version being published
+ * @returns The dist-tag to pass to `npm publish --tag`
+ * @throws {Error} when `version` is not valid semver — better to fail the
+ *         release than to guess a tag and mislabel a published artifact
+ *
+ * @example
+ * distTagFor('6.0.0-alpha.12');   // => 'alpha'
+ * @example
+ * distTagFor('5.163.4');          // => 'latest'
+ * @example
+ * distTagFor('6.0.0-rc.1');       // => 'rc'
+ */
+const distTagFor = (version) => {
+
+  const pre = semver.prerelease(version);
+
+  if (pre === null) {
+    if (semver.valid(version) === null) { throw new Error(`publish_workspaces: not a valid semver version: ${version}`); }
+    return 'latest';
+  }
+
+  // `semver.prerelease('6.0.0-12')` is `[12]` — a numeric-only prerelease has
+  // no name to tag with, and silently falling back to `latest` is the exact
+  // accident this function exists to prevent.
+  const name = pre[0];
+  if (typeof name !== 'string') { throw new Error(`publish_workspaces: prerelease ${version} has no named channel to tag (got ${JSON.stringify(pre)})`); }
+
+  return name;
+
+};
+
+
+
+/**
+ * Builds the `npm publish` argv for one package — pure, so the root-vs-member,
+ * dist-tag, and dry-run shaping is unit-testable without spawning anything.
  *
  * @param name - A {@link PUBLISH_ORDER} entry
  * @param dry_run - When true, appends npm's own `--dry-run` (uploads nothing)
+ * @param dist_tag - From {@link distTagFor}; always passed explicitly so no
+ *        invocation can fall through to npm's `latest` default
  * @returns The argv array for `execFileSync(NPM_BIN, argv, ...)`
  *
  * @example
- * buildPublishArgs('jssm', false);     // => ['publish', '--provenance', '--access', 'public']
+ * buildPublishArgs('jssm', false, 'alpha');
+ * // => ['publish', '--provenance', '--access', 'public', '--tag', 'alpha']
  * @example
- * buildPublishArgs('jssm-viz', true);  // => ['publish', '--provenance', '--access', 'public', '-w', 'jssm-viz', '--dry-run']
+ * buildPublishArgs('jssm-viz', true, 'latest');
+ * // => ['publish', '--provenance', '--access', 'public', '--tag', 'latest', '-w', 'jssm-viz', '--dry-run']
  */
-const buildPublishArgs = (name, dry_run) => {
+const buildPublishArgs = (name, dry_run, dist_tag) => {
 
-  const args = ['publish', '--provenance', '--access', 'public'];
+  if (!dist_tag) { throw new Error('publish_workspaces: buildPublishArgs requires an explicit dist_tag'); }
+
+  const args = ['publish', '--provenance', '--access', 'public', '--tag', dist_tag];
 
   if (name !== 'jssm') { args.push('-w', name); }
   if (dry_run) { args.push('--dry-run'); }
@@ -587,9 +646,10 @@ const runNpmPublish = (args) => {
  * root package has no `file:` self-dependency to swap.
  *
  * @param dry_run - Passed through to {@link buildPublishArgs}
+ * @param dist_tag - From {@link distTagFor}
  */
-const publishRoot = (dry_run) => {
-  runNpmPublish(buildPublishArgs('jssm', dry_run));
+const publishRoot = (dry_run, dist_tag) => {
+  runNpmPublish(buildPublishArgs('jssm', dry_run, dist_tag));
 };
 
 
@@ -620,13 +680,14 @@ const publishRoot = (dry_run) => {
  * @param options.publish - The publish invoker, given the {@link buildPublishArgs} argv (defaults to {@link runNpmPublish})
  * @param options.cwd - Directory the member's manifest path is resolved against (defaults to the process's cwd; overridable for temp-dir test fixtures)
  * @param options.write_file - The file writer used for both the rewrite and the restore (defaults to `fs.writeFileSync`; injectable so tests can force a restore failure)
+ * @param options.dist_tag - The npm dist-tag (defaults to {@link distTagFor} of `version`, so a member can never be tagged differently from the root)
  * @throws {Error} when the manifest has no `"jssm"` entry in `dependencies` to rewrite (thrown BEFORE anything is written — the manifest is untouched); when the publish itself fails (the manifest is restored first, and the publish's own error propagates unchanged); or when the restore write fails (see above — the manifest may be left rewritten)
  *
  * @example
  * // production shape: rewrite, npm publish -w jssm-viz --dry-run, restore
  * publishMember('jssm-viz', '6.0.0-alpha.12', true);
  */
-const publishMember = (name, version, dry_run, { publish = runNpmPublish, cwd = process.cwd(), write_file = fs.writeFileSync } = {}) => {
+const publishMember = (name, version, dry_run, { publish = runNpmPublish, cwd = process.cwd(), write_file = fs.writeFileSync, dist_tag = distTagFor(version) } = {}) => {
 
   const manifest_path  = path.join(cwd, manifestPathFor(name)),
         original_text  = fs.readFileSync(manifest_path, 'utf8'),
@@ -642,7 +703,7 @@ const publishMember = (name, version, dry_run, { publish = runNpmPublish, cwd = 
   let publish_error;
 
   try {
-    publish(buildPublishArgs(name, dry_run));
+    publish(buildPublishArgs(name, dry_run, dist_tag));
   } catch (e) {
     publish_error = e;
     throw e;
@@ -716,6 +777,20 @@ const main = () => {
     process.exit(0);
   }
 
+  // One tag for the whole run, derived from the lockstep version that
+  // verify_version_bump already proved identical across all four packages — so
+  // the root and its members can never land on different channels.
+  let dist_tag;
+
+  try {
+    dist_tag = distTagFor(plan[0].version);
+  } catch (e) {
+    console.log(`Hard error: ${e.message}`);
+    process.exit(1);
+  }
+
+  console.log(`dist-tag: ${dist_tag}${dist_tag === 'latest' ? '' : ' (prerelease — latest is left where it is)'}`);
+
   for (const entry of plan) {
 
     if (entry.action === 'skip') {
@@ -728,9 +803,9 @@ const main = () => {
     try {
 
       if (entry.name === 'jssm') {
-        publishRoot(dry_run);
+        publishRoot(dry_run, dist_tag);
       } else {
-        publishMember(entry.name, entry.version, dry_run);
+        publishMember(entry.name, entry.version, dry_run, { dist_tag });
       }
 
       console.log(`ok: ${entry.name}@${entry.version} published`);
@@ -767,6 +842,7 @@ module.exports = {
   allSkipped,
   isUnpublishedVersionError,
   isVersionPublished,
+  distTagFor,
   buildPublishArgs,
   runNpmPublish,
   publishRoot,
