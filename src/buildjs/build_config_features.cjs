@@ -25,7 +25,7 @@
  *   7  vitest, changelog
  *   8  perf_chart                         (writes src/generated_docs — isolated from cloc)
  *   9  cloc, docs, site
- *  10  cookbook, fsl.tools site
+ *  10  cookbook, fsl.tools site, size_chart
  *  11  readme                             (consumes vitest metrics + cloc report)
  *
  * @see ./build_config.cjs
@@ -143,6 +143,10 @@ const FEATURES = {
   // --- Stage 9: doc generators that write under docs/ after site ---
   make_cookbook:  { script: 'make_cookbook',  stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
   site_fsl_tools: { script: 'site_fsl_tools', stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
+  // writes docs/size_chart.html — a distinct filename from every other stage-9
+  // writer, and it reads the perf_results data branch rather than src/, so it
+  // neither races the src-mutators nor collides inside docs/
+  size_chart:     { script: 'size_chart',     stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
 
   // --- Stage 10: readme (consumes vitest metrics + cloc report) ---
   readme: { script: 'readme', stages: [10], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },

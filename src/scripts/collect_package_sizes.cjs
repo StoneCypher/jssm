@@ -51,8 +51,19 @@ const fs   = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
 
-/** The npm packages whose size history the charts decompose. Unpublished ones are skipped. */
-const DEFAULT_PACKAGES = ['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli'];
+/**
+ *  The npm packages whose size history the charts decompose. Unpublished ones
+ *  are skipped, so a name may be listed before it ships.
+ *
+ *  The first group is the live monorepo. The second is the RETIRED ecosystem:
+ *  their archives never change again, but the mass-flow chart needs them to
+ *  show where their bytes went — a package missing from this list is a package
+ *  whose retirement the diagram cannot draw.
+ */
+const DEFAULT_PACKAGES = [
+  'jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli',
+  'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl',
+];
 
 const DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 
