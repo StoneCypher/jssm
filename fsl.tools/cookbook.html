@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>fsl.tools — cookbook</title>
+  <link rel="stylesheet" href="colors_and_type.css"/>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--fg-1);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    html { scroll-behavior: smooth; }
+    a { color: inherit; }
+    code { font-family: var(--font-mono); font-size: 0.92em; background: var(--bg-2); border: 1px solid var(--rule); padding: 1px 6px; border-radius: 4px; color: var(--fg-1); }
+
+    /* Highlight-on-match for search */
+    mark.cb-mark {
+      background: rgb(196 174 90 / 28%);
+      color: var(--fg-1);
+      padding: 0 2px; border-radius: 2px;
+    }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="components/Nav.jsx"></script>
+  <script type="text/babel" src="components/Footer.jsx"></script>
+  <script type="text/babel" src="components/CookbookCode.jsx"></script>
+  <script type="text/babel" src="components/CookbookGraph.jsx"></script>
+  <script type="text/babel" src="components/cookbook-data.jsx"></script>
+  <script type="text/babel" src="components/CookbookRecipeView.jsx"></script>
+  <script type="text/babel" src="components/CookbookSidebar.jsx"></script>
+  <script type="text/babel" src="components/CookbookFooter.jsx"></script>
+  <script type="text/babel">
+    function CookbookApp() {
+      const [query, setQuery] = React.useState('');
+      const [activeTags, setActiveTags] = React.useState([]);
+      const [activeId, setActiveId] = React.useState(RECIPES[0]?.id);
+
+      // All tags, sorted by frequency
+      const allTags = React.useMemo(() => {
+        const counts = {};
+        RECIPES.forEach(r => (r.tags || []).forEach(t => counts[t] = (counts[t] || 0) + 1));
+        return Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      }, []);
+
+      // Filter
+      const filtered = React.useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return RECIPES.filter(r => {
+          if (activeTags.length && !activeTags.every(t => (r.tags || []).includes(t))) return false;
+          if (!q) return true;
+          const hay = [r.title, r.problem, r.category, ...(r.tags || []), r.note || '']
+            .join(' ').toLowerCase();
+          return hay.includes(q);
+        });
+      }, [query, activeTags]);
+
+      // Track scroll → set activeId for sidebar highlighting
+      React.useEffect(() => {
+        const ids = filtered.map(r => r.id);
+        function onScroll() {
+          let cur = ids[0];
+          for (const id of ids) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const r = el.getBoundingClientRect();
+            if (r.top < 140) cur = id;
+          }
+          if (cur) setActiveId(cur);
+        }
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+      }, [filtered]);
+
+      const toggleTag = tag => setActiveTags(t => t.includes(tag) ? t.filter(x => x !== tag) : [...t, tag]);
+
+      return (
+        <div>
+          <Nav/>
+
+          {/* Compact hero — short, gets out of the way */}
+          <section style={{
+            padding: '40px 32px 24px',
+            maxWidth: 1320, margin: '0 auto',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 500,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: 'var(--accent)', marginBottom: 12,
+            }}>// cookbook</div>
+            <h1 style={{
+              margin: '0 0 12px',
+              fontFamily: 'var(--font-sans)', fontSize: 40, fontWeight: 600,
+              letterSpacing: '-0.02em', lineHeight: 1.1,
+              color: 'var(--fg-1)', maxWidth: 800, textWrap: 'balance',
+            }}>
+              Patterns, recipes, worked examples.
+            </h1>
+            <p style={{
+              margin: 0, maxWidth: 680,
+              fontSize: 16, lineHeight: 1.55, color: 'var(--fg-2)',
+            }}>
+              Copy-pasteable jssm machines for shapes that come up in real
+              product code. Search, filter by tag, or browse by category.
+            </p>
+          </section>
+
+          {/* Two-pane layout: scalable sidebar + content */}
+          <div style={{
+            maxWidth: 1320, margin: '0 auto', padding: '0 32px',
+            display: 'grid', gridTemplateColumns: '260px 1fr', gap: 40,
+            alignItems: 'start',
+          }}>
+            <CookbookSidebar
+              query={query} setQuery={setQuery}
+              activeTags={activeTags} toggleTag={toggleTag}
+              allTags={allTags}
+              filtered={filtered}
+              activeId={activeId}
+            />
+
+            <main style={{ minWidth: 0, maxWidth: 880 }}>
+              {filtered.length === 0 ? (
+                <div style={{
+                  padding: '120px 0', textAlign: 'center',
+                  border: '1px dashed var(--rule-2)', borderRadius: 8,
+                  background: 'var(--bg-1)',
+                }}>
+                  <div style={{
+                    fontFamily: 'var(--font-mono)', fontSize: 12,
+                    color: 'var(--fg-3)', marginBottom: 12,
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                  }}>// no matches</div>
+                  <p style={{ margin: 0, fontSize: 15, color: 'var(--fg-2)' }}>
+                    Try a broader search or clear your tag filters.
+                  </p>
+                </div>
+              ) : (
+                filtered.map(r => <CookbookRecipeView key={r.id} recipe={r}/>)
+              )}
+            </main>
+          </div>
+
+          <CookbookFooter/>
+          <Footer/>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<CookbookApp/>);
+  </script>
+</body>
+</html>
