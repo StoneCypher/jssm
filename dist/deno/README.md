@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.163.4 at 7/18/2026, 10:29:31 AM
+* Generated for version 6.0.0-alpha.12 at 7/25/2026, 10:26:36 AM
 
 -->
-# jssm 5.163.4
+# jssm 6.0.0-alpha.12
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -98,6 +98,41 @@ npm install jssm
 The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
 and TypeScript typings.  A Deno build is included.  Node 10 or newer.
 
+### Trying the v6 alpha
+
+The v6 line publishes under the `alpha` dist-tag, so it never lands on a
+plain `npm install`:
+
+```
+npm install jssm@alpha
+```
+
+It is an alpha in the real sense — the API surface is not frozen, and the
+breaking changes recorded in `v6_breaking_changes.json` have not all landed
+yet.  Use it to try the new work and report what breaks, not to ship.
+Stay on `npm install jssm` for anything that matters.
+
+
+
+<br/>
+
+## Package family
+
+As of v6, this repository publishes four packages in lockstep versions.
+The `jssm` core stays dependency-light; the other three depend on the
+published core instead of embedding it, so you install only what you use.
+
+| Package | What it is |
+|---|---|
+| `jssm` | The state-machine language and runtime (this package) |
+| `jssm-viz` | Graphviz-based visualization: SVG/PNG/JPEG renders and the web components |
+| `jssm-fence` | Markdown fence rendering for FSL code blocks |
+| `jssm-cli` | The `fsl` command line: render, codegen, import/export, run |
+
+During the 6.0 cycle, `jssm` itself still carries its historical `/viz`,
+`/fence`, `/cli`, and related subpaths; 6.0.0 slims the core package by
+retiring those embedded copies in favor of the packages above.
+
 
 
 <br/>
@@ -161,6 +196,24 @@ Pipe FSL via stdin:
 ```sh
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
+
+### Configuration
+
+The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
+
+```json
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}
+```
+
+CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
+
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
 
 ### Plugin architecture
 
@@ -348,7 +401,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  10,142 tests at 100.0% line coverage
+  library.**  11,851 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -483,11 +536,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***10,142 tests***, run 99,539 times.
+***11,851 tests***, run 113,425 times.
 
-- 9,239 specs with 100.0% coverage
-- 903 fuzz tests with 56.3% coverage
-- 11,181 TypeScript lines - 0.9 tests per line, 8.9 generated tests per line
+- 10,825 specs with 100.0% coverage
+- 1,026 fuzz tests with 49.9% coverage
+- 16,600 TypeScript lines - 0.7 tests per line, 6.8 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

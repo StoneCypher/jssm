@@ -1,6 +1,6 @@
 type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmEditorConfig, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmDefaultSize, JssmParsedSemver, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
+JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmEditorConfig, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmDefaultSize, JssmParsedSemver, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, JssmValType, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
 import { Interner } from './jssm_intern.js';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[], state_name_chars: readonly {
     from: string;
@@ -24,15 +24,6 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
 };
-/*********
- *
- *  An internal method meant to take a series of declarations and fold them into
- *  a single multi-faceted declaration, in the process of building a state.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
 /** Default number of independent Monte-Carlo runs when none is declared. */
@@ -138,6 +129,10 @@ declare class Machine<mDT> {
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
     _state_property_first_state: Map<string, StateType>;
+    _val_keys: Set<string>;
+    _val_types: Map<string, JssmValType>;
+    _val_values: Map<string, any>;
+    _required_vals: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -169,7 +164,7 @@ declare class Machine<mDT> {
     _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -435,6 +430,101 @@ declare class Machine<mDT> {
      *
      */
     known_props(): string[];
+    /*********
+     *
+     *  Read the current value of a declared machine `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val ok : boolean default true; a -> b;`;
+     *
+     *  m.val('ok');   // true
+     *  ```
+     *
+     *  @param name The declared val name to read.
+     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val(name: string): any;
+    /*********
+     *
+     *  Set the value of a declared machine `val`, validating it against the val's
+     *  declared type.  This is the runtime mutation surface; source-level `assign`
+     *  arrives in a later phase.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int default 0; a -> b;`;
+     *
+     *  m.set_val('n', 5);
+     *  m.val('n');   // 5
+     *  ```
+     *
+     *  @param name  The declared val name to write.
+     *  @param value The new value; must satisfy the val's declared type.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *
+     */
+    set_val(name: string, value: any): void;
+    /*********
+     *
+     *  Return a plain object mapping every declared val name to its current value.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+     *
+     *  m.vals();   // { a: 1, b: false }
+     *  ```
+     *
+     *  @returns An object of every declared val name to its current value.
+     *
+     */
+    vals(): object;
+    /*********
+     *
+     *  Check whether a string is the name of a declared `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; x -> y;`;
+     *
+     *  m.known_val('a');   // true
+     *  m.known_val('z');   // false
+     *  ```
+     *
+     *  @param name The candidate val name.
+     *  @returns Whether the name is a declared val.
+     *
+     */
+    known_val(name: string): boolean;
+    /*********
+     *
+     *  List every declared `val` name, in declaration order.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+     *
+     *  m.known_vals();   // ['a', 'b']
+     *  ```
+     *
+     *  @returns The declared val names in declaration order.
+     *
+     */
+    known_vals(): string[];
+    /*********
+     *
+     *  Return the declared type descriptor of a `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+     *
+     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+     *  ```
+     *
+     *  @param name The declared val name.
+     *  @returns The val's declared type descriptor.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val_type(name: string): JssmValType;
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
@@ -572,6 +662,16 @@ declare class Machine<mDT> {
      *
      */
     serialize(comment?: string): JssmSerialization<mDT>;
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration
+     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+     *  hashing.  Excludes envelope fields (timestamp/comment/history).
+     *  @returns The canonical config string.
+     *  @example
+     *    import { sm } from 'jssm';
+     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+     */
+    canonical(): string;
     /**
      * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
      *  FSL `graph_layout` directive.
@@ -945,9 +1045,7 @@ declare class Machine<mDT> {
      *  m.themes = 'ocean';
      *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
      *  ```
-     *
      *  @param to - A theme name or array of theme names to apply.
-     *
      *  @see resolve_state_config
      */
     set themes(to: FslTheme | FslTheme[]);
@@ -1118,7 +1216,6 @@ declare class Machine<mDT> {
      *  transition.  A terminal start therefore completes with length zero even
      *  when `max_steps` is zero, and a terminal reached on the final permitted
      *  transition is completed rather than step-capped.
-     *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
      *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
@@ -2910,8 +3007,13 @@ export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
 export type { FencePart, FenceImageFormat, FenceDimensionUnit, FenceDimension, FenceDescriptor } from './fsl_markdown_fence';
 export { FslDirections } from './jssm_types.js';
 export type { JssmParseOptions } from './jssm_types.js';
+export { JssmError } from './jssm_error.js';
 export { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
-export { compile, wrap_parse as parse, make } from './jssm_compiler.js';
-export { unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32 } from './jssm_util.js';
+export { compile, wrap_parse as parse, make, membership_distance } from './jssm_compiler.js';
+export { unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32, name_bind_prop_and_state } from './jssm_util.js';
+export { replay } from './fsl_replay.js';
+export type { ReplayResult, ReplayStep } from './fsl_replay.js';
+export { parse_tape, serialize_tape, ReplayError, SUPPORTED_TAPE_VERSION } from './fsl_stimulus_tape.js';
+export type { Stimulus, TapeHeader, StimulusTape, ReplayErrorKind } from './fsl_stimulus_tape.js';
 export { build_time, version } from './version.js';
 export * as constants from './jssm_constants.js';

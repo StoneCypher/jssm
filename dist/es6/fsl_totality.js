@@ -106,7 +106,7 @@ function build_adjacency(graph) {
     }
     for (const edge of graph.edges) {
         // every endpoint is declared (validate_graph), so get() is defined
-        adjacency.get(edge.from).push(edge.to);
+        (adjacency.get(edge.from)).push(edge.to);
     }
     return adjacency;
 }
@@ -284,7 +284,6 @@ function microstep_cascade(graph, start, bound = DEFAULT_MICROSTEP_BOUND) {
     const visited = new Set([start]);
     let current = start;
     let steps = 0;
-    // eslint-disable-next-line fp/no-loops
     while (true) {
         const succs = adjacency.get(current);
         // fixpoint: no eventless successor — the reaction has settled

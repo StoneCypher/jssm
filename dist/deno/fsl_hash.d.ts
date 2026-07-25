@@ -11,7 +11,6 @@
 /**
  * @param text - FSL source.
  * @returns `"provisional:" + 16 hex digits` (two decorrelated FNV-1a-32 lanes).
- *
  * @example
  *   source_hash('a -> b;'); // e.g. 'provisional:9f1c4e2a3b7d0061'
  */

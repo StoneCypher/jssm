@@ -75,6 +75,20 @@ npm install jssm
 The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
 and TypeScript typings.  A Deno build is included.  Node 10 or newer.
 
+### Trying the v6 alpha
+
+The v6 line publishes under the `alpha` dist-tag, so it never lands on a
+plain `npm install`:
+
+```
+npm install jssm@alpha
+```
+
+It is an alpha in the real sense — the API surface is not frozen, and the
+breaking changes recorded in `v6_breaking_changes.json` have not all landed
+yet.  Use it to try the new work and report what breaks, not to ship.
+Stay on `npm install jssm` for anything that matters.
+
 
 
 <br/>

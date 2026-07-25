@@ -20,9 +20,9 @@ export interface FenceDimension {
  *  The fully-parsed, validated description of one FSL Markdown fence block.
  *
  *  Sizing semantics: `width`/`height` (from `width=`/`height=` tokens) are
- *  *exact* dimensions — the host renders the block at that size.
+ *  exact* dimensions — the host renders the block at that size.
  *  `max_width`/`max_height` (from `max-width=`/`max-height=` tokens) are
- *  *upper bounds* on natural sizing — the block renders at its natural size
+ *  upper bounds* on natural sizing — the block renders at its natural size
  *  but is capped on that axis.  When both an exact and a max token are given
  *  for the same axis, the exact dimension wins and the cap is moot.  All four
  *  are `null` when their token is absent.

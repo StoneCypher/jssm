@@ -229,6 +229,38 @@ type JssmPropertyDefinition = {
     property?: string;
     state?: string;
 };
+/*********
+ *
+ *  The declared type of a machine `val` (extended-state variable): the scalar
+ *  type core — `boolean`, `string`, unbounded or bounded `int lo..hi`, and
+ *  `enum(...)`.  Carried from the grammar to the runtime, where
+ *  `validate_val_value` enforces it at construction and on every write.
+ *
+ */
+type JssmValType = {
+    kind: 'boolean';
+} | {
+    kind: 'string';
+} | {
+    kind: 'int';
+    lo?: number;
+    hi?: number;
+} | {
+    kind: 'enum';
+    members: string[];
+};
+/*********
+ *
+ *  A machine `val` declaration: a named, typed, validated, mutable
+ *  extended-state variable (the mutable sibling of a `property`).
+ *
+ */
+type JssmValDefinition = {
+    name: string;
+    val_type: JssmValType;
+    default_value?: any;
+    required?: boolean;
+};
 type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 /**
@@ -604,6 +636,10 @@ type JssmGenericConfig<StateType, DataType> = {
     start_states_no_enforce?: boolean;
     state_declaration?: object[];
     property_definition?: JssmPropertyDefinition[];
+    val_definition?: JssmValDefinition[];
+    vals?: {
+        [name: string]: any;
+    };
     state_property?: JssmPropertyDefinition[];
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
@@ -722,6 +758,7 @@ type JssmCompileSeStart<StateType, DataType> = {
     state?: string;
     default_value?: any;
     required?: boolean;
+    val_type?: JssmValType;
     loc?: FslSourceLocation;
     from_loc?: FslSourceLocation;
     value_loc?: FslSourceLocation;
@@ -1031,6 +1068,15 @@ type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => 
  *  The return value is ignored.
  */
 type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
+/**
+ *  Extra diagnostic information attached to a {@link jssm_error!JssmError} when it
+ *  carries machine-relative context — most often the state name a caller
+ *  asked about when the error was raised.
+ */
+type JssmErrorExtendedInfo = {
+    requested_state?: StateType$1 | undefined;
+    source_location?: FslSourceLocation;
+};
 /**
  *  Bounded history of recently-visited states paired with the data payload
  *  observed in each.  Backed by `circular_buffer_js`, so the oldest entry
@@ -1438,9 +1484,9 @@ interface FenceDimension {
  *  The fully-parsed, validated description of one FSL Markdown fence block.
  *
  *  Sizing semantics: `width`/`height` (from `width=`/`height=` tokens) are
- *  *exact* dimensions — the host renders the block at that size.
+ *  exact* dimensions — the host renders the block at that size.
  *  `max_width`/`max_height` (from `max-width=`/`max-height=` tokens) are
- *  *upper bounds* on natural sizing — the block renders at its natural size
+ *  upper bounds* on natural sizing — the block renders at its natural size
  *  but is capped on that axis.  When both an exact and a max token are given
  *  for the same axis, the exact dimension wins and the cap is moot.  All four
  *  are `null` when their token is absent.
@@ -1484,6 +1530,42 @@ declare function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null;
  *  @example parse_fence_info('fsl image max-width=300 max-height=50%').max_width // => { value: 300, unit: 'px' }
  */
 declare function parse_fence_info(info: string): FenceDescriptor;
+
+/*******
+ *
+ *  Custom error class for jssm.  Enriches the standard `Error` with
+ *  machine context (current state, instance name) and an optional
+ *  `requested_state` so that error messages are self-describing.
+ *
+ *  When a semantic error is detected during `compile()` and the parse tree
+ *  was produced with `parse(input, { locations: true })`, the thrown error
+ *  also carries a `source_location` field — the FSL source span of the
+ *  offending statement — so downstream tooling can map the error to a precise
+ *  position in the original source text without additional scanning.
+ *
+ *  ```typescript
+ *  throw new JssmError(machine, 'no such state', { requested_state: 'Blue' });
+ *  // JssmError: [[my-light]]: no such state (at "Red", requested "Blue")
+ *  ```
+ *
+ *  @param machine         - The `Machine` instance that raised the error, or
+ *                           `undefined` if no machine is available.  Used to
+ *                           read `state()` and `instance_name()` for context.
+ *  @param message         - A human-readable description of the error.
+ *  @param JEEI            - Optional {@link JssmErrorExtendedInfo} with extra
+ *                           context such as `requested_state` and/or
+ *                           `source_location` (the FSL source span of the
+ *                           offending statement, present when the error
+ *                           originated from a located parse tree).
+ *
+ */
+declare class JssmError extends Error {
+    message: string;
+    base_message: string;
+    requested_state: string | undefined;
+    source_location: FslSourceLocation | undefined;
+    constructor(machine: any, message: string, JEEI?: JssmErrorExtendedInfo);
+}
 
 /*********
  *
@@ -1642,6 +1724,40 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *
  */
 declare function wrap_parse<StateType = string, mDT = unknown>(input: string, options?: JssmParseOptions): JssmParseTree<StateType, mDT>;
+/*********
+ *
+ *  Computes the minimum membership distance from a source `state` up to a
+ *  containing `group` — the specificity metric that drives group-vs-group
+ *  conflict resolution.  Distance 1 means `state` is a direct member of
+ *  `group`; distance 2 means `state` belongs to some sub-group nested (or
+ *  spread) one hop inside `group`; and so on.  A smaller distance means the
+ *  group is "nearer"/"more specific" to the state, so it wins.
+ *
+ *  The walk is a breadth-first descent over the group→group membership edges
+ *  starting at `group`: a group dequeued at hop-count `h` contributes its
+ *  direct `state` members at distance `h + 1`, and enqueues its `group`
+ *  members at hop-count `h + 1`.  BFS guarantees the first time `state` is
+ *  seen is via a shortest path; cycles cannot occur because the registry is
+ *  validated acyclic by {@link group_registry_cycle_check} first, but a
+ *  `visited` set guards against re-expansion regardless.
+ *
+ *  ```typescript
+ *  // for `&Playing:[normal]; &Active:[&Playing];`
+ *  // membership_distance(reg, 'normal', 'Playing') === 1
+ *  // membership_distance(reg, 'normal', 'Active')  === 2
+ *  ```
+ *
+ *  @param registry The compiled group registry.
+ *  @param state    The source state whose distance is measured.
+ *  @param group    The containing group to measure the distance to.
+ *
+ *  @returns The minimum membership distance (>= 1), or `Infinity` if `state`
+ *           is not a transitive member of `group`.
+ *
+ *  @see transitive_members
+ *  @internal
+ */
+declare function membership_distance(registry: JssmGroupRegistry, state: string, group: string): number;
 /*********
  *
  *  Compile a machine's JSON intermediate representation to a config object.  If
@@ -1849,6 +1965,24 @@ declare const weighted_sample_select: (n: number, options: Array<any>, probabili
 declare const weighted_histo_key: (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng) => Map<any, number>;
 /*******
  *
+ *  Internal method generating composite keys for the hook lookup map by
+ *  JSON-serializing a `[property, state]` pair.  Not meant for external use.
+ *
+ *  ```typescript
+ *  name_bind_prop_and_state('color', 'Red');  // '["color","Red"]'
+ *  ```
+ *
+ *  @param prop  - The property name (e.g. a data key or hook category).
+ *  @param state - The state name to bind to.
+ *
+ *  @returns A deterministic JSON string key for the `[prop, state]` pair.
+ *
+ *  @throws {JssmError} If either argument is not a string.
+ *
+ */
+declare function name_bind_prop_and_state(prop: string, state: string): string;
+/*******
+ *
  *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
  *
  *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
@@ -1908,6 +2042,83 @@ declare function find_repeated<T>(arr: T[]): [T, number][];
  *
  */
 declare function sleep(ms: number): Promise<unknown>;
+
+declare const SUPPORTED_TAPE_VERSION = 1;
+type ReplayErrorKind = 'malformed_tape' | 'unsupported_format_version' | 'unknown_op' | 'source_hash_mismatch' | 'no_pending_timer' | 'parse_error';
+/** Typed error for the tape/replay layer (kind-discriminated, like FslError). */
+declare class ReplayError extends Error {
+    kind: ReplayErrorKind;
+    step?: number;
+    constructor(kind: ReplayErrorKind, message: string, step?: number);
+}
+type Stimulus = {
+    op: 'action';
+    name: string;
+    data?: unknown;
+} | {
+    op: 'transition';
+    name: string;
+    data?: unknown;
+} | {
+    op: 'timer';
+};
+type TapeHeader = {
+    fsl_tape: number;
+    machine: {
+        ref?: string;
+        source_hash?: string;
+        source?: string;
+    };
+    seed?: unknown;
+    created?: number;
+    comment?: string;
+};
+type StimulusTape = {
+    header: TapeHeader;
+    stimuli: Stimulus[];
+};
+/**
+ * Parse JSONL tape text into a {@link StimulusTape}.
+ * @param text - JSONL: a header object line, then stimulus lines.
+ * @returns The parsed header + stimuli.
+ * @throws ReplayError kind `malformed_tape` / `unsupported_format_version` / `unknown_op`.
+ * @example
+ *   parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"timer"}');
+ */
+declare function parse_tape(text: string): StimulusTape;
+/**
+ * Serialize a {@link StimulusTape} back to canonical JSONL (stable key order
+ * per line, so the bytes are deterministic).
+ * @param tape - The tape to serialize.
+ * @returns JSONL text.
+ * @example
+ *   serialize_tape({ header: { fsl_tape: 1, machine: {} }, stimuli: [{ op: 'timer' }] });
+ */
+declare function serialize_tape(tape: StimulusTape): string;
+
+type ReplayStep = {
+    index: number;
+    op: string;
+    name?: string;
+    accepted: boolean;
+};
+type ReplayResult = {
+    final_state: unknown;
+    final_data: unknown;
+    steps: ReplayStep[];
+    source_hash: string;
+    canonical: string;
+};
+/**
+ * Replay `tape` against the machine compiled from `source`.
+ * @param source - FSL source text.
+ * @param tape - The parsed stimulus tape.
+ * @returns The deterministic {@link ReplayResult}.
+ * @throws ReplayError `source_hash_mismatch` / `no_pending_timer`.
+ * @example
+ *   replay("a 'go' -> b;", parse_tape('{"fsl_tape":1,"machine":{}}\n{"op":"action","name":"go"}'));
+ */
+declare function replay(source: string, tape: StimulusTape): ReplayResult;
 
 /**
  *  The published semantic version of the jssm package this build was cut from.
@@ -2107,15 +2318,6 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
 };
-/*********
- *
- *  An internal method meant to take a series of declarations and fold them into
- *  a single multi-faceted declaration, in the process of building a state.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
 /** Default number of independent Monte-Carlo runs when none is declared. */
@@ -2221,6 +2423,10 @@ declare class Machine<mDT> {
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
     _state_property_first_state: Map<string, StateType>;
+    _val_keys: Set<string>;
+    _val_types: Map<string, JssmValType>;
+    _val_values: Map<string, any>;
+    _required_vals: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -2252,7 +2458,7 @@ declare class Machine<mDT> {
     _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -2518,6 +2724,101 @@ declare class Machine<mDT> {
      *
      */
     known_props(): string[];
+    /*********
+     *
+     *  Read the current value of a declared machine `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val ok : boolean default true; a -> b;`;
+     *
+     *  m.val('ok');   // true
+     *  ```
+     *
+     *  @param name The declared val name to read.
+     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val(name: string): any;
+    /*********
+     *
+     *  Set the value of a declared machine `val`, validating it against the val's
+     *  declared type.  This is the runtime mutation surface; source-level `assign`
+     *  arrives in a later phase.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int default 0; a -> b;`;
+     *
+     *  m.set_val('n', 5);
+     *  m.val('n');   // 5
+     *  ```
+     *
+     *  @param name  The declared val name to write.
+     *  @param value The new value; must satisfy the val's declared type.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *
+     */
+    set_val(name: string, value: any): void;
+    /*********
+     *
+     *  Return a plain object mapping every declared val name to its current value.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+     *
+     *  m.vals();   // { a: 1, b: false }
+     *  ```
+     *
+     *  @returns An object of every declared val name to its current value.
+     *
+     */
+    vals(): object;
+    /*********
+     *
+     *  Check whether a string is the name of a declared `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; x -> y;`;
+     *
+     *  m.known_val('a');   // true
+     *  m.known_val('z');   // false
+     *  ```
+     *
+     *  @param name The candidate val name.
+     *  @returns Whether the name is a declared val.
+     *
+     */
+    known_val(name: string): boolean;
+    /*********
+     *
+     *  List every declared `val` name, in declaration order.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+     *
+     *  m.known_vals();   // ['a', 'b']
+     *  ```
+     *
+     *  @returns The declared val names in declaration order.
+     *
+     */
+    known_vals(): string[];
+    /*********
+     *
+     *  Return the declared type descriptor of a `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+     *
+     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+     *  ```
+     *
+     *  @param name The declared val name.
+     *  @returns The val's declared type descriptor.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val_type(name: string): JssmValType;
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
@@ -2655,6 +2956,16 @@ declare class Machine<mDT> {
      *
      */
     serialize(comment?: string): JssmSerialization<mDT>;
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration
+     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+     *  hashing.  Excludes envelope fields (timestamp/comment/history).
+     *  @returns The canonical config string.
+     *  @example
+     *    import { sm } from 'jssm';
+     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+     */
+    canonical(): string;
     /**
      * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
      *  FSL `graph_layout` directive.
@@ -3028,9 +3339,7 @@ declare class Machine<mDT> {
      *  m.themes = 'ocean';
      *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
      *  ```
-     *
      *  @param to - A theme name or array of theme names to apply.
-     *
      *  @see resolve_state_config
      */
     set themes(to: FslTheme | FslTheme[]);
@@ -3201,7 +3510,6 @@ declare class Machine<mDT> {
      *  transition.  A terminal start therefore completes with length zero even
      *  when `max_steps` is zero, and a terminal reached on the final permitted
      *  transition is completed rather than step-capped.
-     *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
      *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
@@ -4989,5 +5297,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, parse_fence_info, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
-export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions };
+export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions, ReplayErrorKind, ReplayResult, ReplayStep, Stimulus, StimulusTape, TapeHeader };

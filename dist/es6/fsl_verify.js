@@ -28,7 +28,6 @@
  *  {@link Machine.states}, {@link Machine.state}, {@link Machine.list_exits},
  *  {@link Machine.state_is_terminal}, {@link Machine.state_is_final} and
  *  {@link Machine.has_state}, and never mutates the machine.
- *
  *  @example
  *  Prove a designed failure state is unreachable from start:
  *  ```typescript
@@ -44,9 +43,7 @@
 // ---------------------------------------------------------------------------
 /**
  *  Predicate: the state has exactly this name.
- *
  *  @param name - The state name to match.
- *
  *  @example
  *  ```typescript
  *  in_state('Done');   // { atom: 'in_state', name: 'Done' }
@@ -56,9 +53,7 @@ const in_state = (name) => ({ atom: 'in_state', name });
 /**
  *  Predicate: the state's name is one of `names`.  An empty set is a
  *  contradiction (matches nothing).
- *
  *  @param names - The accepted state names.
- *
  *  @example
  *  ```typescript
  *  in_any(['red', 'amber']);   // true in 'red' or 'amber'
@@ -67,7 +62,6 @@ const in_state = (name) => ({ atom: 'in_state', name });
 const in_any = (names) => ({ atom: 'in_any', names: new Set(names) });
 /**
  *  Predicate: the state is terminal — it has no outgoing transitions.
- *
  *  @example
  *  ```typescript
  *  is_terminal;   // true only in dead-end states
@@ -76,7 +70,6 @@ const in_any = (names) => ({ atom: 'in_any', names: new Set(names) });
 const is_terminal = { atom: 'is_terminal' };
 /**
  *  Predicate: the state is final — terminal, or flagged `complete`.
- *
  *  @example
  *  ```typescript
  *  is_final;   // true in completing states
@@ -85,7 +78,6 @@ const is_terminal = { atom: 'is_terminal' };
 const is_final = { atom: 'is_final' };
 /**
  *  Predicate: the state is one of the caller-supplied error states (§17).
- *
  *  @example
  *  ```typescript
  *  is_error;   // true in states named by SafetyOptions.error_states
@@ -102,9 +94,7 @@ const tautology = { atom: 'tautology' };
 const contradiction = { atom: 'contradiction' };
 /**
  *  Negate a predicate.
- *
  *  @param arg - The predicate to invert.
- *
  *  @example
  *  ```typescript
  *  p_not(in_state('Crashed'));   // true everywhere except 'Crashed'
@@ -113,9 +103,7 @@ const contradiction = { atom: 'contradiction' };
 const p_not = (arg) => ({ atom: 'not', arg });
 /**
  *  Conjoin predicates.  With no arguments this is {@link tautology}.
- *
  *  @param args - The predicates that must all hold.
- *
  *  @example
  *  ```typescript
  *  p_and(is_terminal, p_not(is_final));   // a terminal that isn't "complete"
@@ -124,9 +112,7 @@ const p_not = (arg) => ({ atom: 'not', arg });
 const p_and = (...args) => ({ atom: 'and', args });
 /**
  *  Disjoin predicates.  With no arguments this is {@link contradiction}.
- *
  *  @param args - The predicates of which at least one must hold.
- *
  *  @example
  *  ```typescript
  *  p_or(is_error, is_terminal);   // either an error state or a dead end
@@ -139,15 +125,12 @@ const p_or = (...args) => ({ atom: 'or', args });
 /**
  *  Coerce a predicate-or-state-name into a predicate.  A bare string is read as
  *  {@link in_state}, so callers can write `absence('Crashed')`.
- *
  *  @param p - Either a {@link StatePredicate} or a state name.
  */
 const as_predicate = (p) => (typeof p === 'string') ? in_state(p) : p;
 /**
  *  Safety property: `P` holds in **every** reachable state (an invariant).
- *
  *  @param pred - The invariant predicate, or a state name (= must always be in it).
- *
  *  @example
  *  ```typescript
  *  always(p_not(is_error));   // "never reach an error state"
@@ -156,9 +139,7 @@ const as_predicate = (p) => (typeof p === 'string') ? in_state(p) : p;
 const always = (pred) => ({ kind: 'always', pred: as_predicate(pred) });
 /**
  *  Safety property: `P` holds in **no** reachable state (`always not P`).
- *
  *  @param pred - The forbidden predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  never(is_error);            // no error state is reachable
@@ -169,9 +150,7 @@ const never = (pred) => ({ kind: 'never', pred: as_predicate(pred) });
 /**
  *  Safety property: **some** reachable state satisfies `P`.  Succeeds with a
  *  witness trace.
- *
  *  @param pred - The target predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  reachable('Done');          // 'Done' can be reached from start
@@ -181,9 +160,7 @@ const reachable = (pred) => ({ kind: 'reachable', pred: as_predicate(pred) });
 /**
  *  Safety property: **no** reachable state satisfies `P` — the same query as
  *  {@link never}, named for symmetry with {@link reachable}.
- *
  *  @param pred - The target predicate, or a state name.
- *
  *  @example
  *  ```typescript
  *  unreachable('Crashed');     // 'Crashed' is never reached
@@ -193,9 +170,7 @@ const unreachable = (pred) => ({ kind: 'unreachable', pred: as_predicate(pred) }
 /**
  *  Dwyer **absence** pattern (globally): the target never occurs — alias for
  *  {@link unreachable}.
- *
  *  @param pred - The state name or predicate that must be absent.
- *
  *  @example
  *  ```typescript
  *  absence('Deadlock');        // "Deadlock is absent globally"
@@ -205,9 +180,7 @@ const absence = (pred) => unreachable(pred);
 /**
  *  Dwyer **existence** pattern (globally): the target eventually occurs on some
  *  path — alias for {@link reachable}.
- *
  *  @param pred - The state name or predicate that must exist.
- *
  *  @example
  *  ```typescript
  *  existence('Done');          // "Done exists globally"
@@ -221,16 +194,12 @@ const existence = (pred) => reachable(pred);
  *  Evaluate a {@link StatePredicate} against a single machine state.  Pure and
  *  total — every atom and connective is handled, recursion bottoms out at the
  *  finite predicate AST.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine, consulted read-only for state metadata.
  *  @param state   - The state name to test.
  *  @param pred    - The predicate to evaluate.
  *  @param errors  - The set of error-state names (for the {@link is_error} atom).
- *
  *  @returns `true` iff `state` satisfies `pred`.
- *
  *  @example
  *  ```typescript
  *  import { sm } from 'jssm';
@@ -240,31 +209,63 @@ const existence = (pred) => reachable(pred);
  */
 const eval_predicate = (machine, state, pred, errors) => {
     switch (pred.atom) {
-        case 'in_state': return state === pred.name;
-        case 'in_any': return pred.names.has(state);
-        case 'is_terminal': return machine.state_is_terminal(state);
-        case 'is_final': return machine.state_is_final(state);
-        case 'is_error': return errors.has(state);
-        case 'tautology': return true;
-        case 'contradiction': return false;
-        case 'not':
+        case 'in_state': {
+            return state === pred.name;
+        }
+        case 'in_any': {
+            return pred.names.has(state);
+        }
+        case 'is_terminal': {
+            return machine.state_is_terminal(state);
+        }
+        case 'is_final': {
+            return machine.state_is_final(state);
+        }
+        case 'is_error': {
+            return errors.has(state);
+        }
+        case 'tautology': {
+            return true;
+        }
+        case 'contradiction': {
+            return false;
+        }
+        case 'not': {
             return !eval_predicate(machine, state, pred.arg, errors);
-        case 'and':
+        }
+        case 'and': {
             return pred.args.every(p => eval_predicate(machine, state, p, errors));
-        case 'or':
+        }
+        case 'or': {
             return pred.args.some(p => eval_predicate(machine, state, p, errors));
+        }
     }
+};
+/**
+ *  One BFS discovery step for {@link reachable_predecessors}: if `next` has not
+ *  been reached yet, record `current` as its shortest-path predecessor and
+ *  enqueue it.  Mutates `predecessor` and `queue` in place; already-discovered
+ *  states are left untouched.
+ *  @param predecessor - The predecessor map under construction (mutated).
+ *  @param queue       - The BFS work queue (mutated).
+ *  @param next        - The candidate successor state.
+ *  @param current     - The state being expanded, i.e. the predecessor to record.
+ *  @see reachable_predecessors
+ */
+const discover_predecessor = (predecessor, queue, next, current) => {
+    if (predecessor.has(next)) {
+        return;
+    }
+    predecessor.set(next, current);
+    queue.push(next);
 };
 /**
  *  Breadth-first reachability from `starts`, recording, for each reached state,
  *  the immediate predecessor on its shortest path — enough to reconstruct a
  *  counterexample trace.  Pure: returns a fresh map, mutates nothing.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine, consulted read-only via {@link Machine.list_exits}.
  *  @param starts  - The frontier seed (already validated to exist).
- *
  *  @returns A map from each reachable state to its predecessor (`null` for a
  *  seed), in BFS discovery order.
  */
@@ -272,20 +273,18 @@ const reachable_predecessors = (machine, starts) => {
     const predecessor = new Map();
     const queue = [];
     for (const s of starts) {
-        if (!predecessor.has(s)) {
-            predecessor.set(s, null);
-            queue.push(s);
+        if (predecessor.has(s)) {
+            continue;
         }
+        predecessor.set(s, null);
+        queue.push(s);
     }
     // Manual head index avoids O(n) Array.shift on long frontiers.
     let head = 0;
     while (head < queue.length) {
         const current = queue[head++];
         for (const next of machine.list_exits(current)) {
-            if (!predecessor.has(next)) {
-                predecessor.set(next, current);
-                queue.push(next);
-            }
+            discover_predecessor(predecessor, queue, next, current);
         }
     }
     return predecessor;
@@ -294,10 +293,8 @@ const reachable_predecessors = (machine, starts) => {
  *  Reconstruct the shortest trace from a seed to `target`, walking the
  *  predecessor map produced by {@link reachable_predecessors} backwards and then
  *  reversing.
- *
  *  @param predecessor - The BFS predecessor map.
  *  @param target      - The state to trace back from (must be a key).
- *
  *  @returns The path of state names from a start state to `target`, inclusive.
  */
 const trace_to = (predecessor, target) => {
@@ -314,14 +311,10 @@ const trace_to = (predecessor, target) => {
  *  Resolve the start frontier for a run: the caller's {@link SafetyOptions.start_states}
  *  if given, else the machine's current state.  Every name is validated against
  *  the machine.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine - The machine to resolve against.
  *  @param starts  - The requested start states, or `undefined` for the default.
- *
  *  @returns The validated, de-duplicated start frontier.
- *
  *  @throws {Error} If a requested start state is not known to the machine.
  */
 const resolve_starts = (machine, starts) => {
@@ -347,18 +340,13 @@ const resolve_starts = (machine, starts) => {
  *
  *  Read-only: the machine is never mutated.  Deterministic: BFS discovery order
  *  fixes which shortest trace is reported.
- *
- *  @typeParam mDT - The machine's data type; usually omitted.
- *
+ *  @template mDT - The machine's data type; usually omitted.
  *  @param machine  - The machine to check.
  *  @param property - The safety property, e.g. from {@link always} / {@link absence}.
  *  @param options  - Error states and/or an explicit start frontier.
- *
  *  @returns A {@link SafetyResult} carrying the verdict and any counterexample
  *  or witness trace.
- *
  *  @throws {Error} If an explicit start state is not known to the machine.
- *
  *  @example
  *  An invariant that holds, then one that fails with a counterexample:
  *  ```typescript
@@ -377,16 +365,14 @@ const resolve_starts = (machine, starts) => {
  *  bad.holds;    // false
  *  bad.trace;    // ['idle', 'work', 'done'] — the replayable counterexample
  *  ```
- *
  *  @see absence
  *  @see reachable
  */
 const check_safety = (machine, property, options = {}) => {
-    var _a;
-    const errors = new Set((_a = options.error_states) !== null && _a !== void 0 ? _a : []);
+    const errors = new Set(options.error_states);
     const starts = resolve_starts(machine, options.start_states);
     const predecessor = reachable_predecessors(machine, starts);
-    const reached = Array.from(predecessor.keys());
+    const reached = [...predecessor.keys()];
     const states_explored = reached.length;
     // `always P` and `reachable P` differ only in what counts as the witness and
     // how the verdict reads, so reduce both to a single "find the marked state".
@@ -429,12 +415,9 @@ const check_safety = (machine, property, options = {}) => {
  *  Tests whether a node carries a given label.  A node with no `labels` array,
  *  or one whose array omits `label`, does **not** carry it (closed-world).
  *  Pure.
- *
  *  @param node  - The node whose labels are inspected.
  *  @param label - The atomic proposition to look for.
- *
  *  @returns `true` when `node` carries `label`, otherwise `false`.
- *
  *  @example
  *  ```typescript
  *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'x');   // true
@@ -442,17 +425,14 @@ const check_safety = (machine, property, options = {}) => {
  *  node_has_label({ id: 'a' },                     'x');   // false
  *  ```
  */
-const node_has_label = (node, label) => Array.isArray(node.labels) && node.labels.indexOf(label) !== -1;
+const node_has_label = (node, label) => Array.isArray(node.labels) && node.labels.includes(label);
 /**
  *  Build an adjacency map from a graph's edges: each node id mapped to the list
  *  of ids directly reachable in one step.  Nodes appearing only as edge
  *  sources, only as edge targets, or only in the node list are all represented,
  *  so callers can index any declared id without an undefined hole.  Pure.
- *
  *  @param graph - The verification graph to index.
- *
  *  @returns A `Map` from node id to its array of one-step successor ids.
- *
  *  @example
  *  ```typescript
  *  build_adjacency({
@@ -487,6 +467,24 @@ const build_adjacency = (graph) => {
     return adjacency;
 };
 /**
+ *  One BFS discovery step for {@link bfs_find_path}: if `successor` has not
+ *  been visited yet, mark it visited and add it to the next frontier with the
+ *  witness path extended by one hop.  Mutates `visited` and `next_frontier` in
+ *  place; already-visited states are left untouched.
+ *  @param visited       - The set of already-discovered state ids (mutated).
+ *  @param next_frontier - The frontier being built for the next BFS layer (mutated).
+ *  @param successor     - The candidate successor state id.
+ *  @param path          - The witness path that reached the current node (read-only).
+ *  @see bfs_find_path
+ */
+const discover_frontier_node = (visited, next_frontier, successor, path) => {
+    if (visited.has(successor)) {
+        return;
+    }
+    visited.add(successor);
+    next_frontier.push({ id: successor, path: [...path, successor] });
+};
+/**
  *  Search a graph for a node satisfying `predicate` reachable from any start
  *  state, by breadth-first exploration, returning the **shortest** witness path
  *  (start → … → satisfying node) — or `undefined` when no reachable node
@@ -496,14 +494,11 @@ const build_adjacency = (graph) => {
  *  Finite and terminating on any graph: each node is enqueued at most once.
  *  Start states with no declared node still seed the frontier (the search stays
  *  total over slightly-malformed fixtures rather than throwing).  Pure.
- *
  *  @param graph     - The verification graph to search.
  *  @param predicate - Tested against the *node object* for each id reached; the
  *                     id is paired with its declared node, or a bare `{ id }`
  *                     stand-in when the id has no declared node.
- *
  *  @returns The shortest path to a satisfying node, or `undefined` if none.
- *
  *  @example
  *  ```typescript
  *  bfs_find_path(graph, node => node_has_label(node, 'error'));
@@ -523,10 +518,11 @@ const bfs_find_path = (graph, predicate) => {
     // it, so the witness is reconstructed without ever indexing an array.
     let frontier = [];
     for (const start of graph.start_states) {
-        if (!visited.has(start)) {
-            visited.add(start);
-            frontier.push({ id: start, path: [start] });
+        if (visited.has(start)) {
+            continue;
         }
+        visited.add(start);
+        frontier.push({ id: start, path: [start] });
     }
     while (frontier.length > 0) {
         const next_frontier = [];
@@ -536,10 +532,7 @@ const bfs_find_path = (graph, predicate) => {
             }
             const successors = (_a = adjacency.get(item.id)) !== null && _a !== void 0 ? _a : [];
             for (const successor of successors) {
-                if (!visited.has(successor)) {
-                    visited.add(successor);
-                    next_frontier.push({ id: successor, path: [...item.path, successor] });
-                }
+                discover_frontier_node(visited, next_frontier, successor, item.path);
             }
         }
         frontier = next_frontier;
@@ -559,17 +552,12 @@ const bfs_find_path = (graph, predicate) => {
  *    `holds: true`, no witness.
  *
  *  Pure: depends only on its arguments and returns a fresh result.
- *
  *  @param graph    - The lowered, host-agnostic graph to verify over.
  *  @param property - The safety property to discharge.
- *
  *  @returns A {@link GraphSafetyResult} — proved (`holds: true`) or refuted
  *  (`holds: false`, with a counterexample `witness` where one exists).
- *
  *  @throws {Error} If `property.kind` is not a recognized safety kind.
- *
  *  @see check_all_graph_safety
- *
  *  @example
  *  ```typescript
  *  // an invariant that holds (proved, no witness)
@@ -598,18 +586,15 @@ const check_graph_safety = (graph, property) => {
             ? { holds: true, property }
             : { holds: false, witness: counterexample, property };
     }
-    throw new Error(`fsl_verify: unknown safety property kind "${property.kind}"`);
+    throw new Error(`fsl_verify: unknown safety property kind "${(property).kind}"`);
 };
 /**
  *  Discharge a batch of {@link GraphSafetyProperty} values against one graph,
  *  preserving input order.  A thin, pure convenience over
  *  {@link check_graph_safety} for a property suite (`test reaches Done;` etc.).
- *
  *  @param graph      - The graph to verify over.
  *  @param properties - The properties to discharge, in order.
- *
  *  @returns One {@link GraphSafetyResult} per input property, in the same order.
- *
  *  @example
  *  ```typescript
  *  check_all_graph_safety(traffic, [

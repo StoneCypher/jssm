@@ -1,5 +1,17 @@
-import { RasterizationUnsupportedError, RenderError } from '../../types.js';
-import { bundledFontBytes } from './bundled-font.js';
+/**
+ * SVG rasterization to PNG/JPEG (encoded) and raw RGBA pixels, shared by the
+ * FSL Markdown fence renderer (`fsl_fence_render.ts`) and the CLI's raster
+ * targets.
+ *
+ * Lives at the fence/core level rather than under `cli/`: jssm-fence may not
+ * depend on jssm-cli (package layering runs core -> viz -> fence -> cli), and
+ * the fence renderer needs this rasterizer directly. For backward
+ * compatibility with the CLI's own imports, the former
+ * `cli/subcommands/render/rasterize.ts` now re-exports from this module, and
+ * its `bundled-font.ts` sibling re-exports from `fsl_rasterize_font.ts`.
+ */
+import { RasterizationUnsupportedError, RenderError } from './fsl_rasterize_errors.js';
+import { bundledFontBytes } from './fsl_rasterize_font.js';
 const mimeOf = (target) => target === 'jpeg' ? 'image/jpeg' : 'image/png';
 // A `--scale` of 100 (percent) renders at this multiple of the SVG's natural
 // size. jssm's SVGs use ~6px edge labels — unreadably small at 1:1 — so the

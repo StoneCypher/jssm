@@ -37,7 +37,7 @@
  *  audit-flagged loose escape type.
  *
  */
-declare type FslAcyclic = null | undefined | boolean | number | string | FslAcyclic[] | {
+type FslAcyclic = null | undefined | boolean | number | string | FslAcyclic[] | {
     [key: string]: FslAcyclic;
 };
 /*******
@@ -55,7 +55,7 @@ declare type FslAcyclic = null | undefined | boolean | number | string | FslAcyc
  *  ```
  *
  */
-declare type AdtValue = {
+type AdtValue = {
     readonly adt: string;
     readonly fields: Readonly<Record<string, FslAcyclic>>;
 };
@@ -383,7 +383,7 @@ declare function nullable_check(value: FslAcyclic, nullable: boolean): FslAcycli
  *  alias name (a string), which {@link resolve_alias} chases transitively.
  *
  */
-declare type AliasEnv = Readonly<Record<string, FslAcyclic>>;
+type AliasEnv = Readonly<Record<string, FslAcyclic>>;
 /*******
  *
  *  Builds a {@link AliasEnv} from a plain record of alias definitions (§4.4),
@@ -457,7 +457,7 @@ declare function resolve_alias(env: AliasEnv, name: string): FslAcyclic;
  *  ```
  *
  */
-declare type FnValue = {
+type FnValue = {
     readonly fn: string;
     readonly captures: Readonly<Record<string, FslAcyclic>>;
 };
@@ -593,6 +593,26 @@ declare function fn_hash(value: FnValue): string;
  *
  */
 declare function lambda_tag(normalized_source: string): string;
+/*******
+ *
+ *  Orders two object keys by UTF-16 code unit — exactly the order the default
+ *  comparator-less `Array.prototype.sort` gives an all-string array — so the
+ *  §15 canonical serialization and the key-set walks stay byte-stable and
+ *  locale-independent.
+ *
+ *  ```typescript
+ *  ['b', 'a', 'Z'].sort(key_compare);   // ['Z', 'a', 'b']
+ *  ```
+ *
+ *  @param a - The left key.
+ *  @param b - The right key.
+ *
+ *  @returns `-1`, `0`, or `1` as `a` sorts before, equal to, or after `b`.
+ *
+ *  @see canonical_json
+ *
+ */
+declare function key_compare(a: string, b: string): -1 | 0 | 1;
 /*******
  *
  *  Canonical serialization for every acyclic FSL value (§15): a deterministic
@@ -740,4 +760,4 @@ declare function assert_acyclic(value: FslAcyclic): void;
  *
  */
 declare function deep_freeze_copy(value: FslAcyclic): FslAcyclic;
-export { FslAcyclic, AdtValue, variant, is_variant, variant_tag, variant_field, match, some, none, is_some, is_none, option_unwrap_or, option_map, option_of_nullable, nullable_of_option, nullable_check, AliasEnv, make_alias_env, resolve_alias, FnValue, fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag, canonical_json, snapshot_value, hash_value, deep_equal, assert_acyclic, deep_freeze_copy };
+export { FslAcyclic, AdtValue, variant, is_variant, variant_tag, variant_field, match, some, none, is_some, is_none, option_unwrap_or, option_map, option_of_nullable, nullable_of_option, nullable_check, AliasEnv, make_alias_env, resolve_alias, FnValue, fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag, key_compare, canonical_json, snapshot_value, hash_value, deep_equal, assert_acyclic, deep_freeze_copy };

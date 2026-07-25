@@ -121,7 +121,7 @@ function describe_fields(fields) {
     if (fields.bound !== undefined) {
         parts.push(`bound ${fields.bound}`);
     }
-    return parts.length ? ` (${parts.join(', ')})` : '';
+    return parts.length > 0 ? ` (${parts.join(', ')})` : '';
 }
 /*******
  *
@@ -179,10 +179,8 @@ class FslError extends Error {
  */
 /**
  *  A `/`, `mod`, `rem`, or `div` was evaluated with a zero divisor.
- *
  *  @param entity - The named operand/expression whose divisor was zero.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw div_by_zero_error('rate');
  *  // FslError: div_by_zero: division by zero (entity "rate")
@@ -193,12 +191,10 @@ function div_by_zero_error(entity, source_location) {
 /**
  *  An index or slice fell outside an indexed container (string, array,
  *  bytearray, …).
- *
  *  @param entity - The named container that was indexed.
  *  @param index  - The offending index.
  *  @param length - The valid length/size of the container.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw out_of_bounds_error('items', 5, 3);
  *  // FslError: out_of_bounds: index out of bounds (entity "items", index 5, length 3)
@@ -209,12 +205,10 @@ function out_of_bounds_error(entity, index, length, source_location) {
 /**
  *  A fixed-width numeric result exceeded the declared upper bound (the default
  *  error-on-overflow behavior of §4.1 — no wrapping).
- *
  *  @param entity      - The named value/expression that overflowed.
  *  @param value       - The computed value that left range.
  *  @param upper_bound - The inclusive maximum of the declared type.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw overflow_error('count', 256, 255);
  *  // FslError: overflow: numeric overflow (entity "count", value 256, max 255)
@@ -225,12 +219,10 @@ function overflow_error(entity, value, upper_bound, source_location) {
 /**
  *  A fixed-width numeric result fell below the declared lower bound (the
  *  negative-side partner of {@link overflow_error}).
- *
  *  @param entity      - The named value/expression that underflowed.
  *  @param value       - The computed value that left range.
  *  @param lower_bound - The inclusive minimum of the declared type.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw underflow_error('balance', -1, 0);
  *  // FslError: underflow: numeric underflow (entity "balance", value -1, min 0)
@@ -241,12 +233,10 @@ function underflow_error(entity, value, lower_bound, source_location) {
 /**
  *  A statically-forbidden mixing was reached dynamically — a cross-type
  *  comparison or an incompatible dimensioned-unit operation (§6, §4.5).
- *
  *  @param expected_type - The type the operation required.
  *  @param actual_type   - The type actually presented.
  *  @param entity        - Optional named operand/expression at fault.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw type_error('int', 'string', 'x');
  *  // FslError: type_error: type mismatch (entity "x", expected int, actual string)
@@ -257,12 +247,10 @@ function type_error(expected_type, actual_type, entity, source_location) {
 /**
  *  An `any`/`option`/variant narrowing (`case`) did not match the runtime tag
  *  (§4.4, §13).
- *
  *  @param expected_type - The variant/type the narrow expected.
  *  @param actual_type   - The variant/type actually present.
  *  @param entity        - Optional named scrutinee.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw failed_narrow_error('some', 'none', 'lookup');
  *  // FslError: failed_narrow: narrowing failed (entity "lookup", expected some, actual none)
@@ -272,11 +260,9 @@ function failed_narrow_error(expected_type, actual_type, entity, source_location
 }
 /**
  *  A Design-by-Contract obligation did not hold (§10).
- *
  *  @param contract - Which obligation breached (`require`/`ensure`/`invariant`).
  *  @param entity   - The named contract/expression that failed.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw contract_violation_error('require', 'nonempty');
  *  // FslError: contract_violation: contract violated (entity "nonempty", contract require)
@@ -287,10 +273,8 @@ function contract_violation_error(contract, entity, source_location) {
 /**
  *  A `val`/`prop`/`sensor` was read before it held a value — no `default`, none
  *  supplied at construction, and `required` unmet (§5).
- *
  *  @param entity - The named slot that was read unbound.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw unbound_value_error('verified');
  *  // FslError: unbound_value: value is unbound (entity "verified")
@@ -301,10 +285,8 @@ function unbound_value_error(entity, source_location) {
 /**
  *  An ordering comparison (`<`, `<=`, `>`, `>=`) was attempted against a `NaN`,
  *  where IEEE makes the result meaningless (§4.1 — use the total `compare`).
- *
  *  @param entity - Optional named operand that was `NaN`.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw nan_compare_error('ratio');
  *  // FslError: nan_compare: ordering comparison against NaN (entity "ratio")
@@ -315,10 +297,8 @@ function nan_compare_error(entity, source_location) {
 /**
  *  RTC settling exceeded the microstep bound (§12, §13) — a non-stabilizing
  *  eventless cycle that never reached a stable configuration.
- *
  *  @param bound - The configured microstep bound that was hit.
  *  @param source_location - Optional source span of the offending expression.
- *
  *  @example
  *  throw microstep_overflow_error(100000);
  *  // FslError: microstep_overflow: microstep bound exceeded (bound 100000)

@@ -57,11 +57,9 @@ import { FslError } from './fsl_errors';
  *  `NaN` and `±Infinity` are rejected even though they are `number`s: neither is
  *  a usable key (`NaN` never compares equal to itself; infinities are not finite
  *  scalars), so a key built from one could never be read back.
- *
  *  @param key   The offending value supplied where a key / member was required.
  *  @param role  What it was being used as — `'key'` (map) or `'member'` (set) —
  *               so the message names the right role.
- *
  *  @example
  *    try { map_get(map_of<number>([]), {} as never); }
  *    catch (e) {
@@ -85,9 +83,7 @@ class ContainerKeyError extends FslError {
  *  subclass of {@link FslError} (taxonomy `kind === 'out_of_bounds'`) so a
  *  genuine miss can be told apart from any other failure by either
  *  `instanceof ContainerRangeError` or the shared `error.kind` discriminant.
- *
  *  @param message  Human-readable description of what was out of range.
- *
  *  @example
  *    try { list_at(list_of(1), 5); }
  *    catch (e) {
@@ -110,10 +106,8 @@ class ContainerRangeError extends FslError {
  *  **finite** number (rejecting `NaN` and `±Infinity`).  The boolean companion
  *  to {@link require_scalar}, which throws on the same inputs this returns
  *  `false` for; exposed so callers can test a candidate key without a try/catch.
- *
  *  @param value  The candidate key or member.
  *  @returns      `true` iff `value` is a usable container key / member.
- *
  *  @example
  *    is_container_key('a')        // → true
  *    is_container_key(3)          // → true
@@ -132,13 +126,11 @@ function is_container_key(value) {
  *  (a finite number or a string).  `NaN`, `±Infinity`, booleans, objects, and
  *  `null`/`undefined` are all refused, because none of them has the stable,
  *  decidable equality and ordering a key store requires.
- *
  *  @param key   The candidate member or key.
  *  @param role  Whether it is used as a map `'key'` or a set `'member'`; only
  *               affects the error wording.  Defaults to `'key'`.
  *  @returns     The same value, narrowed to {@link Scalar}, when it is valid.
  *  @throws      {ContainerKeyError} when `key` is not a finite number or string.
- *
  *  @example
  *    require_scalar('a')              // → 'a'
  *    require_scalar(7)                // → 7
@@ -155,14 +147,16 @@ function require_scalar(key, role = 'key') {
  *  Render an arbitrary rejected key as a short, safe string for an error
  *  message.  Kept separate so {@link require_scalar} stays a single clear
  *  expression and the (rarely-hit) formatting branch is testable on its own.
- *
+ *  Objects, arrays, and functions are rendered by brand (`[object Object]`,
+ *  `[object Array]`, …) rather than by their own `toString`, so a hostile or
+ *  null-prototype key can never break — or spoof — the error message.
  *  @param key  The rejected value.
  *  @returns    A human-readable description.
- *
  *  @example
  *    stringify_for_error(NaN)         // → 'NaN'
  *    stringify_for_error(undefined)   // → 'undefined'
  *    stringify_for_error({})          // → '[object Object]'
+ *    stringify_for_error([1, 2])      // → '[object Array]'
  */
 function stringify_for_error(key) {
     if (typeof key === 'number') {
@@ -171,7 +165,23 @@ function stringify_for_error(key) {
     if (typeof key === 'string') {
         return JSON.stringify(key);
     }
-    return String(key);
+    if (typeof key === 'boolean') {
+        return String(key);
+    }
+    if (typeof key === 'bigint') {
+        return String(key);
+    }
+    if (typeof key === 'symbol') {
+        return String(key);
+    }
+    if (key === null) {
+        return 'null';
+    }
+    if (key === undefined) {
+        return 'undefined';
+    }
+    // Objects get the brand render, never their own (possibly absent) toString
+    return Object.prototype.toString.call(key);
 }
 /**
  *  Total order over decidable scalars, used to put set members and map keys in
@@ -180,11 +190,9 @@ function stringify_for_error(key) {
  *  within a type, numbers sort numerically and strings sort by UTF-16 code
  *  unit (`<`).  Total and antisymmetric, so it never reports two distinct
  *  scalars as equal.
- *
  *  @param a  The left scalar.
  *  @param b  The right scalar.
  *  @returns  `-1`, `0`, or `1` as `a` sorts before, equal to, or after `b`.
- *
  *  @example
  *    scalar_compare(1, 2)       // → -1
  *    scalar_compare(9, 'a')     // → -1   (numbers precede strings)
@@ -215,39 +223,33 @@ function scalar_compare(a, b) {
  *  and duplicates are kept (a list is ordered, not a set).  The backing array
  *  is copied and frozen, so later mutation of the argument list can never reach
  *  inside the container.
- *
  *  @param items  The elements, in order.
  *  @returns      A new immutable {@link FslList}.
- *
  *  @example
  *    list_of(1, 2, 3)     // → list [1, 2, 3]
  *    list_of()            // → empty list []
  *    list_of('a', 'a')    // → list ['a', 'a']  (duplicates kept)
  */
 function list_of(...items) {
-    return { kind: 'list', items: Object.freeze(items.slice()) };
+    return { kind: 'list', items: Object.freeze([...items]) };
 }
 /**
  *  Construct a §4.2 **list** from an existing array (the form the `[…]` literal
  *  lowers to).  Like {@link list_of} but takes the elements as one array
  *  argument rather than as rest parameters.
- *
  *  @param items  The source array; copied defensively.
  *  @returns      A new immutable {@link FslList}.
- *
  *  @example
  *    list_from([1, 2, 3])   // → list [1, 2, 3]
  *    list_from([])          // → empty list []
  */
 function list_from(items) {
-    return { kind: 'list', items: Object.freeze(items.slice()) };
+    return { kind: 'list', items: Object.freeze([...items]) };
 }
 /**
  *  Element count of a list — the §4.2 `length`.
- *
  *  @param list  The list.
  *  @returns     The number of elements.
- *
  *  @example
  *    list_length(list_of(1, 2, 3))   // → 3
  *    list_length(list_of())          // → 0
@@ -260,11 +262,9 @@ function list_length(list) {
  *  when it lands outside `0 .. length-1`.  Negative indices count from the back
  *  (`-1` is the last element), the §8 / §4.2 convention shared across the
  *  language.
- *
  *  @param index   The requested index; may be negative.
  *  @param length  The list length.
  *  @returns       The resolved in-range index, or `undefined` if out of range.
- *
  *  @example
  *    resolve_list_index(0, 3)    // → 0
  *    resolve_list_index(-1, 3)   // → 2
@@ -278,11 +278,9 @@ function resolve_list_index(index, length) {
 /**
  *  Read the element at `index` — §4.2 access.  Supports negative-from-the-back
  *  indexing; an out-of-range index yields `undefined`.
- *
  *  @param list   The list.
  *  @param index  The position; negative counts from the back.
  *  @returns      The element, or `undefined` if out of range.
- *
  *  @example
  *    list_get(list_of(10, 20, 30), 1)    // → 20
  *    list_get(list_of(10, 20, 30), -1)   // → 30
@@ -300,12 +298,10 @@ function list_get(list, index) {
  *  `undefined`, so an out-of-range index is never silently confused with a
  *  stored `undefined`.  Negative-from-the-back indexing applies, same as
  *  {@link list_get}; for the lenient form use {@link list_get}.
- *
  *  @param list   The list.
  *  @param index  The position; negative counts from the back.
  *  @returns      The element at the resolved index.
  *  @throws       {ContainerRangeError} if the resolved index is out of range.
- *
  *  @example
  *    list_at(list_of(10, 20, 30), 1)    // → 20
  *    list_at(list_of(10, 20, 30), -1)   // → 30
@@ -323,12 +319,10 @@ function list_at(list, index) {
  *  §4.2 update (`items[i] := x` of §9, in its pure form).  The input is never
  *  mutated.  An out-of-range index returns the list unchanged (no element is
  *  appended and nothing is dropped); negative-from-the-back indexing applies.
- *
  *  @param list   The source list.
  *  @param index  The position to overwrite; negative counts from the back.
  *  @param value  The replacement element.
  *  @returns      A new list, or the original (by value) when `index` is out of range.
- *
  *  @example
  *    list_set(list_of(1, 2, 3), 1, 9)     // → list [1, 9, 3]
  *    list_set(list_of(1, 2, 3), -1, 9)    // → list [1, 2, 9]
@@ -339,17 +333,15 @@ function list_set(list, index, value) {
     if (at === undefined) {
         return list;
     }
-    const next = list.items.slice();
+    const next = [...list.items];
     next[at] = value;
     return { kind: 'list', items: Object.freeze(next) };
 }
 /**
  *  Return a copy of `list` with `value` appended — §4.2 push.
- *
  *  @param list   The source list.
  *  @param value  The element to append.
  *  @returns      A new list one element longer.
- *
  *  @example
  *    list_push(list_of(1, 2), 3)   // → list [1, 2, 3]
  *    list_push(list_of(), 'x')     // → list ['x']
@@ -361,10 +353,8 @@ function list_push(list, value) {
  *  Return a copy of `list` with its last element removed, paired with that
  *  element — §4.2 pop.  On an empty list returns the empty list and `undefined`
  *  (total: pop never throws).
- *
  *  @param list  The source list.
  *  @returns     A `[remaining, popped]` pair; `popped` is `undefined` when empty.
- *
  *  @example
  *    list_pop(list_of(1, 2, 3))   // → [ list [1, 2], 3 ]
  *    list_pop(list_of())          // → [ list [], undefined ]
@@ -373,7 +363,7 @@ function list_pop(list) {
     if (list.items.length === 0) {
         return [list, undefined];
     }
-    const next = list.items.slice();
+    const next = [...list.items];
     const popped = next.pop();
     return [{ kind: 'list', items: Object.freeze(next) }, popped];
 }
@@ -381,12 +371,10 @@ function list_pop(list) {
  *  Half-open code-index slice `[lo, hi)` of a list, with negative-from-the-back
  *  bounds and clamping — §4.2 slice.  Omitting `hi` slices to the end.  Always
  *  returns a new list (a copy even when it spans the whole input).
- *
  *  @param list  The source list.
  *  @param lo    Start bound (inclusive); negative counts from the back.
  *  @param hi    End bound (exclusive); negative counts from the back; defaults to the end.
  *  @returns     A new list of the selected elements.
- *
  *  @example
  *    list_slice(list_of(1, 2, 3, 4), 1, 3)    // → list [2, 3]
  *    list_slice(list_of(1, 2, 3, 4), 1)       // → list [2, 3, 4]
@@ -401,11 +389,9 @@ function list_slice(list, lo, hi) {
  *  `in` over a list (§6 "structural deep equality for containers/ADTs").  Unlike
  *  set membership this is a linear scan and compares *values* deeply, so a list
  *  of containers matches on structure, not reference.
- *
  *  @param list   The list to scan.
  *  @param value  The element to look for.
  *  @returns      `true` iff some element is structurally equal to `value`.
- *
  *  @example
  *    list_includes(list_of(1, 2, 3), 2)                    // → true
  *    list_includes(list_of(1, 2, 3), 9)                    // → false
@@ -422,11 +408,9 @@ function list_includes(list, value) {
  *  lowers to).  Members must be numbers or strings (§4.2); duplicates collapse
  *  by `SameValueZero`, and first-insertion order is preserved for iteration
  *  (canonical order is applied only at snapshot/compare time).
- *
  *  @param members  The candidate members; numbers / strings only.
  *  @returns        A new immutable {@link FslSet} of the distinct members.
  *  @throws         `Error` if any member is not a finite number or string.
- *
  *  @example
  *    set_of(1, 2, 3)        // → set {1, 2, 3}
  *    set_of(1, 1, 2)        // → set {1, 2}     (deduped)
@@ -439,11 +423,9 @@ function set_of(...members) {
  *  Construct a §4.2 **set** from an array of candidate members.  Like
  *  {@link set_of} but takes the members as one array argument; this is the
  *  shared builder both `set_of` and the deserialiser call.
- *
  *  @param members  The candidate members; numbers / strings only.
  *  @returns        A new immutable {@link FslSet} of the distinct members.
  *  @throws         `Error` if any member is not a finite number or string.
- *
  *  @example
  *    set_from([1, 2, 2, 3])   // → set {1, 2, 3}
  *    set_from([])             // → empty set {}
@@ -460,10 +442,8 @@ function set_from(members) {
 }
 /**
  *  Member count of a set — its §4.2 `size`.
- *
  *  @param set  The set.
  *  @returns    The number of distinct members.
- *
  *  @example
  *    set_size(set_of(1, 2, 3))   // → 3
  *    set_size(set_of(1, 1))      // → 1
@@ -475,12 +455,10 @@ function set_size(set) {
  *  Test membership — §4.2 `in` over a set.  Uses `SameValueZero` (the same
  *  equality the constructor dedupes by), so it is O(n) but exact for the
  *  number / string member domain.
- *
  *  @param set     The set.
  *  @param member  The candidate member.
  *  @returns       `true` iff `member` is in the set.
  *  @throws        {ContainerKeyError} if `member` is not a finite number or string.
- *
  *  @example
  *    set_has(set_of(1, 2, 3), 2)     // → true
  *    set_has(set_of(1, 2, 3), 9)     // → false
@@ -493,12 +471,10 @@ function set_has(set, member) {
  *  Return a copy of `set` with `member` added — §4.2 set update.  Adding a
  *  member already present returns the original set (by value), so `set_add` is
  *  idempotent.
- *
  *  @param set     The source set.
  *  @param member  The member to add; number / string only.
  *  @returns       A new set including `member`, or the original if already present.
  *  @throws        `Error` if `member` is not a finite number or string.
- *
  *  @example
  *    set_add(set_of(1, 2), 3)    // → set {1, 2, 3}
  *    set_add(set_of(1, 2), 2)    // → set {1, 2}      (idempotent)
@@ -513,12 +489,10 @@ function set_add(set, member) {
 /**
  *  Return a copy of `set` with `member` removed — §4.2 set update.  Removing a
  *  member that is absent returns the original set (by value).
- *
  *  @param set     The source set.
  *  @param member  The member to remove.
  *  @returns       A new set without `member`, or the original if it was absent.
  *  @throws        {ContainerKeyError} if `member` is not a finite number or string.
- *
  *  @example
  *    set_remove(set_of(1, 2, 3), 2)   // → set {1, 3}
  *    set_remove(set_of(1, 2, 3), 9)   // → set {1, 2, 3}  (absent, unchanged)
@@ -535,11 +509,9 @@ function set_remove(set, member) {
  *  Union of two sets — every member of either — §4.2 set algebra.  The result
  *  keeps left-then-right first-insertion order (canonicalised only at
  *  snapshot/compare time).
- *
  *  @param a  The left set.
  *  @param b  The right set.
  *  @returns  A new set containing every member of `a` or `b`.
- *
  *  @example
  *    set_union(set_of(1, 2), set_of(2, 3))   // → set {1, 2, 3}
  *    set_union(set_of(), set_of(1))          // → set {1}
@@ -549,11 +521,9 @@ function set_union(a, b) {
 }
 /**
  *  Intersection of two sets — members in both — §4.2 set algebra.
- *
  *  @param a  The left set.
  *  @param b  The right set.
  *  @returns  A new set of members present in both `a` and `b`.
- *
  *  @example
  *    set_intersection(set_of(1, 2, 3), set_of(2, 3, 4))   // → set {2, 3}
  *    set_intersection(set_of(1), set_of(2))               // → empty set {}
@@ -564,11 +534,9 @@ function set_intersection(a, b) {
 }
 /**
  *  Difference `a \ b` — members of `a` not in `b` — §4.2 set algebra.
- *
  *  @param a  The set to subtract from.
  *  @param b  The set whose members are removed.
  *  @returns  A new set of members in `a` but not `b`.
- *
  *  @example
  *    set_difference(set_of(1, 2, 3), set_of(2))   // → set {1, 3}
  *    set_difference(set_of(1, 2), set_of(1, 2))   // → empty set {}
@@ -586,11 +554,9 @@ function set_difference(a, b) {
  *  may be any type.  A repeated key keeps the **last** value (later entries win,
  *  matching object-literal semantics), and first-insertion key order is
  *  preserved for iteration.
- *
  *  @param entries  The `[key, value]` pairs.
  *  @returns        A new immutable {@link FslMap}.
  *  @throws         `Error` if any key is not a finite number or string.
- *
  *  @example
  *    map_of([['a', 1], ['b', 2]])     // → map {'a': 1, 'b': 2}
  *    map_of([['a', 1], ['a', 9]])     // → map {'a': 9}   (last wins)
@@ -614,10 +580,8 @@ function map_of(entries) {
 }
 /**
  *  Entry count of a map — its §4.2 `size`.
- *
  *  @param map  The map.
  *  @returns    The number of key/value entries.
- *
  *  @example
  *    map_size(map_of([['a', 1], ['b', 2]]))   // → 2
  *    map_size(map_of([]))                     // → 0
@@ -628,12 +592,10 @@ function map_size(map) {
 /**
  *  Test key presence — §4.2 `has`.  Distinct from {@link map_get}, because a
  *  key may legitimately map to `undefined` as a value.
- *
  *  @param map  The map.
  *  @param key  The key to test.
  *  @returns    `true` iff `key` has an entry.
  *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
- *
  *  @example
  *    map_has(map_of([['a', 1]]), 'a')   // → true
  *    map_has(map_of([['a', 1]]), 'z')   // → false
@@ -645,12 +607,10 @@ function map_has(map, key) {
  *  Read the value at `key` — §4.2 map access.  Returns `undefined` for an
  *  absent key (use {@link map_has} to distinguish "absent" from "present with
  *  value `undefined`").
- *
  *  @param map  The map.
  *  @param key  The key to read.
  *  @returns    The value, or `undefined` if the key is absent.
  *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
- *
  *  @example
  *    map_get(map_of([['a', 1], ['b', 2]]), 'b')   // → 2
  *    map_get(map_of([['a', 1]]), 'z')             // → undefined
@@ -667,13 +627,11 @@ function map_get(map, key) {
  *  returning `undefined`, so a miss is never confused with a key stored with
  *  value `undefined`.  For the lenient form use {@link map_get}; for a default
  *  fallback use {@link map_get_or}.
- *
  *  @param map  The map.
  *  @param key  The key to read.
  *  @returns    The value stored under `key`.
  *  @throws     {ContainerKeyError}   if `key` is not a finite number or string.
  *  @throws     {ContainerRangeError} if `key` is absent from the map.
- *
  *  @example
  *    map_get_strict(map_of([['a', 1]]), 'a')   // → 1
  *    map_get_strict(map_of([['a', 1]]), 'z')   // throws ContainerRangeError
@@ -692,32 +650,28 @@ function map_get_strict(map, key) {
  *  when the key is absent.  The middle ground between lenient {@link map_get}
  *  (returns `undefined` on a miss) and strict {@link map_get_strict} (throws):
  *  the caller supplies the miss value.
- *
  *  @param map       The map.
  *  @param key       The key to read.
  *  @param fallback  Value returned when `key` is absent.
  *  @returns         The stored value, or `fallback` if `key` is absent.
  *  @throws          {ContainerKeyError} if `key` is not a finite number or string.
- *
  *  @example
  *    map_get_or(map_of([['a', 1]]), 'a', 0)   // → 1
  *    map_get_or(map_of([['a', 1]]), 'z', 0)   // → 0   (absent → fallback)
  */
 function map_get_or(map, key, fallback) {
     const at = map.keys.indexOf(require_scalar(key));
-    return at === -1 ? fallback : map.values[at];
+    return at === -1 ? fallback : (map.values[at]);
 }
 /**
  *  Return a copy of `map` with `key` set to `value` — §4.2 map update
  *  (`rec.f := y` of §9, in its pure form).  Updating an existing key keeps its
  *  position; a new key is appended.
- *
  *  @param map    The source map.
  *  @param key    The key to set; number / string only.
  *  @param value  The value to store; any type.
  *  @returns      A new map with the entry set.
  *  @throws       `Error` if `key` is not a finite number or string.
- *
  *  @example
  *    map_put(map_of([['a', 1]]), 'b', 2)   // → map {'a': 1, 'b': 2}
  *    map_put(map_of([['a', 1]]), 'a', 9)   // → map {'a': 9}   (replaces in place)
@@ -732,19 +686,17 @@ function map_put(map, key, value) {
             values: Object.freeze([...map.values, value])
         };
     }
-    const values = map.values.slice();
+    const values = [...map.values];
     values[at] = value;
     return { kind: 'map', keys: map.keys, values: Object.freeze(values) };
 }
 /**
  *  Return a copy of `map` with `key`'s entry removed — §4.2 map update.
  *  Removing an absent key returns the original map (by value).
- *
  *  @param map  The source map.
  *  @param key  The key to delete.
  *  @returns    A new map without `key`, or the original if it was absent.
  *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
- *
  *  @example
  *    map_remove(map_of([['a', 1], ['b', 2]]), 'a')   // → map {'b': 2}
  *    map_remove(map_of([['a', 1]]), 'z')             // → map {'a': 1}  (absent, unchanged)
@@ -754,43 +706,37 @@ function map_remove(map, key) {
     if (at === -1) {
         return map;
     }
-    const keys = map.keys.slice();
-    const values = map.values.slice();
+    const keys = [...map.keys];
+    const values = [...map.values];
     keys.splice(at, 1);
     values.splice(at, 1);
     return { kind: 'map', keys: Object.freeze(keys), values: Object.freeze(values) };
 }
 /**
  *  All keys of a map, in first-insertion order — §4.2 `keys`.
- *
  *  @param map  The map.
  *  @returns    A fresh array of the keys.
- *
  *  @example
  *    map_keys(map_of([['a', 1], ['b', 2]]))   // → ['a', 'b']
  */
 function map_keys(map) {
-    return map.keys.slice();
+    return [...map.keys];
 }
 /**
  *  All values of a map, in key-insertion order — §4.2 `values`.
- *
  *  @param map  The map.
  *  @returns    A fresh array of the values.
- *
  *  @example
  *    map_values(map_of([['a', 1], ['b', 2]]))   // → [1, 2]
  */
 function map_values(map) {
-    return map.values.slice();
+    return [...map.values];
 }
 /**
  *  All `[key, value]` entries of a map, in key-insertion order — §4.2
  *  `entries`.
- *
  *  @param map  The map.
  *  @returns    A fresh array of `[key, value]` pairs.
- *
  *  @example
  *    map_entries(map_of([['a', 1], ['b', 2]]))   // → [['a', 1], ['b', 2]]
  */
@@ -800,14 +746,14 @@ function map_entries(map) {
 // ---------------------------------------------------------------------------
 //  Structural value-equality (§6) and the snapshot protocol (§15)
 // ---------------------------------------------------------------------------
+// Hoisted so the hot-path type guard below allocates nothing per call.
+const CONTAINER_KINDS = new Set(['list', 'set', 'map']);
 /**
  *  Type guard recognising any of the three FSL containers by its `kind`
  *  discriminant.  Used by the structural protocol to decide whether to recurse
  *  into a container or treat a value as an opaque leaf.
- *
  *  @param value  Any value.
  *  @returns      `true` iff `value` is an {@link FslList}, {@link FslSet}, or {@link FslMap}.
- *
  *  @example
  *    is_container(list_of(1))   // → true
  *    is_container(42)           // → false
@@ -818,7 +764,7 @@ function is_container(value) {
         return false;
     }
     const kind = value.kind;
-    return kind === 'list' || kind === 'set' || kind === 'map';
+    return CONTAINER_KINDS.has(kind);
 }
 /**
  *  Structural deep equality over arbitrary values — the §6 equality that the
@@ -827,11 +773,9 @@ function is_container(value) {
  *  ignore key order; lists are order-sensitive).  Non-container values fall
  *  back to nested arrays/plain-objects recursively and `SameValueZero` at the
  *  leaves (so `NaN` equals `NaN`, distinct from `===`).
- *
  *  @param a  The left value.
  *  @param b  The right value.
  *  @returns  `true` iff `a` and `b` are structurally equal.
- *
  *  @example
  *    deep_equal(list_of(1, 2), list_of(1, 2))           // → true
  *    deep_equal(set_of(1, 2), set_of(2, 1))             // → true   (order-free)
@@ -857,11 +801,9 @@ function deep_equal(a, b) {
  *  `SameValueZero` equality for leaf scalars — like `===` but with `NaN` equal
  *  to `NaN` (and `+0`/`-0` equal).  The leaf rule for {@link deep_equal} and the
  *  member/key equality the containers dedupe by.
- *
  *  @param a  The left value.
  *  @param b  The right value.
  *  @returns  `true` iff `a` and `b` are the same value (zero-style).
- *
  *  @example
  *    same_value_zero(1, 1)       // → true
  *    same_value_zero(NaN, NaN)   // → true
@@ -879,11 +821,9 @@ function same_value_zero(a, b) {
  *  per-kind core of {@link deep_equal}.  Lists compare element-wise in order;
  *  sets compare as unordered member collections of equal size; maps compare as
  *  unordered key→value collections of equal size with deep-equal values.
- *
  *  @param a  The left container.
  *  @param b  The right container.
  *  @returns  `true` iff the two containers are structurally equal.
- *
  *  @example
  *    container_equal(map_of([['a', 1]]), map_of([['a', 1]]))   // → true
  *    container_equal(set_of(1, 2), set_of(1, 2, 3))            // → false  (size differs)
@@ -915,11 +855,9 @@ function container_equal(a, b) {
 /**
  *  Element-wise structural equality of two array-likes — the list and
  *  nested-array case of {@link deep_equal}.
- *
  *  @param a  The left array.
  *  @param b  The right array.
  *  @returns  `true` iff both arrays have equal length and deep-equal elements in order.
- *
  *  @example
  *    array_equal([1, 2], [1, 2])   // → true
  *    array_equal([1, 2], [1])      // → false
@@ -935,10 +873,8 @@ function array_equal(a, b) {
  *  nor an FSL container — so {@link deep_equal} can recurse into record-shaped
  *  values (the §4.2 `record` lowering) without misclassifying containers or
  *  arrays.
- *
  *  @param value  Any value.
  *  @returns      `true` iff `value` is a plain (record-shaped) object.
- *
  *  @example
  *    is_plain_object({ x: 1 })      // → true
  *    is_plain_object([1, 2])        // → false
@@ -955,11 +891,9 @@ function is_plain_object(value) {
  *  Structural equality of two plain objects — the record case of
  *  {@link deep_equal}.  Equal when they have the same set of own enumerable keys
  *  and deep-equal values at each.
- *
  *  @param a  The left object.
  *  @param b  The right object.
  *  @returns  `true` iff the two objects are structurally equal.
- *
  *  @example
  *    object_equal({ x: 1, y: 2 }, { y: 2, x: 1 })   // → true  (key order ignored)
  *    object_equal({ x: 1 }, { x: 1, y: 2 })         // → false
@@ -976,11 +910,9 @@ function object_equal(a, b) {
  *  Value-equality of two **containers** — the public §6 `=` over containers, a
  *  thin typed wrapper over {@link deep_equal} for callers who already hold
  *  {@link FslContainer}s.
- *
  *  @param a  The left container.
  *  @param b  The right container.
  *  @returns  `true` iff structurally equal.
- *
  *  @example
  *    equals(list_of(1, 2, 3), list_of(1, 2, 3))   // → true
  *    equals(set_of(1, 2), set_of(2, 1))           // → true
@@ -997,10 +929,8 @@ function equals(a, b) {
  *  property the undo-log snapshot / cross-host repro equality relies on.
  *  Returns ordinary frozen arrays / objects (no class instances), so the result
  *  round-trips through `JSON.stringify`/`parse` unchanged.
- *
  *  @param value  A container, or any nested value reachable from one.
  *  @returns      A canonical, frozen, JSON-safe snapshot.
- *
  *  @example
  *    snapshot(list_of(1, 2))
  *    // → { kind:'list', items:[1, 2] }
@@ -1015,7 +945,7 @@ function snapshot(value) {
             return Object.freeze({ kind: 'list', items: value.items.map(snapshot) });
         }
         if (value.kind === 'set') {
-            const members = value.members.slice().sort(scalar_compare);
+            const members = [...value.members].sort(scalar_compare);
             return Object.freeze({ kind: 'set', members: Object.freeze(members) });
         }
         // map: emit entries sorted by canonical key order
@@ -1029,7 +959,7 @@ function snapshot(value) {
     }
     if (is_plain_object(value)) {
         const out = {};
-        for (const k of Object.keys(value).sort()) {
+        for (const k of Object.keys(value).sort(scalar_compare)) {
             out[k] = snapshot(value[k]);
         }
         return Object.freeze(out);
@@ -1042,12 +972,10 @@ function snapshot(value) {
  *  takes before letting a hook mutate borrowed state.  Structurally identical to
  *  the input ({@link equals} of input and clone is always `true`) but shares no
  *  mutable backing array, so mutating one can never reach the other.  Preserves
- *  *insertion* order (it is a faithful copy, not a canonicalisation — use
+ *  insertion* order (it is a faithful copy, not a canonicalisation — use
  *  {@link snapshot} for the canonical form).
- *
  *  @param value  A container, or any nested value reachable from one.
  *  @returns      A deep, frozen, independent copy.
- *
  *  @example
  *    const a = list_of(1, 2, 3);
  *    const b = deep_clone(a);
@@ -1060,11 +988,11 @@ function deep_clone(value) {
             return { kind: 'list', items: Object.freeze(value.items.map(deep_clone)) };
         }
         if (value.kind === 'set') {
-            return { kind: 'set', members: Object.freeze(value.members.slice()) };
+            return { kind: 'set', members: Object.freeze([...value.members]) };
         }
         return {
             kind: 'map',
-            keys: Object.freeze(value.keys.slice()),
+            keys: Object.freeze([...value.keys]),
             values: Object.freeze(value.values.map(deep_clone))
         };
     }
@@ -1073,8 +1001,8 @@ function deep_clone(value) {
     }
     if (is_plain_object(value)) {
         const out = {};
-        for (const k of Object.keys(value)) {
-            out[k] = deep_clone(value[k]);
+        for (const [k, value_] of Object.entries(value)) {
+            out[k] = deep_clone(value_);
         }
         return Object.freeze(out);
     }
@@ -1099,11 +1027,9 @@ const KIND_RANK = Object.freeze({
  *  by their sorted member sequence, maps by their sorted key/value entry
  *  sequence.  Total and consistent with {@link equals} (`compare(a, b) === 0`
  *  iff `equals(a, b)`).
- *
  *  @param a  The left container.
  *  @param b  The right container.
  *  @returns  `-1`, `0`, or `1` as `a` sorts before, equal to, or after `b`.
- *
  *  @example
  *    compare(list_of(1, 2), list_of(1, 3))   // → -1
  *    compare(set_of(1, 2), set_of(2, 1))     // → 0   (order-free, equal)
@@ -1124,11 +1050,9 @@ function compare(a, b) {
  *  already normalised, so this is a straightforward lexicographic walk over
  *  frozen arrays / objects / scalar leaves.  Cross-type leaves order by a fixed
  *  type rank so the order stays total over heterogeneous values.
- *
  *  @param a  The left canonical snapshot.
  *  @param b  The right canonical snapshot.
  *  @returns  `-1`, `0`, or `1`.
- *
  *  @example
  *    compare_snapshots([1, 2], [1, 3])   // → -1
  *    compare_snapshots(1, 'a')           // → -1   (number rank precedes string)
@@ -1158,12 +1082,10 @@ const RANK_OBJECT = 2;
  *  The ordering rank of a canonical-snapshot node — scalars (numbers / strings)
  *  below arrays below objects — so {@link compare_snapshots} can order
  *  heterogeneous values totally.  Booleans, `null`, and `undefined` (legal map
- *  *values*) rank as scalars and tie-break inside {@link scalar_compare}'s
+ *  values*) rank as scalars and tie-break inside {@link scalar_compare}'s
  *  caller via their coerced form.
- *
  *  @param value  A canonical-snapshot node.
- *  @returns      {@link RANK_SCALAR}, {@link RANK_ARRAY}, or {@link RANK_OBJECT}.
- *
+ *  @returns, {@link RANK_ARRAY}, or {@link RANK_OBJECT}.
  *  @example
  *    type_rank(7)        // → 0
  *    type_rank([1])      // → 1
@@ -1181,11 +1103,9 @@ function type_rank(value) {
 /**
  *  Lexicographic order over two snapshot arrays — shorter-but-equal-prefix
  *  sorts first.  A helper for {@link compare_snapshots}.
- *
  *  @param a  The left array.
  *  @param b  The right array.
  *  @returns  `-1`, `0`, or `1`.
- *
  *  @example
  *    array_compare([1, 2], [1, 2, 3])   // → -1   (prefix sorts first)
  *    array_compare([2], [1])            // → 1
@@ -1211,17 +1131,15 @@ function array_compare(a, b) {
  *  {@link compare_snapshots}.  Both objects are canonical snapshots, so their
  *  key sets are deterministic; the walk compares key names first, then the value
  *  at each shared key.
- *
  *  @param a  The left object.
  *  @param b  The right object.
  *  @returns  `-1`, `0`, or `1`.
- *
  *  @example
  *    object_compare({ kind:'list' }, { kind:'set' })   // → -1
  */
 function object_compare(a, b) {
-    const a_keys = Object.keys(a).sort();
-    const b_keys = Object.keys(b).sort();
+    const a_keys = Object.keys(a).sort(scalar_compare);
+    const b_keys = Object.keys(b).sort(scalar_compare);
     const kc = array_compare(a_keys, b_keys);
     if (kc !== 0) {
         return kc;

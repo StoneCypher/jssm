@@ -428,7 +428,7 @@ function describe_dimension(d) {
     const parts = base_dimension_names
         .filter(name => d[name] !== 0)
         .map(name => (d[name] === 1) ? name : `${name}^${d[name]}`);
-    return parts.length ? parts.join('·') : 'dimensionless';
+    return parts.length > 0 ? parts.join('·') : 'dimensionless';
 }
 /*******
  *
@@ -526,7 +526,7 @@ const si_prefixes = [
     { name: 'deci', symbol: 'd', factor: 1e-1 },
     { name: 'centi', symbol: 'c', factor: 1e-2 },
     { name: 'milli', symbol: 'm', factor: 1e-3 },
-    { name: 'micro', symbol: 'μ', factor: 1e-6 },
+    { name: 'micro', symbol: 'μ', factor: 1e-6 }, // μ
     { name: 'nano', symbol: 'n', factor: 1e-9 },
     { name: 'pico', symbol: 'p', factor: 1e-12 },
     { name: 'femto', symbol: 'f', factor: 1e-15 },
@@ -606,7 +606,6 @@ const frequency_dim = make_dimension({ time: -1 });
 /**
  *  The SI prelude: base units, common prefixed units, derived units, and the
  *  dimensionless `one`.  Frozen — a stable, shared prelude no machine mutates.
- *
  *  @example
  *  import { SI, quantity, value_in } from './fsl_units';
  *  const dist = quantity(5, SI.kilometre);

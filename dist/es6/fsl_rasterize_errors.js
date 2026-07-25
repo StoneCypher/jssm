@@ -1,14 +1,14 @@
 /**
- * The render targets supported in v1, in canonical order (the CLI `--target`
- * enum and `--help` list order).  This tuple is the single runtime source of
- * truth: both the {@link RenderTarget} type and the `fsl-render` CLI's
- * `--target` enum derive from it, so a new target is declared in exactly one
- * place.  Future targets (mermaid, plantuml, scxml, ascii, fsl) land here in
- * v0.2+.
- * @example
- * RENDER_TARGETS.includes('gif' as RenderTarget);  // true
+ * Render-failure error classes shared by the fence-owned rasterizer
+ * (`fsl_rasterize.ts`) and the CLI's render verbs.
+ *
+ * Lives at the fence/core level rather than under `cli/`: jssm-fence may not
+ * depend on jssm-cli, and once the packages split, a class defined in cli
+ * and bundled twice would break `instanceof` across the boundary at runtime.
+ * `cli/types.ts` re-exports both classes from here, so every existing
+ * importer keeps the same class identity.
+ * @see fsl_rasterize.ts
  */
-export const RENDER_TARGETS = ['svg', 'dot', 'png', 'jpeg', 'html', 'gif'];
 /**
  * Base error class for render-time failures.
  */
