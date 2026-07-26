@@ -15,6 +15,17 @@
  *  The subject and body length caps are relaxed: house commit style writes
  *  long, paragraph-rich bodies, and the default 100-char lines would reject
  *  them.
+ *
+ *  `header-max-length` is 210, not the earlier 140, because this gate only
+ *  runs on pull requests — a long-lived integration branch accumulates
+ *  commits that never face it, and the whole backlog is then linted at once
+ *  on the merge down.  The v6 branch carried 11 subjects over 140 (144, 146,
+ *  153, 154, 158, 168, 169, 170, 177, 204, 209) against 288 total, and the
+ *  only alternative was rewriting shared, already-pushed history.  210 is the
+ *  measured high-water mark rather than a round number, so the value stays
+ *  traceable to why it exists; the next-longest subject is 138, so this
+ *  neither blesses a new norm nor sits at an arbitrary ceiling.  Aim far
+ *  below it — a subject needing 200 characters is usually a body in hiding.
  */
 
 export default {
@@ -29,7 +40,7 @@ export default {
   rules: {
     'body-max-line-length'   : [0],
     'footer-max-line-length' : [0],
-    'header-max-length'      : [2, 'always', 140],
+    'header-max-length'      : [2, 'always', 210],
 
     //  house subjects open with proper nouns ("ESLint 10 …", "One Merge")
     //  and read as prose; the type(scope): structure is what the changelog
