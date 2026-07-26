@@ -82,6 +82,12 @@ const FEATURES = {
   make_pkg_viz:         { script: 'make_pkg_viz',         stages: [4], optional: true, defaultEnabled: true },
   make_pkg_fence:       { script: 'make_pkg_fence',       stages: [4], optional: true, defaultEnabled: true },
   make_pkg_cli:         { script: 'make_pkg_cli',         stages: [4], optional: true, defaultEnabled: true },
+  // format-compatibility packages: same dist/es6 input as make_core, re-emitted
+  // as cjs / iife into their own packages.  Self-contained by necessity -- a
+  // CJS or script-tag consumer cannot resolve an ESM-only core -- so they
+  // externalize nothing and need no cross-package resolveId plugin.
+  make_pkg_cjs:         { script: 'make_pkg_cjs',         stages: [4], optional: true, defaultEnabled: true },
+  make_pkg_iife:        { script: 'make_pkg_iife',        stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
   // stage 4, not 2: doctests write src/ts/tests/generated at stage 3, so the
@@ -110,6 +116,8 @@ const FEATURES = {
   min_pkg_viz:   { script: 'min_pkg_viz',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_viz'] },
   min_pkg_fence: { script: 'min_pkg_fence', stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_fence'] },
   min_pkg_cli:   { script: 'min_pkg_cli',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_cli'] },
+  min_pkg_cjs:   { script: 'min_pkg_cjs',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_cjs'] },
+  min_pkg_iife:  { script: 'min_pkg_iife',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_iife'] },
   // d.ts copies into packages/*/dist: single esm-flavor declaration per
   // package, copied from the rolled-up root d.ts each embedded stage-4
   // bundler already produces (which is why each requires BOTH its stage-4

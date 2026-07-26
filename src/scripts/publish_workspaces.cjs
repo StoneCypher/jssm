@@ -98,8 +98,25 @@ const { execFileSync } = require('child_process'),
 
 
 
-/** Publish order: root first, then each workspace member in dependency order (each depends only on names earlier in this list). */
-const PUBLISH_ORDER = Object.freeze(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli']);
+/** Publish order: root first, then each workspace member in dependency order (each depends only on names earlier in this list). The self-contained compatibility packages have no siblings to wait for, so they sort last purely for readability. */
+const PUBLISH_ORDER = Object.freeze(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-cjs', 'jssm-iife']);
+
+/**
+ * Members that carry their own complete build and therefore have NO `jssm`
+ * dependency to rewrite.
+ *
+ * The format-compatibility packages cannot depend on core: once the main
+ * package is ESM only, `require('jssm')` is exactly what a CJS consumer cannot
+ * do, and an IIFE runs in a `<script>` tag where no resolver exists at all. A
+ * compat package that depended on core would fail precisely for the audience
+ * it exists to serve, so each bundles the whole graph instead.
+ *
+ * Listing them explicitly — rather than just tolerating a missing dependency —
+ * keeps {@link publishMember}'s guard sharp in both directions: a member that
+ * should have the self-dependency and lost it still fails loudly, and one of
+ * these that grows an unexpected one does too.
+ */
+const SELF_CONTAINED = Object.freeze(new Set(['jssm-cjs', 'jssm-iife']));
 
 /** On Windows, `npm` resolves to a `.cmd` shim; Node refuses to spawn `.cmd`/`.bat` files without a shell (the CVE-2024-27980 hardening), so that platform needs `NPM_NEEDS_SHELL` below. POSIX's real `npm` binary needs neither. Mirrors `verify_version_bump.cjs`. */
 const NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -691,10 +708,25 @@ const publishMember = (name, version, dry_run, { publish = runNpmPublish, cwd = 
 
   const manifest_path  = path.join(cwd, manifestPathFor(name)),
         original_text  = fs.readFileSync(manifest_path, 'utf8'),
-        rewritten_text = rewriteDependencyValue(original_text, 'jssm', version);
+        rewritten_text = rewriteDependencyValue(original_text, 'jssm', version),
+        self_contained = SELF_CONTAINED.has(name),
+        has_self_dep   = rewritten_text !== original_text;
 
-  if (rewritten_text === original_text) {
+  //  the guard cuts both ways: a member that should carry the self-dependency
+  //  and lost it is a broken publish, and a self-contained package that grew
+  //  one has quietly acquired the very edge it exists to avoid.
+  if (!self_contained && !has_self_dep) {
     throw new Error(`${manifest_path}: expected a "jssm": "file:../.." dependency to rewrite before publish, found none`);
+  }
+  if (self_contained && has_self_dep) {
+    throw new Error(`${manifest_path}: ${name} is self-contained and must not depend on jssm (a CJS/IIFE consumer cannot resolve an ESM-only core)`);
+  }
+
+  //  nothing to rewrite, so nothing to restore: publish the manifest as-is.
+  if (self_contained) {
+    console.log(`${name}: self-contained, no jssm dependency to rewrite`);
+    publish(buildPublishArgs(name, dry_run, dist_tag));
+    return;
   }
 
   console.log(`${name}: rewriting jssm dependency to ${version} for publish`);
@@ -827,6 +859,7 @@ if (require.main === module) { main(); }
 
 module.exports = {
   PUBLISH_ORDER,
+  SELF_CONTAINED,
   manifestPathFor,
   readManifest,
   listRealDirNames,
