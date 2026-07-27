@@ -2973,6 +2973,7 @@
     },
     "5.105.0": {
       "published": "2026-05-12T09:38:22.602Z",
+      "deprecated": "Now part of jssm, standalone package is no longer maintained, switch to jssm as of 5.105.0 may 12 2026",
       "files": {
         ".editorconfig": 200,
         ".eslintrc": 62,

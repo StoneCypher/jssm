@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "package": "require_jssm",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.1.0": {
+      "published": "2017-08-20T04:43:13.819Z",
+      "files": {
+        "package.json": 720,
+        ".npmignore": 617,
+        "README.md": 217,
+        "LICENSE": 1071,
+        "require_jssm.js": 371
+      }
+    },
+    "0.1.1": {
+      "published": "2017-08-20T04:44:20.608Z",
+      "files": {
+        "package.json": 717,
+        ".npmignore": 617,
+        "README.md": 217,
+        "LICENSE": 1071,
+        "require_jssm.js": 371
+      }
+    }
+  }
+}

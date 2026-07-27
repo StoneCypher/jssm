@@ -144,6 +144,18 @@
       "lastPush": "2017-08-29T23:54:07Z"
     },
     {
+      "name": "fsl.tools",
+      "category": "wanted but hasn’t taken off",
+      "note": null,
+      "obsoletedBy": null,
+      "obsoletedByWhat": null,
+      "visibility": "public",
+      "archived": false,
+      "description": "fsl tools website",
+      "created": "2018-11-07T04:31:13Z",
+      "lastPush": "2026-06-05T01:35:00Z"
+    },
+    {
       "name": "jssm-tutorial-scratch",
       "category": "wanted but hasn’t taken off",
       "note": null,
@@ -273,7 +285,7 @@
       "archived": false,
       "description": "Fast, easy Javascript finite state machines with visualizations; enjoy a one liner FSM instead of pages.  MIT; Typescripted; 100% test coverage.  Implements the FSL language.",
       "created": "2017-05-03T04:58:01Z",
-      "lastPush": "2026-07-26T15:13:59Z"
+      "lastPush": "2026-07-27T18:55:38Z"
     },
     {
       "name": "jssm-mcp",

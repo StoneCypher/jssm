@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "package": "fsl",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.1.0": {
+      "published": "2017-08-26T20:03:34.234Z",
+      "files": {
+        "package.json": 590,
+        "README.md": 59
+      }
+    }
+  }
+}

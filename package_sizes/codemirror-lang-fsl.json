@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "package": "codemirror-lang-fsl",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.9.0": {
+      "published": "2022-09-18T16:29:07.644Z",
+      "files": {
+        "LICENSE": 1128,
+        "dist/index.cjs": 14200,
+        "dist/index.d.cts": 177,
+        "dist/index.js": 14072,
+        "package.json": 1243,
+        "README.md": 998,
+        "dist/index.d.ts": 177,
+        ".github/workflows/node.js.yml": 888
+      }
+    }
+  }
+}
