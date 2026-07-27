@@ -778,6 +778,9 @@ jobs:
     - name: Verify sideEffects declarations match what ships
       run: node ./src/buildjs/verify_side_effects.cjs
 
+    - name: Verify no sibling peer dependency is pinned to an exact version
+      run: node ./src/buildjs/verify_peer_pins.cjs
+
 
 
   release:
