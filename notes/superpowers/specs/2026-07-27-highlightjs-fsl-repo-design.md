@@ -42,15 +42,11 @@ Only `@highlightjs/cdn-assets` and `highlight.js` itself carry org-level ownersh
 
 Nothing forbids it: neither `3RD_PARTY_QUICK_START.md` nor `docs/language-contribution.rst` mandates a package name, and the scoped form has a real argument in its favour — unscoped `highlightjs-*` is first-come-first-served by anyone on npm, so the org's namespace is unprotected, while `@highlightjs/*` can only be published by members.
 
-**Rejected 2026-07-27** on the grounds that being the only scoped package out of ~60 is a hard no — then **REOPENED later the same day**, after the CI survey above was corrected and the org turned out to be actively maintained rather than a loose collection of drive-by grammars. **UNRESOLVED as of this writing; do not treat either state as settled.**
+**Rejected by John 2026-07-27: being the only scoped package out of ~60 is a hard no.** Consistency with the ecosystem beats the squatting argument. **Do not re-open this** — an editor briefly reopened it later the same day on a misreading of "I want to use highlightjs/fsl", which meant the **GitHub repo** (`https://github.com/highlightjs/highlightjs-fsl`, which we already hold), not the npm scope. Two different namespaces; only the npm one was ever in question, and it is closed.
 
-The live arguments, both directions:
+Secondary costs that also pointed the same way: every release would need an org member (no standing publish rights, and a bus factor); a scoped name implies org endorsement of a third-party grammar the maintainers do not review; and it would reintroduce the `archiveFile()` scoped-path problem in jssm's collector (`package_sizes/@highlightjs/fsl.json` needs a subdirectory that does not exist, and `make_size_chart.cjs:160` decodes names by stripping the `package_sizes/` prefix).
 
-**For `@highlightjs/fsl`:** unscoped `highlightjs-*` is first-come-first-served by anyone on npm, so ~60 grammars sit in an unprotected namespace; `@highlightjs/*` can only be published by org members. That is a supply-chain argument, not an aesthetic one, and it is the pitch to lead with. It is also a genuine gap in the org's own convention, which an active maintainer may well want closed.
-
-**Against:** every release would need an org member (no standing publish rights, and a bus factor); a scoped name implies org endorsement of a third-party grammar the maintainers do not review; and it reintroduces the `archiveFile()` scoped-path problem in jssm's collector (`package_sizes/@highlightjs/fsl.json` needs a subdirectory that does not exist, and `make_size_chart.cjs:160` decodes names by stripping the `package_sizes/` prefix).
-
-**Either way, publish `highlightjs-fsl` unscoped first.** The unscoped name is an unclaimed squat target *right now* — precisely the risk the scoped form is meant to close — and leaving it open while waiting on a maintainer's reply is the worst of both. If the scope is later granted, deprecate the unscoped package with a pointer. This ordering means the ask never gates the work.
+**Settled shape:** npm `highlightjs-fsl` (unscoped, John's own account) · GitHub `highlightjs/highlightjs-fsl` (org-hosted, already ours — `push` + `maintain`).
 
 ---
 
