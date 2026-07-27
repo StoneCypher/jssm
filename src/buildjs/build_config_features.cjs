@@ -63,7 +63,6 @@ const FEATURES = {
 
   // --- Stage 4: rollup bundles (read stable dist/es6) + src-readers (src now stable) ---
   make_core:            { script: 'make_core',            stages: [4], optional: true, defaultEnabled: true },
-  make_deno:            { script: 'make_deno',            stages: [4], optional: true, defaultEnabled: true },
   make_viz:             { script: 'make_viz',             stages: [4], optional: true, defaultEnabled: true },
   make_wc_viz_es6:      { script: 'make_wc_viz_es6',      stages: [4], optional: true, defaultEnabled: true },
   make_wc_viz_cdn:      { script: 'make_wc_viz_cdn',      stages: [4], optional: true, defaultEnabled: true },
@@ -103,7 +102,6 @@ const FEATURES = {
   min_iife:     { script: 'min_iife',     stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_es6:      { script: 'min_es6',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_cjs:      { script: 'min_cjs',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
-  min_deno:     { script: 'min_deno',     stages: [5], optional: true, defaultEnabled: true, requires: ['make_deno'] },
   min_viz_iife: { script: 'min_viz_iife', stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_es6:  { script: 'min_viz_es6',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_cjs:  { script: 'min_viz_cjs',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
