@@ -55,6 +55,13 @@ const DEFAULTS = Object.freeze({
   branch     : 'perf_results',
   archiveDir : 'package_sizes',
   reposFile  : 'repos.json',
+  //  Where `repos.json` may live on the data branch, best first. The workflow
+  //  writes it at the branch root; `repo_timeline/` is where the dataset was
+  //  first seeded by hand, before the workflow could run (a scheduled workflow
+  //  only fires from the default branch, so the nightly cannot write anything
+  //  until this branch merges). Both are read so the rails do not wait on a
+  //  merge, and so the seed stays readable if it is never tidied away.
+  reposDirs  : Object.freeze(['', 'package_sizes', 'repo_timeline']),
   outDir     : path.join(__dirname, '..', '..', 'docs'),
   outFile    : 'size_chart.html',
 });
@@ -103,10 +110,27 @@ function parseArgs(argv) {
 }
 
 /**
+ *  The paths `repos.json` may occupy, in precedence order, as slash-joined
+ *  keys matching a `git ls-tree` listing.
+ *
+ *  @returns Candidate paths, best first: branch root, then the archive
+ *           directory, then the hand-seeded `repo_timeline/`.
+ *
+ *  @example
+ *  reposCandidates();   // => ['repos.json', 'package_sizes/repos.json', 'repo_timeline/repos.json']
+ */
+function reposCandidates() {
+  return DEFAULTS.reposDirs.map(d => (d ? `${d}/${DEFAULTS.reposFile}` : DEFAULTS.reposFile));
+}
+
+/**
  *  Read every package archive plus the optional repo timeline.
  *
  *  From a local directory when `fromDir` is set, else from the `perf_results`
  *  branch via `git show`, exactly as {@link make_perf_chart} reads its runs.
+ *  Either way the timeline is searched across {@link reposCandidates} rather
+ *  than one fixed path, because the workflow and the original hand seed put it
+ *  in different places.
  *
  *  @param fromDir - Local archive directory, or null to read the data branch.
  *  @returns `{ archives, repos }`, or null when the branch is unreachable —
@@ -118,8 +142,8 @@ function readArchives(fromDir) {
       .filter(f => f.endsWith('.json') && f !== DEFAULTS.reposFile)
       .sort()
       .map(f => JSON.parse(fs.readFileSync(path.join(fromDir, f), 'utf8')));
-    const rp = path.join(fromDir, DEFAULTS.reposFile);
-    return { archives, repos: fs.existsSync(rp) ? JSON.parse(fs.readFileSync(rp, 'utf8')) : null };
+    const rp = reposCandidates().map(c => path.join(fromDir, ...c.split('/'))).find(p => fs.existsSync(p));
+    return { archives, repos: rp ? JSON.parse(fs.readFileSync(rp, 'utf8')) : null };
   }
 
   const git = (args, allowFail) => {
@@ -136,7 +160,7 @@ function readArchives(fromDir) {
     .filter(p => p.startsWith(`${DEFAULTS.archiveDir}/`) && p.endsWith('.json'))
     .map(p => JSON.parse(git(['show', `FETCH_HEAD:${p}`], false)));
 
-  const reposPath = files.find(p => p === DEFAULTS.reposFile || p === `${DEFAULTS.archiveDir}/${DEFAULTS.reposFile}`);
+  const reposPath = reposCandidates().find(c => files.includes(c));
   return { archives, repos: reposPath ? JSON.parse(git(['show', `FETCH_HEAD:${reposPath}`], false)) : null };
 }
 
@@ -188,6 +212,33 @@ function buildRails(repos, shipped) {
                  t0: Date.parse(r.created), t1: Date.parse(r.lastPush) }))
     .sort((a, b) => a.t0 - b.t0 || (a.name < b.name ? -1 : 1));
   return rows.length ? { categoryOrder: repos.categoryOrder, repos: rows } : null;
+}
+
+/**
+ *  Explain why {@link buildRails} produced nothing, distinguishing an absent
+ *  dataset from a present-but-unusable one.
+ *
+ *  Worth its own function because the two failures want opposite responses and
+ *  read identically from the chart: a missing file waits on the nightly, while
+ *  a dataset whose repos predate the `created`/`lastPush` fields will never
+ *  draw a rail no matter how many times that job runs. Reporting both as "no
+ *  repo timeline found" sends the reader hunting for a file that is sitting
+ *  right there.
+ *
+ *  @param repos - Parsed `repos.json`, or null when none was found.
+ *  @returns A clause naming the actual cause, for the caller's one-line notice.
+ *
+ *  @example
+ *  railsAbsenceReason(null);                                  // => 'no repo timeline found'
+ *  railsAbsenceReason({ repos: [{ name: 'a' }] });            // => '1 repo in the timeline, 0 with created/lastPush dates (pre-lifespan schema)'
+ */
+function railsAbsenceReason(repos) {
+  if (!repos) { return 'no repo timeline found'; }
+  const total = repos.repos.length,
+        dated = repos.repos.filter(r => r.created && r.lastPush).length;
+  return dated === 0
+    ? `${total} repo${total === 1 ? '' : 's'} in the timeline, 0 with created/lastPush dates (pre-lifespan schema)`
+    : `${dated}/${total} timeline repos are dated, but all are npm streams already`;
 }
 
 /**
@@ -999,7 +1050,7 @@ function main() {
 
   const { paths, packages } = buildPayload(read.archives);
   const rails = buildRails(read.repos, new Set(packages.map(p => p.name)));
-  if (!rails) { process.stdout.write('size_chart: no repo timeline found; rendering without lifespan rails\n'); }
+  if (!rails) { process.stdout.write(`size_chart: ${railsAbsenceReason(read.repos)}; rendering without lifespan rails\n`); }
 
   // The gate. Conservation must hold over exactly the records the browser will
   // draw, or we refuse to publish rather than ship a plausible-looking lie.
@@ -1029,6 +1080,6 @@ function main() {
 }
 
 
-module.exports = { parseArgs, buildPayload, buildRails, flowRecords, browserSource, renderPage, LIFECYCLE, DEFAULTS };
+module.exports = { parseArgs, buildPayload, buildRails, railsAbsenceReason, reposCandidates, flowRecords, browserSource, renderPage, LIFECYCLE, DEFAULTS };
 
 if (require.main === module) { process.exit(main()); }

@@ -10,7 +10,8 @@ const { family } = require('../size_families.cjs');
 // runs over, and the node-only source cut that keeps the browser and the unit
 // tests on one copy of the model. No git, no fetch, no archive read.
 
-const { parseArgs, buildPayload, buildRails, flowRecords, browserSource, LIFECYCLE } = msc;
+const { parseArgs, buildPayload, buildRails, railsAbsenceReason, reposCandidates,
+        flowRecords, browserSource, LIFECYCLE } = msc;
 
 const archive = (name: string, versions: Record<string, any>) => ({ package: name, versions });
 const ver = (published: string, files: Record<string, number>, deprecated = false) =>
@@ -79,6 +80,55 @@ describe('buildPayload', () => {
     const b = archive('b', { '1.0.0': ver('2020-02-01', { 'y': 2 }) });
     expect(buildPayload([a, b]).packages.map((p: any) => p.name))
       .toEqual(buildPayload([b, a]).packages.map((p: any) => p.name));
+  });
+
+});
+
+
+describe('reposCandidates', () => {
+
+  it('prefers the branch root, where the workflow writes', () => {
+    expect(reposCandidates()[0]).toBe('repos.json');
+  });
+
+  it('also looks where the dataset was hand-seeded', () => {
+    expect(reposCandidates()).toContain('repo_timeline/repos.json');
+  });
+
+});
+
+
+describe('railsAbsenceReason', () => {
+
+  //  These two failures look identical on the chart and want opposite
+  //  responses, so the notice has to tell them apart -- a missing file waits
+  //  on the nightly, an undated dataset never draws a rail however often that
+  //  job runs.
+
+  it('reports an absent dataset as absent', () => {
+    expect(railsAbsenceReason(null)).toContain('no repo timeline found');
+  });
+
+  it('does not claim a present-but-undated dataset is missing', () => {
+    const undated = { repos: [{ name: 'a' }, { name: 'b' }] };
+    expect(railsAbsenceReason(undated)).not.toContain('not found');
+    expect(railsAbsenceReason(undated)).not.toContain('no repo timeline');
+  });
+
+  it('counts the repos it did find, and how many carry dates', () => {
+    const undated = { repos: [{ name: 'a' }, { name: 'b' }] };
+    expect(railsAbsenceReason(undated)).toContain('2 repos');
+    expect(railsAbsenceReason(undated)).toContain('0 with created/lastPush');
+  });
+
+  it('singularizes a one-repo timeline', () => {
+    expect(railsAbsenceReason({ repos: [{ name: 'a' }] })).toContain('1 repo in');
+  });
+
+  it('distinguishes a dated dataset whose repos are all npm streams', () => {
+    const dated = { repos: [{ name: 'a', created: '2020-01-01', lastPush: '2021-01-01' }] };
+    expect(railsAbsenceReason(dated)).toContain('1/1');
+    expect(railsAbsenceReason(dated)).toContain('npm streams');
   });
 
 });
