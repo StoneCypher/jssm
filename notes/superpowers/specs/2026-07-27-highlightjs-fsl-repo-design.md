@@ -42,9 +42,15 @@ Only `@highlightjs/cdn-assets` and `highlight.js` itself carry org-level ownersh
 
 Nothing forbids it: neither `3RD_PARTY_QUICK_START.md` nor `docs/language-contribution.rst` mandates a package name, and the scoped form has a real argument in its favour — unscoped `highlightjs-*` is first-come-first-served by anyone on npm, so the org's namespace is unprotected, while `@highlightjs/*` can only be published by members.
 
-**Rejected anyway, by John: being the only scoped package out of ~60 is a hard no.** Consistency with the ecosystem beats the squatting argument here. Do not re-open this.
+**Rejected 2026-07-27** on the grounds that being the only scoped package out of ~60 is a hard no — then **REOPENED later the same day**, after the CI survey above was corrected and the org turned out to be actively maintained rather than a loose collection of drive-by grammars. **UNRESOLVED as of this writing; do not treat either state as settled.**
 
-Secondary costs that also pointed the same way: every release would need an org member (no standing publish rights), a scoped name implies org endorsement of a third-party grammar, and it would reintroduce the `archiveFile()` scoped-path problem in jssm's collector.
+The live arguments, both directions:
+
+**For `@highlightjs/fsl`:** unscoped `highlightjs-*` is first-come-first-served by anyone on npm, so ~60 grammars sit in an unprotected namespace; `@highlightjs/*` can only be published by org members. That is a supply-chain argument, not an aesthetic one, and it is the pitch to lead with. It is also a genuine gap in the org's own convention, which an active maintainer may well want closed.
+
+**Against:** every release would need an org member (no standing publish rights, and a bus factor); a scoped name implies org endorsement of a third-party grammar the maintainers do not review; and it reintroduces the `archiveFile()` scoped-path problem in jssm's collector (`package_sizes/@highlightjs/fsl.json` needs a subdirectory that does not exist, and `make_size_chart.cjs:160` decodes names by stripping the `package_sizes/` prefix).
+
+**Either way, publish `highlightjs-fsl` unscoped first.** The unscoped name is an unclaimed squat target *right now* — precisely the risk the scoped form is meant to close — and leaving it open while waiting on a maintainer's reply is the worst of both. If the scope is later granted, deprecate the unscoped package with a pointer. This ordering means the ask never gates the work.
 
 ---
 
@@ -109,9 +115,25 @@ Two tiers, and only one of them is real.
 - **No org-wide defaults repo.** `highlightjs/.github` returns 404, so no inherited templates, workflows, or policies.
 - **`CONTRIBUTING.md` is per-repo, not shared** — cypher's and apex's blobs differ in both hash and size (1428 vs 1192 bytes). Each author wrote their own.
 - **Formatting is per-author:** apex uses prettier, cypher an `.editorconfig`, robots-txt nothing.
-- **CI is per-author and thin:** apex runs release-please, dependabot, and CodeQL; cypher has exactly one workflow, publish-on-release; robots-txt has none.
-- **No grammar repo in the org runs the language tests in CI.** Testing is a local ritual inside a highlight.js checkout. Wiring real test CI here would make this repo better than the ecosystem norm rather than merely conformant — worth doing, and cheap.
+- **CI is per-author and ranges from nothing to substantial** — see the table below.
 - **MIT is the norm, not a rule.**
+
+**CI, surveyed properly (corrected 2026-07-27 — an earlier draft of this document claimed "no grammar repo runs tests in CI", which is false):**
+
+| repo | workflows | runs tests? |
+|---|---|---|
+| `highlightjs-solidity` | `test.yml` — "Build and Test", on push **and** pull_request, `npm ci` → `npm test` | **yes** |
+| `highlightjs-cshtml-razor` | `node.js.yml` — matrix over Node 10/12/14, `npm ci` → `npm test` | **yes** |
+| `highlightjs-apex` | codeql, dependabot auto-merge, release-please | no — quality/release automation only |
+| `highlightjs-cypher` | `action.yml` — publish to npm on release | no |
+| `highlightjs-structured-text` | `package.yml` — publish to npm **and** GitHub Packages on `v*` tags | no |
+| `highlightjs-gdscript`, `highlightjs-luau`, `highlightjs-robots-txt` | none | no |
+
+So **2 of 8 run their language tests on every push and PR.** Both do it with their *own* mocha runner and `highlight.js` as a devDependency (cshtml-razor pins `^11.1.1`) — **not** the core `extra/` harness described in §5. That is the meaningful pattern: a repo that wants CI writes its own runner, because the documented workflow requires a checkout of another project and does not fit an Action cleanly.
+
+The org is **actively maintained**, not dormant — `highlight.js` pushed 2026-07-26, `highlightjs-apex` 2026-07-22, `highlightjs-jai` 2026-07-21. Treat these repos as living code with opinionated owners.
+
+**What survives the correction:** the `.expect.txt` / `.expected.txt` hazard is still real, and `highlightjs-luau` still ships both spellings in one directory — luau is one of the three repos with **no** CI and no runner at all, which is precisely why nobody caught it. The lesson is narrower than the original claim but points the same way: **write a test runner and wire it to CI**, following solidity's and cshtml-razor's example rather than inventing anything.
 
 So: follow the binding column exactly, and use jssm's own conventions for everything else. There is nothing to conform to beyond the harness.
 
@@ -197,7 +219,7 @@ One prerequisite spans all three: confirm that `subLanguage: 'fsl'` **degrades g
 
 **The `` fsl`…` `` alias LANDED 2026-07-27** on `docs_26-07-04_fable-v6-to-v16` (uncommitted at time of writing) — `fsl<mDT>()` in `src/ts/jssm.ts` beside `sm`, exported; `Machine.prototype.fsl` beside `Machine.prototype.sm`; `src/ts/tests/fsl_tag.spec.ts` (11 tests, serialize-equality against `sm` across plain/interpolated and function/method forms, timestamp excluded since `serialize()` stamps wall-clock time); README row in `src/md/README_base.md`. Neither spelling is deprecated — `sm` stays the terse everyday form, `fsl` is the one for highlighted sources.
 
-**Trap confirmed as real, not theoretical:** luau contains `luaucode.expected.txt` *and* `default.expect.txt` side by side. Someone made exactly the naming mistake §3a warns about and it was never noticed — because nothing runs those tests in CI.
+**Trap confirmed as real, not theoretical:** luau contains `luaucode.expected.txt` *and* `default.expect.txt` side by side. Someone made exactly the naming mistake §3a warns about and it was never caught — and luau is one of the three surveyed repos with no CI and no test runner at all. Repos that *do* wire CI (solidity, cshtml-razor — see the §3a table) would have caught it.
 
 **One admin snag, concretely.** Cypher's publish workflow reads `secrets.NPM_TOKEN`. Repository secrets require **admin**, and John has `maintain`. Automated publishing therefore needs `joshgoebel` or `marcosc`; publishing by hand needs nothing from anyone. v1 publishes by hand.
 
