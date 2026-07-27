@@ -88,6 +88,10 @@ const FEATURES = {
   // externalize nothing and need no cross-package resolveId plugin.
   make_pkg_commonjs:         { script: 'make_pkg_commonjs',         stages: [4], optional: true, defaultEnabled: true },
   make_pkg_iife:        { script: 'make_pkg_iife',        stages: [4], optional: true, defaultEnabled: true },
+  // the safety-property checker, shipped for the first time in v6.  jssm is a
+  // type-only import here, so core is externalized and the bundle carries none
+  // of it -- see rollup.config.pkg_verify.js.
+  make_pkg_verify:      { script: 'make_pkg_verify',      stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
   // stage 4, not 2: doctests write src/ts/tests/generated at stage 3, so the

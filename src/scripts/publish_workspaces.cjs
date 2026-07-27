@@ -99,7 +99,7 @@ const { execFileSync } = require('child_process'),
 
 
 /** Publish order: root first, then each workspace member in dependency order (each depends only on names earlier in this list). The self-contained compatibility packages have no siblings to wait for, so they sort last purely for readability. */
-const PUBLISH_ORDER = Object.freeze(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife']);
+const PUBLISH_ORDER = Object.freeze(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife', 'jssm-verify']);
 
 /**
  * Members that carry their own complete build and therefore have NO `jssm`
@@ -111,12 +111,17 @@ const PUBLISH_ORDER = Object.freeze(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli
  * compat package that depended on core would fail precisely for the audience
  * it exists to serve, so each bundles the whole graph instead.
  *
+ * `jssm-verify` is here for a different reason: it imports core for TYPES only
+ * (`Machine` appears solely in parameter positions), so the built bundle
+ * carries no jssm code and the manifest declares jssm an OPTIONAL PEER. Half
+ * its API verifies plain adjacency graphs with no machine involved at all.
+ *
  * Listing them explicitly — rather than just tolerating a missing dependency —
  * keeps {@link publishMember}'s guard sharp in both directions: a member that
  * should have the self-dependency and lost it still fails loudly, and one of
  * these that grows an unexpected one does too.
  */
-const SELF_CONTAINED = Object.freeze(new Set(['jssm-commonjs', 'jssm-iife']));
+const SELF_CONTAINED = Object.freeze(new Set(['jssm-commonjs', 'jssm-iife', 'jssm-verify']));
 
 /** On Windows, `npm` resolves to a `.cmd` shim; Node refuses to spawn `.cmd`/`.bat` files without a shell (the CVE-2024-27980 hardening), so that platform needs `NPM_NEEDS_SHELL` below. POSIX's real `npm` binary needs neither. Mirrors `verify_version_bump.cjs`. */
 const NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';

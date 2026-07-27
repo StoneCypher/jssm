@@ -1,3 +1,4 @@
+import { Machine } from './jssm';
 
 /**
  *  @packageDocumentation
@@ -40,23 +41,10 @@
  *  ```
  */
 
-import {
-  Machine
-} from './jssm';
-
-
-
-
-
 /**
  *  State names are strings in jssm; verification speaks the same alphabet.
  */
 type StateName = string;
-
-
-
-
-
 /**
  *  Atomic state predicates — the leaves of a {@link StatePredicate}.  Each names
  *  a property of a *single* machine state evaluated at a single point on a trace
@@ -70,17 +58,23 @@ type StateName = string;
  *  - `tautology`   — always true (the unit of {@link p_and}).
  *  - `contradiction` — always false (the unit of {@link p_or}).
  */
-type PredicateAtom =
-  | { readonly atom : 'in_state';      readonly name  : StateName }
-  | { readonly atom : 'in_any';        readonly names : ReadonlySet<StateName> }
-  | { readonly atom : 'is_terminal' }
-  | { readonly atom : 'is_final' }
-  | { readonly atom : 'is_error' }
-  | { readonly atom : 'tautology' }
-  | { readonly atom : 'contradiction' };
-
-
-
+type PredicateAtom = {
+    readonly atom: 'in_state';
+    readonly name: StateName;
+} | {
+    readonly atom: 'in_any';
+    readonly names: ReadonlySet<StateName>;
+} | {
+    readonly atom: 'is_terminal';
+} | {
+    readonly atom: 'is_final';
+} | {
+    readonly atom: 'is_error';
+} | {
+    readonly atom: 'tautology';
+} | {
+    readonly atom: 'contradiction';
+};
 /**
  *  A **state predicate**: a boolean function of one machine state, built from
  *  {@link PredicateAtom}s closed under negation, conjunction and disjunction.
@@ -89,16 +83,16 @@ type PredicateAtom =
  *  serializable, and inspectable, matching §17's "properties are first-class,
  *  fill-the-holes" posture.  Evaluate one with {@link eval_predicate}.
  */
-type StatePredicate =
-  | PredicateAtom
-  | { readonly atom : 'not'; readonly arg  : StatePredicate }
-  | { readonly atom : 'and'; readonly args : ReadonlyArray<StatePredicate> }
-  | { readonly atom : 'or';  readonly args : ReadonlyArray<StatePredicate> };
-
-
-
-
-
+type StatePredicate = PredicateAtom | {
+    readonly atom: 'not';
+    readonly arg: StatePredicate;
+} | {
+    readonly atom: 'and';
+    readonly args: ReadonlyArray<StatePredicate>;
+} | {
+    readonly atom: 'or';
+    readonly args: ReadonlyArray<StatePredicate>;
+};
 /**
  *  A **safety property** over a machine — the §17 safety tier.  Each form
  *  reduces to a reachability question with a finite-trace witness:
@@ -112,41 +106,38 @@ type StatePredicate =
  *  {@link unreachable}, or the named Dwyer aliases {@link absence} /
  *  {@link existence}.
  */
-type SafetyProperty =
-  | { readonly kind : 'always';      readonly pred : StatePredicate }
-  | { readonly kind : 'never';       readonly pred : StatePredicate }
-  | { readonly kind : 'reachable';   readonly pred : StatePredicate }
-  | { readonly kind : 'unreachable'; readonly pred : StatePredicate };
-
-
-
-
-
+type SafetyProperty = {
+    readonly kind: 'always';
+    readonly pred: StatePredicate;
+} | {
+    readonly kind: 'never';
+    readonly pred: StatePredicate;
+} | {
+    readonly kind: 'reachable';
+    readonly pred: StatePredicate;
+} | {
+    readonly kind: 'unreachable';
+    readonly pred: StatePredicate;
+};
 /**
  *  Options controlling a {@link check_safety} run.
  *  @template mDT - The machine's data type; usually omitted.
  */
 type SafetyOptions = {
-
-  /**
-   *  States considered "error" states for the {@link is_error} atom.  §17's
-   *  error states (`state Crashed: { error; }`) are not yet surfaced by the v5
-   *  machine graph, so the caller names them here — the Dwyer "hole" to fill.
-   *  Defaults to the empty set (no errors).
-   */
-  readonly error_states ? : ReadonlyArray<StateName>;
-
-  /**
-   *  The state(s) reachability starts from.  Defaults to the machine's current
-   *  state ({@link Machine.state}), which for a freshly-built machine is its
-   *  initial state.  Names that the machine does not know are rejected.
-   */
-  readonly start_states ? : ReadonlyArray<StateName>;
-
+    /**
+     *  States considered "error" states for the {@link is_error} atom.  §17's
+     *  error states (`state Crashed: { error; }`) are not yet surfaced by the v5
+     *  machine graph, so the caller names them here — the Dwyer "hole" to fill.
+     *  Defaults to the empty set (no errors).
+     */
+    readonly error_states?: ReadonlyArray<StateName>;
+    /**
+     *  The state(s) reachability starts from.  Defaults to the machine's current
+     *  state ({@link Machine.state}), which for a freshly-built machine is its
+     *  initial state.  Names that the machine does not know are rejected.
+     */
+    readonly start_states?: ReadonlyArray<StateName>;
 };
-
-
-
 /**
  *  The outcome of {@link check_safety}.
  *
@@ -158,20 +149,11 @@ type SafetyOptions = {
  *  BFS visited, for cost reporting.
  */
 type SafetyResult = {
-  readonly property        : SafetyProperty;
-  readonly holds           : boolean;
-  readonly trace         ? : ReadonlyArray<StateName>;
-  readonly states_explored : number;
+    readonly property: SafetyProperty;
+    readonly holds: boolean;
+    readonly trace?: ReadonlyArray<StateName>;
+    readonly states_explored: number;
 };
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  Predicate constructors
-// ---------------------------------------------------------------------------
-
 /**
  *  Predicate: the state has exactly this name.
  *  @param name - The state name to match.
@@ -180,11 +162,7 @@ type SafetyResult = {
  *  in_state('Done');   // { atom: 'in_state', name: 'Done' }
  *  ```
  */
-const in_state = (name: StateName): StatePredicate =>
-  ({ atom: 'in_state', name });
-
-
-
+declare const in_state: (name: StateName) => StatePredicate;
 /**
  *  Predicate: the state's name is one of `names`.  An empty set is a
  *  contradiction (matches nothing).
@@ -194,11 +172,7 @@ const in_state = (name: StateName): StatePredicate =>
  *  in_any(['red', 'amber']);   // true in 'red' or 'amber'
  *  ```
  */
-const in_any = (names: ReadonlyArray<StateName>): StatePredicate =>
-  ({ atom: 'in_any', names: new Set(names) });
-
-
-
+declare const in_any: (names: ReadonlyArray<StateName>) => StatePredicate;
 /**
  *  Predicate: the state is terminal — it has no outgoing transitions.
  *  @example
@@ -206,10 +180,7 @@ const in_any = (names: ReadonlyArray<StateName>): StatePredicate =>
  *  is_terminal;   // true only in dead-end states
  *  ```
  */
-const is_terminal: StatePredicate = { atom: 'is_terminal' };
-
-
-
+declare const is_terminal: StatePredicate;
 /**
  *  Predicate: the state is final — terminal, or flagged `complete`.
  *  @example
@@ -217,10 +188,7 @@ const is_terminal: StatePredicate = { atom: 'is_terminal' };
  *  is_final;   // true in completing states
  *  ```
  */
-const is_final: StatePredicate = { atom: 'is_final' };
-
-
-
+declare const is_final: StatePredicate;
 /**
  *  Predicate: the state is one of the caller-supplied error states (§17).
  *  @example
@@ -228,24 +196,15 @@ const is_final: StatePredicate = { atom: 'is_final' };
  *  is_error;   // true in states named by SafetyOptions.error_states
  *  ```
  */
-const is_error: StatePredicate = { atom: 'is_error' };
-
-
-
+declare const is_error: StatePredicate;
 /**
  *  The predicate that is true in every state — the unit of {@link p_and}.
  */
-const tautology: StatePredicate = { atom: 'tautology' };
-
-
-
+declare const tautology: StatePredicate;
 /**
  *  The predicate that is false in every state — the unit of {@link p_or}.
  */
-const contradiction: StatePredicate = { atom: 'contradiction' };
-
-
-
+declare const contradiction: StatePredicate;
 /**
  *  Negate a predicate.
  *  @param arg - The predicate to invert.
@@ -254,11 +213,7 @@ const contradiction: StatePredicate = { atom: 'contradiction' };
  *  p_not(in_state('Crashed'));   // true everywhere except 'Crashed'
  *  ```
  */
-const p_not = (arg: StatePredicate): StatePredicate =>
-  ({ atom: 'not', arg });
-
-
-
+declare const p_not: (arg: StatePredicate) => StatePredicate;
 /**
  *  Conjoin predicates.  With no arguments this is {@link tautology}.
  *  @param args - The predicates that must all hold.
@@ -267,11 +222,7 @@ const p_not = (arg: StatePredicate): StatePredicate =>
  *  p_and(is_terminal, p_not(is_final));   // a terminal that isn't "complete"
  *  ```
  */
-const p_and = (...args: ReadonlyArray<StatePredicate>): StatePredicate =>
-  ({ atom: 'and', args });
-
-
-
+declare const p_and: (...args: ReadonlyArray<StatePredicate>) => StatePredicate;
 /**
  *  Disjoin predicates.  With no arguments this is {@link contradiction}.
  *  @param args - The predicates of which at least one must hold.
@@ -280,27 +231,13 @@ const p_and = (...args: ReadonlyArray<StatePredicate>): StatePredicate =>
  *  p_or(is_error, is_terminal);   // either an error state or a dead end
  *  ```
  */
-const p_or = (...args: ReadonlyArray<StatePredicate>): StatePredicate =>
-  ({ atom: 'or', args });
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  Safety-property constructors
-// ---------------------------------------------------------------------------
-
+declare const p_or: (...args: ReadonlyArray<StatePredicate>) => StatePredicate;
 /**
  *  Coerce a predicate-or-state-name into a predicate.  A bare string is read as
  *  {@link in_state}, so callers can write `absence('Crashed')`.
  *  @param p - Either a {@link StatePredicate} or a state name.
  */
-const as_predicate = (p: StatePredicate | StateName): StatePredicate =>
-  (typeof p === 'string') ? in_state(p) : p;
-
-
-
+declare const as_predicate: (p: StatePredicate | StateName) => StatePredicate;
 /**
  *  Safety property: `P` holds in **every** reachable state (an invariant).
  *  @param pred - The invariant predicate, or a state name (= must always be in it).
@@ -309,11 +246,7 @@ const as_predicate = (p: StatePredicate | StateName): StatePredicate =>
  *  always(p_not(is_error));   // "never reach an error state"
  *  ```
  */
-const always = (pred: StatePredicate | StateName): SafetyProperty =>
-  ({ kind: 'always', pred: as_predicate(pred) });
-
-
-
+declare const always: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: `P` holds in **no** reachable state (`always not P`).
  *  @param pred - The forbidden predicate, or a state name.
@@ -323,11 +256,7 @@ const always = (pred: StatePredicate | StateName): SafetyProperty =>
  *  never('Crashed');           // the 'Crashed' state is unreachable
  *  ```
  */
-const never = (pred: StatePredicate | StateName): SafetyProperty =>
-  ({ kind: 'never', pred: as_predicate(pred) });
-
-
-
+declare const never: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: **some** reachable state satisfies `P`.  Succeeds with a
  *  witness trace.
@@ -337,11 +266,7 @@ const never = (pred: StatePredicate | StateName): SafetyProperty =>
  *  reachable('Done');          // 'Done' can be reached from start
  *  ```
  */
-const reachable = (pred: StatePredicate | StateName): SafetyProperty =>
-  ({ kind: 'reachable', pred: as_predicate(pred) });
-
-
-
+declare const reachable: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Safety property: **no** reachable state satisfies `P` — the same query as
  *  {@link never}, named for symmetry with {@link reachable}.
@@ -351,11 +276,7 @@ const reachable = (pred: StatePredicate | StateName): SafetyProperty =>
  *  unreachable('Crashed');     // 'Crashed' is never reached
  *  ```
  */
-const unreachable = (pred: StatePredicate | StateName): SafetyProperty =>
-  ({ kind: 'unreachable', pred: as_predicate(pred) });
-
-
-
+declare const unreachable: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Dwyer **absence** pattern (globally): the target never occurs — alias for
  *  {@link unreachable}.
@@ -365,11 +286,7 @@ const unreachable = (pred: StatePredicate | StateName): SafetyProperty =>
  *  absence('Deadlock');        // "Deadlock is absent globally"
  *  ```
  */
-const absence = (pred: StatePredicate | StateName): SafetyProperty =>
-  unreachable(pred);
-
-
-
+declare const absence: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Dwyer **existence** pattern (globally): the target eventually occurs on some
  *  path — alias for {@link reachable}.
@@ -379,17 +296,7 @@ const absence = (pred: StatePredicate | StateName): SafetyProperty =>
  *  existence('Done');          // "Done exists globally"
  *  ```
  */
-const existence = (pred: StatePredicate | StateName): SafetyProperty =>
-  reachable(pred);
-
-
-
-
-
-// ---------------------------------------------------------------------------
-//  Evaluation
-// ---------------------------------------------------------------------------
-
+declare const existence: (pred: StatePredicate | StateName) => SafetyProperty;
 /**
  *  Evaluate a {@link StatePredicate} against a single machine state.  Pure and
  *  total — every atom and connective is handled, recursion bottoms out at the
@@ -407,74 +314,7 @@ const existence = (pred: StatePredicate | StateName): SafetyProperty =>
  *  eval_predicate(m, 'b', is_terminal, new Set());   // true
  *  ```
  */
-const eval_predicate = <mDT>(
-  machine : Machine<mDT>,
-  state   : StateName,
-  pred    : StatePredicate,
-  errors  : ReadonlySet<StateName>
-): boolean => {
-
-  switch (pred.atom) {
-
-    case 'in_state': {      return state === pred.name;
-    }
-    case 'in_any': {        return pred.names.has(state);
-    }
-    case 'is_terminal': {   return machine.state_is_terminal(state);
-    }
-    case 'is_final': {      return machine.state_is_final(state);
-    }
-    case 'is_error': {      return errors.has(state);
-    }
-    case 'tautology': {     return true;
-    }
-    case 'contradiction': { return false;
-    }
-
-    case 'not': {
-      return !eval_predicate(machine, state, pred.arg, errors);
-    }
-
-    case 'and': {
-      return pred.args.every(p => eval_predicate(machine, state, p, errors));
-    }
-
-    case 'or': {
-      return pred.args.some(p => eval_predicate(machine, state, p, errors));
-    }
-
-  }
-
-};
-
-
-
-
-
-/**
- *  One BFS discovery step for {@link reachable_predecessors}: if `next` has not
- *  been reached yet, record `current` as its shortest-path predecessor and
- *  enqueue it.  Mutates `predecessor` and `queue` in place; already-discovered
- *  states are left untouched.
- *  @param predecessor - The predecessor map under construction (mutated).
- *  @param queue       - The BFS work queue (mutated).
- *  @param next        - The candidate successor state.
- *  @param current     - The state being expanded, i.e. the predecessor to record.
- *  @see reachable_predecessors
- */
-const discover_predecessor = (
-  predecessor : Map<StateName, StateName | null>,
-  queue       : StateName[],
-  next        : StateName,
-  current     : StateName
-): void => {
-  if (predecessor.has(next)) { return; }
-  predecessor.set(next, current);
-  queue.push(next);
-};
-
-
-
+declare const eval_predicate: <mDT>(machine: Machine<mDT>, state: StateName, pred: StatePredicate, errors: ReadonlySet<StateName>) => boolean;
 /**
  *  Breadth-first reachability from `starts`, recording, for each reached state,
  *  the immediate predecessor on its shortest path — enough to reconstruct a
@@ -485,38 +325,7 @@ const discover_predecessor = (
  *  @returns A map from each reachable state to its predecessor (`null` for a
  *  seed), in BFS discovery order.
  */
-const reachable_predecessors = <mDT>(
-  machine : Machine<mDT>,
-  starts  : ReadonlyArray<StateName>
-): Map<StateName, StateName | null> => {
-
-  const predecessor = new Map<StateName, StateName | null>();
-  const queue: StateName[] = [];
-
-  for (const s of starts) {
-    if (predecessor.has(s)) {
-    	continue;
-    }
-
-    predecessor.set(s, null);
-    queue.push(s);
-  }
-
-  // Manual head index avoids O(n) Array.shift on long frontiers.
-  let head = 0;
-  while (head < queue.length) {
-    const current = queue[head++];
-    for (const next of machine.list_exits(current)) {
-      discover_predecessor(predecessor, queue, next, current);
-    }
-  }
-
-  return predecessor;
-
-};
-
-
-
+declare const reachable_predecessors: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray<StateName>) => Map<StateName, StateName | null>;
 /**
  *  Reconstruct the shortest trace from a seed to `target`, walking the
  *  predecessor map produced by {@link reachable_predecessors} backwards and then
@@ -525,27 +334,7 @@ const reachable_predecessors = <mDT>(
  *  @param target      - The state to trace back from (must be a key).
  *  @returns The path of state names from a start state to `target`, inclusive.
  */
-const trace_to = (
-  predecessor : ReadonlyMap<StateName, StateName | null>,
-  target      : StateName
-): ReadonlyArray<StateName> => {
-
-  const reversed: StateName[] = [];
-  let cursor: StateName | null = target;
-
-  while (cursor !== null) {
-    reversed.push(cursor);
-    cursor = predecessor.get(cursor) ?? null;
-  }
-
-  return reversed.reverse();
-
-};
-
-
-
-
-
+declare const trace_to: (predecessor: ReadonlyMap<StateName, StateName | null>, target: StateName) => ReadonlyArray<StateName>;
 /**
  *  Resolve the start frontier for a run: the caller's {@link SafetyOptions.start_states}
  *  if given, else the machine's current state.  Every name is validated against
@@ -556,27 +345,7 @@ const trace_to = (
  *  @returns The validated, de-duplicated start frontier.
  *  @throws {Error} If a requested start state is not known to the machine.
  */
-const resolve_starts = <mDT>(
-  machine : Machine<mDT>,
-  starts  : ReadonlyArray<StateName> | undefined
-): ReadonlyArray<StateName> => {
-
-  const requested = (starts === undefined) ? [machine.state()] : starts;
-
-  for (const s of requested) {
-    if (!machine.has_state(s)) {
-      throw new Error(`fsl_verify: start state "${s}" is not a state of the machine`);
-    }
-  }
-
-  return requested;
-
-};
-
-
-
-
-
+declare const resolve_starts: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray<StateName> | undefined) => ReadonlyArray<StateName>;
 /**
  *  Model-check one **safety property** against a machine (§17 safety tier).
  *
@@ -619,79 +388,7 @@ const resolve_starts = <mDT>(
  *  @see absence
  *  @see reachable
  */
-const check_safety = <mDT>(
-  machine  : Machine<mDT>,
-  property : SafetyProperty,
-  options  : SafetyOptions = {}
-): SafetyResult => {
-
-  const errors = new Set(options.error_states);
-  const starts = resolve_starts(machine, options.start_states);
-
-  const predecessor   = reachable_predecessors(machine, starts);
-  const reached       = [...predecessor.keys()];
-  const states_explored = reached.length;
-
-  // `always P` and `reachable P` differ only in what counts as the witness and
-  // how the verdict reads, so reduce both to a single "find the marked state".
-  const hit = (p: StatePredicate): StateName | undefined =>
-    reached.find(s => eval_predicate(machine, s, p, errors));
-
-  switch (property.kind) {
-
-    case 'always': {
-      // Counterexample = first reachable state violating the invariant.
-      const witness = hit(p_not(property.pred));
-      return {
-        property,
-        holds           : witness === undefined,
-        trace           : (witness === undefined) ? undefined : trace_to(predecessor, witness),
-        states_explored
-      };
-    }
-
-    case 'never':
-    case 'unreachable': {
-      // Counterexample = first reachable state matching the forbidden predicate.
-      const witness = hit(property.pred);
-      return {
-        property,
-        holds           : witness === undefined,
-        trace           : (witness === undefined) ? undefined : trace_to(predecessor, witness),
-        states_explored
-      };
-    }
-
-    case 'reachable': {
-      // Witness on success; no trace on failure (nothing to point at).
-      const witness = hit(property.pred);
-      return {
-        property,
-        holds           : witness !== undefined,
-        trace           : (witness === undefined) ? undefined : trace_to(predecessor, witness),
-        states_explored
-      };
-    }
-
-  }
-
-};
-
-
-
-
-
-// ===========================================================================
-//  Machine-decoupled verification graph (megaspec §17 — "states + props,
-//  what the checker sees").  An alternate input path: a plain, host-agnostic
-//  Kripke structure / labelled transition system that any Machine, System, or
-//  hand-written fixture can lower itself into, checked by pure functions with
-//  no reference to the live Machine class.  Parallel to, and independent of,
-//  the Machine-coupled check_safety above.
-// ===========================================================================
-
-
-
+declare const check_safety: <mDT>(machine: Machine<mDT>, property: SafetyProperty, options?: SafetyOptions) => SafetyResult;
 /**
  *  A single node in a {@link VerificationGraph}: an opaque identifier paired
  *  with the set of **atomic propositions** (labels) that hold at it — the
@@ -707,12 +404,9 @@ const check_safety = <mDT>(
  *  ```
  */
 type VerificationNode = {
-  readonly id      : string;
-  readonly labels? : ReadonlyArray<string>;
+    readonly id: string;
+    readonly labels?: ReadonlyArray<string>;
 };
-
-
-
 /**
  *  A directed edge in a {@link VerificationGraph}: a transition the machine may
  *  take from `from` to `to`.  The checker treats edges as a plain reachability
@@ -726,13 +420,10 @@ type VerificationNode = {
  *  ```
  */
 type VerificationEdge = {
-  readonly from   : string;
-  readonly to     : string;
-  readonly label? : string;
+    readonly from: string;
+    readonly to: string;
+    readonly label?: string;
 };
-
-
-
 /**
  *  A self-contained, host-agnostic verification graph — the lowered form a
  *  machine hands to the decoupled checker.  A finite Kripke structure: labelled
@@ -759,13 +450,10 @@ type VerificationEdge = {
  *  ```
  */
 type VerificationGraph = {
-  readonly nodes        : ReadonlyArray<VerificationNode>;
-  readonly edges        : ReadonlyArray<VerificationEdge>;
-  readonly start_states : ReadonlyArray<StateName>;
+    readonly nodes: ReadonlyArray<VerificationNode>;
+    readonly edges: ReadonlyArray<VerificationEdge>;
+    readonly start_states: ReadonlyArray<StateName>;
 };
-
-
-
 /**
  *  A safety property to discharge against a {@link VerificationGraph} — the two
  *  §17 safety questions over the decoupled graph:
@@ -787,13 +475,10 @@ type VerificationGraph = {
  *  ```
  */
 type GraphSafetyProperty = {
-  readonly kind  : 'reachability' | 'invariant';
-  readonly label : string;
-  readonly name? : string;
+    readonly kind: 'reachability' | 'invariant';
+    readonly label: string;
+    readonly name?: string;
 };
-
-
-
 /**
  *  The verdict of checking a {@link GraphSafetyProperty} against a graph.
  *
@@ -816,13 +501,10 @@ type GraphSafetyProperty = {
  *  ```
  */
 type GraphSafetyResult = {
-  readonly holds     : boolean;
-  readonly witness?  : ReadonlyArray<StateName>;
-  readonly property  : GraphSafetyProperty;
+    readonly holds: boolean;
+    readonly witness?: ReadonlyArray<StateName>;
+    readonly property: GraphSafetyProperty;
 };
-
-
-
 /**
  *  Tests whether a node carries a given label.  A node with no `labels` array,
  *  or one whose array omits `label`, does **not** carry it (closed-world).
@@ -837,11 +519,7 @@ type GraphSafetyResult = {
  *  node_has_label({ id: 'a' },                     'x');   // false
  *  ```
  */
-const node_has_label = (node: VerificationNode, label: string): boolean =>
-  Array.isArray(node.labels) && node.labels.includes(label);
-
-
-
+declare const node_has_label: (node: VerificationNode, label: string) => boolean;
 /**
  *  Build an adjacency map from a graph's edges: each node id mapped to the list
  *  of ids directly reachable in one step.  Nodes appearing only as edge
@@ -859,58 +537,7 @@ const node_has_label = (node: VerificationNode, label: string): boolean =>
  *  // Map { 'a' => ['b'], 'b' => [] }
  *  ```
  */
-const build_adjacency = (graph: VerificationGraph): Map<StateName, StateName[]> => {
-
-  const adjacency = new Map<StateName, StateName[]>();
-
-  // Returns the successor list for `id`, creating an empty one on first sight.
-  // Centralizing creation here guarantees every read is non-undefined, so no
-  // defensive (untestable) undefined branch is needed downstream.
-  const list_for = (id: StateName): StateName[] => {
-    const existing = adjacency.get(id);
-    if (existing !== undefined) { return existing; }
-    const fresh: StateName[] = [];
-    adjacency.set(id, fresh);
-    return fresh;
-  };
-
-  for (const node of graph.nodes) { list_for(node.id); }
-
-  for (const edge of graph.edges) {
-    list_for(edge.to);                 // ensure pure-sink targets appear as keys
-    list_for(edge.from).push(edge.to);
-  }
-
-  return adjacency;
-
-};
-
-
-
-/**
- *  One BFS discovery step for {@link bfs_find_path}: if `successor` has not
- *  been visited yet, mark it visited and add it to the next frontier with the
- *  witness path extended by one hop.  Mutates `visited` and `next_frontier` in
- *  place; already-visited states are left untouched.
- *  @param visited       - The set of already-discovered state ids (mutated).
- *  @param next_frontier - The frontier being built for the next BFS layer (mutated).
- *  @param successor     - The candidate successor state id.
- *  @param path          - The witness path that reached the current node (read-only).
- *  @see bfs_find_path
- */
-const discover_frontier_node = (
-  visited       : Set<StateName>,
-  next_frontier : { id: StateName; path: StateName[] }[],
-  successor     : StateName,
-  path          : ReadonlyArray<StateName>
-): void => {
-  if (visited.has(successor)) { return; }
-  visited.add(successor);
-  next_frontier.push({ id: successor, path: [...path, successor] });
-};
-
-
-
+declare const build_adjacency: (graph: VerificationGraph) => Map<StateName, StateName[]>;
 /**
  *  Search a graph for a node satisfying `predicate` reachable from any start
  *  state, by breadth-first exploration, returning the **shortest** witness path
@@ -932,62 +559,7 @@ const discover_frontier_node = (
  *  // ['Green', 'Crashed']  — or undefined if no error node is reachable
  *  ```
  */
-const bfs_find_path = (
-  graph     : VerificationGraph,
-  predicate : (node: VerificationNode) => boolean
-): ReadonlyArray<StateName> | undefined => {
-
-  const adjacency  = build_adjacency(graph);
-  const node_by_id = new Map<StateName, VerificationNode>();
-
-  for (const node of graph.nodes) { node_by_id.set(node.id, node); }
-
-  const node_for = (id: StateName): VerificationNode =>
-    node_by_id.get(id) ?? { id };
-
-  const visited = new Set<StateName>();
-
-  // Each pending item carries the frontier node's id and the path that reached
-  // it, so the witness is reconstructed without ever indexing an array.
-  let frontier: { id: StateName; path: StateName[] }[] = [];
-
-  for (const start of graph.start_states) {
-    if (visited.has(start)) {
-    	continue;
-    }
-
-    visited.add(start);
-    frontier.push({ id: start, path: [start] });
-  }
-
-  while (frontier.length > 0) {
-
-    const next_frontier: { id: StateName; path: StateName[] }[] = [];
-
-    for (const item of frontier) {
-
-      if (predicate(node_for(item.id))) {
-        return item.path;
-      }
-
-      const successors = adjacency.get(item.id) ?? [];
-
-      for (const successor of successors) {
-        discover_frontier_node(visited, next_frontier, successor, item.path);
-      }
-
-    }
-
-    frontier = next_frontier;
-
-  }
-
-  return undefined;
-
-};
-
-
-
+declare const bfs_find_path: (graph: VerificationGraph, predicate: (node: VerificationNode) => boolean) => ReadonlyArray<StateName> | undefined;
 /**
  *  Discharge a single {@link GraphSafetyProperty} against a
  *  {@link VerificationGraph}, returning a {@link GraphSafetyResult} that is
@@ -1022,31 +594,7 @@ const bfs_find_path = (
  *  // { holds: false, witness: ['Green', 'Yellow'], property: {...} }
  *  ```
  */
-const check_graph_safety = (
-  graph    : VerificationGraph,
-  property : GraphSafetyProperty
-): GraphSafetyResult => {
-
-  if (property.kind === 'reachability') {
-    const witness = bfs_find_path(graph, node => node_has_label(node, property.label));
-    return (witness === undefined)
-      ? { holds: false, property }
-      : { holds: true, witness, property };
-  }
-
-  if (property.kind === 'invariant') {
-    const counterexample = bfs_find_path(graph, node => !node_has_label(node, property.label));
-    return (counterexample === undefined)
-      ? { holds: true, property }
-      : { holds: false, witness: counterexample, property };
-  }
-
-  throw new Error(`fsl_verify: unknown safety property kind "${(property).kind}"`);
-
-};
-
-
-
+declare const check_graph_safety: (graph: VerificationGraph, property: GraphSafetyProperty) => GraphSafetyResult;
 /**
  *  Discharge a batch of {@link GraphSafetyProperty} values against one graph,
  *  preserving input order.  A thin, pure convenience over
@@ -1064,62 +612,7 @@ const check_graph_safety = (
  *  //   { holds: true,  property: {...} } ]
  *  ```
  */
-const check_all_graph_safety = (
-  graph      : VerificationGraph,
-  properties : ReadonlyArray<GraphSafetyProperty>
-): ReadonlyArray<GraphSafetyResult> =>
-  properties.map(property => check_graph_safety(graph, property));
+declare const check_all_graph_safety: (graph: VerificationGraph, properties: ReadonlyArray<GraphSafetyProperty>) => ReadonlyArray<GraphSafetyResult>;
 
-
-
-export {
-
-  // types
-  StateName,
-  PredicateAtom,
-  StatePredicate,
-  SafetyProperty,
-  SafetyOptions,
-  SafetyResult,
-
-  // predicate atoms / constructors
-  in_state,
-  in_any,
-  is_terminal,
-  is_final,
-  is_error,
-  tautology,
-  contradiction,
-  p_not,
-  p_and,
-  p_or,
-
-  // safety-property constructors
-  always,
-  never,
-  reachable,
-  unreachable,
-  absence,
-  existence,
-
-  // evaluation
-  as_predicate,
-  eval_predicate,
-  reachable_predecessors,
-  trace_to,
-  resolve_starts,
-  check_safety,
-
-  // machine-decoupled verification graph
-  VerificationNode,
-  VerificationEdge,
-  VerificationGraph,
-  GraphSafetyProperty,
-  GraphSafetyResult,
-  node_has_label,
-  build_adjacency,
-  bfs_find_path,
-  check_graph_safety,
-  check_all_graph_safety
-
-};
+export { absence, always, as_predicate, bfs_find_path, build_adjacency, check_all_graph_safety, check_graph_safety, check_safety, contradiction, eval_predicate, existence, in_any, in_state, is_error, is_final, is_terminal, never, node_has_label, p_and, p_not, p_or, reachable, reachable_predecessors, resolve_starts, tautology, trace_to, unreachable };
+export type { GraphSafetyProperty, GraphSafetyResult, PredicateAtom, SafetyOptions, SafetyProperty, SafetyResult, StateName, StatePredicate, VerificationEdge, VerificationGraph, VerificationNode };

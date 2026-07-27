@@ -206,6 +206,7 @@
     "make_pkg_cli": "rollup -c rollup.config.pkg_cli.js",
     "make_pkg_commonjs": "rollup -c rollup.config.pkg_commonjs.js",
     "make_pkg_iife": "rollup -c rollup.config.pkg_iife.js",
+    "make_pkg_verify": "rollup -c rollup.config.pkg_verify.js",
     "min_pkg_viz": "terser packages/jssm-viz/dist/jssm_viz.cjs -o packages/jssm-viz/dist/jssm_viz.cjs && terser packages/jssm-viz/dist/jssm_viz.mjs -o packages/jssm-viz/dist/jssm_viz.mjs --module && terser packages/jssm-viz/dist/cdn/viz.js -o packages/jssm-viz/dist/cdn/viz.js --module && terser packages/jssm-viz/dist/cdn/instance.js -o packages/jssm-viz/dist/cdn/instance.js --module",
     "min_pkg_fence": "terser packages/jssm-fence/dist/fence.js -o packages/jssm-fence/dist/fence.js --module",
     "min_pkg_cli": "terser packages/jssm-cli/dist/fsl.cjs -o packages/jssm-cli/dist/fsl.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-render.cjs -o packages/jssm-cli/dist/fsl-render.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-export-system-prompt.cjs -o packages/jssm-cli/dist/fsl-export-system-prompt.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/lib.cjs -o packages/jssm-cli/dist/lib.cjs && terser packages/jssm-cli/dist/lib.mjs -o packages/jssm-cli/dist/lib.mjs",
