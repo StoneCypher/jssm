@@ -61,7 +61,7 @@ const zlib = require('node:zlib');
  *  whose retirement the diagram cannot draw.
  */
 const DEFAULT_PACKAGES = [
-  'jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli',
+  'jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife', 'jssm-verify',
   'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl',
 ];
 
