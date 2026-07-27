@@ -19,18 +19,16 @@ So this is a port-and-restructure job, not a from-scratch one. The alpha is the 
 
 ## 2. The naming answer: unscoped, own npm account
 
-The org does **not** publish grammars under `@highlightjs`. Every third-party grammar is published unscoped, owned by its individual author:
+The org does **not** publish grammars under `@highlightjs`. Every third-party grammar is unscoped, and **no scoped grammar exists at all** — `@highlightjs/apex` is a 404, as is every other scoped spelling tried. Surveyed 21 packages 2026-07-27; 15 published:
 
-| package | npm maintainers |
+| ownership | packages |
 |---|---|
-| `highlightjs-apex` | `dschach` |
-| `highlightjs-cypher` | `gusbemacbe` |
-| `highlightjs-structured-text` | `serhioromano` |
-| `highlightjs-cshtml-razor` | `romanresh` |
-| `highlightjs-solidity` | `marcosc`, `pospi`, `haltman` |
-| `@highlightjs/apex` | **404 — no scoped variants exist at all** |
+| **purely self-published** (9) | `apex`→`dschach` · `cypher`→`gusbemacbe` · `structured-text`→`serhioromano` · `cshtml-razor`→`romanresh` · `luau`→`robloxiandemo`,`mirsdemo` · `func`→`sobolevn` · `curl`→`geoplay9` · `4d`→`farine` · `vue`→`~lissette.ibnz` |
+| **author + an org account** (3 grammars) | `solidity`→`marcosc`,`pospi`,`haltman` · `sap-abap`→`larshp`,`joshgoebel` · `supercollider`→`marcosc` |
+| **org-owned core** (3) | `highlight.js` · `@highlightjs/cdn-assets` · `@highlightjs/vue-plugin` — all `marcosc`,`joshgoebel`,`isagalaev`,`highlightjs_bot` |
+| **no npm package at all** (6) | `bbcode` · `raku` · `terraform` · `tsql` · `liquid` · `rdflang` |
 
-Only `@highlightjs/cdn-assets` and `highlight.js` itself carry org-level ownership (`marcosc`, `joshgoebel`, `isagalaev`, `highlightjs_bot`).
+Two things fall out. An org account never appears as *sole* owner of a grammar — always alongside the author, which reads as adoption of a handed-over package rather than a naming policy. And **six org repos never shipped to npm at all**, several of them starred and non-trivial: "repo exists in the org" and "grammar is installable" are separate states, and about a third of the sample never reached the second. That is the shape of "we'll publish it later", and it is why publish + `SUPPORTED_LANGUAGES.md` registration are one issue (fsl#1978) rather than a nice-to-have.
 
 **Consequences of the unscoped default:**
 
@@ -46,7 +44,22 @@ Nothing forbids it: neither `3RD_PARTY_QUICK_START.md` nor `docs/language-contri
 
 Secondary costs that also pointed the same way: every release would need an org member (no standing publish rights, and a bus factor); a scoped name implies org endorsement of a third-party grammar the maintainers do not review; and it would reintroduce the `archiveFile()` scoped-path problem in jssm's collector (`package_sizes/@highlightjs/fsl.json` needs a subdirectory that does not exist, and `make_size_chart.cjs:160` decodes names by stripping the `package_sizes/` prefix).
 
-**Settled shape:** npm `highlightjs-fsl` (unscoped, John's own account) · GitHub `highlightjs/highlightjs-fsl` (org-hosted, already ours — `push` + `maintain`).
+### 2b. DECIDED (John, 2026-07-27): self-publish now, co-publish under our own org later
+
+**Now:** `npm publish highlightjs-fsl` from John's personal account, exactly as 9 of the 15 published grammars do. Nothing to ask anyone for; no blockers.
+
+**Later:** add the FSL org's npm account as a **co-maintainer** on the same package. This is the `solidity` / `sap-abap` / `supercollider` pattern — author plus an organizational account, both on one unscoped name — and it is already the ecosystem's own answer to the succession problem, used by three grammars including one co-maintained by `joshgoebel` himself.
+
+**Why this is strictly better than the scoped form we rejected:**
+
+- No `@highlightjs` membership ask, ever — and no dependency on a maintainer's response time.
+- The package name never changes, so no deprecation, no migration note, no split download stats.
+- It solves the actual worry behind the scoped idea — bus factor, and continuity if John steps back — without borrowing anyone's namespace or implying their endorsement.
+- No scoped-path work in jssm's collector; `highlightjs-fsl` stays sluggable as a plain filename.
+
+Gated on the FSL org existing (~Sept 2026 — see the org-acquisition note in memory / jssm#979), and on that org having an npm account, which is a separate thing from the GitHub org. Adding a co-maintainer later is `npm owner add <account> highlightjs-fsl` and needs no republish.
+
+**Settled shape:** npm `highlightjs-fsl` (unscoped; John now, FSL-org account co-added later) · GitHub `highlightjs/highlightjs-fsl` (org-hosted, already ours — `push` + `maintain`).
 
 ---
 
