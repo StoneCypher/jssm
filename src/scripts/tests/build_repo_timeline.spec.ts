@@ -9,7 +9,45 @@ const brt = require('../build_repo_timeline.cjs');
 // categories, no dangling supersession target) also run here against the real
 // embedded tables, so a bad edit to CATEGORIES/OBSOLETION fails this suite.
 
-const { parseArgs, buildDataset } = brt;
+const { parseArgs, buildDataset, auditEnrollment } = brt;
+
+describe('auditEnrollment', () => {
+
+  it('flags a real fsl repo nobody enrolled', () => {
+    // The case that started this: a repo exists, is obviously in scope, and the
+    // diagram silently omits it because no one added it to CATEGORIES.
+    const a = auditEnrollment(['jssm'], ['jssm', 'fsl.tools']);
+    expect(a.unenrolled).toEqual(['fsl.tools']);
+    expect(a.missing).toEqual([]);
+  });
+
+  it('flags a curated name that no longer resolves under the owner', () => {
+    const a = auditEnrollment(['jssm', 'renamed-away'], ['jssm']);
+    expect(a.missing).toEqual(['renamed-away']);
+  });
+
+  it('does not call a cross-owner entry missing', () => {
+    // owner/name entries are fetched separately and never appear in this
+    // owner's listing, so treating them as missing would cry wolf every run.
+    const a = auditEnrollment(['highlightjs/highlightjs-fsl'], []);
+    expect(a.missing).toEqual([]);
+  });
+
+  it('ignores owner repos unrelated to fsl or jssm', () => {
+    const a = auditEnrollment([], ['some-unrelated-thing', 'holiday-photos']);
+    expect(a.unenrolled).toEqual([]);
+  });
+
+  it('matches the fsl/jssm filter case-insensitively', () => {
+    const a = auditEnrollment([], ['FSL-Spec', 'JSSM-thing']);
+    expect(a.unenrolled).toEqual(['FSL-Spec', 'JSSM-thing']);
+  });
+
+  it('reports nothing when the curated list and the owner listing agree', () => {
+    expect(auditEnrollment(['jssm'], ['jssm'])).toEqual({ missing: [], unenrolled: [] });
+  });
+
+});
 
 describe('parseArgs', () => {
   it('requires --out', () => { expect(() => parseArgs([])).toThrow(/--out/); });
@@ -24,7 +62,7 @@ describe('buildDataset', () => {
   const ds = buildDataset(meta);
 
   it('assembles every curated repo with no dup/dangling errors', () => {
-    expect(ds.repos.length).toBe(32);
+    expect(ds.repos.length).toBe(33);
     expect(ds.categoryOrder.length).toBe(8);
     expect(ds.categoryOrder[0]).toBe('replaced by newer work');
     expect(ds.categoryOrder[ds.categoryOrder.length - 1]).toBe('wanted, never took off, new work waiting on org transfer');

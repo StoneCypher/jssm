@@ -42,7 +42,10 @@
  *  A package that 404s (never published — e.g. jssm-fence before v6) is skipped
  *  cleanly, so the tracked list may name packages that do not yet exist.
  *
- *  @see make_perf_chart.cjs — the renderer that reads these files.
+ *  @see make_size_chart.cjs — the renderer that reads these files. (NOT
+ *       make_perf_chart.cjs, which this used to point at: that one reads
+ *       Graviton benchmark runs from the same data branch and never touches
+ *       these archives.)
  */
 
 'use strict';
@@ -361,13 +364,20 @@ async function runPool(items, concurrency, worker, onResult, onError) {
  *
  *  @param pkg - Package name.
  *  @param opts - Parsed CLI options.
- *  @returns The number of versions newly recorded.
+ *  @returns `{ added, published }` — how many versions were newly recorded, and
+ *           whether the package exists on the registry at all. The two are
+ *           deliberately separate: `added: 0` means "nothing new", `published:
+ *           false` means "this name does not exist yet", and conflating them is
+ *           what let enrolled-but-uncollected packages go unnoticed.
+ *
+ *  @example
+ *  await collectPackage('jssm-fence', opts);   // => { added: 0, published: false }
  */
 async function collectPackage(pkg, opts) {
   const packument = await fetchPackument(opts.registry, pkg);
   if (packument === null) {
     console.log(`${pkg}: not published yet — skipping`);
-    return 0;
+    return { added: 0, published: false };
   }
 
   const archive = loadArchive(opts.outDir, pkg);
@@ -406,7 +416,43 @@ async function collectPackage(pkg, opts) {
 
   if (!opts.dryRun && (added > 0 || depChanged > 0)) { saveArchive(opts.outDir, pkg, archive); }
   console.log(`${pkg}: +${added} version(s), ${depChanged} deprecation change(s)${opts.dryRun ? ' (dry-run, not written)' : ''}`);
-  return added;
+  return { added, published: true };
+}
+
+
+/**
+ *  Classify every tracked package against what actually landed on disk, so a
+ *  name that is enrolled but never collected cannot stay invisible.
+ *
+ *  The charts draw archives, not the tracked list, and the two drift silently:
+ *  a package can sit in {@link DEFAULT_PACKAGES} for weeks while no archive is
+ *  ever written, and the only symptom is a chart quietly missing a band. Pure
+ *  so it can be tested without a registry or a filesystem.
+ *
+ *  @param tracked - Package names the run was asked to collect.
+ *  @param archived - Package names that have an archive on disk after the run.
+ *  @param unpublished - Tracked names whose packument 404'd this run.
+ *  @returns Four disjoint groups; `tracked` is partitioned across the first
+ *           three, and `untracked` reports archives nobody asked for (a rename
+ *           or a dropped list entry leaving orphaned data behind).
+ *
+ *  @example
+ *  reconcile(['a', 'b', 'c'], ['a'], ['b']);
+ *  // => { collected: ['a'], unpublished: ['b'], uncollected: ['c'], untracked: [] }
+ *
+ *  @see collectPackage
+ */
+function reconcile(tracked, archived, unpublished) {
+  const arch  = new Set(archived);
+  const unpub = new Set(unpublished);
+  const track = new Set(tracked);
+
+  return {
+    collected   : tracked.filter(p => arch.has(p)),
+    unpublished : tracked.filter(p => !arch.has(p) && unpub.has(p)),
+    uncollected : tracked.filter(p => !arch.has(p) && !unpub.has(p)),
+    untracked   : archived.filter(p => !track.has(p)),
+  };
 }
 
 
@@ -420,10 +466,29 @@ async function main() {
   if (!opts.dryRun) { fs.mkdirSync(opts.outDir, { recursive: true }); }
 
   let total = 0;
+  const unpublished = [];
   for (const pkg of opts.packages) {
-    total += await collectPackage(pkg, opts);
+    const { added, published } = await collectPackage(pkg, opts);
+    total += added;
+    if (!published) { unpublished.push(pkg); }
   }
   console.log(`done: +${total} version(s) across ${opts.packages.length} package(s)`);
+
+  // Reconcile the tracked list against what is actually on disk. Without this the
+  // charts silently under-draw: an enrolled package with no archive looks exactly
+  // like a package nobody asked for.
+  const archived = fs.existsSync(opts.outDir)
+    ? fs.readdirSync(opts.outDir).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5))
+    : [];
+  const r = reconcile(opts.packages, archived, unpublished);
+
+  console.log(
+    `reconcile: ${opts.packages.length} tracked, ${r.collected.length} collected, ` +
+    `${r.unpublished.length} not yet published, ${r.uncollected.length} enrolled but uncollected`
+  );
+  if (r.unpublished.length) { console.log(`  not yet published : ${r.unpublished.join(', ')}`); }
+  if (r.uncollected.length) { console.warn(`  ENROLLED BUT UNCOLLECTED: ${r.uncollected.join(', ')}`); }
+  if (r.untracked.length)   { console.warn(`  archives not in the tracked list: ${r.untracked.join(', ')}`); }
 }
 
 
@@ -431,4 +496,4 @@ if (require.main === module) {
   main().catch(e => { console.error(`collect_package_sizes failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { parseArgs, octalField, parseTar, deprecationOf, makeRecord, syncDeprecations, archiveFile, loadArchive, saveArchive, runPool, collectPackage };
+module.exports = { parseArgs, octalField, parseTar, deprecationOf, makeRecord, syncDeprecations, archiveFile, loadArchive, saveArchive, runPool, collectPackage, reconcile };

@@ -22,38 +22,36 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 6:14:49 PM
+## [Untagged] - Jul 27, 2026 11:38:37 AM
 
-Commit [0f747ca276d60f6c04f75ac11259642d94598108](https://github.com/StoneCypher/jssm/commit/0f747ca276d60f6c04f75ac11259642d94598108)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * refactor(v6): remainder the deno build
-  * The deno build was producing dist/deno/jssm.js as a BYTE-IDENTICAL copy of dist/jssm.es6.mjs, plus 39 duplicated .d.ts files and a second README -- 5.38 MB on disk, 1.0 MB in the published package, for an artifact that was no longer distinguishable from the ESM one.
-  * Its destination is also closed. deno.land/x went read-only: existing modules stay available and immutable, but no new module or version can be published there by anyone. So v6 could not have shipped to it with or without the local build, and the repo had no deno.json, no publishing workflow, and no CI step aiming at it -- the build fed a registry nothing was pushing to.
-  * Modern Deno needs none of it: npm: specifiers have worked since 1.28, and Deno 2 reads package.json directly, so `import { sm } from 'npm:jssm@6'` is the whole story. Environments_Deno.md is rewritten around that, and explains why the old deno.land/x pins keep working (they are immutable) while being frozen at 5.89.1 forever.
-  * Removes make_deno / min_deno, rollup.config.deno.js, the three dist/deno files entries, and the readme script's copy into dist/deno. Main package: 10.22 MB -> 9.20 MB, 77 files -> 36.
-  * JSR, the successor registry, is tracked separately as StoneCypher/fsl#1970 -- a new capability, not a replacement for this build.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 26, 2026 6:14:49 PM
-
-Commit [245b76a400754b9ca77fed9bf94f561b633e59c3](https://github.com/StoneCypher/jssm/commit/245b76a400754b9ca77fed9bf94f561b633e59c3)
+Commit [1a8b9609889078528a2c6041276df2f94e383bf3](https://github.com/StoneCypher/jssm/commit/1a8b9609889078528a2c6041276df2f94e383bf3)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * refactor(v6): remainder the deno build
-  * The deno build was producing dist/deno/jssm.js as a BYTE-IDENTICAL copy of dist/jssm.es6.mjs, plus 39 duplicated .d.ts files and a second README -- 5.38 MB on disk, 1.0 MB in the published package, for an artifact that was no longer distinguishable from the ESM one.
-  * Its destination is also closed. deno.land/x went read-only: existing modules stay available and immutable, but no new module or version can be published there by anyone. So v6 could not have shipped to it with or without the local build, and the repo had no deno.json, no publishing workflow, and no CI step aiming at it -- the build fed a registry nothing was pushing to.
-  * Modern Deno needs none of it: npm: specifiers have worked since 1.28, and Deno 2 reads package.json directly, so  is the whole story. Environments_Deno.md is rewritten around that, and explains why the old deno.land/x pins keep working (they are immutable) while being frozen at 5.89.1 forever.
-  * Removes make_deno / min_deno, rollup.config.deno.js, the three dist/deno files entries, and the readme script's copy into dist/deno. Main package: 10.22 MB -> 9.20 MB, 77 files -> 36.
-  * JSR, the successor registry, is tracked separately as StoneCypher/fsl#1970 -- a new capability, not a replacement for this build.
+  * docs(specs): decide npm ownership — self-publish now, co-publish as the FSL org later
+  * Widened the maintainer survey from 5 packages to 21 (15 published), which
+sharpened §2 and produced the answer.
+  * Ownership, actually surveyed:
+  *   9  purely self-published    apex, cypher, structured-text, cshtml-razor,
+                              luau, func, curl, 4d, vue
+  3  author + an org account  solidity, sap-abap, supercollider
+  3  org-owned core           highlight.js, cdn-assets, vue-plugin
+  6  no npm package at all    bbcode, raku, terraform, tsql, liquid, rdflang
+  * Two findings. An org account is never SOLE owner of a grammar -- always
+alongside the author, so it reads as adoption, not policy. And six org
+repos never shipped to npm at all, several starred and non-trivial:
+"repo exists in the org" and "grammar is installable" are separate
+states, and a third of the sample never reached the second. That is what
+"we will publish it later" looks like after a few years, and it is why
+fsl#1978 bundles publish with SUPPORTED_LANGUAGES.md registration.
+  * New 2b records John's decision: publish highlightjs-fsl from his own
+account now, then add the FSL org's npm account as a co-maintainer once
+that org exists (~Sept 2026). That is the solidity / sap-abap /
+supercollider pattern -- the ecosystem's own answer to succession -- and
+it beats the scoped form we rejected on every axis: no membership ask,
+no name change, no deprecation, no split download stats, no scoped-path
+work in the collector. `npm owner add` needs no republish.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
 
 
 
@@ -62,17 +60,24 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 5:49:37 PM
+## [Untagged] - Jul 27, 2026 11:32:40 AM
 
-Commit [8f3d75f04cc2b0fc19676843240a59ab4a7c4df4](https://github.com/StoneCypher/jssm/commit/8f3d75f04cc2b0fc19676843240a59ab4a7c4df4)
+Commit [da8b0234e5c9b8ceb2c8ae5eccc0aef71e610df0](https://github.com/StoneCypher/jssm/commit/da8b0234e5c9b8ceb2c8ae5eccc0aef71e610df0)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(v6): ship the safety-property checker as jssm-verify
-  * fsl_verify.ts has existed since the megaspec 17 work but reached no consumer: nothing imported it, it appeared in no rollup config, no files entry and no export map. It was described as a quarantined oracle, but the quarantine was already total -- the module contributed zero bytes to every published artifact, so the disk-space rationale had stopped costing anything.
-  * Promoting it is unusually cheap because of how it was written. It imports core for TYPES only: Machine appears solely in parameter positions, with no new, no instanceof, and no value crossing the boundary. Externalizing core therefore produces a 24 KB bundle containing none of jssm, and the manifest declares jssm an OPTIONAL peer rather than a dependency -- the machine-decoupled half of the API (check_graph_safety and friends) verifies plain adjacency graphs with no jssm installed at all.
-  * Also corrects two DocBlock examples that told readers to import from './fsl_verify'. Harmless while the module was internal; wrong the moment it ships, and visible in editors via the .d.ts.
-  * Verified by smoke test against the built bundle: reachability proved, absence refuted with the counterexample trace shut -> ajar -> wide, unreachability proved, the predicate algebra composing, and the graph API returning a correct verdict with no machine involved.
+  * docs(specs): re-close 2a; the scoped npm name was never reopened
+  * The previous commit reopened the @highlightjs/fsl question on a
+misreading. "I want to use highlightjs/fsl" meant the GitHub repo --
+https://github.com/highlightjs/highlightjs-fsl, org-hosted, already ours
+with push+maintain -- not the npm scope. Two different namespaces; only
+npm was ever in question, and John closed it.
+  * Settled shape:
+  *   npm     highlightjs-fsl                    unscoped, own account
+  github  highlightjs/highlightjs-fsl        org-hosted, already ours
+  * The org-hosting half is what docs/language-contribution.rst step 7
+describes, and it is done.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
 
 
 
@@ -81,17 +86,37 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 5:33:00 PM
+## [Untagged] - Jul 27, 2026 11:29:26 AM
 
-Commit [d49742f921992c791082ee1219658886f2036486](https://github.com/StoneCypher/jssm/commit/d49742f921992c791082ee1219658886f2036486)
+Commit [4aefe322fe9238f33854fc5ee88c7fa2d0f900fe](https://github.com/StoneCypher/jssm/commit/4aefe322fe9238f33854fc5ee88c7fa2d0f900fe)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * refactor(v6): rename jssm-cjs to jssm-commonjs to dodge npm's similarity filter
-  * npm blocks publishes whose name is confusingly similar to an existing package -- an anti-typosquatting check that returns 403 and cannot be rehearsed, since there is no dry run for it and a successful publish is permanent.
-  * Normalized the way npm compares (lowercase, hyphens stripped), 'jssmcjs' and 'jssmcli' differ by two characters in the middle of an otherwise identical string. That is precisely the shape the filter hunts for, and it is a genuine human-confusion risk besides: jssm-cjs and jssm-cli are hard to tell apart in a dependency list.
-  * jssm-commonjs is plainer English and moves the closest pair in the whole planned family from distance 2 to distance 3. The package was one commit old and unpublished, so the rename cost nothing.
-  * jssm-iife keeps its name: it has no near neighbour.
+  * docs(specs): correct the highlightjs CI claim; reopen the scoped-name question
+  * The previous commit asserted "no grammar repo in the org runs the
+language tests in CI. Not one." That is FALSE. It was drawn from file
+listings without reading two workflows whose names should have been
+obvious tells.
+  * Surveyed properly, 2 of 8 run their language tests on every push and PR:
+  * - highlightjs-solidity     test.yml, "Build and Test", npm ci -> npm test
+- highlightjs-cshtml-razor node.js.yml, matrix Node 10/12/14, npm test
+  * Both use their OWN mocha runner with highlight.js as a devDependency,
+not the core extra/ harness -- which is the actually useful finding: a
+repo that wants CI writes its own runner, because the documented
+workflow needs a checkout of another project and does not fit an Action.
+  * The org is actively maintained, not dormant: highlight.js pushed
+2026-07-26, apex 2026-07-22, jai 2026-07-21.
+  * What survives: the .expect.txt / .expected.txt hazard is still real, and
+highlightjs-luau still ships both spellings in one directory -- luau
+being one of the three repos with no CI at all, which is why nobody
+caught it. Narrower lesson, same direction: write a runner and wire it
+to CI, following solidity and cshtml-razor.
+  * Also reopens 2a. The scoped-name rejection rested on the org reading as
+a loose collection of drive-by grammars; an actively maintained org
+changes that calculus. Marked UNRESOLVED rather than flipped. The
+publish-unscoped-first ordering holds either way, since the unscoped
+name is an unclaimed squat target today.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
 
 
 
@@ -100,18 +125,36 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 4:53:02 PM
+## [Untagged] - Jul 27, 2026 11:24:05 AM
 
-Commit [b4654ffedba37c161c2b1b49340576619a3bc8f5](https://github.com/StoneCypher/jssm/commit/b4654ffedba37c161c2b1b49340576619a3bc8f5)
+Commit [d9a755bf0d1ca31ed2250a938facbd8d2bd840de](https://github.com/StoneCypher/jssm/commit/d9a755bf0d1ca31ed2250a938facbd8d2bd840de)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(v6): sequester the cjs and iife builds into jssm-cjs and jssm-iife
-  * First half of the esm-only-main-package split: the CommonJS and browser-global formats move out of the main package into compatibility packages of their own, alongside the functional split (viz / fence / cli) that already shipped. The main package's own eviction of those formats is the next step, not this one.
-  * Both are SELF-CONTAINED by necessity, not by preference. A thin package re-exporting core would fail exactly the audience it serves: once the main package is ESM only, require('jssm') is the thing a CJS consumer cannot do, and an IIFE runs in a script tag where no resolver exists at all. Each therefore bundles the whole graph from the same dist/es6 input the core build parses, and declares no jssm dependency.
-  * That broke an assumption in publish_workspaces, which required every member to carry a 'jssm': 'file:../..' line to rewrite and threw otherwise. SELF_CONTAINED now names the two packages explicitly, so the guard cuts both ways: a member that should have the self-dependency and lost it still fails loudly, and one of these that grows an unexpected one fails too.
-  * Types ship inside each package -- the .d.cts with the CJS build, the .d.ts with the IIFE. No @types/ packages, by decision: consumers hate them and they are a maintenance burden.
-  * Verified: both bundles build and run in their target environments (require() returns a working machine; the IIFE attaches a usable jssm global), the lockstep gate now covers six packages, the bloat gate passes all six, and the publish dry run orders all six correctly with the two compat packages correctly skipping the rewrite step.
+  * docs(specs): design the highlightjs-fsl repository
+  * Researched against the live highlightjs org (66 repos), the official
+3rd-party contribution guide, and eight exemplar grammars.
+  * Key findings:
+  * - No grammar is published under @highlightjs; all are unscoped and owned
+  by their individual authors. `highlightjs-fsl` is unclaimed and needs
+  no org membership. The scoped form was considered and rejected: it
+  would be the only scoped package of ~60.
+- The upstream repo is EMPTY (zero branches), so the first content must
+  arrive by direct push; a PR is impossible. John has push+maintain but
+  not admin, so CI secrets need an org owner.
+- Only five conventions are actually invariant across the eight surveyed
+  repos. The documented forms (src/languages/, default.txt, .expect.txt,
+  export default) are followed inconsistently in the wild, and
+  nonconformance fails SILENTLY -- highlightjs-luau ships both
+  .expect.txt and .expected.txt in one directory and nobody noticed,
+  because no grammar repo runs its language tests in CI.
+- The fence syntax is not a dialect; it lives entirely in the Markdown
+  info string. One grammar, aliases ['fsl', 'jssm'].
+- The grammar source belongs in this monorepo (derived from the same
+  token vocabulary as the TextMate builder), but the package and repo do
+  not: dist/ is built by highlight.js's own tooling, and monorepo
+  version lockstep would put highlightjs-fsl@6.x beside apex@1.66.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
 
 
 
@@ -120,15 +163,38 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 8:13:49 AM
+## [Untagged] - Jul 27, 2026 11:24:05 AM
 
-Commit [646087a0883792179d12279e33340b1cbd149565](https://github.com/StoneCypher/jssm/commit/646087a0883792179d12279e33340b1cbd149565)
+Commit [0e972c9e18d87e85bba260ea82f41ad1dccc8cb4](https://github.com/StoneCypher/jssm/commit/0e972c9e18d87e85bba260ea82f41ad1dccc8cb4)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * ci(commitlint): raise header cap to the measured 210 high-water mark
-  * This gate only runs on pull requests, so a long-lived integration branch accumulates commits that never face it and the whole backlog is linted at once on the merge down. The v6 branch carried 11 subjects over the 140 cap (144 through 209) out of 288; the only alternative was rewriting shared, already-pushed history.
-  * 210 is the measured maximum rather than a round number, so the value stays traceable to why it exists. The next-longest subject is 138, so the new cap neither blesses a norm nor sits at an arbitrary ceiling.
+  * @
+docs(specs): design the highlightjs-fsl repository
+  * Researched against the live highlightjs org (66 repos), the official
+3rd-party contribution guide, and eight exemplar grammars.
+  * Key findings:
+  * - No grammar is published under @highlightjs; all are unscoped and owned
+  by their individual authors. `highlightjs-fsl` is unclaimed and needs
+  no org membership. The scoped form was considered and rejected: it
+  would be the only scoped package of ~60.
+- The upstream repo is EMPTY (zero branches), so the first content must
+  arrive by direct push; a PR is impossible. John has push+maintain but
+  not admin, so CI secrets need an org owner.
+- Only five conventions are actually invariant across the eight surveyed
+  repos. The documented forms (src/languages/, default.txt, .expect.txt,
+  export default) are followed inconsistently in the wild, and
+  nonconformance fails SILENTLY -- highlightjs-luau ships both
+  .expect.txt and .expected.txt in one directory and nobody noticed,
+  because no grammar repo runs its language tests in CI.
+- The fence syntax is not a dialect; it lives entirely in the Markdown
+  info string. One grammar, aliases [fsl, jssm].
+- The grammar source belongs in this monorepo (derived from the same
+  token vocabulary as the TextMate builder), but the package and repo do
+  not: dist/ is built by highlight.js's own tooling, and monorepo
+  version lockstep would put highlightjs-fsl@6.x beside apex@1.66.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+@
 
 
 
@@ -137,16 +203,41 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 7:55:38 AM
+## [Untagged] - Jul 27, 2026 8:54:05 AM
 
-Commit [5ce3dc741c42ab2e88f4cedf00bec0b43e470a7d](https://github.com/StoneCypher/jssm/commit/5ce3dc741c42ab2e88f4cedf00bec0b43e470a7d)
+Commit [7a78a33d9aca1f17fdf7dbab672b8e31623bbd8e](https://github.com/StoneCypher/jssm/commit/7a78a33d9aca1f17fdf7dbab672b8e31623bbd8e)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * ci(commitlint): exempt hand-titled merge subjects, matching the config's stated intent
-  * The config already says merge commits are exempt, but commitlint's default ignores only match git's own wording -- 'Merge pull request', 'Merge branch', 'Merge remote-tracking'. A house-style merge titled 'merge: main 5.163.4 up into the 6.0.0-alpha integration line' instead parses as a Conventional Commit whose type is 'merge', which is not in the enum, so it failed the very rule merges are supposed to be exempt from. fdb7aeeb (2026-07-18) is a real two-parent merge commit that tripped this.
-  * Rewriting the message would need a force-push over 285 commits of shared history and would fix only that one commit -- the next hand-titled merge would fail identically. The ignore is deliberately narrow: only a leading 'merge:' token, so a commit that merely mentions merging is still linted.
-  * Also folds in the post-merge rebuild of dist, changelog and readme.
+  * docs(specs): checkpoint the org work-visibility corpus design
+  * Design checkpoint for generalizing the timeline_analysis prototype into a
+multi-repo corpus and timeline, driven by a real goal: a senior leader who
+feels he does not know what engineering is doing.
+  * Ten decisions recorded with rationale. The load-bearing ones:
+  * - Two allowlists, repos and people, because "may proprietary diffs go to an
+  LLM" is a policy question the tool cannot answer for itself. Nothing enters
+  the pipeline implicitly.
+- A GitHub App rather than an Action, since a per-repo Action structurally
+  cannot answer "what did this person do across the org". The App's
+  repo-selection screen then IS the repo allowlist, natively and with an audit
+  trail, which removes a mechanism we would otherwise have built. Kept
+  auth-only so it does not become a hosted service.
+- Allowlist by stable numeric ID, never by login or owner/name; both are
+  renameable and can come to point at someone or something else.
+- Work-centric primary view with person as a drill-down, and no aggregate
+  per-person number anywhere. An executive without context reads any
+  per-person view as productivity regardless of its label.
+- The corpus must display what it cannot see. Diff-derived attribution is
+  biased directionally, not randomly: it under-credits reviewers, designers
+  and mentors and over-credits volume. Demonstrated live while writing this --
+  a jssm-only search found one fork PR by a contributor whose actual
+  participation was nine design issues in the fsl tracker plus offline
+  conversation no query can reach.
+  * Explicitly a checkpoint, not a finished spec. The brainstorm stopped before
+proposing approaches; the OPEN section says where to resume and names the two
+hazards worth deciding first -- the multi-repo schema shape, and identity
+mapping, which could hole three decisions at once if the workplace is not on
+GitHub.
 
 
 
@@ -155,69 +246,129 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jul 26, 2026 3:55:28 AM
+## [Untagged] - Jul 27, 2026 7:56:00 AM
 
-Commit [9cdbfcf7b085f01db5b1993158747fa04a1b7700](https://github.com/StoneCypher/jssm/commit/9cdbfcf7b085f01db5b1993158747fa04a1b7700)
-
-Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
-
-  * chart: graviton perf trend 20260725-221149
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 26, 2026 3:55:11 AM
-
-Commit [1c2a23a839ee57e5aab8a81c9f440ba95ba92583](https://github.com/StoneCypher/jssm/commit/1c2a23a839ee57e5aab8a81c9f440ba95ba92583)
-
-Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
-
-  * perf: nightly sync of graviton runner results from S3
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 3:06:00 PM
-
-Commit [81cfaf7fc376c9ee0072c55395e2cb477dd924d8](https://github.com/StoneCypher/jssm/commit/81cfaf7fc376c9ee0072c55395e2cb477dd924d8)
+Commit [b9b5f0be1c6e3140ba2565daae2b24ec50c78ebc](https://github.com/StoneCypher/jssm/commit/b9b5f0be1c6e3140ba2565daae2b24ec50c78ebc)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [565805a9, dd801cfc]
+  * fix(packaging): loosen jssm-verify's peer pin to a range, and gate the invariant
+  * jssm-verify declared `"peerDependencies": { "jssm": "6.0.0-alpha.12" }` while
+shipping alpha.13. The drift was the symptom; the exact pin was the disease.
+  * Lockstep versioning and peer dependencies answer different questions. Lockstep
+says "these artifacts were cut together". A peer dependency says "here is what
+the host must supply for me to work". Pinning a peer to the lockstep version
+conflates them, and the conflation defeats the split that created the package:
+jssm-verify pinned to jssm at exactly 6.0.0-alpha.12 is unusable beside
+alpha.13, or 6.0.0, or any later patch -- which puts the two right back in
+lockstep, the coupling extracting them was meant to end.
+  * Now `^6.0.0-alpha.12`. Verified against node-semver rather than assumed: it
+admits alpha.13, beta.1, 6.0.0 and 6.1.4, and excludes 7.0.0. Note that a
+prerelease must appear in the range for prereleases to be eligible at all --
+the obvious-looking `^6.0.0` admits none of them, so it would have been wrong.
+  * The guard is a gate, not a makever change. Both makever.cjs and
+publish_workspaces.cjs deliberately scope their rewrites to `dependencies` so
+they cannot reach a same-named key elsewhere in the manifest -- publish's
+docblock says so explicitly. That scoping is correct, and teaching either to
+stamp peerDependencies would only automate the upkeep of a value that should
+not exist. So verify_peer_pins.cjs asserts the invariant instead: no workspace
+sibling may be pinned to an exact version in peerDependencies. Third-party
+peers are ignored, exact or not -- jssm-viz's lit and @codemirror pins are none
+of its business.
+  * Carries no dependency, not even semver: it runs in the same dependency-light
+job as the other release gates, where devDependencies are absent, and relying
+on the `npm install semver --no-save` a neighbouring step happens to do would
+couple it to that step's ordering.
+  * 14 unit tests. Verified non-vacuous: discovery really does see all seven
+sibling names, and replaying the pre-fix pin through the real discovery path
+fails with the right message.
 
-  * Merge remote-tracking branch 'origin/main' into docs_26-07-04_fable-v6-to-v16
-  * # Conflicts:
-#       CHANGELOG.long.md
-#       CHANGELOG.md
-#       README.md
-#       dist/cdn/instance.js
-#       dist/cdn/viz.js
-#       dist/cli/fsl-export-system-prompt.cjs
-#       dist/cli/fsl-render.cjs
-#       dist/cli/fsl.cjs
-#       dist/cli/lib.cjs
-#       dist/cli/lib.mjs
-#       dist/deno/README.md
-#       dist/deno/jssm.js
-#       dist/es6/version.js
-#       dist/fence/fence.js
-#       dist/jssm.es5.cjs
-#       dist/jssm.es5.iife.js
-#       dist/jssm.es5.nonmin.cjs
-#       dist/jssm.es6.mjs
-#       dist/jssm_viz.cjs
-#       dist/jssm_viz.iife.cjs
-#       dist/jssm_viz.mjs
-#       package-lock.json
-#       package.json
-#       src/doc_md/CHANGELOG.long.md
-#       src/doc_md/CHANGELOG.md
-#       src/ts/version.ts
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 7:23:55 PM
+
+Commit [f1346f722ca3e0467c8c956f20be1e2516cf3185](https://github.com/StoneCypher/jssm/commit/f1346f722ca3e0467c8c956f20be1e2516cf3185)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(packaging): declare sideEffects on the four packages that lacked it, and gate the invariant
+  * The four packages split out in v6 (jssm-fence, jssm-cli, jssm-commonjs,
+jssm-verify) shipped with `sideEffects` unset. All four are pure-export
+modules, so they now declare `sideEffects: false` and let bundlers drop
+what consumers do not import.
+  * The interesting half is the gate. `sideEffects` is a bundler PERMISSION,
+not a description: `false` licenses deleting any file nobody imports
+from, which is exactly wrong for a file whose entire purpose is the
+import. `dist/wc/viz.define.js` exports nothing and calls
+customElements.define; under a blanket `false` a bundler may drop it and
+the element silently never registers.
+  * jssm-viz shipped exactly that gap during the functional split -- the root
+package carried a whitelist, the extracted member package did not inherit
+it, and nothing noticed. So the invariant is now checked rather than
+remembered: verify_side_effects.cjs reads the same `npm pack --dry-run`
+manifest the bloat gate uses, classifies every shipped path, and fails
+when a declaration licenses deleting a registration, or when an effectful
+package declares nothing at all. A pure package that has simply not said
+so gets an advisory note, not a failure.
+  * Reuses the bloat gate's discovery and pack seam, which meant exporting
+`packPaths` -- defined and documented there, but not previously reachable.
+  * Wired into the verify-version-bump job beside the bloat gate. 26 new unit
+tests; all seven packages pass the real gate, with no stale-pattern notes,
+which confirms the whitelists match files that actually ship.
+  * Refs StoneCypher/fsl#1971
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 7:24:08 PM
+
+Commit [7ce365f432eeb855893417d6e29549cd7220ba18](https://github.com/StoneCypher/jssm/commit/7ce365f432eeb855893417d6e29549cd7220ba18)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(chart): collect the three new v6 packages, so the size chart can draw all seven
+  * Answers the open question from the packaging handoff: can the size/flow
+chart present from the alphas?
+  * It can, and it needs almost nothing. The collector never filtered
+prereleases -- it walks every key of the packument and keeps anything with
+a tarball, so `6.0.0-alpha.N` was always collectable. And the renderer is
+open by default: make_size_chart.cjs treats a package with no LIFECYCLE
+entry as `current`, so a newly collected package appears with no code
+change at all.
+  * The only gap was the tracked list. jssm-fence and jssm-cli were already
+named; jssm-commonjs, jssm-iife and jssm-verify were not. Adding them is
+the whole fix -- no collector change, no backfill, since there is nothing
+to backfill until they first publish.
+  * Two things still gate the chart actually filling in: the five new packages
+must exist on npm, and this branch must merge, because a `schedule:`
+trigger only fires from the default branch and package_sizes.yml has
+therefore never run a nightly.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 7:28:54 PM
+
+Commit [c9e9b2094548a19075d23243fef5fa4b28a76088](https://github.com/StoneCypher/jssm/commit/c9e9b2094548a19075d23243fef5fa4b28a76088)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(notes): drop the packaging handoff; it was session scaffolding, not repo docs
+  * A between-sessions handoff has no business riding this branch into main and
+outliving the sessions it was written for. Its durable content already lives
+elsewhere: the packaging work is in its own commit messages, the alpha-Sankey
+answer is in the collector commit, and the landmines plus the peerDependencies
+lockstep gap are recorded outside the repo.

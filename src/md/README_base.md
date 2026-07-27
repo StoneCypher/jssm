@@ -408,6 +408,7 @@ That decision shows up everywhere downstream:
 | Method | Purpose |
 |---|---|
 | `` sm`...` `` | Build a machine from DSL |
+| `` fsl`...` `` | Exact alias of `` sm`...` ``.  Prefer it in highlighted sources: syntax highlighters key on the tag name, and `fsl` names the language unambiguously where `sm` collides with ordinary identifiers. |
 | `.state()` | The current state |
 | `.transition(state)` | Move to a state. Returns `false` if illegal, throws if unknown. |
 | `.force_transition(state)` | Move to a state across a `~>` forced edge |

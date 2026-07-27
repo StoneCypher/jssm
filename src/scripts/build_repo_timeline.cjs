@@ -41,7 +41,7 @@ const CATEGORIES = [
     'typedoc-plugin-fsl',
     'require_jssm || should be require_fsl',
     'jssm-viz-action || should be fsl-viz-action and maybe should be an application instead, haven’t thought it through',
-    'fsl_gen_docpage', 'fslbook', 'fsllang.com', 'jssm-tutorial-scratch',
+    'fsl_gen_docpage', 'fslbook', 'fsllang.com', 'fsl.tools', 'jssm-tutorial-scratch',
   ]],
   ['wanted but never took off, obsoleted by new work', [
     'fsl-code', 'fsl-lezer', 'fsl-lezer-demo', 'fslc', 'fsled', 'fsli', 'fslp', 'fsllint',
@@ -222,13 +222,56 @@ function buildDataset(meta) {
 }
 
 
+/**
+ *  Audit the curated list against what the owner actually has, so a repo cannot
+ *  sit outside the diagram unnoticed.
+ *
+ *  Two directions, both silent before this existed. A curated name that no
+ *  longer resolves — renamed, transferred, deleted — is warned per-entry inside
+ *  {@link buildDataset}, but never summarised. The other direction is the one
+ *  that actually bites: a real repo nobody ever enrolled simply never appears,
+ *  and the diagram looks complete while missing it.
+ *
+ *  @param curated - Repo names the diagram draws.
+ *  @param ownerRepos - Every repo name found under the owner account.
+ *  @returns `{ missing, unenrolled }`. Cross-owner entries (written
+ *           `owner/name`) are excluded from `missing`: they are fetched
+ *           separately and are not expected in this owner's listing.
+ *           `unenrolled` is filtered to names containing `fsl` or `jssm`,
+ *           because the account holds many unrelated projects and an unfiltered
+ *           list is noise nobody reads — a relevant repo named neither is the
+ *           known blind spot.
+ *
+ *  @example
+ *  auditEnrollment(['jssm', 'highlightjs/highlightjs-fsl'], ['jssm', 'fsl.tools', 'unrelated']);
+ *  // => { missing: [], unenrolled: ['fsl.tools'] }
+ *
+ *  @see buildDataset
+ */
+function auditEnrollment(curated, ownerRepos) {
+  const cur = new Set(curated);
+  const own = new Set(ownerRepos);
+
+  return {
+    missing    : curated.filter(n => !n.includes('/') && !own.has(n)),
+    unenrolled : ownerRepos.filter(n => !cur.has(n) && /fsl|jssm/i.test(n)),
+  };
+}
+
+
 /** Entry point. */
 function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const dataset = buildDataset(fetchRepoMeta(opts.owner));
+  const meta = fetchRepoMeta(opts.owner);
+  const dataset = buildDataset(meta);
   fs.mkdirSync(opts.outDir, { recursive: true });
   fs.writeFileSync(path.join(opts.outDir, 'repos.json'), JSON.stringify(dataset, null, 2) + '\n');
   console.log(`${dataset.repos.length} repos across ${dataset.categoryOrder.length} categories -> ${path.join(opts.outDir, 'repos.json')}`);
+
+  const audit = auditEnrollment(dataset.repos.map(r => r.name), [...meta.keys()]);
+  console.log(`reconcile: ${dataset.repos.length} curated, ${audit.missing.length} unresolved, ${audit.unenrolled.length} unenrolled`);
+  if (audit.missing.length)    { console.warn(`  curated but not found under ${opts.owner}: ${audit.missing.join(', ')}`); }
+  if (audit.unenrolled.length) { console.warn(`  UNENROLLED fsl/jssm repos — real, but not in the diagram: ${audit.unenrolled.join(', ')}`); }
 }
 
 if (require.main === module) {
@@ -236,4 +279,4 @@ if (require.main === module) {
   catch (e) { console.error(`build_repo_timeline failed: ${e.message}`); process.exit(1); }
 }
 
-module.exports = { parseArgs, buildDataset, CATEGORIES, OBSOLETION };
+module.exports = { parseArgs, buildDataset, auditEnrollment, CATEGORIES, OBSOLETION };

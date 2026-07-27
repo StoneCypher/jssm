@@ -4192,6 +4192,14 @@ declare class Machine<mDT> {
      *  @returns A new {@link Machine} instance.
      */
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 
 /**

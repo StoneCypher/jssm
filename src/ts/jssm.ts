@@ -7354,13 +7354,28 @@ class Machine<mDT> {
    *  @param remainder        - Interpolated values.
    *  @returns A new {@link Machine} instance.
    */
-   
-   
+
+
   sm(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
     return sm(template_strings, ...remainder);
   }
-   
-   
+
+
+
+  /**
+   * Convenience method to create a new machine from a tagged template literal;
+   *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+   *  @param template_strings - The template string array.
+   *  @param remainder        - Interpolated values.
+   *  @returns A new {@link Machine} instance.
+   */
+
+
+  fsl(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
+    return sm(template_strings, ...remainder);
+  }
+
+
 
 
 }
@@ -7412,6 +7427,44 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
   )));
 
+}
+
+
+
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  ```typescript
+ *  import { fsl } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  lswitch.state();  // => 'on'
+ *  ```
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+
+function fsl<mDT>(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
+  return sm<mDT>(template_strings, ...remainder);
 }
 
 
@@ -7915,6 +7968,7 @@ export {
   
 
   sm,
+  fsl,
   from,
 
   

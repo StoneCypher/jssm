@@ -5088,6 +5088,14 @@ declare class Machine<mDT> {
      *  @returns A new {@link Machine} instance.
      */
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 /*********
  *
@@ -5113,6 +5121,38 @@ declare class Machine<mDT> {
  *
  */
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  ```typescript
+ *  import { fsl } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  lswitch.state();  // => 'on'
+ *  ```
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+declare function fsl<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 /*********
  *
  *  Create a state machine from an implementation string.  This is one of the
@@ -5297,5 +5337,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
 export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions, ReplayErrorKind, ReplayResult, ReplayStep, Stimulus, StimulusTape, TapeHeader };

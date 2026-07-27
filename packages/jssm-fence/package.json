@@ -1,6 +1,6 @@
 {
   "name": "jssm-fence",
-  "version": "6.0.0-alpha.13",
+  "version": "6.0.0-alpha.14",
   "description": "Markdown fence rendering for jssm state machines (split from the jssm package in v6)",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-fence" },
@@ -12,6 +12,6 @@
   },
   "files": ["dist/", "README.md"],
   "sideEffects": false,
-  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.13" },
+  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.14" },
   "optionalDependencies": { "@resvg/resvg-wasm": "^2.6.0" }
 }

@@ -10,7 +10,52 @@ const cps = require('../collect_package_sizes.cjs');
 // here. The tar reader is additionally validated end-to-end against a real npm
 // tarball during development (61/61 files, total == packument unpackedSize).
 
-const { parseArgs, octalField, parseTar, runPool, deprecationOf, makeRecord, syncDeprecations } = cps;
+const { parseArgs, octalField, parseTar, runPool, deprecationOf, makeRecord, syncDeprecations, reconcile } = cps;
+
+
+describe('reconcile', () => {
+
+  it('partitions every tracked name across exactly one group', () => {
+    const r = reconcile(['a', 'b', 'c'], ['a'], ['b']);
+    expect(r.collected).toEqual(['a']);
+    expect(r.unpublished).toEqual(['b']);
+    expect(r.uncollected).toEqual(['c']);
+    expect(r.collected.length + r.unpublished.length + r.uncollected.length).toBe(3);
+  });
+
+  it('separates never-published from enrolled-but-never-run', () => {
+    // The distinction the function exists for: jssm-fence 404s, while
+    // jssm-viz-cli is published and simply was never collected.
+    const r = reconcile(['jssm-fence', 'jssm-viz-cli'], [], ['jssm-fence']);
+    expect(r.unpublished).toEqual(['jssm-fence']);
+    expect(r.uncollected).toEqual(['jssm-viz-cli']);
+  });
+
+  it('reports an archive nobody tracks as untracked', () => {
+    const r = reconcile(['a'], ['a', 'orphan'], []);
+    expect(r.untracked).toEqual(['orphan']);
+  });
+
+  it('calls a package with bytes on disk collected even if the run 404d it', () => {
+    // Stale archive for a name that has since been unpublished: the bytes are
+    // still drawn by the chart, so "collected" is the honest classification.
+    const r = reconcile(['a'], ['a'], ['a']);
+    expect(r.collected).toEqual(['a']);
+    expect(r.unpublished).toEqual([]);
+  });
+
+  it('is empty in every group when nothing is tracked and nothing is on disk', () => {
+    expect(reconcile([], [], [])).toEqual({
+      collected: [], unpublished: [], uncollected: [], untracked: [],
+    });
+  });
+
+  it('preserves tracked order rather than sorting', () => {
+    const r = reconcile(['z', 'y', 'x'], ['z', 'y', 'x'], []);
+    expect(r.collected).toEqual(['z', 'y', 'x']);
+  });
+
+});
 
 
 /**

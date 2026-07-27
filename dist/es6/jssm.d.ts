@@ -2794,6 +2794,14 @@ declare class Machine<mDT> {
      *  @returns A new {@link Machine} instance.
      */
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 /*********
  *
@@ -2819,6 +2827,38 @@ declare class Machine<mDT> {
  *
  */
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  ```typescript
+ *  import { fsl } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  lswitch.state();  // => 'on'
+ *  ```
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+declare function fsl<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 /*********
  *
  *  Create a state machine from an implementation string.  This is one of the
@@ -3002,7 +3042,7 @@ declare function compareVersions(v1: string, v2: string): number;
  * restored.state();  // => 'a'
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { transfer_state_properties, Machine, deserialize, compareVersions, sm, from, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, };
+export { transfer_state_properties, Machine, deserialize, compareVersions, sm, fsl, from, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, };
 export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
 export type { FencePart, FenceImageFormat, FenceDimensionUnit, FenceDimension, FenceDescriptor } from './fsl_markdown_fence';
 export { FslDirections } from './jssm_types.js';

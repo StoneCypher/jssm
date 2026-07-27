@@ -1,6 +1,6 @@
 {
   "name": "jssm-cli",
-  "version": "6.0.0-alpha.13",
+  "version": "6.0.0-alpha.14",
   "description": "Command-line tools for jssm and the FSL state-machine language (split from the jssm package in v6)",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-cli" },
@@ -18,5 +18,5 @@
   },
   "files": ["dist/", "README.md"],
   "sideEffects": false,
-  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.13", "jssm-fence": "6.0.0-alpha.13", "ajv": "^8.20.0" }
+  "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.14", "jssm-fence": "6.0.0-alpha.14", "ajv": "^8.20.0" }
 }

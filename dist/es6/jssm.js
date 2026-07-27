@@ -5521,6 +5521,16 @@ class Machine {
     sm(template_strings, ...remainder /* , arguments */) {
         return sm(template_strings, ...remainder);
     }
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings, ...remainder /* , arguments */) {
+        return sm(template_strings, ...remainder);
+    }
 }
 _Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machine_unsubscribe_entry(set, entry) {
     if (set.delete(entry)) {
@@ -5765,6 +5775,40 @@ function sm(template_strings, ...remainder /* , arguments */) {
     // string notation, as designed, it's not really worth the hassle
     (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
     )));
+}
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  ```typescript
+ *  import { fsl } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  lswitch.state();  // => 'on'
+ *  ```
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+function fsl(template_strings, ...remainder /* , arguments */) {
+    return sm(template_strings, ...remainder);
 }
 /*********
  *
@@ -6172,7 +6216,7 @@ function deserialize(machine_string, ser) {
         machine._history.push(history_item);
     return machine;
 }
-export { transfer_state_properties, Machine, deserialize, compareVersions, sm, from, 
+export { transfer_state_properties, Machine, deserialize, compareVersions, sm, fsl, from, 
 // WHARGARBL TODO these should be exported to a utility library
 shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense,
 //  FslThemes
