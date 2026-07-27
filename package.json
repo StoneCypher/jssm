@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "6.0.0-alpha.12",
+  "version": "6.0.0-alpha.13",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -10,94 +10,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "fsl": "./dist/cli/fsl.cjs",
-    "jssm": "./dist/cli/fsl.cjs",
-    "fsl-render": "./dist/cli/fsl-render.cjs",
-    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
-  },
   "exports": {
     ".": {
       "types": "./jssm.es6.d.ts",
       "import": "./dist/jssm.es6.mjs",
       "default": "./dist/jssm.es6.mjs"
     },
-    "./viz": {
-      "require": {
-        "types": "./jssm_viz.es5.d.cts",
-        "default": "./dist/jssm_viz.cjs"
-      },
-      "import": {
-        "types": "./jssm_viz.es6.d.ts",
-        "default": "./dist/jssm_viz.mjs"
-      },
-      "browser": "./dist/jssm_viz.iife.cjs"
-    },
-    "./cli": {
-      "require": {
-        "types": "./jssm.cli.d.cts",
-        "default": "./dist/cli/lib.cjs"
-      },
-      "import": {
-        "types": "./jssm.cli.d.ts",
-        "default": "./dist/cli/lib.mjs"
-      }
-    },
-    "./wc/viz": {
-      "import": "./dist/wc/viz.js",
-      "default": "./dist/wc/viz.js"
-    },
-    "./wc/viz/define": {
-      "import": "./dist/wc/viz.define.js",
-      "default": "./dist/wc/viz.define.js"
-    },
-    "./wc/instance": {
-      "import": "./dist/wc/instance.js",
-      "default": "./dist/wc/instance.js"
-    },
-    "./wc/instance/define": {
-      "import": "./dist/wc/instance.define.js",
-      "default": "./dist/wc/instance.define.js"
-    },
-    "./wc/editor": {
-      "import": "./dist/wc/editor.js",
-      "default": "./dist/wc/editor.js"
-    },
-    "./wc/editor/define": {
-      "import": "./dist/wc/editor.define.js",
-      "default": "./dist/wc/editor.define.js"
-    },
-    "./wc/widgets": {
-      "import": "./dist/wc/widgets.js",
-      "default": "./dist/wc/widgets.js"
-    },
-    "./wc/widgets/define": {
-      "import": "./dist/wc/widgets.define.js",
-      "default": "./dist/wc/widgets.define.js"
-    },
-    "./wc/docs": {
-      "import": "./dist/wc/docs.js",
-      "default": "./dist/wc/docs.js"
-    },
-    "./wc/docs/define": {
-      "import": "./dist/wc/docs.define.js",
-      "default": "./dist/wc/docs.define.js"
-    },
-    "./cm6": {
-      "types": "./dist/es6/cm6/fsl_language.d.ts",
-      "import": "./dist/cm6/fsl_language.js",
-      "default": "./dist/cm6/fsl_language.js"
-    },
-    "./fence": {
-      "types": "./jssm.fence.d.ts",
-      "import": "./dist/fence/fence.js",
-      "default": "./dist/fence/fence.js"
-    },
     "./grammar": "./dist/grammars/fsl.tmLanguage.json",
-    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json",
-    "./cdn/viz": "./dist/cdn/viz.js",
-    "./cdn/instance": "./dist/cdn/instance.js",
-    "./custom-elements.json": "./custom-elements.json"
+    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json"
   },
   "autoupdate": {
     "source": "git",
@@ -106,49 +26,20 @@
       {
         "basePath": "/dist",
         "files": [
-          "jssm.es5.cjs"
+          "jssm.es6.mjs"
         ]
       }
     ]
   },
   "type": "module",
-  "sideEffects": [
-    "./dist/wc/*.define.js",
-    "./dist/cdn/**"
-  ],
+  "sideEffects": false,
   "files": [
     "dist/jssm.es6.mjs",
-    "dist/jssm_viz.cjs",
-    "dist/jssm_viz.iife.cjs",
-    "dist/jssm_viz.mjs",
-    "dist/wc/viz.js",
-    "dist/wc/viz.define.js",
-    "dist/wc/instance.js",
-    "dist/wc/instance.define.js",
-    "dist/wc/editor.js",
-    "dist/wc/editor.define.js",
-    "dist/wc/widgets.js",
-    "dist/wc/widgets.define.js",
-    "dist/wc/docs.js",
-    "dist/wc/docs.define.js",
-    "dist/cm6/fsl_language.js",
-    "dist/es6/cm6/fsl_language.d.ts",
-    "dist/fence/fence.js",
     "dist/grammars/fsl.tmLanguage.json",
-    "dist/cdn/viz.js",
-    "dist/cdn/instance.js",
-    "dist/cli/lib.cjs",
-    "dist/cli/lib.mjs",
     "jssm.es6.d.ts",
-    "jssm_viz.es5.d.cts",
-    "jssm_viz.es6.d.ts",
-    "jssm.cli.d.cts",
-    "jssm.cli.d.ts",
-    "jssm.fence.d.ts",
-    "MIGRATING-jssm-viz.md",
-    "custom-elements.json"
+    "MIGRATING-jssm-viz.md"
   ],
-  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript.  Visualization, CLI, markdown fences and verification ship as separate packages.  MIT License.",
   "main": "dist/jssm.es6.mjs",
   "module": "dist/jssm.es6.mjs",
   "types": "./jssm.es6.d.ts",

@@ -32,7 +32,7 @@
  *  Prove a designed failure state is unreachable from start:
  *  ```typescript
  *  import { sm }                      from 'jssm';
- *  import { check_safety, absence }   from './fsl_verify';
+ *  import { check_safety, absence }   from 'jssm-verify';
  *
  *  const door = sm`shut 'open' -> ajar 'open' -> wide;`;
  *  check_safety(door, absence('wide')).holds;   // false — 'wide' is reachable
@@ -369,7 +369,7 @@ declare const resolve_starts: <mDT>(machine: Machine<mDT>, starts: ReadonlyArray
  *  An invariant that holds, then one that fails with a counterexample:
  *  ```typescript
  *  import { sm }                                     from 'jssm';
- *  import { check_safety, always, p_not, is_error } from './fsl_verify';
+ *  import { check_safety, always, p_not, is_error } from 'jssm-verify';
  *
  *  const flow = sm`idle 'go' -> work 'finish' -> done;`;
  *

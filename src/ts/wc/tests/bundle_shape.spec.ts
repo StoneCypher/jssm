@@ -2,7 +2,7 @@
  * @vitest-environment node
  */
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 describe('dist/wc/viz.js — bundler-friendly build', () => {
@@ -301,7 +301,19 @@ describe('dist/wc/widgets.define.js — registration entry point', () => {
 
 describe('package.json exposure', () => {
 
-  const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
+  //  The web-component surface moved to jssm-viz in v6: the main package is
+  //  ESM core only, and every wc/* and cdn/* subpath is now that package's to
+  //  expose.  These assertions follow the surface rather than the file.
+  const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../packages/jssm-viz/package.json'), 'utf8'));
+
+  const root_pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
+
+  it('the main package no longer exposes any wc or cdn subpath', () => {
+    const json = JSON.stringify(root_pkg.exports);
+    for (const gone of ['./wc/', './cdn/', './viz', './fence', './cli']) {
+      expect(json, `main package still exposes ${gone}`).not.toContain(gone);
+    }
+  });
 
   it('exposes the wc/viz subpath', () => {
     const json = JSON.stringify(pkg.exports);
@@ -367,19 +379,29 @@ describe('package.json exposure', () => {
     expect(pkg.peerDependenciesMeta?.lit?.optional).toBe(true);
   });
 
-  it('lists the new wc and cdn dist files for publication', () => {
-    const json = JSON.stringify(pkg.files);
-    expect(json).toContain('dist/wc/viz.js');
-    expect(json).toContain('dist/wc/viz.define.js');
-    expect(json).toContain('dist/cdn/viz.js');
-    expect(json).toContain('dist/wc/instance.js');
-    expect(json).toContain('dist/wc/instance.define.js');
-    expect(json).toContain('dist/wc/editor.js');
-    expect(json).toContain('dist/wc/editor.define.js');
-    expect(json).toContain('dist/wc/widgets.js');
-    expect(json).toContain('dist/wc/widgets.define.js');
-    expect(json).toContain('dist/cdn/instance.js');
-    expect(json).toContain('custom-elements.json');
+  it('publishes every wc and cdn artifact', () => {
+
+    //  jssm-viz allowlists the whole `dist/` directory rather than naming each
+    //  bundle, so asserting on the manifest text would prove nothing.  Check
+    //  the artifacts themselves exist and are non-empty — the property the
+    //  original file-list assertion was standing in for.
+    const pkg_root = resolve(__dirname, '../../../../packages/jssm-viz');
+
+    expect(JSON.stringify(pkg.files)).toContain('dist/');
+    expect(JSON.stringify(pkg.files)).toContain('custom-elements.json');
+
+    for (const rel of [
+      'dist/wc/viz.js',      'dist/wc/viz.define.js',      'dist/cdn/viz.js',
+      'dist/wc/instance.js', 'dist/wc/instance.define.js', 'dist/cdn/instance.js',
+      'dist/wc/editor.js',   'dist/wc/editor.define.js',
+      'dist/wc/widgets.js',  'dist/wc/widgets.define.js',
+      'custom-elements.json',
+    ]) {
+      const full = resolve(pkg_root, rel);
+      expect(existsSync(full), `jssm-viz is missing ${rel}`).toBe(true);
+      expect(statSync(full).size, `jssm-viz ships an empty ${rel}`).toBeGreaterThan(0);
+    }
+
   });
 
 });

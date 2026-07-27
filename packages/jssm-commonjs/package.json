@@ -1,6 +1,6 @@
 {
   "name": "jssm-commonjs",
-  "version": "6.0.0-alpha.12",
+  "version": "6.0.0-alpha.13",
   "description": "CommonJS build of jssm, for consumers that require() rather than import (split from the jssm package in v6)",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-commonjs" },

@@ -1,6 +1,6 @@
 {
   "name": "jssm-verify",
-  "version": "6.0.0-alpha.12",
+  "version": "6.0.0-alpha.13",
   "description": "Temporal safety-property verification for jssm state machines — invariants, reachability, and replayable counterexample traces (split from the jssm package in v6)",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-verify" },

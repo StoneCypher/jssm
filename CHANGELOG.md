@@ -22,6 +22,169 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jul 26, 2026 6:14:49 PM
+
+Commit [0f747ca276d60f6c04f75ac11259642d94598108](https://github.com/StoneCypher/jssm/commit/0f747ca276d60f6c04f75ac11259642d94598108)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(v6): remainder the deno build
+  * The deno build was producing dist/deno/jssm.js as a BYTE-IDENTICAL copy of dist/jssm.es6.mjs, plus 39 duplicated .d.ts files and a second README -- 5.38 MB on disk, 1.0 MB in the published package, for an artifact that was no longer distinguishable from the ESM one.
+  * Its destination is also closed. deno.land/x went read-only: existing modules stay available and immutable, but no new module or version can be published there by anyone. So v6 could not have shipped to it with or without the local build, and the repo had no deno.json, no publishing workflow, and no CI step aiming at it -- the build fed a registry nothing was pushing to.
+  * Modern Deno needs none of it: npm: specifiers have worked since 1.28, and Deno 2 reads package.json directly, so `import { sm } from 'npm:jssm@6'` is the whole story. Environments_Deno.md is rewritten around that, and explains why the old deno.land/x pins keep working (they are immutable) while being frozen at 5.89.1 forever.
+  * Removes make_deno / min_deno, rollup.config.deno.js, the three dist/deno files entries, and the readme script's copy into dist/deno. Main package: 10.22 MB -> 9.20 MB, 77 files -> 36.
+  * JSR, the successor registry, is tracked separately as StoneCypher/fsl#1970 -- a new capability, not a replacement for this build.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 6:14:49 PM
+
+Commit [245b76a400754b9ca77fed9bf94f561b633e59c3](https://github.com/StoneCypher/jssm/commit/245b76a400754b9ca77fed9bf94f561b633e59c3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(v6): remainder the deno build
+  * The deno build was producing dist/deno/jssm.js as a BYTE-IDENTICAL copy of dist/jssm.es6.mjs, plus 39 duplicated .d.ts files and a second README -- 5.38 MB on disk, 1.0 MB in the published package, for an artifact that was no longer distinguishable from the ESM one.
+  * Its destination is also closed. deno.land/x went read-only: existing modules stay available and immutable, but no new module or version can be published there by anyone. So v6 could not have shipped to it with or without the local build, and the repo had no deno.json, no publishing workflow, and no CI step aiming at it -- the build fed a registry nothing was pushing to.
+  * Modern Deno needs none of it: npm: specifiers have worked since 1.28, and Deno 2 reads package.json directly, so  is the whole story. Environments_Deno.md is rewritten around that, and explains why the old deno.land/x pins keep working (they are immutable) while being frozen at 5.89.1 forever.
+  * Removes make_deno / min_deno, rollup.config.deno.js, the three dist/deno files entries, and the readme script's copy into dist/deno. Main package: 10.22 MB -> 9.20 MB, 77 files -> 36.
+  * JSR, the successor registry, is tracked separately as StoneCypher/fsl#1970 -- a new capability, not a replacement for this build.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 5:49:37 PM
+
+Commit [8f3d75f04cc2b0fc19676843240a59ab4a7c4df4](https://github.com/StoneCypher/jssm/commit/8f3d75f04cc2b0fc19676843240a59ab4a7c4df4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): ship the safety-property checker as jssm-verify
+  * fsl_verify.ts has existed since the megaspec 17 work but reached no consumer: nothing imported it, it appeared in no rollup config, no files entry and no export map. It was described as a quarantined oracle, but the quarantine was already total -- the module contributed zero bytes to every published artifact, so the disk-space rationale had stopped costing anything.
+  * Promoting it is unusually cheap because of how it was written. It imports core for TYPES only: Machine appears solely in parameter positions, with no new, no instanceof, and no value crossing the boundary. Externalizing core therefore produces a 24 KB bundle containing none of jssm, and the manifest declares jssm an OPTIONAL peer rather than a dependency -- the machine-decoupled half of the API (check_graph_safety and friends) verifies plain adjacency graphs with no jssm installed at all.
+  * Also corrects two DocBlock examples that told readers to import from './fsl_verify'. Harmless while the module was internal; wrong the moment it ships, and visible in editors via the .d.ts.
+  * Verified by smoke test against the built bundle: reachability proved, absence refuted with the counterexample trace shut -> ajar -> wide, unreachability proved, the predicate algebra composing, and the graph API returning a correct verdict with no machine involved.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 5:33:00 PM
+
+Commit [d49742f921992c791082ee1219658886f2036486](https://github.com/StoneCypher/jssm/commit/d49742f921992c791082ee1219658886f2036486)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(v6): rename jssm-cjs to jssm-commonjs to dodge npm's similarity filter
+  * npm blocks publishes whose name is confusingly similar to an existing package -- an anti-typosquatting check that returns 403 and cannot be rehearsed, since there is no dry run for it and a successful publish is permanent.
+  * Normalized the way npm compares (lowercase, hyphens stripped), 'jssmcjs' and 'jssmcli' differ by two characters in the middle of an otherwise identical string. That is precisely the shape the filter hunts for, and it is a genuine human-confusion risk besides: jssm-cjs and jssm-cli are hard to tell apart in a dependency list.
+  * jssm-commonjs is plainer English and moves the closest pair in the whole planned family from distance 2 to distance 3. The package was one commit old and unpublished, so the rename cost nothing.
+  * jssm-iife keeps its name: it has no near neighbour.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 4:53:02 PM
+
+Commit [b4654ffedba37c161c2b1b49340576619a3bc8f5](https://github.com/StoneCypher/jssm/commit/b4654ffedba37c161c2b1b49340576619a3bc8f5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): sequester the cjs and iife builds into jssm-cjs and jssm-iife
+  * First half of the esm-only-main-package split: the CommonJS and browser-global formats move out of the main package into compatibility packages of their own, alongside the functional split (viz / fence / cli) that already shipped. The main package's own eviction of those formats is the next step, not this one.
+  * Both are SELF-CONTAINED by necessity, not by preference. A thin package re-exporting core would fail exactly the audience it serves: once the main package is ESM only, require('jssm') is the thing a CJS consumer cannot do, and an IIFE runs in a script tag where no resolver exists at all. Each therefore bundles the whole graph from the same dist/es6 input the core build parses, and declares no jssm dependency.
+  * That broke an assumption in publish_workspaces, which required every member to carry a 'jssm': 'file:../..' line to rewrite and threw otherwise. SELF_CONTAINED now names the two packages explicitly, so the guard cuts both ways: a member that should have the self-dependency and lost it still fails loudly, and one of these that grows an unexpected one fails too.
+  * Types ship inside each package -- the .d.cts with the CJS build, the .d.ts with the IIFE. No @types/ packages, by decision: consumers hate them and they are a maintenance burden.
+  * Verified: both bundles build and run in their target environments (require() returns a working machine; the IIFE attaches a usable jssm global), the lockstep gate now covers six packages, the bloat gate passes all six, and the publish dry run orders all six correctly with the two compat packages correctly skipping the rewrite step.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 8:13:49 AM
+
+Commit [646087a0883792179d12279e33340b1cbd149565](https://github.com/StoneCypher/jssm/commit/646087a0883792179d12279e33340b1cbd149565)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci(commitlint): raise header cap to the measured 210 high-water mark
+  * This gate only runs on pull requests, so a long-lived integration branch accumulates commits that never face it and the whole backlog is linted at once on the merge down. The v6 branch carried 11 subjects over the 140 cap (144 through 209) out of 288; the only alternative was rewriting shared, already-pushed history.
+  * 210 is the measured maximum rather than a round number, so the value stays traceable to why it exists. The next-longest subject is 138, so the new cap neither blesses a norm nor sits at an arbitrary ceiling.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 7:55:38 AM
+
+Commit [5ce3dc741c42ab2e88f4cedf00bec0b43e470a7d](https://github.com/StoneCypher/jssm/commit/5ce3dc741c42ab2e88f4cedf00bec0b43e470a7d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci(commitlint): exempt hand-titled merge subjects, matching the config's stated intent
+  * The config already says merge commits are exempt, but commitlint's default ignores only match git's own wording -- 'Merge pull request', 'Merge branch', 'Merge remote-tracking'. A house-style merge titled 'merge: main 5.163.4 up into the 6.0.0-alpha integration line' instead parses as a Conventional Commit whose type is 'merge', which is not in the enum, so it failed the very rule merges are supposed to be exempt from. fdb7aeeb (2026-07-18) is a real two-parent merge commit that tripped this.
+  * Rewriting the message would need a force-push over 285 commits of shared history and would fix only that one commit -- the next hand-titled merge would fail identically. The ignore is deliberately narrow: only a leading 'merge:' token, so a commit that merely mentions merging is still linted.
+  * Also folds in the post-merge rebuild of dist, changelog and readme.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 3:55:28 AM
+
+Commit [9cdbfcf7b085f01db5b1993158747fa04a1b7700](https://github.com/StoneCypher/jssm/commit/9cdbfcf7b085f01db5b1993158747fa04a1b7700)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260725-221149
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 26, 2026 3:55:11 AM
+
+Commit [1c2a23a839ee57e5aab8a81c9f440ba95ba92583](https://github.com/StoneCypher/jssm/commit/1c2a23a839ee57e5aab8a81c9f440ba95ba92583)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 25, 2026 3:06:00 PM
 
 Commit [81cfaf7fc376c9ee0072c55395e2cb477dd924d8](https://github.com/StoneCypher/jssm/commit/81cfaf7fc376c9ee0072c55395e2cb477dd924d8)
@@ -58,171 +221,3 @@ Merges [565805a9, dd801cfc]
 #       src/doc_md/CHANGELOG.long.md
 #       src/doc_md/CHANGELOG.md
 #       src/ts/version.ts
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 3:02:10 PM
-
-Commit [24aae5983b9dca7f85ed25bbbc9f029e16376dd1](https://github.com/StoneCypher/jssm/commit/24aae5983b9dca7f85ed25bbbc9f029e16376dd1)
-
-Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
-
-  * docs: publish site for dd801cfcd7b5d9ff8310c81af55c83a9848a1c97
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__163__6" />
-
-## [5.163.6] - Jul 25, 2026 2:58:57 PM
-
-Commit [dd801cfcd7b5d9ff8310c81af55c83a9848a1c97](https://github.com/StoneCypher/jssm/commit/dd801cfcd7b5d9ff8310c81af55c83a9848a1c97)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [9a5c869e, 703bbd0b]
-
-  * Merge pull request #974 from StoneCypher/dependabot/npm_and_yarn/postcss-8.5.23
-  * build(deps-dev): bump postcss from 8.5.16 to 8.5.23
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 2:54:08 PM
-
-Commit [703bbd0bf7fbf9a9808ff1f88a12783a7310a1df](https://github.com/StoneCypher/jssm/commit/703bbd0bf7fbf9a9808ff1f88a12783a7310a1df)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(deps-dev): bump postcss to 8.5.23 and release 5.163.6
-  * postcss <= 8.5.17 is a high-severity advisory reached through vitest -> vite -> postcss. Dev-only and genuinely so: vitest never ships to consumers, unlike the fast-uri case in 5.163.5 where GitHub's 'development' label was wrong.
-  * Adds the version bump dependabot cannot do (every push to main is a release, so a lockfile-only PR fails verify-version-bump) plus the full release build a publish requires.
-  * brace-expansion is NOT fixed here and cannot be without a breaking change: the vulnerable 1.1.15 arrives via text_audit -> glob@7 -> minimatch@3, and npm can only clear it by installing glob@13, which would break text_audit. The other five brace-expansion copies in the tree are already on the patched 5.0.7. Left for a separate upstream fix to text_audit.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 2:52:49 PM
-
-Commit [565805a9642b58e7321bf6419d40b21c471b0f59](https://github.com/StoneCypher/jssm/commit/565805a9642b58e7321bf6419d40b21c471b0f59)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(chart): floor rail thickness at 3px so short-lived repos stay legible
-  * Rails are thin by nature and a short-lived repo could end up a few pixels of 1px hairline that reads as a smudge -- fsl-pegjs, fslbook, fsllang.com and jssm-mcp were all nearly invisible.
-  * RAILW floors the stroke at 3px and RAILMIN floors the drawn length at 6px, with round caps so a single-day repo renders as a clean dot rather than a clipped stub. Archived repos previously used a thinner 1px line as a second cue on top of the dash; that made exactly the repos most likely to be brief the hardest to see, so the dash alone now carries it. Row pitch and the hover hit-target grow to match.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 2:12:11 PM
-
-Commit [b532c2b33d0323ea4632c9895c7ff5c2796cf21e](https://github.com/StoneCypher/jssm/commit/b532c2b33d0323ea4632c9895c7ff5c2796cf21e)
-
-Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
-
-  * docs: publish site for 9a5c869eb44f9f0be9a990486c501e92f7c8d03b
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="v5__163__6" />
-
-## [v5.163.6] - Jul 25, 2026 2:09:38 PM
-
-Commit [751340a45b3521b639e1b156a98f1115a1950982](https://github.com/StoneCypher/jssm/commit/751340a45b3521b639e1b156a98f1115a1950982)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * build(deps-dev): bump postcss from 8.5.16 to 8.5.23
-  * Bumps [postcss](https://github.com/postcss/postcss) from 8.5.16 to 8.5.23.
-- [Release notes](https://github.com/postcss/postcss/releases)
-- [Changelog](https://github.com/postcss/postcss/blob/main/CHANGELOG.md)
-- [Commits](https://github.com/postcss/postcss/compare/8.5.16...8.5.23)
-  * ---
-updated-dependencies:
-- dependency-name: postcss
-  dependency-version: 8.5.23
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__163__5" />
-
-## [5.163.5] - Jul 25, 2026 2:08:39 PM
-
-Commit [9a5c869eb44f9f0be9a990486c501e92f7c8d03b](https://github.com/StoneCypher/jssm/commit/9a5c869eb44f9f0be9a990486c501e92f7c8d03b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [f4f94961, 8b8ad553]
-
-  * Merge pull request #972 from StoneCypher/dependabot/npm_and_yarn/fast-uri-3.1.4
-  * build(deps): bump fast-uri from 3.1.3 to 3.1.4
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 2:04:35 PM
-
-Commit [8b8ad55327e9b53df92524e431335563c7fca75f](https://github.com/StoneCypher/jssm/commit/8b8ad55327e9b53df92524e431335563c7fca75f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(deps): bump fast-uri to 3.1.4 and release 5.163.5
-  * fast-uri <= 3.1.3 is GHSA-v2hh-gcrm-f6hx (high): host confusion via a literal backslash authority delimiter. It reaches jssm through ajv, which is a runtime dependency, not a dev one -- so it installs for every consumer. GitHub's alert labels the scope 'development', which is wrong here.
-  * Dependabot bumped only the lockfile, so verify-version-bump failed with 'Version unchanged: locally 5.163.4, publicly also 5.163.4' and the PR could never merge. This adds the 5.163.5 bump and the full release build that a publish requires.
-  * Also bumps better_git_changelog to 1.6.21. The changelog step died with ENOBUFS here too: the tool reads 'git log --reflog', and a repo's reflog is SHARED ACROSS WORKTREES, so this 5.x tree reached the v6 branch's history and blew past node's 1 MiB default. main's apparent 126 KB of headroom was never as safe as it looked -- any sibling worktree can push a branch over on its own.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 25, 2026 1:33:51 PM
-
-Commit [dcc377736d08213622313a6350658b63484ebebc](https://github.com/StoneCypher/jssm/commit/dcc377736d08213622313a6350658b63484ebebc)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(release): rebuild with the changelog step restored
-  * First full release build to complete every stage since better_git_changelog 1.6.21 landed -- stage 7 (changelog) is the step that failed the previous two runs. All 11 stages green, 11,907 tests, size_chart conserving.
-  * Only build stamps and the regenerated changelog differ from the previous commit; build_time moves every run by design.
