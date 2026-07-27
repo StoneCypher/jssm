@@ -11,5 +11,6 @@
   "exports": {
     ".": { "types": "./dist/jssm.d.cts", "require": "./dist/jssm.cjs", "default": "./dist/jssm.cjs" }
   },
-  "files": ["dist/", "README.md"]
+  "files": ["dist/", "README.md"],
+  "sideEffects": false
 }

@@ -162,4 +162,4 @@ if (require.main === module) {
   catch (e) { console.error(`verify_no_published_bloat failed: ${e.message}`); process.exit(1); }
 }
 
-module.exports = { BLOAT_RULES, parsePackFiles, findBloat, discoverPackageDirs, runGate };
+module.exports = { BLOAT_RULES, parsePackFiles, findBloat, discoverPackageDirs, packPaths, runGate };

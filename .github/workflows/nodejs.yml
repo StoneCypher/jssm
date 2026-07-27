@@ -775,6 +775,9 @@ jobs:
     - name: Verify no published bloat
       run: node ./src/buildjs/verify_no_published_bloat.cjs
 
+    - name: Verify sideEffects declarations match what ships
+      run: node ./src/buildjs/verify_side_effects.cjs
+
 
 
   release:

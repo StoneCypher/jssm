@@ -11,6 +11,7 @@
     ".": { "types": "./dist/fence.d.ts", "import": "./dist/fence.js", "default": "./dist/fence.js" }
   },
   "files": ["dist/", "README.md"],
+  "sideEffects": false,
   "dependencies": { "jssm": "file:../..", "jssm-viz": "6.0.0-alpha.13" },
   "optionalDependencies": { "@resvg/resvg-wasm": "^2.6.0" }
 }

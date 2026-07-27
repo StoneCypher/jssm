@@ -12,6 +12,7 @@
     ".": { "types": "./dist/verify.d.ts", "import": "./dist/verify.js", "default": "./dist/verify.js" }
   },
   "files": ["dist/", "README.md"],
+  "sideEffects": false,
   "peerDependencies": { "jssm": "6.0.0-alpha.12" },
   "peerDependenciesMeta": { "jssm": { "optional": true } }
 }
