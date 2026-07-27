@@ -18,19 +18,9 @@
   },
   "exports": {
     ".": {
-      "require": {
-        "types": "./jssm.es5.d.cts",
-        "default": "./dist/jssm.es5.cjs"
-      },
-      "import": {
-        "types": "./jssm.es6.d.ts",
-        "default": "./dist/jssm.es6.mjs"
-      },
-      "default": {
-        "types": "./jssm.es5.d.cts",
-        "default": "./dist/jssm.es5.cjs"
-      },
-      "browser": "./dist/jssm.es5.iife.js"
+      "types": "./jssm.es6.d.ts",
+      "import": "./dist/jssm.es6.mjs",
+      "default": "./dist/jssm.es6.mjs"
     },
     "./viz": {
       "require": {
@@ -127,8 +117,6 @@
     "./dist/cdn/**"
   ],
   "files": [
-    "dist/jssm.es5.cjs",
-    "dist/jssm.es5.iife.js",
     "dist/jssm.es6.mjs",
     "dist/jssm_viz.cjs",
     "dist/jssm_viz.iife.cjs",
@@ -154,7 +142,6 @@
     "dist/deno/jssm.js",
     "dist/deno/*.d.ts",
     "dist/deno/README.md",
-    "jssm.es5.d.cts",
     "jssm.es6.d.ts",
     "jssm_viz.es5.d.cts",
     "jssm_viz.es6.d.ts",
@@ -165,10 +152,9 @@
     "custom-elements.json"
   ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
-  "main": "dist/jssm.es5.cjs",
+  "main": "dist/jssm.es6.mjs",
   "module": "dist/jssm.es6.mjs",
-  "browser": "dist/jssm.es5.iife.js",
-  "types": "./jssm.es5.d.cts",
+  "types": "./jssm.es6.d.ts",
   "scripts": {
     "vitest-unicode-action": "vitest run --config vitest.unicode.config.ts unicode-actions.uspec.ts",
     "vitest-unicode-string": "vitest run --config vitest.unicode.config.ts unicode-strings.uspec.ts",
@@ -218,12 +204,12 @@
     "make_pkg_viz": "rollup -c rollup.config.pkg_viz.js && cp custom-elements.json packages/jssm-viz/custom-elements.json",
     "make_pkg_fence": "rollup -c rollup.config.pkg_fence.js",
     "make_pkg_cli": "rollup -c rollup.config.pkg_cli.js",
-    "make_pkg_cjs": "rollup -c rollup.config.pkg_cjs.js",
+    "make_pkg_commonjs": "rollup -c rollup.config.pkg_commonjs.js",
     "make_pkg_iife": "rollup -c rollup.config.pkg_iife.js",
     "min_pkg_viz": "terser packages/jssm-viz/dist/jssm_viz.cjs -o packages/jssm-viz/dist/jssm_viz.cjs && terser packages/jssm-viz/dist/jssm_viz.mjs -o packages/jssm-viz/dist/jssm_viz.mjs --module && terser packages/jssm-viz/dist/cdn/viz.js -o packages/jssm-viz/dist/cdn/viz.js --module && terser packages/jssm-viz/dist/cdn/instance.js -o packages/jssm-viz/dist/cdn/instance.js --module",
     "min_pkg_fence": "terser packages/jssm-fence/dist/fence.js -o packages/jssm-fence/dist/fence.js --module",
     "min_pkg_cli": "terser packages/jssm-cli/dist/fsl.cjs -o packages/jssm-cli/dist/fsl.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-render.cjs -o packages/jssm-cli/dist/fsl-render.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-export-system-prompt.cjs -o packages/jssm-cli/dist/fsl-export-system-prompt.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/lib.cjs -o packages/jssm-cli/dist/lib.cjs && terser packages/jssm-cli/dist/lib.mjs -o packages/jssm-cli/dist/lib.mjs",
-    "min_pkg_cjs": "terser packages/jssm-cjs/dist/jssm.cjs -o packages/jssm-cjs/dist/jssm.cjs",
+    "min_pkg_commonjs": "terser packages/jssm-commonjs/dist/jssm.cjs -o packages/jssm-commonjs/dist/jssm.cjs",
     "min_pkg_iife": "terser packages/jssm-iife/dist/jssm.iife.js -o packages/jssm-iife/dist/jssm.iife.js",
     "dts_pkg_viz": "cp jssm_viz.es6.d.ts packages/jssm-viz/dist/jssm_viz.d.ts",
     "dts_pkg_fence": "cp jssm.fence.d.ts packages/jssm-fence/dist/fence.d.ts",

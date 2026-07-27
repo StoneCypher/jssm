@@ -1,9 +1,9 @@
-# jssm-cjs
+# jssm-commonjs
 
 The **CommonJS** build of [jssm](https://www.npmjs.com/package/jssm), for consumers that `require()` rather than `import`.
 
 ```js
-const { sm } = require('jssm-cjs');
+const { sm } = require('jssm-commonjs');
 
 const light = sm`red -> green -> yellow -> red;`;
 light.transition('green');
@@ -17,11 +17,11 @@ As of v6 the main `jssm` package ships a single ESM build. The CommonJS and brow
 
 Deliberately. `require()` of an ESM-only package is exactly what the Node versions still needing CommonJS cannot do, so a thin re-export would fail for the audience this package serves. It carries its own complete build instead.
 
-Consequence: **do not install both `jssm` and `jssm-cjs` expecting shared state.** They are separate copies, so an object from one will not satisfy an `instanceof` from the other. Pick the format your project uses.
+Consequence: **do not install both `jssm` and `jssm-commonjs` expecting shared state.** They are separate copies, so an object from one will not satisfy an `instanceof` from the other. Pick the format your project uses.
 
 ## Types
 
-TypeScript declarations ship in this package. There is no `@types/jssm-cjs` and there never will be.
+TypeScript declarations ship in this package. There is no `@types/jssm-commonjs` and there never will be.
 
 ## License
 

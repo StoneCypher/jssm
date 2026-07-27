@@ -24,7 +24,7 @@ The hash is per-version; generate it with `openssl dgst -sha384 -binary dist/jss
 
 ## Why this package exists
 
-As of v6 the main `jssm` package ships a single ESM build. The browser-global and CommonJS formats were not dropped — they moved here and to [`jssm-cjs`](https://www.npmjs.com/package/jssm-cjs), so an ESM consumer no longer downloads three copies of the same library.
+As of v6 the main `jssm` package ships a single ESM build. The browser-global and CommonJS formats were not dropped — they moved here and to [`jssm-commonjs`](https://www.npmjs.com/package/jssm-commonjs), so an ESM consumer no longer downloads three copies of the same library.
 
 ## It does not depend on `jssm`
 

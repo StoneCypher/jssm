@@ -1,9 +1,9 @@
 {
-  "name": "jssm-cjs",
+  "name": "jssm-commonjs",
   "version": "6.0.0-alpha.12",
   "description": "CommonJS build of jssm, for consumers that require() rather than import (split from the jssm package in v6)",
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-cjs" },
+  "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-commonjs" },
   "keywords": ["jssm", "fsl", "state machine", "finite state machine", "commonjs", "cjs"],
   "engines": { "node": ">=10.0.0" },
   "main": "./dist/jssm.cjs",

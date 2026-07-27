@@ -22,7 +22,7 @@ const pw = require('../publish_workspaces.cjs');
 describe('PUBLISH_ORDER', () => {
 
   test('is the root package followed by the workspace members, in dependency order', () => {
-    expect(pw.PUBLISH_ORDER).toEqual(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-cjs', 'jssm-iife']);
+    expect(pw.PUBLISH_ORDER).toEqual(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife']);
   });
 
   test('every dependent sorts after the sibling it depends on', () => {
@@ -37,7 +37,7 @@ describe('PUBLISH_ORDER', () => {
 describe('SELF_CONTAINED — the format-compat packages carry their own build', () => {
 
   test('is exactly the two format packages', () => {
-    expect([...pw.SELF_CONTAINED].sort()).toEqual(['jssm-cjs', 'jssm-iife']);
+    expect([...pw.SELF_CONTAINED].sort()).toEqual(['jssm-commonjs', 'jssm-iife']);
   });
 
   test('every self-contained name is a real publish target', () => {
@@ -53,7 +53,7 @@ describe('SELF_CONTAINED — the format-compat packages carry their own build', 
 describe('assertPublishOrderCoverage — PUBLISH_ORDER coverage guard', () => {
 
   test('the real packages/* members are all covered by the real PUBLISH_ORDER (non-vacuity: this is exactly the current repo shape)', () => {
-    expect(() => pw.assertPublishOrderCoverage(['jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-cjs', 'jssm-iife'])).not.toThrow();
+    expect(() => pw.assertPublishOrderCoverage(['jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife'])).not.toThrow();
   });
 
   test('a workspace member with no PUBLISH_ORDER slot throws, naming it', () => {
@@ -422,15 +422,15 @@ describe('publishMember — restore-under-failure regressions', () => {
 
     //  no "jssm" dependency at all -- the compat packages carry their own build
     const CJS_MANIFEST = JSON.stringify({
-      name: 'jssm-cjs', version: '6.0.0-alpha.12', main: './dist/jssm.cjs',
+      name: 'jssm-commonjs', version: '6.0.0-alpha.12', main: './dist/jssm.cjs',
     }, null, 2) + '\n';
 
-    const dir = fixtureMember('jssm-cjs', CJS_MANIFEST);
-    const manifest_path = join(dir, 'packages', 'jssm-cjs', 'package.json');
+    const dir = fixtureMember('jssm-commonjs', CJS_MANIFEST);
+    const manifest_path = join(dir, 'packages', 'jssm-commonjs', 'package.json');
 
     let seen_during_publish = '';
 
-    pw.publishMember('jssm-cjs', '6.0.0-alpha.12', true, {
+    pw.publishMember('jssm-commonjs', '6.0.0-alpha.12', true, {
       cwd     : dir,
       publish : () => { seen_during_publish = readFileSync(manifest_path, 'utf8'); },
     });
@@ -447,13 +447,13 @@ describe('publishMember — restore-under-failure regressions', () => {
 
     //  the edge it exists to avoid: a CJS consumer cannot resolve an ESM-only core
     const BAD = JSON.stringify({
-      name: 'jssm-cjs', version: '6.0.0-alpha.12',
+      name: 'jssm-commonjs', version: '6.0.0-alpha.12',
       dependencies: { jssm: 'file:../..' },
     }, null, 2) + '\n';
 
-    const dir = fixtureMember('jssm-cjs', BAD);
+    const dir = fixtureMember('jssm-commonjs', BAD);
 
-    expect(() => pw.publishMember('jssm-cjs', '6.0.0-alpha.12', true, {
+    expect(() => pw.publishMember('jssm-commonjs', '6.0.0-alpha.12', true, {
       cwd: dir, publish: () => undefined,
     })).toThrow(/self-contained and must not depend on jssm/);
 
