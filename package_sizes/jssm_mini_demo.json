@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "package": "jssm_mini_demo",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "2019-05-06.f468a52": {
+      "published": "2019-05-06T02:51:08Z",
+      "files": {
+        "index.html": 3568,
+        "jssm-viz.es5.cjs.js": 2464101,
+        "jssm.iife.js": 1743894,
+        "mini.css": 1403
+      }
+    },
+    "2019-05-06.e04f647": {
+      "published": "2019-05-06T02:52:41Z",
+      "files": {
+        "index.html": 3568,
+        "jssm-viz.es5.cjs.js": 2464101,
+        "jssm.iife.js": 1743894,
+        "mini.css": 1403
+      }
+    }
+  }
+}

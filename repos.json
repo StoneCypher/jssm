@@ -54,6 +54,20 @@
       "lastPush": "2019-05-06T02:52:40Z"
     },
     {
+      "name": "jssm-mcp",
+      "category": "replaced by newer work",
+      "note": null,
+      "ships": null,
+      "shipsAt": null,
+      "obsoletedBy": "fsl-mcp",
+      "obsoletedByWhat": "renamed before any work landed",
+      "visibility": "private",
+      "archived": true,
+      "description": "DEPRECATED — never built; the FSL Model Context Protocol server is StoneCypher/fsl-mcp",
+      "created": "2026-03-07T15:10:18Z",
+      "lastPush": "2026-07-29T13:36:26Z"
+    },
+    {
       "name": "alpha-highlightjs-fsl",
       "category": "proof of concept, needs to be updated",
       "note": null,
@@ -331,21 +345,7 @@
       "archived": false,
       "description": "Fast, easy Javascript finite state machines with visualizations; enjoy a one liner FSM instead of pages.  MIT; Typescripted; 100% test coverage.  Implements the FSL language.",
       "created": "2017-05-03T04:58:01Z",
-      "lastPush": "2026-07-27T18:55:38Z"
-    },
-    {
-      "name": "jssm-mcp",
-      "category": "current",
-      "note": null,
-      "ships": null,
-      "shipsAt": null,
-      "obsoletedBy": null,
-      "obsoletedByWhat": null,
-      "visibility": "private",
-      "archived": false,
-      "description": "Model context protocol for Javascript State Machine and Finite State Language",
-      "created": "2026-03-07T15:10:18Z",
-      "lastPush": "2026-03-07T15:10:19Z"
+      "lastPush": "2026-07-29T13:30:16Z"
     },
     {
       "name": "vscode-fsl",
