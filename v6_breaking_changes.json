@@ -1,0 +1,43 @@
+{
+  "note": "Changes that break compatibility with the published 5.x line for documents migrating to v6. Changes that only affect v6's own in-progress spec (the language is still being defined) are deliberately NOT tracked here — this file is strictly the 5 -> 6 migration surface.",
+  "from_major": 5,
+  "to_major": 6,
+  "changes": [
+    {
+      "id": "atom-charset-restriction",
+      "title": "Bareword names restricted to identifier-like characters",
+      "status": "accepted",
+      "decided": true,
+      "issue": "StoneCypher/jssm#754",
+      "decision": "Accepted 2026-06-14: the break is unavoidable and is accepted rather than engineered around. Decided charset: a bareword is [A-Za-z_][A-Za-z0-9_]* — letters, digits, and underscore, never starting with a digit. Every other character (',', '(', ')', '.', '+', '&', '#', '@', '$', '^', '*', '!', '?', dash, colon, and a leading digit) requires a quoted-string name. Dash and dot are excluded deliberately: dash collides with the arrow operators and numeric sign, and dot is reserved for member access in the expression language.",
+      "summary": "Unquoted state / val / property names (the grammar's Atom rule, plus the enum-member rule) are restricted to identifier-like names. 5.x accepted symbol-bearing barewords and leading-digit barewords; v6 requires those to be quoted strings.",
+      "breaks": "Any 5.x document whose unquoted state / transition / property / enum-member names contain a non-[A-Za-z0-9_] character, or begin with a digit.",
+      "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress).",
+      "implementation": "Grammar change to AtomFirstLetter / AtomLetter / ValEnumMember plus a corpus + test sweep — tracked in #754, not yet landed."
+    },
+    {
+      "id": "bare-functions-default-api",
+      "title": "Default jssm import is bare functions, not the Machine class",
+      "status": "accepted",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-17 (megaspec §27): the v6 public JS API is bare functions over an opaque machine value, individually importable for tree-shakeability (serves the long-standing #1167 ask). The entire 5.x Machine class is preserved unmodified as an opt-in compatibility layer at the 'jssm/compat' subpath, mechanically delegating to the bare functions (single source of truth; proven by running the 5.x test suite against it verbatim). The default 'jssm' entry resolves to the bare functions.",
+      "summary": "v6 moves the default 'jssm' import from the Machine class to bare functions (create / transition / can / currentState / addHook / ...), with the machine an opaque data value passed as the first argument. The full 5.x class interface remains available, unchanged, from 'jssm/compat'.",
+      "breaks": "Any 5.x code using 'new Machine(...)' or class-method calls (m.transition(x)) through the default 'jssm' import.",
+      "migration": "Zero-edit escape hatch: change the import specifier to 'jssm/compat' (import { Machine } from 'jssm/compat') for verbatim 5.x behavior. Or migrate to the bare-function form: transition(m, x) instead of m.transition(x).",
+      "implementation": "Extract the state-record type + bare functions from the current class internals; regenerate Machine as a delegating wrapper over them; split entry points + sideEffects:false + a bundle-size test; run the 5.x suite against the compat class as the contract check (megaspec §27, §20 phasing). Not yet landed."
+    },
+    {
+      "id": "esm-only-main-package",
+      "title": "Main jssm package ships ESM only; es5/iife relocate to compatibility packages",
+      "status": "accepted",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-07-21: the default jssm package drops to a single ESM ('just-module') build. es5 and iife are NOT dropped -- they relocate to dedicated compatibility packages, and iife additionally serves from the CDN. A wasm build may remain in the main package (undecided; does not block the ESM split). Composes with the shipped monorepo decomposition (core / viz / fence / cli already separate packages) as the orthogonal format axis. Motivated by flensing the fat 5.x monolith (5.163.4 was 10.9M, mostly format redundancy + duplicated type defs es5.d.cts vs es6.d.ts; the old nonmin/map leaks like 5.32.10 / 5.112.3 are already gone). Provisional compat-package names resolve to @fsl/statemachine-js-cjs / -iife under the eventual FSL-org rename (jssm -> @fsl/statemachine-js, alongside @fsl/statemachine-rust / -wasm / -ts; 'statemachine' chosen as an npm relevance-ranking keyword).",
+      "summary": "v6's default jssm install carries only the ESM build; the es5, iife, and cjs formats it used to bundle are removed from the main package and republished as compatibility packages (iife additionally on the CDN).",
+      "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
+      "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
+      "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
+    }
+  ]
+}

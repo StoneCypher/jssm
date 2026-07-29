@@ -849,6 +849,28 @@ function compile_rule_handler(rule) {
         }
         return ret;
     }
+    // manually rehandled to carry the val type descriptor through
+    if (rule.key === 'val_definition') {
+        // numeric-looking enum members would type-mismatch their own defaults: an
+        // enum member parses as a string, but a numeric default parses as a number,
+        // so they never compare equal.  Reject them at compile time (jssm#759).
+        if (rule.val_type.kind === 'enum') {
+            const numeric_members = rule.val_type.members.filter((m) => /^\d/.test(m));
+            if (numeric_members.length > 0) {
+                throw new JssmError(undefined, `Enum val "${rule.name}" has numeric-looking members ${JSON.stringify(numeric_members)}; `
+                    + 'enum members must not begin with a digit (a numeric default parses as a number and never '
+                    + 'matches the string member) — quote or rename them', { source_location: rule.loc });
+            }
+        }
+        const ret = { agg_as: 'val_definition', val: { name: rule.name, val_type: rule.val_type } };
+        if (Object.prototype.hasOwnProperty.call(rule, 'default_value')) {
+            ret.val.default_value = rule.default_value;
+        }
+        if (Object.prototype.hasOwnProperty.call(rule, 'required')) {
+            ret.val.required = rule.required;
+        }
+        return ret;
+    }
     // Group declarations are collected into the registry in a separate pass
     // (see build_group_registry); here we only need them to stop falling
     // through to the "Unknown rule" throw.  The aggregated value is unused.
@@ -1083,6 +1105,7 @@ function compile(tree) {
         npm_name: [],
         default_size: [],
         property_definition: [],
+        val_definition: [],
         state_property: {},
         theme: [],
         flow: [],
@@ -1137,6 +1160,17 @@ function compile(tree) {
     if (repeat_props.length > 0) {
         const dup = repeat_props[0][0];
         throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'property_definition' && n.name === dup, 2) });
+    }
+    const val_keys = results['val_definition'].map(vd => vd.name), repeat_vals = find_repeated(val_keys);
+    if (repeat_vals.length > 0) {
+        const dup = repeat_vals[0][0];
+        throw new JssmError(undefined, `Cannot redefine val names.  Saw ${JSON.stringify(repeat_vals)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 2) });
+    }
+    // a val and a property may not share a name (megaspec §5; jssm#757)
+    const val_prop_collisions = val_keys.filter(name => property_keys.includes(name));
+    if (val_prop_collisions.length > 0) {
+        const dup = val_prop_collisions[0];
+        throw new JssmError(undefined, `A val and a property cannot share the name ${JSON.stringify(dup)}.  Saw collisions ${JSON.stringify(val_prop_collisions)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 1) });
     }
     // The accumulator is already flat (#700's per-rule push spreads one level)
     // and function-local, so it is passed straight to conflict arbitration —
@@ -1226,7 +1260,7 @@ function compile(tree) {
         'arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
         'oarrange_declaration', 'farrange_declaration',
         'machine_author', 'machine_contributor', 'machine_reference', 'theme',
-        'state_declaration', 'property_definition', 'default_state_config',
+        'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_terminal_state_config',
         'default_active_state_config', 'default_transition_config'

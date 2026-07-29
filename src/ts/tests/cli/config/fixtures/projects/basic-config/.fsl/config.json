@@ -1,0 +1,7 @@
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}

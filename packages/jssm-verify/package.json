@@ -1,0 +1,18 @@
+{
+  "name": "jssm-verify",
+  "version": "6.0.0-alpha.14",
+  "description": "Temporal safety-property verification for jssm state machines — invariants, reachability, and replayable counterexample traces (split from the jssm package in v6)",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-verify" },
+  "keywords": ["jssm", "fsl", "state machine", "verification", "model checking", "safety property", "reachability", "counterexample"],
+  "type": "module",
+  "main": "./dist/verify.js",
+  "types": "./dist/verify.d.ts",
+  "exports": {
+    ".": { "types": "./dist/verify.d.ts", "import": "./dist/verify.js", "default": "./dist/verify.js" }
+  },
+  "files": ["dist/", "README.md"],
+  "sideEffects": false,
+  "peerDependencies": { "jssm": "^6.0.0-alpha.12" },
+  "peerDependenciesMeta": { "jssm": { "optional": true } }
+}

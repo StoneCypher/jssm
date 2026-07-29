@@ -1,0 +1,16 @@
+{
+  "name": "jssm-iife",
+  "version": "6.0.0-alpha.14",
+  "description": "Browser-global (IIFE) build of jssm, for script-tag and CDN use (split from the jssm package in v6)",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-iife" },
+  "keywords": ["jssm", "fsl", "state machine", "finite state machine", "iife", "browser", "cdn", "script tag"],
+  "browser": "./dist/jssm.iife.js",
+  "main": "./dist/jssm.iife.js",
+  "types": "./dist/jssm.d.ts",
+  "exports": {
+    ".": { "types": "./dist/jssm.d.ts", "browser": "./dist/jssm.iife.js", "default": "./dist/jssm.iife.js" }
+  },
+  "files": ["dist/", "README.md"],
+  "sideEffects": ["./dist/jssm.iife.js"]
+}

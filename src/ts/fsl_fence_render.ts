@@ -19,7 +19,7 @@
 import { sm, parse_fence_info, fsl_fence_lang } from './jssm.js';
 import type { FenceDescriptor, FenceDimension } from './jssm.js';
 import { fsl_to_svg_string, fsl_to_dot, state_svg_label_texts } from './jssm_viz.js';
-import { rasterize, rasterizeRgba }              from './cli/subcommands/render/rasterize.js';
+import { rasterize, rasterizeRgba }              from './fsl_rasterize.js';
 import { extract_state_fills, patch_state_fill } from './fsl_svg_patch.js';
 import { highlight_fsl_html }   from './fsl_fence_highlight.js';
 import { plan_walk }            from './fsl_walk.js';

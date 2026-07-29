@@ -21,7 +21,7 @@ let injected_dom_parser = null;
 /**
  *  Returns the Graphviz engine the render path should use: the engine
  *  injected via {@link configure}`({ viz })` when one is set (checked
- *  *before* the default import, so the `@viz-js/viz` WASM module is never
+ *  before* the default import, so the `@viz-js/viz` WASM module is never
  *  even loaded in environments that injected their own); otherwise a cached
  *  `@viz-js/viz` instance, lazily instantiated on first call.  Internal
  *  helper for the rendering functions.
@@ -217,7 +217,6 @@ function undoublequote(txt) {
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.

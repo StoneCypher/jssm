@@ -1,110 +1,23 @@
 {
   "name": "jssm",
-  "version": "5.163.6",
+  "version": "6.0.0-alpha.14",
   "engines": {
     "node": ">=10.0.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "fsl": "./dist/cli/fsl.cjs",
-    "jssm": "./dist/cli/fsl.cjs",
-    "fsl-render": "./dist/cli/fsl-render.cjs",
-    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
-  },
   "exports": {
     ".": {
-      "require": {
-        "types": "./jssm.es5.d.cts",
-        "default": "./dist/jssm.es5.cjs"
-      },
-      "import": {
-        "types": "./jssm.es6.d.ts",
-        "default": "./dist/jssm.es6.mjs"
-      },
-      "default": {
-        "types": "./jssm.es5.d.cts",
-        "default": "./dist/jssm.es5.cjs"
-      },
-      "browser": "./dist/jssm.es5.iife.js"
-    },
-    "./viz": {
-      "require": {
-        "types": "./jssm_viz.es5.d.cts",
-        "default": "./dist/jssm_viz.cjs"
-      },
-      "import": {
-        "types": "./jssm_viz.es6.d.ts",
-        "default": "./dist/jssm_viz.mjs"
-      },
-      "browser": "./dist/jssm_viz.iife.cjs"
-    },
-    "./cli": {
-      "require": {
-        "types": "./jssm.cli.d.cts",
-        "default": "./dist/cli/lib.cjs"
-      },
-      "import": {
-        "types": "./jssm.cli.d.ts",
-        "default": "./dist/cli/lib.mjs"
-      }
-    },
-    "./wc/viz": {
-      "import": "./dist/wc/viz.js",
-      "default": "./dist/wc/viz.js"
-    },
-    "./wc/viz/define": {
-      "import": "./dist/wc/viz.define.js",
-      "default": "./dist/wc/viz.define.js"
-    },
-    "./wc/instance": {
-      "import": "./dist/wc/instance.js",
-      "default": "./dist/wc/instance.js"
-    },
-    "./wc/instance/define": {
-      "import": "./dist/wc/instance.define.js",
-      "default": "./dist/wc/instance.define.js"
-    },
-    "./wc/editor": {
-      "import": "./dist/wc/editor.js",
-      "default": "./dist/wc/editor.js"
-    },
-    "./wc/editor/define": {
-      "import": "./dist/wc/editor.define.js",
-      "default": "./dist/wc/editor.define.js"
-    },
-    "./wc/widgets": {
-      "import": "./dist/wc/widgets.js",
-      "default": "./dist/wc/widgets.js"
-    },
-    "./wc/widgets/define": {
-      "import": "./dist/wc/widgets.define.js",
-      "default": "./dist/wc/widgets.define.js"
-    },
-    "./wc/docs": {
-      "import": "./dist/wc/docs.js",
-      "default": "./dist/wc/docs.js"
-    },
-    "./wc/docs/define": {
-      "import": "./dist/wc/docs.define.js",
-      "default": "./dist/wc/docs.define.js"
-    },
-    "./cm6": {
-      "types": "./dist/es6/cm6/fsl_language.d.ts",
-      "import": "./dist/cm6/fsl_language.js",
-      "default": "./dist/cm6/fsl_language.js"
-    },
-    "./fence": {
-      "types": "./jssm.fence.d.ts",
-      "import": "./dist/fence/fence.js",
-      "default": "./dist/fence/fence.js"
+      "types": "./jssm.es6.d.ts",
+      "import": "./dist/jssm.es6.mjs",
+      "default": "./dist/jssm.es6.mjs"
     },
     "./grammar": "./dist/grammars/fsl.tmLanguage.json",
-    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json",
-    "./cdn/viz": "./dist/cdn/viz.js",
-    "./cdn/instance": "./dist/cdn/instance.js",
-    "./custom-elements.json": "./custom-elements.json"
+    "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json"
   },
   "autoupdate": {
     "source": "git",
@@ -113,59 +26,23 @@
       {
         "basePath": "/dist",
         "files": [
-          "jssm.es5.cjs"
+          "jssm.es6.mjs"
         ]
       }
     ]
   },
   "type": "module",
-  "sideEffects": [
-    "./dist/wc/*.define.js",
-    "./dist/cdn/**"
-  ],
+  "sideEffects": false,
   "files": [
-    "dist/jssm.es5.cjs",
-    "dist/jssm.es5.iife.js",
     "dist/jssm.es6.mjs",
-    "dist/jssm_viz.cjs",
-    "dist/jssm_viz.iife.cjs",
-    "dist/jssm_viz.mjs",
-    "dist/wc/viz.js",
-    "dist/wc/viz.define.js",
-    "dist/wc/instance.js",
-    "dist/wc/instance.define.js",
-    "dist/wc/editor.js",
-    "dist/wc/editor.define.js",
-    "dist/wc/widgets.js",
-    "dist/wc/widgets.define.js",
-    "dist/wc/docs.js",
-    "dist/wc/docs.define.js",
-    "dist/cm6/fsl_language.js",
-    "dist/es6/cm6/fsl_language.d.ts",
-    "dist/fence/fence.js",
     "dist/grammars/fsl.tmLanguage.json",
-    "dist/cdn/viz.js",
-    "dist/cdn/instance.js",
-    "dist/cli/lib.cjs",
-    "dist/cli/lib.mjs",
-    "dist/deno/jssm.js",
-    "dist/deno/*.d.ts",
-    "dist/deno/README.md",
-    "jssm.es5.d.cts",
     "jssm.es6.d.ts",
-    "jssm_viz.es5.d.cts",
-    "jssm_viz.es6.d.ts",
-    "jssm.cli.d.cts",
-    "jssm.cli.d.ts",
-    "jssm.fence.d.ts",
-    "MIGRATING-jssm-viz.md",
-    "custom-elements.json"
+    "MIGRATING-jssm-viz.md"
   ],
-  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
-  "main": "dist/jssm.es5.cjs",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript.  Visualization, CLI, markdown fences and verification ship as separate packages.  MIT License.",
+  "main": "dist/jssm.es6.mjs",
   "module": "dist/jssm.es6.mjs",
-  "browser": "dist/jssm.es5.iife.js",
-  "types": "./jssm.es5.d.cts",
+  "types": "./jssm.es6.d.ts",
   "scripts": {
     "vitest-unicode-action": "vitest run --config vitest.unicode.config.ts unicode-actions.uspec.ts",
     "vitest-unicode-string": "vitest run --config vitest.unicode.config.ts unicode-strings.uspec.ts",
@@ -188,6 +65,7 @@
     "vitest-unicode-full-slow": "npm run vitest-unicode-atom && npm run vitest-unicode-string && npm run vitest-unicode-atom-label && npm run vitest-unicode-string-label && npm run vitest-unicode-action && npm run vitest-unicode-edge-label && npm run vitest-unicode-machine-property && npm run vitest-unicode-error-message && npm run vitest-unicode-group-name && npm run vitest-unicode-state-decl-name && npm run vitest-unicode-hook && npm run vitest-unicode-machine-metadata && npm run vitest-unicode-state-property && npm run vitest-unicode-image-url && npm run vitest-unicode-arrange && npm run vitest-unicode-config-state-list && npm run vitest-unicode-config-state-block && npm run vitest-unicode-viz-dot",
     "vitest-stoch": "vitest run --config vitest.stoch.config.ts",
     "vitest-dragon": "vitest run --config vitest.dragon.config.ts",
+    "era_book": "node src/scripts/era_book_html.cjs",
     "vitest-spec": "vitest run --config vitest.spec.config.ts",
     "vitest-docs": "vitest run --config vitest.docs.config.ts",
     "vitest": "npm run vitest-stoch && npm run vitest-spec && npm run vitest-docs",
@@ -200,7 +78,6 @@
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
     "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_core": "rollup -c rollup.config.core.js",
-    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno && cp README.md dist/deno",
     "make_viz": "rollup -c rollup.config.viz.js",
     "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
@@ -211,6 +88,20 @@
     "make_wc_docs_es6": "rollup -c rollup.config.wc.docs.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "make_fence": "rollup -c rollup.config.fence.es6.js",
+    "make_pkg_viz": "rollup -c rollup.config.pkg_viz.js && cp custom-elements.json packages/jssm-viz/custom-elements.json",
+    "make_pkg_fence": "rollup -c rollup.config.pkg_fence.js",
+    "make_pkg_cli": "rollup -c rollup.config.pkg_cli.js",
+    "make_pkg_commonjs": "rollup -c rollup.config.pkg_commonjs.js",
+    "make_pkg_iife": "rollup -c rollup.config.pkg_iife.js",
+    "make_pkg_verify": "rollup -c rollup.config.pkg_verify.js",
+    "min_pkg_viz": "terser packages/jssm-viz/dist/jssm_viz.cjs -o packages/jssm-viz/dist/jssm_viz.cjs && terser packages/jssm-viz/dist/jssm_viz.mjs -o packages/jssm-viz/dist/jssm_viz.mjs --module && terser packages/jssm-viz/dist/cdn/viz.js -o packages/jssm-viz/dist/cdn/viz.js --module && terser packages/jssm-viz/dist/cdn/instance.js -o packages/jssm-viz/dist/cdn/instance.js --module",
+    "min_pkg_fence": "terser packages/jssm-fence/dist/fence.js -o packages/jssm-fence/dist/fence.js --module",
+    "min_pkg_cli": "terser packages/jssm-cli/dist/fsl.cjs -o packages/jssm-cli/dist/fsl.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-render.cjs -o packages/jssm-cli/dist/fsl-render.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/fsl-export-system-prompt.cjs -o packages/jssm-cli/dist/fsl-export-system-prompt.cjs --comments=/^#!/ && terser packages/jssm-cli/dist/lib.cjs -o packages/jssm-cli/dist/lib.cjs && terser packages/jssm-cli/dist/lib.mjs -o packages/jssm-cli/dist/lib.mjs",
+    "min_pkg_commonjs": "terser packages/jssm-commonjs/dist/jssm.cjs -o packages/jssm-commonjs/dist/jssm.cjs",
+    "min_pkg_iife": "terser packages/jssm-iife/dist/jssm.iife.js -o packages/jssm-iife/dist/jssm.iife.js",
+    "dts_pkg_viz": "cp jssm_viz.es6.d.ts packages/jssm-viz/dist/jssm_viz.d.ts",
+    "dts_pkg_fence": "cp jssm.fence.d.ts packages/jssm-fence/dist/fence.d.ts",
+    "dts_pkg_cli": "cp jssm.cli.d.ts packages/jssm-cli/dist/lib.d.ts",
     "make_grammar": "node src/buildjs/build_fsl_tmlanguage.cjs",
     "typescript": "node --stack-size=4000 node_modules/typescript/bin/tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
@@ -228,6 +119,7 @@
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
+    "size_chart": "node ./src/scripts/make_size_chart.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "node src/buildjs/run_build.cjs --profile=release",
     "clean_bench": "npm run test && npm run benny",
@@ -244,7 +136,6 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
     "min_es6": "mv dist/jssm.es6.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.mjs",
-    "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
     "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
@@ -257,7 +148,7 @@
     "build:shootout": "node src/buildjs/build_shootout.mjs",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_viz.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.cjs",
-    "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs && cp README.md dist/deno",
+    "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
   },
   "repository": {
@@ -327,7 +218,6 @@
     "@vitest/coverage-v8": "^4.1.6",
     "@vitest/eslint-plugin": "^1.6.23",
     "@viz-js/viz": "^3.26.0",
-    "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
     "better_git_changelog": "^1.6.21",
@@ -346,6 +236,7 @@
     "globals": "^17.7.0",
     "jsdom": "^24.1.0",
     "lit": "^3.2.1",
+    "markdown-it": "^14.1.0",
     "pegjs": "^0.10.0",
     "picocolors": "^1.0.0",
     "rollup": "^4.24.0",
@@ -365,6 +256,7 @@
     "xml2js": "^0.6.2"
   },
   "dependencies": {
+    "ajv": "^8.20.0",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
   },

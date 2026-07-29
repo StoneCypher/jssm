@@ -75,6 +75,41 @@ npm install jssm
 The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
 and TypeScript typings.  A Deno build is included.  Node 10 or newer.
 
+### Trying the v6 alpha
+
+The v6 line publishes under the `alpha` dist-tag, so it never lands on a
+plain `npm install`:
+
+```
+npm install jssm@alpha
+```
+
+It is an alpha in the real sense — the API surface is not frozen, and the
+breaking changes recorded in `v6_breaking_changes.json` have not all landed
+yet.  Use it to try the new work and report what breaks, not to ship.
+Stay on `npm install jssm` for anything that matters.
+
+
+
+<br/>
+
+## Package family
+
+As of v6, this repository publishes four packages in lockstep versions.
+The `jssm` core stays dependency-light; the other three depend on the
+published core instead of embedding it, so you install only what you use.
+
+| Package | What it is |
+|---|---|
+| `jssm` | The state-machine language and runtime (this package) |
+| `jssm-viz` | Graphviz-based visualization: SVG/PNG/JPEG renders and the web components |
+| `jssm-fence` | Markdown fence rendering for FSL code blocks |
+| `jssm-cli` | The `fsl` command line: render, codegen, import/export, run |
+
+During the 6.0 cycle, `jssm` itself still carries its historical `/viz`,
+`/fence`, `/cli`, and related subpaths; 6.0.0 slims the core package by
+retiring those embedded copies in favor of the packages above.
+
 
 
 <br/>
@@ -138,6 +173,24 @@ Pipe FSL via stdin:
 ```sh
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
+
+### Configuration
+
+The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
+
+```json
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}
+```
+
+CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
+
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
 
 ### Plugin architecture
 
@@ -355,6 +408,7 @@ That decision shows up everywhere downstream:
 | Method | Purpose |
 |---|---|
 | `` sm`...` `` | Build a machine from DSL |
+| `` fsl`...` `` | Exact alias of `` sm`...` ``.  Prefer it in highlighted sources: syntax highlighters key on the tag name, and `fsl` names the language unambiguously where `sm` collides with ordinary identifiers. |
 | `.state()` | The current state |
 | `.transition(state)` | Move to a state. Returns `false` if illegal, throws if unknown. |
 | `.force_transition(state)` | Move to a state across a `~>` forced edge |

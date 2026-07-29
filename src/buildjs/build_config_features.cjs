@@ -25,7 +25,7 @@
  *   7  vitest, changelog
  *   8  perf_chart                         (writes src/generated_docs — isolated from cloc)
  *   9  cloc, docs, site
- *  10  cookbook, fsl.tools site
+ *  10  cookbook, fsl.tools site, size_chart
  *  11  readme                             (consumes vitest metrics + cloc report)
  *
  * @see ./build_config.cjs
@@ -63,7 +63,6 @@ const FEATURES = {
 
   // --- Stage 4: rollup bundles (read stable dist/es6) + src-readers (src now stable) ---
   make_core:            { script: 'make_core',            stages: [4], optional: true, defaultEnabled: true },
-  make_deno:            { script: 'make_deno',            stages: [4], optional: true, defaultEnabled: true },
   make_viz:             { script: 'make_viz',             stages: [4], optional: true, defaultEnabled: true },
   make_wc_viz_es6:      { script: 'make_wc_viz_es6',      stages: [4], optional: true, defaultEnabled: true },
   make_wc_viz_cdn:      { script: 'make_wc_viz_cdn',      stages: [4], optional: true, defaultEnabled: true },
@@ -76,6 +75,22 @@ const FEATURES = {
   make_fence:           { script: 'make_fence',           stages: [4], optional: true, defaultEnabled: true },
   make_grammar:         { script: 'make_grammar',         stages: [4], optional: true, defaultEnabled: true },
   make_cli:             { script: 'make_cli',             stages: [4], optional: true, defaultEnabled: true },
+  // externalized per-package bundles for the v6 workspace split — write only
+  // under packages/*/dist (disjoint from every embedded bundle's outputs), so
+  // they are parallel-safe beside the legacy stage-4 bundlers
+  make_pkg_viz:         { script: 'make_pkg_viz',         stages: [4], optional: true, defaultEnabled: true },
+  make_pkg_fence:       { script: 'make_pkg_fence',       stages: [4], optional: true, defaultEnabled: true },
+  make_pkg_cli:         { script: 'make_pkg_cli',         stages: [4], optional: true, defaultEnabled: true },
+  // format-compatibility packages: same dist/es6 input as make_core, re-emitted
+  // as cjs / iife into their own packages.  Self-contained by necessity -- a
+  // CJS or script-tag consumer cannot resolve an ESM-only core -- so they
+  // externalize nothing and need no cross-package resolveId plugin.
+  make_pkg_commonjs:         { script: 'make_pkg_commonjs',         stages: [4], optional: true, defaultEnabled: true },
+  make_pkg_iife:        { script: 'make_pkg_iife',        stages: [4], optional: true, defaultEnabled: true },
+  // the safety-property checker, shipped for the first time in v6.  jssm is a
+  // type-only import here, so core is externalized and the bundle carries none
+  // of it -- see rollup.config.pkg_verify.js.
+  make_pkg_verify:      { script: 'make_pkg_verify',      stages: [4], optional: true, defaultEnabled: true },
   eslint:               { script: 'eslint',               stages: [4], optional: true, defaultEnabled: true },
   audit:                { script: 'audit',                stages: [4], optional: true, defaultEnabled: true },
   // stage 4, not 2: doctests write src/ts/tests/generated at stage 3, so the
@@ -87,7 +102,6 @@ const FEATURES = {
   min_iife:     { script: 'min_iife',     stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_es6:      { script: 'min_es6',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_cjs:      { script: 'min_cjs',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
-  min_deno:     { script: 'min_deno',     stages: [5], optional: true, defaultEnabled: true, requires: ['make_deno'] },
   min_viz_iife: { script: 'min_viz_iife', stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_es6:  { script: 'min_viz_es6',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_cjs:  { script: 'min_viz_cjs',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
@@ -99,6 +113,20 @@ const FEATURES = {
   // in-place, --module (the fence bundle is ESM).  Shipped unminified through
   // 5.163.2 at 6.5 MB — 42% of the installed package; minified it is ~2.3 MB.
   min_fence:    { script: 'min_fence',    stages: [5], optional: true, defaultEnabled: true, requires: ['make_fence'] },
+  // per-package terser passes, in place like min_cli (wc bundles stay
+  // unminified, matching the embedded dist/wc posture)
+  min_pkg_viz:   { script: 'min_pkg_viz',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_viz'] },
+  min_pkg_fence: { script: 'min_pkg_fence', stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_fence'] },
+  min_pkg_cli:   { script: 'min_pkg_cli',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_cli'] },
+  min_pkg_commonjs:   { script: 'min_pkg_commonjs',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_commonjs'] },
+  min_pkg_iife:  { script: 'min_pkg_iife',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_pkg_iife'] },
+  // d.ts copies into packages/*/dist: single esm-flavor declaration per
+  // package, copied from the rolled-up root d.ts each embedded stage-4
+  // bundler already produces (which is why each requires BOTH its stage-4
+  // producers: the d.ts author and the packages/*/dist dir creator)
+  dts_pkg_viz:   { script: 'dts_pkg_viz',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz',   'make_pkg_viz'] },
+  dts_pkg_fence: { script: 'dts_pkg_fence', stages: [5], optional: true, defaultEnabled: true, requires: ['make_fence', 'make_pkg_fence'] },
+  dts_pkg_cli:   { script: 'dts_pkg_cli',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_cli',   'make_pkg_cli'] },
 
   // --- Stage 6: cleanup of minify's intermediate nonmin artifact ---
   rm_nonmin: { script: 'rm_nonmin', stages: [6], optional: true, defaultEnabled: true, requires: ['minify'] },
@@ -125,6 +153,10 @@ const FEATURES = {
   // --- Stage 9: doc generators that write under docs/ after site ---
   make_cookbook:  { script: 'make_cookbook',  stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
   site_fsl_tools: { script: 'site_fsl_tools', stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
+  // writes docs/size_chart.html — a distinct filename from every other stage-9
+  // writer, and it reads the perf_results data branch rather than src/, so it
+  // neither races the src-mutators nor collides inside docs/
+  size_chart:     { script: 'size_chart',     stages: [9], optional: true, defaultEnabled: true, requires: ['site'] },
 
   // --- Stage 10: readme (consumes vitest metrics + cloc report) ---
   readme: { script: 'readme', stages: [10], optional: true, defaultEnabled: true, requires: ['vitest', 'cloc'] },

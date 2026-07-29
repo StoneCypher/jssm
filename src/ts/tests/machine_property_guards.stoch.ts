@@ -41,9 +41,11 @@ const two_names_arb = fc.tuple(atom_arb, atom_arb)
 /** Arbitrary for a property name, suffixed so it cannot collide with states. */
 const prop_name_arb = atom_arb.map( p => `${p}pr` );
 
-/** Arbitrary for an FSL-expressible property value: non-negative integer or
+/**
+ * Arbitrary for an FSL-expressible property value: non-negative integer or
  *  quoted string, as [source_literal, expected_runtime_value].  (The grammar
- *  has no negative number literal in property positions.) */
+ *  has no negative number literal in property positions.)
+ */
 const prop_value_arb: fc.Arbitrary<[string, unknown]> = fc.oneof(
   fc.integer({ min: 0, max: 1000 }).map( (n): [string, unknown] => [String(n), n] ),
   atom_arb.map( (s): [string, unknown] => [`"${s}"`, s] )

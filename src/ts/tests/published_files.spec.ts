@@ -62,12 +62,19 @@ describe.skipIf(!full_dist_present)('published files trace (full dist only)', ()
     expect(statSync(abs).size).toBeGreaterThan(0);
   });
 
-  test('main, module, browser, and types entry points are published', () => {
-    for (const key of ['main', 'module', 'browser', 'types'] as const) {
+  test('main, module, and types entry points are published', () => {
+    //  no `browser` since v6: the IIFE build that field pointed at now ships as
+    //  the jssm-iife package, and the main package is ESM only
+    for (const key of ['main', 'module', 'types'] as const) {
       const rel = (pkg[key] as string).replace(/^\.\//, '');
       expect(existsSync(resolve(root, rel)), `${key}: ${rel}`).toBe(true);
       expect(statSync(resolve(root, rel)).size).toBeGreaterThan(0);
     }
+  });
+
+  test('the main package declares no browser or bin entry — those moved to their own packages', () => {
+    expect(pkg.browser).toBeUndefined();   // -> jssm-iife
+    expect(pkg.bin).toBeUndefined();       // -> jssm-cli
   });
 
 });

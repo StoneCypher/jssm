@@ -3,8 +3,10 @@ import { state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 
-/** One edge of the machine, as returned by `machine.list_edges()` (edge
- *  endpoints are `StateType = string` in jssm). */
+/**
+ * One edge of the machine, as returned by `machine.list_edges()` (edge
+ *  endpoints are `StateType = string` in jssm).
+ */
 interface MachineEdge { from: string; to: string; main_path: boolean; forced_only: boolean; }
 
 /** Host whose machine the actions panel reads and drives. */

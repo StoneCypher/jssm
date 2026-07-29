@@ -30,7 +30,9 @@ import {
   JssmArrowKind,
   JssmSerialization,
   JssmPropertyDefinition,
-  FslDirection,  FslTheme,
+  JssmValType,
+  JssmValDefinition,
+  FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
   HookPhase, HookTarget, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
@@ -47,6 +49,7 @@ import {
 
 import {  make, makeTransition, 
          transitive_members, membership_distance }            from './jssm_compiler.js';
+import { canonical_config }                                    from './fsl_canonical.js';
 import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
@@ -153,6 +156,60 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
  *  @internal
  *
  */
+
+/*********
+ *
+ *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
+ *  a {@link JssmError} on a type or range violation.  Used both at construction
+ *  (initial values) and on every `set_val` write.
+ *
+ */
+
+function validate_val_value(name: string, vtype: JssmValType, value: any, machine: any): void {
+  switch (vtype.kind) {
+    case 'boolean': {
+      if (typeof value !== 'boolean') {
+        throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
+      }
+      break;
+    }
+    case 'string': {
+      if (typeof value !== 'string') {
+        throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
+      }
+      break;
+    }
+    case 'int': {
+      // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
+      if (!Number.isInteger(value)) {
+        throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
+      }
+      if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < (vtype as { lo: number }).lo) {
+        throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${(vtype as { lo: number }).lo}`);
+      }
+      if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > (vtype as { hi: number }).hi) {
+        throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${(vtype as { hi: number }).hi}`);
+      }
+      break;
+    }
+    case 'enum': {
+      if (!vtype.members.includes(value)) {
+        throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
+      }
+      break;
+    }
+    // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
+    // only ever emits four kinds of, so this default is unreachable at runtime;
+    // the `never` assignment turns an unhandled future kind into a compile error.
+    /* v8 ignore start */
+    default: {
+      const _exhaustive: never = vtype;
+      throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
+    }
+    /* v8 ignore stop */
+  }
+}
+
 
 function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
 
@@ -689,6 +746,11 @@ class Machine<mDT> {
   // serialized _state_properties keys back apart (#734)
   _state_property_first_state : Map<string, StateType>;
 
+  _val_keys            : Set<string>;
+  _val_types           : Map<string, JssmValType>;
+  _val_values          : Map<string, any>;
+  _required_vals       : Set<string>;
+
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
@@ -797,6 +859,8 @@ class Machine<mDT> {
     default_size,
     state_declaration,
     property_definition,
+    val_definition,
+    vals,
     state_property,
     fsl_version,
     dot_preamble,
@@ -953,6 +1017,11 @@ class Machine<mDT> {
     this._state_properties              = new Map();
     this._required_properties           = new Set();
     this._state_property_first_state    = new Map();
+
+    this._val_keys                      = new Set();
+    this._val_types                     = new Map();
+    this._val_values                    = new Map();
+    this._required_vals                 = new Set();
 
     this._state_style                   = state_style_condense(default_state_config, this);
     this._active_state_style            = state_style_condense(default_active_state_config, this);
@@ -1272,6 +1341,52 @@ class Machine<mDT> {
         }
 
       }
+
+    }
+
+
+    if (Array.isArray(val_definition)) {
+
+      for (const vd of val_definition) {
+        this._val_keys.add(vd.name);
+        this._val_types.set(vd.name, vd.val_type);
+        if (Object.prototype.hasOwnProperty.call(vd, 'required') && (vd.required === true)) {
+          if (Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+            throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
+          }
+          this._required_vals.add(vd.name);
+        }
+      }
+
+      const supplied: { [name: string]: any } = (vals && (typeof vals === 'object')) ? vals : {};
+
+      for (const name of Object.keys(supplied)) {
+        if (!this._val_keys.has(name)) {
+          throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
+        }
+      }
+
+      this._val_keys.forEach(name => {
+        const vtype = this._val_types.get(name);
+        let value: any;
+        if (Object.prototype.hasOwnProperty.call(supplied, name)) {
+          value = supplied[name];
+        } else {
+          const vd = val_definition.find(d => d.name === name);
+          if (vd && Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+            value = vd.default_value;
+          } else if (this._required_vals.has(name)) {
+            throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
+          } else {
+            // vals are non-null by default (megaspec §4.4): a val that is
+            // neither supplied, defaulted, nor required has no value of its
+            // declared type, so it is a construction error rather than undefined.
+            throw new JssmError(this, `The val "${name}" has no value: give it a default, declare it required, or supply it at construction (vals are non-null by default)`);
+          }
+        }
+        validate_val_value(name, vtype, value, this);
+        this._val_values.set(name, value);
+      });
 
     }
 
@@ -1820,6 +1935,143 @@ class Machine<mDT> {
   }
 
 
+  /*********
+   *
+   *  Read the current value of a declared machine `val`.
+   *
+   *  ```typescript
+   *  const m = sm`val ok : boolean default true; a -> b;`;
+   *
+   *  m.val('ok');   // true
+   *  ```
+   *
+   *  @param name The declared val name to read.
+   *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+   *  @throws {JssmError} If `name` is not a declared val.
+   *
+   */
+
+  val(name: string): any {
+    if (!this._val_keys.has(name)) {
+      throw new JssmError(this, `No such val "${name}"`);
+    }
+    return this._val_values.get(name);
+  }
+
+
+  /*********
+   *
+   *  Set the value of a declared machine `val`, validating it against the val's
+   *  declared type.  This is the runtime mutation surface; source-level `assign`
+   *  arrives in a later phase.
+   *
+   *  ```typescript
+   *  const m = sm`val n : int default 0; a -> b;`;
+   *
+   *  m.set_val('n', 5);
+   *  m.val('n');   // 5
+   *  ```
+   *
+   *  @param name  The declared val name to write.
+   *  @param value The new value; must satisfy the val's declared type.
+   *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+   *
+   */
+
+  set_val(name: string, value: any): void {
+    if (!this._val_keys.has(name)) {
+      throw new JssmError(this, `No such val "${name}"`);
+    }
+    validate_val_value(name, this._val_types.get(name), value, this);
+    this._val_values.set(name, value);
+  }
+
+
+  /*********
+   *
+   *  Return a plain object mapping every declared val name to its current value.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+   *
+   *  m.vals();   // { a: 1, b: false }
+   *  ```
+   *
+   *  @returns An object of every declared val name to its current value.
+   *
+   */
+
+  vals(): object {
+    const result: { [name: string]: any } = {};
+    this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
+    return result;
+  }
+
+
+  /*********
+   *
+   *  Check whether a string is the name of a declared `val`.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; x -> y;`;
+   *
+   *  m.known_val('a');   // true
+   *  m.known_val('z');   // false
+   *  ```
+   *
+   *  @param name The candidate val name.
+   *  @returns Whether the name is a declared val.
+   *
+   */
+
+  known_val(name: string): boolean {
+    return this._val_keys.has(name);
+  }
+
+
+  /*********
+   *
+   *  List every declared `val` name, in declaration order.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+   *
+   *  m.known_vals();   // ['a', 'b']
+   *  ```
+   *
+   *  @returns The declared val names in declaration order.
+   *
+   */
+
+  known_vals(): string[] {
+    return [... this._val_keys];
+  }
+
+
+  /*********
+   *
+   *  Return the declared type descriptor of a `val`.
+   *
+   *  ```typescript
+   *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+   *
+   *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+   *  ```
+   *
+   *  @param name The declared val name.
+   *  @returns The val's declared type descriptor.
+   *  @throws {JssmError} If `name` is not a declared val.
+   *
+   */
+
+  val_type(name: string): JssmValType {
+    if (!this._val_keys.has(name)) {
+      throw new JssmError(this, `No such val "${name}"`);
+    }
+    return this._val_types.get(name);
+  }
+
+
 
 
 
@@ -2032,6 +2284,20 @@ class Machine<mDT> {
 
 
 
+
+
+  /**
+   *  The RFC 8785 canonical-config identity of the current configuration
+   *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+   *  hashing.  Excludes envelope fields (timestamp/comment/history).
+   *  @returns The canonical config string.
+   *  @example
+   *    import { sm } from 'jssm';
+   *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+   */
+  canonical(): string {
+    return canonical_config(this._state, this._data);
+  }
 
 
   /**
@@ -2599,9 +2865,7 @@ class Machine<mDT> {
    *  m.themes = 'ocean';
    *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
    *  ```
-   *
    *  @param to - A theme name or array of theme names to apply.
-   *
    *  @see resolve_state_config
    */
   set themes(to: FslTheme | FslTheme[]) {
@@ -2908,7 +3172,6 @@ class Machine<mDT> {
    *  transition.  A terminal start therefore completes with length zero even
    *  when `max_steps` is zero, and a terminal reached on the final permitted
    *  transition is completed rather than step-capped.
-   *
    *  @param start - State to begin the walk from.
    *  @param max_steps - Maximum transitions before the walk is step-capped.
    *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
@@ -4264,7 +4527,6 @@ class Machine<mDT> {
    *  definedness test except the two nested maps, which scan their (small)
    *  inner maps.  The flags are combined with `.includes(true)` over boolean
    *  arrays rather than `||` chains so the method carries no branches of its own.
-   *
    *  @internal
    */
   #recompute_hook_flags(): void {
@@ -7092,13 +7354,28 @@ class Machine<mDT> {
    *  @param remainder        - Interpolated values.
    *  @returns A new {@link Machine} instance.
    */
-   
-   
+
+
   sm(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
     return sm(template_strings, ...remainder);
   }
-   
-   
+
+
+
+  /**
+   * Convenience method to create a new machine from a tagged template literal;
+   *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+   *  @param template_strings - The template string array.
+   *  @param remainder        - Interpolated values.
+   *  @returns A new {@link Machine} instance.
+   */
+
+
+  fsl(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
+    return sm(template_strings, ...remainder);
+  }
+
+
 
 
 }
@@ -7150,6 +7427,44 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
   )));
 
+}
+
+
+
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  ```typescript
+ *  import { fsl } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  lswitch.state();  // => 'on'
+ *  ```
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+
+function fsl<mDT>(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
+  return sm<mDT>(template_strings, ...remainder);
 }
 
 
@@ -7653,6 +7968,7 @@ export {
   
 
   sm,
+  fsl,
   from,
 
   
@@ -7707,8 +8023,13 @@ export type {
 
 export {FslDirections} from './jssm_types.js';
 export type {JssmParseOptions} from './jssm_types.js';
+export {JssmError} from './jssm_error.js';
 export {arrow_direction, arrow_left_kind, arrow_right_kind} from './jssm_arrow.js';
-export {compile, wrap_parse as parse, make} from './jssm_compiler.js';
-export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32} from './jssm_util.js';
+export {compile, wrap_parse as parse, make, membership_distance} from './jssm_compiler.js';
+export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32, name_bind_prop_and_state} from './jssm_util.js';
+export {replay} from './fsl_replay.js';
+export type {ReplayResult, ReplayStep} from './fsl_replay.js';
+export {parse_tape, serialize_tape, ReplayError, SUPPORTED_TAPE_VERSION} from './fsl_stimulus_tape.js';
+export type {Stimulus, TapeHeader, StimulusTape, ReplayErrorKind} from './fsl_stimulus_tape.js';
 export {build_time, version} from './version.js';
 export * as constants from './jssm_constants.js';

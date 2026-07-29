@@ -26,9 +26,11 @@ const RUNS = 60;
 
 
 
-/** Arbitrary for an 8-digit lowercase rgba hex literal, e.g. `#0af3c218`.
+/**
+ * Arbitrary for an 8-digit lowercase rgba hex literal, e.g. `#0af3c218`.
  *  Rgba8 literals canonicalise to themselves through the parser, so they
- *  round-trip exactly. */
+ *  round-trip exactly.
+ */
 const rgba8_arb = fc.array(
   fc.constantFrom(...'0123456789abcdef'.split('')),
   { minLength: 8, maxLength: 8 }

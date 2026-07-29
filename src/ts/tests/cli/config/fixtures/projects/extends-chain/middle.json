@@ -1,0 +1,4 @@
+{
+  "extends": "./base.json",
+  "render": { "scale": 2, "outDir": "from-middle" }
+}
