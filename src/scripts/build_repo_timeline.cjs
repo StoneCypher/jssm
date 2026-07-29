@@ -32,7 +32,7 @@ const DEFAULT_OWNER = 'StoneCypher';
 // An entry is "name" or "name || aside".
 const CATEGORIES = [
   ['replaced by newer work', [
-    'sublime-fsl', 'sublime-jssm', 'jssm_mini_demo',
+    'sublime-fsl', 'sublime-jssm', 'jssm_mini_demo', 'jssm-mcp',
   ]],
   ['proof of concept, needs to be updated', [
     'alpha-highlightjs-fsl', 'fsl-pegjs',
@@ -50,7 +50,7 @@ const CATEGORIES = [
     'fsl-spec',
   ]],
   ['current', [
-    'jssm', 'jssm-mcp', 'vscode-fsl', 'fsl-mcp', 'codemirror-lang-fsl', 'fsl-textmate',
+    'jssm', 'vscode-fsl', 'fsl-mcp', 'codemirror-lang-fsl', 'fsl-textmate',
     'highlightjs/highlightjs-fsl || upstream home of the highlight.js grammar; lives under the highlightjs org, not StoneCypher',
   ]],
   ['remaindered because interned into main', [
@@ -76,6 +76,13 @@ const OBSOLETION = {
   'sublime-fsl':    ['fsl-textmate'],
   'sublime-jssm':   ['fsl-textmate'],
   'jssm_mini_demo': ['jssm', 'lit tags'],
+
+  //  Never built: one commit on 2026-03-07, three files, 2 KB, pushed one
+  //  second after creation. A name reservation that the `jssm-*` -> `fsl-*`
+  //  rename made moot before anything was written. Deprecated and archived
+  //  2026-07-29; without this edge it read as orphaned work rather than as a
+  //  resolved renaming.
+  'jssm-mcp':       ['fsl-mcp', 'renamed before any work landed'],
 };
 
 

@@ -71,6 +71,10 @@ const SOURCES = {
   //  reach actually changed. `subdir` is the Pages source path, so the measure
   //  is the served site rather than the repo that builds it.
   'fsl.tools':    { owner: 'StoneCypher', repo: 'fsl.tools',    channel: 'website', versions: 'pages', subdir: 'docs' },
+
+  //  A hosted demo is a website whose whole job is to be visited, so it is
+  //  measured the same way. Two Pages builds on one day in 2019, then nothing.
+  'jssm_mini_demo': { owner: 'StoneCypher', repo: 'jssm_mini_demo', channel: 'website', versions: 'pages', subdir: 'docs' },
 };
 
 

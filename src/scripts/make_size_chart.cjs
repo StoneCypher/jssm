@@ -509,7 +509,7 @@ function posAtX(px){
 // injected verbatim from build/flow_model.cjs into its own script tag, so the
 // browser and the node-side self-test run literally the same code. Everything
 // here is LAYOUT -- no ecosystem knowledge lives in the renderer.
-let flowMode=false, FLOW=null, FGEO=null;
+let flowMode=true, FLOW=null, FGEO=null;   // default view: mass flow (see the mode buttons)
 // flow uses the full width (no side legend) and its own taller canvas, because
 // the rotated event labels need room to fall away below the axis
 const FLX=96, FRX=1264, FTY=56, FBY=444; let FH=606;
@@ -1039,7 +1039,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <p>Every published jssm-family npm package, from the real size archaeology (paths interned, embedded once). In <strong>ecosystem</strong> mode each package is stacked on a shared publish-time axis; a package that is <strong>npm-deprecated</strong> or <strong>obsoleted</strong> (folded into jssm) drops to 0 on the tick after its final release, so you can watch libraries flow in as they are born and out as they are superseded. Toggle packages with the pills; <strong>click any package</strong> to drill into its own files; <strong>hover</strong> for the size at the tick under your cursor.</p>
 <p><strong>Mass flow</strong> answers the other question — <em>where did the bytes go</em>. Every column is an event the archive implies (a birth, a retirement, a supersession, a decomposition), never one we typed, so adding packages adds columns without touching code. Ribbon thickness is measured bytes crossing a package boundary, and the diagram <strong>conserves</strong>: what enters a node equals its height equals what leaves, with new code and shed weight drawn as explicit stubs. That is why <code>jssm-viz</code>'s final 15&#8202;MB reads as <em>not carried forward</em> rather than as a fat ribbon into <code>jssm</code> — the viz work was interned, but the interned form is far smaller, and jssm never gained that mass.</p>
 <div class="controls">
-  <div class="group"><span>mode</span><button data-mode="eco">ecosystem</button><button data-mode="jssm" aria-pressed="true">jssm proper</button><button data-mode="flow">mass flow</button></div>
+  <div class="group"><span>mode</span><button data-mode="eco">ecosystem</button><button data-mode="jssm">jssm proper</button><button data-mode="flow" aria-pressed="true">mass flow</button></div>
   <div class="group"><span>y</span><button data-y="linear" aria-pressed="true">linear</button><button data-y="log">log</button></div>
   <div class="group"><span>x</span><button data-x="time">by time</button><button data-x="version" aria-pressed="true">by version</button></div>
 </div>
