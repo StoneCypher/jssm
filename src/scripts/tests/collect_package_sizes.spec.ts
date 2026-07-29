@@ -91,7 +91,8 @@ describe('parseArgs', () => {
     const o = parseArgs(['--out', 'data']);
     expect(o.outDir).toBe('data');
     expect(o.packages).toEqual(['jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife', 'jssm-verify',
-                                'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl']);
+                                'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl',
+                                'fslp', 'fslc', 'fsli', 'fsl-lezer', 'fsl_gen_docpage']);
     expect(o.limit).toBe(Infinity);
     expect(o.concurrency).toBe(12);
     expect(o.force).toBe(false);

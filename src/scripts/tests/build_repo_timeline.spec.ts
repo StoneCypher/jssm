@@ -9,7 +9,55 @@ const brt = require('../build_repo_timeline.cjs');
 // categories, no dangling supersession target) also run here against the real
 // embedded tables, so a bad edit to CATEGORIES/OBSOLETION fails this suite.
 
-const { parseArgs, buildDataset, auditEnrollment } = brt;
+const { parseArgs, buildDataset, auditEnrollment, SHIPS, CATEGORIES } = brt;
+
+describe('SHIPS', () => {
+
+  it('never claims npm — that channel is derived, not declared', () => {
+    // Two sources for "is this an npm stream" could disagree; the chart already
+    // knows from the archives, so the map must not restate it.
+    expect(Object.values(SHIPS).map((s: { channel: string }) => s.channel)).not.toContain('npm');
+  });
+
+  it('gives every entry a channel', () => {
+    for (const [name, s] of Object.entries(SHIPS)) {
+      expect(typeof (s as { channel: string }).channel, name).toBe('string');
+    }
+  });
+
+  it('carries a checkable url where one was verified', () => {
+    expect(SHIPS['sublime-fsl'].url).toContain('packagecontrol.io');
+    expect(SHIPS['fsl.tools'].url).toBe('https://fsl.tools/');
+  });
+
+  it('omits vscode-fsl — its manifest implies a marketplace it never reached', () => {
+    // marketplace 404, open-vsx 404, and its GitHub releases carry no .vsix.
+    // A `vsce package` script proves intent to package, not publication.
+    expect(SHIPS['vscode-fsl']).toBeUndefined();
+  });
+
+  it('only names repos that CATEGORIES actually curates', () => {
+    const curated = new Set(
+      CATEGORIES.flatMap(([, entries]: [string, string[]]) => entries.map(e => e.split(' || ')[0]))
+    );
+    for (const name of Object.keys(SHIPS)) { expect(curated.has(name)).toBe(true); }
+  });
+
+  it('marks the website-basis repos as websites', () => {
+    for (const name of ['fsl.tools', 'fsllang.com', 'jssm_mini_demo']) {
+      expect(SHIPS[name].channel).toBe('website');
+    }
+  });
+
+  it('leaves genuinely unshipped repos absent', () => {
+    // Absence is the claim "this never reached users at all", so it has to mean
+    // something — these are the experiments with no channel of any kind.
+    for (const name of ['fsl-pegjs', 'fsllint', 'fsled', 'fsl-code']) {
+      expect(SHIPS[name]).toBeUndefined();
+    }
+  });
+
+});
 
 describe('auditEnrollment', () => {
 

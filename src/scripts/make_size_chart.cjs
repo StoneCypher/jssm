@@ -208,7 +208,7 @@ function buildRails(repos, shipped) {
   const rows = repos.repos
     .filter(r => !shipped.has(r.name) && r.created && r.lastPush)
     .map(r => ({ name: r.name, category: r.category, by: r.obsoletedBy, what: r.obsoletedByWhat,
-                 archived: !!r.archived, note: r.note,
+                 archived: !!r.archived, note: r.note, ships: r.ships || null,
                  t0: Date.parse(r.created), t1: Date.parse(r.lastPush) }))
     .sort((a, b) => a.t0 - b.t0 || (a.name < b.name ? -1 : 1));
   return rows.length ? { categoryOrder: repos.categoryOrder, repos: rows } : null;
@@ -601,26 +601,34 @@ function renderRails(times,xs){
   if(REPOS.length===0) return {svg:'',bottom:FBY+96};
   const X=railXFn(times,xs);
   let y=RY0, svg='';
-  svg+='<text x="'+FLX+'" y="'+(y-16)+'" font-size="10.5" font-weight="bold" fill="#52514e">ecosystem repos that ship no npm mass — lifespan rails</text>';
+  svg+='<text x="'+FLX+'" y="'+(y-16)+'" font-size="10.5" font-weight="bold" fill="#52514e">ecosystem repos that ship no npm mass — lifespan rails <tspan font-weight="normal" fill="#8a8983">(solid = ships elsewhere · faded = never shipped · dashed = archived)</tspan></text>';
   for(const cat of RCATS){
-    const group=REPOS.filter(r=>r.category===cat);
-    if(group.length===0) continue;
+    const group=REPOS.filter(r=>r.category===cat&&selected.has(r.name));
+    if(group.length===0) continue;   // whole category hidden once its last pill is off
     svg+='<text x="'+FLX+'" y="'+y+'" font-size="9.5" fill="'+catColor(cat)+'">'+esc(cat)+'</text>';
     y+=RHEAD;
     for(const r of group.sort((a,b)=>a.t0-b.t0)){
       const x0=X(r.t0), x1=Math.max(X(r.t1),X(r.t0)+RAILMIN);   // a same-day repo is still a visible mark
       const rail={r:r,x0:x0,x1:x1,y:y,color:catColor(cat)};
       RAILS.push(rail);
+      // A repo with no npm mass is not automatically a repo that reached nobody:
+      // a marketplace extension, a Sublime package, a live site and an abandoned
+      // experiment all drew identically before the ships field existed. Encode the
+      // difference in WEIGHT, leaving dash free for archived (an orthogonal fact
+      // a shipped repo can also carry).
+      const ships=r.ships||null, op=ships?1:0.42;
       svg+='<line x1="'+x0.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y2="'+y.toFixed(1)+
-           '" stroke="'+rail.color+'" stroke-width="'+RAILW+'" stroke-linecap="round"'+
+           '" stroke="'+rail.color+'" stroke-width="'+(ships?RAILW:RAILW*0.62).toFixed(2)+'" stroke-linecap="round" opacity="'+op+'"'+
            (r.archived?' stroke-dasharray="4 3"':'')+'/>';
-      svg+='<circle cx="'+x0.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'"/>';
-      svg+='<circle cx="'+x1.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'"/>';
+      svg+='<circle cx="'+x0.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'" opacity="'+op+'"/>';
+      svg+='<circle cx="'+x1.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.4" fill="'+rail.color+'" opacity="'+op+'"/>';
       // label right of the rail when there is room, else left of it
-      const w=r.name.length*5.1;
+      const chan=ships?' · '+ships:'';
+      const w=(r.name.length+chan.length)*5.1;
       const right=x1+6+w<FRX;
       svg+='<text x="'+((right?x1+6:x0-6)).toFixed(1)+'" y="'+(y+3.2).toFixed(1)+'" font-size="9" text-anchor="'+
-           (right?'start':'end')+'" fill="#6b6a65">'+esc(r.name)+'</text>';
+           (right?'start':'end')+'" fill="'+(ships?'#4a4945':'#8a8983')+'">'+esc(r.name)+
+           (chan?'<tspan fill="#8a8983" font-size="8">'+esc(chan)+'</tspan>':'')+'</text>';
       svg+='<rect x="'+(x0-4).toFixed(1)+'" y="'+(y-5).toFixed(1)+'" width="'+(x1-x0+8).toFixed(1)+
            '" height="10" fill="transparent" data-fr="'+(RAILS.length-1)+'" class="rail"/>';
       y+=RROW;
@@ -724,7 +732,12 @@ function renderFlow(){
     kx+=Math.max(96,KINDSTYLE[k].lbl.length*6.0+38);
   }
 
-  const title=(yMode==='log'?'log':'linear')+' bytes · mass flow · '+NC+' derived events · '+selected.size+' of '+PKGS.length+' packages';
+  //  selected now holds repo names too, so count each population against its
+  //  own denominator rather than reporting a mixed total against PKGS
+  const nPkg=PKGS.filter(p=>selected.has(p.name)).length,
+        nRepo=REPOS.filter(r=>selected.has(r.name)).length;
+  const title=(yMode==='log'?'log':'linear')+' bytes · mass flow · '+NC+' derived events · '+
+              nPkg+' of '+PKGS.length+' packages'+(REPOS.length?', '+nRepo+' of '+REPOS.length+' repos':'');
   document.getElementById('chart').innerHTML=
     '<svg width="'+CW+'" height="'+FH+'" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">'+
     '<rect width="'+CW+'" height="'+FH+'" fill="#fcfcfb"/>'+
@@ -814,7 +827,7 @@ function render(){
       leg+='<rect x="'+(RX+16)+'" y="'+ly+'" width="10" height="10" fill="'+any.color+'"/><text x="'+(RX+31)+'" y="'+(ly+9)+'" font-size="10" fill="#52514e">'+esc(f)+'</text>'; ly+=14;}
   }
 
-  const scopeLabel = F.kind==='eco' ? (selected.size+' of '+PKGS.length+' packages') : (F.pk.name + (stack.length>1?' ▸ '+esc(stack[1].label):' — by file family'));
+  const scopeLabel = F.kind==='eco' ? (PKGS.filter(p=>selected.has(p.name)).length+' of '+PKGS.length+' packages') : (F.pk.name + (stack.length>1?' ▸ '+esc(stack[1].label):' — by file family'));
   const winLbl = win.mode==='count'?(' · last '+win.count):(win.mode==='range'?(' · '+(win.start||'…')+'–'+(win.end||'…')):'');
   const title=(yMode==='log'?'log':'linear')+' bytes · '+(F.kind==='eco'?'ecosystem · by publish time':(xMode==='time'?'by publish time':'by version'))+' · '+scopeLabel+winLbl;
   document.getElementById('chart').innerHTML='<svg width="'+CW+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif"><rect width="'+CW+'" height="'+H+'" fill="#fcfcfb"/><text x="'+LX+'" y="20" font-size="13.5" font-weight="bold" fill="#0b0b0b">'+esc(title)+' <tspan fill-opacity="0.5">(lower is better)</tspan></text>'+grid+xax+polys+'<line x1="'+LX+'" y1="'+BY+'" x2="'+RX+'" y2="'+BY+'" stroke="#c3c2b7"/>'+leg+'</svg>';
@@ -839,12 +852,27 @@ function render(){
   if(ws){ ws.placeholder=useTimeAxis?'start date (YYYY-MM-DD)':'start version'; we.placeholder=useTimeAxis?'end date':'end version'; }
 }
 
-// pills built once
+// pills built once.  Two groups, because the diagram draws two kinds of thing:
+// packages carry measured npm mass and stack; repos carry none and draw as
+// lifespan rails.  Both are toggleable -- a rail with no pill is a row you can
+// see and cannot get rid of, which is the complaint that prompted this.
 (function buildPills(){
   const box=document.getElementById('pills');
   let h='<span>packages</span>';
   for(const pk of PKGS.slice().sort((a,b)=>a.born-b.born)){
     h+='<button class="pill" data-pkg="'+esc(pk.name)+'" aria-pressed="true"><span class="dot" style="background:'+(pk.dead?'#b8b6ad':'#2a7d46')+'"></span>'+esc(pk.name)+'</button>';
+  }
+  if(REPOS.length){
+    //  seeded here rather than beside PKGS because REPOS is declared later and
+    //  is still in its temporal dead zone at that point
+    for(const r of REPOS){ selected.add(r.name); }
+    h+='<span>repos</span>';
+    for(const r of REPOS.slice().sort((a,b)=>a.t0-b.t0)){
+      //  dot carries the rail's own category colour, so a pill and the row it
+      //  controls are recognisably the same thing
+      h+='<button class="pill" data-pkg="'+esc(r.name)+'" aria-pressed="true"><span class="dot" style="background:'+catColor(r.category)+
+         (r.ships?'':';opacity:.4')+'"></span>'+esc(r.name)+'</button>';
+    }
   }
   box.innerHTML=h;
   box.querySelectorAll('.pill').forEach(btn=>btn.onclick=()=>{
@@ -863,7 +891,8 @@ function flowHover(el,e){
     const t=RAILS[+el.getAttribute('data-fr')], r=t.r;
     const d=ms=>new Date(ms).toISOString().slice(0,10);
     head='<b>'+esc(r.name)+'</b> — '+esc(r.category);
-    mid=d(r.t0)+' → '+d(r.t1)+(r.archived?' <i>(archived)</i>':'')+' · ships no npm mass';
+    mid=d(r.t0)+' → '+d(r.t1)+(r.archived?' <i>(archived)</i>':'')+
+        (r.ships?' · ships via <i>'+esc(r.ships)+'</i>, not npm':' · never shipped');
     if(r.by) hint='<br>superseded by '+esc(r.by)+(r.what?' ('+esc(r.what)+')':'');
     if(r.note) hint+='<br><i>'+esc(r.note)+'</i>';
   } else if(el.getAttribute('data-fl')!==null){

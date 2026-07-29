@@ -66,6 +66,13 @@ const zlib = require('node:zlib');
 const DEFAULT_PACKAGES = [
   'jssm', 'jssm-viz', 'jssm-fence', 'jssm-cli', 'jssm-commonjs', 'jssm-iife', 'jssm-verify',
   'jssm-viz-cli', 'jssm-viz-demo', 'codemirror-lang-fsl', 'require_jssm', 'fsl',
+
+  //  The early FSL tool line. Every one of these published to npm and then
+  //  stopped; they were absent from this list until 2026-07-29, which is why
+  //  the ecosystem chart drew them as zero-mass rails rather than as the
+  //  libraries they actually were. A curated repo that shipped to npm and is
+  //  missing here is a library the diagram silently downgrades.
+  'fslp', 'fslc', 'fsli', 'fsl-lezer', 'fsl_gen_docpage',
 ];
 
 const DEFAULT_REGISTRY = 'https://registry.npmjs.org';
