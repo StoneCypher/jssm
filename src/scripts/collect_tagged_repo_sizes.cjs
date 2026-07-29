@@ -62,8 +62,15 @@ const { loadArchive, saveArchive, makeRecord } = require('./collect_package_size
  *  invent mass that never reached a user.
  */
 const SOURCES = {
-  'sublime-fsl':  { owner: 'StoneCypher', repo: 'sublime-fsl',  channel: 'sublime-package-control' },
-  'sublime-jssm': { owner: 'StoneCypher', repo: 'sublime-jssm', channel: 'sublime-package-control' },
+  'sublime-fsl':  { owner: 'StoneCypher', repo: 'sublime-fsl',  channel: 'sublime-package-control', versions: 'tags' },
+  'sublime-jssm': { owner: 'StoneCypher', repo: 'sublime-jssm', channel: 'sublime-package-control', versions: 'tags' },
+
+  //  A website has no tags worth speaking of -- fsl.tools carries exactly one
+  //  across eight years -- but GitHub records every Pages build, and a Pages
+  //  build is the honest analogue of a publish: the moment the thing visitors
+  //  reach actually changed. `subdir` is the Pages source path, so the measure
+  //  is the served site rather than the repo that builds it.
+  'fsl.tools':    { owner: 'StoneCypher', repo: 'fsl.tools',    channel: 'website', versions: 'pages', subdir: 'docs' },
 };
 
 
@@ -124,11 +131,61 @@ function parseArgs(argv) {
  *  filesOfTree([{ type: 'blob', path: 'a.txt', size: 3 }, { type: 'tree', path: 'd' }]);
  *  // => { 'a.txt': 3 }
  */
-function filesOfTree(tree) {
+function filesOfTree(tree, subdir) {
   const out = {};
+  const prefix = subdir ? subdir.replace(/\/*$/, '') + '/' : null;
   for (const e of tree) {
     if (e.type !== 'blob' || typeof e.size !== 'number') { continue; }
+    if (prefix) {
+      if (!e.path.startsWith(prefix)) { continue; }      // not served; not delivered
+      out[e.path.slice(prefix.length)] = e.size;         // paths read as site paths, not repo paths
+      continue;
+    }
     out[e.path] = e.size;
+  }
+  return out;
+}
+
+
+/**
+ *  The release points for a repo whose channel is git tags.
+ *
+ *  @param src - A SOURCES entry.
+ *  @returns `[{ version, sha }]`, oldest first.
+ */
+function tagReleases(src) {
+  const tags = gh(`repos/${src.owner}/${src.repo}/tags?per_page=100`);
+  return tags.slice().reverse().map(t => ({ version: t.name, sha: t.commit.sha }));
+}
+
+
+/**
+ *  The release points for a site published by GitHub Pages: one per successful
+ *  build, deduplicated by commit.
+ *
+ *  Errored builds are dropped because they never served anything — counting a
+ *  failed deploy as a version would claim visitors saw bytes that were never
+ *  delivered. Repeat builds of one commit collapse to the earliest, since a
+ *  rebuild of identical content is not a new version of the site.
+ *
+ *  Versions are keyed `YYYY-MM-DD.<sha7>`: a website has no version numbers, so
+ *  the key has to be readable in a tooltip, unique, and chronologically sane.
+ *
+ *  @param src - A SOURCES entry.
+ *  @returns `[{ version, sha, when }]`, oldest first.
+ *
+ *  @example
+ *  pagesReleases({ owner: 'StoneCypher', repo: 'fsl.tools' })[0];
+ *  // => { version: '2018-11-18.bf19b47', sha: 'bf19b47c…', when: '2018-11-18T…' }
+ */
+function pagesReleases(src) {
+  const builds = gh(`repos/${src.owner}/${src.repo}/pages/builds?per_page=100`);
+  const seen = new Set(), out = [];
+  for (const b of builds.slice().reverse()) {          // oldest first
+    if (b.status !== 'built' || !b.commit) { continue; }
+    if (seen.has(b.commit)) { continue; }
+    seen.add(b.commit);
+    out.push({ version: `${b.created_at.slice(0, 10)}.${b.commit.slice(0, 7)}`, sha: b.commit, when: b.created_at });
   }
   return out;
 }
@@ -149,34 +206,45 @@ function filesOfTree(tree) {
  */
 function collectRepo(key, opts) {
   const src = SOURCES[key];
-  const tags = gh(`repos/${src.owner}/${src.repo}/tags?per_page=100`);
-  if (tags.length === 0) {
-    console.log(`${key}: no tags — nothing to measure, skipping`);
-    return { added: 0, tags: 0 };
+  const releases = src.versions === 'pages' ? pagesReleases(src) : tagReleases(src);
+  const unit = src.versions === 'pages' ? 'deploy' : 'tag';
+
+  if (releases.length === 0) {
+    console.log(`${key}: no ${unit}s — nothing to measure, skipping`);
+    return { added: 0, releases: 0 };
   }
 
   const archive = loadArchive(opts.outDir, key);
   let added = 0;
 
   //  oldest first, so an interrupted run leaves a chronologically sane archive
-  for (const t of tags.slice().reverse()) {
-    if (!opts.force && archive.versions[t.name]) { continue; }
+  for (const rel of releases) {
+    if (!opts.force && archive.versions[rel.version]) { continue; }
 
-    const sha  = t.commit.sha;
-    const when = gh(`repos/${src.owner}/${src.repo}/commits/${sha}`).commit.committer.date;
-    const tree = gh(`repos/${src.owner}/${src.repo}/git/trees/${sha}?recursive=1`);
-    const files = filesOfTree(tree.tree || []);
+    //  a Pages build already carries its own timestamp; a tag has to be dated
+    //  from the commit it points at
+    const when = rel.when
+      || gh(`repos/${src.owner}/${src.repo}/commits/${rel.sha}`).commit.committer.date;
+    const tree = gh(`repos/${src.owner}/${src.repo}/git/trees/${rel.sha}?recursive=1`);
+    const files = filesOfTree(tree.tree || [], src.subdir);
 
-    archive.versions[t.name] = makeRecord(when, null, files);
+    if (Object.keys(files).length === 0) {
+      //  a build whose source path did not exist at that commit delivered
+      //  nothing measurable; recording a zero would draw a false trough
+      console.log(`${key}@${rel.version}: no files under ${src.subdir || '/'} — skipping`);
+      continue;
+    }
+
+    archive.versions[rel.version] = makeRecord(when, null, files);
     added++;
 
     const total = Object.values(files).reduce((a, b) => a + b, 0);
-    console.log(`${key}@${t.name}: ${Object.keys(files).length} files, ${(total / 1048576).toFixed(2)} MB`);
+    console.log(`${key}@${rel.version}: ${Object.keys(files).length} files, ${(total / 1048576).toFixed(2)} MB`);
   }
 
   if (!opts.dryRun && added > 0) { saveArchive(opts.outDir, key, archive); }
-  console.log(`${key}: +${added} tag(s) of ${tags.length}${opts.dryRun ? ' (dry-run, not written)' : ''}`);
-  return { added, tags: tags.length };
+  console.log(`${key}: +${added} ${unit}(s) of ${releases.length}${opts.dryRun ? ' (dry-run, not written)' : ''}`);
+  return { added, releases: releases.length };
 }
 
 
@@ -187,7 +255,7 @@ function main() {
 
   let total = 0;
   for (const key of opts.repos) { total += collectRepo(key, opts).added; }
-  console.log(`done: +${total} tag(s) across ${opts.repos.length} repo(s)`);
+  console.log(`done: +${total} release(s) across ${opts.repos.length} repo(s)`);
 }
 
 
@@ -196,4 +264,4 @@ if (require.main === module) {
   catch (e) { console.error(`collect_tagged_repo_sizes failed: ${e.message}`); process.exit(1); }
 }
 
-module.exports = { parseArgs, filesOfTree, collectRepo, SOURCES };
+module.exports = { parseArgs, filesOfTree, tagReleases, pagesReleases, collectRepo, SOURCES };
