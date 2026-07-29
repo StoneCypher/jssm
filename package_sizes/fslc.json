@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "package": "fslc",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.1.0": {
+      "published": "2017-10-30T00:49:15.080Z",
+      "files": {
+        "package.json": 628,
+        "README.md": 48
+      }
+    },
+    "0.1.1": {
+      "published": "2017-10-30T00:53:02.053Z",
+      "files": {
+        "package.json": 628,
+        "README.md": 48
+      }
+    }
+  }
+}

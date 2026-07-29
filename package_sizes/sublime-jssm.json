@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "package": "sublime-jssm",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "1.0.0": {
+      "published": "2017-08-20T01:05:35Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 336,
+        "jssm.YAML-tmLanguage": 2831,
+        "jssm.tmLanguage": 6475,
+        "screenshot.png": 212978
+      }
+    },
+    "1.0.1": {
+      "published": "2017-08-20T01:05:35Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 336,
+        "jssm.YAML-tmLanguage": 2831,
+        "jssm.tmLanguage": 6475,
+        "screenshot.png": 212978
+      }
+    }
+  }
+}

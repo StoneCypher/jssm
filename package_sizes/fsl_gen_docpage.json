@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "package": "fsl_gen_docpage",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.1.0": {
+      "published": "2022-07-15T08:08:23.472Z",
+      "files": {
+        "LICENSE": 1092,
+        "src/buildjs/verify_version_bump.js": 1768,
+        "package.json": 782,
+        "README.md": 2095
+      }
+    }
+  }
+}

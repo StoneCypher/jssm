@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "package": "fsl-lezer",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "0.6.0": {
+      "published": "2022-07-07T01:13:05.655Z",
+      "files": {
+        "docs/.nojekyll": 0,
+        "src/html/.nojekyll": 0,
+        "LICENSE": 1092,
+        "docs/index.css": 257,
+        "src/html/index.css": 257,
+        "src/lezer/fsl.grammar": 390,
+        "docs/index.html": 369,
+        "src/html/index.html": 369,
+        "dist/fsl.cjs.js": 1744,
+        "dist/fsl.esm.js": 1729,
+        "dist/fsl.iife.js": 1938,
+        "src/ts/generated_code/fsl.lezer.js": 904,
+        "src/ts/generated_code/fsl.lezer.terms.js": 172,
+        "rollup.config.js": 1202,
+        "package.json": 1748,
+        "tsconfig.json": 11401,
+        "README.md": 69,
+        "src/ts/demo_editor.ts": 409,
+        "dist/fsl.d.ts": 299,
+        "src/ts/fsl.ts": 1540,
+        ".github/workflows/node.js.yml": 474
+      }
+    }
+  }
+}

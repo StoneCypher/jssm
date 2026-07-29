@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "package": "sublime-fsl",
+  "unit": "bytes",
+  "note": "Per-version sizes of every file each published tarball shipped, plus each version's npm deprecation message when set. Sizes are authoritative once written; deprecation is re-synced from npm each run (it is mutable). Family/colour/graph-position/install-policy are derived downstream, never stored here. See src/scripts/collect_package_sizes.cjs.",
+  "versions": {
+    "1.0.0": {
+      "published": "2017-09-13T14:24:43Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 996,
+        "screenshot.png": 166123,
+        "support/fsl.YAML-tmLanguage": 4029,
+        "support/fsl.tmLanguage": 8671,
+        "test sheet.fsl": 761
+      }
+    },
+    "1.1.0": {
+      "published": "2017-09-20T01:18:38Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 996,
+        "fsl.YAML-tmLanguage": 4029,
+        "fsl.tmLanguage": 8671,
+        "screenshot.png": 166123,
+        "test sheet.fsl": 761
+      }
+    },
+    "1.2.0": {
+      "published": "2017-09-20T03:34:49Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 996,
+        "fsl.YAML-tmLanguage": 4013,
+        "fsl.tmLanguage": 8638,
+        "screenshot.png": 166123,
+        "test sheet.fsl": 761
+      }
+    },
+    "1.4.0": {
+      "published": "2020-02-07T07:36:37Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 996,
+        "fsl.sublime-syntax": 5443,
+        "screenshot.png": 166123,
+        "test sheet.fsl": 761
+      }
+    },
+    "1.4.1": {
+      "published": "2020-02-07T07:49:09Z",
+      "files": {
+        "LICENSE": 1071,
+        "README.md": 996,
+        "screenshot.png": 166123,
+        "syntaxes/fsl.sublime-syntax": 5512,
+        "test sheet.fsl": 761
+      }
+    }
+  }
+}
