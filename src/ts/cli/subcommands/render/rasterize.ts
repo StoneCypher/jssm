@@ -13,7 +13,7 @@ export interface RasterOptions {
   quality?: number;
 }
 
-type RasterTarget = 'png' | 'jpeg';
+export type RasterTarget = 'png' | 'jpeg';
 
 const mimeOf = (target: RasterTarget): string =>
   target === 'jpeg' ? 'image/jpeg' : 'image/png';

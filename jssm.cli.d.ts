@@ -13,7 +13,7 @@ declare const RENDER_TARGETS: readonly ["svg", "dot", "png", "jpeg", "html", "gi
  * A render target the CLI and library can produce.  Derived from
  * {@link RENDER_TARGETS} so the type can never drift from the runtime enum.
  */
-type RenderTarget = typeof RENDER_TARGETS[number];
+declare type RenderTarget = typeof RENDER_TARGETS[number];
 /**
  * Options accepted by `render()` and `renderSet()`.
  *
@@ -52,7 +52,7 @@ interface RasterResult {
     kind: 'raster';
     buffer: Uint8Array;
 }
-type RenderResult = TextResult | RasterResult;
+declare type RenderResult = TextResult | RasterResult;
 /**
  * Base error class for render-time failures.
  */
@@ -107,7 +107,7 @@ interface RenderSetItemErr {
     index: number;
     error: Error;
 }
-type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
+declare type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
 /**
  * Render multiple FSL source strings in parallel, returning one result
  * per input. Errors are captured per-input rather than aborting the whole
@@ -124,7 +124,36 @@ type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
  */
 declare function renderSet(inputs: string[], opts: RenderOptions): Promise<RenderSetItem[]>;
 
-type FlagType = 'string' | 'number' | 'boolean';
+interface RasterOptions {
+    width?: number;
+    height?: number;
+    scale?: number;
+    quality?: number;
+}
+declare type RasterTarget = 'png' | 'jpeg';
+/**
+ * Rasterize an SVG string to PNG or JPEG bytes.
+ *
+ * Feature-detects `OffscreenCanvas` at call time: if present, uses the
+ * native Canvas path (browsers, Deno, Bun, mobile WebViews, etc.); otherwise
+ * loads `@resvg/resvg-wasm` and renders via that.
+ * @param svg - SVG source string
+ * @param target - 'png' or 'jpeg'
+ * @param opts.width - Fit output to this pixel width
+ * @param opts.height - Fit output to this pixel height (ignored if `width` set)
+ * @param opts.scale - Zoom percentage; 100 renders at 3x the SVG's natural
+ *   size (ignored if `width` or `height` is set; default 100)
+ * @param opts.quality - JPEG quality 1-100 (default 85; ignored for PNG)
+ * @returns Uint8Array of rasterized bytes
+ * @throws RasterizationUnsupportedError if neither backend is available
+ * @throws RenderError on backend failures
+ * @example
+ *   const png = await rasterize(svgString, 'png', { scale: 100 });
+ *   await writeFile('out.png', png);
+ */
+declare function rasterize(svg: string, target: RasterTarget, opts?: RasterOptions): Promise<Uint8Array>;
+
+declare type FlagType = 'string' | 'number' | 'boolean';
 interface FlagSpec {
     short?: string;
     type?: FlagType;
@@ -175,5 +204,5 @@ interface ParseResult<S extends ParseSpec> {
  */
 declare function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): ParseResult<S>;
 
-export { RasterizationUnsupportedError, RenderError, parseFslArgs, render, renderSet };
-export type { FlagSpec, FlagType, ParseResult, ParseSpec, RasterResult, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, TextResult };
+export { RasterizationUnsupportedError, RenderError, parseFslArgs, rasterize, render, renderSet };
+export type { FlagSpec, FlagType, ParseResult, ParseSpec, RasterOptions, RasterResult, RasterTarget, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, TextResult };
