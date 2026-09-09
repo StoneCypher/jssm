@@ -1007,6 +1007,41 @@ type JssmGenericConfig<StateType, DataType> = {
 
 
 /**
+ *  One member of a {@link JssmWeightedList}, `name` with an optional
+ *  percent weight. This shape only appears inside a `weighted_list` node,
+ *  which the parser produces only once at least one sibling member carries
+ *  a weight — so a member here with no `weight` is a *mix* of weighted and
+ *  unweighted siblings, which the compiler rejects rather than defaulting.
+ *  @see JssmWeightedList
+ */
+type JssmWeightedListMember = {
+  name     : string,
+  weight ? : number,
+};
+
+/**
+ *  A list target or start-state list carrying per-member weights, as the
+ *  parser emits it for `a 50% -> [b 20% c 80%]` or
+ *  `start_states: [x 90% y 10%];`. Produced only when at least one member
+ *  of the source list carries a weight; a list with no weights parses to a
+ *  plain `Array<string>` instead, so every existing weightless-list
+ *  consumer sees a byte-identical AST.
+ *  @see JssmWeightedListMember
+ *  @example
+ *  ```ts
+ *  const to: Array<string> | JssmWeightedList = {
+ *    key: 'weighted_list',
+ *    members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }],
+ *  };
+ *  ```
+ */
+type JssmWeightedList = {
+  key      : 'weighted_list',
+  members  : Array<JssmWeightedListMember>,
+  loc    ? : FslSourceLocation,
+};
+
+/**
  *  Internal compiler intermediate: a single aggregated rule produced while
  *  folding a parse tree into a machine configuration.  Not intended for
  *  end-user code.
@@ -1823,6 +1858,9 @@ export {
     JssmCompileSe,
     JssmCompileSeStart,
     JssmCompileRule,
+
+  JssmWeightedListMember,
+    JssmWeightedList,
 
   JssmPermitted,
     JssmPermittedOpt,
