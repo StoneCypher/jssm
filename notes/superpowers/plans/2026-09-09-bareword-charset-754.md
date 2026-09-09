@@ -594,3 +594,239 @@ Expected: no output.
 git add notes/fsl-grammar-reference.md src/help/tutorials/labels-and-quoting.md src/doc_md/LanguageReference.md v6_breaking_changes.json
 git commit -m "docs(grammar): document the 6.0 bareword charset and mark #754 landed"
 ```
+
+---
+
+### Task 5: Fast atom scanner derived from the bareword regexes, with a drift guard
+
+**Files:**
+- Modify: `src/buildjs/fixparser.cjs` (a new `inline_fast_atom` replacing the one Task 1 removed)
+- Test: `src/buildjs/tests/fixparser_fast_atom.spec.ts` (new)
+- Test: `src/ts/tests/bareword_charset.stoch.ts` (new, stoch config)
+
+**Interfaces:**
+- Consumes: the Task 1 grammar (`AtomCodePoint`, `AtomFirstLetter`, `AtomLetter`, `Atom` with `BarewordBadChar` / `BarewordDashTail`).
+- Produces: a build-time replacement of the generated `peg$parseAtom` that is observably identical to the generated one.
+
+Background: the pre-6.0 `inline_fast_atom` in `fixparser.cjs` (issue #702) replaced the generated `peg$parseAtom` with a hand-transcribed `charCodeAt` range scanner for performance (about 13% of `construct()` self-time). Task 1 removed it because it hard-coded the 5.x charset and silently undid the grammar change. This task restores the speed without the drift: the scanner is built from the SAME two regexes the grammar uses, and a generative test proves the fast path and the generated rule agree on random inputs.
+
+- [ ] **Step 1: Write the drift-guard test first**
+
+Create `src/ts/tests/bareword_charset.stoch.ts`:
+
+```typescript
+import { describe, test, expect } from 'vitest';
+import * as fc from 'fast-check';
+import * as jssm from '../jssm';
+
+// The build replaces peg$parseAtom with a fast scanner (fixparser.cjs).  This
+// test drives random code-point sequences through the real parser and checks
+// the observable contract the grammar promises, so a scanner that drifts from
+// the grammar's classes fails here regardless of which code path ran.
+
+const FIRST = /^[\p{L}\p{Nl}_]$/u;
+const REST  = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u;
+
+const code_point = fc.integer({ min: 0x20, max: 0x10FFFF })
+  .filter(cp => cp < 0xD800 || cp > 0xDFFF)
+  .map(cp => String.fromCodePoint(cp));
+
+const is_bareword = (s: string): boolean => {
+  const cps = [...s];
+  return cps.length > 0 && FIRST.test(cps[0]) && cps.slice(1).every(c => REST.test(c));
+};
+
+describe('bareword charset — generative', () => {
+
+  test('a name made of identifier code points parses as a state; anything else is rejected as a bareword', () => {
+    fc.assert(fc.property(
+      fc.array(code_point, { minLength: 1, maxLength: 6 }).map(a => a.join('')),
+      (name) => {
+        // the grammar's structural characters can never be state names in either form; skip them
+        if (/[\s;"'\[\]{}<>\-=~|&:%#\/]/u.test(name)) { return; }
+        if (is_bareword(name)) {
+          const m = jssm.sm`${name} -> other;`;
+          expect(m.has_state(name)).toBe(true);
+        } else {
+          expect(() => jssm.sm`${name} -> other;`).toThrow();
+        }
+      }
+    ), { numRuns: 400 });
+  });
+
+  test('every identifier name also round-trips quoted', () => {
+    fc.assert(fc.property(
+      fc.array(code_point.filter(c => REST.test(c)), { minLength: 1, maxLength: 6 }).map(a => a.join('')),
+      (name) => {
+        const m = jssm.sm`"${name}" -> other;`;
+        expect(m.has_state(name)).toBe(true);
+      }
+    ), { numRuns: 200 });
+  });
+
+});
+```
+
+Run: `npx vitest run --config vitest.stoch.config.ts src/ts/tests/bareword_charset.stoch.ts --coverage.enabled=false`
+Expected: PASS against the current (generated, un-inlined) parser. This is the baseline the fast scanner must keep green. If a structural character slips past the skip regex and the test flakes, widen the skip regex and say so in the report.
+
+- [ ] **Step 2: Write the fixparser unit test**
+
+Create `src/buildjs/tests/fixparser_fast_atom.spec.ts`:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+// fixparser.cjs exports its transforms for testing (see Step 3).
+const { inline_fast_atom, FAST_ATOM_RE } = require(resolve(__dirname, '../fixparser.cjs'));
+
+describe('inline_fast_atom', () => {
+
+  it('replaces the generated peg$parseAtom with the regex scanner', () => {
+    const src = readFileSync(resolve(__dirname, '../../ts/fsl_parser.ts'), 'utf8');
+    const out = inline_fast_atom(src);
+    expect(out).toContain('FAST_ATOM_RE');
+    expect(out.indexOf('function peg$parseAtom(')).toBe(out.lastIndexOf('function peg$parseAtom('));
+  });
+
+  it('throws when the generated function is not present (guards against silent drift)', () => {
+    expect(() => inline_fast_atom('function peg$parseWS() {}')).toThrow(/peg\$parseAtom/);
+  });
+
+  it('the scanner regex agrees with the grammar classes on representative characters', () => {
+    const ok  = ['a', 'Z', '_', 'é', 'ж', '字', '𝛼', 'Ⅻ', 'a1', 'नमस्ते'];
+    const bad = ['1a', '.a', 'a.b', 'in-progress', '😀', '→', ''];
+    for (const s of ok)  { FAST_ATOM_RE.lastIndex = 0; expect(FAST_ATOM_RE.exec(s)?.[0]).toBe(s); }
+    for (const s of bad) { FAST_ATOM_RE.lastIndex = 0; const m = FAST_ATOM_RE.exec(s); expect(m === null || m[0] !== s).toBe(true); }
+  });
+
+});
+```
+
+Check how other `src/buildjs/tests/*.spec.ts` files import their `.cjs` subject and mirror that if it differs. Note `fsl_parser.ts` on disk is ALREADY post-processed when tests run, so the first test may need to read the pre-processed `src/ts/fsl_parser.js` that `npm run peg` leaves behind, or synthesize a minimal generated-shaped input; read `fixparser.cjs` to see what it reads and pick the honest input.
+
+- [ ] **Step 3: Implement the scanner**
+
+In `src/buildjs/fixparser.cjs`, add (and export via `module.exports`) a sticky regex and a transform, then call the transform in the pipeline where the old `inline_fast_atom` was called:
+
+```javascript
+/**
+ *  The bareword scanner, built from the SAME classes the grammar's
+ *  AtomFirstLetter / AtomLetter use (#754).  Sticky + unicode so one exec at
+ *  `peg$currPos` consumes the whole bareword, surrogate pairs included.
+ *  Keep in sync with src/ts/fsl_parser.peg — the drift guard
+ *  src/ts/tests/bareword_charset.stoch.ts fails if they disagree.
+ */
+const FAST_ATOM_RE = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]*/uy;
+
+/**
+ *  Replaces the generated `peg$parseAtom` with a scanner that runs one sticky
+ *  regex instead of a per-character predicate call, then applies the same
+ *  trailing bad-character check the grammar's Atom action performs (a `.`,
+ *  `+`, `&`, `#`, `@`, `$`, `^`, `*`, `!`, `?`, `,`, or a `-` not followed
+ *  by an arrow character), raising the identical "quote it" error.
+ *  @param body - The generated parser source after the WS swap.
+ *  @returns The source with `peg$parseAtom` replaced.
+ *  @throws {Error} when the generated function cannot be found, so a pegjs
+ *  upgrade that renames it fails the build loudly instead of silently
+ *  skipping the optimization.
+ *  @example
+ *  inline_fast_atom(generated_source).includes('FAST_ATOM_RE');  // => true
+ */
+function inline_fast_atom(body) {
+  const start = body.indexOf('function peg$parseAtom() {');
+  if (start < 0) { throw new Error('fixparser: peg$parseAtom not found; cannot inline the fast atom scanner'); }
+  const end = find_function_end(body, start);   // reuse the brace-walking helper the WS swap uses; write one if it is inline there
+  const replacement = [
+    'function peg$parseAtom() {',
+    '    var s0, s1;',
+    '    var re = ' + FAST_ATOM_RE.toString() + ';',
+    '    re.lastIndex = peg$currPos;',
+    '    var m = re.exec(input);',
+    '    if (m === null) {',
+    '      if (peg$silentFails === 0) { peg$fail(ATOM_EXPECTATION); }',
+    '      return peg$FAILED;',
+    '    }',
+    '    s0 = peg$currPos;',
+    '    s1 = m[0];',
+    '    peg$currPos += s1.length;',
+    '    // trailing bad character: the same rule as the grammar\'s Atom action',
+    '    var bad = input.charAt(peg$currPos);',
+    '    var dash_tail = bad === "-" && !/[>\\-|=~<]/.test(input.charAt(peg$currPos + 1));',
+    '    if (/[.+&#@$^*!?,]/.test(bad) || dash_tail) {',
+    '      peg$savedPos = s0;',
+    '      error(ATOM_BAD_CHAR_MESSAGE(s1, bad));',
+    '    }',
+    '    peg$savedPos = s0;',
+    '    return s1;',
+    '  }',
+  ].join('\n');
+  return body.slice(0, start) + replacement + body.slice(end);
+}
+```
+
+`ATOM_EXPECTATION` must be replaced with the actual name of the expectation constant the generated `peg$parseAtom` used for its `peg$fail` (read the generated function; it is the `peg$otherExpectation("atom")` constant). `ATOM_BAD_CHAR_MESSAGE(s1, bad)` must be replaced with the exact message expression the grammar's `Atom` action uses, so the two paths produce byte-identical errors — copy it from `fsl_parser.peg`, do not retype it.
+
+- [ ] **Step 4: Regenerate, run everything that touches parsing**
+
+Run: `npm run peg`
+Run: `npx tsc --noEmit -p tsconfig.json`
+Run: `npx vitest run --config vitest.spec.config.ts src/ts/tests/bareword_charset.spec.ts src/buildjs/tests/fixparser_fast_atom.spec.ts src/ts/tests/vals.spec.ts src/ts/tests/arrange.spec.ts --coverage.enabled=false`
+Run: `npx vitest run --config vitest.stoch.config.ts src/ts/tests/bareword_charset.stoch.ts --coverage.enabled=false`
+Run: `npm run vitest-unicode-atom`
+Expected: all PASS.
+
+- [ ] **Step 5: Commit**
+
+```
+git add src/buildjs/fixparser.cjs src/buildjs/tests/fixparser_fast_atom.spec.ts src/ts/tests/bareword_charset.stoch.ts src/ts/fsl_parser.ts
+git commit -m "perf(parser): regex-derived fast atom scanner with a charset drift guard (#754)"
+```
+
+---
+
+### Task 6: Corpus and consumer sweep for the 6.0 charset
+
+**Files:**
+- Modify: `src/ts/tests/language_data/belarussian.json`, `src/ts/tests/language_data/ukrainian.json` (a case name containing U+2019 — quote it in the FSL source the fixture carries; read `src/ts/tests/language.spec.ts` to see how the fixtures are consumed)
+- Modify: `src/ts/tests/conformance/corpus/t3-pinned-unicode/identifiers.ts` (the "👨" bareword vector becomes a quoted-name vector; add a sibling vector asserting the bareword form is rejected)
+- Modify: `src/machines/atm quick start tutorial/8_CanWithdrawMoney.fsl` (quote `AcctHasMoney?` as `"AcctHasMoney?"` everywhere it appears; keep the file otherwise byte-identical) and any page that embeds the same source (`grep -rn "AcctHasMoney?" src/doc_md src/help src/machines`)
+- Modify: `src/ts/tests/fsl_fence_highlight.spec.ts` and `src/ts/language_service/tests/semantic_spans.spec.ts` (the `123abc -> b;` "digit-leading name highlights as a state" tests become "a digit-leading bareword is reported as an error / not highlighted as a state"; read each file's error-span convention and assert the real 6.0 behavior)
+- Modify: `src/ts/jssm_compiler.ts` around lines 1104–1114 (delete the now-unreachable jssm#759 digit-leading enum check and its comment; the grammar rejects the member first)
+
+**Interfaces:** none.
+
+- [ ] **Step 1: Run the affected specs to see them fail**
+
+Run: `npx vitest run --config vitest.spec.config.ts src/ts/tests/language.spec.ts src/ts/tests/conformance/corpus.spec.ts src/ts/tests/example_machines.spec.ts src/ts/tests/fsl_fence_highlight.spec.ts src/ts/language_service/tests/semantic_spans.spec.ts --coverage.enabled=false`
+Expected: FAIL for the reasons Task 1's report lists.
+
+- [ ] **Step 2: Make each change above**
+
+For the conformance corpus, the new vectors look like this (adapt to the file's vector shape):
+
+```typescript
+  // #754: an emoji is a symbol, not an identifier — quoted it is a name, bare it is rejected
+  { name: 'quoted emoji name', fsl: '"👨" -> b;', expect: { states: ['👨', 'b'] } },
+  { name: 'bare emoji name is rejected', fsl: '👨 -> b;', expect: { throws: /quote/ } },
+```
+
+If the vector shape has no "throws" form, add one to `src/ts/tests/conformance/corpus_types.ts` and to the runner in `corpus.spec.ts` (a `throws: RegExp` field asserted with `toThrow`).
+
+For `jssm_compiler.ts`, remove the block and leave one comment line: `// digit-leading enum members are rejected by the grammar (#754); the former jssm#759 post-parse check is gone`.
+
+- [ ] **Step 3: Run them again**
+
+Same command as Step 1, plus `npx vitest run --config vitest.spec.config.ts src/ts/tests/vals.spec.ts --coverage.enabled=false`.
+Expected: PASS. Then the whole spec config once, coverage off: `npx vitest run --config vitest.spec.config.ts --coverage.enabled=false`. Expected failures only in files that read committed built artifacts (`fsl_tmlanguage.spec.ts` CRLF, `bundle_shape.spec.ts` size), which a full build regenerates; list any other failure in the report.
+
+- [ ] **Step 4: Commit**
+
+```
+git add src/ts/tests/language_data src/ts/tests/conformance src/machines src/doc_md src/help src/ts/tests/fsl_fence_highlight.spec.ts src/ts/language_service/tests/semantic_spans.spec.ts src/ts/jssm_compiler.ts
+git commit -m "test(charset): sweep fixtures, corpus, examples, and tooling specs for the 6.0 bareword rule (#754)"
+```
