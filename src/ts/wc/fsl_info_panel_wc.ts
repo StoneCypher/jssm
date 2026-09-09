@@ -5,9 +5,8 @@ import { closest_wc } from './wc_tag_helpers.js';
 import { fslTokens } from './fsl_tokens.js';
 
 /**
- * Structural shape used to detect a parent `<fsl-instance>` (or, while the
- * deprecated alias survives, `<jssm-instance>`) host without importing the
- * instance module — same duck-typed approach `<fsl-viz>` uses.
+ * Structural shape used to detect a parent `<fsl-instance>` host without
+ * importing the instance module — same duck-typed approach `<fsl-viz>` uses.
  */
 export interface JssmInstanceHost extends HTMLElement {
   readonly machine: Machine<unknown>;
@@ -33,8 +32,7 @@ export interface LastTransition {
  * event.
  *
  * Display-only: it never drives the machine. It binds by walking up to the
- * host via {@link closest_wc} (which matches both the canonical `fsl-instance`
- * and the deprecated `jssm-instance` host tags), so it works under either.
+ * host via {@link closest_wc}.
  * @element fsl-info-panel
  * @cssproperty [--fsl-info-panel-gap=0.25rem] - Vertical gap between rows.
  */

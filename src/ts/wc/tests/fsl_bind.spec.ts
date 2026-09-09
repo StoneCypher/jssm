@@ -9,11 +9,10 @@ import {
   set_on_element,
   walk_path,
   FslBind,
-  JssmBind,
 } from '../fsl_bind_wc.js';
 import '../fsl_instance_wc.define';
 import '../fsl_bind_wc.define';
-import type { JssmInstance } from '../fsl_instance_wc.js';
+import type { FslInstance } from '../fsl_instance_wc.js';
 
 describe('walk_path', () => {
 
@@ -182,12 +181,12 @@ describe('set_on_element', () => {
 
 });
 
-describe('install_bindings — inline data-jssm-bind form', () => {
+describe('install_bindings — inline data-fsl-bind form', () => {
 
   it('paints initial textContent from current machine state', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'state';
+    span.dataset.fslBind = 'state';
     span.textContent = 'placeholder';
     host.append(span);
 
@@ -200,7 +199,7 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('updates textContent on every transition', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'state';
+    span.dataset.fslBind = 'state';
     host.append(span);
 
     const m = sm`Idle 'go' -> Running 'stop' -> Idle;`;
@@ -214,11 +213,11 @@ describe('install_bindings — inline data-jssm-bind form', () => {
     expect(span.textContent).toBe('Idle');
   });
 
-  it('honors data-jssm-bind-to="value" against an input', () => {
+  it('honors data-fsl-bind-to="value" against an input', () => {
     const host = document.createElement('div');
     const input = document.createElement('input');
-    input.dataset.jssmBind = 'state';
-    input.dataset.jssmBindTo = 'value';
+    input.dataset.fslBind = 'state';
+    input.dataset.fslBindTo = 'value';
     host.append(input);
 
     const m = sm`A 'go' -> B;`;
@@ -229,11 +228,11 @@ describe('install_bindings — inline data-jssm-bind form', () => {
     expect(input.value).toBe('B');
   });
 
-  it('honors data-jssm-bind-to="disabled" with a boolean source', () => {
+  it('honors data-fsl-bind-to="disabled" with a boolean source', () => {
     const host = document.createElement('div');
     const btn = document.createElement('button');
-    btn.dataset.jssmBind = 'terminal';
-    btn.dataset.jssmBindTo = 'disabled';
+    btn.dataset.fslBind = 'terminal';
+    btn.dataset.fslBindTo = 'disabled';
     host.append(btn);
 
     const m = sm`A 'go' -> B;`;
@@ -244,11 +243,11 @@ describe('install_bindings — inline data-jssm-bind form', () => {
     expect(btn.disabled).toBe(true);
   });
 
-  it('honors data-jssm-bind-to="data-foo" by writing the attribute', () => {
+  it('honors data-fsl-bind-to="data-foo" by writing the attribute', () => {
     const host = document.createElement('div');
     const div = document.createElement('div');
-    div.dataset.jssmBind = 'state';
-    div.dataset.jssmBindTo = 'data-current';
+    div.dataset.fslBind = 'state';
+    div.dataset.fslBindTo = 'data-current';
     host.append(div);
 
     const m = sm`A 'go' -> B;`;
@@ -266,7 +265,7 @@ describe('install_bindings — inline data-jssm-bind form', () => {
 
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'data.count';
+    span.dataset.fslBind = 'data.count';
     host.append(span);
 
     install_bindings(host, m);
@@ -282,7 +281,7 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('throws on install when an inline binding uses an unknown expression', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'nope';
+    span.dataset.fslBind = 'nope';
     host.append(span);
 
     const m = sm`a -> b;`;
@@ -292,7 +291,7 @@ describe('install_bindings — inline data-jssm-bind form', () => {
   it('returns one unsub per inline binding and stops updates after unsubscribing', () => {
     const host = document.createElement('div');
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'state';
+    span.dataset.fslBind = 'state';
     host.append(span);
 
     const m = sm`A 'go' -> B 'go' -> C;`;
@@ -311,7 +310,7 @@ describe('install_bindings — inline data-jssm-bind form', () => {
 
 });
 
-describe('install_bindings — dedicated <jssm-bind> tag form', () => {
+describe('install_bindings — dedicated <fsl-bind> tag form', () => {
 
   it('binds via selector + source attributes', () => {
     const host = document.createElement('div');
@@ -319,7 +318,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     target_span.id = 'tgt';
     host.append(target_span);
 
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '#tgt');
     config.setAttribute('source', 'state');
     host.append(config);
@@ -338,7 +337,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
     target_div.className = 'tgt';
     host.append(target_div);
 
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '.tgt');
     config.setAttribute('source', 'state');
     config.setAttribute('target', 'data-current');
@@ -357,7 +356,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
       host.append(s);
     }
 
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '.multi');
     config.setAttribute('source', 'state');
     host.append(config);
@@ -378,7 +377,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
 
   it('throws when selector attribute is missing', () => {
     const host = document.createElement('div');
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('source', 'state');
     host.append(config);
 
@@ -388,7 +387,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
 
   it('throws when source attribute is missing', () => {
     const host = document.createElement('div');
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '#x');
     host.append(config);
 
@@ -398,7 +397,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
 
   it('throws when selector attribute is empty', () => {
     const host = document.createElement('div');
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '');
     config.setAttribute('source', 'state');
     host.append(config);
@@ -409,7 +408,7 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
 
   it('throws when source attribute is empty', () => {
     const host = document.createElement('div');
-    const config = document.createElement('jssm-bind');
+    const config = document.createElement('fsl-bind');
     config.setAttribute('selector', '#x');
     config.setAttribute('source', '');
     host.append(config);
@@ -435,10 +434,9 @@ describe('FslBind re-registration guard', () => {
     expect(customElements.get('fsl-bind')).toBe(before);
   });
 
-  // Synonym (jssm-bind) is also registered by define_with_synonym.
-  it('jssm-bind synonym is registered alongside fsl-bind', () => {
-    expect(customElements.get('jssm-bind')).toBeDefined();
-    expect(customElements.get('jssm-bind')).not.toBe(FslBind);
+  it('does not register the retired jssm-bind tag (removed in 6.0)', () => {
+    expect(customElements.get('jssm-bind')).toBeUndefined();
+    expect(document.createElement('jssm-bind')).not.toBeInstanceOf(FslBind);
   });
 
 });
@@ -469,46 +467,13 @@ describe('FslBind class (canonical)', () => {
 
 });
 
-describe('JssmBind synonym coverage', () => {
-
-  it('jssm-bind is registered and its instances are FslBind instances', () => {
-    const ctor = customElements.get('jssm-bind');
-    expect(ctor).toBeDefined();
-    const el = document.createElement('jssm-bind');
-    expect(el).toBeInstanceOf(FslBind);
-    // JssmBind is a type alias for FslBind; confirm assignment-compat.
-    const typed: JssmBind = el as JssmBind;
-    expect(typed).toBeInstanceOf(FslBind);
-  });
-
-  it('install_bindings discovers <jssm-bind> config tags as a synonym', () => {
-    const host = document.createElement('div');
-    const target_span = document.createElement('span');
-    target_span.id = 'syn-tgt';
-    host.append(target_span);
-
-    const config = document.createElement('jssm-bind');
-    config.setAttribute('selector', '#syn-tgt');
-    config.setAttribute('source', 'state');
-    host.append(config);
-
-    const m = sm`Alpha 'go' -> Beta;`;
-    install_bindings(host, m);
-    expect(target_span.textContent).toBe('Alpha');
-
-    m.transition('Beta');
-    expect(target_span.textContent).toBe('Beta');
-  });
-
-});
-
-describe('JssmInstance integration with <jssm-bind>', () => {
+describe('FslInstance integration with <fsl-bind>', () => {
 
   // Note: the existing FSL resolver disallows combining the fsl="" attribute
   // with arbitrary descendant text in the light DOM (descendant text would
   // count as a second source).  These integration tests therefore inject the
   // FSL via a `<script type="text/fsl">` child so the resolver only sees one
-  // source while the host carries arbitrary `data-jssm-bind` descendants.
+  // source while the host carries arbitrary `data-fsl-bind` descendants.
   function add_fsl_script(el: HTMLElement, fsl: string): void {
     const s = document.createElement('script');
     s.setAttribute('type', 'text/fsl');
@@ -516,12 +481,12 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     el.append(s);
   }
 
-  it('paints inline data-jssm-bind descendants on connect', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+  it('paints inline data-fsl-bind descendants on connect', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
     add_fsl_script(el, "Idle 'go' -> Running;");
 
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'state';
+    span.dataset.fslBind = 'state';
     el.append(span);
 
     document.body.append(el);
@@ -533,15 +498,15 @@ describe('JssmInstance integration with <jssm-bind>', () => {
     el.remove();
   });
 
-  it('paints dedicated <jssm-bind> children on connect', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+  it('paints dedicated <fsl-bind> children on connect', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
     add_fsl_script(el, "A 'go' -> B;");
 
     const tgt = document.createElement('span');
     tgt.id = 'tgt-int';
     el.append(tgt);
 
-    const cfg = document.createElement('jssm-bind');
+    const cfg = document.createElement('fsl-bind');
     cfg.setAttribute('selector', '#tgt-int');
     cfg.setAttribute('source', 'state');
     el.append(cfg);
@@ -556,11 +521,11 @@ describe('JssmInstance integration with <jssm-bind>', () => {
   });
 
   it('tears down all bindings on disconnect', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     add_fsl_script(el, "A 'go' -> B 'go' -> C;");
 
     const span = document.createElement('span');
-    span.dataset.jssmBind = 'state';
+    span.dataset.fslBind = 'state';
     el.append(span);
 
     document.body.append(el);

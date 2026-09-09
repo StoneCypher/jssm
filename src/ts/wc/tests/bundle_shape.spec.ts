@@ -23,9 +23,9 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
     expect(built).toContain('fsl-viz');
   });
 
-  it('contains the jssm-viz synonym tag name string', () => {
+  it('does not contain the retired jssm-viz tag name string (removed in 6.0)', () => {
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toContain('jssm-viz');
   });
 
   it('does NOT inline Lit internals (lit is external for bundlers)', () => {
@@ -56,16 +56,16 @@ describe('dist/wc/viz.define.js — registration entry point', () => {
     expect(existsSync(define_path)).toBe(true);
   });
 
-  it('calls customElements.define for jssm-viz', () => {
+  it('does not call customElements.define for the retired jssm-viz tag (removed in 6.0)', () => {
     const built = readFileSync(define_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toContain('jssm-viz');
   });
 
-  it('calls customElements.define for fsl-viz (synonym registration survives bundling)', () => {
-    // The empty-subclass JssmViz lives in fsl_viz_wc.define.ts and is the
-    // entire functional change for the synonym. If a bundler or
-    // tree-shaker ever drops it, page authors who import 'jssm/wc/viz/define'
-    // would silently lose the <fsl-viz> tag. This catches that regression.
+  it('calls customElements.define for fsl-viz', () => {
+    // define_canonical lives in fsl_viz_wc.define.ts. If a bundler or
+    // tree-shaker ever drops that call, page authors who import
+    // 'jssm/wc/viz/define' would silently lose the <fsl-viz> tag. This
+    // catches that regression.
     const built = readFileSync(define_path, 'utf8');
     expect(built).toContain('fsl-viz');
   });
@@ -80,15 +80,15 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
     expect(existsSync(cdn_path)).toBe(true);
   });
 
-  it('contains the jssm-viz tag name string', () => {
+  it('does not contain the retired jssm-viz tag name string (removed in 6.0)', () => {
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toContain('jssm-viz');
   });
 
-  it('contains the fsl-viz synonym tag name string', () => {
-    // The synonym registration must survive the CDN bundling step. If the
-    // define module's second customElements.define call ever gets dead-code
-    // eliminated this assertion catches it.
+  it('contains the fsl-viz tag name string', () => {
+    // The registration must survive the CDN bundling step. If the define
+    // module's customElements.define call ever gets dead-code eliminated
+    // this assertion catches it.
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('fsl-viz');
   });
@@ -101,7 +101,7 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
     expect(built).not.toMatch(/from\s+['"]lit\/directives\/unsafe-html\.js['"]/);
   });
 
-  it('calls customElements.define for jssm-viz', () => {
+  it('calls customElements.define for fsl-viz', () => {
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('customElements.define');
   });
@@ -134,9 +134,9 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('contains the jssm-instance synonym tag name string', () => {
+  it('does not contain the retired jssm-instance tag name string (removed in 6.0)', () => {
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('jssm-instance');
+    expect(built).not.toContain('jssm-instance');
   });
 
   it('does NOT inline Lit internals (lit is external for bundlers)', () => {
@@ -173,9 +173,9 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('contains the jssm-instance synonym tag name string', () => {
+  it('does not contain the retired jssm-instance tag name string (removed in 6.0)', () => {
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('jssm-instance');
+    expect(built).not.toContain('jssm-instance');
   });
 
   it('inlines Lit (no lit imports remain)', () => {
@@ -184,7 +184,7 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(built).not.toMatch(/from\s+['"]lit\/decorators\.js['"]/);
   });
 
-  it('calls customElements.define for jssm-instance', () => {
+  it('calls customElements.define for fsl-instance', () => {
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('customElements.define');
   });

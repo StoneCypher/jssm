@@ -1,7 +1,7 @@
 import { FslHistory } from './fsl_history_wc.js';
 import { define_canonical } from './wc_tag_helpers.js';
 
-// New component: canonical `fsl-*` only, no deprecated `jssm-*` synonym.
+// Canonical `fsl-*` tag only.
 define_canonical('fsl-history', FslHistory);
 
 
