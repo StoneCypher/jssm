@@ -265,6 +265,19 @@ export default tseslint.config(
   },
 
 
+  //  #754: bareword_charset.spec.ts wraps every assertion in two named
+  //  helpers (`parses` / `rejects`) so each of its many data-driven cases
+  //  reads as one line; `vitest/expect-expect` can't see the `expect()`
+  //  inside a helper call by default, so it needs the two names told to it.
+  //
+  {
+    files: ['src/ts/tests/bareword_charset.spec.ts'],
+    rules: {
+      'vitest/expect-expect': ['error', { assertFunctionNames: ['expect', 'parses', 'rejects'] }],
+    },
+  },
+
+
 
   //  build scripts: CommonJS under node, no type-aware rules.
   //  The n version is pinned here to what maintainers actually run, because

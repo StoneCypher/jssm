@@ -110,97 +110,20 @@ function inline_fast_ws(body) {
   return body.replace(fn_re, () => replacement);
 }
 
-/**
- *  Replaces the generated `peg$parseAtom` with an allocation-free hand-rolled
- *  scanner.  pegjs 0.10 compiles `first:AtomFirstLetter text:AtomLetter*` into
- *  one function call plus one regex test per character, collects the matched
- *  characters into an array, and then the semantic action re-joins them — for
- *  every state name in every machine.  The Atom cluster (the two letter rules,
- *  their regexes, the collector loop, and the join action) was ~13% of
- *  `construct()` self-time in the #702 profile.
- *
- *  Behavior is unchanged: the same two character classes are checked as
- *  `charCodeAt` integer comparisons (`AtomFirstLetter` excludes `+ ( ) & # @`,
- *  which only `AtomLetter` admits), the result is the exact matched text via
- *  one `input.substring`, and the same named-rule "atom" expectation is
- *  reported on failure.  The semantic action is a pure concatenation of the
- *  matched characters, so substring is value-identical, including for the
- *  `\x80-￿` tail (surrogate halves pass the class per code unit both
- *  ways).
- *
- *  @param body Full generated parser source, after the WS swap.
- *  @returns The source with `peg$parseAtom` swapped for the fast scanner.
- *
- *  @throws Error when the generated `peg$parseAtom` or its expectation
- *          constant cannot be located — pegjs output drift; update the
- *          patterns here rather than silently shipping the slow scanner.
- *
- *  @example
- *  inline_fast_atom(generated_source).includes('input.substring(start, peg$currPos)')
- *  // => true
- *
- *  @see https://github.com/StoneCypher/jssm/issues/702
- *  @see inline_fast_ws
- */
-function inline_fast_atom(body) {
-
-  const fn_re = / {2}function peg\$parseAtom\(\) \{\n[\s\S]*?\n {2}\}\n/,
-        found = body.match(fn_re);
-
-  if (!found) { throw new Error('fixparser: cannot find generated peg$parseAtom'); }
-
-  const fn_tail = found[0].slice(found[0].lastIndexOf('peg$silentFails--')),
-        c_found = fn_tail.match(/peg\$fail\((peg\$c\d+)\)/);
-
-  if (!c_found) { throw new Error('fixparser: cannot find peg$parseAtom expectation constant'); }
-
-  // Character classes from the grammar, as code-unit ranges:
-  //   AtomFirstLetter = [0-9a-zA-Z._!$^*?,\x80-￿]
-  //   AtomLetter      = AtomFirstLetter + [+()&#@]
-  const replacement =
-`  function peg$parseAtom() {
-    var c, start;
-
-    peg$silentFails++;
-    c = input.charCodeAt(peg$currPos);
-
-    if ((c >= 48 && c <= 57)  ||                  // 0-9
-        (c >= 97 && c <= 122) ||                  // a-z
-        (c >= 65 && c <= 90)  ||                  // A-Z
-        c === 46 || c === 95 || c === 33 ||       // . _ !
-        c === 36 || c === 94 || c === 42 ||       // $ ^ *
-        c === 63 || c === 44 ||                   // ? ,
-        c >= 128) {                               // \\x80-\\uFFFF
-
-      start = peg$currPos;
-      peg$currPos++;
-      c = input.charCodeAt(peg$currPos);
-
-      while ((c >= 48 && c <= 57)  ||
-             (c >= 97 && c <= 122) ||
-             (c >= 65 && c <= 90)  ||
-             c === 46 || c === 95 || c === 33 ||
-             c === 36 || c === 94 || c === 42 ||
-             c === 63 || c === 44 ||
-             c === 43 || c === 40 || c === 41 ||  // + ( )
-             c === 38 || c === 35 || c === 64 ||  // & # @
-             c >= 128) {
-        peg$currPos++;
-        c = input.charCodeAt(peg$currPos);
-      }
-
-      peg$silentFails--;
-      return input.substring(start, peg$currPos);
-    }
-
-    peg$silentFails--;
-    if (peg$silentFails === 0) { peg$fail(${c_found[1]}); }
-    return peg$FAILED;
-  }
-`;
-
-  return body.replace(fn_re, () => replacement);
-}
+// #754: `peg$parseAtom` used to be replaced here with an allocation-free
+// hand-rolled scanner (`inline_fast_atom`, issue #702) that checked the old
+// `AtomFirstLetter` / `AtomLetter` classes as `charCodeAt` integer-range
+// comparisons. #754 redefined those classes as Unicode property tests
+// (`/^[\p{L}\p{Nl}_]$/u` and friends), which cannot be captured as a
+// contiguous code-unit range table by hand — `\p{L}` alone spans well over a
+// hundred disjoint ranges — so the fast path was removed rather than shipped
+// silently wrong (it was reproducing the pre-#754 charset, undoing the
+// grammar fix). The generated (function-call-plus-regex) `peg$parseAtom` now
+// runs unmodified. Re-introducing a fast path would mean deriving the range
+// table programmatically from the two regexes rather than transcribing it by
+// hand, to avoid this drift recurring silently.
+//
+// @see https://github.com/StoneCypher/jssm/issues/702
 
 /**
  *  Replaces the generated `peg$parseTimeType` with a first-char-gated table
@@ -225,7 +148,7 @@ function inline_fast_atom(body) {
  *  codes from the literal constants' definitions, and asserts exactly 28
  *  alternatives — a grammar edit to the unit list trips loudly here.
  *
- *  @param body Full generated parser source, after the Atom swap.
+ *  @param body Full generated parser source, after the WS swap.
  *  @returns The source with the table emitted and `peg$parseTimeType`
  *           swapped.
  *  @throws Error when the rule cannot be found, an alternative's literal
@@ -348,7 +271,7 @@ function inline_timetype_table(body) {
  *  unguarded `peg$fail` form so {@link inline_fail_guard} rewrites the sites
  *  like any generated ones.
  *
- *  @param body Full generated parser source, after the Atom swap.
+ *  @param body Full generated parser source, after the WS swap.
  *  @returns The source with `peg$parseIntegerLiteral` swapped.
  *  @throws Error when the rule or any of the three expectation constants
  *          (the `"0"` literal's, DecimalDigit's, NonZeroDigit's) cannot be
@@ -554,7 +477,6 @@ function inline_arrowtarget_gates(body) {
  *
  *  @see https://github.com/StoneCypher/jssm/issues/730
  *  @see inline_fast_ws
- *  @see inline_fast_atom
  */
 function inline_fast_quoted(body, which) {
 
@@ -647,7 +569,7 @@ function inline_fast_quoted(body, which) {
  *  scanner.  Unescaped class is `[\\x20-\\uFFFF]` minus `'` (0x27) and `\\`
  *  (0x5C) — control characters must be escaped, per `ActionLabelUnescaped`.
  *
- *  @param body Full generated parser source, after the Atom swap.
+ *  @param body Full generated parser source, after the WS swap.
  *  @returns The source with `peg$parseActionLabel` swapped.
  *  @throws Error on pegjs output drift (see {@link inline_fast_quoted}).
  *
@@ -710,7 +632,7 @@ function inline_fast_string(body) {
  *  byte-identical.  The single non-constant site (`peg$endExpectation()`,
  *  once per parse at EOF) is deliberately left untouched.
  *
- *  @param body Full generated parser source, after the WS and Atom swaps.
+ *  @param body Full generated parser source, after the WS swap.
  *  @returns The source with all constant-expectation guard sites rewritten.
  *
  *  @throws Error when fewer than 500 sites are rewritten — pegjs output
@@ -741,7 +663,7 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_atom(inline_fast_ws(widened))))))));
+const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_ws(widened)))))));
 
 // The parser is machine-generated PEG.js output (plus the hand-tuned scanners
 // above); its correctness is verified by the parse test suites, not the type

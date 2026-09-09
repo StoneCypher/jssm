@@ -272,15 +272,39 @@ WS "whitespace"
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
+// #754: a bareword is a Unicode identifier \u2014 first character a letter,
+// letter-number, or underscore; continuation adds marks, decimal digits and
+// connector punctuation (the UAX #31 shape).  pegjs 0.10 has no \p{} classes,
+// so we match one code point (a surrogate pair or one BMP unit) and test it
+// with a u-flag regex in a semantic predicate.  Symbols, punctuation, and a
+// leading digit must be written as quoted strings.
+
+AtomCodePoint
+  = hi:[\uD800-\uDBFF] lo:[\uDC00-\uDFFF] { return hi + lo; }
+  / ch:[^\uD800-\uDFFF]                    { return ch; }
+
 AtomFirstLetter
-  = [0-9a-zA-Z\.\_\!\$\^\*\!\?\,\x80-\uFFFF]
+  = ch:AtomCodePoint &{ return /^[\p{L}\p{Nl}_]$/u.test(ch); } { return ch; }
 
 AtomLetter
-  = [0-9a-zA-Z\.\+\_\^\(\)\*\&\$\#\@\!\?\,\x80-\uFFFF]
+  = ch:AtomCodePoint &{ return /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u.test(ch); } { return ch; }
+
+// A character that 5.x allowed inside a bareword and 6.0 does not.  Matched
+// only to produce a targeted error: "-" is excluded here because "a->b" is an
+// arrow, so the dash case is handled by BarewordDashTail below.
+BarewordBadChar
+  = [.+&#@$^*!?,]
+
+BarewordDashTail
+  = "-" &[^>\-|=~<] { return "-"; }
 
 Atom "atom"
-  = firstletter:AtomFirstLetter text:AtomLetter* {
-      return firstletter + ((text || []).join(''));
+  = firstletter:AtomFirstLetter text:AtomLetter* bad:(BarewordBadChar / BarewordDashTail)? {
+      const name = firstletter + ((text || []).join(''));
+      if (bad) {
+        error(`The bareword "${name}${bad}\u2026" contains "${bad}", which is not allowed in an unquoted name; quote it ("${name}${bad}\u2026") or rename it (${name}_\u2026)`);
+      }
+      return name;
     }
 
 Label "label"
@@ -808,12 +832,30 @@ Cycle
       return node;
     }
 
+// #754: a non-ASCII code point that isn't a valid identifier start (an emoji,
+// arrow, star, or other symbol/punctuation someone typed as a bareword).
+// Reserved ASCII punctuation is deliberately excluded here — those code
+// points already have dedicated grammar meaning (arrows, decorations,
+// quotes) via other rules/alternatives, so this only ever fires once every
+// other ArrowTarget alternative — including the digit rule below — has
+// already failed at the same position, i.e. the input is otherwise
+// unparseable as a target here.
+ArrowTargetBadSymbol
+  = ch:AtomCodePoint &{ return ch.codePointAt(0) > 0x7F; } rest:AtomLetter* {
+      const bad = ch + ((rest || []).join(''));
+      error(`The bareword "${bad}" starts with "${ch}", which is not allowed to start an unquoted name; quote it ("${bad}")`);
+    }
+
 ArrowTarget
   = Stripe
   / Cycle
   / LabelList
   / GroupRef
   / Label
+  / bad:$([0-9] AtomLetter*) {
+      error(`The bareword "${bad}" starts with a digit, which is not allowed in an unquoted name; quote it ("${bad}")`);
+    }
+  / ArrowTargetBadSymbol
 
 
 
@@ -1671,10 +1713,32 @@ ValTypeEnum
       return { kind: 'enum', members: [first, ...rest] };
     }
 
-// An enum member is an atom-like identifier that, crucially, excludes the comma
-// (the real Atom rule includes ",", so it would swallow the list separator).
-ValEnumMember
-  = chars:$([0-9a-zA-Z\.\_\!\$\^\*\?\x80-￿]+) { return chars; }
+// An enum member uses the same first-character/continuation classes as
+// Atom, and the same helpful "quote it" error for a stray symbol — but,
+// unlike Atom, never treats a trailing comma as that stray symbol: the
+// comma is the enum list's own separator (see ValTypeEnum above), so it
+// must simply end the member, the way the pre-#754 rule excluded it by
+// hand from its character class.
+ValEnumBadChar
+  = [.+&#@$^*!?]
+
+ValEnumMember "enum member"
+  = firstletter:AtomFirstLetter text:AtomLetter* bad:(ValEnumBadChar / BarewordDashTail)? {
+      const name = firstletter + ((text || []).join(''));
+      if (bad) {
+        error(`The bareword "${name}${bad}…" contains "${bad}", which is not allowed in an unquoted name; quote it ("${name}${bad}…") or rename it (${name}_…)`);
+      }
+      return name;
+    }
+  / bad:$([0-9] AtomLetter*) {
+      // jssm#759: a numeric-looking enum member used to reach the compiler,
+      // which rejected it there (its default parses as a number and never
+      // matches the string member). #754's identifier-first-character rule
+      // makes that unreachable — a digit can't start ValEnumMember either —
+      // so the same condition is caught here, at the same point a stray
+      // symbol is, with the same "quote it" guidance.
+      error(`The bareword "${bad}" must not begin with a digit, which is not allowed in an unquoted enum member; quote it ("${bad}")`);
+    }
 
 ValVal
   = String
@@ -1730,9 +1794,23 @@ ArrangeDeclaration "arrange declaration"
 
 
 
+// #754: Exp is tried last.  Every other alternative here commits to a
+// literal keyword prefix ("state", "arrange"/"arrange-start"/"arrange-end"/
+// "oarrange"/"farrange", "&", "on", a machine-attribute/property/val
+// keyword, a config keyword) and fails softly — via ordinary PEG
+// backtracking, no thrown error — when what follows doesn't complete that
+// keyword's grammar. Exp, by contrast, can end in a hard `error()` call from
+// deep inside Atom/ArrowTarget (the #754 "quote it" messages), and a thrown
+// error aborts parsing outright rather than backtracking to try the next
+// alternative. Trying Exp first therefore let a bareword-prefix match inside
+// a keyword form — e.g. Atom greedily matching "arrange" out of
+// "arrange-start", then hard-erroring on the trailing "-" — kill the parse
+// before ArrangeDeclaration ever got a chance at the same input. Keyword
+// forms first, catch-all bareword transition last, preserves both: keyword
+// declarations still win when they match, and Exp's hard errors only fire
+// once every literal-keyword interpretation has already, safely, failed.
 Term
   = HookDeclaration
-  / Exp
   / StateDeclaration
   / ArrangeDeclaration
   / NamedList
@@ -1740,6 +1818,7 @@ Term
   / MachineProperty
   / MachineVal
   / Config
+  / Exp
 
 TermList
   = term:Term*
