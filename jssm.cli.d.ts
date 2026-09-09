@@ -507,6 +507,35 @@ interface ImportOptions {
  */
 declare function importMachine(source: string, opts: ImportOptions): ConversionResult;
 
+interface RasterOptions {
+    width?: number;
+    height?: number;
+    scale?: number;
+    quality?: number;
+}
+type RasterTarget = 'png' | 'jpeg';
+/**
+ * Rasterize an SVG string to PNG or JPEG bytes.
+ *
+ * Feature-detects `OffscreenCanvas` at call time: if present, uses the
+ * native Canvas path (browsers, Deno, Bun, mobile WebViews, etc.); otherwise
+ * loads `@resvg/resvg-wasm` and renders via that.
+ * @param svg - SVG source string
+ * @param target - 'png' or 'jpeg'
+ * @param opts.width - Fit output to this pixel width
+ * @param opts.height - Fit output to this pixel height (ignored if `width` set)
+ * @param opts.scale - Zoom percentage; 100 renders at 3x the SVG's natural
+ *   size (ignored if `width` or `height` is set; default 100)
+ * @param opts.quality - JPEG quality 1-100 (default 85; ignored for PNG)
+ * @returns Uint8Array of rasterized bytes
+ * @throws RasterizationUnsupportedError if neither backend is available
+ * @throws RenderError on backend failures
+ * @example
+ *   const png = await rasterize(svgString, 'png', { scale: 100 });
+ *   await writeFile('out.png', png);
+ */
+declare function rasterize(svg: string, target: RasterTarget, opts?: RasterOptions): Promise<Uint8Array>;
+
 type FlagType = 'string' | 'number' | 'boolean';
 interface FlagSpec {
     short?: string;
@@ -1135,5 +1164,5 @@ declare function discoverProjectConfig(opts: {
 
 declare function extractMachineAttributes(_machineSource: string): PartialConfig;
 
-export { CONFIG_SCHEMA, CodegenError, CodegenUndecidedError, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, InterchangeError, RasterizationUnsupportedError, RenderError, codegen, codegenSet, defaults, discoverProjectConfig, discoverUserGlobalConfig, exportMachine, extractMachineAttributes, extractSurface, flagsToConfig, importMachine, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
-export type { CheckConfig, CodegenArtifact, CodegenConfig, CodegenOptions, CodegenSetItem, CodegenSetItemErr, CodegenSetItemOk, CodegenTarget, ConversionResult, ExportConfig, ExportFormat, ExportOptions, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, ImportFormat, ImportOptions, InitConfig, InterchangeEdge, InterchangeModel, LintConfig, LoadConfigOptions, LspConfig, MachineSurface, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, SurfaceTransition, TestConfig, TextResult, TypegenConfig };
+export { CONFIG_SCHEMA, CodegenError, CodegenUndecidedError, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, InterchangeError, RasterizationUnsupportedError, RenderError, codegen, codegenSet, defaults, discoverProjectConfig, discoverUserGlobalConfig, exportMachine, extractMachineAttributes, extractSurface, flagsToConfig, importMachine, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, rasterize, render, renderSet, resolveExtends, validateConfig };
+export type { CheckConfig, CodegenArtifact, CodegenConfig, CodegenOptions, CodegenSetItem, CodegenSetItemErr, CodegenSetItemOk, CodegenTarget, ConversionResult, ExportConfig, ExportFormat, ExportOptions, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, ImportFormat, ImportOptions, InitConfig, InterchangeEdge, InterchangeModel, LintConfig, LoadConfigOptions, LspConfig, MachineSurface, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterOptions, RasterResult, RasterTarget, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, SurfaceTransition, TestConfig, TextResult, TypegenConfig };

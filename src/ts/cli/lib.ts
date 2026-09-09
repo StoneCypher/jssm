@@ -2,7 +2,7 @@
  * Public surface of the `jssm/cli` library subpath.
  *
  * Consumed by:
- *   - Library users: `import { render, renderSet, parseFslArgs } from 'jssm/cli';`
+ *   - Library users: `import { render, renderSet, rasterize, parseFslArgs } from 'jssm/cli';`
  *   - The `fsl-render` plugin (internally, via direct module paths)
  *   - The dispatcher (only for type cross-references)
  *
@@ -48,6 +48,8 @@ export type {
 } from './subcommands/interchange/types.js';
 
 export { InterchangeError } from './subcommands/interchange/types.js';
+export { rasterize } from './subcommands/render/rasterize.js';
+export type { RasterOptions, RasterTarget } from './subcommands/render/rasterize.js';
 
 export { parseFslArgs } from './cli-utils.js';
 export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils.js';
