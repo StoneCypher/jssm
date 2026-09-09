@@ -22,7 +22,12 @@ rename belongs to 7 and is out of scope here.
    and that was the last one before 6.
 2. Under #754, **Unicode letters and digits remain barewords.** A bareword is
    `[\p{L}_][\p{L}\p{N}_]*`. Only ASCII symbols and a leading digit are
-   evicted to quoted strings. The 18-file unicode suite survives unchanged.
+   evicted to quoted strings. Correction after reading the suite: the 15
+   atom-driven unicode suites walk every codepoint of every Unicode block
+   through the Atom rule, so they do NOT survive unchanged; the shared driver
+   gains an identifier-class predicate, and each per-codepoint test asserts
+   "bareword accepted" for identifier-class codepoints and "bareword
+   rejected, quoted form accepted" for the rest.
 3. The **probabilistic list-target semantics change ships in 6.0**: in
    `a P% -> [b c]` the group keeps weight P and members share it (uniform
    when unweighted, or by inner weights `[b 20% c 80%]`); the same weighted
