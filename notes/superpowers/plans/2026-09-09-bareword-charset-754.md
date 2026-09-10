@@ -559,7 +559,11 @@ suggests quoting.
 Implementation note: pegjs 0.10 cannot express `\p{}` classes, so
 `AtomCodePoint` matches one code point (surrogate pair or BMP unit) and
 `AtomFirstLetter` / `AtomLetter` test it with a `u`-flag regex in a
-semantic predicate.  `ValEnumMember` is now simply `Atom`.
+semantic predicate.  `ValEnumMember` mirrors `Atom` with the same classes
+but its own bad-character set (the comma is the enum list's separator, not a
+bad character) and, since 6.0, also accepts a quoted `String`, so the "quote
+it" advice holds inside `enum(...)` as well.  A per-state `property : <name>`
+inside a state block likewise accepts a `Label` (bareword or string).
 
 5.x accepted `[0-9a-zA-Z._!$^*?,]` plus `U+0080`–`U+FFFF` as a first
 character and additionally `+ ( ) & # @` afterwards; that set is gone.
