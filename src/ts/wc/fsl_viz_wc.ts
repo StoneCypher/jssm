@@ -2,8 +2,7 @@ import { LitElement, html, css, TemplateResult, PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string, slug_for } from '../jssm_viz.js';
-import type { Machine } from '../jssm.js';
-import { closest_wc } from './wc_tag_helpers.js';
+import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 
 /**
@@ -23,31 +22,18 @@ export interface HighlightOptions {
 }
 
 /**
- * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
- * creating a hard import cycle from the viz module into the instance module.
- *
- * `<fsl-instance>` exposes its underlying machine via a `machine` getter
- * that returns the raw {@link Machine} instance.  Treating that shape as a
- * duck-typed interface here keeps the viz file standalone-compilable and
- * lets tests stub a host without instantiating the real element.
- */
-export interface JssmInstanceHost extends HTMLElement {
-  readonly machine: Machine<unknown>;
-}
-
-/**
  * Shape of the `viz-error` `CustomEvent.detail` payload.  `message` is
  * always a string; `location` is whatever the renderer attached to the
  * thrown error (typically a parser-supplied source position), or
  * `undefined` if no such field was present.
  */
-export interface JssmVizErrorDetail {
+export interface FslVizErrorDetail {
   message  : string;
   location?: unknown;
 }
 
 /**
- * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Normalize an arbitrary thrown value into a {@link FslVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
  * strings, etc.) and always produces a string `message`.
  *
@@ -65,7 +51,7 @@ export interface JssmVizErrorDetail {
  * @returns A `{ message, location }` object suitable for use as the
  * `detail` of a `viz-error` `CustomEvent`.
  */
-export function normalize_viz_error(e: unknown): JssmVizErrorDetail {
+export function normalize_viz_error(e: unknown): FslVizErrorDetail {
   if (typeof e === 'object' && e !== null) {
     const rec = e as Record<string, unknown>;
     const raw_message = rec.message;
@@ -87,14 +73,14 @@ export function normalize_viz_error(e: unknown): JssmVizErrorDetail {
  *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *   2. **Nested** (inside a `<fsl-instance>` ancestor,
  *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
- * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
- * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
+ * @cssproperty [--fsl-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--fsl-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 export class FslViz extends LitElement {
@@ -102,10 +88,10 @@ export class FslViz extends LitElement {
   static styles = css`
     :host {
       display: block;
-      min-height: var(--jssm-viz-min-height, 100px);
+      min-height: var(--fsl-viz-min-height, 100px);
       /* #1934: embedder sizing seam — cap the control via the custom property
          (or plain external max-height on the host) without shadow surgery. */
-      max-height: var(--jssm-viz-max-height, none);
+      max-height: var(--fsl-viz-max-height, none);
     }
     .container {
       width: 100%;
@@ -160,12 +146,12 @@ export class FslViz extends LitElement {
   @state() private _svg: string = '';
 
   /**
-   * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+   * Parent `<fsl-instance>` host reference, set in
    * `connectedCallback` when a parent is found.  When non-null the viz is
    * in nested mode and renders the parent's machine instead of its own
    * `fsl` attribute.
    */
-  private _parent_host: JssmInstanceHost | null = null;
+  private _parent_host: FslInstanceHost | null = null;
 
   /**
    * Unsubscribe callback returned from `host.machine.on('transition', ...)`.
@@ -205,7 +191,7 @@ export class FslViz extends LitElement {
 
   /**
    * Web Components lifecycle hook.  Walks up to find a parent
-   * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+   * `<fsl-instance>` ancestor via `closest_wc`; if
    * found, switches into nested mode and subscribes to the parent machine's
    * `transition` events.  Otherwise leaves standalone behavior intact.
    *
@@ -216,7 +202,7 @@ export class FslViz extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    const host = closest_wc(this, 'instance') as JssmInstanceHost | null;
+    const host = closest_wc(this, 'instance') as FslInstanceHost | null;
     if (host === null) {
       return;   // standalone: existing behavior, willUpdate handles render
     }
@@ -516,7 +502,6 @@ export class FslViz extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'fsl-viz'  : FslViz;
-    'jssm-viz' : FslViz;
+    'fsl-viz' : FslViz;
   }
 }

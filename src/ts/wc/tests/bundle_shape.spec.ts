@@ -23,9 +23,14 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
     expect(built).toContain('fsl-viz');
   });
 
-  it('contains the jssm-viz synonym tag name string', () => {
+  it('does not contain the retired jssm-viz tag name string (removed in 6.0)', () => {
+    // A plain substring check is unsafe: the core's own runtime
+    // console.warn('jssm-viz: dropping state url ...') (src/ts/jssm_viz.ts)
+    // legitimately contains the literal token when inlined. Match the exact
+    // quoted tag literal instead — the warning string has a colon after the
+    // name, not a closing quote, so it doesn't match this pattern.
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toMatch(/['"]jssm-viz['"]/);
   });
 
   it('does NOT inline Lit internals (lit is external for bundlers)', () => {
@@ -56,18 +61,29 @@ describe('dist/wc/viz.define.js — registration entry point', () => {
     expect(existsSync(define_path)).toBe(true);
   });
 
-  it('calls customElements.define for jssm-viz', () => {
+  it('does not call customElements.define for the retired jssm-viz tag (removed in 6.0)', () => {
+    // A plain substring check is unsafe here: the core's own runtime
+    // console.warn('jssm-viz: dropping state url ...') (src/ts/jssm_viz.ts)
+    // legitimately contains the literal token and can end up inlined. Match
+    // the exact quoted tag literal instead — the warning string has a colon
+    // after the name, not a closing quote, so it doesn't match this pattern.
     const built = readFileSync(define_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toMatch(/['"]jssm-viz['"]/);
   });
 
-  it('calls customElements.define for fsl-viz (synonym registration survives bundling)', () => {
-    // The empty-subclass JssmViz lives in fsl_viz_wc.define.ts and is the
-    // entire functional change for the synonym. If a bundler or
-    // tree-shaker ever drops it, page authors who import 'jssm/wc/viz/define'
-    // would silently lose the <fsl-viz> tag. This catches that regression.
+  it('calls customElements.define for fsl-viz', () => {
+    // define_canonical lives in fsl_viz_wc.define.ts. If a bundler or
+    // tree-shaker ever drops that call, page authors who import
+    // 'jssm/wc/viz/define' would silently lose the <fsl-viz> tag. This
+    // catches that regression. Registration goes through define_canonical's
+    // customElements.define(canonical_tag, ...) call, so after bundling (and
+    // especially after minification) the tag literal is an argument passed
+    // through a variable, not textually adjacent to `customElements.define(`
+    // — assert both the call and the quoted literal separately rather than
+    // requiring adjacency.
     const built = readFileSync(define_path, 'utf8');
-    expect(built).toContain('fsl-viz');
+    expect(built).toContain('customElements.define');
+    expect(built).toMatch(/['"]fsl-viz['"]/);
   });
 
 });
@@ -80,15 +96,20 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
     expect(existsSync(cdn_path)).toBe(true);
   });
 
-  it('contains the jssm-viz tag name string', () => {
+  it('does not call customElements.define for the retired jssm-viz tag (removed in 6.0)', () => {
+    // The CDN build inlines the core, whose console.warn('jssm-viz: ...')
+    // (src/ts/jssm_viz.ts) legitimately contains the literal token — a plain
+    // substring check would false-positive on that. Match the exact quoted
+    // tag literal instead — the warning string has a colon after the name,
+    // not a closing quote, so it doesn't match this pattern.
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('jssm-viz');
+    expect(built).not.toMatch(/['"]jssm-viz['"]/);
   });
 
-  it('contains the fsl-viz synonym tag name string', () => {
-    // The synonym registration must survive the CDN bundling step. If the
-    // define module's second customElements.define call ever gets dead-code
-    // eliminated this assertion catches it.
+  it('contains the fsl-viz tag name string', () => {
+    // The registration must survive the CDN bundling step. If the define
+    // module's customElements.define call ever gets dead-code eliminated
+    // this assertion catches it.
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('fsl-viz');
   });
@@ -101,9 +122,16 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
     expect(built).not.toMatch(/from\s+['"]lit\/directives\/unsafe-html\.js['"]/);
   });
 
-  it('calls customElements.define for jssm-viz', () => {
+  it('calls customElements.define for fsl-viz', () => {
+    // Registration goes through define_canonical's
+    // customElements.define(canonical_tag, ...) call, so after bundling (and
+    // especially after minification) the tag literal is an argument passed
+    // through a variable, not textually adjacent to `customElements.define(`
+    // — assert both the call and the quoted literal separately rather than
+    // requiring adjacency.
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('customElements.define');
+    expect(built).toMatch(/['"]fsl-viz['"]/);
   });
 
   it('stays under the 10 MB regression-guard ceiling', () => {
@@ -134,9 +162,12 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('contains the jssm-instance synonym tag name string', () => {
+  it('does not call customElements.define for the retired jssm-instance tag (removed in 6.0)', () => {
+    // Same rationale as the viz bundle: a bare substring check can
+    // false-positive on unrelated literal "jssm-instance" text (e.g. stray
+    // comments). Match the exact quoted tag literal instead.
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('jssm-instance');
+    expect(built).not.toMatch(/['"]jssm-instance['"]/);
   });
 
   it('does NOT inline Lit internals (lit is external for bundlers)', () => {
@@ -173,9 +204,12 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('contains the jssm-instance synonym tag name string', () => {
+  it('does not call customElements.define for the retired jssm-instance tag (removed in 6.0)', () => {
+    // The CDN build inlines the core; match the exact quoted tag literal
+    // rather than a bare substring check, for the same reason as the viz
+    // bundle.
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('jssm-instance');
+    expect(built).not.toMatch(/['"]jssm-instance['"]/);
   });
 
   it('inlines Lit (no lit imports remain)', () => {
@@ -184,9 +218,16 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(built).not.toMatch(/from\s+['"]lit\/decorators\.js['"]/);
   });
 
-  it('calls customElements.define for jssm-instance', () => {
+  it('calls customElements.define for fsl-instance', () => {
+    // Registration goes through define_canonical's
+    // customElements.define(canonical_tag, ...) call, so after bundling (and
+    // especially after minification) the tag literal is an argument passed
+    // through a variable, not textually adjacent to `customElements.define(`
+    // — assert both the call and the quoted literal separately rather than
+    // requiring adjacency.
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('customElements.define');
+    expect(built).toMatch(/['"]fsl-instance['"]/);
   });
 
   it('stays under the 10 MB regression-guard ceiling', () => {

@@ -5,9 +5,6 @@
 import '../fsl_instance_wc.define';
 import { FslInstance, resolve_fsl_source } from '../fsl_instance_wc';
 
-// JssmInstance is re-exported as an alias from the define file.
-import { JssmInstance } from '../fsl_instance_wc.define';
-
 describe('FslInstance registration', () => {
 
   it('registers the fsl-instance tag', () => {
@@ -21,19 +18,11 @@ describe('FslInstance registration', () => {
 
 });
 
-describe('jssm-instance synonym registration', () => {
+describe('jssm-instance retirement', () => {
 
-  it('registers the jssm-instance synonym tag', () => {
-    expect(customElements.get('jssm-instance')).toBeDefined();
-  });
-
-  it('creates an element with createElement using jssm-instance', () => {
-    const el = document.createElement('jssm-instance');
-    expect(el).toBeInstanceOf(FslInstance);
-  });
-
-  it('JssmInstance alias is a subclass of FslInstance', () => {
-    expect(JssmInstance.prototype).toBeInstanceOf(FslInstance);
+  it('does not register the retired jssm-instance tag (removed in 6.0)', () => {
+    expect(customElements.get('jssm-instance')).toBeUndefined();
+    expect(document.createElement('jssm-instance')).not.toBeInstanceOf(FslInstance);
   });
 
 });
@@ -83,23 +72,7 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toBeUndefined();
   });
 
-  it('strips <jssm-*> companion-tag children from the textContent channel', () => {
-    // textContent must not pick up text from companion <jssm-*> tags.
-    // Build DOM via createElement/textContent rather than innerHTML so the
-    // construction itself doesn't depend on HTML parsing.
-    const host = document.createElement('div');
-    host.append(document.createTextNode('   X -> Y;   '));
-    const hook = document.createElement('jssm-hook');
-    hook.textContent = 'handlerName';
-    host.append(hook);
-    host.append(document.createTextNode(' '.repeat(3)));
-    const r = resolve_fsl_source(host, '');
-    expect(r.fsl).toBe('X -> Y;');
-    expect(r.error).toBeUndefined();
-  });
-
   it('strips <fsl-*> companion-tag children from the textContent channel', () => {
-    // prefix-agnostic stripping: <fsl-hook> must also be excluded.
     const host = document.createElement('div');
     host.append(document.createTextNode('   P -> Q;   '));
     const hook = document.createElement('fsl-hook');
@@ -111,9 +84,22 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toBeUndefined();
   });
 
-  it('keeps non-fsl/non-jssm child element contributions to textContent', () => {
-    // The filter that drops <fsl-*>/<jssm-*> tags has a false branch for any
-    // other descendant: that contribution must remain in the assembled FSL text.
+  it('no longer strips a retired <jssm-*> tag from the textContent channel (removed in 6.0)', () => {
+    // jssm-* is no longer a recognized companion prefix, so its text content
+    // now contributes to the assembled FSL text like any other element.
+    const host = document.createElement('div');
+    host.append(document.createTextNode(' X -> Y; '));
+    const hook = document.createElement('jssm-hook');
+    hook.textContent = 'Z';
+    host.append(hook);
+    const r = resolve_fsl_source(host, '');
+    expect(r.fsl).toBe('X -> Y; Z');
+    expect(r.error).toBeUndefined();
+  });
+
+  it('keeps non-fsl-* child element contributions to textContent', () => {
+    // The filter that drops <fsl-*> tags has a false branch for any other
+    // descendant: that contribution must remain in the assembled FSL text.
     const host = document.createElement('div');
     host.append(document.createTextNode('M -> N'));
     const span = document.createElement('span');
@@ -407,32 +393,6 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
 
 });
 
-describe('jssm-instance synonym lifecycle', () => {
-
-  it('constructs a working machine via the jssm-instance synonym tag', () => {
-    const el = document.createElement('jssm-instance') as FslInstance;
-    el.setAttribute('fsl', 'Off -> On;');
-    document.body.append(el);
-
-    expect(el.machine).toBeDefined();
-    expect(el.state()).toBe('Off');
-
-    el.remove();
-  });
-
-  it('drives transitions via jssm-instance synonym', () => {
-    const el = document.createElement('jssm-instance') as FslInstance;
-    el.setAttribute('fsl', "Off 'go' -> On;");
-    document.body.append(el);
-
-    expect(el.do('go')).toBe(true);
-    expect(el.state()).toBe('On');
-
-    el.remove();
-  });
-
-});
-
 describe('FslInstance shadow DOM', () => {
 
   it('renders the named slots and the state-specific slot', async () => {
@@ -628,29 +588,30 @@ describe('FslInstance shadow DOM', () => {
 
 });
 
-describe('mixed-prefix companion discovery', () => {
+describe('retired jssm- companion discovery (removed in 6.0)', () => {
 
-  it('discovers a jssm-on child under a fsl-instance host', () => {
-    // A <jssm-on> child under <fsl-instance> must be discovered and wired.
-    // We verify by checking the host drives the subscription: the handler
-    // fires on the transition and updates a local flag.
-    const el = document.createElement('fsl-instance') as FslInstance;
-    el.setAttribute('fsl', "Off 'go' -> On;");
-
-    const on_el = document.createElement('jssm-on');
-    on_el.setAttribute('event', 'transition');
-    let fired = false;
-    // Use a named handler on globalThis so the inline resolver can find it.
-    (globalThis as any)['_test_mixed_prefix_handler'] = () => { fired = true; };
-    on_el.setAttribute('handler', '_test_mixed_prefix_handler');
-    el.append(on_el);
-
-    document.body.append(el);
-    el.do('go');
-    expect(fired).toBe(true);
-
-    el.remove();
-    delete (globalThis as any)['_test_mixed_prefix_handler'];
+  it('ignores a retired jssm-on child (removed in 6.0)', () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "a 'go' -> b;");
+    const on = document.createElement('jssm-on');
+    on.setAttribute('event', 'transition');
+    // The handler-attribute form (rather than an inline-body textContent) keeps
+    // this child's own textContent empty, so it can't be mistaken for a second
+    // populated FSL source now that jssm-* children are no longer stripped from
+    // the host's text-content channel (that stripping was jssm-*-specific and
+    // was retired along with the tag).
+    on.setAttribute('handler', '__retired_on_handler');
+    host.append(on);
+    document.body.append(host);
+    (globalThis as any).__retired_on_fired = false;
+    (globalThis as any).__retired_on_handler = () => { (globalThis as any).__retired_on_fired = true; };
+    try {
+      host.machine!.action('go');
+      expect((globalThis as any).__retired_on_fired).toBe(false);
+    } finally {
+      host.remove();
+      delete (globalThis as any).__retired_on_handler;
+    }
   });
 
 });
@@ -907,7 +868,7 @@ describe('FslInstance permalink restore', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.id = 'act';
     const btn = document.createElement('button');
-    btn.dataset.jssmAction = 'go';
+    btn.dataset.fslAction = 'go';
     el.append(btn);
     document.body.append(el);                 // deferred — _machine still undefined
 

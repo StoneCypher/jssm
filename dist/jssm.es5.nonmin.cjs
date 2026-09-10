@@ -26156,13 +26156,13 @@ function fslSemanticSpans(text) {
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "6.0.0-alpha.14";
+const version = "6.0.0-alpha.15";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1788965112684;
+const build_time = 1789028833280;
 
 /**
  *  The FSL Markdown fence convention parser — pure, host-agnostic logic that

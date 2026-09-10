@@ -41,7 +41,7 @@ export function walk_path(obj: unknown, path: string): unknown {
 }
 
 /**
- * Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live
+ * Resolve a `<fsl-bind>` / `data-fsl-bind` expression against a live
  * machine.  Throws on any unknown expression — bindings fail fast at
  * install time rather than silently producing `undefined` strings in the
  * DOM.
@@ -89,7 +89,7 @@ export function resolve_binding(m: Machine<unknown>, expr: string): unknown {
         const leaf = walk_path(m._data_ref(), expr.slice(5));
         return ((typeof leaf === 'object') && (leaf !== null)) ? structuredClone(leaf) : leaf;
       }
-      throw new Error(`<jssm-bind>: unknown binding expression "${expr}"`);
+      throw new Error(`<fsl-bind>: unknown binding expression "${expr}"`);
     }
   }
 }
@@ -139,11 +139,11 @@ export function set_on_element(el: HTMLElement, target: string, value: unknown):
  *
  * Two surface forms are recognized:
  *
- * 1. Inline attribute — any descendant with `data-jssm-bind="<expr>"`.
- *    Optional `data-jssm-bind-to="<target>"` chooses the target property
+ * 1. Inline attribute — any descendant with `data-fsl-bind="<expr>"`.
+ *    Optional `data-fsl-bind-to="<target>"` chooses the target property
  *    (defaults to `textContent`).
  *
- * 2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with
+ * 2. Dedicated tag — direct-child `<fsl-bind>` configuration tags with
  *    `selector="<css>"` and `source="<expr>"` attributes, plus an
  *    optional `target="<target>"` (also defaulting to `textContent`).
  *    The `selector` is scoped to `host`'s descendants.
@@ -152,7 +152,7 @@ export function set_on_element(el: HTMLElement, target: string, value: unknown):
  * state) and then re-painted on every `transition` event.
  *
  * ```typescript
- * // typical install during <jssm-instance>.connectedCallback:
+ * // typical install during <fsl-instance>.connectedCallback:
  * const unsubs = install_bindings(this, this.machine);
  * this._unsubs.push(...unsubs);
  * ```
@@ -162,18 +162,18 @@ export function set_on_element(el: HTMLElement, target: string, value: unknown):
  *          subscription.
  * @throws Error - When any binding expression is unrecognized
  *                 (propagated from {@link resolve_binding}).
- * @throws Error - When a `<jssm-bind>` tag is missing its `selector`
+ * @throws Error - When a `<fsl-bind>` tag is missing its `selector`
  *                 or `source` attribute.
  */
 export function install_bindings(host: HTMLElement, machine: Machine<unknown>): FslBindUnsub[] {
 
   const unsubs: FslBindUnsub[] = [];
 
-  // Form 1: inline `data-jssm-bind` on descendants.
-  const inline_nodes = host.querySelectorAll<HTMLElement>('[data-jssm-bind]');
+  // Form 1: inline `data-fsl-bind` on descendants.
+  const inline_nodes = host.querySelectorAll<HTMLElement>('[data-fsl-bind]');
   for (const el of inline_nodes) {
-    const expr   = el.dataset.jssmBind;
-    const target = el.dataset.jssmBindTo ?? 'textContent';
+    const expr   = el.dataset.fslBind;
+    const target = el.dataset.fslBindTo ?? 'textContent';
 
     const apply = (): void => {
       set_on_element(el, target, resolve_binding(machine, expr));
@@ -183,10 +183,9 @@ export function install_bindings(host: HTMLElement, machine: Machine<unknown>): 
     unsubs.push(machine.on('transition', apply));
   }
 
-  // Form 2: dedicated `<fsl-bind>` / `<jssm-bind>` configuration tags.  Only
-  // direct children are considered configuration tags for THIS host — nested
-  // `<fsl-instance>` / `<jssm-instance>` children would have their own
-  // bindings handled by their own component.
+  // Form 2: dedicated `<fsl-bind>` configuration tags.  Only direct children
+  // are considered configuration tags for THIS host — nested `<fsl-instance>`
+  // children would have their own bindings handled by their own component.
   const all_direct = host.querySelectorAll<HTMLElement>(':scope > *');
   const config_tags = [...all_direct].filter(
     el => wc_suffix_matches(el.tagName, 'bind'),
@@ -195,12 +194,12 @@ export function install_bindings(host: HTMLElement, machine: Machine<unknown>): 
 
     const selector = tag.getAttribute('selector');
     if (selector === null || selector.length === 0) {
-      throw new Error('<jssm-bind>: missing required "selector" attribute');
+      throw new Error('<fsl-bind>: missing required "selector" attribute');
     }
 
     const expr = tag.getAttribute('source');
     if (expr === null || expr.length === 0) {
-      throw new Error('<jssm-bind>: missing required "source" attribute');
+      throw new Error('<fsl-bind>: missing required "source" attribute');
     }
 
     const target = tag.getAttribute('target') ?? 'textContent';
@@ -224,7 +223,7 @@ export function install_bindings(host: HTMLElement, machine: Machine<unknown>): 
 }
 
 /**
- * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * `<fsl-bind>` configuration tag.  The element itself is
  * invisible — it carries `selector`, `source`, and optional `target`
  * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
@@ -252,12 +251,8 @@ export class FslBind extends LitElement {
 
 }
 
-/** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
-export type JssmBind = FslBind;
-
 declare global {
   interface HTMLElementTagNameMap {
-    'fsl-bind'  : FslBind;
-    'jssm-bind' : FslBind;
+    'fsl-bind' : FslBind;
   }
 }

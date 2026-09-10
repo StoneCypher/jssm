@@ -3,7 +3,7 @@
  */
 
 import '../fsl_instance_wc.define';
-import { JssmInstance } from '../fsl_instance_wc';
+import { FslInstance } from '../fsl_instance_wc';
 import {
   build_hook_descriptor,
   compile_inline_body,
@@ -16,19 +16,14 @@ import {
   type FslHookProxy,
   type FslHookRegistry,
   type RawHookContext,
-  // Backward-compat aliases — verify they still export.
-  type JssmHookInstallSpec,
-  type JssmHookProxy,
-  type JssmHookRegistry,
 } from '../fsl_hook_wc';
 import type { Machine } from '../../jssm.js';
 
 /**
- * Helper that returns a freshly-attached JssmInstance with the supplied FSL
- * and one or more `<fsl-hook>` (canonical) or `<jssm-hook>` (synonym)
- * children, then removes it on teardown via the returned `cleanup` function.
- * Hides the document.body lifecycle so each test reads as one logical
- * scenario.
+ * Helper that returns a freshly-attached FslInstance with the supplied FSL
+ * and one or more `<fsl-hook>` children, then removes it on teardown via the
+ * returned `cleanup` function.  Hides the document.body lifecycle so each
+ * test reads as one logical scenario.
  * @param fsl - FSL source for the machine.
  * @param hook_attrs - Array of attribute maps for each hook element to create.
  *                    Each entry may contain a `body` key to set textContent
@@ -39,9 +34,9 @@ import type { Machine } from '../../jssm.js';
 function make_instance_with_hooks(
   fsl       : string,
   hook_attrs: Array<Record<string, string>>,
-): { el: JssmInstance; cleanup: () => void } {
+): { el: FslInstance; cleanup: () => void } {
 
-  const el = document.createElement('jssm-instance') as JssmInstance;
+  const el = document.createElement('fsl-instance') as FslInstance;
   el.setAttribute('fsl', fsl);
 
   for (const attrs of hook_attrs) {
@@ -186,7 +181,7 @@ describe('compile_inline_body', () => {
     const fn = compile_inline_body('throw new Error("k");', 'my-id-7');
     let stack = '';
     try { fn(make_hook_proxy({}, { state: () => 'x' })); } catch (error: any) { stack = String(error.stack || ''); }
-    expect(stack).toContain('jssm-hook:my-id-7');
+    expect(stack).toContain('fsl-hook:my-id-7');
   });
 
 });
@@ -198,29 +193,29 @@ describe('resolve_named_handler', () => {
   });
 
   it('returns a function from the registry when present', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     reg.set('myfn', fn);
     expect(resolve_named_handler('myfn', reg)).toBe(fn);
   });
 
   it('falls back to globalThis when registry is undefined', () => {
-    const fn = (_m: JssmHookProxy) => {};
+    const fn = (_m: FslHookProxy) => {};
     (globalThis as any).__jssm_hook_test_global = fn;
     expect(resolve_named_handler('__jssm_hook_test_global')).toBe(fn);
   });
 
   it('falls back to globalThis when registry lacks the name', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     (globalThis as any).__jssm_hook_test_global = fn;
     expect(resolve_named_handler('__jssm_hook_test_global', reg)).toBe(fn);
   });
 
   it('prefers the registry over a same-named globalThis entry', () => {
-    const reg_fn    = (_m: JssmHookProxy) => 'reg';
-    const global_fn = (_m: JssmHookProxy) => 'global';
-    const reg: JssmHookRegistry = new Map([['both', reg_fn]]);
+    const reg_fn    = (_m: FslHookProxy) => 'reg';
+    const global_fn = (_m: FslHookProxy) => 'global';
+    const reg: FslHookRegistry = new Map([['both', reg_fn]]);
     (globalThis as any).__jssm_hook_test_global = global_fn; // unrelated, just to keep cleanup safe
     (globalThis as any).both = global_fn;
     try {
@@ -246,7 +241,7 @@ describe('resolve_named_handler', () => {
 describe('parse_hook_element', () => {
 
   it('parses the inline-body form', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     el.setAttribute('from', 'a');
     el.setAttribute('to', 'b');
     el.textContent = 'm.data = 9;';
@@ -260,9 +255,9 @@ describe('parse_hook_element', () => {
   });
 
   it('parses the handler-attribute form', () => {
-    (globalThis as any).__jssm_parse_test_fn = (_m: JssmHookProxy) => {};
+    (globalThis as any).__jssm_parse_test_fn = (_m: FslHookProxy) => {};
     try {
-      const el = document.createElement('jssm-hook') as HTMLElement;
+      const el = document.createElement('fsl-hook') as HTMLElement;
       el.setAttribute('handler', '__jssm_parse_test_fn');
       el.setAttribute('from', 'a');
       el.setAttribute('to', 'b');
@@ -276,7 +271,7 @@ describe('parse_hook_element', () => {
   });
 
   it('throws if both handler attribute and inline body are given', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     el.setAttribute('handler', 'foo');
     el.textContent = 'm.data = 1;';
     expect(() => parse_hook_element(el, 'd3'))
@@ -284,27 +279,27 @@ describe('parse_hook_element', () => {
   });
 
   it('throws if neither handler attribute nor inline body are given', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     expect(() => parse_hook_element(el, 'd4'))
       .toThrow(/must specify either handler="name" attribute or an inline body/);
   });
 
   it('treats a whitespace-only textContent as empty (no body, no attr → throws)', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     el.textContent = '   \n   ';
     expect(() => parse_hook_element(el, 'd5'))
       .toThrow(/must specify either/);
   });
 
   it('treats null textContent as no body', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     Object.defineProperty(el, 'textContent', { get: () => null, configurable: true });
     expect(() => parse_hook_element(el, 'd6'))
       .toThrow(/must specify either/);
   });
 
   it('captures all four conditional attributes when present', () => {
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     el.setAttribute('kind', 'named');
     el.setAttribute('from', 'a');
     el.setAttribute('to', 'b');
@@ -320,10 +315,10 @@ describe('parse_hook_element', () => {
   });
 
   it('uses the registry when resolving handler attribute', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     reg.set('reg-only', fn);
-    const el = document.createElement('jssm-hook') as HTMLElement;
+    const el = document.createElement('fsl-hook') as HTMLElement;
     el.setAttribute('handler', 'reg-only');
     el.setAttribute('from', 'a');
     el.setAttribute('to', 'b');
@@ -335,13 +330,13 @@ describe('parse_hook_element', () => {
 
 describe('wrap_user_handler', () => {
 
-  function make_spec(user_handler: (m: JssmHookProxy) => unknown): JssmHookInstallSpec {
+  function make_spec(user_handler: (m: FslHookProxy) => unknown): FslHookInstallSpec {
     return { kind: 'hook', name: undefined, from: 'a', to: 'b', action: undefined, user_handler };
   }
 
   it('returns a HookComplexResult with mutated data on a normal call', () => {
     const wrapped = wrap_user_handler(
-      make_spec((m: JssmHookProxy<number>) => { m.data = (m.data ?? 0) + 1; }),
+      make_spec((m: FslHookProxy<number>) => { m.data = (m.data ?? 0) + 1; }),
       { state: () => 'a' },
     );
     const out = wrapped({ data: 5 }) as { pass: boolean; data: number };
@@ -376,7 +371,7 @@ describe('build_hook_descriptor', () => {
   function w(_ctx: RawHookContext): unknown { return undefined; }
 
   it('omits undefined optional keys', () => {
-    const spec: JssmHookInstallSpec = {
+    const spec: FslHookInstallSpec = {
       kind: 'any transition', name: undefined, from: undefined, to: undefined,
       action: undefined, user_handler: () => {},
     };
@@ -385,7 +380,7 @@ describe('build_hook_descriptor', () => {
   });
 
   it('includes from/to/action when defined', () => {
-    const spec: JssmHookInstallSpec = {
+    const spec: FslHookInstallSpec = {
       kind: 'named', name: 'x', from: 'a', to: 'b', action: 'go',
       user_handler: () => {},
     };
@@ -395,7 +390,7 @@ describe('build_hook_descriptor', () => {
 
 });
 
-describe('<jssm-hook> integration with <jssm-instance>', () => {
+describe('<fsl-hook> integration with <fsl-instance>', () => {
 
   it('installs a hook from the inline-body form and runs it on transition', () => {
     const { el, cleanup } = make_instance_with_hooks(
@@ -412,7 +407,7 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
   });
 
   it('installs a hook from the handler-attribute form via globalThis', () => {
-    (globalThis as any).__jssm_int_global = (m: JssmHookProxy<number>) => { m.data = 42; };
+    (globalThis as any).__jssm_int_global = (m: FslHookProxy<number>) => { m.data = 42; };
     try {
       const { el, cleanup } = make_instance_with_hooks(
         "red 'go' -> green;",
@@ -432,11 +427,11 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
   it('uses the registry over globalThis for handler resolution', () => {
     const reg_called: Array<string> = [];
     (globalThis as any).__jssm_clash = () => { reg_called.push('global'); };
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "red 'go' -> green;");
     el.registry.set('__jssm_clash', (_m) => { reg_called.push('registry'); });
 
-    const hook = document.createElement('jssm-hook');
+    const hook = document.createElement('fsl-hook');
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.setAttribute('handler', '__jssm_clash');
@@ -468,9 +463,9 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
   it('throws on connect when both handler attr and inline body are given', () => {
     const err = capture_connect_error(() => {
-      const el = document.createElement('jssm-instance') as JssmInstance;
+      const el = document.createElement('fsl-instance') as FslInstance;
       el.setAttribute('fsl', "red 'go' -> green;");
-      const hook = document.createElement('jssm-hook');
+      const hook = document.createElement('fsl-hook');
       hook.setAttribute('from', 'red');
       hook.setAttribute('to', 'green');
       hook.setAttribute('handler', 'whatever');
@@ -484,9 +479,9 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
   it('throws on connect when neither handler attr nor inline body is given', () => {
     const err = capture_connect_error(() => {
-      const el = document.createElement('jssm-instance') as JssmInstance;
+      const el = document.createElement('fsl-instance') as FslInstance;
       el.setAttribute('fsl', "red 'go' -> green;");
-      const hook = document.createElement('jssm-hook');
+      const hook = document.createElement('fsl-hook');
       hook.setAttribute('from', 'red');
       hook.setAttribute('to', 'green');
       el.append(hook);
@@ -498,9 +493,9 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
   it('throws on connect with a friendly error when handler name is not found', () => {
     const err = capture_connect_error(() => {
-      const el = document.createElement('jssm-instance') as JssmInstance;
+      const el = document.createElement('fsl-instance') as FslInstance;
       el.setAttribute('fsl', "red 'go' -> green;");
-      const hook = document.createElement('jssm-hook');
+      const hook = document.createElement('fsl-hook');
       hook.setAttribute('from', 'red');
       hook.setAttribute('to', 'green');
       hook.setAttribute('handler', 'no-such-fn-anywhere');
@@ -632,9 +627,9 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
   it('throws on connect when kind="..." is an unknown kind', () => {
     const err = capture_connect_error(() => {
-      const el = document.createElement('jssm-instance') as JssmInstance;
+      const el = document.createElement('fsl-instance') as FslInstance;
       el.setAttribute('fsl', "red 'go' -> green;");
-      const hook = document.createElement('jssm-hook');
+      const hook = document.createElement('fsl-hook');
       hook.setAttribute('kind', 'not-a-real-kind');
       hook.textContent = 'm.data = 1;';
       el.append(hook);
@@ -645,7 +640,7 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
   });
 
   it('exposes from/to/action to the user handler via the proxy', () => {
-    (globalThis as any).__jssm_capture = (m: JssmHookProxy) => {
+    (globalThis as any).__jssm_capture = (m: FslHookProxy) => {
       m.data = { from: m.from, to: m.to, action: m.action, state: m.state() };
     };
     try {
@@ -689,10 +684,10 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
   });
 
   it('uses host id in the debug-id prefix when present', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('id', 'sm-7');
     el.setAttribute('fsl', "red 'go' -> green;");
-    const hook = document.createElement('jssm-hook');
+    const hook = document.createElement('fsl-hook');
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.textContent = 'throw new Error("boom");';
@@ -703,7 +698,7 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
       try { el.do('go'); } catch (error: any) { stack = String(error?.stack || ''); }
       // jssm may swallow the throw and route via emit; if we couldn't grab
       // it directly, grab the proxy + call manually to inspect the source url.
-      if (!/jssm-hook:sm-7-1/.test(stack)) {
+      if (!/fsl-hook:sm-7-1/.test(stack)) {
         // Call the handler we just installed; iterate the WC's bookkeeping
         // through a known-shape path.  Easier: re-compile via the public
         // primitive and check the stack to confirm the prefix shape works.
@@ -712,15 +707,15 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
           stack = String(error.stack || '');
         }
       }
-      expect(stack).toContain('jssm-hook:sm-7-1');
+      expect(stack).toContain('fsl-hook:sm-7-1');
     } finally {
       el.remove();
     }
   });
 
   it('cleans up safely when disconnect happens before any hook was installed', () => {
-    // No <jssm-hook> children — disconnect must still be a no-op for hook cleanup.
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    // No <fsl-hook> children — disconnect must still be a no-op for hook cleanup.
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'A -> B;');
     document.body.append(el);
     expect(() => { el.remove(); }).not.toThrow();
@@ -730,16 +725,16 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     // Call disconnectedCallback directly on a fresh element that never went
     // through connection.  `_machine` is undefined, so the cleanup loop
     // must skip safely (covers the false branch of `_machine !== undefined`).
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     expect(() => el.disconnectedCallback()).not.toThrow();
   });
 
   it('does not install hooks placed inside a nested element (direct children only)', () => {
-    // A <jssm-hook> nested inside an unrelated wrapper should not be picked up.
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    // A <fsl-hook> nested inside an unrelated wrapper should not be picked up.
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "red 'go' -> green;");
     const wrapper = document.createElement('div');
-    const hook = document.createElement('jssm-hook');
+    const hook = document.createElement('fsl-hook');
     hook.setAttribute('from', 'red');
     hook.setAttribute('to', 'green');
     hook.textContent = 'm.data = "should-not-fire";';
@@ -757,7 +752,7 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
   it('installs multiple <fsl-hook> children in order', () => {
     // First hook sets data; second hook reads and appends.
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "red 'go' -> green;");
 
     const h1 = document.createElement('fsl-hook');
@@ -783,23 +778,10 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
 
 });
 
-describe('<jssm-hook> synonym coverage — instance discovers both prefixes', () => {
+describe('jssm-hook retirement — instance discovers only fsl-hook', () => {
 
-  it('installs a hook from <jssm-hook> (synonym) inline-body form', () => {
-    const { el, cleanup } = make_instance_with_hooks(
-      "red 'go' -> green;",
-      [{ _tag: 'jssm-hook', from: 'red', to: 'green', body: 'm.data = "jssm-hook-ran";' }],
-    );
-    try {
-      el.do('go');
-      expect(el.machine.data()).toBe('jssm-hook-ran');
-    } finally {
-      cleanup();
-    }
-  });
-
-  it('mixed-prefix: fsl-hook and jssm-hook siblings both fire', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+  it('ignores a retired <jssm-hook> child (removed in 6.0)', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "red 'go' -> green;");
 
     const h1 = document.createElement('fsl-hook');
@@ -808,18 +790,29 @@ describe('<jssm-hook> synonym coverage — instance discovers both prefixes', ()
     h1.textContent = 'm.data = (m.data ?? "") + "fsl";';
     el.append(h1);
 
+    // The handler-attribute form (rather than an inline-body textContent) keeps
+    // this child's own textContent empty, so it can't be mistaken for a second
+    // populated FSL source now that jssm-* children are no longer stripped from
+    // the host's text-content channel (that stripping was jssm-*-specific and
+    // was retired along with the tag).
     const h2 = document.createElement('jssm-hook');
     h2.setAttribute('kind', 'entry');
     h2.setAttribute('to', 'green');
-    h2.textContent = 'm.data = (m.data ?? "") + "+jssm";';
+    h2.setAttribute('handler', '__retired_hook_handler');
     el.append(h2);
+
+    (globalThis as any).__retired_hook_handler = (m: { data: unknown }) => {
+      m.data = (m.data ?? '') + '+jssm';
+    };
 
     document.body.append(el);
     try {
       el.do('go');
-      expect(el.machine.data()).toBe('fsl+jssm');
+      // Only the fsl-hook fires; the retired jssm-hook is not discovered.
+      expect(el.machine.data()).toBe('fsl');
     } finally {
       el.remove();
+      delete (globalThis as any).__retired_hook_handler;
     }
   });
 

@@ -25,4 +25,4 @@ state Go : { color: ForestGreen; };
 Stop 'go' -> Go;
 ```
 
-(The legacy `jssm-viz` tag still works but is deprecated — prefer `fsl-viz`.)
+(The `<jssm-viz>` tag was removed in 6.0 — use `<fsl-viz>`.)
