@@ -262,7 +262,7 @@ npm one-liner:
 
 ```ts
 import 'jssm/wc/viz/define';
-// then use <fsl-viz fsl="..."> anywhere; <jssm-viz> is an accepted alias
+// then use <fsl-viz fsl="..."> anywhere
 ```
 
 Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).

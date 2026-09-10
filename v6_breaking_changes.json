@@ -38,6 +38,18 @@
       "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
       "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
       "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
+    },
+    {
+      "id": "wc-jssm-prefix-removed",
+      "title": "Web components drop the jssm- prefix entirely",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-22 (fsl-* canonical, jssm-* deprecated, removed in v6); scope widened 2026-09-09 to the whole prefix: tags, child config tags, data attributes, CSS custom properties, class aliases, error strings.",
+      "summary": "v6 web components are spelled fsl-* only. The <jssm-viz>, <jssm-instance>, <jssm-bind> synonym tags, the <jssm-on>/<jssm-hook>/<jssm-action> child spellings, the data-jssm-* attributes, the --jssm-viz-* CSS custom properties, and the JssmViz/JssmInstance/JssmBind class aliases are gone.",
+      "breaks": "Any page using a jssm-* tag, a data-jssm-* attribute, a --jssm-viz-* CSS property, or importing a Jssm* class from the web-component bundles.",
+      "migration": "Rename: <jssm-x> -> <fsl-x>; data-jssm-x -> data-fsl-x; --jssm-viz-x -> --fsl-viz-x; JssmX -> FslX.",
+      "implementation": "Landed 2026-09 on the v6 line: define modules register fsl-* only, wc_tag_helpers matches fsl-* only, instance/bind/hook/viz read fsl-* tags and data-fsl-* attributes, tests assert the retired spellings are not registered."
     }
   ]
 }
