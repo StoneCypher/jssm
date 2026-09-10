@@ -427,8 +427,10 @@ type JssmTransitionPermitterMaybeArray<DataType> =
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
- *  `probability` for stochastic models, and an `after_time` for timed
- *  transitions.
+ *  `probability` for stochastic models, a `share` recording this edge's
+ *  fraction of a list target's default weight (6.0 list weights; set only
+ *  when the transition itself declared no `probability`), and an
+ *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
  *  @template DataType  - The machine's data payload type (`mDT`).
  */
@@ -442,6 +444,7 @@ type JssmTransition<StateType, DataType> = {
   action      ? : StateType,
   check       ? : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
   probability ? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
+  share       ? : number,                                       // within-list share of an unweighted transition's default weight (6.0 list weights); multiplies probability in the picker
   kind          : JssmArrowKind,
   forced_only   : boolean,
   main_path     : boolean
@@ -908,6 +911,17 @@ type JssmGenericConfig<StateType, DataType> = {
   dot_preamble?                  : string,
 
   start_states                   : Array<StateType>,
+
+  /**
+   *  The initial distribution declared by a weighted `start_states` list
+   *  (6.0 list weights), e.g. `start_states: [idle 90% booting 10%];`.
+   *  One entry per name in {@link JssmGenericConfig.start_states}, shares
+   *  normalized to sum to 1.  Absent when `start_states` carried no inner
+   *  weights.  Consumed by `Machine.start_state_weights()` /
+   *  `Machine.sample_start_state()`.
+   */
+  start_state_weights?           : Array<{ name: StateType, share: number }>,
+
   end_states?                    : Array<StateType>,
   failed_outputs?                : Array<StateType>,
 

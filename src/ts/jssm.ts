@@ -47,7 +47,7 @@ import {
 
 
 
-import {  make, makeTransition, 
+import {  make, makeTransition,
          transitive_members, membership_distance }            from './jssm_compiler.js';
 import { canonical_config }                                    from './fsl_canonical.js';
 import { theme_mapping, base_theme }                          from './jssm_theme.js';
@@ -8025,7 +8025,7 @@ export {FslDirections} from './jssm_types.js';
 export type {JssmParseOptions} from './jssm_types.js';
 export {JssmError} from './jssm_error.js';
 export {arrow_direction, arrow_left_kind, arrow_right_kind} from './jssm_arrow.js';
-export {compile, wrap_parse as parse, make, membership_distance} from './jssm_compiler.js';
+export {compile, wrap_parse as parse, make, membership_distance, list_shares} from './jssm_compiler.js';
 export {unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32, name_bind_prop_and_state} from './jssm_util.js';
 export {replay} from './fsl_replay.js';
 export type {ReplayResult, ReplayStep} from './fsl_replay.js';
