@@ -142,4 +142,28 @@ describe('bareword charset (#754)', () => {
     });
   });
 
+  // #754 final review: the narrowed Term reorder promotes ONLY
+  // ArrangeDeclaration above Exp (not every keyword alternative — that cost
+  // ~2.3x on plain transitions for no behavioral gain). Every one of these
+  // keyword-spelled barewords, used where a Term keyword would need more
+  // syntax than a bare arrow supplies, falls through every keyword
+  // alternative's own failed match (none of them complete: e.g. `arrange`
+  // needs a following label list, `state` needs a following name, `val`/
+  // `property` need a following `:`, `graph`/`transition` need a following
+  // block) and reaches Exp, parsing as an ordinary bareword transition
+  // source — identical to 5.x, since none of these inputs ever satisfied
+  // any Term keyword's full grammar even before #754. `arrangement` is the
+  // sharpest case: PEG's literal `"arrange"` match has no word-boundary
+  // check, so it DOES match the first 7 characters of "arrangement" before
+  // failing later in RegularArrangeDeclaration and backtracking whole.
+  describe('keyword-spelled barewords still parse as transitions (Term reorder)', () => {
+    it.each([
+      'arrange', 'oarrange', 'state', 'val', 'property', 'graph', 'transition', 'arrangement',
+    ])('"%s -> b;" parses, with the keyword as the bareword source', (word) => {
+      const m = jssm.sm`${word} -> b;`;
+      expect(m.has_state(word)).toBe(true);
+      expect(m.has_state('b')).toBe(true);
+    });
+  });
+
 });
