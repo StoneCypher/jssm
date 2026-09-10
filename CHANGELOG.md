@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-589 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+590 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,17 +22,34 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:50:50 AM
+## [Untagged] - Sep 10, 2026 4:53:11 AM
 
-Commit [7e5f8a2003e8718df06d59c1f5950c7219edc559](https://github.com/StoneCypher/jssm/commit/7e5f8a2003e8718df06d59c1f5950c7219edc559)
+Commit [1b14ec8e610af07a6703b8aadd92d35d7a8bc841](https://github.com/StoneCypher/jssm/commit/1b14ec8e610af07a6703b8aadd92d35d7a8bc841)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [43c91861, 5b8d0821]
+  * test(stoch): retarget the lexical and transition-target atom tests at the 6.0 bareword charset (#754)
 
-  * Merge branch 'feat_26-09-09_retire-jssm-prefix' into feat_26-09-09_list-weights
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 4:39:56 AM
+
+Commit [4af8e90ae8fa912a5454f3649dc461f5e7a81f2e](https://github.com/StoneCypher/jssm/commit/4af8e90ae8fa912a5454f3649dc461f5e7a81f2e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [6bbfa3f4, 19f5e549]
+
+  * Merge branch 'feat_26-09-09_list-weights' into feat_26-09-09_bareword-charset_754
   * # Conflicts:
-#       v6_breaking_changes.json
+#       notes/fsl-grammar-reference.md
+#       src/doc_md/LanguageReference.md
+#       src/ts/fsl_parser.ts
 
 
 
@@ -41,13 +58,27 @@ Merges [43c91861, 5b8d0821]
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:48:32 AM
+## [Untagged] - Sep 10, 2026 4:23:58 AM
 
-Commit [007a4b2fddabf72c785bfdbf44c4ed47aa944e05](https://github.com/StoneCypher/jssm/commit/007a4b2fddabf72c785bfdbf44c4ed47aa944e05)
+Commit [6bbfa3f419653168ee0d2fd05dce5b37c8f0b11f](https://github.com/StoneCypher/jssm/commit/6bbfa3f419653168ee0d2fd05dce5b37c8f0b11f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * perf(parser): regex-derived fast atom scanner with a charset drift guard (#754)
+  * test(grammar): cover the reviewer's keyword-bareword probes for the narrowed Term reorder
+  * Adds the eight probes the review verified by hand (arrange, oarrange,
+state, val, property, graph, transition, arrangement, each written as
+a transition from that bareword to b) as spec cases, missed in the
+prior commit of this fix wave. All eight parse as ordinary bareword
+transitions: every keyword alternative these words could match
+requires more syntax than a bare arrow supplies (a following label
+list, name, colon, or block), so each falls through to Exp unchanged
+from 5.x behavior. "arrangement" is the sharpest case verified here:
+PEG's literal "arrange" match has no word-boundary check, so
+RegularArrangeDeclaration's literal DOES match the first 7 characters
+before failing later and backtracking whole.
+  * Covering: src/ts/tests/bareword_charset.spec.ts, coverage off, 62/62
+passed (was 54, plus 8 for the new describe block). tsc clean. eslint
+clean.
 
 
 
@@ -56,19 +87,26 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:44:12 AM
+## [Untagged] - Sep 10, 2026 4:21:43 AM
 
-Commit [43c918617517ca18a0597a9247d8d07e1c69edaa](https://github.com/StoneCypher/jssm/commit/43c918617517ca18a0597a9247d8d07e1c69edaa)
+Commit [ac5c9d5c728040f46289cc2ccdd1c7c9152aef53](https://github.com/StoneCypher/jssm/commit/ac5c9d5c728040f46289cc2ccdd1c7c9152aef53)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs: clarify a list share is a fraction of the group's weight, not a draw frequency
-  * LanguageReference.md and the weighted-arrows tutorial both said "WinA and
-WinB each get 25%, splitting the 50% evenly" for `Idle 50% -> [WinA WinB];`
-with no other sibling edge from Idle in the example — readable as a 25%
-draw frequency in isolation, when it is actually 25% of Idle's total
-weight and the two are still drawn 50/50 against each other. Both now say
-"25% of Idle's total weight" and spell out the 50/50 draw outcome.
+  * test(language): quote only non-identifier fixture tokens, not every name
+  * language.spec.ts blanket-quoted every name in its multilingual
+fixtures to sidestep the #754 bareword charset. That silently dropped
+this suite's only cross-validation of is_state_name_first_char and
+is_state_name_char against real-world text: a regression in either
+predicate would go undetected if every name, including ones already
+valid as barewords like état and состояние, were quoted unconditionally.
+  * bareword(s) reimplements the grammar's own rule over the fixture text
+(first code point passes is_state_name_first_char, every remaining
+code point passes is_state_name_char, both imported from ../jssm), and
+quote(s) leaves an already-legal bareword untouched, quoting only what
+actually needs it.
+  * Covering: src/ts/tests/language.spec.ts, coverage off, 68/68 passed
+across all 11 language fixtures. tsc clean. eslint clean.
 
 
 
@@ -77,27 +115,45 @@ weight and the two are still drawn 50/50 against each other. Both now say
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:43:57 AM
+## [Untagged] - Sep 10, 2026 4:21:36 AM
 
-Commit [90dbc69f761f72f564d75951819ccc6b90673c96](https://github.com/StoneCypher/jssm/commit/90dbc69f761f72f564d75951819ccc6b90673c96)
+Commit [23fb8bd2243893d841d4d85a0e004ec88a85b700](https://github.com/StoneCypher/jssm/commit/23fb8bd2243893d841d4d85a0e004ec88a85b700)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test: unicode uspec perf fix; sample_select transition-matrix accumulation fix
-  * unicode-config-state-lists.uspec.ts's full-range sweep built a complete
-`sm`/Machine per Unicode code point just to check weighted start_states,
-adding roughly 164s to the run on top of the parse-level checks the sweep
-already does. Moves that assertion into its own describe block over five
-representative non-ASCII code points, one per major script (Latin-1
-Supplement, Cyrillic, CJK, a supplementary-plane math symbol, Devanagari),
-quoted unconditionally per the existing #754-charset-worktree note. The
-sweep body is otherwise unchanged.
-  * sample_select.spec.ts's derived transition matrix built `P[s][e.to] = ...`
-inside a loop over a state's exits; for any state with two edges landing
-on the same target (distinct actions, say), this would silently overwrite
-rather than sum their contributions. `P` is zero-initialized, so `+=` is
-the correct accumulation and a no-op for the currently-distinct-target
-DSL this file exercises today.
+  * docs(grammar): bring the #754 migration docs and teaching-surface manifest up to date
+  * Final whole-branch review fixes for #754, part 2 (docs and manifests).
+  * v6_breaking_changes.json: the atom-charset-restriction entry's "breaks"
+field still described the old non-[A-Za-z0-9_] rule; rewritten to the
+real Unicode identifier classes. "implementation" still said
+ValEnumMember = Atom; rewritten to describe the real rule (its own
+comma-free bad-char set, a String alternative, a digit-leading catch)
+plus the two additive changes (quoted enum members, quoted per-state
+property names).
+  * src/doc_md/todo.md: the "custom name-chain delimiter" idea taught the
+5.x atom char set and proposed expanding it to admit a chosen
+delimiter. Rewritten for 6.0: dot-chained names like
+auth.login.pending now always need quoting too (dot is no longer an
+exception), so expanding the atom char set per delimiter is no longer
+really on the table.
+  * notes/fsl-grammar-reference.md: documents the three new ArrowTarget
+error alternatives (digit-leading catch, ArrowTargetBadSymbol,
+ArrowTargetBadFirstChar), corrects "0 alone is not a cycle" (it now
+errors rather than parsing as a one-character state name), and adds a
+section 15 quirk explaining why Exp must not precede ArrangeDeclaration
+in Term.
+  * src/data/teaching-surface.json: claims the five #754 grammar rules that
+belong to existing, coherent features (AtomCodePoint, BarewordBadChar,
+BarewordDashTail under labels-quoting; ArrowTargetBadSymbol,
+ArrowTargetBadFirstChar under transitions). ValEnumBadChar is left
+unclaimed deliberately: there is no existing vals/enum teaching-surface
+feature at all today (enum and val declarations are an entirely
+pre-existing, unrelated manifest gap), and authoring one from scratch
+to give ValEnumBadChar a coherent home is a bigger task than this fix
+wave's scope.
+  * Covering: node -e JSON.parse check on both JSON files. check_partition.cjs
+confirms the five rules are no longer unclaimed and introduces no
+double-claims.
 
 
 
@@ -106,32 +162,24 @@ DSL this file exercises today.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:43:39 AM
+## [Untagged] - Sep 10, 2026 4:21:23 AM
 
-Commit [2a38c4014c8254cb3ff63f08e0f4215ed1327d9f](https://github.com/StoneCypher/jssm/commit/2a38c4014c8254cb3ff63f08e0f4215ed1327d9f)
+Commit [e6e35db4beb292729963f4fe44586a8ce2eceed2](https://github.com/StoneCypher/jssm/commit/e6e35db4beb292729963f4fe44586a8ce2eceed2)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(jssm): make the duplicate-edge guard and probable_action_exits share-aware
-  * construct()'s duplicate-edge exemption only checked `tr.probability !==
-undefined`, so a share-only edge (an unweighted transition onto a weighted
-list, which carries `share` but no `probability`) was NOT exempt: a
-repeated list target like `a -> [b 20% b 80%];`, or a share-only edge later
-followed by a plain edge to the same target (`a -> [b 20% c 80%]; a -> b;`),
-incorrectly threw "already has ... to ...". The exemption now also checks
-`tr.share !== undefined`, matching the comment's original intent (a
-weighted fan-out may repeat a target).
-  * probable_action_exits() returned `{ action, probability }`, silently
-dropping `share` from its result even though the underlying edge carries
-it (mirroring probable_exits_for's shape); it now returns
-`{ action, probability, share }`, with the DocBlock's @returns updated.
-  * Also skips the intermediate array allocation `_start_state_weights`'s
-constructor built even for the common unweighted case — `new Map()`
-directly instead of `new Map((start_state_weights ?? []).map(...))` — since
-construct() is benchmarked.
-  * Adds three weighted_lists_runtime.spec.ts cases: the two duplicate-edge
-forms above no longer throw, and probable_action_exits includes share
-alongside probability.
+  * fix(buildjs): update the tmLanguage group-ref pattern to the 6.0 bareword charset
+  * The FSL TextMate grammar generator's group-reference pattern (&Name)
+still encoded 5.x's atom char set. A group reference's name is a
+bareword, so it follows #754's Unicode identifier classes now: first
+character L/Nl/underscore, continuation adds Mn/Mc/Nd/Pc. Oniguruma
+(the regex engine TextMate and VSCode grammars run under) supports
+these property escapes natively.
+  * The committed dist/grammars/fsl.tmLanguage.json is intentionally left
+alone here (rebuilt by the controller's full build); the generator spec
+therefore still fails its one staleness check until that rebuild lands.
+  * Covering: src/buildjs/tests/fsl_tmlanguage.spec.ts, coverage off, 4 of 5
+passing (the staleness check is the expected exception, see above).
 
 
 
@@ -140,24 +188,43 @@ alongside probability.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:43:21 AM
+## [Untagged] - Sep 10, 2026 4:21:15 AM
 
-Commit [39cafe03d3a34161a99ab488e9785c36f52401d5](https://github.com/StoneCypher/jssm/commit/39cafe03d3a34161a99ab488e9785c36f52401d5)
+Commit [85356faa6f1949b5bb7059191f9bff2fbed55d7a](https://github.com/StoneCypher/jssm/commit/85356faa6f1949b5bb7059191f9bff2fbed55d7a)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(viz): round a displayed probability to 6 significant digits
-  * A share-derived probability (e.g. 50 / 3 for a 3-member list) is often an
-inexact float, so a dot label rendered the raw value: 16.666666666666664.
-Both label composers (transition_label's taillabel, colored_label's
-headlabel/taillabel HTML) now format probability through a new
-format_probability() helper (Number(p.toPrecision(6))) before joining it
-into the label. Author-written values (25, 10, 0.5, ...) already have far
-fewer than 6 significant digits, so rounding is a no-op for them. The
-falsy-hiding behavior for probability 0 is preserved in both call sites
-(format_probability(0) is still filtered the same way the raw 0 was).
-  * Adds a viz_dot.spec.ts case asserting `a 50% -> [b c d];` renders 16.6667
-(not the raw float) and `a 25% -> b;` still renders 25.
+  * perf(grammar)!: narrow the Term reorder to ArrangeDeclaration, print full names in bad-bareword messages
+  * Final whole-branch review fixes for #754, part 1 (grammar core).
+  * Term: only ArrangeDeclaration is promoted above Exp now, not every
+keyword alternative. The prior all-keywords-first reorder fixed the
+arrange-start/arrange-end hard-error collision but cost roughly 2.3x on
+plain transitions. This narrower reorder is the only promotion the
+hazard actually requires (measured roughly 1.04x over 232 src/machines
+files plus keyword-bareword probes, zero behavioral difference from the
+wider reorder).
+  * Atom and ValEnumMember now capture the rest of an offending token
+(one optional [bad, rest] unit alongside the bad character, so a
+legitimate atom like "a->b" is untouched) and print the FULL name in
+their "quote it" messages instead of a truncated one. fixparser.cjs's
+fast Atom scanner passes the same extra argument, read directly from
+input with the identical character class, so both paths stay
+byte-identical. Its test fixture is updated to the real pegjs
+raw-emission shape for the new rule.
+  * Two leaked backslash-u-2014 escapes in .peg comments (one pre-existing,
+two introduced this round) are now real em-dash characters.
+  * bareword_charset.spec.ts needles now use a proper regex-escape and
+assert the literal contains-X claim a message makes, not a bare
+escaped-character pattern. New cases cover the narrower Term reorder
+(arrange, oarrange, state, val, property, graph, transition,
+arrangement as bareword transition sources) and ValEnumMember's own
+digit and comma messages. The BAREWORD_REST hand-copies (.peg,
+jssm_constants.ts, fixparser.cjs, bareword_charset.stoch.ts) now
+cross-reference each other and the stoch drift guard.
+  * Covering: full spec config, coverage off, 10911 passed, only the two
+pre-existing dist-artifact failures remain (fsl_tmlanguage,
+bundle_shape, both confirmed untouched by this branch). Drift guard
+green. tsc clean on both configs. eslint clean on every touched file.
 
 
 
@@ -166,33 +233,13 @@ falsy-hiding behavior for probability 0 is preserved in both call sites
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:43:04 AM
+## [Untagged] - Sep 10, 2026 3:26:02 AM
 
-Commit [62e0a45e7c438b86580cdcab26f66fdf8b26fdeb](https://github.com/StoneCypher/jssm/commit/62e0a45e7c438b86580cdcab26f66fdf8b26fdeb)
+Commit [396af4c92dc61569a76b052445c364dd13699de5](https://github.com/StoneCypher/jssm/commit/396af4c92dc61569a76b052445c364dd13699de5)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(compiler): pin group-reference target sharing as explicit 6.0 semantics
-  * resolve_group_refs rewrites a group-reference transition TARGET (`&g`) to
-its member array before compile_rule_transition_step runs, so a
-probabilistic transition onto a group already shared its weight across the
-expanded members the same way it does across an equivalent literal list —
-this was an untested, undocumented side effect of the implementation
-rather than a deliberate, named behavior. Ruled as the desired semantics
-(a &g target behaves like its member list); this commit makes it explicit:
-  * - Compile test: `&g : [b c]; a 50% -> &g; a 50% -> d;` asserts a->b 25,
-  a->c 25, a->d 50 (matching a literal `[b c]` list target).
-- Also adds a test for list_shares' negative-inner-weight rejection (the
-  companion fix in the prior commit had no covering test yet).
-- v6_breaking_changes.json's probabilistic-list-weights entry now names
-  group-reference targets in both `summary` and `breaks`.
-- notes/fsl-grammar-reference.md: the §6 GroupRef bullet gets a sentence on
-  target-side sharing; the §14 cheat-sheet's Arrow target row, still
-  listing the pre-6.0 grammar names, is corrected to
-  `ArrowTarget (Stripe / Cycle / WeightedLabelList / GroupRef / Label)`;
-  and the §2 WeightedLabelList paragraph gains a clause noting that inner
-  weights written on a pure list SOURCE are parsed but ignored (there is
-  no per-member edge into a source's members for a share to apply to).
+  * docs(grammar): document the 6.0 bareword charset and mark #754 landed
 
 
 
@@ -201,23 +248,13 @@ rather than a deliberate, named behavior. Ruled as the desired semantics
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:42:11 AM
+## [Untagged] - Sep 10, 2026 3:22:43 AM
 
-Commit [d988a7a42b6af1f548983b7467ef88914d7bdd37](https://github.com/StoneCypher/jssm/commit/d988a7a42b6af1f548983b7467ef88914d7bdd37)
+Commit [b39421448b3770efd742db68e435f6d4e8fb7bcc](https://github.com/StoneCypher/jssm/commit/b39421448b3770efd742db68e435f6d4e8fb7bcc)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(compiler): reject negative inner list weights in list_shares
-  * list_shares() is exported public API, so a hand-built weighted_list node
-could carry a negative weight (the grammar's NonNegNumber rule already
-rejects this at parse time, but the exported function has no equivalent
-guard). Throw a JssmError from the reduce that sums weights, naming the
-offending member, instead of silently producing a nonsensical share.
-  * Also turns apply_list_share's DocBlock @example, whose sample code did not
-type-check (casting a two-field object literal to JssmTransition), into a
-prose sentence — the function is @internal and not extracted by the
-doctest generator, so this was previously invalid code sitting unnoticed
-in the codebase rather than a build failure.
+  * test(charset): sweep fixtures, corpus, examples, and tooling specs for the 6.0 bareword rule (#754)
 
 
 
@@ -226,36 +263,23 @@ in the codebase rather than a build failure.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 2:41:54 AM
+## [Untagged] - Sep 10, 2026 3:07:00 AM
 
-Commit [71de8843281467715ba1073568d32f720e0a5f83](https://github.com/StoneCypher/jssm/commit/71de8843281467715ba1073568d32f720e0a5f83)
+Commit [c71dd03e7aca7fdf37c8c512da6ee0f5d327fdda](https://github.com/StoneCypher/jssm/commit/c71dd03e7aca7fdf37c8c512da6ee0f5d327fdda)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(types): drop the docblock-breaking @example on JssmWeightedList
-  * The @example tag on JssmWeightedList's DocBlock was jssm_types.ts's first,
-so src/buildjs/extract_examples.cjs generated jssm_types.docex.ts with an
-unverifiable example (no expect(...) or // => marker), and vitest-docs
-(and so ci_build) failed. The file's own convention for a type-level code
-sample that isn't meant to be extracted and asserted is a plain fenced
-```ts block with no @example tag — switch to that. Deliberately not adding
-an @example to JssmWeightedListMember either, for the same reason.
-  * Also sharpens the JssmTransition.share field's DocBlock wording: "the list
-side's default weight" rather than "a list target's default weight", since
-share applies on whichever side (source or target) actually carries the
-list, not only a target.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Sep 10, 2026 2:23:18 AM
-
-Commit [5a630412283cc6a82bd1d6b311d5ef108db97581](https://github.com/StoneCypher/jssm/commit/5a630412283cc6a82bd1d6b311d5ef108db97581)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(unicode): classify every code point as bareword or quoted-only (#754)
+  * fix(parser): close fast-atom review gaps — liveness test, balanced drift-guard coverage, ordering guard (#754)
+  * - add a build-drift/liveness test that reads the committed fsl_parser.ts
+  and asserts the fast atom scanner is actually installed there, so
+  dropping inline_fast_atom from the pipeline composition fails a test
+- fix the fixparser unit fixture to be pegjs's raw (unguarded) emission,
+  matching what inline_fast_atom actually receives in the real pipeline
+- weight the stoch drift guard's generator (fc.oneof of an
+  always-identifier and an unrestricted generator) so both branches get
+  real coverage instead of ~9 positive samples per 400 runs
+- document the skip regex's structural-character exclusions and the
+  intentional REST regex's _/\p{Pc} redundancy removal
+- add an explicit ordering comment plus a runtime assertion in main()
+  that no unguarded peg$fail site survives the pipeline, protecting the
+  inline_fast_atom-before-inline_fail_guard invariant

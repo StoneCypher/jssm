@@ -2289,35 +2289,57 @@ declare const named_colors$1: string[];
  *
  */
 /**
- *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
- *  legal in any but the first position of an FSL state name (atom).
- *
- *  Includes ASCII digits/letters and the symbols
- *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
- *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *  Inclusive ASCII character ranges accepted in any but the first position of
+ *  an FSL bareword (state / property / val / enum-member name): digits,
+ *  letters, and underscore.  Non-ASCII characters are classified by
+ *  {@link is_state_name_char}, which is the complete rule; this table exists
+ *  for tooling that wants the ASCII portion as ranges.
  *  @example
  *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
+ *  state_name_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ *  @see is_state_name_char
  */
 declare const state_name_chars$1: ReadonlyArray<{
     from: string;
     to: string;
 }>;
 /**
- *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
- *  characters legal in the first position of an FSL state name (atom).
- *
- *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
- *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
- *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *  Inclusive ASCII character ranges accepted in the first position of an FSL
+ *  bareword: letters and underscore (never a digit).  Non-ASCII characters
+ *  are classified by {@link is_state_name_first_char}.
  *  @example
  *  import { state_name_first_chars } from 'jssm';
- *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ *  state_name_first_chars.some(r => '7' >= r.from && '7' <= r.to);  // => false
+ *  @see is_state_name_first_char
  */
 declare const state_name_first_chars$1: ReadonlyArray<{
     from: string;
     to: string;
 }>;
+/**
+ *  Whether one code point may begin an FSL bareword (#754): a Unicode letter,
+ *  a letter-number, or underscore.  Mirrors the grammar's `AtomFirstLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_first_char } from 'jssm';
+ *  is_state_name_first_char('é');  // => true
+ *  is_state_name_first_char('7');  // => false
+ *  @see is_state_name_char
+ */
+declare const is_state_name_first_char$1: (ch: string) => boolean;
+/**
+ *  Whether one code point may continue an FSL bareword (#754): anything
+ *  {@link is_state_name_first_char} accepts, plus combining marks, decimal
+ *  digits, and connector punctuation.  Mirrors the grammar's `AtomLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_char } from 'jssm';
+ *  is_state_name_char('7');  // => true
+ *  is_state_name_char('.');  // => false
+ *  @see is_state_name_first_char
+ */
+declare const is_state_name_char$1: (ch: string) => boolean;
 /**
  *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
  *  characters legal inside a single-quoted action label without escaping.
@@ -2373,6 +2395,8 @@ declare namespace jssm_constants_d {
     jssm_constants_d_RootHalf as RootHalf,
     action_label_chars$1 as action_label_chars,
     gviz_shapes$1 as gviz_shapes,
+    is_state_name_char$1 as is_state_name_char,
+    is_state_name_first_char$1 as is_state_name_first_char,
     named_colors$1 as named_colors,
     shapes$1 as shapes,
     state_name_chars$1 as state_name_chars,
@@ -2397,6 +2421,8 @@ declare const action_label_chars: readonly {
     from: string;
     to: string;
 }[];
+declare const is_state_name_first_char: (ch: string) => boolean;
+declare const is_state_name_char: (ch: string) => boolean;
 
 /**
  *  Internal record holding a single registered event subscription: the
@@ -3394,27 +3420,32 @@ declare class Machine<mDT> {
      */
     all_themes(): FslTheme[];
     /**
-     * List the character ranges accepted by the FSL grammar in any but the
-     *  first position of a state name (atom).  Each entry is an inclusive
-     *  `{from, to}` range of single Unicode characters.
+     * List the ASCII character ranges accepted by the FSL grammar in any but
+     *  the first position of a state name (atom): digits, letters, and
+     *  underscore.  Each entry is an inclusive `{from, to}` range of single
+     *  Unicode characters.  Non-ASCII characters are classified by
+     *  {@link is_state_name_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
         to: string;
     }>;
     /**
-     * List the character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom).  Narrower than
-     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     * List the ASCII character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom): letters and underscore (never a
+     *  digit).  Non-ASCII characters are classified by
+     *  {@link is_state_name_first_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
      *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{
@@ -5466,5 +5497,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, list_shares, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, is_state_name_char, is_state_name_first_char, list_shares, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
 export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions, ReplayErrorKind, ReplayResult, ReplayStep, Stimulus, StimulusTape, TapeHeader };
