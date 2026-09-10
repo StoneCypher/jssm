@@ -124,9 +124,10 @@ function inline_fast_ws(body) {
  *  `input`, and unicode (`u`) so an astral code point (a surrogate pair) is
  *  matched as one `\p{}`-class unit rather than two stray UTF-16 code units.
  *
- *  Keep this in sync with `src/ts/fsl_parser.peg`'s `BAREWORD_FIRST` /
- *  `BAREWORD_REST` initializer constants by hand; the drift guard
- *  `src/ts/tests/bareword_charset.stoch.ts` fails if they disagree.
+ *  Keep this in sync by hand with the other three copies: `src/ts/fsl_parser.peg`'s
+ *  `BAREWORD_FIRST` / `BAREWORD_REST` initializer constants, `src/ts/jssm_constants.ts`'s
+ *  `BAREWORD_FIRST_RE` / `BAREWORD_REST_RE`, and `src/ts/tests/bareword_charset.stoch.ts`'s
+ *  `FIRST` / `REST` — which is the drift guard for all four; it fails if any disagree.
  *
  *  @example
  *  FAST_ATOM_RE.lastIndex = 0;
@@ -144,16 +145,21 @@ const FAST_ATOM_RE = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]*/uy;
  *  On a match, the trailing-character check the grammar's `Atom` action
  *  performs is reproduced by calling the SAME generated rule functions the
  *  grammar uses for it — `peg$parseBarewordBadChar` / `peg$parseBarewordDashTail`
- *  — rather than re-deriving their charset by hand, and the SAME generated
- *  action function is then called with the full match as `firstletter` and
- *  an empty `text` array (`firstletter + text.join('')` therefore still
- *  equals the full match), so a stray trailing character raises the
- *  byte-identical "quote it" error the grammar's `Atom` action raises,
- *  without retyping its message template. On a miss, the identical
- *  `peg$otherExpectation("atom")` constant the generated rule fails with is
- *  replayed, in the same unguarded form {@link inline_fail_guard} rewrites
- *  the rest of the generated body's fail sites into, so it goes through the
- *  same guard.
+ *  — rather than re-deriving their charset by hand. When one matches, the
+ *  rest of the offending token ($([^ \t\r\n;]*) in the grammar's `Atom` rule,
+ *  captured so the error message can print the FULL name rather than a
+ *  truncated one) is read directly from `input` with the identical character
+ *  class — there's no named rule to call for an inline, unlabeled capture.
+ *  The SAME generated action function is then called with the full match as
+ *  `firstletter`, an empty `text` array (`firstletter + text.join('')`
+ *  therefore still equals the full match), and a `badtail` of either `null`
+ *  or `[bad, rest]` — matching the shape the grammar's own nested optional
+ *  group produces — so a stray trailing character raises the byte-identical
+ *  "quote it" error the grammar's `Atom` action raises, without retyping its
+ *  message template. On a miss, the identical `peg$otherExpectation("atom")`
+ *  constant the generated rule fails with is replayed, in the same unguarded
+ *  form {@link inline_fail_guard} rewrites the rest of the generated body's
+ *  fail sites into, so it goes through the same guard.
  *
  *  @param body The generated parser source (any point in the pipeline,
  *         before or after the WS swap — this transform only touches
@@ -196,7 +202,7 @@ function inline_fast_atom(body) {
 `  var FAST_ATOM_RE = ${FAST_ATOM_RE.toString()};
 
   function peg$parseAtom() {
-    var s0, s1, m;
+    var s0, s1, m, badtail, restMatch;
 
     peg$silentFails++;
     FAST_ATOM_RE.lastIndex = peg$currPos;
@@ -215,10 +221,23 @@ function inline_fast_atom(body) {
     // action relies on, not a hand-rolled re-derivation of their charset
     s1 = peg$parseBarewordBadChar();
     if (s1 === peg$FAILED) { s1 = peg$parseBarewordDashTail(); }
-    if (s1 === peg$FAILED) { s1 = null; }
+
+    if (s1 === peg$FAILED) {
+      badtail = null;
+    } else {
+      // #754 (final review): the grammar's Atom action also captures the
+      // rest of the token ($([^ \\t\\r\\n;]*)) so the "quote it" error can
+      // print the FULL offending name instead of a truncated one. There is
+      // no named rule to call for that inline capture, so it is read
+      // directly from \`input\` with the identical character class -- the
+      // grammar's Atom rule and this fast path must stay byte-identical.
+      restMatch = /^[^ \\t\\r\\n;]*/.exec(input.slice(peg$currPos));
+      peg$currPos += restMatch[0].length;
+      badtail = [s1, restMatch[0]];
+    }
 
     peg$savedPos = s0;
-    s0 = ${action}(m[0], [], s1);   // firstletter=full match, text=[] -> identical "name"
+    s0 = ${action}(m[0], [], badtail);   // firstletter=full match, text=[] -> identical "name"
     peg$silentFails--;
 
     return s0;

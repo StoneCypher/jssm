@@ -24,14 +24,22 @@ const { inline_fast_atom, FAST_ATOM_RE } = require(resolve(__dirname, '../fixpar
  *  including `inline_fail_guard` — note the unguarded
  *  `if (peg$silentFails === 0) { peg$fail(...) }` form at the bottom, not the
  *  `&& peg$currPos >= peg$maxFailPos`-guarded form the committed `.ts` has);
- *  only the two `peg$cNNN` constant names are renumbered, to keep the
- *  fixture independent of pegjs's renumbering. `inline_fast_atom` runs
- *  BEFORE `inline_fail_guard` in the real pipeline (see `main()` in
- *  `fixparser.cjs`), so this unguarded shape is the honest input it is
- *  actually built to transform.
+ *  the `peg$cNNN` constant names are renumbered (`peg$c001`/`peg$c002`
+ *  keep their original meaning — the "atom" expectation and the outer
+ *  action, the two constants `inline_fast_atom` actually extracts —
+ *  `peg$c003`-`peg$c005` are the badtail group's own regex/expectation/
+ *  action, #754's addition), to keep the fixture independent of pegjs's
+ *  renumbering. `inline_fast_atom` runs BEFORE `inline_fail_guard` in the
+ *  real pipeline (see `main()` in `fixparser.cjs`), so this unguarded shape
+ *  is the honest input it is actually built to transform. Regenerate this
+ *  fixture (`npx pegjs -o <tmp>.js src/ts/fsl_parser.peg`, find
+ *  `peg$parseAtom`) if `Atom`'s grammar shape changes again — the shape
+ *  is deep enough now (the `badtail:(bad:(...) rest:$(...) { ... })?`
+ *  nested optional group #754's final review added) that hand-editing it
+ *  risks silently drifting from what pegjs actually emits.
  */
 const GENERATED_ATOM_FN = `  function peg$parseAtom() {
-    var s0, s1, s2, s3;
+    var s0, s1, s2, s3, s4, s5, s6, s7;
 
     peg$silentFails++;
     s0 = peg$currPos;
@@ -44,9 +52,47 @@ const GENERATED_ATOM_FN = `  function peg$parseAtom() {
         s3 = peg$parseAtomLetter();
       }
       if (s2 !== peg$FAILED) {
-        s3 = peg$parseBarewordBadChar();
-        if (s3 === peg$FAILED) {
-          s3 = peg$parseBarewordDashTail();
+        s3 = peg$currPos;
+        s4 = peg$parseBarewordBadChar();
+        if (s4 === peg$FAILED) {
+          s4 = peg$parseBarewordDashTail();
+        }
+        if (s4 !== peg$FAILED) {
+          s5 = peg$currPos;
+          s6 = [];
+          if (peg$c003.test(input.charAt(peg$currPos))) {
+            s7 = input.charAt(peg$currPos);
+            peg$currPos++;
+          } else {
+            s7 = peg$FAILED;
+            if (peg$silentFails === 0) { peg$fail(peg$c004); }
+          }
+          while (s7 !== peg$FAILED) {
+            s6.push(s7);
+            if (peg$c003.test(input.charAt(peg$currPos))) {
+              s7 = input.charAt(peg$currPos);
+              peg$currPos++;
+            } else {
+              s7 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c004); }
+            }
+          }
+          if (s6 !== peg$FAILED) {
+            s5 = input.substring(s5, peg$currPos);
+          } else {
+            s5 = s6;
+          }
+          if (s5 !== peg$FAILED) {
+            peg$savedPos = s3;
+            s4 = peg$c005(s1, s2, s4, s5);
+            s3 = s4;
+          } else {
+            peg$currPos = s3;
+            s3 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s3;
+          s3 = peg$FAILED;
         }
         if (s3 === peg$FAILED) {
           s3 = null;

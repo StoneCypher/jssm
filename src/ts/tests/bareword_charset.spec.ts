@@ -7,6 +7,17 @@ import * as jssm from '../jssm';
 const parses  = (src: string) => expect(() => jssm.parse(src)).not.toThrow();
 const rejects = (src: string, needle: RegExp) => expect(() => jssm.parse(src)).toThrow(needle);
 
+// #754 review (final wave): a proper regex-escape, not the naive
+// backslash-prefix the original needles used (which happened to work only
+// because every tested character was already a single-char metacharacter).
+// `names_char` asserts the actual claim a trailing-bad-char rejection makes
+// — that its message contains a `contains "X"` clause naming the exact
+// offending character — rather than a bare escaped-character pattern that
+// could coincidentally match elsewhere in the message text (e.g. inside the
+// quoted full-name suggestion).
+const escape_for_regex = (ch: string): string => ch.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+const names_char       = (ch: string): RegExp => new RegExp(`contains "${escape_for_regex(ch)}"`);
+
 describe('bareword charset (#754)', () => {
 
   describe('accepted barewords', () => {
@@ -36,7 +47,7 @@ describe('bareword charset (#754)', () => {
       ['a?b',         '?'],
       ['a,b',         ','],
     ])('%s is rejected naming %s and suggesting quotes', (name, ch) => {
-      rejects(`${name} -> other;`, new RegExp(`\\${ch}`));
+      rejects(`${name} -> other;`, names_char(ch));
       rejects(`${name} -> other;`, /quote/);
     });
 
@@ -79,7 +90,7 @@ describe('bareword charset (#754)', () => {
       rejects('val mode : enum(a.b, c) default c; a -> b;', /quote/);
     });
     it('a symbol-bearing member names the offending character', () => {
-      rejects('val mode : enum(a.b, c) default c; a -> b;', /\./);
+      rejects('val mode : enum(a.b, c) default c; a -> b;', names_char('.'));
     });
     it('a digit-leading member is rejected with the jssm#759 wording', () => {
       rejects('val mode : enum(a, 1b) default a; a -> b;', /must not begin with a digit/);
@@ -112,7 +123,7 @@ describe('bareword charset (#754)', () => {
       ['-foo', '-'],
       ['?x',   '?'],
     ])('%s is rejected as a source, naming %s and suggesting quotes', (name, ch) => {
-      rejects(`${name} -> other;`, new RegExp(`\\${ch}`));
+      rejects(`${name} -> other;`, names_char(ch));
       rejects(`${name} -> other;`, /quote/);
     });
     it.each([
@@ -120,7 +131,7 @@ describe('bareword charset (#754)', () => {
       ['-foo', '-'],
       ['?x',   '?'],
     ])('%s is rejected as a target, naming %s and suggesting quotes', (name, ch) => {
-      rejects(`other -> ${name};`, new RegExp(`\\${ch}`));
+      rejects(`other -> ${name};`, names_char(ch));
       rejects(`other -> ${name};`, /quote/);
     });
     it('a Cycle target ("-1") still parses, not caught by the new leading-char rule', () => {

@@ -12,11 +12,20 @@
 
 // #754 review round 1 (perf): the generated per-character predicates for
 // AtomFirstLetter/AtomLetter used to build a fresh regex literal on every
-// character tested. A pegjs initializer — this block — runs once when the
-// generated parser module loads, so the two regexes are compiled once and
-// every predicate call below tests against the same compiled instance. This
-// is plain JS (no type annotations), so it doesn't need a "Reminder"
-// workaround of its own for PegJS Online.
+// character tested. A pegjs initializer — this block — is emitted inside the
+// generated `parse()` function (pegjs has no true module-level output slot),
+// so it runs once per `parse()` call rather than once per character: still a
+// large win (one compile per document instead of one per bareword code
+// point), just not the "compiled once, ever" a module-level constant would
+// be. `FAST_ATOM_RE` in fixparser.cjs's `inline_fast_atom` has the identical
+// per-call scope for the same reason. This is plain JS (no type
+// annotations), so it doesn't need a "Reminder" workaround of its own for
+// PegJS Online.
+// This pair is hand-copied in three other places — keep all four in sync:
+// src/ts/jssm_constants.ts's BAREWORD_FIRST_RE/BAREWORD_REST_RE, this
+// grammar's own fast path (src/buildjs/fixparser.cjs's FAST_ATOM_RE), and
+// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
+// guard for all of them.
 {
   const BAREWORD_FIRST = /^[\p{L}\p{Nl}_]$/u;
   const BAREWORD_REST  = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u;
@@ -284,7 +293,7 @@ WS "whitespace"
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
-// #754: a bareword is a Unicode identifier \u2014 first character a letter,
+// #754: a bareword is a Unicode identifier — first character a letter,
 // letter-number, or underscore; continuation adds marks, decimal digits and
 // connector punctuation (the UAX #31 shape).  pegjs 0.10 has no \p{} classes,
 // so we match one code point (a surrogate pair or one BMP unit) and test it
@@ -310,11 +319,23 @@ BarewordBadChar
 BarewordDashTail
   = "-" &[^>\-|=~<] { return "-"; }
 
+// #754 (final review): badtail wraps the bad character AND the rest of the
+// token as ONE optional unit, `[bad, rest]`, rather than two separate
+// optional labels — capturing `rest` only ever runs once a bad character has
+// already matched. Two independent optionals would make `rest`'s
+// `[^ \t\r\n;]*` class try to match even when `bad` did not (`bad` is
+// undefined but zero-width, `rest` is a separate greedy match), silently
+// swallowing whatever legitimate grammar follows — e.g. "a->b" would have
+// `rest` eat "->b" as if it were part of the atom, corrupting the parse
+// position for a name that was never actually invalid.
 Atom "atom"
-  = firstletter:AtomFirstLetter text:AtomLetter* bad:(BarewordBadChar / BarewordDashTail)? {
+  = firstletter:AtomFirstLetter text:AtomLetter*
+    badtail:(bad:(BarewordBadChar / BarewordDashTail) rest:$([^ \t\r\n;]*) { return [bad, rest]; })? {
       const name = firstletter + ((text || []).join(''));
-      if (bad) {
-        error(`The bareword "${name}${bad}\u2026" contains "${bad}", which is not allowed in an unquoted name; quote it ("${name}${bad}\u2026") or rename it (${name}_\u2026)`);
+      if (badtail) {
+        const [bad, rest] = badtail;
+        const full = name + bad + rest;
+        error(`The bareword "${full}" contains "${bad}", which is not allowed in an unquoted name; quote it ("${full}") or rename it (${name}_${rest})`);
       }
       return name;
     }
@@ -1757,11 +1778,16 @@ ValTypeEnum
 ValEnumBadChar
   = [.+&#@$^*!?]
 
+// #754 (final review): badtail is one optional [bad, rest] unit, same
+// reasoning as Atom's — see the comment there.
 ValEnumMember "enum member"
-  = firstletter:AtomFirstLetter text:AtomLetter* bad:(ValEnumBadChar / BarewordDashTail)? {
+  = firstletter:AtomFirstLetter text:AtomLetter*
+    badtail:(bad:(ValEnumBadChar / BarewordDashTail) rest:$([^ \t\r\n;]*) { return [bad, rest]; })? {
       const name = firstletter + ((text || []).join(''));
-      if (bad) {
-        error(`The bareword "${name}${bad}…" contains "${bad}", which is not allowed in an unquoted name; quote it ("${name}${bad}…") or rename it (${name}_…)`);
+      if (badtail) {
+        const [bad, rest] = badtail;
+        const full = name + bad + rest;
+        error(`The bareword "${full}" contains "${bad}", which is not allowed in an unquoted name; quote it ("${full}") or rename it (${name}_${rest})`);
       }
       return name;
     }
@@ -1834,31 +1860,41 @@ ArrangeDeclaration "arrange declaration"
 
 
 
-// #754: Exp is tried last.  Every other alternative here commits to a
-// literal keyword prefix ("state", "arrange"/"arrange-start"/"arrange-end"/
-// "oarrange"/"farrange", "&", "on", a machine-attribute/property/val
-// keyword, a config keyword) and fails softly — via ordinary PEG
-// backtracking, no thrown error — when what follows doesn't complete that
-// keyword's grammar. Exp, by contrast, can end in a hard `error()` call from
-// deep inside Atom/ArrowTarget (the #754 "quote it" messages), and a thrown
-// error aborts parsing outright rather than backtracking to try the next
-// alternative. Trying Exp first therefore let a bareword-prefix match inside
-// a keyword form — e.g. Atom greedily matching "arrange" out of
-// "arrange-start", then hard-erroring on the trailing "-" — kill the parse
-// before ArrangeDeclaration ever got a chance at the same input. Keyword
-// forms first, catch-all bareword transition last, preserves both: keyword
-// declarations still win when they match, and Exp's hard errors only fire
-// once every literal-keyword interpretation has already, safely, failed.
+// #754 (final review): only ArrangeDeclaration is promoted above Exp — not
+// every keyword alternative. The hazard is narrow: Atom's trailing-bad-char
+// case ends in a hard `error()` call (the #754 "quote it" messages), and a
+// thrown error aborts parsing outright rather than backtracking to the next
+// Term alternative. That only matters when a keyword's own literal spelling
+// could be *partially* re-matched as a valid bareword prefix immediately
+// followed by a character Atom treats as illegal trailing punctuation — and
+// of every keyword this grammar recognizes ("state", "arrange-start",
+// "arrange-end", "oarrange", "farrange", "&", "on", a machine-attribute/
+// property/val keyword, a config keyword), only the arrange family has that
+// shape: "arrange-start" begins with the bareword-valid prefix "arrange"
+// immediately followed by the dash BarewordDashTail rejects, no whitespace
+// in between. Every other keyword either requires mandatory whitespace right
+// after its literal spelling (so a following non-whitespace character, like
+// a would-be arrow, can't be walked into by Atom while trying to complete
+// that keyword — "on-x" fails HookDeclaration's required WS before Atom is
+// ever in play) or starts with a character ("&") Atom can't match as a
+// bareword prefix at all. So ArrangeDeclaration alone needs to run before
+// Exp gets a chance to hard-error on its prefix; every other Term
+// alternative can stay behind Exp, which keeps the common case (an ordinary
+// transition) from paying for the keyword alternatives it doesn't need
+// (measured ~2.3x slower when Exp ran last unconditionally; this narrower
+// reorder measured ~1.04x over 232 src/machines files plus keyword-bareword
+// probes, with zero behavioral difference from the all-keywords-first
+// ordering).
 Term
   = HookDeclaration
-  / StateDeclaration
   / ArrangeDeclaration
+  / Exp
+  / StateDeclaration
   / NamedList
   / MachineAttribute
   / MachineProperty
   / MachineVal
   / Config
-  / Exp
 
 TermList
   = term:Term*

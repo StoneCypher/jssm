@@ -207,6 +207,11 @@ const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Obje
   { from: '_', to: '_' },
 ]);
 
+// #754: this pair is hand-copied in three other places — keep all four in
+// sync: src/ts/fsl_parser.peg's BAREWORD_FIRST/BAREWORD_REST initializer
+// constants, src/buildjs/fixparser.cjs's FAST_ATOM_RE, and
+// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
+// guard for all of them.
 const BAREWORD_FIRST_RE: RegExp = /^[\p{L}\p{Nl}_]$/u;
 // note: no trailing `_` here — \p{Pc} (Connector_Punctuation) already
 // includes U+005F LOW LINE, so an explicit `_` would just duplicate it

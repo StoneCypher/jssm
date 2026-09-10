@@ -14,6 +14,13 @@ import * as jssm from '../jssm';
  *  as a state name; anything else must be quoted — so a scanner that drifts
  *  from the grammar's classes fails here regardless of which code path
  *  (generated or inlined) actually ran.
+ *
+ *  This file's own `FIRST`/`REST` below are themselves a fourth hand-copy of
+ *  the same two classes (alongside the grammar's, `fixparser.cjs`'s
+ *  `FAST_ATOM_RE`, and `src/ts/jssm_constants.ts`'s `BAREWORD_FIRST_RE` /
+ *  `BAREWORD_REST_RE`) — used only to generate valid/invalid test inputs, so
+ *  a drift here would show up as this test silently testing the wrong thing
+ *  rather than as a failure; keep it in sync with the other three too.
  */
 
 const FIRST = /^[\p{L}\p{Nl}_]$/u;
