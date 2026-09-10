@@ -428,7 +428,7 @@ type JssmTransitionPermitterMaybeArray<DataType> =
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
  *  `probability` for stochastic models, a `share` recording this edge's
- *  fraction of a list target's default weight (6.0 list weights; set only
+ *  fraction of the list side's default weight (6.0 list weights; set only
  *  when the transition itself declared no `probability`), and an
  *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
@@ -1041,7 +1041,6 @@ type JssmWeightedListMember = {
  *  plain `Array<string>` instead, so every existing weightless-list
  *  consumer sees a byte-identical AST.
  *  @see JssmWeightedListMember
- *  @example
  *  ```ts
  *  const to: Array<string> | JssmWeightedList = {
  *    key: 'weighted_list',
