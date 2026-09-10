@@ -25,9 +25,10 @@ export interface FslInstanceHost extends HTMLElement {
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
  * @returns `true` when `tag_name` is `fsl-<suffix>`.
+ * The retired jssm- prefix (e.g. what was jssm-viz) never matches — 6.0
+ * dropped that spelling entirely.
  * @example
  * wc_suffix_matches('FSL-VIZ', 'viz');    // true
- * wc_suffix_matches('jssm-viz', 'viz');   // false — the jssm- prefix was removed in 6.0
  * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
  */
 export function wc_suffix_matches(tag_name: string, suffix: string): boolean {
