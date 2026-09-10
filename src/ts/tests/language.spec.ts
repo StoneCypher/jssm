@@ -1,7 +1,7 @@
 
  
 
-import { sm } from '../jssm';
+import { sm, is_state_name_first_char, is_state_name_char } from '../jssm';
 
 const glob           = require('glob'),
 
@@ -10,12 +10,26 @@ const glob           = require('glob'),
 
 // #754: these fixtures carry names in arbitrary scripts, plus symbol- and
 // digit-leading cases that are no longer legal unquoted barewords under the
-// 6.0 Unicode-identifier charset.  Quoting every name in the FSL source
-// sidesteps the bareword charset entirely (a quoted String has no character
-// restrictions) while leaving the comparison below — which checks the raw,
-// unquoted fixture strings against `states()` — unchanged, since FSL
-// unescapes a quoted name back to its literal content.
-const quote = (s: string) => JSON.stringify(s);
+// 6.0 Unicode-identifier charset. Quoting every name unconditionally would
+// sidestep the bareword charset entirely and silently drop this suite's
+// only cross-validation of `is_state_name_first_char`/`is_state_name_char`
+// against real-world fixture text: a regression in either predicate (e.g.
+// the continuation class losing a combining-mark range) would go
+// undetected if every name — including the ones already valid as barewords,
+// like `état`/`состояние` — were blanket-quoted. `bareword` reimplements the
+// grammar's own rule (first code point passes `is_state_name_first_char`,
+// every remaining code point passes `is_state_name_char`) over the
+// fixture text; `quote` leaves an already-legal bareword untouched and
+// quotes only what actually needs it, so scripts like `état`/`состояние`
+// still exercise the parser as *bare* names, unchanged from pre-#754.
+const bareword = (s: string): boolean => {
+  const [first, ...rest] = [...s];
+  return first !== undefined
+    && is_state_name_first_char(first)
+    && rest.every(is_state_name_char);
+};
+
+const quote = (s: string): string => bareword(s) ? s : JSON.stringify(s);
 
 
 
