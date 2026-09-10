@@ -10,6 +10,18 @@
 
 
 
+// #754 review round 1 (perf): the generated per-character predicates for
+// AtomFirstLetter/AtomLetter used to build a fresh regex literal on every
+// character tested. A pegjs initializer — this block — runs once when the
+// generated parser module loads, so the two regexes are compiled once and
+// every predicate call below tests against the same compiled instance. This
+// is plain JS (no type annotations), so it doesn't need a "Reminder"
+// workaround of its own for PegJS Online.
+{
+  const BAREWORD_FIRST = /^[\p{L}\p{Nl}_]$/u;
+  const BAREWORD_REST  = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u;
+}
+
 
 
 Document
@@ -284,10 +296,10 @@ AtomCodePoint
   / ch:[^\uD800-\uDFFF]                    { return ch; }
 
 AtomFirstLetter
-  = ch:AtomCodePoint &{ return /^[\p{L}\p{Nl}_]$/u.test(ch); } { return ch; }
+  = ch:AtomCodePoint &{ return BAREWORD_FIRST.test(ch); } { return ch; }
 
 AtomLetter
-  = ch:AtomCodePoint &{ return /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u.test(ch); } { return ch; }
+  = ch:AtomCodePoint &{ return BAREWORD_REST.test(ch); } { return ch; }
 
 // A character that 5.x allowed inside a bareword and 6.0 does not.  Matched
 // only to produce a targeted error: "-" is excluded here because "a->b" is an
@@ -846,6 +858,23 @@ ArrowTargetBadSymbol
       error(`The bareword "${bad}" starts with "${ch}", which is not allowed to start an unquoted name; quote it ("${bad}")`);
     }
 
+// #754 review round 1: 5.x accepted a leading ASCII symbol/punctuation
+// character in a bareword (".foo", "-foo", "?x"); the new AtomFirstLetter
+// class rejects it outright, so without this alternative that input falls
+// through every other ArrowTarget alternative into pegjs's generic
+// expectation-list error, losing the migration message. This is tried last,
+// after everything above (including Stripe/Cycle, which must keep first
+// claim on a leading "-"/"+" for cycle/stripe targets like "-1" or "+|2") —
+// it only fires once every other interpretation of this position has
+// already failed, so it never shadows a legitimate arrow decoration or
+// stripe/cycle target. `AtomLetter+` (one or more, not `*`) keeps a bare
+// structural character with nothing bareword-shaped after it (rare, and
+// already someone else's error) out of scope.
+ArrowTargetBadFirstChar
+  = bad:$([.+&#@$^*!?,\-] AtomLetter+) {
+      error(`The bareword "${bad}" contains "${bad[0]}", which is not allowed in an unquoted name; quote it ("${bad}")`);
+    }
+
 ArrowTarget
   = Stripe
   / Cycle
@@ -856,6 +885,7 @@ ArrowTarget
       error(`The bareword "${bad}" starts with a digit, which is not allowed in an unquoted name; quote it ("${bad}")`);
     }
   / ArrowTargetBadSymbol
+  / ArrowTargetBadFirstChar
 
 
 
@@ -1513,13 +1543,18 @@ SdStateUrl "url"
     }
 
 
+// #754 review round 1: name:Atom -> name:Label. MachineProperty (the
+// top-level `property NAME;` declaration this name must match) already
+// takes a Label, so a property name containing a #754-illegal character
+// (e.g. "a.b") was only ever nameable with a quoted string at the top level
+// — this per-state override had no way to write the matching quoted name.
 SdStateProperty "state property"
-  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
+  = WS? "property" WS? ":" WS? name:Label WS value:PropertyVal               WS? ";" WS? {
       const node: any = { key: 'state_property', name, value };
       if (options.locations) { node.loc = location(); }
       return node;
     }
-  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
+  / WS? "property" WS? ":" WS? name:Label WS value:PropertyVal WS 'required' WS? ";" WS? {
       const node: any = { key: 'state_property', name, value, required: true };
       if (options.locations) { node.loc = location(); }
       return node;
@@ -1730,6 +1765,11 @@ ValEnumMember "enum member"
       }
       return name;
     }
+  // #754 review round 1: the "quote it" advice above is only true if a
+  // quoted enum member can actually parse. Without this alternative,
+  // enum(a.b, c)'s error tells the user to write "a.b" — which still fails,
+  // because this rule had no String option to accept it.
+  / String
   / bad:$([0-9] AtomLetter*) {
       // jssm#759: a numeric-looking enum member used to reach the compiler,
       // which rejected it there (its default parses as a number and never

@@ -72,8 +72,62 @@ describe('bareword charset (#754)', () => {
     it('unicode letter members parse', () => {
       parses('val mode : enum(tag, état, 状態) default tag; a -> b;');
     });
+    it('multiple members separated by commas all parse', () => {
+      parses('val mode : enum(a, b, c) default b; a -> b;');
+    });
     it('a symbol-bearing member is rejected', () => {
       rejects('val mode : enum(a.b, c) default c; a -> b;', /quote/);
+    });
+    it('a symbol-bearing member names the offending character', () => {
+      rejects('val mode : enum(a.b, c) default c; a -> b;', /\./);
+    });
+    it('a digit-leading member is rejected with the jssm#759 wording', () => {
+      rejects('val mode : enum(a, 1b) default a; a -> b;', /must not begin with a digit/);
+      rejects('val mode : enum(a, 1b) default a; a -> b;', /quote/);
+    });
+  });
+
+  // #754 review round 1: the "quote it" advice a rejection gives is only
+  // true if a quoted name actually parses in that same position. These
+  // prove it does, and that the resulting machine sees the quoted name.
+  describe('quoted names remain usable where a bareword now fails', () => {
+    it('a quoted enum member parses and is visible on the machine', () => {
+      const m = jssm.from('val mode : enum("in-progress", c) default "in-progress"; a -> b;');
+      expect(m.val('mode')).toBe('in-progress');
+    });
+    it('a quoted per-state property name parses and is visible on the machine', () => {
+      const m = jssm.from('property "a.b"; a -> b; state b: { property: "a.b" 3; };');
+      m.go('b');
+      expect(m.prop('a.b')).toBe(3);
+    });
+  });
+
+  // #754 review round 1: 5.x accepted a leading ASCII symbol/punctuation
+  // character in a bareword (".foo", "-foo", "?x"); #754's identifier rule
+  // rejects it, so the migration message must still fire there rather than
+  // falling through to pegjs's generic expectation-list error.
+  describe('a bad leading ASCII character is rejected in either position', () => {
+    it.each([
+      ['.foo', '.'],
+      ['-foo', '-'],
+      ['?x',   '?'],
+    ])('%s is rejected as a source, naming %s and suggesting quotes', (name, ch) => {
+      rejects(`${name} -> other;`, new RegExp(`\\${ch}`));
+      rejects(`${name} -> other;`, /quote/);
+    });
+    it.each([
+      ['.foo', '.'],
+      ['-foo', '-'],
+      ['?x',   '?'],
+    ])('%s is rejected as a target, naming %s and suggesting quotes', (name, ch) => {
+      rejects(`other -> ${name};`, new RegExp(`\\${ch}`));
+      rejects(`other -> ${name};`, /quote/);
+    });
+    it('a Cycle target ("-1") still parses, not caught by the new leading-char rule', () => {
+      parses('a -> -1;');
+    });
+    it('a Stripe target ("+|2") still parses, not caught by the new leading-char rule', () => {
+      parses('a -> +|2;');
     });
   });
 
