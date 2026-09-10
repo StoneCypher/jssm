@@ -27,7 +27,7 @@ A probabilistic transition can target a list.  The list keeps the transition's w
 Idle 50% -> [WinA WinB];
 ```
 
-`WinA` and `WinB` each get 25%, splitting the 50% evenly between them.  Give members their own weights to split unevenly instead:
+`WinA` and `WinB` each get 25% of `Idle`'s total weight, splitting the 50% evenly between them — not a 25% draw frequency on their own; with no other sibling edge from `Idle` here, they're still drawn 50/50 against each other. Give members their own weights to split unevenly instead:
 
 ```fsl {teaches: weighted-arrows, run: true}
 Idle 50% -> [WinA 20% WinB 80%];
