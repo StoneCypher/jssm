@@ -11,19 +11,20 @@ const atom_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let test;
+  // the action label is always single-quoted (`'${cp}'`), so it is a value
+  // position governed by ActionLabelUnescaped, not the bareword Atom rule --
+  // no branch on bareword_ok(cp) applies here (#754)
+  let test;
 
-    try {
-      test = sm`source '${cp}' -> target;`;
-    } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
-    }
-
-    expect( test.actions().includes(cp) ).toBe(true);
-
+  try {
+    test = sm`source '${cp}' -> target;`;
+  } catch {
+    throw new Error(`Broke on ${idx} "${cp}"`);
   }
+
+  expect( test.actions().includes(cp) ).toBe(true);
 
   return true;
 

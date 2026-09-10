@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -22,7 +22,9 @@ const config_list_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
+
+  if (bareword_ok(cp)) {
 
     for (const form of list_forms) {
 
@@ -33,7 +35,33 @@ const config_list_test = (idx: number): boolean => {
       try {
         ast = parse(src);
       } catch {
-        throw new Error(`Broke on ${idx} "${cp}" for ${form.key}`);
+        throw new Error(`Bareword broke on ${idx} "${cp}" for ${form.key}`);
+      }
+
+      const node = ast.find((t: any) => t.key === form.key);
+
+      expect( node?.value?.includes(cp) ).toBe(true);
+
+    }
+
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(list_forms[0].src.split('X').join(cp))).toThrow();
+
+    const q = quoted(cp);
+
+    for (const form of list_forms) {
+
+      const src = form.src.split('X').join(q);
+
+      let ast;
+
+      try {
+        ast = parse(src);
+      } catch {
+        throw new Error(`Quoted form broke on ${idx} ${q} for ${form.key}`);
       }
 
       const node = ast.find((t: any) => t.key === form.key);

@@ -1,6 +1,6 @@
 
-import { sm, compile, parse } from '../jssm';
-import { readFileSync }       from 'node:fs';
+import { sm, compile, parse, is_state_name_first_char } from '../jssm';
+import { readFileSync }                                 from 'node:fs';
 
 const block_data = String(readFileSync('./src/ts/tests/UnicodeBlocks-14.0.0.txt')).split('\n'),
       block_rows = block_data.filter(remove_blanks_and_comments),
@@ -75,7 +75,24 @@ function test_range_with(tmult: number, func: (number) => boolean) {
 
 
 
+/**
+ *  #754: whether a single code point may stand alone as a bareword.  A
+ *  one-character name is legal iff the character may BEGIN a bareword.
+ */
+const bareword_ok = (cp: string): boolean => is_state_name_first_char(cp);
+
+/**
+ *  The quoted-string spelling of a code point, escaping the two characters
+ *  the String rule treats specially.
+ */
+const quoted = (cp: string): string =>
+  `"${cp.replace(/\\/g, String.raw`\\`).replace(/"/g, String.raw`\"`)}"`;
+
+
+
+
 export {
   test_range_with,
-  atom_skips, atom_start
+  atom_skips, atom_start,
+  bareword_ok, quoted
 };

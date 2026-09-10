@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -20,21 +20,37 @@ const metadata_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let test;
+  let test;
+
+  if (bareword_ok(cp)) {
 
     try {
       test = sm`a -> b; machine_name: ${cp}; machine_comment: ${cp}; machine_author: ${cp};`;
     } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
+      throw new Error(`Bareword broke on ${idx} "${cp}"`);
     }
 
-    expect( test.machine_name()      ).toBe(cp);
-    expect( test.machine_comment()   ).toBe(cp);
-    expect( test.machine_author()[0] ).toBe(cp);
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => sm`a -> b; machine_name: ${cp};`).toThrow();
+
+    const q = quoted(cp);
+
+    try {
+      test = sm`a -> b; machine_name: ${q}; machine_comment: ${q}; machine_author: ${q};`;
+    } catch {
+      throw new Error(`Quoted form broke on ${idx} ${q}`);
+    }
 
   }
+
+  expect( test.machine_name()      ).toBe(cp);
+  expect( test.machine_comment()   ).toBe(cp);
+  expect( test.machine_author()[0] ).toBe(cp);
 
   return true;
 

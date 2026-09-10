@@ -2,7 +2,7 @@
 import { sm }             from '../jssm';
 import { machine_to_dot } from '../jssm_viz';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -18,19 +18,35 @@ const viz_dot_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let dot;
+  let dot;
+
+  if (bareword_ok(cp)) {
 
     try {
       dot = machine_to_dot(sm`${cp} -> b;`);
     } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
+      throw new Error(`Bareword broke on ${idx} "${cp}"`);
     }
 
-    expect( dot.includes(cp) ).toBe(true);
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => sm`${cp} -> b;`).toThrow();
+
+    const q = quoted(cp);
+
+    try {
+      dot = machine_to_dot(sm`${q} -> b;`);
+    } catch {
+      throw new Error(`Quoted form broke on ${idx} ${q}`);
+    }
 
   }
+
+  expect( dot.includes(cp) ).toBe(true);
 
   return true;
 
