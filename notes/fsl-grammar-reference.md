@@ -401,7 +401,10 @@ A transition's destination can be:
 - **`Cycle`**  — `+N` / `-N` / `+0`.  Returns
   `{ key:'cycle', value: ±N }`.  Note the asymmetry: only `+0` is
   valid (no `-0`), and `0` alone is not a cycle.
-- **`LabelList`** — `[a b c]` for fan-out/fan-in
+- **`WeightedLabelList`** — `[a b c]` for fan-out/fan-in, or
+  `[a 20% b 80%]` with optional per-member percent weights; see the
+  `WeightedLabelList` entry in §2 for the full grammar and the 6.0
+  weight-sharing semantics
 - **`GroupRef`** — `&Name`, a reference to a declared group used as a
   transition source or target; expands to one edge per transitive
   member (see §12).
