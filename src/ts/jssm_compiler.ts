@@ -1000,8 +1000,9 @@ function is_weighted_list(x: unknown): x is JssmWeightedList {
  *
  *  @throws {JssmError} When a weighted list mixes weighted and unweighted
  *                       members (every member must carry a weight, or none
- *                       may), or when its inner weights sum to zero (no
- *                       member could ever be chosen).
+ *                       may), when its inner weights sum to zero (no member
+ *                       could ever be chosen), or when any inner weight is
+ *                       negative.
  *
  *  ```typescript
  *  list_shares(['b', 'c']);
@@ -1040,7 +1041,12 @@ function list_shares(list: Array<string> | JssmWeightedList): Array<{ name: stri
     return list.members.map(m => ({ name: m.name, share }));
   }
 
-  const total: number = weighted.reduce((acc, m) => acc + m.weight, 0);
+  const total: number = weighted.reduce((acc, m) => {
+    if (m.weight < 0) {
+      throw new JssmError(undefined, `Inner list weights must not be negative; "${m.name}" has weight ${m.weight}`);
+    }
+    return acc + m.weight;
+  }, 0);
 
   if (total === 0) {
     throw new JssmError(undefined, `The weights in [${list.members.map(m => `${m.name} ${m.weight}%`).join(' ')}] sum to zero, so no member can be chosen`);
@@ -1076,11 +1082,10 @@ function list_shares(list: Array<string> | JssmWeightedList): Array<{ name: stri
  *                     {@link JssmWeightedList}), as opposed to sharing
  *                     uniformly as a plain array.
  *
- *  ```typescript
- *  const edge = { probability: 50 } as JssmTransition<string, unknown>;
- *  apply_list_share(edge, 0.5, true, false);
- *  // edge.probability === 25
- *  ```
+ *  Example: with `is_list` true, applying share `0.5` to an edge already
+ *  carrying `probability: 50` mutates it to `probability: 25` (the
+ *  probability branch fires regardless of `has_weights`, since a declared
+ *  probability is always multiplied).
  *
  */
 
