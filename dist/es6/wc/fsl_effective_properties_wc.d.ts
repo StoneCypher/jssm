@@ -1,12 +1,4 @@
 import { LitElement, TemplateResult } from 'lit';
-import type { Machine } from '../jssm.js';
-/**
- * Structural shape used to detect a parent `<fsl-instance>` (or the deprecated
- * `<jssm-instance>`) host without importing the instance module.
- */
-export interface JssmInstanceHost extends HTMLElement {
-    readonly machine: Machine<unknown>;
-}
 /**
  * Read-only panel that displays the parent machine's **resolved FSL
  * properties** for the current state — the values produced by the full
@@ -15,8 +7,8 @@ export interface JssmInstanceHost extends HTMLElement {
  * every transition, so consumers can watch a property's effective value change
  * as the machine moves between states.
  *
- * Binds to the host via {@link closest_wc} (matching both `fsl-instance` and
- * the deprecated `jssm-instance`). Display-only; never drives the machine.
+ * Binds to the host via {@link closest_wc}. Display-only; never drives the
+ * machine.
  *
  * v1 shows the FSL `property` bag (`machine.props()`). The render-time visual
  * style resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline

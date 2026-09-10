@@ -157,6 +157,27 @@ LabelList = "[" WS? (Label WS?)* "]"
 
 A bracketed list of labels.  Whitespace/comments between items.
 
+### `WeightedLabelList` (arrow targets and `start_states` only)
+
+```
+WeightedLabelMember = Label WS? (NonNegNumber "%")?
+WeightedLabelList   = "[" WS? (WeightedLabelMember WS?)* "]"
+```
+
+Members may carry a percent weight.  With no weights the rule yields the
+same plain array `LabelList` does.  **Semantics (6.0):** a probabilistic
+transition onto a list keeps its probability as the *group's* weight and
+the members share it — uniformly, or by their inner weights (normalized):
+`a 50% -> [b c]` gives b 25%, c 25%; `a 50% -> [b 20% c 80%]` gives b 10%,
+c 40%.  An unweighted transition onto a weighted list (`a -> [b 20% c 80%]`)
+records the shares on the edges, which the picker multiplies against the
+default weight (b 0.2, c 0.8 versus a sibling's 1).  Weights on a list
+source (`[a b] 50% -> c`) are not shared: each source edge is a separate
+transition.  5.x copied the full probability onto every member.  Inner
+weights written on a pure list source (`[a 20% b 80%] -> c`) are parsed but
+ignored: there is no per-member edge *into* a source's members for a share
+to apply to, only the fanned-out edges leaving each member at full weight.
+
 ### `LabelOrLabelList`
 
 Convenience wrapper: either a single label or a label list.
@@ -403,10 +424,17 @@ A transition's destination can be:
   so a bare `0` target now **errors**, quoting-message and all,
   rather than silently parsing as a one-character state name the
   way it did pre-#754.
-- **`LabelList`** — `[a b c]` for fan-out/fan-in
+- **`WeightedLabelList`** — `[a b c]` for fan-out/fan-in, or
+  `[a 20% b 80%]` with optional per-member percent weights; see the
+  `WeightedLabelList` entry in §2 for the full grammar and the 6.0
+  weight-sharing semantics
 - **`GroupRef`** — `&Name`, a reference to a declared group used as a
   transition source or target; expands to one edge per transitive
-  member (see §12).
+  member (see §12). As a target, a probabilistic transition onto a group
+  reference shares its weight across the expanded members the same way it
+  would across an equivalent literal list (6.0 weight-sharing semantics,
+  §2), since group-target resolution rewrites `&Name` to the member array
+  before the share-splitting compiler pass runs.
 - **`Label`** — single state name
 
 If none of the above match, `ArrowTarget` tries three more alternatives
@@ -598,7 +626,10 @@ themselves) and were removed in StoneCypher/fsl#1366.
 
 - `graph_layout : <GvizLayout>;` — `dot`, `circo`, `fdp`, `neato`,
   `twopi`
-- `start_states    : <LabelList>;`
+- `start_states    : <WeightedLabelList>;` — `[idle 90% booting 10%]`
+  declares the initial distribution used by `sample_start_state()` and
+  `stochastic_runs`; the constructed machine still starts at the first
+  listed state.
 - `end_states      : <LabelList>;`
 - `failed_outputs  : <LabelOrLabelList>;` — single state or bracketed list; always an array; default `[]`
 - `graph_bg_color : <Color>;`
@@ -953,7 +984,7 @@ keywords (no prefix overlap with `arrange`).
 | Transition           | `Exp`                                        |
 | Transition tail      | `Subexp`                                     |
 | Arrow weight         | `LightArrow` / `FatArrow` / `TildeArrow` / `MixedArrow` |
-| Arrow target         | `ArrowTarget` (Stripe / Cycle / LabelList / Label) |
+| Arrow target         | `ArrowTarget` (Stripe / Cycle / WeightedLabelList / GroupRef / Label) |
 | Per-arrow block      | `ArrowDesc`                                  |
 | Per-arrow timing     | `ArrowAfter`                                 |
 | Per-arrow odds       | `ArrowProbability`                           |

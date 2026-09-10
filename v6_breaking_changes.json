@@ -1,5 +1,5 @@
 {
-  "note": "Changes that break compatibility with the published 5.x line for documents migrating to v6. Changes that only affect v6's own in-progress spec (the language is still being defined) are deliberately NOT tracked here — this file is strictly the 5 -> 6 migration surface.",
+  "note": "Changes that break compatibility with the published 5.x line for documents migrating to v6. Changes that only affect v6's own in-progress spec (the language is still being defined) are deliberately NOT tracked here — this file is strictly the 5 -> 6 migration surface. Status vocabulary: 'accepted' means the change is decided but not yet implemented on the v6 line; 'landed' means it is implemented there.",
   "from_major": 5,
   "to_major": 6,
   "changes": [
@@ -38,6 +38,30 @@
       "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
       "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
       "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
+    },
+    {
+      "id": "probabilistic-list-weights",
+      "title": "A probabilistic transition onto a list shares its weight across the members",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-09-09 (examples A–E reviewed): the group keeps the stated weight and members share it, uniformly or by inner weights; inner weights without an outer probability apply to the default weight.",
+      "summary": "In 6.0, `a 50% -> [b c]` compiles to a->b 25% and a->c 25% (5.x: 50% each). Lists accept inner weights `[b 20% c 80%]`, and `start_states` accepts the same form as an initial distribution. A group-reference target shares the same way, since `resolve_group_refs` rewrites it to the member list before the share-splitting compiler pass runs: `&g : [b c]; a 50% -> &g;` also gives a->b 25% and a->c 25%.",
+      "breaks": "Any 5.x document whose probabilistic transition targets a list (or a group reference) AND has sibling edges from the same state — the list's or group's members now draw less often than before.",
+      "migration": "Multiply the outer probability by the member count to keep 5.x odds (`a 50% -> [b c]` becomes `a 100% -> [b c]`), or write inner weights.",
+      "implementation": "Landed 2026-09 on the v6 line: WeightedLabelList in fsl_parser.peg (ArrowTarget, start_states), list_shares + apply_list_share in the compiler, JssmTransition.share, share-aware weighted_rand_select, start_state_weights()/sample_start_state(), weighted starts in stochastic_runs."
+    },
+    {
+      "id": "wc-jssm-prefix-removed",
+      "title": "Web components drop the jssm- prefix entirely",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-22 (fsl-* canonical, jssm-* deprecated, removed in v6); scope widened 2026-09-09 to the whole prefix: tags, child config tags, data attributes, CSS custom properties, class aliases, error strings.",
+      "summary": "v6 web components are spelled fsl-* only. The <jssm-viz>, <jssm-instance>, <jssm-bind> synonym tags, the <jssm-on>/<jssm-hook>/<jssm-action> child spellings, the data-jssm-* attributes, the --jssm-viz-* CSS custom properties, and the JssmViz/JssmInstance/JssmBind class aliases are gone.",
+      "breaks": "Any page using a jssm-* tag, a data-jssm-* attribute, a --jssm-viz-* CSS property, or importing a Jssm* class from the web-component bundles. Also breaks: the jssm/wc/instance and jssm/wc/viz exports parse_jssm_on_element, JSSM_ON_EVENT_NAMES, ParsedJssmOn, jssm_handler_registry, JssmInstanceHost, and JssmVizErrorDetail, and the JssmHookProxy/JssmHookUserHandler/JssmHookRegistry/JssmHookInstallSpec backward-compat aliases, are renamed or removed.",
+      "migration": "Rename: <jssm-x> -> <fsl-x>; data-jssm-x -> data-fsl-x; --jssm-viz-x -> --fsl-viz-x; JssmX -> FslX. Identifier renames: parse_jssm_on_element -> parse_fsl_on_element; JSSM_ON_EVENT_NAMES -> FSL_ON_EVENT_NAMES; ParsedJssmOn -> ParsedFslOn; jssm_handler_registry -> fsl_handler_registry; JssmInstanceHost -> FslInstanceHost (now one shared export instead of a per-module duplicate); JssmVizErrorDetail -> FslVizErrorDetail; JssmHookProxy -> FslHookProxy; JssmHookUserHandler -> FslHookUserHandler; JssmHookRegistry -> FslHookRegistry; JssmHookInstallSpec -> FslHookInstallSpec. Also: a leftover jssm-* companion child (e.g. a stray <jssm-hook> or <jssm-on>) is no longer stripped from a host's inline-text FSL source and will corrupt it — remove or rename such children to fsl-*.",
+      "implementation": "Landed 2026-09 on the v6 line: define modules register fsl-* only, wc_tag_helpers matches fsl-* only, instance/bind/hook/viz read fsl-* tags and data-fsl-* attributes, tests assert the retired spellings are not registered."
     }
   ]
 }

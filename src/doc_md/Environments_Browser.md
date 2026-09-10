@@ -260,5 +260,4 @@ both are in {@page Visualization.md Visualization}.
   plain `<script>` tag fails on its `import`/`export` syntax.  Classic tags
   get the IIFE; module tags get the `.mjs`.
 
-* **`<jssm-viz>` still works but shouldn't be in new code** — the `jssm-*`
-  element names are deprecated synonyms, removed in v6.  Write `fsl-*`.
+* **`<jssm-viz>` was removed in 6.0** — write `<fsl-viz>`.

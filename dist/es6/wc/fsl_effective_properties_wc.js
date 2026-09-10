@@ -16,8 +16,8 @@ import { fslTokens } from './fsl_tokens.js';
  * every transition, so consumers can watch a property's effective value change
  * as the machine moves between states.
  *
- * Binds to the host via {@link closest_wc} (matching both `fsl-instance` and
- * the deprecated `jssm-instance`). Display-only; never drives the machine.
+ * Binds to the host via {@link closest_wc}. Display-only; never drives the
+ * machine.
  *
  * v1 shows the FSL `property` bag (`machine.props()`). The render-time visual
  * style resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline

@@ -797,6 +797,29 @@ ArrowAfter
 LabelList
   = "[" WS? names:(Label WS?)* "]" { return names.map(i => i[0]); }
 
+// A list member with an optional trailing weight, `name 20%`.  Used only by
+// WeightedLabelList; every other list position stays weightless.
+WeightedLabelMember
+  = name:Label WS? weight:(w:NonNegNumber "%" { return w; })? {
+      return weight === null ? { name } : { name, weight };
+    }
+
+// A bracketed list whose members may carry weights, `[b 20% c 80%]`.  Used
+// only by ArrowTarget and ConfigStartNodes (see the design note in
+// LabelList's callers); every other list position keeps the weightless
+// LabelList rule, so a weight there stays a parse error.  When NO member
+// carries a weight the result is the same plain array LabelList produces,
+// so every existing weightless-list consumer sees a byte-identical AST;
+// when any member does, a tagged `weighted_list` node is returned instead.
+WeightedLabelList
+  = "[" WS? members:(WeightedLabelMember WS?)* "]" {
+      const ms = members.map(i => i[0]);
+      if (ms.every(m => m.weight === undefined)) { return ms.map(m => m.name); }
+      const node: any = { key: 'weighted_list', members: ms };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 LabelOrLabelList
   = LabelList
   / Label
@@ -899,7 +922,7 @@ ArrowTargetBadFirstChar
 ArrowTarget
   = Stripe
   / Cycle
-  / LabelList
+  / WeightedLabelList
   / GroupRef
   / Label
   / bad:$([0-9] AtomLetter*) {
@@ -1151,7 +1174,7 @@ ConfigGraphLayout
     }
 
 ConfigStartNodes
-  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? {
+  = WS? "start_states"    WS? ":" WS? value:WeightedLabelList  WS? ";" WS? {
       const node: any = { key: "start_states", value: value };
       if (options.locations) { node.loc = location(); }
       return node;

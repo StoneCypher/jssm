@@ -2,8 +2,8 @@
  * Bundle entry: registers the entire light fsl-* widget suite (toolbar, actions,
  * footer, help, history, data-inspector, hook-log, simulation, export, stochastic,
  * info-panel) in one import.
- * Canonical `fsl-*` tags only — no deprecated `jssm-*` synonyms. Registration
- * is idempotent, so this composes safely with the per-widget `*.define` modules.
+ * Canonical `fsl-*` tags only. Registration is idempotent, so this composes
+ * safely with the per-widget `*.define` modules.
  */
 import { define_canonical } from './wc_tag_helpers.js';
 import {

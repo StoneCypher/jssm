@@ -688,6 +688,19 @@ function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide
         .join(' ');
 }
 /**
+ *  Rounds a compiled edge's `probability` to 6 significant digits for
+ *  display (6.0 list weights): a share-derived value like `50 / 3` renders
+ *  as `16.6667` instead of the raw float `16.666666666666664`.
+ *  Author-written values (`25`, `10`, `0.5`, ...) already have far fewer
+ *  than 6 significant digits and pass through unchanged.
+ *  @internal
+ *  @param p The edge's `probability`, or `undefined` when undeclared.
+ *  @returns The rounded value, or `undefined` unchanged.
+ */
+function format_probability(p) {
+    return p === undefined ? undefined : Number(p.toPrecision(6));
+}
+/**
  *  Compose a multi-line `action\nprobability` label for a transition.
  *  Returns `undefined` when both fields are absent, so callers can skip
  *  emitting the attribute entirely.
@@ -697,7 +710,7 @@ function transition_label(tr) {
     if (!tr) {
         return undefined;
     }
-    const parts = [tr.action || '', tr.probability || ''].filter(x => x !== '');
+    const parts = [tr.action || '', format_probability(tr.probability) || ''].filter(x => x !== '');
     return parts.length > 0 ? parts.join('\n') : undefined;
 }
 /**
@@ -776,7 +789,7 @@ function colored_label(tr, which, color) {
     if (!tr) {
         return '';
     }
-    const text = [tr.name, tr.probability, tr.action].filter(Boolean).join('<br/>');
+    const text = [tr.name, format_probability(tr.probability), tr.action].filter(Boolean).join('<br/>');
     if (!text) {
         return '';
     }

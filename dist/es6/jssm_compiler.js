@@ -73,12 +73,15 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     const arrow = this_se.kind, kind = isRight
         ? arrow_right_kind(arrow)
         : arrow_left_kind(arrow), 
-    // action and probability are pre-declared (as after_time always was)
-    // so every compiled edge shares ONE hidden class regardless of which
-    // optional fields its declaration carries.  The conditional assigns
-    // below then overwrite a value instead of adding a property, keeping
-    // the runtime _edges array monomorphic for the dispatch-path loads
-    // (.kind / .to / .forced_only) that run on every transition.
+    // action, probability, and share are pre-declared (as after_time
+    // always was) so every compiled edge shares ONE hidden class
+    // regardless of which optional fields its declaration carries.  The
+    // conditional assigns below then overwrite a value instead of adding
+    // a property, keeping the runtime _edges array monomorphic for the
+    // dispatch-path loads (.kind / .to / .forced_only) that run on every
+    // transition.  `share` is set later, by the list-target fan-out in
+    // compile_rule_transition_step, when this edge lands on a list
+    // member (6.0 list weights).
     edge = {
         from,
         to,
@@ -87,7 +90,8 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
         forced_only: kind === 'forced',
         main_path: kind === 'main',
         action: undefined,
-        probability: undefined
+        probability: undefined,
+        share: undefined
     };
     //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
     //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new JssmError(undefined, `Must be in a list if transition has an index");   }
@@ -743,6 +747,123 @@ function resolve_group_refs(tree, registry) {
 }
 /*********
  *
+ *  Reports whether a parsed list-position value is a weighted-list node
+ *  (`{ key: 'weighted_list', members: [...] }`), as opposed to a plain
+ *  array of state names or a single state name (6.0 list weights).  A
+ *  type guard so callers can narrow a `from`/`to`/`start_states` value
+ *  without repeating the shape check.
+ *
+ *  @internal
+ *
+ *  @param x Any value a `from`, `to`, or `start_states` field may hold: a
+ *           state name, a plain array of names, or a weighted-list node.
+ *
+ *  @returns `true` when `x` is a {@link JssmWeightedList} node.
+ *
+ */
+function is_weighted_list(x) {
+    return (typeof x === 'object') && (x !== null) && (x.key === 'weighted_list');
+}
+/*********
+ *
+ *  Resolves a list target or `start_states` list's members to their
+ *  within-list shares (6.0 list weights).  A plain list (or a weighted list
+ *  whose members carry no inner weight) shares uniformly (`1/n`); a
+ *  weighted list normalizes its inner weights (`w_i / Σw`).  Pure.
+ *
+ *  @param list A plain name array (`['b', 'c']`) or a parsed
+ *              {@link JssmWeightedList} node.
+ *
+ *  @returns One entry per member, in list order, with shares summing to 1.
+ *
+ *  @throws {JssmError} When a weighted list mixes weighted and unweighted
+ *                       members (every member must carry a weight, or none
+ *                       may), when its inner weights sum to zero (no member
+ *                       could ever be chosen), or when any inner weight is
+ *                       negative.
+ *
+ *  ```typescript
+ *  list_shares(['b', 'c']);
+ *  // [ { name: 'b', share: 0.5 }, { name: 'c', share: 0.5 } ]
+ *
+ *  list_shares({ key: 'weighted_list', members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }] });
+ *  // [ { name: 'b', share: 0.2 }, { name: 'c', share: 0.8 } ]
+ *  ```
+ *
+ */
+function list_shares(list) {
+    if (Array.isArray(list)) {
+        const share = 1 / list.length;
+        return list.map(name => ({ name, share }));
+    }
+    const weighted = list.members.filter(m => m.weight !== undefined), unweighted = list.members.length - weighted.length;
+    if (unweighted > 0 && weighted.length > 0) {
+        throw new JssmError(undefined, `A weighted list must weight every member or none; [${list.members.map(m => m.name).join(' ')}] weights ${weighted.length} of ${list.members.length}`);
+    }
+    // No member carries a weight: a weighted_list node in this all-unweighted
+    // shape never comes out of the grammar (an unweighted list parses to a
+    // plain array instead), but list_shares is exported public API, so a
+    // hand-built node in this shape must still share uniformly, per spec
+    // ("If no member carries a weight, shares are uniform 1/n") rather than
+    // falling into the zero-sum branch below (an empty `weighted` reduces to
+    // total 0 for a reason that has nothing to do with a real zero-sum weight
+    // set).
+    if (weighted.length === 0) {
+        const share = 1 / list.members.length;
+        return list.members.map(m => ({ name: m.name, share }));
+    }
+    const total = weighted.reduce((acc, m) => {
+        if (m.weight < 0) {
+            throw new JssmError(undefined, `Inner list weights must not be negative; "${m.name}" has weight ${m.weight}`);
+        }
+        return acc + m.weight;
+    }, 0);
+    if (total === 0) {
+        throw new JssmError(undefined, `The weights in [${list.members.map(m => `${m.name} ${m.weight}%`).join(' ')}] sum to zero, so no member can be chosen`);
+    }
+    return weighted.map(m => ({ name: m.name, share: m.weight / total }));
+}
+/*********
+ *
+ *  Applies one member's within-list share to a compiled edge (6.0 list
+ *  weights).  A declared `probability` becomes `P × share`; an undeclared
+ *  probability records the `share` itself instead, but only when the list
+ *  actually carried inner weights — a plain (unweighted) list's uniform
+ *  `1/n` share is an implementation detail of the multiplication above, not
+ *  a real per-member weight the picker should see (an unweighted list with
+ *  no outer probability must leave both fields unset).  A non-list
+ *  from/to (`is_list` false) is left untouched.
+ *
+ *  @internal
+ *
+ *  @param edge        The compiled edge to mutate in place.
+ *  @param share       This member's share of the list (0..1, shares across
+ *                     the list summing to 1).
+ *  @param is_list     Whether this side of the transition (`from` or `to`)
+ *                     was a list at all — plain array or weighted list.
+ *  @param has_weights Whether that list carried explicit inner weights (a
+ *                     {@link JssmWeightedList}), as opposed to sharing
+ *                     uniformly as a plain array.
+ *
+ *  Example: with `is_list` true, applying share `0.5` to an edge already
+ *  carrying `probability: 50` mutates it to `probability: 25` (the
+ *  probability branch fires regardless of `has_weights`, since a declared
+ *  probability is always multiplied).
+ *
+ */
+function apply_list_share(edge, share, is_list, has_weights) {
+    if (!is_list) {
+        return;
+    }
+    if (edge.probability !== undefined) {
+        edge.probability *= share;
+    }
+    else if (has_weights) {
+        edge.share = share;
+    }
+}
+/*********
+ *
  *  Internal method performing one step in compiling rules for transitions.  Not
  *  generally meant for external use.
  *
@@ -752,11 +873,28 @@ function resolve_group_refs(tree, registry) {
  *
  */
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
-    const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
-    for (const f of uFrom) {
-        for (const t of uTo) {
+    // `from`/`to` may each be a single state name, a plain list (array), or a
+    // weighted-list node (6.0 list weights).  Only a list TARGET shares its
+    // weight; a list SOURCE fans out one full-weight edge per member
+    // (unchanged from 5.x).  The share belongs to whichever compiled edge
+    // ENTERS the list members: for a forward-leaning arrow that is the
+    // f→t ("right") edge when `to` is a list, and for a reverse-leaning arrow
+    // (e.g. `[a b] <- 50% e`, where the legal edge is e→a / e→b, not a→e /
+    // b→e) that is the t→f ("left") edge when `from` is a list — so both
+    // sides are resolved to shares and applied to whichever edge actually
+    // lands on that side's members.
+    const from_is_list = Array.isArray(from) || is_weighted_list(from), to_is_list = Array.isArray(to) || is_weighted_list(to), from_has_weights = is_weighted_list(from), to_has_weights = is_weighted_list(to);
+    const from_shares = from_is_list
+        ? list_shares(from).map(s => ({ name: s.name, share: s.share }))
+        : [{ name: from, share: 1 }];
+    const to_shares = to_is_list
+        ? list_shares(to).map(s => ({ name: s.name, share: s.share }))
+        : [{ name: to, share: 1 }];
+    for (const { name: f, share: f_share } of from_shares) {
+        for (const { name: t, share: t_share } of to_shares) {
             const right = makeTransition(this_se, f, t, true);
             if (right.kind !== 'none') {
+                apply_list_share(right, t_share, to_is_list, to_has_weights);
                 acc.push(right);
             }
             const left = makeTransition(this_se, t, f, false);
@@ -773,6 +911,7 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
                 }
             }
             else {
+                apply_list_share(left, f_share, from_is_list, from_has_weights);
                 acc.push(left);
             }
         }
@@ -1188,13 +1327,18 @@ function compile(tree) {
     if (assembled_transitions.length === 0) {
         throw new JssmError(undefined, 'This machine has no transitions, only declarations; a machine requires at least one transition (like `a -> b;`)');
     }
-    const result_cfg = {
-        start_states: results.start_states.length > 0 ? results.start_states : [assembled_transitions[0].from],
-        end_states: results.end_states,
-        failed_outputs: results.failed_outputs,
-        transitions: assembled_transitions,
-        state_property: [],
-    };
+    // A weighted `start_states: [x 90% y 10%];` (6.0 list weights) parses to a
+    // single JssmWeightedList value; the per-rule aggregation loop above
+    // (`Array.isArray(val)` ? spread : push) wraps a non-array `val` as a
+    // one-element bucket, so `results.start_states` is `[weighted_list_node]`
+    // rather than the flat name array an unweighted declaration produces.
+    // Narrow on that shape here so both forms reach `start_states` as plain
+    // names, and expose the declared weights separately for the Machine.
+    const raw_starts = results.start_states, weighted_start = (raw_starts.length === 1 && is_weighted_list(raw_starts[0])) ? raw_starts[0] : undefined;
+    const start_names = weighted_start
+        ? weighted_start.members.map(m => m.name)
+        : raw_starts;
+    const result_cfg = Object.assign({ start_states: start_names.length > 0 ? start_names : [assembled_transitions[0].from], end_states: results.end_states, failed_outputs: results.failed_outputs, transitions: assembled_transitions, state_property: [] }, (weighted_start && { start_state_weights: list_shares(weighted_start).map(s => ({ name: s.name, share: s.share })) }));
     // Carry the ordered group registry through to the machine config, but only
     // when groups were actually declared, so group-free machines are unchanged.
     if (group_registry.size > 0) {
@@ -1336,4 +1480,4 @@ export { compile,
 // compile_rule_handler,
 // compile_rule_transition_step,
 // compile_rule_handle_transition,
-make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse, nth_matching_loc };
+list_shares, make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse, nth_matching_loc };

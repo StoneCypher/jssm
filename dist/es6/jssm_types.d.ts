@@ -334,8 +334,10 @@ type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataT
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
- *  `probability` for stochastic models, and an `after_time` for timed
- *  transitions.
+ *  `probability` for stochastic models, a `share` recording this edge's
+ *  fraction of the list side's default weight (6.0 list weights; set only
+ *  when the transition itself declared no `probability`), and an
+ *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
  *  @template DataType  - The machine's data payload type (`mDT`).
  */
@@ -348,6 +350,7 @@ type JssmTransition<StateType, DataType> = {
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
     probability?: number;
+    share?: number;
     kind: JssmArrowKind;
     forced_only: boolean;
     main_path: boolean;
@@ -765,6 +768,18 @@ type JssmGenericConfig<StateType, DataType> = {
     config_allows_override?: JssmAllowsOverride;
     dot_preamble?: string;
     start_states: Array<StateType>;
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0 list weights), e.g. `start_states: [idle 90% booting 10%];`.
+     *  One entry per name in {@link JssmGenericConfig.start_states}, shares
+     *  normalized to sum to 1.  Absent when `start_states` carried no inner
+     *  weights.  Consumed by `Machine.start_state_weights()` /
+     *  `Machine.sample_start_state()`.
+     */
+    start_state_weights?: Array<{
+        name: StateType;
+        share: number;
+    }>;
     end_states?: Array<StateType>;
     failed_outputs?: Array<StateType>;
     initial_state?: StateType;
@@ -844,6 +859,38 @@ type JssmGenericConfig<StateType, DataType> = {
     timeout_source?: (fn: () => void, delay_ms: number) => number;
     /** Cancels a timer previously scheduled by `timeout_source`.  Defaults to `clearTimeout`. */
     clear_timeout_source?: (handle: number) => void;
+};
+/**
+ *  One member of a {@link JssmWeightedList}, `name` with an optional
+ *  percent weight. This shape only appears inside a `weighted_list` node,
+ *  which the parser produces only once at least one sibling member carries
+ *  a weight — so a member here with no `weight` is a *mix* of weighted and
+ *  unweighted siblings, which the compiler rejects rather than defaulting.
+ *  @see JssmWeightedList
+ */
+type JssmWeightedListMember = {
+    name: string;
+    weight?: number;
+};
+/**
+ *  A list target or start-state list carrying per-member weights, as the
+ *  parser emits it for `a 50% -> [b 20% c 80%]` or
+ *  `start_states: [x 90% y 10%];`. Produced only when at least one member
+ *  of the source list carries a weight; a list with no weights parses to a
+ *  plain `Array<string>` instead, so every existing weightless-list
+ *  consumer sees a byte-identical AST.
+ *  @see JssmWeightedListMember
+ *  ```ts
+ *  const to: Array<string> | JssmWeightedList = {
+ *    key: 'weighted_list',
+ *    members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }],
+ *  };
+ *  ```
+ */
+type JssmWeightedList = {
+    key: 'weighted_list';
+    members: Array<JssmWeightedListMember>;
+    loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: a single aggregated rule produced while
@@ -1459,4 +1506,4 @@ type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailM
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmEditorConfig, JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmParseOptions, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmValType, JssmValDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParsedSemver, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmEditorConfig, JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmParseOptions, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmWeightedListMember, JssmWeightedList, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmValType, JssmValDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParsedSemver, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };

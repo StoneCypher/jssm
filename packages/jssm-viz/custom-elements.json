@@ -201,7 +201,7 @@
               "description": "The binding expression text (raw attribute value)."
             }
           ],
-          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\r\nmachine.  Throws on any unknown expression — bindings fail fast at\r\ninstall time rather than silently producing `undefined` strings in the\r\nDOM.\r\n\r\nRecognized expressions:\r\n\r\n| Expression       | Resolves to                                   |\r\n| ---------------- | --------------------------------------------- |\r\n| `data`           | `machine.data()`                              |\r\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\r\n| `state`          | `machine.state()`                             |\r\n| `terminal`       | `machine.is_terminal()`                       |\r\n| `complete`       | `machine.is_complete()`                       |\r\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\r\n\r\n```typescript\r\nresolve_binding(m, 'state');              // current state name\r\nresolve_binding(m, 'data.username');      // typed-data subfield\r\nresolve_binding(m, 'wat');                // throws\r\n```"
+          "description": "Resolve a `<fsl-bind>` / `data-fsl-bind` expression against a live\r\nmachine.  Throws on any unknown expression — bindings fail fast at\r\ninstall time rather than silently producing `undefined` strings in the\r\nDOM.\r\n\r\nRecognized expressions:\r\n\r\n| Expression       | Resolves to                                   |\r\n| ---------------- | --------------------------------------------- |\r\n| `data`           | `machine.data()`                              |\r\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\r\n| `state`          | `machine.state()`                             |\r\n| `terminal`       | `machine.is_terminal()`                       |\r\n| `complete`       | `machine.is_complete()`                       |\r\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\r\n\r\n```typescript\r\nresolve_binding(m, 'state');              // current state name\r\nresolve_binding(m, 'data.username');      // typed-data subfield\r\nresolve_binding(m, 'wat');                // throws\r\n```"
         },
         {
           "kind": "function",
@@ -260,11 +260,11 @@
               "description": "The machine whose state/data is being projected."
             }
           ],
-          "description": "Discover every binding declaration under `host` and install live\r\nsubscriptions that refresh them on every machine transition.  Returns\r\na list of unsubscribe callbacks so the host's `disconnectedCallback`\r\ncan tear them all down.\r\n\r\nTwo surface forms are recognized:\r\n\r\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\r\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\r\n   (defaults to `textContent`).\r\n\r\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\r\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\r\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\r\n   The `selector` is scoped to `host`'s descendants.\r\n\r\nEach binding is painted once immediately (using the machine's current\r\nstate) and then re-painted on every `transition` event.\r\n\r\n```typescript\r\n// typical install during <jssm-instance>.connectedCallback:\r\nconst unsubs = install_bindings(this, this.machine);\r\nthis._unsubs.push(...unsubs);\r\n```"
+          "description": "Discover every binding declaration under `host` and install live\r\nsubscriptions that refresh them on every machine transition.  Returns\r\na list of unsubscribe callbacks so the host's `disconnectedCallback`\r\ncan tear them all down.\r\n\r\nTwo surface forms are recognized:\r\n\r\n1. Inline attribute — any descendant with `data-fsl-bind=\"<expr>\"`.\r\n   Optional `data-fsl-bind-to=\"<target>\"` chooses the target property\r\n   (defaults to `textContent`).\r\n\r\n2. Dedicated tag — direct-child `<fsl-bind>` configuration tags with\r\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\r\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\r\n   The `selector` is scoped to `host`'s descendants.\r\n\r\nEach binding is painted once immediately (using the machine's current\r\nstate) and then re-painted on every `transition` event.\r\n\r\n```typescript\r\n// typical install during <fsl-instance>.connectedCallback:\r\nconst unsubs = install_bindings(this, this.machine);\r\nthis._unsubs.push(...unsubs);\r\n```"
         },
         {
           "kind": "class",
-          "description": "`<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is\r\ninvisible — it carries `selector`, `source`, and optional `target`\r\nattributes that the parent `<fsl-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('fsl-bind')` resolves.",
+          "description": "`<fsl-bind>` configuration tag.  The element itself is\r\ninvisible — it carries `selector`, `source`, and optional `target`\r\nattributes that the parent `<fsl-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('fsl-bind')` resolves.",
           "name": "FslBind",
           "members": [],
           "attributes": [
@@ -1033,7 +1033,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Read-only panel that displays the parent machine's **resolved FSL\r\nproperties** for the current state — the values produced by the full\r\noverride chain (machine `property … default …` → per-state\r\n`state X: { property … }`), as returned by `machine.props()`. Refreshes on\r\nevery transition, so consumers can watch a property's effective value change\r\nas the machine moves between states.\r\n\r\nBinds to the host via closest_wc (matching both `fsl-instance` and\r\nthe deprecated `jssm-instance`). Display-only; never drives the machine.\r\n\r\nv1 shows the FSL `property` bag (`machine.props()`). The render-time visual\r\nstyle resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline\r\nconcern and is not surfaced here.",
+          "description": "Read-only panel that displays the parent machine's **resolved FSL\r\nproperties** for the current state — the values produced by the full\r\noverride chain (machine `property … default …` → per-state\r\n`state X: { property … }`), as returned by `machine.props()`. Refreshes on\r\nevery transition, so consumers can watch a property's effective value change\r\nas the machine moves between states.\r\n\r\nBinds to the host via closest_wc. Display-only; never drives the\r\nmachine.\r\n\r\nv1 shows the FSL `property` bag (`machine.props()`). The render-time visual\r\nstyle resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline\r\nconcern and is not surfaced here.",
           "name": "FslEffectiveProperties",
           "cssProperties": [
             {
@@ -1047,7 +1047,7 @@
               "kind": "field",
               "name": "_host",
               "type": {
-                "text": "JssmInstanceHost | null"
+                "text": "FslInstanceHost | null"
               },
               "privacy": "private",
               "default": "null",
@@ -1086,7 +1086,7 @@
                 {
                   "name": "host",
                   "type": {
-                    "text": "JssmInstanceHost"
+                    "text": "FslInstanceHost"
                   },
                   "description": "The bound parent host whose machine to snapshot."
                 }
@@ -1574,7 +1574,7 @@
               "description": "The owning machine; used for the `state()` accessor."
             }
           ],
-          "description": "Build a JssmHookProxy that wraps an arbitrary hook context object.\r\n\r\nThe context shape varies by hook kind (`from`/`to`/`action` may be absent\r\nfor transition-kind hooks), so this normalizes the shape via optional\r\nfields and exposes mutable `data` while keeping the rest read-only.\r\n\r\nThe `machine` parameter is used only for `state()`, so unit tests can\r\nsubstitute any object with a `state(): unknown` method."
+          "description": "Build a FslHookProxy that wraps an arbitrary hook context object.\r\n\r\nThe context shape varies by hook kind (`from`/`to`/`action` may be absent\r\nfor transition-kind hooks), so this normalizes the shape via optional\r\nfields and exposes mutable `data` while keeping the rest read-only.\r\n\r\nThe `machine` parameter is used only for `state()`, so unit tests can\r\nsubstitute any object with a `state(): unknown` method."
         },
         {
           "kind": "function",
@@ -1590,7 +1590,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "Trimmed textContent of the `<jssm-hook>` element."
+              "description": "Trimmed textContent of the `<fsl-hook>` element."
             },
             {
               "name": "debug_id",
@@ -1646,7 +1646,7 @@
               "description": "The raw attribute value, or null if not present."
             }
           ],
-          "description": "Validate and normalize a `<jssm-hook kind=\"...\">` value, defaulting to\r\n`\"hook\"` when the attribute is absent.  Throws on unknown kinds rather\r\nthan silently doing nothing later."
+          "description": "Validate and normalize a `<fsl-hook kind=\"...\">` value, defaulting to\r\n`\"hook\"` when the attribute is absent.  Throws on unknown kinds rather\r\nthan silently doing nothing later."
         },
         {
           "kind": "function",
@@ -1662,7 +1662,7 @@
               "type": {
                 "text": "HTMLElement"
               },
-              "description": "The `<jssm-hook>` element to parse."
+              "description": "The `<fsl-hook>` element to parse."
             },
             {
               "name": "debug_id",
@@ -1680,7 +1680,7 @@
               "description": "Optional in-WC registry of named handlers."
             }
           ],
-          "description": "Parse a single `<jssm-hook>` element into a JssmHookInstallSpec.\r\n\r\nValidates the mutual-exclusion rule between `handler=\"name\"` and inline\r\nbody, defaults `kind` to `\"hook\"`, resolves named handlers against the\r\noptional registry then `globalThis`, and compiles inline bodies via\r\ndynamic function construction.  Conditional-required attributes (e.g.\r\n`from`/`to` for `kind=\"hook\"`) are NOT validated here — `set_hook` will\r\nthrow with its own clear errors on missing pieces, which keeps the\r\nerror surface single-sourced."
+          "description": "Parse a single `<fsl-hook>` element into a FslHookInstallSpec.\r\n\r\nValidates the mutual-exclusion rule between `handler=\"name\"` and inline\r\nbody, defaults `kind` to `\"hook\"`, resolves named handlers against the\r\noptional registry then `globalThis`, and compiles inline bodies via\r\ndynamic function construction.  Conditional-required attributes (e.g.\r\n`from`/`to` for `kind=\"hook\"`) are NOT validated here — `set_hook` will\r\nthrow with its own clear errors on missing pieces, which keeps the\r\nerror surface single-sourced."
         },
         {
           "kind": "function",
@@ -1706,7 +1706,7 @@
               "description": "The owning machine; used by the proxy's `state()`."
             }
           ],
-          "description": "Wrap a JssmHookUserHandler so that jssm's native hook contract is\r\nsatisfied: the user gets a friendly proxy, the proxy's mutated `data`\r\nbecomes the `HookComplexResult.data`, and an explicit `false` return\r\ncancels the transition.\r\n\r\nAny non-`false` return — including `undefined`, `true`, or an arbitrary\r\nobject — allows the transition.  This matches the contract spelled out\r\nin the issue (#641): \"return false cancels; anything else allows\"."
+          "description": "Wrap a FslHookUserHandler so that jssm's native hook contract is\r\nsatisfied: the user gets a friendly proxy, the proxy's mutated `data`\r\nbecomes the `HookComplexResult.data`, and an explicit `false` return\r\ncancels the transition.\r\n\r\nAny non-`false` return — including `undefined`, `true`, or an arbitrary\r\nobject — allows the transition.  This matches the contract spelled out\r\nin the issue (#641): \"return false cancels; anything else allows\"."
         },
         {
           "kind": "function",
@@ -1732,7 +1732,7 @@
               "description": "The wrapped (friendly-proxy) handler from {@link wrap_user_handler}.\r\n * "
             }
           ],
-          "description": "Build the typed descriptor object passed to `machine.set_hook` (and later\r\nto `machine.remove_hook` for cleanup) from a parsed JssmHookInstallSpec\r\nand the wrapped handler.\r\n\r\nFor kinds that need `from`/`to`/`action`, the descriptor includes those.\r\nMissing required keys produce `undefined` here; jssm's `set_hook` will\r\nsurface the error with its own clear message so we don't duplicate\r\nvalidation.\r\n\r\nReturn type is `unknown` because jssm's `HookDescription` is a\r\ndiscriminated union and our runtime-discriminator value can't be tracked\r\nby TypeScript across the build.  The WC casts at the `set_hook` call site."
+          "description": "Build the typed descriptor object passed to `machine.set_hook` (and later\r\nto `machine.remove_hook` for cleanup) from a parsed FslHookInstallSpec\r\nand the wrapped handler.\r\n\r\nFor kinds that need `from`/`to`/`action`, the descriptor includes those.\r\nMissing required keys produce `undefined` here; jssm's `set_hook` will\r\nsurface the error with its own clear message so we don't duplicate\r\nvalidation.\r\n\r\nReturn type is `unknown` because jssm's `HookDescription` is a\r\ndiscriminated union and our runtime-discriminator value can't be tracked\r\nby TypeScript across the build.  The WC casts at the `set_hook` call site."
         }
       ],
       "exports": [
@@ -1800,7 +1800,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Read-only state-inspector web component for a parent `<fsl-instance>`.\r\n\r\nSlotted into the host's `info-panel` slot (or nested anywhere inside it), it\r\ndisplays the machine's current state, the most recent transition\r\n(`from → to via action`), the currently-legal exit actions, and the\r\nterminal / complete flags. Every field refreshes on each `transition`\r\nevent.\r\n\r\nDisplay-only: it never drives the machine. It binds by walking up to the\r\nhost via closest_wc (which matches both the canonical `fsl-instance`\r\nand the deprecated `jssm-instance` host tags), so it works under either.",
+          "description": "Read-only state-inspector web component for a parent `<fsl-instance>`.\r\n\r\nSlotted into the host's `info-panel` slot (or nested anywhere inside it), it\r\ndisplays the machine's current state, the most recent transition\r\n(`from → to via action`), the currently-legal exit actions, and the\r\nterminal / complete flags. Every field refreshes on each `transition`\r\nevent.\r\n\r\nDisplay-only: it never drives the machine. It binds by walking up to the\r\nhost via closest_wc.",
           "name": "FslInfoPanel",
           "cssProperties": [
             {
@@ -1814,7 +1814,7 @@
               "kind": "field",
               "name": "_host",
               "type": {
-                "text": "JssmInstanceHost | null"
+                "text": "FslInstanceHost | null"
               },
               "privacy": "private",
               "default": "null",
@@ -1893,7 +1893,7 @@
                 {
                   "name": "host",
                   "type": {
-                    "text": "JssmInstanceHost"
+                    "text": "FslInstanceHost"
                   },
                   "description": "The bound parent host whose machine to snapshot."
                 }
@@ -1926,13 +1926,13 @@
       "declarations": [
         {
           "kind": "variable",
-          "name": "JSSM_ON_EVENT_NAMES",
+          "name": "FSL_ON_EVENT_NAMES",
           "default": "new Set<string>([ 'transition', 'rejection', 'action', 'entry', 'exit', 'terminal', 'complete', 'error', 'data-change', 'override', 'timeout', 'hook-registration', 'hook-removal' ])",
-          "description": "Allow-list of event names accepted by `<jssm-on event=\"...\">`.  Must stay\r\nin sync with the `JssmEventName` union in `jssm_types.ts` (the library's\r\n`machine.on(...)` event API, added in #638).  Validating here gives the\r\ndeclarative wiring a clear \"unknown event name\" error at the WC layer\r\ninstead of relying on a downstream library throw whose message would\r\nmention `machine.on(...)` rather than the offending tag."
+          "description": "Allow-list of event names accepted by `<fsl-on event=\"...\">`.  Must stay\r\nin sync with the `JssmEventName` union in `jssm_types.ts` (the library's\r\n`machine.on(...)` event API, added in #638).  Validating here gives the\r\ndeclarative wiring a clear \"unknown event name\" error at the WC layer\r\ninstead of relying on a downstream library throw whose message would\r\nmention `machine.on(...)` rather than the offending tag."
         },
         {
           "kind": "function",
-          "name": "parse_jssm_on_element",
+          "name": "parse_fsl_on_element",
           "return": {
             "type": {
               "text": ""
@@ -1944,19 +1944,19 @@
               "type": {
                 "text": "HTMLElement"
               },
-              "description": "The `<jssm-on>` element to parse."
+              "description": "The `<fsl-on>` element to parse."
             }
           ],
-          "description": "Parse a `<jssm-on>` element into a validated ParsedJssmOn\r\nrecord.  Centralized so the declarative-tag logic is testable without\r\nspinning up the full `<jssm-instance>` lifecycle.\r\n\r\nValidation rules (per #643):\r\n  - `event` is required and must be in JSSM_ON_EVENT_NAMES.\r\n  - Either a `handler=\"name\"` attribute or non-empty `textContent`\r\n    must be supplied, but not both.\r\n  - `state` is only meaningful for `event=\"entry\"` / `event=\"exit\"`;\r\n    it's silently ignored on other events.\r\n  - `from` / `to` are only meaningful for `event=\"transition\"`; they\r\n    are silently ignored on other events.  Both → AND (a specific\r\n    edge).  Neither → unfiltered.\r\n\r\n```typescript\r\nconst el = document.createElement('jssm-on');\r\nel.setAttribute('event', 'entry');\r\nel.setAttribute('state', 'paid');\r\nel.setAttribute('handler', 'onPaid');\r\nparse_jssm_on_element(el);\r\n// => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,\r\n//      once: false, name: undefined, filter: { state: 'paid' } }\r\n```"
+          "description": "Parse a `<fsl-on>` element into a validated ParsedFslOn\r\nrecord.  Centralized so the declarative-tag logic is testable without\r\nspinning up the full `<fsl-instance>` lifecycle.\r\n\r\nValidation rules (per #643):\r\n  - `event` is required and must be in FSL_ON_EVENT_NAMES.\r\n  - Either a `handler=\"name\"` attribute or non-empty `textContent`\r\n    must be supplied, but not both.\r\n  - `state` is only meaningful for `event=\"entry\"` / `event=\"exit\"`;\r\n    it's silently ignored on other events.\r\n  - `from` / `to` are only meaningful for `event=\"transition\"`; they\r\n    are silently ignored on other events.  Both → AND (a specific\r\n    edge).  Neither → unfiltered.\r\n\r\n```typescript\r\nconst el = document.createElement('fsl-on');\r\nel.setAttribute('event', 'entry');\r\nel.setAttribute('state', 'paid');\r\nel.setAttribute('handler', 'onPaid');\r\nparse_fsl_on_element(el);\r\n// => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,\r\n//      once: false, name: undefined, filter: { state: 'paid' } }\r\n```"
         },
         {
           "kind": "variable",
-          "name": "jssm_handler_registry",
+          "name": "fsl_handler_registry",
           "type": {
             "text": "Map<string, (...args: unknown[]) => unknown>"
           },
           "default": "new Map()",
-          "description": "Optional global registry that `<jssm-on>` (and, later, `<jssm-hook>`)\r\nconsult first when resolving a `handler=\"name\"` attribute.  Consumers\r\nregister named handlers here in a strict-CSP environment where a stray\r\n`globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`\r\nif the registry has no entry.\r\n\r\nIntentionally a `Map<string, Function>` rather than a class with methods,\r\nso consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly\r\nwithout a thin wrapper API."
+          "description": "Optional global registry that `<fsl-on>` (and, later, `<fsl-hook>`)\r\nconsult first when resolving a `handler=\"name\"` attribute.  Consumers\r\nregister named handlers here in a strict-CSP environment where a stray\r\n`globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`\r\nif the registry has no entry.\r\n\r\nIntentionally a `Map<string, Function>` rather than a class with methods,\r\nso consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly\r\nwithout a thin wrapper API."
         },
         {
           "kind": "function",
@@ -2001,7 +2001,7 @@
               "description": "A short identifier for the sourceURL pragma."
             }
           ],
-          "description": "Compile an inline-body string into a handler function whose single\r\nparameter is `e` (the event detail object).  Uses the same dynamic\r\n`Function(...)` constructor that browsers use internally for inline\r\nevent-handler attributes such as `<a onclick=\"...\">`; the input here\r\nis consumer-authored markup, never network data, so the surface is\r\nexactly that of an inline event-handler attribute and the same CSP\r\ncaveats apply (strict CSP without `'unsafe-eval'` blocks it).  A\r\n`//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces\r\npoint at a meaningful name."
+          "description": "Compile an inline-body string into a handler function whose single\r\nparameter is `e` (the event detail object).  Uses the same dynamic\r\n`Function(...)` constructor that browsers use internally for inline\r\nevent-handler attributes such as `<a onclick=\"...\">`; the input here\r\nis consumer-authored markup, never network data, so the surface is\r\nexactly that of an inline event-handler attribute and the same CSP\r\ncaveats apply (strict CSP without `'unsafe-eval'` blocks it).  A\r\n`//# sourceURL=fsl-on:N` pragma is appended so devtools stack traces\r\npoint at a meaningful name."
         },
         {
           "kind": "function",
@@ -2017,7 +2017,7 @@
               "type": {
                 "text": "HTMLElement"
               },
-              "description": "The `<jssm-instance>` element being resolved."
+              "description": "The `<fsl-instance>` element being resolved."
             },
             {
               "name": "fsl_attr",
@@ -2027,7 +2027,7 @@
               "description": "The current value of the host's `fsl` attribute (or property), or empty string."
             }
           ],
-          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
+          "description": "Resolve a `<fsl-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<fsl-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
           "kind": "function",
@@ -2085,7 +2085,7 @@
         },
         {
           "kind": "class",
-          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<fsl-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "FslInstance",
           "cssProperties": [
             {
@@ -2318,7 +2318,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
+              "description": "Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-fsl-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
             },
             {
               "kind": "field",
@@ -2328,7 +2328,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback`."
+              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<fsl-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback`."
             },
             {
               "kind": "field",
@@ -2340,7 +2340,7 @@
               "static": true,
               "readonly": true,
               "default": "[ 'transition', 'entry', 'exit', 'terminal', 'complete', 'action', 'rejection', 'override', 'data-change', 'timeout', 'error', ]",
-              "description": "Library event names this WC re-emits as DOM `CustomEvent`s, fulfilling\r\nmechanism 4 of #639.  Each library `machine.on(name, ...)` is bridged to\r\na `fsl-<name>` DOM event (`composed`, `bubbling`) so slotted content and\r\noutside consumers can observe machine activity declaratively.\r\n\r\n`fsl-` is the canonical prefix (matching the canonical `<fsl-*>` tag\r\nnames); the older `jssm-*` event prose in #639 predates that naming flip.\r\nEvents are NOT double-emitted under both prefixes — a symmetric listener\r\nwould otherwise run twice per machine event."
+              "description": "Library event names this WC re-emits as DOM `CustomEvent`s, fulfilling\r\nmechanism 4 of #639.  Each library `machine.on(name, ...)` is bridged to\r\na `fsl-<name>` DOM event (`composed`, `bubbling`) so slotted content and\r\noutside consumers can observe machine activity declaratively.\r\n\r\n`fsl-` is the canonical prefix, matching the canonical `<fsl-*>` tag\r\nnames."
             },
             {
               "kind": "field",
@@ -2350,7 +2350,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Unsubscribe callbacks for the host-level mechanism-4 re-emission\r\nsubscriptions installed in _install_event_reemission.  Distinct\r\nfrom _on_unsubscribes (which belongs to `<jssm-on>` children)."
+              "description": "Unsubscribe callbacks for the host-level mechanism-4 re-emission\r\nsubscriptions installed in _install_event_reemission.  Distinct\r\nfrom _on_unsubscribes (which belongs to `<fsl-on>` children)."
             },
             {
               "kind": "field",
@@ -2370,7 +2370,7 @@
               },
               "readonly": true,
               "default": "new Map()",
-              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<fsl-hook handler=\"name\">` /\r\n`<jssm-hook handler=\"name\">`."
+              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<fsl-hook handler=\"name\">`."
             },
             {
               "kind": "field",
@@ -2400,7 +2400,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery."
+              "description": "DOM listeners installed by `<fsl-action>` / `data-fsl-action` discovery."
             },
             {
               "kind": "field",
@@ -2712,14 +2712,14 @@
             },
             {
               "kind": "method",
-              "name": "_install_jssm_on_children",
+              "name": "_install_fsl_on_children",
               "privacy": "private",
               "return": {
                 "type": {
                   "text": "void"
                 }
               },
-              "description": "Discover direct-child `<jssm-on>` elements and install their\r\nsubscriptions on the owned machine.  Per #643:\r\n\r\n- Direct children only (`:scope > jssm-on`).  Deeper nesting is the\r\n  responsibility of a future MutationObserver-driven v2.\r\n- Each `<jssm-on>` is parsed by parse_jssm_on_element, which\r\n  enforces the form / event-name / filter rules.\r\n- Handlers come from resolve_named_handler (form A) or\r\n  compile_inline_body (form B), and the result is installed\r\n  via `machine.on(...)` or `machine.once(...)` depending on the\r\n  element's `once` attribute.\r\n- Every returned unsubscribe is tracked in _on_unsubscribes\r\n  so disconnectedCallback can release them all.\r\n\r\nCalled once from `connectedCallback` after the machine has been\r\nconstructed.  Any error thrown by parsing or resolution propagates\r\nout so it surfaces via jsdom's error event (matching the rest of\r\n`<jssm-instance>`'s \"fail loud at connect\" policy)."
+              "description": "Discover direct-child `<fsl-on>` elements and install their\r\nsubscriptions on the owned machine.  Per #643:\r\n\r\n- Direct children only (`:scope > fsl-on`).  Deeper nesting is the\r\n  responsibility of a future MutationObserver-driven v2.\r\n- Each `<fsl-on>` is parsed by parse_fsl_on_element, which\r\n  enforces the form / event-name / filter rules.\r\n- Handlers come from resolve_named_handler (form A) or\r\n  compile_inline_body (form B), and the result is installed\r\n  via `machine.on(...)` or `machine.once(...)` depending on the\r\n  element's `once` attribute.\r\n- Every returned unsubscribe is tracked in _on_unsubscribes\r\n  so disconnectedCallback can release them all.\r\n\r\nCalled once from `connectedCallback` after the machine has been\r\nconstructed.  Any error thrown by parsing or resolution propagates\r\nout so it surfaces via jsdom's error event (matching the rest of\r\n`<fsl-instance>`'s \"fail loud at connect\" policy)."
             },
             {
               "kind": "method",
@@ -2730,7 +2730,7 @@
                   "text": "void"
                 }
               },
-              "description": "Discover every direct-child `<jssm-hook>` element and install each\r\nagainst the owned machine.  Handlers are wrapped with the friendly-proxy\r\nadapter that lets user code write `m.data = ...` and return `false` to\r\ncancel — see make_hook_proxy and the issue (#641) doc-comment\r\nfor the full contract."
+              "description": "Discover every direct-child `<fsl-hook>` element and install each\r\nagainst the owned machine.  Handlers are wrapped with the friendly-proxy\r\nadapter that lets user code write `m.data = ...` and return `false` to\r\ncancel — see make_hook_proxy and the issue (#641) doc-comment\r\nfor the full contract."
             },
             {
               "kind": "method",
@@ -2741,7 +2741,7 @@
                   "text": "string"
                 }
               },
-              "description": "Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations\r\nfor inline-body hooks compiled by this element."
+              "description": "Prefix used in synthetic `//# sourceURL=fsl-hook:<prefix><n>` annotations\r\nfor inline-body hooks compiled by this element."
             },
             {
               "kind": "method",
@@ -2819,7 +2819,7 @@
             },
             {
               "kind": "method",
-              "name": "_discover_jssm_actions",
+              "name": "_discover_fsl_actions",
               "privacy": "private",
               "return": {
                 "type": {
@@ -2968,25 +2968,25 @@
       "exports": [
         {
           "kind": "js",
-          "name": "JSSM_ON_EVENT_NAMES",
+          "name": "FSL_ON_EVENT_NAMES",
           "declaration": {
-            "name": "JSSM_ON_EVENT_NAMES",
+            "name": "FSL_ON_EVENT_NAMES",
             "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
           "kind": "js",
-          "name": "parse_jssm_on_element",
+          "name": "parse_fsl_on_element",
           "declaration": {
-            "name": "parse_jssm_on_element",
+            "name": "parse_fsl_on_element",
             "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
           "kind": "js",
-          "name": "jssm_handler_registry",
+          "name": "fsl_handler_registry",
           "declaration": {
-            "name": "jssm_handler_registry",
+            "name": "fsl_handler_registry",
             "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
@@ -4478,21 +4478,21 @@
               "description": "The thrown value to normalize."
             }
           ],
-          "description": "Normalize an arbitrary thrown value into a JssmVizErrorDetail.\r\nAccepts anything (Error instances, JssmErrors with `.location`, plain\r\nstrings, etc.) and always produces a string `message`.\r\n\r\n```typescript\r\nnormalize_viz_error(new Error('boom'));\r\n// => { message: 'boom', location: undefined }\r\n\r\nnormalize_viz_error({ message: 'parse failed', location: { line: 1 } });\r\n// => { message: 'parse failed', location: { line: 1 } }\r\n\r\nnormalize_viz_error('bare string failure');\r\n// => { message: 'bare string failure', location: undefined }\r\n```"
+          "description": "Normalize an arbitrary thrown value into a FslVizErrorDetail.\r\nAccepts anything (Error instances, JssmErrors with `.location`, plain\r\nstrings, etc.) and always produces a string `message`.\r\n\r\n```typescript\r\nnormalize_viz_error(new Error('boom'));\r\n// => { message: 'boom', location: undefined }\r\n\r\nnormalize_viz_error({ message: 'parse failed', location: { line: 1 } });\r\n// => { message: 'parse failed', location: { line: 1 } }\r\n\r\nnormalize_viz_error('bare string failure');\r\n// => { message: 'bare string failure', location: undefined }\r\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<fsl-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,\r\n     found via `closest_wc(this, 'instance')` at `connectedCallback`):\r\n     bind to the parent's machine and re-render on every `transition`\r\n     event.  The element's own `fsl` attribute is ignored in this mode;\r\n     supplying it emits a `console.warn` for developer feedback.",
+          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<fsl-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<fsl-instance>` ancestor,\r\n     found via `closest_wc(this, 'instance')` at `connectedCallback`):\r\n     bind to the parent's machine and re-render on every `transition`\r\n     event.  The element's own `fsl` attribute is ignored in this mode;\r\n     supplying it emits a `console.warn` for developer feedback.",
           "name": "FslViz",
           "cssProperties": [
             {
               "description": "Minimum height of the rendered SVG container.",
-              "name": "--jssm-viz-min-height",
+              "name": "--fsl-viz-min-height",
               "default": "100px"
             },
             {
               "description": "Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.",
-              "name": "--jssm-viz-max-height",
+              "name": "--fsl-viz-max-height",
               "default": "none"
             }
           ],
@@ -4530,11 +4530,11 @@
               "kind": "field",
               "name": "_parent_host",
               "type": {
-                "text": "JssmInstanceHost | null"
+                "text": "FslInstanceHost | null"
               },
               "privacy": "private",
               "default": "null",
-              "description": "Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in\r\n`connectedCallback` when a parent is found.  When non-null the viz is\r\nin nested mode and renders the parent's machine instead of its own\r\n`fsl` attribute."
+              "description": "Parent `<fsl-instance>` host reference, set in\r\n`connectedCallback` when a parent is found.  When non-null the viz is\r\nin nested mode and renders the parent's machine instead of its own\r\n`fsl` attribute."
             },
             {
               "kind": "field",
@@ -4727,7 +4727,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "The element tag name to test (e.g. `\"FSL-VIZ\"`, `\"jssm-viz\"`)."
+              "description": "The element tag name to test (e.g. `\"FSL-VIZ\"`)."
             },
             {
               "name": "suffix",
@@ -4737,7 +4737,7 @@
               "description": "The suffix to match after the prefix (e.g. `\"viz\"`)."
             }
           ],
-          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\r\n(case-insensitive)."
+          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive)."
         },
         {
           "kind": "function",
@@ -4763,47 +4763,7 @@
               "description": "The suffix to match (e.g. `\"instance\"`)."
             }
           ],
-          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\r\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
-        },
-        {
-          "kind": "function",
-          "name": "define_with_synonym",
-          "return": {
-            "type": {
-              "text": "void"
-            }
-          },
-          "parameters": [
-            {
-              "name": "canonical_tag",
-              "type": {
-                "text": "string"
-              },
-              "description": "The primary tag name (e.g. `\"fsl-instance\"`)."
-            },
-            {
-              "name": "synonym_tag",
-              "type": {
-                "text": "string"
-              },
-              "description": "The alias tag name (e.g. `\"jssm-instance\"`)."
-            },
-            {
-              "name": "CanonicalClass",
-              "type": {
-                "text": "CustomElementConstructor"
-              },
-              "description": "Constructor to register under `canonical_tag`."
-            },
-            {
-              "name": "SynonymClass",
-              "type": {
-                "text": "CustomElementConstructor"
-              },
-              "description": "Constructor to register under `synonym_tag`\r\n  (must be a distinct class from `CanonicalClass`)."
-            }
-          ],
-          "description": "Registers a canonical custom-element tag and its synonym tag.\r\n\r\n`customElements.define` requires a distinct constructor per tag name, so\r\ncallers pass the canonical class and a thin subclass for the synonym.\r\nThe function is idempotent: if either tag is already registered it skips\r\nthat `define` call rather than throwing."
+          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\r\n`fsl-<suffix>`, or `null` if none exists."
         },
         {
           "kind": "function",
@@ -4819,7 +4779,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "The `fsl-*` tag name (e.g. `\"fsl-info-panel\"`)."
+              "description": "The tag name to register (e.g. `\"fsl-info-panel\"`)."
             },
             {
               "name": "CanonicalClass",
@@ -4829,7 +4789,7 @@
               "description": "Constructor to register under `canonical_tag`."
             }
           ],
-          "description": "Registers a single canonical `fsl-*` custom-element tag, with no `jssm-*`\r\nsynonym.\r\n\r\nThis is the registration path for **new** web components.  The `jssm-*`\r\nprefix is a deprecated backward-compatibility alias retained only for the\r\ncomponents that shipped under that name (`<jssm-viz>`, `<jssm-instance>`,\r\n`<jssm-bind>`); new components are `fsl-*`-only for fsl.tools brand\r\nalignment, and the legacy synonyms are slated for removal in v6.  Use\r\ndefine_with_synonym only when maintaining one of those pre-existing\r\ndual-named components.\r\n\r\nIdempotent: skips the `define` call when the tag is already registered."
+          "description": "Registers `canonical_tag` as a custom element under `CanonicalClass`.\r\nIdempotent: skips the `define` call when the tag is already registered.\r\nDoes not validate that `canonical_tag` carries the `fsl-` prefix — callers\r\nare responsible for passing a spelling that belongs in the registry."
         }
       ],
       "exports": [
@@ -4846,30 +4806,6 @@
           "name": "closest_wc",
           "declaration": {
             "name": "closest_wc",
-            "module": "src/ts/wc/wc_tag_helpers.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "define_with_synonym",
-          "declaration": {
-            "name": "define_with_synonym",
-            "module": "src/ts/wc/wc_tag_helpers.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "canonical_tag",
-          "declaration": {
-            "name": "CanonicalClass",
-            "module": "src/ts/wc/wc_tag_helpers.ts"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "synonym_tag",
-          "declaration": {
-            "name": "SynonymClass",
             "module": "src/ts/wc/wc_tag_helpers.ts"
           }
         },

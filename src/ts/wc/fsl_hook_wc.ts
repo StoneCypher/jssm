@@ -16,8 +16,8 @@ export interface RawHookContext {
 }
 
 /**
- * The discriminator strings that may appear in `<fsl-hook kind="...">` /
- * `<jssm-hook kind="...">`.  Mirrors jssm's pre-transition hook kinds;
+ * The discriminator strings that may appear in `<fsl-hook kind="...">`.
+ * Mirrors jssm's pre-transition hook kinds;
  * post-transition and "everything" variants are intentionally left out of
  * v1 of the declarative tag.
  * @see {@link Machine.set_hook}
@@ -52,7 +52,7 @@ const VALID_KINDS: ReadonlySet<string> = new Set<FslHookKind>([
 
 /**
  * Friendly proxy surface that wraps jssm's native `HookContext` for the
- * declarative `<fsl-hook>` / `<jssm-hook>` form.  User-authored handlers
+ * declarative `<fsl-hook>` form.  User-authored handlers
  * (named function or inline body) receive an `m` of this shape rather than
  * the raw hook context.
  *
@@ -77,9 +77,6 @@ export interface FslHookProxy<TData = unknown> {
   state(): string;
 }
 
-/** @deprecated Use {@link FslHookProxy} instead; kept for backwards compat. */
-export type JssmHookProxy<TData = unknown> = FslHookProxy<TData>;
-
 /**
  * Type of a user-authored declarative-hook handler.  The return value is
  * checked: an explicit `false` cancels the transition; any other value
@@ -88,23 +85,16 @@ export type JssmHookProxy<TData = unknown> = FslHookProxy<TData>;
 export type FslHookUserHandler<TData = unknown> =
   (m: FslHookProxy<TData>) => unknown;
 
-/** @deprecated Use {@link FslHookUserHandler} instead; kept for backwards compat. */
-export type JssmHookUserHandler<TData = unknown> = FslHookUserHandler<TData>;
-
 /**
  * Optional per-instance registry of named handlers.  Looked up before
- * `globalThis` when resolving `<fsl-hook handler="name">` /
- * `<jssm-hook handler="name">`.  Provided as a `Map` so consumers can
+ * `globalThis` when resolving `<fsl-hook handler="name">`.  Provided as a `Map` so consumers can
  * register their own handlers without polluting the global namespace; useful
  * for module-scoped SPAs where strict CSP blocks inline-body hooks.
  */
 export type FslHookRegistry = Map<string, FslHookUserHandler<unknown>>;
 
-/** @deprecated Use {@link FslHookRegistry} instead; kept for backwards compat. */
-export type JssmHookRegistry = FslHookRegistry;
-
 /**
- * Build a {@link JssmHookProxy} that wraps an arbitrary hook context object.
+ * Build a {@link FslHookProxy} that wraps an arbitrary hook context object.
  *
  * The context shape varies by hook kind (`from`/`to`/`action` may be absent
  * for transition-kind hooks), so this normalizes the shape via optional
@@ -155,7 +145,7 @@ export function make_hook_proxy<TData = unknown>(
  *
  * Prepends a `//# sourceURL=` comment so devtools surface a meaningful name
  * in stack traces instead of `anonymous`.
- * @param body     - Trimmed textContent of the `<jssm-hook>` element.
+ * @param body     - Trimmed textContent of the `<fsl-hook>` element.
  * @param debug_id - Identifier appended to the synthetic sourceURL.
  * @returns The compiled handler.
  */
@@ -164,7 +154,7 @@ export function compile_inline_body<TData = unknown>(
   debug_id: string,
 ): FslHookUserHandler<TData> {
 
-  const annotated = `//# sourceURL=jssm-hook:${debug_id}\n${body}`;
+  const annotated = `//# sourceURL=fsl-hook:${debug_id}\n${body}`;
   const ctor = Function as unknown as new (arg: string, body: string) => FslHookUserHandler<TData>;
   return new ctor('m', annotated);
 
@@ -197,13 +187,13 @@ export function resolve_named_handler<TData = unknown>(
   }
 
   throw new Error(
-    `<jssm-hook handler="${name}">: handler not found in registry or globalThis`,
+    `<fsl-hook handler="${name}">: handler not found in registry or globalThis`,
   );
 
 }
 
 /**
- * Validate and normalize a `<jssm-hook kind="...">` value, defaulting to
+ * Validate and normalize a `<fsl-hook kind="...">` value, defaulting to
  * `"hook"` when the attribute is absent.  Throws on unknown kinds rather
  * than silently doing nothing later.
  * @param raw - The raw attribute value, or null if not present.
@@ -218,7 +208,7 @@ export function normalize_hook_kind(raw: string | null | undefined): FslHookKind
 
   if (!VALID_KINDS.has(raw)) {
     throw new Error(
-      `<jssm-hook kind="${raw}">: unknown hook kind (expected one of: ${[...VALID_KINDS].join(', ')})`,
+      `<fsl-hook kind="${raw}">: unknown hook kind (expected one of: ${[...VALID_KINDS].join(', ')})`,
     );
   }
 
@@ -227,7 +217,7 @@ export function normalize_hook_kind(raw: string | null | undefined): FslHookKind
 }
 
 /**
- * Resolved description of a single `<fsl-hook>` / `<jssm-hook>` element,
+ * Resolved description of a single `<fsl-hook>` element,
  * ready to install.  Carries the kind, optional name, the user handler to
  * wrap, and the descriptor pieces needed by `set_hook` / `remove_hook`.
  *
@@ -244,11 +234,8 @@ export interface FslHookInstallSpec {
   user_handler: FslHookUserHandler<unknown>;
 }
 
-/** @deprecated Use {@link FslHookInstallSpec} instead; kept for backwards compat. */
-export type JssmHookInstallSpec = FslHookInstallSpec;
-
 /**
- * Parse a single `<jssm-hook>` element into a {@link JssmHookInstallSpec}.
+ * Parse a single `<fsl-hook>` element into a {@link FslHookInstallSpec}.
  *
  * Validates the mutual-exclusion rule between `handler="name"` and inline
  * body, defaults `kind` to `"hook"`, resolves named handlers against the
@@ -257,10 +244,10 @@ export type JssmHookInstallSpec = FslHookInstallSpec;
  * `from`/`to` for `kind="hook"`) are NOT validated here — `set_hook` will
  * throw with its own clear errors on missing pieces, which keeps the
  * error surface single-sourced.
- * @param el       - The `<jssm-hook>` element to parse.
+ * @param el       - The `<fsl-hook>` element to parse.
  * @param debug_id - Identifier used in the inline body's sourceURL.
  * @param registry - Optional in-WC registry of named handlers.
- * @returns A {@link JssmHookInstallSpec} describing what to install.
+ * @returns A {@link FslHookInstallSpec} describing what to install.
  * @throws Error - On mutual-exclusion violation, unknown kind, or unresolved name.
  */
 export function parse_hook_element(
@@ -275,13 +262,13 @@ export function parse_hook_element(
 
   if (handler_attr !== null && body_text.length > 0) {
     throw new Error(
-      '<jssm-hook>: specify handler="name" OR inline body, not both',
+      '<fsl-hook>: specify handler="name" OR inline body, not both',
     );
   }
 
   if (handler_attr === null && body_text.length === 0) {
     throw new Error(
-      '<jssm-hook>: must specify either handler="name" attribute or an inline body',
+      '<fsl-hook>: must specify either handler="name" attribute or an inline body',
     );
   }
 
@@ -302,7 +289,7 @@ export function parse_hook_element(
 }
 
 /**
- * Wrap a {@link JssmHookUserHandler} so that jssm's native hook contract is
+ * Wrap a {@link FslHookUserHandler} so that jssm's native hook contract is
  * satisfied: the user gets a friendly proxy, the proxy's mutated `data`
  * becomes the `HookComplexResult.data`, and an explicit `false` return
  * cancels the transition.
@@ -336,7 +323,7 @@ export function wrap_user_handler(
 
 /**
  * Build the typed descriptor object passed to `machine.set_hook` (and later
- * to `machine.remove_hook` for cleanup) from a parsed {@link JssmHookInstallSpec}
+ * to `machine.remove_hook` for cleanup) from a parsed {@link FslHookInstallSpec}
  * and the wrapped handler.
  *
  * For kinds that need `from`/`to`/`action`, the descriptor includes those.

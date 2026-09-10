@@ -843,6 +843,20 @@ function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
 
 
 /**
+ *  Rounds a compiled edge's `probability` to 6 significant digits for
+ *  display (6.0 list weights): a share-derived value like `50 / 3` renders
+ *  as `16.6667` instead of the raw float `16.666666666666664`.
+ *  Author-written values (`25`, `10`, `0.5`, ...) already have far fewer
+ *  than 6 significant digits and pass through unchanged.
+ *  @internal
+ *  @param p The edge's `probability`, or `undefined` when undeclared.
+ *  @returns The rounded value, or `undefined` unchanged.
+ */
+function format_probability(p: number | undefined): number | undefined {
+  return p === undefined ? undefined : Number(p.toPrecision(6));
+}
+
+/**
  *  Compose a multi-line `action\nprobability` label for a transition.
  *  Returns `undefined` when both fields are absent, so callers can skip
  *  emitting the attribute entirely.
@@ -850,7 +864,7 @@ function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
  */
 function transition_label<T>(tr: JssmTransition<string, T> | undefined): string | undefined {
   if (!tr) { return undefined; }
-  const parts = [tr.action || '', tr.probability || ''].filter(x => x !== '');
+  const parts = [tr.action || '', format_probability(tr.probability) || ''].filter(x => x !== '');
   return parts.length > 0 ? parts.join('\n') : undefined;
 }
 
@@ -929,7 +943,7 @@ function text_color(kind: StateKind, suffix: string): string {
  */
 function colored_label<T>(tr: JssmTransition<string, T> | undefined, which: 'headlabel' | 'taillabel', color: string): string {
   if (!tr) { return ''; }
-  const text = [tr.name, tr.probability, tr.action].filter(Boolean).join('<br/>');
+  const text = [tr.name, format_probability(tr.probability), tr.action].filter(Boolean).join('<br/>');
   if (!text) { return ''; }
   const body = color ? `<<font color="${color}">${text}</font>>` : `"${text}"`;
   return `${which}=${body};`;

@@ -18,8 +18,7 @@ import { fslTokens } from './fsl_tokens.js';
  * event.
  *
  * Display-only: it never drives the machine. It binds by walking up to the
- * host via {@link closest_wc} (which matches both the canonical `fsl-instance`
- * and the deprecated `jssm-instance` host tags), so it works under either.
+ * host via {@link closest_wc}.
  * @element fsl-info-panel
  * @cssproperty [--fsl-info-panel-gap=0.25rem] - Vertical gap between rows.
  */

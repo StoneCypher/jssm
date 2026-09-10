@@ -1088,7 +1088,7 @@ const DOCS_PAGES = [
             "custom element",
             "diagram"
         ],
-        "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The legacy `jssm-viz` tag still works but is deprecated — prefer `fsl-viz`.)\n"
+        "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The `<jssm-viz>` tag was removed in 6.0 — use `<fsl-viz>`.)\n"
     },
     {
         "id": "tut-weighted-arrows",
@@ -1107,7 +1107,7 @@ const DOCS_PAGES = [
             "percent",
             "random"
         ],
-        "body": "\n# Weighted / probabilistic arrows\n\nA transition can carry a **probability** with `N%`. When several transitions share a source, the weights bias a random walk over the machine.\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle -> 70% Win;\nIdle -> 30% Lose;\n```\n\nProbabilities power FSL's stochastic tooling — random walks, sampling, and Monte-Carlo-style exploration of a machine's reachable states.\n"
+        "body": "\n# Weighted / probabilistic arrows\n\nA transition can carry a **probability** with `N%`. When several transitions share a source, the weights bias a random walk over the machine.\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle -> 70% Win;\nIdle -> 30% Lose;\n```\n\nProbabilities power FSL's stochastic tooling — random walks, sampling, and Monte-Carlo-style exploration of a machine's reachable states.\n\n## Lists\n\nA probabilistic transition can target a list.  The list keeps the transition's weight as a *group* weight, and the members share it — uniformly, or by their own inner weights:\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle 50% -> [WinA WinB];\n```\n\n`WinA` and `WinB` each get 25% of `Idle`'s total weight, splitting the 50% evenly between them — not a 25% draw frequency on their own; with no other sibling edge from `Idle` here, they're still drawn 50/50 against each other. Give members their own weights to split unevenly instead:\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle 50% -> [WinA 20% WinB 80%];\n```\n\n`WinA` gets 10% and `WinB` gets 40% — the 20/80 split of the outer 50%. (In 5.x, every member of a targeted list received the *full* outer weight instead of sharing it, so both examples above would have given each member 50%.)\n"
     }
 ];
 const DOCS_FEATURES = [

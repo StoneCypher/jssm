@@ -9,7 +9,7 @@ import { test, expect, type Page } from '@playwright/test';
  * jsdom cannot do layout, so the wc spec only asserts the stylesheet carries
  * the max-bound rules (see `src/ts/wc/tests/fsl_viz_wc.spec.ts`); this spec
  * measures the actual boxes in Chromium. Two hosts are checked: one capped by
- * plain external `max-height`, one via the `--jssm-viz-max-height` seam.
+ * plain external `max-height`, one via the `--fsl-viz-max-height` seam.
  * @see ./fixtures/viz_sizing.html for the import-map serving contract.
  */
 
@@ -44,7 +44,7 @@ async function boxes_of (page: Page, id: string): Promise<SizingBoxes> {
 
 for (const [id, mechanism] of [
   ['capped',     'external max-height on the host'],
-  ['var-capped', 'the --jssm-viz-max-height custom property'],
+  ['var-capped', 'the --fsl-viz-max-height custom property'],
 ] as const) {
 
   test(`#1934: auto-height host capped via ${mechanism} keeps the svg bounded`, async ({ page }) => {

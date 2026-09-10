@@ -2,29 +2,27 @@ import { css, LitElement, html } from 'lit';
 import { sm, from } from 'jssm';
 
 /**
- * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
- * web-component naming convention.  Centralizes the "match either prefix"
- * rule so it lives in exactly one place.
+ * Shared helpers for the `fsl-*` web-component tag convention.  The `jssm-*`
+ * synonym prefix was removed in 6.0; every registration and lookup now
+ * matches exactly one spelling, so the rule lives in one place.
  */
 /**
- * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
- * (case-insensitive).
- * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive).
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
- * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ * @returns `true` when `tag_name` is `fsl-<suffix>`.
+ * The retired jssm- prefix (e.g. what was jssm-viz) never matches — 6.0
+ * dropped that spelling entirely.
  * @example
- * wc_suffix_matches('FSL-VIZ', 'viz');   // true
- * wc_suffix_matches('jssm-viz', 'viz');  // true
- * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('FSL-VIZ', 'viz');    // true
  * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
  */
 function wc_suffix_matches(tag_name, suffix) {
-    const lower = tag_name.toLowerCase();
-    return lower === `fsl-${suffix}` || lower === `jssm-${suffix}`;
+    return tag_name.toLowerCase() === `fsl-${suffix}`;
 }
 /**
  * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
- * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
+ * `fsl-<suffix>`, or `null` if none exists.
  * @param el     - The element to start the search from.
  * @param suffix - The suffix to match (e.g. `"instance"`).
  * @returns The closest matching ancestor element, or `null`.
@@ -34,7 +32,7 @@ function wc_suffix_matches(tag_name, suffix) {
  * @see wc_suffix_matches
  */
 function closest_wc(el, suffix) {
-    return el.closest(`fsl-${suffix}, jssm-${suffix}`);
+    return el.closest(`fsl-${suffix}`);
 }
 
 /**
@@ -69,7 +67,7 @@ function walk_path(obj, path) {
     return cur;
 }
 /**
- * Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live
+ * Resolve a `<fsl-bind>` / `data-fsl-bind` expression against a live
  * machine.  Throws on any unknown expression — bindings fail fast at
  * install time rather than silently producing `undefined` strings in the
  * DOM.
@@ -122,7 +120,7 @@ function resolve_binding(m, expr) {
                 const leaf = walk_path(m._data_ref(), expr.slice(5));
                 return ((typeof leaf === 'object') && (leaf !== null)) ? structuredClone(leaf) : leaf;
             }
-            throw new Error(`<jssm-bind>: unknown binding expression "${expr}"`);
+            throw new Error(`<fsl-bind>: unknown binding expression "${expr}"`);
         }
     }
 }
@@ -172,11 +170,11 @@ function set_on_element(el, target, value) {
  *
  * Two surface forms are recognized:
  *
- * 1. Inline attribute — any descendant with `data-jssm-bind="<expr>"`.
- *    Optional `data-jssm-bind-to="<target>"` chooses the target property
+ * 1. Inline attribute — any descendant with `data-fsl-bind="<expr>"`.
+ *    Optional `data-fsl-bind-to="<target>"` chooses the target property
  *    (defaults to `textContent`).
  *
- * 2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with
+ * 2. Dedicated tag — direct-child `<fsl-bind>` configuration tags with
  *    `selector="<css>"` and `source="<expr>"` attributes, plus an
  *    optional `target="<target>"` (also defaulting to `textContent`).
  *    The `selector` is scoped to `host`'s descendants.
@@ -185,7 +183,7 @@ function set_on_element(el, target, value) {
  * state) and then re-painted on every `transition` event.
  *
  * ```typescript
- * // typical install during <jssm-instance>.connectedCallback:
+ * // typical install during <fsl-instance>.connectedCallback:
  * const unsubs = install_bindings(this, this.machine);
  * this._unsubs.push(...unsubs);
  * ```
@@ -195,37 +193,36 @@ function set_on_element(el, target, value) {
  *          subscription.
  * @throws Error - When any binding expression is unrecognized
  *                 (propagated from {@link resolve_binding}).
- * @throws Error - When a `<jssm-bind>` tag is missing its `selector`
+ * @throws Error - When a `<fsl-bind>` tag is missing its `selector`
  *                 or `source` attribute.
  */
 function install_bindings(host, machine) {
     var _a, _b;
     const unsubs = [];
-    // Form 1: inline `data-jssm-bind` on descendants.
-    const inline_nodes = host.querySelectorAll('[data-jssm-bind]');
+    // Form 1: inline `data-fsl-bind` on descendants.
+    const inline_nodes = host.querySelectorAll('[data-fsl-bind]');
     for (const el of inline_nodes) {
-        const expr = el.dataset.jssmBind;
-        const target = (_a = el.dataset.jssmBindTo) !== null && _a !== void 0 ? _a : 'textContent';
+        const expr = el.dataset.fslBind;
+        const target = (_a = el.dataset.fslBindTo) !== null && _a !== void 0 ? _a : 'textContent';
         const apply = () => {
             set_on_element(el, target, resolve_binding(machine, expr));
         };
         apply();
         unsubs.push(machine.on('transition', apply));
     }
-    // Form 2: dedicated `<fsl-bind>` / `<jssm-bind>` configuration tags.  Only
-    // direct children are considered configuration tags for THIS host — nested
-    // `<fsl-instance>` / `<jssm-instance>` children would have their own
-    // bindings handled by their own component.
+    // Form 2: dedicated `<fsl-bind>` configuration tags.  Only direct children
+    // are considered configuration tags for THIS host — nested `<fsl-instance>`
+    // children would have their own bindings handled by their own component.
     const all_direct = host.querySelectorAll(':scope > *');
     const config_tags = [...all_direct].filter(el => wc_suffix_matches(el.tagName, 'bind'));
     for (const tag of config_tags) {
         const selector = tag.getAttribute('selector');
         if (selector === null || selector.length === 0) {
-            throw new Error('<jssm-bind>: missing required "selector" attribute');
+            throw new Error('<fsl-bind>: missing required "selector" attribute');
         }
         const expr = tag.getAttribute('source');
         if (expr === null || expr.length === 0) {
-            throw new Error('<jssm-bind>: missing required "source" attribute');
+            throw new Error('<fsl-bind>: missing required "source" attribute');
         }
         const target = (_b = tag.getAttribute('target')) !== null && _b !== void 0 ? _b : 'textContent';
         const targets = host.querySelectorAll(selector);
@@ -240,7 +237,7 @@ function install_bindings(host, machine) {
     return unsubs;
 }
 /**
- * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * `<fsl-bind>` configuration tag.  The element itself is
  * invisible — it carries `selector`, `source`, and optional `target`
  * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
@@ -278,7 +275,7 @@ const VALID_KINDS = new Set([
     'global action',
 ]);
 /**
- * Build a {@link JssmHookProxy} that wraps an arbitrary hook context object.
+ * Build a {@link FslHookProxy} that wraps an arbitrary hook context object.
  *
  * The context shape varies by hook kind (`from`/`to`/`action` may be absent
  * for transition-kind hooks), so this normalizes the shape via optional
@@ -323,12 +320,12 @@ function make_hook_proxy(ctx, machine) {
  *
  * Prepends a `//# sourceURL=` comment so devtools surface a meaningful name
  * in stack traces instead of `anonymous`.
- * @param body     - Trimmed textContent of the `<jssm-hook>` element.
+ * @param body     - Trimmed textContent of the `<fsl-hook>` element.
  * @param debug_id - Identifier appended to the synthetic sourceURL.
  * @returns The compiled handler.
  */
 function compile_inline_body$1(body, debug_id) {
-    const annotated = `//# sourceURL=jssm-hook:${debug_id}\n${body}`;
+    const annotated = `//# sourceURL=fsl-hook:${debug_id}\n${body}`;
     const ctor = Function;
     return new ctor('m', annotated);
 }
@@ -352,10 +349,10 @@ function resolve_named_handler$1(name, registry) {
     if (typeof global === 'function') {
         return global;
     }
-    throw new Error(`<jssm-hook handler="${name}">: handler not found in registry or globalThis`);
+    throw new Error(`<fsl-hook handler="${name}">: handler not found in registry or globalThis`);
 }
 /**
- * Validate and normalize a `<jssm-hook kind="...">` value, defaulting to
+ * Validate and normalize a `<fsl-hook kind="...">` value, defaulting to
  * `"hook"` when the attribute is absent.  Throws on unknown kinds rather
  * than silently doing nothing later.
  * @param raw - The raw attribute value, or null if not present.
@@ -367,12 +364,12 @@ function normalize_hook_kind(raw) {
         return 'hook';
     }
     if (!VALID_KINDS.has(raw)) {
-        throw new Error(`<jssm-hook kind="${raw}">: unknown hook kind (expected one of: ${[...VALID_KINDS].join(', ')})`);
+        throw new Error(`<fsl-hook kind="${raw}">: unknown hook kind (expected one of: ${[...VALID_KINDS].join(', ')})`);
     }
     return raw;
 }
 /**
- * Parse a single `<jssm-hook>` element into a {@link JssmHookInstallSpec}.
+ * Parse a single `<fsl-hook>` element into a {@link FslHookInstallSpec}.
  *
  * Validates the mutual-exclusion rule between `handler="name"` and inline
  * body, defaults `kind` to `"hook"`, resolves named handlers against the
@@ -381,10 +378,10 @@ function normalize_hook_kind(raw) {
  * `from`/`to` for `kind="hook"`) are NOT validated here — `set_hook` will
  * throw with its own clear errors on missing pieces, which keeps the
  * error surface single-sourced.
- * @param el       - The `<jssm-hook>` element to parse.
+ * @param el       - The `<fsl-hook>` element to parse.
  * @param debug_id - Identifier used in the inline body's sourceURL.
  * @param registry - Optional in-WC registry of named handlers.
- * @returns A {@link JssmHookInstallSpec} describing what to install.
+ * @returns A {@link FslHookInstallSpec} describing what to install.
  * @throws Error - On mutual-exclusion violation, unknown kind, or unresolved name.
  */
 function parse_hook_element(el, debug_id, registry) {
@@ -393,10 +390,10 @@ function parse_hook_element(el, debug_id, registry) {
     const raw_text = el.textContent;
     const body_text = (raw_text === null ? '' : raw_text).trim();
     if (handler_attr !== null && body_text.length > 0) {
-        throw new Error('<jssm-hook>: specify handler="name" OR inline body, not both');
+        throw new Error('<fsl-hook>: specify handler="name" OR inline body, not both');
     }
     if (handler_attr === null && body_text.length === 0) {
-        throw new Error('<jssm-hook>: must specify either handler="name" attribute or an inline body');
+        throw new Error('<fsl-hook>: must specify either handler="name" attribute or an inline body');
     }
     const user_handler = handler_attr === null
         ? compile_inline_body$1(body_text, debug_id)
@@ -410,7 +407,7 @@ function parse_hook_element(el, debug_id, registry) {
     return { kind, name, from, to, action, user_handler };
 }
 /**
- * Wrap a {@link JssmHookUserHandler} so that jssm's native hook contract is
+ * Wrap a {@link FslHookUserHandler} so that jssm's native hook contract is
  * satisfied: the user gets a friendly proxy, the proxy's mutated `data`
  * becomes the `HookComplexResult.data`, and an explicit `false` return
  * cancels the transition.
@@ -435,7 +432,7 @@ function wrap_user_handler(spec, machine) {
 }
 /**
  * Build the typed descriptor object passed to `machine.set_hook` (and later
- * to `machine.remove_hook` for cleanup) from a parsed {@link JssmHookInstallSpec}
+ * to `machine.remove_hook` for cleanup) from a parsed {@link FslHookInstallSpec}
  * and the wrapped handler.
  *
  * For kinds that need `from`/`to`/`action`, the descriptor includes those.
@@ -880,14 +877,14 @@ function register_palette_properties() {
 }
 
 /**
- * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
+ * Allow-list of event names accepted by `<fsl-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
  * `machine.on(...)` event API, added in #638).  Validating here gives the
  * declarative wiring a clear "unknown event name" error at the WC layer
  * instead of relying on a downstream library throw whose message would
  * mention `machine.on(...)` rather than the offending tag.
  */
-const JSSM_ON_EVENT_NAMES = new Set([
+const FSL_ON_EVENT_NAMES = new Set([
     'transition',
     'rejection',
     'action',
@@ -903,12 +900,12 @@ const JSSM_ON_EVENT_NAMES = new Set([
     'hook-removal'
 ]);
 /**
- * Parse a `<jssm-on>` element into a validated {@link ParsedJssmOn}
+ * Parse a `<fsl-on>` element into a validated {@link ParsedFslOn}
  * record.  Centralized so the declarative-tag logic is testable without
- * spinning up the full `<jssm-instance>` lifecycle.
+ * spinning up the full `<fsl-instance>` lifecycle.
  *
  * Validation rules (per #643):
- *   - `event` is required and must be in {@link JSSM_ON_EVENT_NAMES}.
+ *   - `event` is required and must be in {@link FSL_ON_EVENT_NAMES}.
  *   - Either a `handler="name"` attribute or non-empty `textContent`
  *     must be supplied, but not both.
  *   - `state` is only meaningful for `event="entry"` / `event="exit"`;
@@ -918,27 +915,27 @@ const JSSM_ON_EVENT_NAMES = new Set([
  *     edge).  Neither → unfiltered.
  *
  * ```typescript
- * const el = document.createElement('jssm-on');
+ * const el = document.createElement('fsl-on');
  * el.setAttribute('event', 'entry');
  * el.setAttribute('state', 'paid');
  * el.setAttribute('handler', 'onPaid');
- * parse_jssm_on_element(el);
+ * parse_fsl_on_element(el);
  * // => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,
  * //      once: false, name: undefined, filter: { state: 'paid' } }
  * ```
- * @param el - The `<jssm-on>` element to parse.
- * @returns A validated {@link ParsedJssmOn} record.
+ * @param el - The `<fsl-on>` element to parse.
+ * @returns A validated {@link ParsedFslOn} record.
  * @throws If `event` is missing, unknown, both handler forms are
  *         supplied, or neither handler form is supplied.
  */
-function parse_jssm_on_element(el) {
+function parse_fsl_on_element(el) {
     const event_attr = el.getAttribute('event');
     if (event_attr === null || event_attr.trim().length === 0) {
-        throw new Error('<jssm-on>: missing required `event` attribute');
+        throw new Error('<fsl-on>: missing required `event` attribute');
     }
     const event = event_attr.trim();
-    if (!JSSM_ON_EVENT_NAMES.has(event)) {
-        throw new Error(`<jssm-on>: unknown event "${event}"`);
+    if (!FSL_ON_EVENT_NAMES.has(event)) {
+        throw new Error(`<fsl-on>: unknown event "${event}"`);
     }
     const handler_attr = el.getAttribute('handler');
     const handler_name = (handler_attr !== null && handler_attr.trim().length > 0)
@@ -953,10 +950,10 @@ function parse_jssm_on_element(el) {
     const body_text = el.textContent;
     const inline_body = (body_text !== null && body_text.trim().length > 0) ? body_text : undefined;
     if (handler_name !== undefined && inline_body !== undefined) {
-        throw new Error('<jssm-on>: specify handler="name" OR inline body, not both');
+        throw new Error('<fsl-on>: specify handler="name" OR inline body, not both');
     }
     if (handler_name === undefined && inline_body === undefined) {
-        throw new Error('<jssm-on>: must specify handler="name" or an inline body');
+        throw new Error('<fsl-on>: must specify handler="name" or an inline body');
     }
     const once_attr = el.hasAttribute('once');
     const name_attr = el.getAttribute('name');
@@ -995,7 +992,7 @@ function parse_jssm_on_element(el) {
     };
 }
 /**
- * Optional global registry that `<jssm-on>` (and, later, `<jssm-hook>`)
+ * Optional global registry that `<fsl-on>` (and, later, `<fsl-hook>`)
  * consult first when resolving a `handler="name"` attribute.  Consumers
  * register named handlers here in a strict-CSP environment where a stray
  * `globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`
@@ -1005,7 +1002,7 @@ function parse_jssm_on_element(el) {
  * so consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly
  * without a thin wrapper API.
  */
-const jssm_handler_registry = new Map();
+const fsl_handler_registry = new Map();
 /**
  * Resolve a named handler from the registry, then from `globalThis`.
  * Throws if neither lookup finds a function — earlier failure here is
@@ -1015,7 +1012,7 @@ const jssm_handler_registry = new Map();
  * @throws If no function is registered under `name`.
  */
 function resolve_named_handler(name) {
-    const from_registry = jssm_handler_registry.get(name);
+    const from_registry = fsl_handler_registry.get(name);
     if (typeof from_registry === 'function') {
         return from_registry;
     }
@@ -1023,7 +1020,7 @@ function resolve_named_handler(name) {
     if (typeof from_global === 'function') {
         return from_global;
     }
-    throw new Error(`<jssm-on>: handler "${name}" not found in registry or globalThis`);
+    throw new Error(`<fsl-on>: handler "${name}" not found in registry or globalThis`);
 }
 /**
  * Compile an inline-body string into a handler function whose single
@@ -1033,14 +1030,14 @@ function resolve_named_handler(name) {
  * is consumer-authored markup, never network data, so the surface is
  * exactly that of an inline event-handler attribute and the same CSP
  * caveats apply (strict CSP without `'unsafe-eval'` blocks it).  A
- * `//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces
+ * `//# sourceURL=fsl-on:N` pragma is appended so devtools stack traces
  * point at a meaningful name.
  * @param body - The inline JS body (function body, not full function).
  * @param source_id - A short identifier for the sourceURL pragma.
  * @returns The compiled handler.
  */
 function compile_inline_body(body, source_id) {
-    const wrapped = `${body}\n//# sourceURL=jssm-on:${source_id}`;
+    const wrapped = `${body}\n//# sourceURL=fsl-on:${source_id}`;
     // The Function constructor is intentional here — see the docblock above
     // for the rationale and the CSP caveat.  Equivalent to how browsers wire
     // up inline event handlers; the input is consumer-authored markup.
@@ -1048,10 +1045,10 @@ function compile_inline_body(body, source_id) {
     return new Function('e', wrapped); // skipcq: JS-0086
 }
 /**
- * Resolve a `<jssm-instance>`'s FSL source from the three legal channels:
+ * Resolve a `<fsl-instance>`'s FSL source from the three legal channels:
  * the `fsl=""` attribute, a child `<script type="text/fsl">`, and the
  * element's own text content (after stripping the script and any
- * `<jssm-*>` companion tags).  Exactly one channel may be used; using
+ * `<fsl-*>` companion tags).  Exactly one channel may be used; using
  * none or more than one is an error.
  *
  * Pulled out as a pure function so it's testable without spinning up a
@@ -1063,7 +1060,7 @@ function compile_inline_body(body, source_id) {
  * resolve_fsl_source(div as HTMLElement, 'Off -> On;');
  * // => { fsl: 'Off -> On;', provided_count: 1, error: undefined }
  * ```
- * @param host - The `<jssm-instance>` element being resolved.
+ * @param host - The `<fsl-instance>` element being resolved.
  * @param fsl_attr - The current value of the host's `fsl` attribute (or property), or empty string.
  * @returns A {@link JssmInstanceFslResolution} describing the outcome.
  */
@@ -1082,17 +1079,17 @@ function resolve_fsl_source(host, fsl_attr) {
         }
     }
     // Channel 3: textContent of the host, EXCLUDING the script-child and any
-    // <jssm-*> companion tags.  We clone the host and strip those nodes before
+    // <fsl-*> companion tags.  We clone the host and strip those nodes before
     // reading textContent so the consumer's literal FSL is not contaminated
     // by companion-tag markup.
     const text_content_fsl = (function extract_text_fsl() {
         const clone = host.cloneNode(true);
         // Drop every script tag (any type — we only want raw text FSL here).
         clone.querySelectorAll('script').forEach(n => n.remove());
-        // Drop every <fsl-*> or <jssm-*> companion tag (e.g. <fsl-hook>, <jssm-on>, etc.).
+        // Drop every <fsl-*> companion tag (e.g. <fsl-hook>, <fsl-on>, etc.).
         clone.querySelectorAll('*').forEach(n => {
             const t = n.tagName.toLowerCase();
-            if (t.startsWith('fsl-') || t.startsWith('jssm-')) {
+            if (t.startsWith('fsl-')) {
                 n.remove();
             }
         });
@@ -1155,7 +1152,7 @@ function split_ratio(coord, start, size) {
  *
  *   1. The `fsl=""` attribute,
  *   2. A child `<script type="text/fsl">`,
- *   3. The element's own text content (companion `<jssm-*>` children and
+ *   3. The element's own text content (companion `<fsl-*>` children and
  *      any `<script type="text/fsl">` are excluded from this channel).
  *
  * Supplying zero or more than one channel is a thrown error.
@@ -1269,21 +1266,21 @@ class FslInstance extends LitElement {
          */
         this._machine = undefined;
         /**
-         * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
+         * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-fsl-bind`
          * projections.  Every entry must be invoked exactly once during
          * {@link disconnectedCallback}.
          */
         this._unsubs = [];
         /**
          * Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`
-         * subscription installed from a `<jssm-on>` child during
+         * subscription installed from a `<fsl-on>` child during
          * `connectedCallback`.  Walked in `disconnectedCallback`.
          */
         this._on_unsubscribes = [];
         /**
          * Unsubscribe callbacks for the host-level mechanism-4 re-emission
          * subscriptions installed in {@link _install_event_reemission}.  Distinct
-         * from {@link _on_unsubscribes} (which belongs to `<jssm-on>` children).
+         * from {@link _on_unsubscribes} (which belongs to `<fsl-on>` children).
          */
         this._reemit_unsubscribes = [];
         /**
@@ -1296,8 +1293,7 @@ class FslInstance extends LitElement {
         this._pending_dom_events = [];
         /**
          * Per-instance registry of named hook handlers consulted before
-         * `globalThis` when resolving `<fsl-hook handler="name">` /
-         * `<jssm-hook handler="name">`.
+         * `globalThis` when resolving `<fsl-hook handler="name">`.
          */
         this.registry = new Map();
         /**
@@ -1309,7 +1305,7 @@ class FslInstance extends LitElement {
          */
         this._hook_debug_counter = 0;
         /**
-         * DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery.
+         * DOM listeners installed by `<fsl-action>` / `data-fsl-action` discovery.
          */
         this._action_listeners = [];
         /** Tracks the OS color scheme; null when `matchMedia` is unavailable. */
@@ -1571,18 +1567,18 @@ class FslInstance extends LitElement {
             // #639 mechanism 4: subscribe to library events and re-emit them as
             // DOM CustomEvents from this host (#638 supplies the event API).
             this._install_event_reemission();
-            // #641: <jssm-hook> declarative discovery.
+            // #641: <fsl-hook> declarative discovery.
             this._install_declarative_hooks();
-            // #643: <jssm-on> declarative event observation.
-            this._install_jssm_on_children();
-            // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+            // #643: <fsl-on> declarative event observation.
+            this._install_fsl_on_children();
+            // #645: discover <fsl-bind> tags and `data-fsl-bind` descendants,
             // install live machine-to-DOM projections.
             this._unsubs.push(...install_bindings(this, this._machine));
         }
-        // #640: <jssm-action> DOM event -> machine action wiring. The listeners read
+        // #640: <fsl-action> DOM event -> machine action wiring. The listeners read
         // `this.machine` live on event, so discovery is correct even before a
         // deferred build completes.
-        this._discover_jssm_actions();
+        this._discover_fsl_actions();
         // Theme: register the palette tokens as animatable colors (once, globally, so
         // switches can ease), follow the OS while in `system` mode, then apply the
         // resolved palette.
@@ -1604,12 +1600,12 @@ class FslInstance extends LitElement {
         return key !== null && read_fragment_param(location.hash, key) !== null;
     }
     /**
-     * Discover direct-child `<jssm-on>` elements and install their
+     * Discover direct-child `<fsl-on>` elements and install their
      * subscriptions on the owned machine.  Per #643:
      *
-     * - Direct children only (`:scope > jssm-on`).  Deeper nesting is the
+     * - Direct children only (`:scope > fsl-on`).  Deeper nesting is the
      *   responsibility of a future MutationObserver-driven v2.
-     * - Each `<jssm-on>` is parsed by {@link parse_jssm_on_element}, which
+     * - Each `<fsl-on>` is parsed by {@link parse_fsl_on_element}, which
      *   enforces the form / event-name / filter rules.
      * - Handlers come from {@link resolve_named_handler} (form A) or
      *   {@link compile_inline_body} (form B), and the result is installed
@@ -1621,15 +1617,15 @@ class FslInstance extends LitElement {
      * Called once from `connectedCallback` after the machine has been
      * constructed.  Any error thrown by parsing or resolution propagates
      * out so it surfaces via jsdom's error event (matching the rest of
-     * `<jssm-instance>`'s "fail loud at connect" policy).
+     * `<fsl-instance>`'s "fail loud at connect" policy).
      */
-    _install_jssm_on_children() {
+    _install_fsl_on_children() {
         const machine = this._machine;
-        const on_nodes = this.querySelectorAll(':scope > fsl-on, :scope > jssm-on');
+        const on_nodes = this.querySelectorAll(':scope > fsl-on');
         let index = 0;
         for (const el of on_nodes) {
             index += 1;
-            const parsed = parse_jssm_on_element(el);
+            const parsed = parse_fsl_on_element(el);
             const handler = parsed.handler_name === undefined
                 ? compile_inline_body(parsed.inline_body, String(index))
                 : resolve_named_handler(parsed.handler_name);
@@ -1645,7 +1641,7 @@ class FslInstance extends LitElement {
         }
     }
     /**
-     * Discover every direct-child `<jssm-hook>` element and install each
+     * Discover every direct-child `<fsl-hook>` element and install each
      * against the owned machine.  Handlers are wrapped with the friendly-proxy
      * adapter that lets user code write `m.data = ...` and return `false` to
      * cancel — see {@link make_hook_proxy} and the issue (#641) doc-comment
@@ -1653,7 +1649,7 @@ class FslInstance extends LitElement {
      */
     _install_declarative_hooks() {
         const machine = this._machine;
-        const hook_els = this.querySelectorAll(':scope > fsl-hook, :scope > jssm-hook');
+        const hook_els = this.querySelectorAll(':scope > fsl-hook');
         for (const el of hook_els) {
             const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
             const spec = parse_hook_element(el, debug_id, this.registry);
@@ -1664,7 +1660,7 @@ class FslInstance extends LitElement {
         }
     }
     /**
-     * Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations
+     * Prefix used in synthetic `//# sourceURL=fsl-hook:<prefix><n>` annotations
      * for inline-body hooks compiled by this element.
      */
     _hook_id_prefix() {
@@ -1777,7 +1773,7 @@ class FslInstance extends LitElement {
         this._paint_state_reflection();
         this._install_event_reemission();
         this._install_declarative_hooks();
-        this._install_jssm_on_children();
+        this._install_fsl_on_children();
         this._unsubs.push(...install_bindings(this, next));
         this.requestUpdate();
         // Notify bound children (e.g. <fsl-viz>) that the machine object was
@@ -1851,16 +1847,16 @@ class FslInstance extends LitElement {
     }
     /**
      * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
-     * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
+     * registrations from `<fsl-hook>`, event subscriptions from `<fsl-on>`,
      * mechanism-4 re-emission subscriptions, and DOM listeners from
-     * `<jssm-action>` / `data-jssm-action`.
+     * `<fsl-action>` / `data-fsl-action`.
      */
     disconnectedCallback() {
         super.disconnectedCallback();
         // Release every machine-scoped subscription (#639 re-emission, #641 hooks,
         // #643 <fsl-on>, #645 <fsl-bind>). Shared with the live-rebuild path (#1387).
         this._unbind_machine_subscriptions();
-        // #640: remove DOM listeners installed via <jssm-action> / data-jssm-action.
+        // #640: remove DOM listeners installed via <fsl-action> / data-fsl-action.
         for (const entry of this._action_listeners) {
             entry.target.removeEventListener(entry.event, entry.handler);
         }
@@ -1883,21 +1879,21 @@ class FslInstance extends LitElement {
      * `from-property` data extraction, and `prevent-default` /
      * `stop-propagation` modifiers.
      */
-    _discover_jssm_actions() {
+    _discover_fsl_actions() {
         var _a, _b, _c, _d;
-        const inline_targets = [...this.querySelectorAll('[data-jssm-action]')].filter(el => closest_wc(el, 'action') === null);
+        const inline_targets = [...this.querySelectorAll('[data-fsl-action]')].filter(el => closest_wc(el, 'action') === null);
         for (const el of inline_targets) {
             this._install_action_listener({
                 source: el,
-                event_name: (_a = el.dataset['jssmEvent']) !== null && _a !== void 0 ? _a : 'click',
-                action_name: el.dataset['jssmAction'],
-                from_state: el.dataset['jssmFromState'],
-                from_property: el.dataset['jssmFromProperty'],
-                prevent_default: 'jssmPreventDefault' in el.dataset,
-                stop_propagation: 'jssmStopPropagation' in el.dataset,
+                event_name: (_a = el.dataset['fslEvent']) !== null && _a !== void 0 ? _a : 'click',
+                action_name: el.dataset['fslAction'],
+                from_state: el.dataset['fslFromState'],
+                from_property: el.dataset['fslFromProperty'],
+                prevent_default: 'fslPreventDefault' in el.dataset,
+                stop_propagation: 'fslStopPropagation' in el.dataset,
             });
         }
-        const tags = this.querySelectorAll(':scope > fsl-action, :scope > jssm-action');
+        const tags = this.querySelectorAll(':scope > fsl-action');
         for (const tag of tags) {
             const selector = tag.getAttribute('selector');
             const action_name = tag.getAttribute('action');
@@ -1983,7 +1979,7 @@ class FslInstance extends LitElement {
      * Lit render method.  Produces the shadow-DOM template with named slots
      * and a state-specific `<slot name="state-...">` that re-targets on each
      * transition.  Fallback content in each slot keeps a bare
-     * `<jssm-instance fsl="...">` from rendering as a blank box.
+     * `<fsl-instance fsl="...">` from rendering as a blank box.
      * @returns A Lit `TemplateResult` describing the shadow tree.
      */
     render() {
@@ -2168,10 +2164,8 @@ FslInstance.styles = css `
  * a `fsl-<name>` DOM event (`composed`, `bubbling`) so slotted content and
  * outside consumers can observe machine activity declaratively.
  *
- * `fsl-` is the canonical prefix (matching the canonical `<fsl-*>` tag
- * names); the older `jssm-*` event prose in #639 predates that naming flip.
- * Events are NOT double-emitted under both prefixes — a symmetric listener
- * would otherwise run twice per machine event.
+ * `fsl-` is the canonical prefix, matching the canonical `<fsl-*>` tag
+ * names.
  */
 FslInstance.REEMITTED_EVENTS = [
     'transition', 'entry', 'exit', 'terminal', 'complete',
@@ -2195,4 +2189,4 @@ FslInstance.properties = {
     requestedPanels: { type: Array, attribute: false },
 };
 
-export { FslInstance, JSSM_ON_EVENT_NAMES, auto_mode, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler, split_ratio };
+export { FSL_ON_EVENT_NAMES, FslInstance, auto_mode, compile_inline_body, fsl_handler_registry, parse_fsl_on_element, resolve_fsl_source, resolve_named_handler, split_ratio };

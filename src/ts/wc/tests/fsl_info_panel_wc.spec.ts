@@ -118,15 +118,17 @@ describe('FslInfoPanel display', () => {
     host.remove();
   });
 
-  it('binds to a jssm-instance host too (closest_wc matches both prefixes)', async () => {
-    const host  = document.createElement('jssm-instance') as FslInstance;
+  it('does not bind to a retired jssm-instance host (removed in 6.0)', async () => {
+    const host  = document.createElement('jssm-instance');
     host.setAttribute('fsl', "Off 'flip' -> On;");
     const panel = document.createElement('fsl-info-panel') as FslInfoPanel;
     host.append(panel);
     document.body.append(host);
     await settle(panel);
 
-    expect(panel.shadowRoot!.textContent).toContain('Off');
+    // closest_wc only matches fsl-instance now, so an untagged jssm-instance
+    // "host" is invisible to it — the placeholder shows, not the machine state.
+    expect(panel.shadowRoot!.textContent!.toLowerCase()).toContain('no fsl-instance');
     host.remove();
   });
 

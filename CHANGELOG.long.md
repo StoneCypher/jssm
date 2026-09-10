@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-585 merges; 419 releases
+589 merges; 420 releases
 
 
 
@@ -12,8 +12,1357 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#v6__0__0-alpha__12">v6.0.0-alpha.12</a>, <a href="#v5__163__6">v5.163.6</a>, <a href="#5__163__6">5.163.6</a>, <a href="#v5__163__5">v5.163.5</a>, <a href="#5__163__5">5.163.5</a>, <a href="#5__163__4">5.163.4</a>, <a href="#5__163__3">5.163.3</a>, <a href="#5__163__2">5.163.2</a>, <a href="#5__163__1">5.163.1</a>, <a href="#5__163__0">5.163.0</a>, <a href="#5__162__35">5.162.35</a>, <a href="#5__162__34">5.162.34</a>, <a href="#5__162__33">5.162.33</a>, <a href="#5__162__32">5.162.32</a>, <a href="#5__162__31">5.162.31</a>, <a href="#5__162__30">5.162.30</a>, <a href="#5__162__29">5.162.29</a>, <a href="#5__162__28">5.162.28</a>, <a href="#5__162__27">5.162.27</a>, <a href="#5__162__26">5.162.26</a>, <a href="#5__162__25">5.162.25</a>, <a href="#5__162__24">5.162.24</a>, <a href="#5__162__23">5.162.23</a>, <a href="#5__162__22">5.162.22</a>, <a href="#5__162__21">5.162.21</a>, <a href="#5__162__20">5.162.20</a>, <a href="#5__162__19">5.162.19</a>, <a href="#5__162__18">5.162.18</a>, <a href="#5__162__17">5.162.17</a>, <a href="#5__162__16">5.162.16</a>, <a href="#5__162__15">5.162.15</a>, <a href="#5__162__13">5.162.13</a>, <a href="#5__162__12">5.162.12</a>, <a href="#5__162__11">5.162.11</a>, <a href="#5__162__10">5.162.10</a>, <a href="#5__162__9">5.162.9</a>, <a href="#5__162__8">5.162.8</a>, <a href="#5__162__7">5.162.7</a>, <a href="#5__162__6">5.162.6</a>, <a href="#5__162__5">5.162.5</a>, <a href="#5__162__4">5.162.4</a>, <a href="#5__162__3">5.162.3</a>, <a href="#5__162__2">5.162.2</a>, <a href="#5__162__1">5.162.1</a>, <a href="#5__162__0">5.162.0</a>, <a href="#5__161__0">5.161.0</a>, <a href="#5__160__0">5.160.0</a>, <a href="#5__159__2">5.159.2</a>, <a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#v6__0__0-alpha__12">v6.0.0-alpha.12</a>, <a href="#5__164__0">5.164.0</a>, <a href="#v5__163__6">v5.163.6</a>, <a href="#5__163__6">5.163.6</a>, <a href="#v5__163__5">v5.163.5</a>, <a href="#5__163__5">5.163.5</a>, <a href="#5__163__4">5.163.4</a>, <a href="#5__163__3">5.163.3</a>, <a href="#5__163__2">5.163.2</a>, <a href="#5__163__1">5.163.1</a>, <a href="#5__163__0">5.163.0</a>, <a href="#5__162__35">5.162.35</a>, <a href="#5__162__34">5.162.34</a>, <a href="#5__162__33">5.162.33</a>, <a href="#5__162__32">5.162.32</a>, <a href="#5__162__31">5.162.31</a>, <a href="#5__162__30">5.162.30</a>, <a href="#5__162__29">5.162.29</a>, <a href="#5__162__28">5.162.28</a>, <a href="#5__162__27">5.162.27</a>, <a href="#5__162__26">5.162.26</a>, <a href="#5__162__25">5.162.25</a>, <a href="#5__162__24">5.162.24</a>, <a href="#5__162__23">5.162.23</a>, <a href="#5__162__22">5.162.22</a>, <a href="#5__162__21">5.162.21</a>, <a href="#5__162__20">5.162.20</a>, <a href="#5__162__19">5.162.19</a>, <a href="#5__162__18">5.162.18</a>, <a href="#5__162__17">5.162.17</a>, <a href="#5__162__16">5.162.16</a>, <a href="#5__162__15">5.162.15</a>, <a href="#5__162__13">5.162.13</a>, <a href="#5__162__12">5.162.12</a>, <a href="#5__162__11">5.162.11</a>, <a href="#5__162__10">5.162.10</a>, <a href="#5__162__9">5.162.9</a>, <a href="#5__162__8">5.162.8</a>, <a href="#5__162__7">5.162.7</a>, <a href="#5__162__6">5.162.6</a>, <a href="#5__162__5">5.162.5</a>, <a href="#5__162__4">5.162.4</a>, <a href="#5__162__3">5.162.3</a>, <a href="#5__162__2">5.162.2</a>, <a href="#5__162__1">5.162.1</a>, <a href="#5__162__0">5.162.0</a>, <a href="#5__161__0">5.161.0</a>, <a href="#5__160__0">5.160.0</a>, <a href="#5__159__2">5.159.2</a>, <a href="#5__159__1">5.159.1</a>, <a href="#5__159__0">5.159.0</a>, <a href="#5__158__2">5.158.2</a>, <a href="#5__158__1">5.158.1</a>, <a href="#5__158__0">5.158.0</a>, <a href="#5__157__18">5.157.18</a>, <a href="#5__157__17">5.157.17</a>, <a href="#5__157__16">5.157.16</a>, <a href="#5__157__15">5.157.15</a>, <a href="#5__157__14">5.157.14</a>, <a href="#5__157__13">5.157.13</a>, <a href="#5__157__12">5.157.12</a>, <a href="#5__157__11">5.157.11</a>, <a href="#5__157__10">5.157.10</a>, <a href="#5__157__9">5.157.9</a>, <a href="#5__157__8">5.157.8</a>, <a href="#5__157__7">5.157.7</a>, <a href="#5__157__6">5.157.6</a>, <a href="#5__157__5">5.157.5</a>, <a href="#5__157__4">5.157.4</a>, <a href="#5__157__3">5.157.3</a>, <a href="#5__157__2">5.157.2</a>, <a href="#5__157__1">5.157.1</a>, <a href="#5__157__0">5.157.0</a>, <a href="#5__156__1">5.156.1</a>, <a href="#5__156__0">5.156.0</a>, <a href="#5__155__1">5.155.1</a>, <a href="#5__155__0">5.155.0</a>, <a href="#5__154__0">5.154.0</a>, <a href="#5__153__0">5.153.0</a>, <a href="#5__152__0">5.152.0</a>, <a href="#5__151__2">5.151.2</a>, <a href="#5__151__1">5.151.1</a>, <a href="#5__151__0">5.151.0</a>, <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:50:50 AM
+
+Commit [7e5f8a2003e8718df06d59c1f5950c7219edc559](https://github.com/StoneCypher/jssm/commit/7e5f8a2003e8718df06d59c1f5950c7219edc559)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [43c91861, 5b8d0821]
+
+  * Merge branch 'feat_26-09-09_retire-jssm-prefix' into feat_26-09-09_list-weights
+  * # Conflicts:
+#       v6_breaking_changes.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:48:32 AM
+
+Commit [007a4b2fddabf72c785bfdbf44c4ed47aa944e05](https://github.com/StoneCypher/jssm/commit/007a4b2fddabf72c785bfdbf44c4ed47aa944e05)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(parser): regex-derived fast atom scanner with a charset drift guard (#754)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:44:12 AM
+
+Commit [43c918617517ca18a0597a9247d8d07e1c69edaa](https://github.com/StoneCypher/jssm/commit/43c918617517ca18a0597a9247d8d07e1c69edaa)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: clarify a list share is a fraction of the group's weight, not a draw frequency
+  * LanguageReference.md and the weighted-arrows tutorial both said "WinA and
+WinB each get 25%, splitting the 50% evenly" for `Idle 50% -> [WinA WinB];`
+with no other sibling edge from Idle in the example — readable as a 25%
+draw frequency in isolation, when it is actually 25% of Idle's total
+weight and the two are still drawn 50/50 against each other. Both now say
+"25% of Idle's total weight" and spell out the 50/50 draw outcome.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:43:57 AM
+
+Commit [90dbc69f761f72f564d75951819ccc6b90673c96](https://github.com/StoneCypher/jssm/commit/90dbc69f761f72f564d75951819ccc6b90673c96)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: unicode uspec perf fix; sample_select transition-matrix accumulation fix
+  * unicode-config-state-lists.uspec.ts's full-range sweep built a complete
+`sm`/Machine per Unicode code point just to check weighted start_states,
+adding roughly 164s to the run on top of the parse-level checks the sweep
+already does. Moves that assertion into its own describe block over five
+representative non-ASCII code points, one per major script (Latin-1
+Supplement, Cyrillic, CJK, a supplementary-plane math symbol, Devanagari),
+quoted unconditionally per the existing #754-charset-worktree note. The
+sweep body is otherwise unchanged.
+  * sample_select.spec.ts's derived transition matrix built `P[s][e.to] = ...`
+inside a loop over a state's exits; for any state with two edges landing
+on the same target (distinct actions, say), this would silently overwrite
+rather than sum their contributions. `P` is zero-initialized, so `+=` is
+the correct accumulation and a no-op for the currently-distinct-target
+DSL this file exercises today.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:43:39 AM
+
+Commit [2a38c4014c8254cb3ff63f08e0f4215ed1327d9f](https://github.com/StoneCypher/jssm/commit/2a38c4014c8254cb3ff63f08e0f4215ed1327d9f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(jssm): make the duplicate-edge guard and probable_action_exits share-aware
+  * construct()'s duplicate-edge exemption only checked `tr.probability !==
+undefined`, so a share-only edge (an unweighted transition onto a weighted
+list, which carries `share` but no `probability`) was NOT exempt: a
+repeated list target like `a -> [b 20% b 80%];`, or a share-only edge later
+followed by a plain edge to the same target (`a -> [b 20% c 80%]; a -> b;`),
+incorrectly threw "already has ... to ...". The exemption now also checks
+`tr.share !== undefined`, matching the comment's original intent (a
+weighted fan-out may repeat a target).
+  * probable_action_exits() returned `{ action, probability }`, silently
+dropping `share` from its result even though the underlying edge carries
+it (mirroring probable_exits_for's shape); it now returns
+`{ action, probability, share }`, with the DocBlock's @returns updated.
+  * Also skips the intermediate array allocation `_start_state_weights`'s
+constructor built even for the common unweighted case — `new Map()`
+directly instead of `new Map((start_state_weights ?? []).map(...))` — since
+construct() is benchmarked.
+  * Adds three weighted_lists_runtime.spec.ts cases: the two duplicate-edge
+forms above no longer throw, and probable_action_exits includes share
+alongside probability.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:43:21 AM
+
+Commit [39cafe03d3a34161a99ab488e9785c36f52401d5](https://github.com/StoneCypher/jssm/commit/39cafe03d3a34161a99ab488e9785c36f52401d5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(viz): round a displayed probability to 6 significant digits
+  * A share-derived probability (e.g. 50 / 3 for a 3-member list) is often an
+inexact float, so a dot label rendered the raw value: 16.666666666666664.
+Both label composers (transition_label's taillabel, colored_label's
+headlabel/taillabel HTML) now format probability through a new
+format_probability() helper (Number(p.toPrecision(6))) before joining it
+into the label. Author-written values (25, 10, 0.5, ...) already have far
+fewer than 6 significant digits, so rounding is a no-op for them. The
+falsy-hiding behavior for probability 0 is preserved in both call sites
+(format_probability(0) is still filtered the same way the raw 0 was).
+  * Adds a viz_dot.spec.ts case asserting `a 50% -> [b c d];` renders 16.6667
+(not the raw float) and `a 25% -> b;` still renders 25.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:43:04 AM
+
+Commit [62e0a45e7c438b86580cdcab26f66fdf8b26fdeb](https://github.com/StoneCypher/jssm/commit/62e0a45e7c438b86580cdcab26f66fdf8b26fdeb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(compiler): pin group-reference target sharing as explicit 6.0 semantics
+  * resolve_group_refs rewrites a group-reference transition TARGET (`&g`) to
+its member array before compile_rule_transition_step runs, so a
+probabilistic transition onto a group already shared its weight across the
+expanded members the same way it does across an equivalent literal list —
+this was an untested, undocumented side effect of the implementation
+rather than a deliberate, named behavior. Ruled as the desired semantics
+(a &g target behaves like its member list); this commit makes it explicit:
+  * - Compile test: `&g : [b c]; a 50% -> &g; a 50% -> d;` asserts a->b 25,
+  a->c 25, a->d 50 (matching a literal `[b c]` list target).
+- Also adds a test for list_shares' negative-inner-weight rejection (the
+  companion fix in the prior commit had no covering test yet).
+- v6_breaking_changes.json's probabilistic-list-weights entry now names
+  group-reference targets in both `summary` and `breaks`.
+- notes/fsl-grammar-reference.md: the §6 GroupRef bullet gets a sentence on
+  target-side sharing; the §14 cheat-sheet's Arrow target row, still
+  listing the pre-6.0 grammar names, is corrected to
+  `ArrowTarget (Stripe / Cycle / WeightedLabelList / GroupRef / Label)`;
+  and the §2 WeightedLabelList paragraph gains a clause noting that inner
+  weights written on a pure list SOURCE are parsed but ignored (there is
+  no per-member edge into a source's members for a share to apply to).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:42:11 AM
+
+Commit [d988a7a42b6af1f548983b7467ef88914d7bdd37](https://github.com/StoneCypher/jssm/commit/d988a7a42b6af1f548983b7467ef88914d7bdd37)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): reject negative inner list weights in list_shares
+  * list_shares() is exported public API, so a hand-built weighted_list node
+could carry a negative weight (the grammar's NonNegNumber rule already
+rejects this at parse time, but the exported function has no equivalent
+guard). Throw a JssmError from the reduce that sums weights, naming the
+offending member, instead of silently producing a nonsensical share.
+  * Also turns apply_list_share's DocBlock @example, whose sample code did not
+type-check (casting a two-field object literal to JssmTransition), into a
+prose sentence — the function is @internal and not extracted by the
+doctest generator, so this was previously invalid code sitting unnoticed
+in the codebase rather than a build failure.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:41:54 AM
+
+Commit [71de8843281467715ba1073568d32f720e0a5f83](https://github.com/StoneCypher/jssm/commit/71de8843281467715ba1073568d32f720e0a5f83)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(types): drop the docblock-breaking @example on JssmWeightedList
+  * The @example tag on JssmWeightedList's DocBlock was jssm_types.ts's first,
+so src/buildjs/extract_examples.cjs generated jssm_types.docex.ts with an
+unverifiable example (no expect(...) or // => marker), and vitest-docs
+(and so ci_build) failed. The file's own convention for a type-level code
+sample that isn't meant to be extracted and asserted is a plain fenced
+```ts block with no @example tag — switch to that. Deliberately not adding
+an @example to JssmWeightedListMember either, for the same reason.
+  * Also sharpens the JssmTransition.share field's DocBlock wording: "the list
+side's default weight" rather than "a list target's default weight", since
+share applies on whichever side (source or target) actually carries the
+list, not only a target.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:23:18 AM
+
+Commit [5a630412283cc6a82bd1d6b311d5ef108db97581](https://github.com/StoneCypher/jssm/commit/5a630412283cc6a82bd1d6b311d5ef108db97581)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(unicode): classify every code point as bareword or quoted-only (#754)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:04:01 AM
+
+Commit [84618f8bf1cb00b191023e50007c62671a5b0fda](https://github.com/StoneCypher/jssm/commit/84618f8bf1cb00b191023e50007c62671a5b0fda)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(grammar): name WeightedLabelList in the §6 ArrowTarget list
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:47:32 AM
+
+Commit [534af403498b810b289f62aba08de0102b790d14](https://github.com/StoneCypher/jssm/commit/534af403498b810b289f62aba08de0102b790d14)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(grammar): list-target weights and weighted start_states; re-derive sample_select
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:35:02 AM
+
+Commit [5b8d08211e177030f1877990b1589a787c1d106b](https://github.com/StoneCypher/jssm/commit/5b8d08211e177030f1877990b1589a787c1d106b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(release): 6.0.0-alpha.15 — retire the jssm- web-component prefix
+  * Release-profile build on feat_26-09-09_retire-jssm-prefix: alpha bump 14 -> 15 propagated to all seven manifests by makever, lockfile refreshed (was stale at alpha.12 and missing jssm-commonjs/-iife/-verify), dist + packages/*/dist + custom-elements.json + README + CHANGELOG regenerated. Spec 10829 / stoch 1026 / docs 23 green; bundle_shape and cem pass against the fresh artifacts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:25:29 AM
+
+Commit [fafcf82db53fc89d072e90bbfb2de3225f020006](https://github.com/StoneCypher/jssm/commit/fafcf82db53fc89d072e90bbfb2de3225f020006)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): drop the quoted jssm-viz literal from wc_tag_helpers docs example
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:25:15 AM
+
+Commit [0789641b132dcbe33d9381ef9560ae370504ed54](https://github.com/StoneCypher/jssm/commit/0789641b132dcbe33d9381ef9560ae370504ed54)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): bundle-shape assertions match quoted tag literals, not define-call adjacency
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:25:06 AM
+
+Commit [3c305f1d975e7ee5c1b646e09be38fa09c9dc3e7](https://github.com/StoneCypher/jssm/commit/3c305f1d975e7ee5c1b646e09be38fa09c9dc3e7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(core): weighted start_states -- accessor, sampler, and stochastic runs
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:11:03 AM
+
+Commit [24c3afcffa50f4c0f7b5730c2e2f5d352abedd13](https://github.com/StoneCypher/jssm/commit/24c3afcffa50f4c0f7b5730c2e2f5d352abedd13)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(core): the probabilistic picker weighs edge shares from weighted lists
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:05:09 AM
+
+Commit [f9552014f64afa85f546d26b55e6d38c95e86d2b](https://github.com/StoneCypher/jssm/commit/f9552014f64afa85f546d26b55e6d38c95e86d2b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [167c43d8, 7a65f5c9]
+
+  * Merge branch 'docs_26-07-04_fable-v6-to-v16' into feat_26-09-09_retire-jssm-prefix
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 1:00:26 AM
+
+Commit [167c43d8992044d9b55810238ae8f71cfc46419b](https://github.com/StoneCypher/jssm/commit/167c43d8992044d9b55810238ae8f71cfc46419b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): finish the jssm- identifier retirement and harden the bundle-shape assertions
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:57:29 AM
+
+Commit [b4ef00a16faad9fbebe51b9ce573f4f8b815a209](https://github.com/StoneCypher/jssm/commit/b4ef00a16faad9fbebe51b9ce573f4f8b815a209)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): all-unweighted weighted_list shares uniformly; cover weighted-source shares
+  * list_shares() threw a bogus "weights sum to zero" error (interpolating
+`undefined%`) for a hand-built weighted_list node whose members all omit
+weight — contradicting both the spec ("no member carries a weight: shares
+are uniform 1/n") and its own DocBlock. The grammar never emits this shape
+(an unweighted list parses to a plain array), but list_shares is exported
+public API, so it must still handle it. Added the uniform-share branch and
+removed the now-stale comment that rationalized the throw.
+  * Also adds coverage for the from_has_weights path (a weighted list on the
+SOURCE side of an arrow), which review round 1 found untested:
+[a 20% b 80%] <- 50% e, [a 20% b 80%] <-> c, and
+[a 20% b 80%] 50% <-> 40% e. All three match the existing share-placement
+implementation exactly (no numbers changed).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:51:55 AM
+
+Commit [c06eea504d4fa8b4d6f4f712cce888a96420b2ff](https://github.com/StoneCypher/jssm/commit/c06eea504d4fa8b4d6f4f712cce888a96420b2ff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(core)!: bareword predicates replace the symbol-bearing charset tables (#754)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:43:05 AM
+
+Commit [84839cf56009da59272158ef5149a533d2b61a1d](https://github.com/StoneCypher/jssm/commit/84839cf56009da59272158ef5149a533d2b61a1d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler)!: list targets share a transition's probability; inner weights and edge shares
+  * Compiler-side half of probabilistic list-target weights (6.0 list weights,
+sub-project 4). Adds `list_shares()`, resolving a plain list to uniform 1/n
+shares and a weighted list (Task 1's JssmWeightedList) to normalized w_i/Σw
+shares, rejecting a mixed weighted/unweighted list or a zero-sum weight set.
+  * `compile_rule_transition_step` now applies that share to whichever compiled
+edge actually enters the list's members (the forward edge when the TARGET is
+a list, the reverse edge when the SOURCE is a list under a leftward arrow,
+e.g. `[a b] <- 50% e`), leaving a list SOURCE's own outgoing edges at full
+weight. A declared probability becomes `P x share`; an undeclared one records
+`share` on the edge instead, but only when the list carried real inner
+weights (a plain list's uniform share is not written out). `JssmTransition`
+gains `share?: number`, pre-declared alongside `probability` in
+`makeTransition`'s edge literal.
+  * `compile()` also resolves a weighted `start_states` list to plain names on
+`start_states` plus a new `start_state_weights` on `JssmGenericConfig`, for
+Task 4's Machine accessors.
+  * Also fixes compile.spec.ts's `toStrictEqual` edge-shape fixture, which pinned
+the exact key set of a compiled edge and needed `share: undefined` added to
+match every edge's new pre-declared field.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:31:25 AM
+
+Commit [20fa29d0fa05a1079c7f291f7d9f06b323789858](https://github.com/StoneCypher/jssm/commit/20fa29d0fa05a1079c7f291f7d9f06b323789858)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(grammar): fix round 1 for #754 review (quotable advice, enum msgs, bad-first-char)
+  * - ValEnumMember gains a slash-String alternative before the digit-catch, so
+  the "quote it" advice a symbol-bearing member gets (enum(a.b, c)) is
+  actually true -- a quoted member now parses.
+- SdStateProperty's two name:Atom bindings become name:Label, matching
+  MachineProperty (the top-level property-declaration a per-state override
+  must name-match), so a property name needing quotes can be quoted in
+  both places, not just one.
+- ArrowTarget gains a final ArrowTargetBadFirstChar alternative catching a
+  bareword starting with a bad ASCII symbol or punctuation character
+  (dot-foo, dash-foo, question-x) -- 5.x accepted these; without this
+  alternative they fell through to pegjs's generic expectation-list error
+  instead of the #754 migration message. Tried last, after Stripe and
+  Cycle, so their leading-dash/plus targets are unaffected.
+- Adds a pegjs initializer compiling the two bareword-class regexes once at
+  module load (BAREWORD_FIRST/BAREWORD_REST) instead of once per character
+  tested, addressing the fresh-regex-per-char cost the two semantic
+  predicates introduced.
+- bareword_charset.spec.ts: covers ValEnumMember's own digit/symbol
+  messages, proves the comma still separates multi-member enums, proves a
+  quoted enum member and a quoted per-state property name both parse and
+  are visible on the built machine, and covers the new bad-first-char
+  rejection in both source and target position plus the Cycle/Stripe
+  non-regression.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:29:49 AM
+
+Commit [7aff3fb4d19accaa1781a59caf25cef5f520c983](https://github.com/StoneCypher/jssm/commit/7aff3fb4d19accaa1781a59caf25cef5f520c983)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): document the 6.0 removal of the jssm- prefix
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:23:14 AM
+
+Commit [e975ceb359b2eaa0b5967b5fb7c26ea16305f639](https://github.com/StoneCypher/jssm/commit/e975ceb359b2eaa0b5967b5fb7c26ea16305f639)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): drop the JssmBind and JssmInstance type aliases
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:22:43 AM
+
+Commit [7a65f5c9bd29d24b7740c801b4fa4e12c372dbe5](https://github.com/StoneCypher/jssm/commit/7a65f5c9bd29d24b7740c801b4fa4e12c372dbe5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): bare-functions API + jssm/compat design draft (sub-project 5)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 12:21:22 AM
+
+Commit [62b96474e3c9004ea033dc886df1c45dc841373a](https://github.com/StoneCypher/jssm/commit/62b96474e3c9004ea033dc886df1c45dc841373a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): describe the real ValEnumMember rule after the review
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 10:00:43 AM
+
+Commit [2b3edace2f77e2f531cc17a0c6da0bfb65fb452a](https://github.com/StoneCypher/jssm/commit/2b3edace2f77e2f531cc17a0c6da0bfb65fb452a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): add the fast-atom-scanner and corpus-sweep tasks to the #754 plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 9:59:20 AM
+
+Commit [214a7c1cdb9cd3f6b504b628c81a1a285afa6318](https://github.com/StoneCypher/jssm/commit/214a7c1cdb9cd3f6b504b628c81a1a285afa6318)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(parser): regenerate fsl_parser.ts for the weighted-list grammar
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:52:26 AM
+
+Commit [0346738d2f3c0fc96abba53c3feed023cd611f4a](https://github.com/StoneCypher/jssm/commit/0346738d2f3c0fc96abba53c3feed023cd611f4a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc)!: retire the jssm- prefix — tags, child tags, data attributes, CSS properties
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:40:57 AM
+
+Commit [8c0f704c444afb6834c685cdae5a7ce4f1562b1c](https://github.com/StoneCypher/jssm/commit/8c0f704c444afb6834c685cdae5a7ce4f1562b1c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar)!: restrict barewords to Unicode identifier characters (#754)
+  * FSL barewords are now Unicode identifiers: first character must be
+\p{L}/\p{Nl}/_, continuation adds \p{Mn}/\p{Mc}/\p{Nd}/\p{Pc}. Symbol-bearing
+names (in-progress, a+b, AcctHasMoney?) and leading-digit names (1st, 99bottles)
+must now be quoted; the parser names the offending character and says "quote"
+in every rejection. ValEnumMember follows the same classes and messaging,
+including a jssm#759-consistent digit-leading message. Astral code points
+(surrogate pairs) are classified as one character via a new AtomCodePoint rule.
+  * Also:
+- Reorders Term to try every literal-keyword declaration (state, arrange*,
+  &named-list, on-hook, machine attribute/property/val, config) before Exp.
+  The new Atom/ArrowTarget error() calls throw hard (they abort PEG
+  backtracking, unlike an ordinary failed match), so trying Exp first let a
+  bareword-prefix match inside a keyword form -- e.g. "arrange-start" partially
+  matching Atom as "arrange" then hard-erroring on the trailing "-" -- kill
+  the parse before ArrangeDeclaration got a chance at the same input.
+- Removes fixparser.cjs's inline_fast_atom hand-rolled scanner (#702): it
+  hardcoded the old charCodeAt-range charset and would have silently
+  reproduced pre-#754 acceptance in the generated parser. Re-fast-pathing
+  Atom now needs a range table derived programmatically from the two regexes,
+  not transcribed by hand.
+  * Known fallout, left for downstream tasks (charset tables / unicode suite /
+docs, not this grammar task): characterset.spec.ts, language.spec.ts and
+conformance/corpus.spec.ts fixtures using now-illegal bareword characters;
+example_machines.spec.ts's AcctHasMoney? example; the fence-highlighter and
+semantic-spans digit-leading-name tests. fsl_tmlanguage.spec.ts's dist-artifact
+check and bundle_shape.spec.ts's size check are pre-existing, unrelated
+failures (confirmed via git diff showing zero change to either file/artifact).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:22:24 AM
+
+Commit [adeff61d88bfb02ae4de143e86da51cb274f0615](https://github.com/StoneCypher/jssm/commit/adeff61d88bfb02ae4de143e86da51cb274f0615)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar): weighted list members in arrow targets and start_states
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:12:15 AM
+
+Commit [c7de00400b34d59c01fb7c24ae7f608e6c66059c](https://github.com/StoneCypher/jssm/commit/c7de00400b34d59c01fb7c24ae7f608e6c66059c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): probabilistic list-target weights implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:11:23 AM
+
+Commit [f615fda50aecc61e5a84d6e3fc6ae24becf81a97](https://github.com/StoneCypher/jssm/commit/f615fda50aecc61e5a84d6e3fc6ae24becf81a97)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): retire the jssm- web-component prefix implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 8:10:20 AM
+
+Commit [a911d731b4f582c498ba0bd07ced1ad46af66bcc](https://github.com/StoneCypher/jssm/commit/a911d731b4f582c498ba0bd07ced1ad46af66bcc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): bareword charset restriction (#754) implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 7:58:30 AM
+
+Commit [aad852f515fc7e4e6acca0ce787c647389ceee7e](https://github.com/StoneCypher/jssm/commit/aad852f515fc7e4e6acca0ce787c647389ceee7e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): probabilistic list-weights design (sub-project 4)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 7:51:30 AM
+
+Commit [00ce6bc3ccf982af26701d880eeaedb794d9f88e](https://github.com/StoneCypher/jssm/commit/00ce6bc3ccf982af26701d880eeaedb794d9f88e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): correct the unicode-suite impact of #754 in the landing spec
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 9, 2026 7:49:03 AM
+
+Commit [9edd1e4484f71fc5a7a92156245b65d5459acece](https://github.com/StoneCypher/jssm/commit/9edd1e4484f71fc5a7a92156245b65d5459acece)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [8b2e6d1c, 1fabfde0]
+
+  * chore(v6): merge origin/main (5.164.0, rasterize export) into the v6 line
+  * Hand-merged src/ts/cli/lib.ts to keep the v6 codegen, interchange and config exports and add main's rasterize re-export; kept the v6 rasterize shim and exported RasterTarget from fsl_rasterize.ts to mirror PR #982; manifests keep 6.0.0-alpha.14; dist and declarations regenerated with npm run make; spec suite 10845 green at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 8, 2026 7:21:30 PM
+
+Commit [8b2e6d1cc75e15873e3af1c2001ea29c60abfa1e](https://github.com/StoneCypher/jssm/commit/8b2e6d1cc75e15873e3af1c2001ea29c60abfa1e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): umbrella design for the 6.0.0 landing program
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 2, 2026 5:17:00 PM
+
+Commit [a5b8eaf972d918f8ed5764062ae5dcefbd91ba9e](https://github.com/StoneCypher/jssm/commit/a5b8eaf972d918f8ed5764062ae5dcefbd91ba9e)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps-dev): bump browserslist from 4.28.5 to 4.28.8
+  * Bumps [browserslist](https://github.com/browserslist/browserslist) from 4.28.5 to 4.28.8.
+- [Release notes](https://github.com/browserslist/browserslist/releases)
+- [Changelog](https://github.com/browserslist/browserslist/blob/main/CHANGELOG.md)
+- [Commits](https://github.com/browserslist/browserslist/compare/4.28.5...4.28.8)
+  * ---
+updated-dependencies:
+- dependency-name: browserslist
+  dependency-version: 4.28.8
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 2, 2026 1:18:21 PM
+
+Commit [55217e6e21cd02dd49e801b30bffded2b71cd7e9](https://github.com/StoneCypher/jssm/commit/55217e6e21cd02dd49e801b30bffded2b71cd7e9)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump fast-uri from 3.1.4 to 3.1.7
+  * Bumps [fast-uri](https://github.com/fastify/fast-uri) from 3.1.4 to 3.1.7.
+- [Release notes](https://github.com/fastify/fast-uri/releases)
+- [Commits](https://github.com/fastify/fast-uri/compare/v3.1.4...v3.1.7)
+  * ---
+updated-dependencies:
+- dependency-name: fast-uri
+  dependency-version: 3.1.7
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 23, 2026 2:46:07 AM
+
+Commit [0a39386bc47d9c23e6c20ef638bb0de88173ce4d](https://github.com/StoneCypher/jssm/commit/0a39386bc47d9c23e6c20ef638bb0de88173ce4d)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260822-215527
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 23, 2026 2:45:49 AM
+
+Commit [869e1b6d1ceabe4bdaf7d330002df05bc198bcab](https://github.com/StoneCypher/jssm/commit/869e1b6d1ceabe4bdaf7d330002df05bc198bcab)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 22, 2026 2:45:40 PM
+
+Commit [91bd2a6e1db2e2cc122bafa7a6afff53810db8d9](https://github.com/StoneCypher/jssm/commit/91bd2a6e1db2e2cc122bafa7a6afff53810db8d9)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 1fabfde0fc8ab5f2984204a1551ef24bd7474675
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__164__0" />
+
+## [5.164.0] - Aug 22, 2026 2:42:27 PM
+
+Commit [1fabfde0fc8ab5f2984204a1551ef24bd7474675](https://github.com/StoneCypher/jssm/commit/1fabfde0fc8ab5f2984204a1551ef24bd7474675)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [dd801cfc, 569464d8]
+
+  * Merge pull request #982 from StoneCypher/feat_26-08-22_export-rasterize
+  * feat(cli): export rasterize from the jssm/cli barrel
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 22, 2026 12:16:08 PM
+
+Commit [569464d884a84a56a224e9131728aa1935c16fed](https://github.com/StoneCypher/jssm/commit/569464d884a84a56a224e9131728aa1935c16fed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): rebuild cli bundles and declarations for the rasterize export
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 22, 2026 12:12:27 PM
+
+Commit [8b16f0fc1e2cd0f92b0ef07fc8f1e65fa3260421](https://github.com/StoneCypher/jssm/commit/8b16f0fc1e2cd0f92b0ef07fc8f1e65fa3260421)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): export rasterize from the jssm/cli barrel
+  * rasterize() has always been a finished public function: full DocBlock, a
+worked example, a documented @throws, and its own thorough spec at
+src/ts/tests/cli/rasterize.spec.ts. It simply was never re-exported from the
+jssm/cli barrel, so no consumer could reach it. rasterizeRgba sits beside it
+with the same omission, which suggests oversight rather than a deliberate
+boundary; only rasterize has an external consumer today, so only rasterize is
+surfaced here.
+  * The change is three lines and moves no function bodies. RasterTarget gains the
+export keyword it was missing, and the barrel gains one value re-export and one
+type re-export. RasterOptions was already exported from its module.
+  * This is the barrel's documented extension path: its own header says that adding
+to the public surface means re-exporting from this file.
+  * The motivating consumer is fsl-mcp, which is adding a graphviz_render tool. It
+renders DOT to SVG through viz-js and then needs to turn that SVG into PNG or
+JPEG. rasterize takes an SVG string rather than FSL, so the entire raster half
+of this pipeline is already language-agnostic; the only FSL-specific step in it
+is svgTarget(fsl). Without this export, fsl-mcp would have to reimplement the
+canvas sizing, the blob conversion, and the resvg wasm initialization, and that
+copy would immediately begin drifting from this one.
+  * Adds two barrel tests that rasterize a real SVG through the public path and
+assert PNG magic bytes and a forwarded width, rather than only asserting the
+symbol is a function.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Aug 10, 2026 4:15:59 PM
+
+Commit [f33bdb8f7283c49afb79acdea8b48e15f7283dd0](https://github.com/StoneCypher/jssm/commit/f33bdb8f7283c49afb79acdea8b48e15f7283dd0)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps-dev): bump js-yaml from 4.3.0 to 4.3.1
+  * Bumps [js-yaml](https://github.com/nodeca/js-yaml) from 4.3.0 to 4.3.1.
+- [Changelog](https://github.com/nodeca/js-yaml/blob/4.3.1/CHANGELOG.md)
+- [Commits](https://github.com/nodeca/js-yaml/compare/4.3.0...4.3.1)
+  * ---
+updated-dependencies:
+- dependency-name: js-yaml
+  dependency-version: 4.3.1
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 29, 2026 8:53:50 AM
+
+Commit [a5e5aff70c5bfa592cf4fed983173bf14a9b7a9b](https://github.com/StoneCypher/jssm/commit/a5e5aff70c5bfa592cf4fed983173bf14a9b7a9b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(data): measure jssm_mini_demo; record jssm-mcp's retirement
+  * ## jssm_mini_demo
+  *   2019-05-06.f468a52   4 files   4.02 MB
+  2019-05-06.e04f647   4 files   4.02 MB
+  * Two GitHub Pages builds on one day in 2019, then nothing. Measured over
+the served docs/ directory, like fsl.tools. 4 MB in 4 files means it was
+almost entirely one vendored bundle -- the same shape as fsl.tools' 16 MB
+and the old jssm-viz-demo, which gives the flow model three surfaces
+sharing a family it can finally compare.
+  * Rather more than "mini demo" suggests.
+  * ## jssm-mcp
+  *   category      current -> replaced by newer work
+  obsoletedBy   fsl-mcp ("renamed before any work landed")
+  archived      true
+  description   DEPRECATED -- never built; ... is StoneCypher/fsl-mcp
+  * Never built: one commit, three files, 2 KB, pushed one second after the
+repo was created. Upstream it is now archived with a README pointing at
+fsl-mcp. It stays a zero-mass rail on purpose -- no channel, no
+artifact, so mass would be invented.
+  * Chart: 15 -> 16 packages, 818 -> 820 versions, 12 -> 13 flow columns,
+18 -> 17 rails.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 29, 2026 8:52:59 AM
+
+Commit [7620e0a7ffe74f49da8cc588ef77da8e4a13a39c](https://github.com/StoneCypher/jssm/commit/7620e0a7ffe74f49da8cc588ef77da8e4a13a39c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(charts): open on mass flow; retire jssm-mcp; measure the demo site
+  * Three changes, all in service of the chart's second job -- it turns out
+to work as an inventory of what shipped and what didn't, which makes the
+never-shipped rails a revival list nobody had to write.
+  * ## Mass flow is the default view
+  * `flowMode` starts true. The sankey is what the page is for; opening on a
+single package's file stack buried it behind two clicks.
+  * ## jssm-mcp retired in favour of fsl-mcp
+  * Never built: one commit on 2026-03-07, three files, 2 KB, pushed one
+second after creation. A name reservation the jssm-* -> fsl-* rename
+made moot before anything was written.
+  * - OBSOLETION gains the edge to fsl-mcp, so it reads as resolved history
+  rather than as orphaned work
+- moved out of `current` into `replaced by newer work`
+- upstream: README rewritten to point at fsl-mcp, description marked
+  DEPRECATED, repo archived
+  * It stays a zero-mass rail deliberately. It shipped through no channel
+and produced no artifact anywhere; giving it mass would invent bytes no
+user ever received.
+  * ## jssm_mini_demo measured
+  * A hosted demo is a website whose whole job is to be visited, so it is
+measured like one -- the Pages strategy, over the served docs/ dir. Two
+builds on 2019-05-06, and it is 4.02 MB across 4 files, which is rather
+more than "mini" suggests. Almost entirely one vendored bundle, the same
+shape as fsl.tools' 16 MB and the old jssm-viz-demo.
+  * That leaves `replaced by newer work` with three streams and one rail,
+which is the honest split rather than a tidy one.
+  * Chart: 15 -> 16 packages, 818 -> 820 versions, 12 -> 13 flow columns,
+18 -> 17 rails.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 29, 2026 6:24:00 AM
+
+Commit [b27cbcd07bfad3449a3039fc9dca629faa810b46](https://github.com/StoneCypher/jssm/commit/b27cbcd07bfad3449a3039fc9dca629faa810b46)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(data): collect eight surfaces the chart could not previously draw
+  * Three groups, all previously invisible or drawn as zero-mass rails.
+  * ## Published to npm, never enrolled
+  *   fslp             5 versions   peak 0.97 MB
+  fslc             2 versions
+  fsli             1 version
+  fsl-lezer        1 version
+  fsl_gen_docpage  1 version
+  * The early FSL tool line. Every one shipped to npm and every one was
+absent from DEFAULT_PACKAGES, so the diagram silently downgraded real
+libraries to lifespan lines.
+  * ## Ships from git tags, not npm
+  *   sublime-fsl      5 tags   0.17 MB   Package Control, 376 installs
+  sublime-jssm     2 tags   0.21 MB
+  * Versions are tags, because Package Control resolves a release to one.
+README and screenshot are counted deliberately: the installer zips the
+checkout, so they are genuinely delivered.
+  * ## Ships as a website
+  *   fsl.tools       31 deploys
+  * Versions are successful GitHub Pages builds, deduplicated by commit,
+measured over the served `docs/` directory only. The shape:
+  *   2018-11-19   1437 files   12.23 MB   the generated site lands
+  2019-05-07   1444 files   16.67 MB   url viewer
+  2021 - 2022  1444 files   16.67 MB   flat for three years
+  2026-06-04     63 files    1.34 MB   the modern rebuild
+  * 16.67 MB -> 1.34 MB. That 16 MB was substantially a vendored Ace editor
+with every language mode and theme -- the same bundle the old
+jssm-viz-demo carried, which gives the flow model a decomposition edge
+it previously had no data to see.
+  * Chart across all of it: 7 -> 15 packages, 770 -> 818 versions,
+9 -> 12 flow columns, 26 -> 18 rails as measured repos became streams.
+  * Written by src/scripts/collect_package_sizes.cjs and the new
+src/scripts/collect_tagged_repo_sizes.cjs.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 29, 2026 6:23:02 AM
+
+Commit [ba701ffc08413007a51680aac28ac1f4c1667fde](https://github.com/StoneCypher/jssm/commit/ba701ffc08413007a51680aac28ac1f4c1667fde)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(charts): measure a website by its Pages deploys
+  * fsl.tools ships a deep site, so neither the landing page nor the repo
+was the right measure -- one ignores most of what exists, the other
+counts source nobody downloads. The served directory is the deliverable,
+and GitHub already records every time it changed.
+  * Adds a `pages` version strategy to collect_tagged_repo_sizes beside the
+existing `tags` one:
+  * - versions are successful Pages BUILDS. A website has no tags worth
+  speaking of (fsl.tools has exactly one across eight years), but a
+  build is the honest analogue of a publish: the moment the thing
+  visitors reach actually changed.
+- errored builds are dropped -- a failed deploy never served bytes, and
+  counting it would claim visitors saw something they did not. 4 of 35.
+- repeat builds of one commit collapse to the earliest; a rebuild of
+  identical content is not a new version of the site.
+- `subdir` names the Pages source path, and the prefix is stripped, so
+  the measure is the served site and the paths read as site paths rather
+  than repo paths.
+- a build whose source path did not exist yet is skipped rather than
+  recorded as zero, which would draw a false trough.
+- version keys are `YYYY-MM-DD.<sha7>`: readable in a tooltip, unique,
+  chronologically sane, and honest that a site has no version numbers.
+  * What it found, across 31 deploys:
+  *   2018-11-18     1-3 files              scaffolding, CNAME thrash
+  2018-11-19    1437 files   12.23 MB   the generated site lands
+  2019-05-07    1444 files   16.67 MB   url viewer
+  2021 -> 2022  1444 files   16.67 MB   flat for three years
+  2026-06-04      63 files    1.34 MB   the modern rebuild
+  * 16.67 MB -> 1.34 MB, 1444 files -> 64. The same eviction story as the
+npm tarball, on a surface nothing was measuring.
+  * Chart: 14 -> 15 packages, 787 -> 818 versions, 11 -> 12 flow columns.
+  * Note the interned-path table roughly doubled (1586 -> 3089) and the page
+went 614 KB -> 951 KB: the 2018-2022 site vendored an entire Ace editor
+with every language mode and theme. One more site like that would make
+this page meaningfully heavy.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 29, 2026 5:57:50 AM
+
+Commit [469642fd8569a12a7098d4d5dd2f2ff39e027703](https://github.com/StoneCypher/jssm/commit/469642fd8569a12a7098d4d5dd2f2ff39e027703)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(charts): measure what ships outside npm, and stop under-drawing what ships on it
+  * The ecosystem chart had two ways to under-report, and both were silent.
+  * ## Enrollment drift, in three directions
+  * Nothing reconciled a curated list against the data derived from it, so a
+name could sit enrolled for weeks while no archive was ever written and
+the only symptom was a chart quietly missing a band.
+  * - collect_package_sizes: `collectPackage` now returns `{ added, published }`
+  instead of a bare count -- conflating "nothing new" with "does not
+  exist" destroyed the information at the return statement. New pure
+  `reconcile()` partitions tracked names into collected / unpublished /
+  uncollected / untracked and prints a summary.
+- build_repo_timeline: new pure `auditEnrollment()` reports the direction
+  nobody had built -- real fsl/jssm repos under the owner that nobody
+  curated. buildDataset already warned about curated names that don't
+  resolve; nothing ever asked the world about the list.
+  * ## Five libraries were published to npm and never enrolled
+  * fslp, fslc, fsli, fsl-lezer and fsl_gen_docpage all shipped to npm and
+were absent from DEFAULT_PACKAGES, so the chart drew them as zero-mass
+rails rather than the libraries they were. Enrolled and collected.
+  * ## Things that ship somewhere that isn't npm
+  * New `src/scripts/collect_tagged_repo_sizes.cjs`: size archaeology for
+repos that ship from git tags. Package Control installs from a tagged
+GitHub repo, so a tag is that channel's published version and the tagged
+commit's date is its publish date. Sizes come from GitHub's recursive
+tree API -- every blob with its byte size, one call per tag, no tarball
+download. Output shape is byte-identical to the npm collector's and
+lands in the same directory, reusing its loadArchive/saveArchive/
+makeRecord so the two cannot drift; the chart needed no changes, since
+buildPayload never cared where an archive came from.
+  * Screenshots and READMEs are counted deliberately: Package Control zips
+the checkout, so they are genuinely delivered.
+  * ## Recording how each repo ships
+  * New SHIPS map on the repo timeline, surfaced as `ships` + `shipsAt` and
+carried into the chart's rails. npm is deliberately absent -- it is
+derived from the archives, and a second declared source could disagree.
+Rails now distinguish ships-elsewhere (full weight, channel named) from
+never-shipped (faded), leaving dash for archived, which is orthogonal.
+Absence from the map is now a real claim.
+  * vscode-fsl is deliberately NOT in it. Its manifest carries publisher /
+vsce / galleryBanner / engines.vscode, which proves intent to package,
+not publication: the marketplace item 404s, open-vsx 404s, and its
+GitHub releases carry no .vsix. Tracked as StoneCypher/fsl#1979.
+  * ## Pills for everything
+  * Every package AND every repo now has a toggle pill, in two labelled
+groups; rails honour selection, and the title counts each population
+against its own denominator.
+  * Chart effect over the whole change: 2 packages / 4 flow columns
+-> 14 packages / 787 versions / 11 flow columns.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 27, 2026 1:22:37 PM
+
+Commit [7076153763970a8a23fc10dc059d875880f8e5ad](https://github.com/StoneCypher/jssm/commit/7076153763970a8a23fc10dc059d875880f8e5ad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(data): record how each repo ships, and drop the vscode-fsl claim
+  * Adds `ships` and `shipsAt` to every repo record. Until now the diagram's
+only notion of shipping was "has npm mass", so a Sublime package with
+376 installs, a live website, and an abandoned 2018 experiment all drew
+as identical bare rails.
+  * Channels recorded (npm is deliberately NOT among them -- it is derived
+from the archives, and a second declared source could disagree):
+  *   sublime-package-control  sublime-fsl (376 installs, v1.4.1), sublime-jssm
+  github-actions-marketplace  jssm-viz-action
+  git                      fsl-textmate
+  spec                     fsl, fsl-spec
+  book                     fslbook
+  website                  fsl.tools, fsllang.com, jssm_mini_demo,
+                           jssm-tutorial-scratch, fsl-lezer-demo
+  * `shipsAt` carries a URL where one was verified -- the receipt that makes
+a claim checkable by someone who did not do the checking.
+  * CORRECTION in the same pass: vscode-fsl is NOT shipped and its entry is
+removed. Its manifest carries publisher/vsce/galleryBanner/engines.vscode,
+which proves intent to package, not publication. Checked 2026-07-27: the
+marketplace item URL 404s, open-vsx 404s, and GitHub releases 0.1.0 ..
+0.3.2 carry no .vsix assets. No installable artifact exists anywhere.
+Tracked as StoneCypher/fsl#1979.
+  * Absence from the map is now a real claim -- "never reached users at all"
+-- which is what makes fsl-pegjs, fsllint, fsled and fsl-code
+distinguishable from the repos that did.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 27, 2026 12:00:10 PM
+
+Commit [01207ff9b55bc7bf4441b7268e7bd291bcae15fc](https://github.com/StoneCypher/jssm/commit/01207ff9b55bc7bf4441b7268e7bd291bcae15fc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(data): collect the five published-but-uncollected packages; refresh the repo timeline
+  * The size/mass-flow chart has been drawing 2 packages and 4 flow columns
+because the nightly that feeds it has never run: package_sizes.yml lives
+only on docs_26-07-04_fable-v6-to-v16, and a `schedule:` trigger fires
+only from the default branch. GitHub does not list the workflow at all.
+The two archives that existed were hand-seeded.
+  * Collected locally, mirroring what the workflow would do:
+  *   jssm                  +2    (now current)
+  jssm-viz              +0    1 deprecation status change
+  jssm-viz-cli          +80
+  jssm-viz-demo         +58
+  codemirror-lang-fsl   +1
+  require_jssm          +2
+  fsl                   +1
+                       ----
+  done: +144 versions across 12 packages
+  *   reconcile: 12 tracked, 7 collected, 5 not yet published,
+             0 enrolled but uncollected
+  * The five remaining are the v6 packages that genuinely 404 -- jssm-fence,
+jssm-cli, jssm-commonjs, jssm-iife, jssm-verify -- which claim their
+names at the first alpha publish.
+  * Chart effect: 2 packages / 626 versions / 4 flow columns
+           -> 7 packages / 770 versions / 9 flow columns.
+  * jssm-viz-cli and jssm-viz-demo matter most: they are the packages whose
+mass flowed INTO jssm during the viz consolidation, so the diagram was
+missing the very inflow it exists to show. decompositions() also cannot
+fire with two packages, since it needs a family leaving one and
+appearing in another.
+  * repos.json refreshed: 32 -> 33 repos (fsl.tools added). The new
+auditEnrollment() reports 15 real fsl/jssm repos under the owner that
+nobody ever enrolled -- example machines, translations, repros -- left
+for a separate curation pass rather than bulk-added here.
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jul 27, 2026 11:51:46 AM
+
+Commit [5bda955df37d09928abc2eacd6f01dfdfbf122e9](https://github.com/StoneCypher/jssm/commit/5bda955df37d09928abc2eacd6f01dfdfbf122e9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(core): add the fsl`` tagged-template alias; make chart enrollment reconcile (6.0.0-alpha.14)
+  * Three unrelated pieces of work, all on the v6 alpha line.
+  * ## fsl`` — an exact alias of sm``
+  * Syntax highlighters dispatch a tagged template by matching the tag name,
+and `sm` is two generic letters that collide with ordinary identifiers.
+`fsl` names the language unambiguously, so highlight.js can key on it
+without false positives on unrelated code. Neither spelling is
+deprecated: `sm` stays the terse everyday form, `fsl` is the one to use
+in sources that get highlighted.
+  * - `fsl<mDT>()` beside `sm`, exported from the same barrel
+- `Machine.prototype.fsl` beside `Machine.prototype.sm`, so the
+  `obj.fsl` member form highlights too (highlight.js patterns carry a
+  `\.?` prefix for exactly this)
+- `src/ts/tests/fsl_tag.spec.ts` — 13 tests, including serialize
+  equality against `sm` across plain/interpolated and function/method
+  forms. `serialize()` stamps wall-clock time, so the comparison PINS
+  `timestamp` to a constant rather than deleting the key: a serialize()
+  that stopped emitting the field, or renamed it, still fails. Two
+  further tests assert both spellings do stamp a plausible epoch ms,
+  which is the coverage the pin displaces.
+- README row documenting it and saying why to prefer it
+  * This unblocks the upstream highlight.js patch (StoneCypher/fsl#1972),
+which now keys on `\.?fsl` instead of the ambiguous `\.?sm`.
+  * ## The size/mass-flow charts silently under-drew
+  * Enrollment lists and collected data were separate artifacts with nothing
+reconciling them: a package could sit in DEFAULT_PACKAGES for weeks
+while no archive was ever written, and the only symptom was a chart
+quietly missing a band. Five tracked packages turned out to be published
+but never collected — 142 versions of free data the chart wasn't
+drawing.
+  * - `collectPackage` now returns `{ added, published }` instead of a bare
+  count. Conflating "nothing new" with "does not exist" is what
+  destroyed the information at the return statement; every report built
+  on it inherited the blindness.
+- new pure `reconcile(tracked, archived, unpublished)` partitions into
+  collected / unpublished / uncollected / untracked, printed as a
+  `reconcile:` summary from main()
+- `build_repo_timeline.cjs` gains `auditEnrollment()`, which reports the
+  direction nobody had built: real fsl/jssm repos under the owner that
+  nobody enrolled. buildDataset already warned about curated names that
+  don't resolve — the list complaining about the world — but nothing
+  ever asked the world about the list.
+- `fsl.tools` added to CATEGORIES; repo-count pin 32 -> 33
+- 12 tests across the two script suites
+  * ## Docs
+  * - README_base gains the fsl`` row
+  * Claude-Session: https://claude.ai/code/session_01EBLDd3nmRPcpC2weqD2TD3
 
 
 
@@ -290,6 +1639,37 @@ fails with the right message.
 
 &nbsp;
 
+## [Untagged] - Jul 26, 2026 7:24:08 PM
+
+Commit [7ce365f432eeb855893417d6e29549cd7220ba18](https://github.com/StoneCypher/jssm/commit/7ce365f432eeb855893417d6e29549cd7220ba18)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(chart): collect the three new v6 packages, so the size chart can draw all seven
+  * Answers the open question from the packaging handoff: can the size/flow
+chart present from the alphas?
+  * It can, and it needs almost nothing. The collector never filtered
+prereleases -- it walks every key of the packument and keeps anything with
+a tarball, so `6.0.0-alpha.N` was always collectable. And the renderer is
+open by default: make_size_chart.cjs treats a package with no LIFECYCLE
+entry as `current`, so a newly collected package appears with no code
+change at all.
+  * The only gap was the tracked list. jssm-fence and jssm-cli were already
+named; jssm-commonjs, jssm-iife and jssm-verify were not. Adding them is
+the whole fix -- no collector change, no backfill, since there is nothing
+to backfill until they first publish.
+  * Two things still gate the chart actually filling in: the five new packages
+must exist on npm, and this branch must merge, because a `schedule:`
+trigger only fires from the default branch and package_sizes.yml has
+therefore never run a nightly.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jul 26, 2026 7:23:55 PM
 
 Commit [f1346f722ca3e0467c8c956f20be1e2516cf3185](https://github.com/StoneCypher/jssm/commit/f1346f722ca3e0467c8c956f20be1e2516cf3185)
@@ -321,37 +1701,6 @@ so gets an advisory note, not a failure.
 tests; all seven packages pass the real gate, with no stale-pattern notes,
 which confirms the whitelists match files that actually ship.
   * Refs StoneCypher/fsl#1971
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jul 26, 2026 7:24:08 PM
-
-Commit [7ce365f432eeb855893417d6e29549cd7220ba18](https://github.com/StoneCypher/jssm/commit/7ce365f432eeb855893417d6e29549cd7220ba18)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(chart): collect the three new v6 packages, so the size chart can draw all seven
-  * Answers the open question from the packaging handoff: can the size/flow
-chart present from the alphas?
-  * It can, and it needs almost nothing. The collector never filtered
-prereleases -- it walks every key of the packument and keeps anything with
-a tarball, so `6.0.0-alpha.N` was always collectable. And the renderer is
-open by default: make_size_chart.cjs treats a package with no LIFECYCLE
-entry as `current`, so a newly collected package appears with no code
-change at all.
-  * The only gap was the tracked list. jssm-fence and jssm-cli were already
-named; jssm-commonjs, jssm-iife and jssm-verify were not. Adding them is
-the whole fix -- no collector change, no backfill, since there is nothing
-to backfill until they first publish.
-  * Two things still gate the chart actually filling in: the five new packages
-must exist on npm, and this branch must merge, because a `schedule:`
-trigger only fires from the default branch and package_sizes.yml has
-therefore never run a nightly.
 
 
 
