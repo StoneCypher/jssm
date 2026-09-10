@@ -114,15 +114,31 @@ distinct from a structural string.
 
 ### Atoms — `Atom`
 
-An identifier-like token.
+An identifier-like token — since 6.0 (#754), a Unicode identifier:
 
-- First letter:  `[0-9a-zA-Z._!$^*?,]` plus all of `\x80–<U+FFFF>`
-- Rest:          first-letter set plus `+ ( ) & # @`
+- First character: a Unicode letter (`\p{L}`), a letter-number (`\p{Nl}`,
+  e.g. `Ⅻ`), or `_`.
+- Rest: the first-character set plus combining marks (`\p{Mn}`, `\p{Mc}`),
+  decimal digits (`\p{Nd}`), and connector punctuation (`\p{Pc}`).
 
-Notable: `.` and digits are allowed *as the first character*; `+` and
-`(` `)` are allowed only after.  The atom set is intentionally broad
-to let users name states with things like `step.1`, `q!`, or non-Latin
-Unicode without quoting.
+Symbols and punctuation (`. - + & # @ $ ^ * ! ? ,` and every non-letter
+Unicode symbol such as emoji or arrows) and a leading digit are **not**
+atom characters; write those names as quoted strings (`"in-progress"`,
+`"node.start"`, `"1st"`, `"😀"`).  Astral letters (`𝛼`) count as one
+character.  A rejected bareword reports the offending character and
+suggests quoting.
+
+Implementation note: pegjs 0.10 cannot express `\p{}` classes, so
+`AtomCodePoint` matches one code point (surrogate pair or BMP unit) and
+`AtomFirstLetter` / `AtomLetter` test it with a `u`-flag regex in a
+semantic predicate.  `ValEnumMember` mirrors `Atom` with the same classes
+but its own bad-character set (the comma is the enum list's separator, not a
+bad character) and, since 6.0, also accepts a quoted `String`, so the "quote
+it" advice holds inside `enum(...)` as well.  A per-state `property : <name>`
+inside a state block likewise accepts a `Label` (bareword or string).
+
+5.x accepted `[0-9a-zA-Z._!$^*?,]` plus `U+0080`–`U+FFFF` as a first
+character and additionally `+ ( ) & # @` afterwards; that set is gone.
 
 ### Labels — `Label`
 
