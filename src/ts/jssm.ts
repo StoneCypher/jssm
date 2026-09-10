@@ -635,6 +635,10 @@ class Machine<mDT> {
   _edge_to_ids            : Array<number>;        // edge id -> interned id of edge.to
 
   _start_states           : Set<StateType>;
+  // The initial distribution declared by a weighted `start_states` list
+  // (6.0 list weights); empty when `start_states` carried no inner weights.
+  // Backs `start_state_weights()` / `sample_start_state()`.
+  _start_state_weights    : Map<StateType, number>;
   _end_states             : Set<StateType>;
   _failed_outputs         : Set<StateType>;
 
@@ -841,6 +845,7 @@ class Machine<mDT> {
   constructor({
 
     start_states,
+    start_state_weights,
     end_states                = [],
     failed_outputs            = [],
     initial_state,
@@ -923,6 +928,7 @@ class Machine<mDT> {
     this._edge_to_ids            = [];
 
     this._start_states   = new Set(start_states);
+    this._start_state_weights = new Map((start_state_weights ?? []).map(s => [s.name, s.share] as [StateType, number]));
     this._end_states     = new Set(end_states);   // todo consider what to do about incorporating complete too
     this._failed_outputs = new Set(failed_outputs);
 
@@ -2107,6 +2113,42 @@ class Machine<mDT> {
 
 
 
+  /**
+   *  The initial distribution declared by a weighted `start_states` list
+   *  (6.0), normalized to sum 1.  Empty when the machine's start states are
+   *  unweighted.
+   *  @returns A map from start state to its share of the distribution.
+   *  @example
+   *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+   *  m.start_state_weights().get('idle');  // => 0.9
+   *  @see Machine.sample_start_state
+   */
+  start_state_weights(): Map<StateType, number> {
+    return new Map(this._start_state_weights);
+  }
+
+
+
+
+  /**
+   *  Draws a start state from {@link Machine.start_state_weights} using the
+   *  machine's RNG; on an unweighted machine returns the first declared
+   *  start state.  Does not change the machine's state.
+   *  @returns The sampled start state.
+   *  @example
+   *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+   *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
+   *  @see Machine.start_state_weights
+   */
+  sample_start_state(): StateType {
+    if (this._start_state_weights.size === 0) { return this._start_states.values().next().value as StateType; }
+    const opts = [...this._start_state_weights].map(([name, probability]) => ({ name, probability }));
+    return weighted_rand_select(opts, undefined, this._rng).name;
+  }
+
+
+
+
 
   /********
    *
@@ -3243,6 +3285,9 @@ class Machine<mDT> {
    *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
    *  {@link Machine.stochastic_summary}, the generator does NOT restore the
    *  prior seed afterward — a direct caller's machine is left reseeded.
+   *  When the machine declares weighted `start_states` (6.0), each run's
+   *  start is drawn independently via {@link Machine.sample_start_state}
+   *  instead of always starting from the machine's current state.
    *  @param opts - {@link JssmStochasticOptions}.
    *  @yields One {@link JssmStochasticRun} per completed walk.
    *  @returns A generator of per-run results.
@@ -3260,13 +3305,14 @@ class Machine<mDT> {
       ? 1
       : (opts.runs ?? this.editor_config()?.stochastic_run_count ?? STOCHASTIC_DEFAULT_RUNS);
 
-    const start: StateType = this.state();
+    const weighted_start: boolean   = this._start_state_weights.size > 0;
+    const fixed_start   : StateType = this.state();
 
     // one probable-exits memo for the whole run set; see _stochastic_one_walk
     const exit_memo: Map<StateType, Array<JssmTransition<StateType, mDT>>> = new Map();
 
     for (let i = 0; i < runs; i++) {
-      yield this._stochastic_one_walk(start, max_steps, exit_memo);
+      yield this._stochastic_one_walk(weighted_start ? this.sample_start_state() : fixed_start, max_steps, exit_memo);
     }
 
   }
@@ -3288,7 +3334,9 @@ class Machine<mDT> {
    *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
    *
    *  Timing (`after`) decorations and data-guard conditions are not modeled
-   *  by this sampler; it walks the probabilistic graph topology.
+   *  by this sampler; it walks the probabilistic graph topology.  When the
+   *  machine declares weighted `start_states` (6.0), each run starts from an
+   *  independently sampled start state (see {@link Machine.stochastic_runs}).
    *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
    *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
    *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
