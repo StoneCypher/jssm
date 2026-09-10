@@ -1089,7 +1089,7 @@ export const DOCS_PAGES: DocsPage[] = [
       "custom element",
       "diagram"
     ],
-    "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The legacy `jssm-viz` tag still works but is deprecated — prefer `fsl-viz`.)\n"
+    "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The `<jssm-viz>` tag was removed in 6.0 — use `<fsl-viz>`.)\n"
   },
   {
     "id": "tut-weighted-arrows",
