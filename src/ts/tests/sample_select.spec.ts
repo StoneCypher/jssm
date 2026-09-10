@@ -145,7 +145,7 @@ describe('weighted_sample_select/1', () => {
     for (const s of states) {
       const exits = weighted.probable_exits_for(s);
       const total = exits.reduce((acc, e) => acc + ((e.probability ?? 1) * (e.share ?? 1)), 0);
-      for (const e of exits) { P[s][e.to] = ((e.probability ?? 1) * (e.share ?? 1)) / total; }
+      for (const e of exits) { P[s][e.to] += ((e.probability ?? 1) * (e.share ?? 1)) / total; }
     }
     let pi: Record<string, number> = Object.fromEntries(states.map(s => [s, 1 / states.length]));
     for (let i = 0; i < 500; ++i) {
