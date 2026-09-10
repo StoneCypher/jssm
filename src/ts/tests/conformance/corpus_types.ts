@@ -139,4 +139,15 @@ export interface CorpusVector {
   readonly final_state: string;
   /** Expected `is_final()` after the whole stimulus stream is applied. */
   readonly final_is_final: boolean;
+  /**
+   * When present, `document` is expected to be **rejected** by the parser
+   * rather than run to a trace (#754: a vector pinning that some source is
+   * not a legal FSL document — e.g. a symbol used as an unquoted bareword).
+   * The runner asserts `jssm.parse(document)` throws an `Error` whose message
+   * matches this pattern, and skips the normal parse/trace/terminal-state
+   * assertions for the vector.  `stimuli`, `trace`, `final_state` and
+   * `final_is_final` carry no meaning for a throwing vector; leave them
+   * empty (`[]` / `[]` / `''` / `false`) by convention.
+   */
+  readonly throws?: RegExp;
 }

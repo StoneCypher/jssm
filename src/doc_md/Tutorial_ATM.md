@@ -291,9 +291,9 @@ on, since our example is pretty squarely made by now.
 7. If fail, display reason and go to 1
 8. If succeed, dispense money and go to main menu
 
-* Rules 1-3: `MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;`
-* Rule 4: `AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;`
-* Rule 5: `MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;`
+* Rules 1-3: `MainMenu -> PickWithdrawlAccount -> PickAmount -> "AcctHasMoney?" 'TooHighForAcct' -> PickWithdrawlAccount;`
+* Rule 4: `"AcctHasMoney?" -> "MachineHasMoney?" 'MachineLowOnCash' -> PickAmount;`
+* Rule 5: `"MachineHasMoney?" -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;`
 * Rule 6: `ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;`
 * Rule 7: `BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;`
 * Rule 8: `BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;`
@@ -304,9 +304,9 @@ Rule 2 canceller: `PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
 Or as a whole, we're adding
 
 ```fsl
-MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
-AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
-MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+MainMenu -> PickWithdrawlAccount -> PickAmount -> "AcctHasMoney?" 'TooHighForAcct' -> PickWithdrawlAccount;
+"AcctHasMoney?" -> "MachineHasMoney?" 'MachineLowOnCash' -> PickAmount;
+"MachineHasMoney?" -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
 ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
 BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
 BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;
@@ -337,9 +337,9 @@ BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
 
 BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
 
-MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
-AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
-MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+MainMenu -> PickWithdrawlAccount -> PickAmount -> "AcctHasMoney?" 'TooHighForAcct' -> PickWithdrawlAccount;
+"AcctHasMoney?" -> "MachineHasMoney?" 'MachineLowOnCash' -> PickAmount;
+"MachineHasMoney?" -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
 ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
 BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
 BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;

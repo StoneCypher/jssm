@@ -25,9 +25,9 @@ BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
 
 BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
 
-MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
-AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
-MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+MainMenu -> PickWithdrawlAccount -> PickAmount -> "AcctHasMoney?" 'TooHighForAcct' -> PickWithdrawlAccount;
+"AcctHasMoney?" -> "MachineHasMoney?" 'MachineLowOnCash' -> PickAmount;
+"MachineHasMoney?" -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
 ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
 BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
 BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;

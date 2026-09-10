@@ -39,11 +39,16 @@ export const vectors: ReadonlyArray<CorpusVector> = [
   },
 
   {
+    // #754: a ZWJ family emoji and a regional-indicator flag are Unicode
+    // *symbols*, not identifiers (no `\p{L}`/`\p{Nl}`/`_` first character) —
+    // they are quoted `String` names, not barewords.  See the sibling
+    // 't3.unicode.emoji-zwj-bareword-rejected' vector immediately below for
+    // the pinned rejection of the unquoted form.
     id    : 't3.unicode.emoji-zwj-and-flag',
     tier  : 'T3',
-    title : 'A ZWJ family emoji and a regional-indicator flag are valid identifiers',
+    title : 'A quoted ZWJ family emoji and a quoted regional-indicator flag are valid names',
     document :
-      `👨‍👩‍👧 'wave' -> 🇯🇵 'back' -> 👨‍👩‍👧;`,
+      `"👨‍👩‍👧" 'wave' -> "🇯🇵" 'back' -> "👨‍👩‍👧";`,
     seed  : 1,
     stimuli : [
       { kind: 'action', arg: 'wave' },
@@ -55,6 +60,24 @@ export const vectors: ReadonlyArray<CorpusVector> = [
     ],
     final_state    : '👨‍👩‍👧',
     final_is_final : false
+  },
+
+  {
+    // #754: the sibling of 't3.unicode.emoji-zwj-and-flag' — the same family
+    // emoji written *bare* (unquoted) is not a legal identifier (its leading
+    // code point fails `\p{L}`/`\p{Nl}`/`_`) and must be rejected with a
+    // message that tells the author to quote it.
+    id    : 't3.unicode.emoji-zwj-bareword-rejected',
+    tier  : 'T3',
+    title : 'A bare (unquoted) ZWJ family emoji is rejected, not accepted as an identifier',
+    document :
+      `👨‍👩‍👧 -> b;`,
+    seed    : 1,
+    stimuli : [],
+    trace   : [],
+    final_state    : '',
+    final_is_final : false,
+    throws  : /quote/
   },
 
   {
