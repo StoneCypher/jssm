@@ -17,7 +17,9 @@ import * as jssm from '../jssm';
 //   - LineComment (`// ...` terminated by `\n` / `\r` / U+2028 / U+2029 / EOF)
 //   - String literals: unescaped range + escape vocabulary + `\uXXXX`
 //   - ActionLabel literals: single-quoted twin of String
-//   - Atom: AtomFirstLetter vs AtomLetter (rest) character classes
+//   - Atom: AtomFirstLetter vs AtomLetter (rest) character classes — the
+//     6.0 Unicode-identifier rule (#754), whose canonical predicates are
+//     `is_state_name_first_char` / `is_state_name_char` on the jssm export
 //   - Label: Atom / String interchangeable
 //   - LabelList: bracketed lists with mixed members and inner WS
 //
@@ -106,6 +108,127 @@ function quote_action(body: string): string {
 function ws_run_arb(): fc.Arbitrary<string> {
   return fc.array(fc.constantFrom(...WS_CHARS), { minLength: 0, maxLength: 8 })
     .map(arr => arr.join(''));
+}
+
+
+
+/**
+ *  Escape a single character for literal use inside a `RegExp` source, so
+ *  a rejection needle like `contains "+"` can be built from the offending
+ *  character without `+` becoming a quantifier.
+ *  @param  ch  The character to escape.
+ *  @returns    The character, backslash-prefixed if it is a regex metacharacter.
+ *  @example
+ *    escape_for_regex('+')  // → '\\+'
+ *    escape_for_regex('a')  // → 'a'
+ */
+function escape_for_regex(ch: string): string {
+  return ch.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
+
+
+/**
+ *  Run `fn`, assert that it throws the parser's `SyntaxError` (pegjs's
+ *  `peg$SyntaxError`, which carries `name === 'SyntaxError'` but subclasses
+ *  `Error` rather than the global `SyntaxError`, so `toThrow(SyntaxError)`
+ *  can't be used), and hand the error back so the caller can assert on its
+ *  message.
+ *  @param  fn  Thunk expected to throw.
+ *  @returns    The caught parser error.
+ *  @example
+ *    expect(syntax_error_from(() => jssm.parse('0 -> b;')).message).toMatch(/starts with a digit/);
+ */
+function syntax_error_from(fn: () => unknown): Error {
+
+  let caught: unknown;
+  try { fn(); } catch (error) { caught = error; }
+
+  expect(caught).toBeInstanceOf(Error);
+  expect((caught as Error).name).toBe('SyntaxError');
+
+  return caught as Error;
+
+}
+
+
+
+/**
+ *  Build the rejection needle a bareword with a bad character gets: the
+ *  message must carry a `contains "<ch>"` clause naming the exact offending
+ *  character, not merely mention it somewhere in the quoted suggestion.
+ *  @param  ch  The offending character.
+ *  @returns    A `RegExp` matching `contains "<ch>"`.
+ *  @example
+ *    names_char('.')  // → /contains "\."/
+ */
+function names_char(ch: string): RegExp {
+  return new RegExp(`contains "${escape_for_regex(ch)}"`);
+}
+
+
+
+// #754 bareword character classes, ASCII slice.  6.0 barewords are Unicode
+// identifiers: first char `[\p{L}\p{Nl}_]`, rest `[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}]`.
+// Restricted to ASCII these are `[A-Za-z_]` and `[A-Za-z0-9_]`.
+
+const ASCII_LETTERS  = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ASCII_DIGITS   = '0123456789'.split('');
+const ASCII_FIRST    = [...ASCII_LETTERS, '_'];
+const ASCII_REST     = [...ASCII_FIRST, ...ASCII_DIGITS];
+
+/**
+ *  Every printable ASCII character (0x21–0x7E) that is NOT a legal
+ *  bareword first character under the 6.0 rule — digits, punctuation, and
+ *  symbols.  Whitespace (0x20) is omitted: it is structural, never a name.
+ */
+const ASCII_NOT_FIRST: string[] = [];
+for (let cp = 0x21; cp <= 0x7E; ++cp) {
+  const c = String.fromCharCode(cp);
+  if (!ASCII_FIRST.includes(c)) { ASCII_NOT_FIRST.push(c); }
+}
+
+
+
+/**
+ *  Random Unicode scalar value from U+0080 up through the supplementary
+ *  planes, as a one-code-point string.  Surrogate code points are not scalar
+ *  values and are skipped; a supplementary character (e.g. `𝛼`, U+1D6FC)
+ *  is generated as its full surrogate pair via `String.fromCodePoint`.
+ *  U+2028/U+2029 are line terminators in the grammar and are skipped too.
+ *  @returns  fast-check Arbitrary yielding one non-ASCII code point.
+ */
+function unicode_code_point_arb(): fc.Arbitrary<string> {
+  return fc.integer({ min: 0x80, max: 0x10_FF_FF })
+    .filter(cp => cp < 0xD8_00 || cp > 0xDF_FF)
+    .filter(cp => cp !== 0x20_28 && cp !== 0x20_29)
+    .map(cp => String.fromCodePoint(cp));
+}
+
+
+
+/**
+ *  Random bareword valid under the 6.0 rule, drawn from the FULL Unicode
+ *  identifier classes (first char accepted by `is_state_name_first_char`,
+ *  each later char by `is_state_name_char`) with ASCII mixed in so both
+ *  halves of the class get real coverage.
+ *  @returns  fast-check Arbitrary yielding a 1–8 code point identifier.
+ */
+function identifier_arb(): fc.Arbitrary<string> {
+
+  const first = fc.oneof(
+    fc.constantFrom(...ASCII_FIRST),
+    unicode_code_point_arb().filter(c => jssm.is_state_name_first_char(c)),
+  );
+
+  const rest = fc.oneof(
+    fc.constantFrom(...ASCII_REST),
+    unicode_code_point_arb().filter(c => jssm.is_state_name_char(c)),
+  );
+
+  return fc.tuple(first, fc.array(rest, { minLength: 0, maxLength: 7 }))
+    .map(([f, r]) => f + r.join(''));
+
 }
 
 
@@ -538,11 +661,15 @@ describe('§2 ActionLabel — unescaped body round-trip', () => {
 
 describe('§2 Atom — AtomFirstLetter character class', () => {
 
-  // AtomFirstLetter = [0-9 a-z A-Z . _ ! $ ^ * ? , \x80-￿].
-  // Every char in the set must be accepted as a one-character atom
-  // at the from-label position.
-
-  const ASCII_FIRST = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._!$^*?,'.split('');
+  // #754: AtomFirstLetter = [\p{L}\p{Nl}_].  Restricted to ASCII that is
+  // `[A-Za-z_]`.  Every char in the set must be accepted as a one-character
+  // atom at the from-label position, and every other printable ASCII char
+  // must be rejected there — a leading digit with the migration message
+  // (`quote it`), the rest with a parser SyntaxError.  A lone symbol
+  // followed by whitespace is not bareword-shaped, so pegjs's generic
+  // expectation error fires for it; only once the symbol is followed by
+  // identifier text does the targeted `contains "<ch>"` message appear
+  // (covered in the AtomLetter block below).
 
   test('Every ASCII AtomFirstLetter char parses as a single-char from-label', () => {
 
@@ -553,18 +680,50 @@ describe('§2 Atom — AtomFirstLetter character class', () => {
 
   });
 
-  test('Random non-Latin Unicode chars (0x80–0xFFFD) parse as single-char atoms', () => {
+  test('Every ASCII digit is rejected as a single-char bareword with the leading-digit message', () => {
+
+    for (const d of ASCII_DIGITS) {
+      const message = syntax_error_from(() => parse_transition(d, 'b')).message;
+      expect(message).toMatch(/starts with a digit/);
+      expect(message).toMatch(new RegExp(String.raw`quote it \("${d}"\)`));
+    }
+
+  });
+
+  test('Every other printable ASCII char is rejected as a single-char bareword', () => {
+
+    for (const c of ASCII_NOT_FIRST) {
+      expect(syntax_error_from(() => parse_transition(c, 'b')).message).not.toBe('');
+    }
+
+  });
+
+  test('Random Unicode identifier-start code points (0x80–0x10FFFF) parse as single-char atoms', () => {
 
     fc.assert(
       fc.property(
-        fc.integer(0x80, 0xFF_FD)
-          // Skip line terminators and the standard non-character
-          // codepoints that aren't legal in source.
-          .filter(cp => cp !== 0x20_28 && cp !== 0x20_29),
-        (cp) => {
-          const c    = String.fromCharCode(cp);
+        unicode_code_point_arb().filter(c => jssm.is_state_name_first_char(c)),
+        (c) => {
           const tree = parse_transition(c, 'b');
           expect(tree[0].from).toBe(c);
+          expect(parse_transition('a', c)[0].se.to).toBe(c);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random Unicode non-identifier-start code points are rejected bare, naming the char, and parse when quoted', () => {
+
+    fc.assert(
+      fc.property(
+        unicode_code_point_arb().filter(c => !jssm.is_state_name_first_char(c)),
+        (c) => {
+          const message = syntax_error_from(() => parse_transition(c, 'b')).message;
+          expect(message).toMatch(new RegExp(`starts with "${escape_for_regex(c)}"`));
+          expect(message).toMatch(/quote it/);
+          expect(parse_transition(quote_string(c), 'b')[0].from).toBe(c);
         }
       ),
       { numRuns: RUNS }
@@ -576,33 +735,105 @@ describe('§2 Atom — AtomFirstLetter character class', () => {
 
 
 
-describe('§2 Atom — AtomLetter (rest) adds + ( ) & # @', () => {
+describe('§2 Atom — AtomLetter (rest) adds digits and combining/connector marks', () => {
 
-  // AtomLetter (the rest class) is AtomFirstLetter plus + ( ) & # @.
-  // These six chars are valid in non-leading positions but NOT as the
-  // first character of an atom.
+  // #754: AtomLetter = [\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}] — the first
+  // class plus decimal digits, nonspacing/spacing combining marks, and
+  // connector punctuation.  In ASCII that adds only `0-9` (`_` is in both
+  // classes).  The 5.x rest-only chars `+ ( ) & # @` are no longer legal
+  // anywhere in a bareword.
 
-  const REST_ONLY = ['+', '(', ')', '&', '#', '@'] as const;
+  /**
+   *  Trailing chars the grammar's `BarewordBadChar` / `BarewordDashTail`
+   *  rules catch, so the rejection names the char in a `contains "<ch>"`
+   *  clause and suggests quoting.
+   */
+  const BAD_TAIL_NAMED = ['+', '&', '#', '@', '.', '-'] as const;
 
-  // Of those, a leading `&` is no longer a parse error: the overlapping-
-  // state-groups feature makes `&Name` a GroupRef in source position.
-  // The remaining five still fail as an atom's leading character.
-  const REST_ONLY_NONLEADING = ['+', '(', ')', '#', '@'] as const;
+  /**
+   *  Trailing chars the grammar has no targeted rule for: `(` / `)` are
+   *  structural, so the atom ends before them and pegjs's generic
+   *  expectation error reports the char as unexpected (`but "(" found`).
+   */
+  const BAD_TAIL_STRUCTURAL = ['(', ')'] as const;
 
-  test('Each rest-only char concatenates onto a leading atom char', () => {
+  // 5.x rest-only chars as a LEADING char.  `&` is a GroupRef sigil; the
+  // rest are rejected — `+ # @` with the targeted message, `( )` generically.
+  const LEADING_NAMED      = ['+', '#', '@'] as const;
+  const LEADING_STRUCTURAL = ['(', ')'] as const;
 
-    for (const c of REST_ONLY) {
-      // Use `a` as the leading char so the full atom is `a${c}`.
+  test('`a` followed by each ASCII digit or `_` concatenates into one atom', () => {
+
+    for (const c of [...ASCII_DIGITS, '_']) {
       const tree = parse_transition(`a${c}`, 'b');
       expect(tree[0].from).toBe(`a${c}`);
     }
 
   });
 
-  test('Each non-`&` rest-only char fails as the leading character of an atom', () => {
+  test('Random ASCII-letter-led atoms with digit/underscore tails round-trip', () => {
 
-    for (const c of REST_ONLY_NONLEADING) {
-      expect(() => parse_transition(`${c}a`, 'b')).toThrow();
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...ASCII_FIRST),
+        fc.array(fc.constantFrom(...ASCII_DIGITS, '_'), { minLength: 1, maxLength: 12 }),
+        (first, rest) => {
+          const atom = first + rest.join('');
+          expect(parse_transition(atom, 'b')[0].from).toBe(atom);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random Unicode rest-only code points (Mn / Mc / Nd / Pc, not identifier-start) concatenate onto `a`', () => {
+
+    fc.assert(
+      fc.property(
+        unicode_code_point_arb().filter(c => jssm.is_state_name_char(c) && !jssm.is_state_name_first_char(c)),
+        (c) => {
+          const atom = `a${c}`;
+          expect(parse_transition(atom, 'b')[0].from).toBe(atom);
+          expect(parse_transition('b', atom)[0].se.to).toBe(atom);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Each named 5.x trailing char after `a` is rejected, naming the char and suggesting quotes', () => {
+
+    for (const c of BAD_TAIL_NAMED) {
+      const source_message = syntax_error_from(() => parse_transition(`a${c}`, 'b')).message;
+      expect(source_message).toMatch(names_char(c));
+      expect(source_message).toMatch(new RegExp(String.raw`quote it \("a${escape_for_regex(c)}"\)`));
+      expect(syntax_error_from(() => parse_transition('b', `a${c}`)).message).toMatch(names_char(c));
+    }
+
+  });
+
+  test('Each structural 5.x trailing char after `a` is rejected as an unexpected token', () => {
+
+    for (const c of BAD_TAIL_STRUCTURAL) {
+      const unexpected = new RegExp(`but "${escape_for_regex(c)}" found`);
+      expect(syntax_error_from(() => parse_transition(`a${c}`, 'b')).message).toMatch(unexpected);
+      expect(syntax_error_from(() => parse_transition('b', `a${c}`)).message).toMatch(unexpected);
+    }
+
+  });
+
+  test('Each non-`&` 5.x rest-only char fails as the leading character of an atom', () => {
+
+    for (const c of LEADING_NAMED) {
+      const message = syntax_error_from(() => parse_transition(`${c}a`, 'b')).message;
+      expect(message).toMatch(names_char(c));
+      expect(message).toMatch(/quote it/);
+    }
+
+    for (const c of LEADING_STRUCTURAL) {
+      expect(syntax_error_from(() => parse_transition(`${c}a`, 'b')).message).toMatch(new RegExp(`but "${escape_for_regex(c)}" found`));
     }
 
   });
@@ -623,18 +854,16 @@ describe('§2 Atom — AtomLetter (rest) adds + ( ) & # @', () => {
 describe('§2 Atom — multi-char compositions', () => {
 
   // Random atoms built from a leading AtomFirstLetter char followed
-  // by random AtomLetter chars.  Excludes Unicode here to keep the
-  // shrinking output readable; Unicode is covered separately above.
-
-  const FIRST = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._!$^*?,'.split('');
-  const REST  = [...FIRST, '+', '(', ')', '&', '#', '@'];
+  // by random AtomLetter chars, i.e. `[A-Za-z_][A-Za-z0-9_]*`.  Excludes
+  // Unicode here to keep the shrinking output readable; Unicode is
+  // covered separately above.
 
   test('Random ASCII atoms round-trip at the from-label position', () => {
 
     fc.assert(
       fc.property(
-        fc.constantFrom(...FIRST),
-        fc.array(fc.constantFrom(...REST), { minLength: 0, maxLength: 12 }),
+        fc.constantFrom(...ASCII_FIRST),
+        fc.array(fc.constantFrom(...ASCII_REST), { minLength: 0, maxLength: 12 }),
         (first, rest) => {
           const atom = first + rest.join('');
           const tree = parse_transition(atom, 'b');
@@ -657,21 +886,14 @@ describe('§2 Label — Atom and String forms produce equivalent labels', () => 
   // `Label = Atom / String`.  When a name fits both forms (i.e. it's
   // a valid atom *and* a valid string body), both spellings should
   // produce identical canonical values at the from-label position.
-
-  /**
-   *  Random atom-shaped body that's also a valid string (no `"`, no
-   *  `\`).  Keep to a small alphabet of unambiguous chars to avoid
-   *  any precedence accidents elsewhere in the grammar.
-   */
-  const body_arb = fc.array(
-    fc.constantFrom(...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('')),
-    { minLength: 1, maxLength: 10 }
-  ).map(arr => arr.join(''));
+  // Bodies are drawn from the full 6.0 identifier classes (ASCII and
+  // Unicode letters, marks, digits, connectors); none of those contain
+  // `"` or `\`, so every identifier is also a valid string body.
 
   test('Atom-form and quoted-form labels yield the same canonical from-label', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) => {
+      fc.property(identifier_arb(), (body) => {
         const atom_tree   = parse_transition(body,                 'b');
         const string_tree = parse_transition(quote_string(body),   'b');
         expect(string_tree[0].from).toBe(atom_tree[0].from);
