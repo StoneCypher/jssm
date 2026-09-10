@@ -1483,9 +1483,6 @@ export class FslInstance extends LitElement {
 
 }
 
-/** @deprecated Use `FslInstance` instead; kept for backwards compat. */
-export type JssmInstance = FslInstance;
-
 declare global {
   interface HTMLElementTagNameMap {
     'fsl-instance' : FslInstance;

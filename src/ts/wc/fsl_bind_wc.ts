@@ -251,9 +251,6 @@ export class FslBind extends LitElement {
 
 }
 
-/** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
-export type JssmBind = FslBind;
-
 declare global {
   interface HTMLElementTagNameMap {
     'fsl-bind' : FslBind;
