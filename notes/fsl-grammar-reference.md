@@ -141,6 +141,24 @@ LabelList = "[" WS? (Label WS?)* "]"
 
 A bracketed list of labels.  Whitespace/comments between items.
 
+### `WeightedLabelList` (arrow targets and `start_states` only)
+
+```
+WeightedLabelMember = Label WS? (NonNegNumber "%")?
+WeightedLabelList   = "[" WS? (WeightedLabelMember WS?)* "]"
+```
+
+Members may carry a percent weight.  With no weights the rule yields the
+same plain array `LabelList` does.  **Semantics (6.0):** a probabilistic
+transition onto a list keeps its probability as the *group's* weight and
+the members share it — uniformly, or by their inner weights (normalized):
+`a 50% -> [b c]` gives b 25%, c 25%; `a 50% -> [b 20% c 80%]` gives b 10%,
+c 40%.  An unweighted transition onto a weighted list (`a -> [b 20% c 80%]`)
+records the shares on the edges, which the picker multiplies against the
+default weight (b 0.2, c 0.8 versus a sibling's 1).  Weights on a list
+source (`[a b] 50% -> c`) are not shared: each source edge is a separate
+transition.  5.x copied the full probability onto every member.
+
 ### `LabelOrLabelList`
 
 Convenience wrapper: either a single label or a label list.
@@ -554,7 +572,10 @@ themselves) and were removed in StoneCypher/fsl#1366.
 
 - `graph_layout : <GvizLayout>;` — `dot`, `circo`, `fdp`, `neato`,
   `twopi`
-- `start_states    : <LabelList>;`
+- `start_states    : <WeightedLabelList>;` — `[idle 90% booting 10%]`
+  declares the initial distribution used by `sample_start_state()` and
+  `stochastic_runs`; the constructed machine still starts at the first
+  listed state.
 - `end_states      : <LabelList>;`
 - `failed_outputs  : <LabelOrLabelList>;` — single state or bracketed list; always an array; default `[]`
 - `graph_bg_color : <Color>;`

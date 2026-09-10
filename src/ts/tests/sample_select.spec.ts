@@ -136,26 +136,28 @@ describe('weighted_sample_select/1', () => {
 
     const res = weighted.probabilistic_histo_walk(2500);
 
-    // statistically each should be around 375, or 1050 for c.  raise alarms if they aren't 250, or 800 for c.
-    test('a expects 375 requires 250',  () =>
-      expect(res.get('a') >= 250)
-        .toBe(true) );
-
-    test('b expects 375 requires 250',  () =>
-      expect(res.get('b') >= 250)
-        .toBe(true) );
-
-    test('c expects 1050 requires 800', () =>
-      expect(res.get('c') >= 800)
-        .toBe(true) );
-
-    test('d expects 375 requires 250',  () =>
-      expect(res.get('d') >= 250)
-        .toBe(true) );
-
-    test('e expects 375 requires 250',  () =>
-      expect(res.get('e') >= 250)
-        .toBe(true) );
+    // 6.0 list weights: a list target shares the outer probability, so each of
+    // the three members of `a 0.5% -> [b d e]` carries 0.5/3.  Derive the
+    // expected long-run visit fractions from the compiled edges by power
+    // iteration, then require the walk to land within a wide band of them.
+    const states = ['a', 'b', 'c', 'd', 'e'];
+    const P: Record<string, Record<string, number>> = Object.fromEntries(states.map(s => [s, Object.fromEntries(states.map(t => [t, 0]))]));
+    for (const s of states) {
+      const exits = weighted.probable_exits_for(s);
+      const total = exits.reduce((acc, e) => acc + ((e.probability ?? 1) * (e.share ?? 1)), 0);
+      for (const e of exits) { P[s][e.to] = ((e.probability ?? 1) * (e.share ?? 1)) / total; }
+    }
+    let pi: Record<string, number> = Object.fromEntries(states.map(s => [s, 1 / states.length]));
+    for (let i = 0; i < 500; ++i) {
+      const next: Record<string, number> = Object.fromEntries(states.map(s => [s, 0]));
+      for (const s of states) { for (const t of states) { next[t] += pi[s] * P[s][t]; } }
+      pi = next;
+    }
+    const walk_len = 2500;
+    for (const s of states) {
+      test(`${s} lands near its stationary share ${pi[s].toFixed(3)}`, () =>
+        expect(Math.abs((res.get(s) ?? 0) / walk_len - pi[s])).toBeLessThan(0.06));
+    }
 
   });
 

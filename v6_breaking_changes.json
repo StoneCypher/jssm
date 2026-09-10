@@ -38,6 +38,18 @@
       "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
       "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
       "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
+    },
+    {
+      "id": "probabilistic-list-weights",
+      "title": "A probabilistic transition onto a list shares its weight across the members",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-09-09 (examples A–E reviewed): the group keeps the stated weight and members share it, uniformly or by inner weights; inner weights without an outer probability apply to the default weight.",
+      "summary": "In 6.0, `a 50% -> [b c]` compiles to a->b 25% and a->c 25% (5.x: 50% each). Lists accept inner weights `[b 20% c 80%]`, and `start_states` accepts the same form as an initial distribution.",
+      "breaks": "Any 5.x document whose probabilistic transition targets a list AND has sibling edges from the same state — the list's members now draw less often than before.",
+      "migration": "Multiply the outer probability by the member count to keep 5.x odds (`a 50% -> [b c]` becomes `a 100% -> [b c]`), or write inner weights.",
+      "implementation": "Landed 2026-09 on the v6 line: WeightedLabelList in fsl_parser.peg (ArrowTarget, start_states), list_shares + apply_list_share in the compiler, JssmTransition.share, share-aware weighted_rand_select, start_state_weights()/sample_start_state(), weighted starts in stochastic_runs."
     }
   ]
 }

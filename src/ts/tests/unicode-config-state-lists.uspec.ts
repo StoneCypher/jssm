@@ -42,6 +42,20 @@ const config_list_test = (idx: number): boolean => {
 
     }
 
+    // `start_states` also accepts a WeightedLabelList (6.0): a percent weight
+    // per member.  Quote the code point unconditionally here — the #754
+    // charset worktree's `bareword_ok`/`quoted` driver helpers haven't landed
+    // in this worktree, so there is no bareword-legality check to consult.
+    let m;
+
+    try {
+      m = sm`"${cp}" -> other; start_states: ["${cp}" 60% other 40%];`;
+    } catch {
+      throw new Error(`Broke on ${idx} "${cp}" for weighted start_states`);
+    }
+
+    expect( m.start_state_weights().get(cp) ).toBeCloseTo(0.6, 5);
+
   }
 
   return true;
