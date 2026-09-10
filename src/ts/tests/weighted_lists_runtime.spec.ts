@@ -71,4 +71,22 @@ describe('list weights at runtime', () => {
     expect(within_tolerance(counts.get('x') ?? 0, 0.5, 2000)).toBe(true);
   });
 
+  it('a share-only repeated list target is not a duplicate-edge error', () => {
+    expect(() => jssm.sm`a -> [b 20% b 80%];`).not.toThrow();
+  });
+
+  it('a share-only edge does not collide with a later plain edge to the same target', () => {
+    expect(() => jssm.sm`a -> [b 20% c 80%]; a -> b;`).not.toThrow();
+  });
+
+  it('probable_action_exits includes share alongside probability', () => {
+    const m = new jssm.Machine({
+      start_states: ['a'],
+      transitions: [
+        { from: 'a', to: 'b', action: 'go', share: 0.2, kind: 'legal', forced_only: false, main_path: false }
+      ]
+    });
+    expect(m.probable_action_exits('a')).toEqual([{ action: 'go', probability: undefined, share: 0.2 }]);
+  });
+
 });

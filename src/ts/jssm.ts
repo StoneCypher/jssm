@@ -928,7 +928,12 @@ class Machine<mDT> {
     this._edge_to_ids            = [];
 
     this._start_states   = new Set(start_states);
-    this._start_state_weights = new Map((start_state_weights ?? []).map(s => [s.name, s.share] as [StateType, number]));
+    // Skip the intermediate array `.map()` builds for the common unweighted
+    // case (construct() is benchmarked) — an unweighted machine gets a
+    // freshly-allocated empty Map directly, not `new Map([].map(...))`.
+    this._start_state_weights = start_state_weights === undefined
+      ? new Map()
+      : new Map(start_state_weights.map(s => [s.name, s.share] as [StateType, number]));
     this._end_states     = new Set(end_states);   // todo consider what to do about incorporating complete too
     this._failed_outputs = new Set(failed_outputs);
 
@@ -1204,12 +1209,14 @@ class Machine<mDT> {
         cursor_to.from.push(tr.from);
       }
 
-      // duplicate-edge guard.  A probability-bearing action-less edge is exempt
-      // (a weighted fan-out may repeat a target); every other edge claims a slot
-      // — its action name, or '' for the one plain action-less edge — and a
-      // repeated slot throws.  Distinct actions between the same pair coexist
-      // (#325/#531).
-      const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
+      // duplicate-edge guard.  A probability- or share-bearing action-less
+      // edge is exempt (a weighted fan-out may repeat a target — including a
+      // list-target fan-out whose members carry only `share`, 6.0 list
+      // weights, with no declared `probability`); every other edge claims a
+      // slot — its action name, or '' for the one plain action-less edge —
+      // and a repeated slot throws.  Distinct actions between the same pair
+      // coexist (#325/#531).
+      const edge_exempt: boolean = (!tr.action) && ((tr.probability !== undefined) || (tr.share !== undefined));
       if (!edge_exempt) {
         const slot: string = tr.action || '';
         if (slots.has(slot)) {
@@ -3547,9 +3554,12 @@ class Machine<mDT> {
 
 
   /**
-   * List all action exits from a state with their probabilities.
+   * List all action exits from a state with their probabilities and shares.
    *  @param whichState - The state to inspect.  Defaults to the current state.
-   *  @returns An array of `{ action, probability }` objects.
+   *  @returns An array of `{ action, probability, share }` objects — `share`
+   *           is the edge's within-list share (6.0 list weights), present
+   *           only for an edge that landed on a list side with no declared
+   *           `probability`; `undefined` otherwise, same as the edge itself.
    *  @throws {JssmError} If the state does not exist.
    */
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
@@ -3568,7 +3578,8 @@ class Machine<mDT> {
     ra_base.forEach((edgeId: number, action: StateType) => {
       exits.push({
         action,
-        probability: this._edges[edgeId].probability
+        probability: this._edges[edgeId].probability,
+        share: this._edges[edgeId].share
       });
     });
 
