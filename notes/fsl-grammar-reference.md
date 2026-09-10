@@ -157,7 +157,10 @@ c 40%.  An unweighted transition onto a weighted list (`a -> [b 20% c 80%]`)
 records the shares on the edges, which the picker multiplies against the
 default weight (b 0.2, c 0.8 versus a sibling's 1).  Weights on a list
 source (`[a b] 50% -> c`) are not shared: each source edge is a separate
-transition.  5.x copied the full probability onto every member.
+transition.  5.x copied the full probability onto every member.  Inner
+weights written on a pure list source (`[a 20% b 80%] -> c`) are parsed but
+ignored: there is no per-member edge *into* a source's members for a share
+to apply to, only the fanned-out edges leaving each member at full weight.
 
 ### `LabelOrLabelList`
 
@@ -407,7 +410,11 @@ A transition's destination can be:
   weight-sharing semantics
 - **`GroupRef`** — `&Name`, a reference to a declared group used as a
   transition source or target; expands to one edge per transitive
-  member (see §12).
+  member (see §12). As a target, a probabilistic transition onto a group
+  reference shares its weight across the expanded members the same way it
+  would across an equivalent literal list (6.0 weight-sharing semantics,
+  §2), since group-target resolution rewrites `&Name` to the member array
+  before the share-splitting compiler pass runs.
 - **`Label`** — single state name
 
 The grammar tries them in that order (`GroupRef` before `Label` so a
@@ -933,7 +940,7 @@ keywords (no prefix overlap with `arrange`).
 | Transition           | `Exp`                                        |
 | Transition tail      | `Subexp`                                     |
 | Arrow weight         | `LightArrow` / `FatArrow` / `TildeArrow` / `MixedArrow` |
-| Arrow target         | `ArrowTarget` (Stripe / Cycle / LabelList / Label) |
+| Arrow target         | `ArrowTarget` (Stripe / Cycle / WeightedLabelList / GroupRef / Label) |
 | Per-arrow block      | `ArrowDesc`                                  |
 | Per-arrow timing     | `ArrowAfter`                                 |
 | Per-arrow odds       | `ArrowProbability`                           |

@@ -46,8 +46,8 @@
       "decided": true,
       "issue": null,
       "decision": "Decided 2026-09-09 (examples A–E reviewed): the group keeps the stated weight and members share it, uniformly or by inner weights; inner weights without an outer probability apply to the default weight.",
-      "summary": "In 6.0, `a 50% -> [b c]` compiles to a->b 25% and a->c 25% (5.x: 50% each). Lists accept inner weights `[b 20% c 80%]`, and `start_states` accepts the same form as an initial distribution.",
-      "breaks": "Any 5.x document whose probabilistic transition targets a list AND has sibling edges from the same state — the list's members now draw less often than before.",
+      "summary": "In 6.0, `a 50% -> [b c]` compiles to a->b 25% and a->c 25% (5.x: 50% each). Lists accept inner weights `[b 20% c 80%]`, and `start_states` accepts the same form as an initial distribution. A group-reference target shares the same way, since `resolve_group_refs` rewrites it to the member list before the share-splitting compiler pass runs: `&g : [b c]; a 50% -> &g;` also gives a->b 25% and a->c 25%.",
+      "breaks": "Any 5.x document whose probabilistic transition targets a list (or a group reference) AND has sibling edges from the same state — the list's or group's members now draw less often than before.",
       "migration": "Multiply the outer probability by the member count to keep 5.x odds (`a 50% -> [b c]` becomes `a 100% -> [b c]`), or write inner weights.",
       "implementation": "Landed 2026-09 on the v6 line: WeightedLabelList in fsl_parser.peg (ArrowTarget, start_states), list_shares + apply_list_share in the compiler, JssmTransition.share, share-aware weighted_rand_select, start_state_weights()/sample_start_state(), weighted starts in stochastic_runs."
     }

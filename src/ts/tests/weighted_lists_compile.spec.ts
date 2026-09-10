@@ -26,6 +26,9 @@ describe('list_shares', () => {
     expect(jssm.list_shares({ key: 'weighted_list', members: [{ name: 'b' }, { name: 'c' }] }))
       .toEqual([{ name: 'b', share: 0.5 }, { name: 'c', share: 0.5 }]);
   });
+  it('rejects a negative inner weight (the grammar\'s NonNegNumber rule blocks this at parse time; list_shares is public API)', () => {
+    expect(() => jssm.list_shares({ key: 'weighted_list', members: [{ name: 'b', weight: -1 }, { name: 'c', weight: 5 }] })).toThrow(/negative/i);
+  });
 });
 
 describe('compiled probabilities for list targets', () => {
@@ -104,6 +107,19 @@ describe('compiled probabilities for list targets', () => {
     // list-target side (e->a, e->b): shared by each member's own inner weight.
     expect(edge(src, 'e', 'a').probability).toBe(8);
     expect(edge(src, 'e', 'b').probability).toBe(32);
+  });
+
+  // A group-reference TARGET shares too: resolve_group_refs rewrites `&g`
+  // to its member array before compile_rule_transition_step runs, so a
+  // probabilistic transition onto a group behaves exactly like the same
+  // transition onto an equivalent literal list. Deliberate 6.0 semantics
+  // (ruled), not a coincidence of implementation — see v6_breaking_changes.json
+  // and the GroupRef bullet in notes/fsl-grammar-reference.md §6.
+  it('a group-reference target shares its weight like a literal list: &g : [b c]; a 50% -> &g; a 50% -> d;', () => {
+    const src = '&g : [b c]; a 50% -> &g; a 50% -> d;';
+    expect(edge(src, 'a', 'b').probability).toBe(25);
+    expect(edge(src, 'a', 'c').probability).toBe(25);
+    expect(edge(src, 'a', 'd').probability).toBe(50);
   });
 
 });
