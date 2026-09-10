@@ -22,6 +22,10 @@ describe('list_shares', () => {
   it('rejects inner weights that sum to zero', () => {
     expect(() => jssm.list_shares({ key: 'weighted_list', members: [{ name: 'b', weight: 0 }, { name: 'c', weight: 0 }] })).toThrow(/zero/i);
   });
+  it('uniform shares for a weighted_list node whose members carry no weight (the grammar never emits this shape, but list_shares is public API)', () => {
+    expect(jssm.list_shares({ key: 'weighted_list', members: [{ name: 'b' }, { name: 'c' }] }))
+      .toEqual([{ name: 'b', share: 0.5 }, { name: 'c', share: 0.5 }]);
+  });
 });
 
 describe('compiled probabilities for list targets', () => {
@@ -73,6 +77,33 @@ describe('compiled probabilities for list targets', () => {
 
   it('a mixed weighted list is a compile error', () => {
     expect(() => jssm.sm`a -> [b 20% c];`).toThrow(/every member|all members/i);
+  });
+
+  // A weighted list on the SOURCE side (`from_has_weights`): the share still
+  // applies to whichever compiled edge ENTERS the list's members, using the
+  // members' own inner weights instead of a uniform 1/n split.
+  it('a weighted-source reverse arrow: [a 20% b 80%] <- 50% e gives e->a 10 and e->b 40', () => {
+    const src = '[a 20% b 80%] <- 50% e;';
+    expect(edge(src, 'e', 'a').probability).toBe(10);
+    expect(edge(src, 'e', 'b').probability).toBe(40);
+  });
+
+  it('a weighted-source two-way arrow with no probability: [a 20% b 80%] <-> c records shares on the list side only', () => {
+    const src = '[a 20% b 80%] <-> c;';
+    expect(edge(src, 'c', 'a')).toEqual({ from: 'c', to: 'a', probability: undefined, share: 0.2 });
+    expect(edge(src, 'c', 'b')).toEqual({ from: 'c', to: 'b', probability: undefined, share: 0.8 });
+    expect(edge(src, 'a', 'c')).toEqual({ from: 'a', to: 'c', probability: undefined, share: undefined });
+    expect(edge(src, 'b', 'c')).toEqual({ from: 'b', to: 'c', probability: undefined, share: undefined });
+  });
+
+  it('a weighted-source two-way arrow with both sides decorated: [a 20% b 80%] 50% <-> 40% e', () => {
+    const src = '[a 20% b 80%] 50% <-> 40% e;';
+    // source side (a->e, b->e): the list is the SOURCE here, so unshared.
+    expect(edge(src, 'a', 'e').probability).toBe(50);
+    expect(edge(src, 'b', 'e').probability).toBe(50);
+    // list-target side (e->a, e->b): shared by each member's own inner weight.
+    expect(edge(src, 'e', 'a').probability).toBe(8);
+    expect(edge(src, 'e', 'b').probability).toBe(32);
   });
 
 });

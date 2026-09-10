@@ -1027,16 +1027,25 @@ function list_shares(list: Array<string> | JssmWeightedList): Array<{ name: stri
     throw new JssmError(undefined, `A weighted list must weight every member or none; [${list.members.map(m => m.name).join(' ')}] weights ${weighted.length} of ${list.members.length}`);
   }
 
+  // No member carries a weight: a weighted_list node in this all-unweighted
+  // shape never comes out of the grammar (an unweighted list parses to a
+  // plain array instead), but list_shares is exported public API, so a
+  // hand-built node in this shape must still share uniformly, per spec
+  // ("If no member carries a weight, shares are uniform 1/n") rather than
+  // falling into the zero-sum branch below (an empty `weighted` reduces to
+  // total 0 for a reason that has nothing to do with a real zero-sum weight
+  // set).
+  if (weighted.length === 0) {
+    const share = 1 / list.members.length;
+    return list.members.map(m => ({ name: m.name, share }));
+  }
+
   const total: number = weighted.reduce((acc, m) => acc + m.weight, 0);
 
   if (total === 0) {
     throw new JssmError(undefined, `The weights in [${list.members.map(m => `${m.name} ${m.weight}%`).join(' ')}] sum to zero, so no member can be chosen`);
   }
 
-  // Reject-on-mix above guarantees every member here carries a weight (the
-  // alternative, all-unweighted, would have made `total` zero and thrown),
-  // so `weighted` — already narrowed to `weight: number` by the filter —
-  // covers every member in original order.
   return weighted.map(m => ({ name: m.name, share: m.weight / total }));
 
 }
