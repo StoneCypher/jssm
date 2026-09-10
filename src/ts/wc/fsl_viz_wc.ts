@@ -2,8 +2,7 @@ import { LitElement, html, css, TemplateResult, PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string, slug_for } from '../jssm_viz.js';
-import type { Machine } from '../jssm.js';
-import { closest_wc } from './wc_tag_helpers.js';
+import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 
 /**
@@ -23,31 +22,18 @@ export interface HighlightOptions {
 }
 
 /**
- * Structural shape used to detect a parent `<fsl-instance>` host without
- * creating a hard import cycle from the viz module into the instance module.
- *
- * `<fsl-instance>` exposes its underlying machine via a `machine` getter
- * that returns the raw {@link Machine} instance.  Treating that shape as a
- * duck-typed interface here keeps the viz file standalone-compilable and
- * lets tests stub a host without instantiating the real element.
- */
-export interface JssmInstanceHost extends HTMLElement {
-  readonly machine: Machine<unknown>;
-}
-
-/**
  * Shape of the `viz-error` `CustomEvent.detail` payload.  `message` is
  * always a string; `location` is whatever the renderer attached to the
  * thrown error (typically a parser-supplied source position), or
  * `undefined` if no such field was present.
  */
-export interface JssmVizErrorDetail {
+export interface FslVizErrorDetail {
   message  : string;
   location?: unknown;
 }
 
 /**
- * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Normalize an arbitrary thrown value into a {@link FslVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
  * strings, etc.) and always produces a string `message`.
  *
@@ -65,7 +51,7 @@ export interface JssmVizErrorDetail {
  * @returns A `{ message, location }` object suitable for use as the
  * `detail` of a `viz-error` `CustomEvent`.
  */
-export function normalize_viz_error(e: unknown): JssmVizErrorDetail {
+export function normalize_viz_error(e: unknown): FslVizErrorDetail {
   if (typeof e === 'object' && e !== null) {
     const rec = e as Record<string, unknown>;
     const raw_message = rec.message;
@@ -165,7 +151,7 @@ export class FslViz extends LitElement {
    * in nested mode and renders the parent's machine instead of its own
    * `fsl` attribute.
    */
-  private _parent_host: JssmInstanceHost | null = null;
+  private _parent_host: FslInstanceHost | null = null;
 
   /**
    * Unsubscribe callback returned from `host.machine.on('transition', ...)`.
@@ -216,7 +202,7 @@ export class FslViz extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    const host = closest_wc(this, 'instance') as JssmInstanceHost | null;
+    const host = closest_wc(this, 'instance') as FslInstanceHost | null;
     if (host === null) {
       return;   // standalone: existing behavior, willUpdate handles render
     }

@@ -1,16 +1,7 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
-import type { Machine } from '../jssm.js';
-import { closest_wc } from './wc_tag_helpers.js';
+import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { fslTokens } from './fsl_tokens.js';
-
-/**
- * Structural shape used to detect a parent `<fsl-instance>` host without
- * importing the instance module.
- */
-export interface JssmInstanceHost extends HTMLElement {
-  readonly machine: Machine<unknown>;
-}
 
 /**
  * Read-only panel that displays the parent machine's **resolved FSL
@@ -45,7 +36,7 @@ export class FslEffectiveProperties extends LitElement {
   `;
 
   /** Parent host reference; cleared on disconnect. */
-  private _host: JssmInstanceHost | null = null;
+  private _host: FslInstanceHost | null = null;
 
   /** Unsubscribe callback from the host machine's `transition` subscription. */
   private _sub: (() => void) | null = null;
@@ -65,7 +56,7 @@ export class FslEffectiveProperties extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    const host = closest_wc(this, 'instance') as JssmInstanceHost | null;
+    const host = closest_wc(this, 'instance') as FslInstanceHost | null;
     if (host === null) {
       return;
     }
@@ -100,7 +91,7 @@ export class FslEffectiveProperties extends LitElement {
    * triggering a re-render.
    * @param host - The bound parent host whose machine to snapshot.
    */
-  private _refresh(host: JssmInstanceHost): void {
+  private _refresh(host: FslInstanceHost): void {
     const bag = host.machine.props() as Record<string, unknown>;
     // eslint-disable-next-line @typescript-eslint/no-base-to-string -- FSL property values are primitives (string/number/boolean) at runtime; String() is the intended display coercion
     this._entries = Object.entries(bag).map(([k, v]) => [k, String(v)] as [string, string]);

@@ -19,8 +19,8 @@ import {
   parse_fsl_on_element,
   resolve_named_handler,
   compile_inline_body,
-  jssm_handler_registry,
-  JSSM_ON_EVENT_NAMES
+  fsl_handler_registry,
+  FSL_ON_EVENT_NAMES
 } from '../fsl_instance_wc';
 
 
@@ -209,19 +209,19 @@ describe('parse_fsl_on_element', () => {
   it('exposes a complete set of valid event names', () => {
     // Lock in the known set so an upstream addition to JssmEventName
     // can't silently bypass the WC validator.
-    expect(JSSM_ON_EVENT_NAMES.has('transition')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('rejection')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('action')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('entry')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('exit')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('terminal')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('complete')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('error')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('data-change')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('override')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('timeout')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('hook-registration')).toBe(true);
-    expect(JSSM_ON_EVENT_NAMES.has('hook-removal')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('transition')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('rejection')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('action')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('entry')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('exit')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('terminal')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('complete')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('error')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('data-change')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('override')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('timeout')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('hook-registration')).toBe(true);
+    expect(FSL_ON_EVENT_NAMES.has('hook-removal')).toBe(true);
   });
 
 });
@@ -231,13 +231,13 @@ describe('parse_fsl_on_element', () => {
 describe('resolve_named_handler', () => {
 
   afterEach(() => {
-    jssm_handler_registry.clear();
+    fsl_handler_registry.clear();
     delete (globalThis as Record<string, unknown>).__fsl_on_test_handler;
   });
 
   it('resolves from the registry first', () => {
     const fn = () => {};
-    jssm_handler_registry.set('reg_handler', fn);
+    fsl_handler_registry.set('reg_handler', fn);
     expect(resolve_named_handler('reg_handler')).toBe(fn);
   });
 
@@ -255,7 +255,7 @@ describe('resolve_named_handler', () => {
   it('prefers the registry over globalThis when both define the name', () => {
     const fn_reg    = () => 'reg';
     const fn_global = () => 'global';
-    jssm_handler_registry.set('both', fn_reg);
+    fsl_handler_registry.set('both', fn_reg);
     (globalThis as Record<string, unknown>).both = fn_global;
     expect(resolve_named_handler('both')).toBe(fn_reg);
     delete (globalThis as Record<string, unknown>).both;
@@ -309,7 +309,7 @@ describe('<fsl-on> integration with <fsl-instance>', () => {
 
   // Per-test cleanup to avoid global-state leaks between cases.
   afterEach(() => {
-    jssm_handler_registry.clear();
+    fsl_handler_registry.clear();
     // Wipe every name we set on globalThis during the suite.
     for (const k of [
       'onAnyTransition', 'onEdge', 'onLeaveRed', 'onReachGreen',
@@ -644,7 +644,7 @@ describe('<fsl-on> integration with <fsl-instance>', () => {
 describe('jssm-on retirement — instance discovers only fsl-on', () => {
 
   afterEach(() => {
-    jssm_handler_registry.clear();
+    fsl_handler_registry.clear();
     delete (globalThis as Record<string, unknown>).__fsl_counter;
     delete (globalThis as Record<string, unknown>).__jssm_counter;
   });

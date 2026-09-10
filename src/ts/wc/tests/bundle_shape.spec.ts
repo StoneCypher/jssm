@@ -57,8 +57,12 @@ describe('dist/wc/viz.define.js — registration entry point', () => {
   });
 
   it('does not call customElements.define for the retired jssm-viz tag (removed in 6.0)', () => {
+    // A plain substring check is unsafe here: the core's own runtime
+    // console.warn('jssm-viz: dropping state url ...') (src/ts/jssm_viz.ts)
+    // legitimately contains the literal token and can end up inlined. Assert
+    // the registration shape instead of the bare string.
     const built = readFileSync(define_path, 'utf8');
-    expect(built).not.toContain('jssm-viz');
+    expect(built).not.toMatch(/customElements\.define\(\s*['"]jssm-viz['"]/);
   });
 
   it('calls customElements.define for fsl-viz', () => {
@@ -80,9 +84,13 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
     expect(existsSync(cdn_path)).toBe(true);
   });
 
-  it('does not contain the retired jssm-viz tag name string (removed in 6.0)', () => {
+  it('does not call customElements.define for the retired jssm-viz tag (removed in 6.0)', () => {
+    // The CDN build inlines the core, whose console.warn('jssm-viz: ...')
+    // (src/ts/jssm_viz.ts) legitimately contains the literal token — a plain
+    // substring check would false-positive on that. Assert the registration
+    // shape instead.
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).not.toContain('jssm-viz');
+    expect(built).not.toMatch(/customElements\.define\(\s*['"]jssm-viz['"]/);
   });
 
   it('contains the fsl-viz tag name string', () => {
@@ -103,7 +111,7 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
   it('calls customElements.define for fsl-viz', () => {
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('customElements.define');
+    expect(built).toMatch(/customElements\.define\(\s*['"]fsl-viz['"]/);
   });
 
   it('stays under the 10 MB regression-guard ceiling', () => {
@@ -134,9 +142,12 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('does not contain the retired jssm-instance tag name string (removed in 6.0)', () => {
+  it('does not call customElements.define for the retired jssm-instance tag (removed in 6.0)', () => {
+    // Same rationale as the viz bundle: a bare substring check can
+    // false-positive on unrelated literal "jssm-instance" text (e.g. stray
+    // comments); assert the registration shape instead.
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).not.toContain('jssm-instance');
+    expect(built).not.toMatch(/customElements\.define\(\s*['"]jssm-instance['"]/);
   });
 
   it('does NOT inline Lit internals (lit is external for bundlers)', () => {
@@ -173,9 +184,11 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(built).toContain('fsl-instance');
   });
 
-  it('does not contain the retired jssm-instance tag name string (removed in 6.0)', () => {
+  it('does not call customElements.define for the retired jssm-instance tag (removed in 6.0)', () => {
+    // The CDN build inlines the core; assert the registration shape rather
+    // than a bare substring check for the same reason as the viz bundle.
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).not.toContain('jssm-instance');
+    expect(built).not.toMatch(/customElements\.define\(\s*['"]jssm-instance['"]/);
   });
 
   it('inlines Lit (no lit imports remain)', () => {
@@ -186,7 +199,7 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
 
   it('calls customElements.define for fsl-instance', () => {
     const built = readFileSync(cdn_path, 'utf8');
-    expect(built).toContain('customElements.define');
+    expect(built).toMatch(/customElements\.define\(\s*['"]fsl-instance['"]/);
   });
 
   it('stays under the 10 MB regression-guard ceiling', () => {

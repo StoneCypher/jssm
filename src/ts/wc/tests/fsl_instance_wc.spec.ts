@@ -590,7 +590,7 @@ describe('FslInstance shadow DOM', () => {
 
 describe('retired jssm- companion discovery (removed in 6.0)', () => {
 
-  it('ignores retired jssm-on / jssm-hook / jssm-action children (removed in 6.0)', () => {
+  it('ignores a retired jssm-on child (removed in 6.0)', () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "a 'go' -> b;");
     const on = document.createElement('jssm-on');

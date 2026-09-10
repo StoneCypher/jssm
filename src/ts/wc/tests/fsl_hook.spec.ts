@@ -16,10 +16,6 @@ import {
   type FslHookProxy,
   type FslHookRegistry,
   type RawHookContext,
-  // Backward-compat aliases — verify they still export.
-  type JssmHookInstallSpec,
-  type JssmHookProxy,
-  type JssmHookRegistry,
 } from '../fsl_hook_wc';
 import type { Machine } from '../../jssm.js';
 
@@ -197,29 +193,29 @@ describe('resolve_named_handler', () => {
   });
 
   it('returns a function from the registry when present', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     reg.set('myfn', fn);
     expect(resolve_named_handler('myfn', reg)).toBe(fn);
   });
 
   it('falls back to globalThis when registry is undefined', () => {
-    const fn = (_m: JssmHookProxy) => {};
+    const fn = (_m: FslHookProxy) => {};
     (globalThis as any).__jssm_hook_test_global = fn;
     expect(resolve_named_handler('__jssm_hook_test_global')).toBe(fn);
   });
 
   it('falls back to globalThis when registry lacks the name', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     (globalThis as any).__jssm_hook_test_global = fn;
     expect(resolve_named_handler('__jssm_hook_test_global', reg)).toBe(fn);
   });
 
   it('prefers the registry over a same-named globalThis entry', () => {
-    const reg_fn    = (_m: JssmHookProxy) => 'reg';
-    const global_fn = (_m: JssmHookProxy) => 'global';
-    const reg: JssmHookRegistry = new Map([['both', reg_fn]]);
+    const reg_fn    = (_m: FslHookProxy) => 'reg';
+    const global_fn = (_m: FslHookProxy) => 'global';
+    const reg: FslHookRegistry = new Map([['both', reg_fn]]);
     (globalThis as any).__jssm_hook_test_global = global_fn; // unrelated, just to keep cleanup safe
     (globalThis as any).both = global_fn;
     try {
@@ -259,7 +255,7 @@ describe('parse_hook_element', () => {
   });
 
   it('parses the handler-attribute form', () => {
-    (globalThis as any).__jssm_parse_test_fn = (_m: JssmHookProxy) => {};
+    (globalThis as any).__jssm_parse_test_fn = (_m: FslHookProxy) => {};
     try {
       const el = document.createElement('fsl-hook') as HTMLElement;
       el.setAttribute('handler', '__jssm_parse_test_fn');
@@ -319,8 +315,8 @@ describe('parse_hook_element', () => {
   });
 
   it('uses the registry when resolving handler attribute', () => {
-    const reg: JssmHookRegistry = new Map();
-    const fn = (_m: JssmHookProxy) => {};
+    const reg: FslHookRegistry = new Map();
+    const fn = (_m: FslHookProxy) => {};
     reg.set('reg-only', fn);
     const el = document.createElement('fsl-hook') as HTMLElement;
     el.setAttribute('handler', 'reg-only');
@@ -334,13 +330,13 @@ describe('parse_hook_element', () => {
 
 describe('wrap_user_handler', () => {
 
-  function make_spec(user_handler: (m: JssmHookProxy) => unknown): JssmHookInstallSpec {
+  function make_spec(user_handler: (m: FslHookProxy) => unknown): FslHookInstallSpec {
     return { kind: 'hook', name: undefined, from: 'a', to: 'b', action: undefined, user_handler };
   }
 
   it('returns a HookComplexResult with mutated data on a normal call', () => {
     const wrapped = wrap_user_handler(
-      make_spec((m: JssmHookProxy<number>) => { m.data = (m.data ?? 0) + 1; }),
+      make_spec((m: FslHookProxy<number>) => { m.data = (m.data ?? 0) + 1; }),
       { state: () => 'a' },
     );
     const out = wrapped({ data: 5 }) as { pass: boolean; data: number };
@@ -375,7 +371,7 @@ describe('build_hook_descriptor', () => {
   function w(_ctx: RawHookContext): unknown { return undefined; }
 
   it('omits undefined optional keys', () => {
-    const spec: JssmHookInstallSpec = {
+    const spec: FslHookInstallSpec = {
       kind: 'any transition', name: undefined, from: undefined, to: undefined,
       action: undefined, user_handler: () => {},
     };
@@ -384,7 +380,7 @@ describe('build_hook_descriptor', () => {
   });
 
   it('includes from/to/action when defined', () => {
-    const spec: JssmHookInstallSpec = {
+    const spec: FslHookInstallSpec = {
       kind: 'named', name: 'x', from: 'a', to: 'b', action: 'go',
       user_handler: () => {},
     };
@@ -411,7 +407,7 @@ describe('<fsl-hook> integration with <fsl-instance>', () => {
   });
 
   it('installs a hook from the handler-attribute form via globalThis', () => {
-    (globalThis as any).__jssm_int_global = (m: JssmHookProxy<number>) => { m.data = 42; };
+    (globalThis as any).__jssm_int_global = (m: FslHookProxy<number>) => { m.data = 42; };
     try {
       const { el, cleanup } = make_instance_with_hooks(
         "red 'go' -> green;",
@@ -644,7 +640,7 @@ describe('<fsl-hook> integration with <fsl-instance>', () => {
   });
 
   it('exposes from/to/action to the user handler via the proxy', () => {
-    (globalThis as any).__jssm_capture = (m: JssmHookProxy) => {
+    (globalThis as any).__jssm_capture = (m: FslHookProxy) => {
       m.data = { from: m.from, to: m.to, action: m.action, state: m.state() };
     };
     try {

@@ -7,9 +7,9 @@ import * as fc from 'fast-check';
 import '../wc/fsl_instance_wc.define';
 import {
   FslInstance,
-  JSSM_ON_EVENT_NAMES,
+  FSL_ON_EVENT_NAMES,
   parse_fsl_on_element, resolve_named_handler, compile_inline_body,
-  jssm_handler_registry, resolve_fsl_source
+  fsl_handler_registry, resolve_fsl_source
 } from '../wc/fsl_instance_wc';
 
 import { wc_suffix_matches, closest_wc, define_canonical } from '../wc/wc_tag_helpers';
@@ -163,7 +163,7 @@ describe('parse_fsl_on_element', () => {
 
   }
 
-  const event_arb = fc.constantFrom(...JSSM_ON_EVENT_NAMES);
+  const event_arb = fc.constantFrom(...FSL_ON_EVENT_NAMES);
 
   test('a valid named-handler directive parses with its constructed parts', () => {
 
@@ -223,7 +223,7 @@ describe('parse_fsl_on_element', () => {
 
     fc.assert(
       fc.property(
-        word.filter( w => !JSSM_ON_EVENT_NAMES.has(w) ),
+        word.filter( w => !FSL_ON_EVENT_NAMES.has(w) ),
         word,
         (bad_event, handler) => {
 
@@ -276,11 +276,11 @@ describe('handler resolution and inline compilation', () => {
             expect(resolve_named_handler(name)).toBe(from_global);
 
             // registry precedence
-            jssm_handler_registry.set(name, from_registry);
+            fsl_handler_registry.set(name, from_registry);
             expect(resolve_named_handler(name)).toBe(from_registry);
 
           } finally {
-            jssm_handler_registry.delete(name);
+            fsl_handler_registry.delete(name);
             delete g[name];
           }
 
@@ -371,7 +371,7 @@ describe('resolve_fsl_source channel arithmetic', () => {
     fc.assert(
       fc.property(
         word, word,
-        fc.constantFrom('fsl-hook', 'fsl-bind'),
+        fc.constantFrom('fsl-hook', 'fsl-on', 'fsl-bind'),
         (state, noise, companion_tag) => {
 
           const host = document.createElement('div');

@@ -23,7 +23,7 @@ import {
  * instead of relying on a downstream library throw whose message would
  * mention `machine.on(...)` rather than the offending tag.
  */
-export const JSSM_ON_EVENT_NAMES = new Set<string>([
+export const FSL_ON_EVENT_NAMES = new Set<string>([
   'transition',
   'rejection',
   'action',
@@ -45,9 +45,9 @@ export const JSSM_ON_EVENT_NAMES = new Set<string>([
  * `handler_name` (form A — named lookup) or `inline_body` (form B —
  * dynamic function) is populated, never both.  Validation errors are
  * surfaced as a thrown `Error` from the parser rather than carried in this
- * record, so by the time a consumer sees a `ParsedJssmOn` it's known good.
+ * record, so by the time a consumer sees a `ParsedFslOn` it's known good.
  */
-export interface ParsedJssmOn {
+export interface ParsedFslOn {
   event        : string;
   handler_name : string | undefined;
   inline_body  : string | undefined;
@@ -58,12 +58,12 @@ export interface ParsedJssmOn {
 }
 
 /**
- * Parse a `<fsl-on>` element into a validated {@link ParsedJssmOn}
+ * Parse a `<fsl-on>` element into a validated {@link ParsedFslOn}
  * record.  Centralized so the declarative-tag logic is testable without
  * spinning up the full `<fsl-instance>` lifecycle.
  *
  * Validation rules (per #643):
- *   - `event` is required and must be in {@link JSSM_ON_EVENT_NAMES}.
+ *   - `event` is required and must be in {@link FSL_ON_EVENT_NAMES}.
  *   - Either a `handler="name"` attribute or non-empty `textContent`
  *     must be supplied, but not both.
  *   - `state` is only meaningful for `event="entry"` / `event="exit"`;
@@ -82,11 +82,11 @@ export interface ParsedJssmOn {
  * //      once: false, name: undefined, filter: { state: 'paid' } }
  * ```
  * @param el - The `<fsl-on>` element to parse.
- * @returns A validated {@link ParsedJssmOn} record.
+ * @returns A validated {@link ParsedFslOn} record.
  * @throws If `event` is missing, unknown, both handler forms are
  *         supplied, or neither handler form is supplied.
  */
-export function parse_fsl_on_element(el: HTMLElement): ParsedJssmOn {
+export function parse_fsl_on_element(el: HTMLElement): ParsedFslOn {
 
   const event_attr = el.getAttribute('event');
   if (event_attr === null || event_attr.trim().length === 0) {
@@ -94,7 +94,7 @@ export function parse_fsl_on_element(el: HTMLElement): ParsedJssmOn {
   }
   const event = event_attr.trim();
 
-  if (!JSSM_ON_EVENT_NAMES.has(event)) {
+  if (!FSL_ON_EVENT_NAMES.has(event)) {
     throw new Error(`<fsl-on>: unknown event "${event}"`);
   }
 
@@ -162,7 +162,7 @@ export function parse_fsl_on_element(el: HTMLElement): ParsedJssmOn {
  * so consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly
  * without a thin wrapper API.
  */
-export const jssm_handler_registry: Map<string, (...args: unknown[]) => unknown> = new Map();
+export const fsl_handler_registry: Map<string, (...args: unknown[]) => unknown> = new Map();
 
 /**
  * Resolve a named handler from the registry, then from `globalThis`.
@@ -173,7 +173,7 @@ export const jssm_handler_registry: Map<string, (...args: unknown[]) => unknown>
  * @throws If no function is registered under `name`.
  */
 export function resolve_named_handler(name: string): (e: unknown) => void {
-  const from_registry = jssm_handler_registry.get(name);
+  const from_registry = fsl_handler_registry.get(name);
   if (typeof from_registry === 'function') {
     return from_registry;
   }

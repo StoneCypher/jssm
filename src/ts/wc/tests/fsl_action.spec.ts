@@ -334,6 +334,25 @@ describe('jssm-action retirement — instance discovers only fsl-action', () => 
     host.remove();
   });
 
+  it('a retired data-jssm-action attribute is inert while a data-fsl-action sibling still fires', () => {
+    // Two buttons in the same document: one carries the canonical inline
+    // attribute, the other the retired one. Only the canonical one is
+    // discovered — [data-fsl-action] is the only selector the host scans.
+    const host = build_host(
+      `<button type="button" id="fsl-btn" data-fsl-action="flip"></button>` +
+      `<button type="button" id="retired-btn" data-jssm-action="flip"></button>`,
+      "Off 'flip' -> On;"
+    );
+
+    (host.querySelector('#retired-btn') as HTMLButtonElement).click();
+    expect(host.state()).toBe('Off');   // retired attribute: not discovered, no listener
+
+    (host.querySelector('#fsl-btn') as HTMLButtonElement).click();
+    expect(host.state()).toBe('On');    // canonical attribute: still wired
+
+    host.remove();
+  });
+
 });
 
 describe('listener cleanup on disconnect', () => {

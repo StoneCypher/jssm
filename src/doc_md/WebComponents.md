@@ -2,7 +2,7 @@
 
 `jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
 
-> **Tag names:** every component is spelled `fsl-*` (`<fsl-viz>`, class `FslViz`). The `jssm-*` tags, the `Jssm*` class aliases, the `data-jssm-*` attributes, and the `--jssm-viz-*` CSS properties were deprecated in 5.x and **removed in 6.0** — rename them to the `fsl-` spelling (`<jssm-viz>` → `<fsl-viz>`, `data-jssm-action` → `data-fsl-action`, `--jssm-viz-max-height` → `--fsl-viz-max-height`).
+> **Tag names:** every component is spelled `fsl-*` (`<fsl-viz>`, class `FslViz`). The `jssm-*` tags, the `Jssm*` class aliases, the `data-jssm-*` attributes, and the `--jssm-viz-*` CSS properties were deprecated in 5.x and **removed in 6.0** — rename them to the `fsl-` spelling (`<jssm-viz>` → `<fsl-viz>`, `data-jssm-action` → `data-fsl-action`, `--jssm-viz-max-height` → `--fsl-viz-max-height`). A leftover `jssm-*` companion child (e.g. a stray `<jssm-hook>` or `<jssm-on>`) is no longer stripped from a host's inline-text FSL source and will corrupt it — remove or rename such children too.
 
 ## Quick start — CDN
 

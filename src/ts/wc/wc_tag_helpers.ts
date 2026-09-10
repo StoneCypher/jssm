@@ -4,6 +4,22 @@
  * matches exactly one spelling, so the rule lives in one place.
  */
 
+import type { Machine } from '../jssm.js';
+
+/**
+ * Structural shape used to detect a parent `<fsl-instance>` host without
+ * creating a hard import cycle into the instance module. `<fsl-instance>`
+ * exposes its underlying machine via a `machine` getter that returns the raw
+ * {@link Machine} instance; treating that shape as a duck-typed interface
+ * here keeps consumer modules (viz, info-panel, effective-properties)
+ * standalone-compilable and lets tests stub a host without instantiating the
+ * real element. Shared here rather than declared per-module so there is one
+ * definition, not one per consumer.
+ */
+export interface FslInstanceHost extends HTMLElement {
+  readonly machine: Machine<unknown>;
+}
+
 /**
  * Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive).
  * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
@@ -34,9 +50,11 @@ export function closest_wc(el: Element, suffix: string): Element | null {
 }
 
 /**
- * Registers a canonical `fsl-*` custom-element tag.  Idempotent: skips the
- * `define` call when the tag is already registered.
- * @param canonical_tag - The `fsl-*` tag name (e.g. `"fsl-info-panel"`).
+ * Registers `canonical_tag` as a custom element under `CanonicalClass`.
+ * Idempotent: skips the `define` call when the tag is already registered.
+ * Does not validate that `canonical_tag` carries the `fsl-` prefix — callers
+ * are responsible for passing a spelling that belongs in the registry.
+ * @param canonical_tag - The tag name to register (e.g. `"fsl-info-panel"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
  * @example
  * class FslInfoPanel extends HTMLElement {}

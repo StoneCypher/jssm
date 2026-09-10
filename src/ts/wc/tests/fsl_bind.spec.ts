@@ -308,6 +308,33 @@ describe('install_bindings — inline data-fsl-bind form', () => {
     expect(span.textContent).toBe('B');
   });
 
+  it('a retired data-jssm-bind attribute is inert while a data-fsl-bind sibling still binds', () => {
+    // Two spans in the same host: one carries the canonical inline
+    // attribute, the other the retired one. Only the canonical one is
+    // discovered — [data-fsl-bind] is the only selector install_bindings scans.
+    const host = document.createElement('div');
+
+    const fsl_span = document.createElement('span');
+    fsl_span.dataset.fslBind = 'state';
+    fsl_span.textContent = 'placeholder';
+    host.append(fsl_span);
+
+    const retired_span = document.createElement('span');
+    retired_span.dataset.jssmBind = 'state';
+    retired_span.textContent = 'placeholder';
+    host.append(retired_span);
+
+    const m = sm`A 'go' -> B;`;
+    install_bindings(host, m);
+
+    expect(fsl_span.textContent).toBe('A');            // canonical: painted
+    expect(retired_span.textContent).toBe('placeholder'); // retired: untouched
+
+    m.transition('B');
+    expect(fsl_span.textContent).toBe('B');
+    expect(retired_span.textContent).toBe('placeholder');
+  });
+
 });
 
 describe('install_bindings — dedicated <fsl-bind> tag form', () => {

@@ -1,16 +1,7 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
-import type { Machine } from '../jssm.js';
-import { closest_wc } from './wc_tag_helpers.js';
+import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { fslTokens } from './fsl_tokens.js';
-
-/**
- * Structural shape used to detect a parent `<fsl-instance>` host without
- * importing the instance module — same duck-typed approach `<fsl-viz>` uses.
- */
-export interface JssmInstanceHost extends HTMLElement {
-  readonly machine: Machine<unknown>;
-}
 
 /**
  * The most recent transition observed on the host machine, captured from the
@@ -55,7 +46,7 @@ export class FslInfoPanel extends LitElement {
    * Parent host reference, set in `connectedCallback` when one is found.
    * Cleared on disconnect so a stale deferred subscription cannot fire.
    */
-  private _host: JssmInstanceHost | null = null;
+  private _host: FslInstanceHost | null = null;
 
   /** Unsubscribe callback from the host machine's `transition` subscription. */
   private _sub: (() => void) | null = null;
@@ -84,7 +75,7 @@ export class FslInfoPanel extends LitElement {
   connectedCallback(): void {
     super.connectedCallback();
 
-    const host = closest_wc(this, 'instance') as JssmInstanceHost | null;
+    const host = closest_wc(this, 'instance') as FslInstanceHost | null;
     if (host === null) {
       return;   // no host: render() shows the placeholder
     }
@@ -134,7 +125,7 @@ export class FslInfoPanel extends LitElement {
    * so no re-null-check is needed here.
    * @param host - The bound parent host whose machine to snapshot.
    */
-  private _refresh(host: JssmInstanceHost): void {
+  private _refresh(host: FslInstanceHost): void {
     const m = host.machine;
     this._current  = m.state();
     this._actions  = m.list_exit_actions().map(String).join(' ');
