@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const require = createRequire(import.meta.url);
@@ -18,10 +19,16 @@ const { inline_fast_atom, FAST_ATOM_RE } = require(resolve(__dirname, '../fixpar
  *  The intermediate `src/ts/fsl_parser.js` that `npm run peg` reads this
  *  from doesn't persist on disk (fixparser deletes it after writing the
  *  `.ts`), so it isn't a stable test fixture either. This fixture is a
- *  byte-for-byte copy of the real generated `peg$parseAtom` (as pegjs 0.10
- *  emits it for the current grammar; only the two `peg$cNNN` constant names
- *  are renumbered, to keep the fixture independent of pegjs's renumbering)
- *  — the honest input `inline_fast_atom` is built to transform.
+ *  byte-for-byte copy of pegjs 0.10's RAW emission for `peg$parseAtom` (as
+ *  read straight from `src/ts/fsl_parser.js` before any fixup pass ran,
+ *  including `inline_fail_guard` — note the unguarded
+ *  `if (peg$silentFails === 0) { peg$fail(...) }` form at the bottom, not the
+ *  `&& peg$currPos >= peg$maxFailPos`-guarded form the committed `.ts` has);
+ *  only the two `peg$cNNN` constant names are renumbered, to keep the
+ *  fixture independent of pegjs's renumbering. `inline_fast_atom` runs
+ *  BEFORE `inline_fail_guard` in the real pipeline (see `main()` in
+ *  `fixparser.cjs`), so this unguarded shape is the honest input it is
+ *  actually built to transform.
  */
 const GENERATED_ATOM_FN = `  function peg$parseAtom() {
     var s0, s1, s2, s3;
@@ -63,7 +70,7 @@ const GENERATED_ATOM_FN = `  function peg$parseAtom() {
     peg$silentFails--;
     if (s0 === peg$FAILED) {
       s1 = peg$FAILED;
-      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c001); }
+      if (peg$silentFails === 0) { peg$fail(peg$c001); }
     }
 
     return s0;
@@ -98,6 +105,22 @@ describe('inline_fast_atom', () => {
     const bad = ['1a', '.a', 'a.b', 'in-progress', '😀', '→', ''];
     for (const s of ok)  { FAST_ATOM_RE.lastIndex = 0; expect(FAST_ATOM_RE.exec(s)?.[0]).toBe(s); }
     for (const s of bad) { FAST_ATOM_RE.lastIndex = 0; const m = FAST_ATOM_RE.exec(s); expect(m === null || m[0] !== s).toBe(true); }
+  });
+
+  // Liveness / build-drift guard: every test above exercises `inline_fast_atom`
+  // in isolation and would stay green even if `inline_fast_atom(` were quietly
+  // dropped from the pipeline composition in `main()` (fixparser.cjs, the
+  // `const body = ...` line) — nothing else in this file reads the artifact
+  // the build actually ships. This test closes that gap by reading the
+  // COMMITTED `src/ts/fsl_parser.ts` and checking, via substring assertions
+  // (not a golden file — it doesn't compare the whole file, just the two
+  // structural facts that prove the fast path is live), that the scanner
+  // this transform installs is actually present and installed exactly once.
+  it('the committed generated parser actually contains the inlined fast atom scanner (build-drift guard)', () => {
+    const committed = readFileSync(resolve(__dirname, '../../ts/fsl_parser.ts'), 'utf8');
+    expect(committed).toContain('FAST_ATOM_RE');
+    const occurrences = committed.split('function peg$parseAtom(').length - 1;
+    expect(occurrences).toBe(1);
   });
 
 });

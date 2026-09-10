@@ -776,9 +776,11 @@ function inline_fail_guard(body) {
  *  itself reading and deleting build artifacts as a side effect.
  *
  *  @throws {Error} whatever the pipeline stages throw on pegjs output drift
- *          (see each stage's own `@throws`), or a filesystem error if
+ *          (see each stage's own `@throws`), a filesystem error if
  *          `src/ts/fsl_parser.js` — pegjs's just-generated output — is
- *          missing.
+ *          missing, or (a composition-order bug, not pegjs drift) if an
+ *          unguarded `peg$fail` site survives to the written output —
+ *          see the ordering guard just before the write below.
  *  @see inline_fast_ws
  *  @see inline_fast_atom
  */
@@ -803,7 +805,26 @@ function main() {
   const widened = lines.join('\n')
     .replace(/function (error|expected)\((\w+), location\)/g, 'function $1($2, location?)');
 
+  // inline_fast_atom (like inline_fast_ws, inline_fast_integer, and the
+  // quoted-text swaps) MUST run before inline_fail_guard: it emits its
+  // miss-path expectation check in the same unguarded
+  // `if (peg$silentFails === 0) { peg$fail(...) }` form pegjs itself emits,
+  // relying on inline_fail_guard's later global pass to add the
+  // `&& peg$currPos >= peg$maxFailPos` guard. Reordered after
+  // inline_fail_guard, that site would ship unguarded — same observable
+  // parse results, but back to a `peg$fail` call on every failed match
+  // attempt instead of one inline integer compare (#704), silently losing
+  // part of the perf win this transform exists for.
   const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_atom(inline_fast_ws(widened))))))));
+
+  // Ordering guard for the comment above: if any transform that emits the
+  // unguarded form ever ends up after inline_fail_guard in the composition —
+  // this one included — its site survives ungated into the shipped parser.
+  // inline_fail_guard's own `count < 500` check only proves it guarded
+  // *something*; it can't see a site that was never unguarded when it ran.
+  if (/if \(peg\$silentFails === 0\) \{ peg\$fail\(/.test(body)) {
+    throw new Error('fixparser: an unguarded peg$fail site survived the pipeline — a fast-path transform that emits the unguarded form is running after inline_fail_guard');
+  }
 
   // The parser is machine-generated PEG.js output (plus the hand-tuned scanners
   // above); its correctness is verified by the parse test suites, not the type
