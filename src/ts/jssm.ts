@@ -3031,6 +3031,10 @@ class Machine<mDT> {
    *  Fixes StoneCypher/fsl#1325, in which the function previously returned
    *  every exit unconditionally — including forced-only exits and exits
    *  with no `probability`, which distorted the weighted distribution.
+   *
+   *  Share-only edges (an unweighted transition onto a weighted list; 6.0
+   *  list weights) carry no declared `probability` and so never evict their
+   *  siblings from the pool; their `share` is applied later, by the picker.
    *  @param whichState - The state to inspect.
    *  @returns An array of {@link JssmTransition} edges exiting the state,
    *  filtered as described above.  May be empty.
@@ -3085,6 +3089,9 @@ class Machine<mDT> {
    *  selectable weight is zero, because weighted selection over an all-zero
    *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
    *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+   *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
+   *  share-only edge (6.0 list weights) still contributes its fractional
+   *  weight to the total rather than being treated as 1.
    *  An empty pool is not this guard's concern (terminality is handled by the
    *  callers) and passes through untouched.
    *
@@ -3105,7 +3112,7 @@ class Machine<mDT> {
 
     let total: number = 0;
     for (const e of exits) {
-      total += (e.probability === undefined) ? 1 : e.probability;
+      total += ((e.probability === undefined) ? 1 : e.probability) * ((e.share === undefined) ? 1 : e.share);
     }
 
     if (total > 0) { return; }
