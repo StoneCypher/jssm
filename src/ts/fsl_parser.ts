@@ -5136,48 +5136,33 @@ function peg$parse(input, options) {
     return s0;
   }
 
+  var FAST_ATOM_RE = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]*/uy;
+
   function peg$parseAtom() {
-    var s0, s1, s2, s3;
+    var s0, s1, m;
 
     peg$silentFails++;
-    s0 = peg$currPos;
-    s1 = peg$parseAtomFirstLetter();
-    if (s1 !== peg$FAILED) {
-      s2 = [];
-      s3 = peg$parseAtomLetter();
-      while (s3 !== peg$FAILED) {
-        s2.push(s3);
-        s3 = peg$parseAtomLetter();
-      }
-      if (s2 !== peg$FAILED) {
-        s3 = peg$parseBarewordBadChar();
-        if (s3 === peg$FAILED) {
-          s3 = peg$parseBarewordDashTail();
-        }
-        if (s3 === peg$FAILED) {
-          s3 = null;
-        }
-        if (s3 !== peg$FAILED) {
-          peg$savedPos = s0;
-          s1 = peg$c347(s1, s2, s3);
-          s0 = s1;
-        } else {
-          peg$currPos = s0;
-          s0 = peg$FAILED;
-        }
-      } else {
-        peg$currPos = s0;
-        s0 = peg$FAILED;
-      }
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
-    }
-    peg$silentFails--;
-    if (s0 === peg$FAILED) {
-      s1 = peg$FAILED;
+    FAST_ATOM_RE.lastIndex = peg$currPos;
+    m = FAST_ATOM_RE.exec(input);
+
+    if (m === null) {
+      peg$silentFails--;
       if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c346); }
+      return peg$FAILED;
     }
+
+    s0 = peg$currPos;
+    peg$currPos += m[0].length;
+
+    // one-shot trailing check: the same rule functions the grammar's Atom
+    // action relies on, not a hand-rolled re-derivation of their charset
+    s1 = peg$parseBarewordBadChar();
+    if (s1 === peg$FAILED) { s1 = peg$parseBarewordDashTail(); }
+    if (s1 === peg$FAILED) { s1 = null; }
+
+    peg$savedPos = s0;
+    s0 = peg$c347(m[0], [], s1);   // firstletter=full match, text=[] -> identical "name"
+    peg$silentFails--;
 
     return s0;
   }

@@ -9,25 +9,6 @@
 const fs         = require('fs'),
       orig_fname = './src/ts/fsl_parser.js';
 
-const orig       = fs.readFileSync(orig_fname),
-      lines      = `${orig}`.split('\n'),
-      tail       = fs.readFileSync('src/buildjs/peg_ts_export_footer.ts');
-
-lines.pop();  // shut up, it's funny
-lines.pop();
-lines.pop();
-lines.pop();
-lines.pop();
-
-// pegjs's runtime declares `error(message, location)` and
-// `expected(description, location)` with both parameters required, but
-// each function's body treats `location` as optional (`!== void 0` check
-// with a fallback to `peg$computeLocation`).  Mark the parameter optional
-// in the generated TypeScript so action blocks can use the one-argument
-// form without tripping `error TS2554: Expected 2 arguments, but got 1`.
-const widened = lines.join('\n')
-  .replace(/function (error|expected)\((\w+), location\)/g, 'function $1($2, location?)');
-
 /**
  *  Replaces the generated `peg$parseWS` with an allocation-free hand-rolled
  *  scanner.  pegjs 0.10 compiles `([ \t\r\n\v]+ / BlockComment / LineComment)+`
@@ -110,20 +91,142 @@ function inline_fast_ws(body) {
   return body.replace(fn_re, () => replacement);
 }
 
-// #754: `peg$parseAtom` used to be replaced here with an allocation-free
-// hand-rolled scanner (`inline_fast_atom`, issue #702) that checked the old
-// `AtomFirstLetter` / `AtomLetter` classes as `charCodeAt` integer-range
-// comparisons. #754 redefined those classes as Unicode property tests
-// (`/^[\p{L}\p{Nl}_]$/u` and friends), which cannot be captured as a
-// contiguous code-unit range table by hand — `\p{L}` alone spans well over a
-// hundred disjoint ranges — so the fast path was removed rather than shipped
-// silently wrong (it was reproducing the pre-#754 charset, undoing the
-// grammar fix). The generated (function-call-plus-regex) `peg$parseAtom` now
-// runs unmodified. Re-introducing a fast path would mean deriving the range
-// table programmatically from the two regexes rather than transcribing it by
-// hand, to avoid this drift recurring silently.
+// #754: the pre-6.0 `inline_fast_atom` (issue #702) replaced the generated
+// `peg$parseAtom` with an allocation-free hand-rolled scanner that checked
+// the old `AtomFirstLetter` / `AtomLetter` classes as `charCodeAt`
+// integer-range comparisons. #754 redefined those classes as Unicode
+// property tests (`/^[\p{L}\p{Nl}_]$/u` and friends, see `BAREWORD_FIRST` /
+// `BAREWORD_REST` in the grammar's initializer), which cannot be captured as
+// a contiguous code-unit range table by hand — `\p{L}` alone spans well over
+// a hundred disjoint ranges — so the fast path was removed rather than
+// shipped silently wrong (it was reproducing the pre-#754 charset, undoing
+// the grammar fix).
+//
+// This reintroduces the fast path without that risk: `FAST_ATOM_RE` below is
+// built from the SAME two character classes as the grammar's
+// `BAREWORD_FIRST` / `BAREWORD_REST` (copied, not re-derived — a `u`-flag
+// regex has no runtime introspection that would let this be generated from
+// the grammar automatically), recombined into one sticky, `u`-flagged
+// pattern so a single `exec` at `peg$currPos` consumes an entire bareword —
+// surrogate pairs included, as one `\p{}` class match instead of a
+// per-code-point predicate call. `src/ts/tests/bareword_charset.stoch.ts` is
+// the drift guard: it drives random code points through the real, built
+// parser and fails if this regex's charset ever disagrees with the
+// grammar's, regardless of which code path ran.
 //
 // @see https://github.com/StoneCypher/jssm/issues/702
+// @see https://github.com/StoneCypher/jssm/issues/754
+
+/**
+ *  The bareword scanner, built from the SAME classes the grammar's
+ *  `AtomFirstLetter` / `AtomLetter` use (#754). Sticky (`y`) so repeated
+ *  `exec` calls from the same `lastIndex` don't rescan from the start of
+ *  `input`, and unicode (`u`) so an astral code point (a surrogate pair) is
+ *  matched as one `\p{}`-class unit rather than two stray UTF-16 code units.
+ *
+ *  Keep this in sync with `src/ts/fsl_parser.peg`'s `BAREWORD_FIRST` /
+ *  `BAREWORD_REST` initializer constants by hand; the drift guard
+ *  `src/ts/tests/bareword_charset.stoch.ts` fails if they disagree.
+ *
+ *  @example
+ *  FAST_ATOM_RE.lastIndex = 0;
+ *  FAST_ATOM_RE.exec('a1_')?.[0];  // => 'a1_'
+ */
+const FAST_ATOM_RE = /[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]*/uy;
+
+/**
+ *  Replaces the generated `peg$parseAtom` with a scanner built on
+ *  {@link FAST_ATOM_RE}: one sticky regex exec instead of a rule-function
+ *  call plus a `u`-flag `.test()` per code point (`AtomFirstLetter` for the
+ *  first, `AtomLetter` per continuation character) — the Atom cluster was
+ *  about 13% of `construct()` self-time on the pre-#754 charset (#702).
+ *
+ *  On a match, the trailing-character check the grammar's `Atom` action
+ *  performs is reproduced by calling the SAME generated rule functions the
+ *  grammar uses for it — `peg$parseBarewordBadChar` / `peg$parseBarewordDashTail`
+ *  — rather than re-deriving their charset by hand, and the SAME generated
+ *  action function is then called with the full match as `firstletter` and
+ *  an empty `text` array (`firstletter + text.join('')` therefore still
+ *  equals the full match), so a stray trailing character raises the
+ *  byte-identical "quote it" error the grammar's `Atom` action raises,
+ *  without retyping its message template. On a miss, the identical
+ *  `peg$otherExpectation("atom")` constant the generated rule fails with is
+ *  replayed, in the same unguarded form {@link inline_fail_guard} rewrites
+ *  the rest of the generated body's fail sites into, so it goes through the
+ *  same guard.
+ *
+ *  @param body The generated parser source (any point in the pipeline,
+ *         before or after the WS swap — this transform only touches
+ *         `peg$parseAtom`).
+ *  @returns The source with `peg$parseAtom` replaced.
+ *  @throws {Error} when the generated `peg$parseAtom`, its expectation
+ *          constant, or its action constant cannot be located — i.e. pegjs
+ *          output drift; update the patterns here rather than shipping the
+ *          slow (or, worse, silently-wrong) scanner.
+ *  @example
+ *  inline_fast_atom(generated_source).includes('FAST_ATOM_RE');  // => true
+ *  @see https://github.com/StoneCypher/jssm/issues/702
+ *  @see https://github.com/StoneCypher/jssm/issues/754
+ *  @see inline_fast_ws
+ */
+function inline_fast_atom(body) {
+
+  const fn_re = / {2}function peg\$parseAtom\(\) \{\n[\s\S]*?\n {2}\}\n/,
+        found = body.match(fn_re);
+
+  if (!found) { throw new Error('fixparser: cannot find generated peg$parseAtom'); }
+
+  // The named-rule expectation, same extraction as inline_fast_ws: the
+  // peg$fail argument after the trailing peg$silentFails--.
+  const fn_tail = found[0].slice(found[0].lastIndexOf('peg$silentFails--')),
+        c_found = fn_tail.match(/peg\$fail\((peg\$c\d+)\)/);
+
+  if (!c_found) { throw new Error('fixparser: cannot find peg$parseAtom expectation constant'); }
+
+  // The Atom rule's own semantic action, reused verbatim (not retyped) so a
+  // trailing bad character raises the byte-identical "quote it" error.
+  const act_found = found[0].match(/s1 = (peg\$c\d+)\(s1, s2, s3\);/);
+
+  if (!act_found) { throw new Error('fixparser: cannot find peg$parseAtom action constant'); }
+
+  const expectation = c_found[1],
+        action      = act_found[1];
+
+  const replacement =
+`  var FAST_ATOM_RE = ${FAST_ATOM_RE.toString()};
+
+  function peg$parseAtom() {
+    var s0, s1, m;
+
+    peg$silentFails++;
+    FAST_ATOM_RE.lastIndex = peg$currPos;
+    m = FAST_ATOM_RE.exec(input);
+
+    if (m === null) {
+      peg$silentFails--;
+      if (peg$silentFails === 0) { peg$fail(${expectation}); }
+      return peg$FAILED;
+    }
+
+    s0 = peg$currPos;
+    peg$currPos += m[0].length;
+
+    // one-shot trailing check: the same rule functions the grammar's Atom
+    // action relies on, not a hand-rolled re-derivation of their charset
+    s1 = peg$parseBarewordBadChar();
+    if (s1 === peg$FAILED) { s1 = peg$parseBarewordDashTail(); }
+    if (s1 === peg$FAILED) { s1 = null; }
+
+    peg$savedPos = s0;
+    s0 = ${action}(m[0], [], s1);   // firstletter=full match, text=[] -> identical "name"
+    peg$silentFails--;
+
+    return s0;
+  }
+`;
+
+  return body.replace(fn_re, () => replacement);
+}
 
 /**
  *  Replaces the generated `peg$parseTimeType` with a first-char-gated table
@@ -663,15 +766,62 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_ws(widened)))))));
+/**
+ *  Reads pegjs's raw output (`src/ts/fsl_parser.js`), runs the whole fixup
+ *  pipeline over it, and writes the result to `src/ts/fsl_parser.ts` — the
+ *  actual `npm run peg` build step. Split out from module-load-time
+ *  top-level code (the shape this file had before #754) so the transform
+ *  functions above can be `require`d and unit-tested (see
+ *  `src/buildjs/tests/fixparser_fast_atom.spec.ts`) without the `require`
+ *  itself reading and deleting build artifacts as a side effect.
+ *
+ *  @throws {Error} whatever the pipeline stages throw on pegjs output drift
+ *          (see each stage's own `@throws`), or a filesystem error if
+ *          `src/ts/fsl_parser.js` — pegjs's just-generated output — is
+ *          missing.
+ *  @see inline_fast_ws
+ *  @see inline_fast_atom
+ */
+function main() {
 
-// The parser is machine-generated PEG.js output (plus the hand-tuned scanners
-// above); its correctness is verified by the parse test suites, not the type
-// checker. 6.0.3 is stricter than 4.x about the generated code's implicit-any
-// parameters and V8-only `Error.captureStackTrace`, so suppress type-checking
-// of this one generated file rather than annotating throwaway output. Emit is
-// unaffected; terser strips the comment from the minified bundle.
-const ts_nocheck = '// @ts-nocheck — generated PEG.js parser; verified by tests, not types\n';
+  const orig  = fs.readFileSync(orig_fname),
+        lines = `${orig}`.split('\n'),
+        tail  = fs.readFileSync('src/buildjs/peg_ts_export_footer.ts');
 
-fs.writeFileSync('./src/ts/fsl_parser.ts', ts_nocheck + body + tail);
-fs.unlinkSync(orig_fname);
+  lines.pop();  // shut up, it's funny
+  lines.pop();
+  lines.pop();
+  lines.pop();
+  lines.pop();
+
+  // pegjs's runtime declares `error(message, location)` and
+  // `expected(description, location)` with both parameters required, but
+  // each function's body treats `location` as optional (`!== void 0` check
+  // with a fallback to `peg$computeLocation`).  Mark the parameter optional
+  // in the generated TypeScript so action blocks can use the one-argument
+  // form without tripping `error TS2554: Expected 2 arguments, but got 1`.
+  const widened = lines.join('\n')
+    .replace(/function (error|expected)\((\w+), location\)/g, 'function $1($2, location?)');
+
+  const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_atom(inline_fast_ws(widened))))))));
+
+  // The parser is machine-generated PEG.js output (plus the hand-tuned scanners
+  // above); its correctness is verified by the parse test suites, not the type
+  // checker. 6.0.3 is stricter than 4.x about the generated code's implicit-any
+  // parameters and V8-only `Error.captureStackTrace`, so suppress type-checking
+  // of this one generated file rather than annotating throwaway output. Emit is
+  // unaffected; terser strips the comment from the minified bundle.
+  const ts_nocheck = '// @ts-nocheck — generated PEG.js parser; verified by tests, not types\n';
+
+  fs.writeFileSync('./src/ts/fsl_parser.ts', ts_nocheck + body + tail);
+  fs.unlinkSync(orig_fname);
+
+}
+
+if (require.main === module) { main(); }
+
+module.exports = {
+  inline_fast_atom,
+  FAST_ATOM_RE,
+  main,
+};
