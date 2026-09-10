@@ -951,15 +951,25 @@ machine; one Dockerfile per machine).
       path-style names (`auth/login/pending`), `::` for
       C++-style (`std::vec::Vec`), `>` for breadcrumb style, or
       any multi-character separator. Implementation heads-up:
-      states whose names use characters outside the existing
-      atom char set (`[0-9a-zA-Z._!$^*?,]`) — anything with
-      `/`, `>`, `::`, etc. — must currently be declared with
-      the quoted-string form (`state "auth/login/pending" : {
-      ... };`) because the atom grammar can't express those
-      characters. Worth considering as part of this feature
-      whether the atom char set should also expand to include
-      the chosen delimiter, so users don't have to quote-wrap
-      every state name. Pairs with the render-short-names flag
+      6.0 (#754) restricts unquoted bareword names to Unicode
+      identifier characters — first character `\p{L}`, `\p{Nl}`,
+      or `_`; continuation additionally allows `\p{Mn}`,
+      `\p{Mc}`, `\p{Nd}`, `\p{Pc}` — with no exception for `.`,
+      unlike 5.x's atom char set (`[0-9a-zA-Z._!$^*?,]`), which
+      did include it. So a dot-chained name like
+      `auth.login.pending` — the *default* delimiter this very
+      feature proposes — already needs the quoted-string form
+      (`state "auth.login.pending" : { ... };`) in 6.0, exactly
+      like `/`, `>`, and `::` always have. Expanding the atom
+      char set to admit a chosen delimiter isn't really on the
+      table any more: #754 excluded `.` deliberately because the
+      expression language reserves it for member access, and any
+      other likely delimiter collides with something else in the
+      grammar too (`/` opens a comment — `//` or `/* */`; `>`,
+      `<`, `=`, `~`, `-` are arrow characters; `&` opens a group
+      reference). Quoting the whole name is the durable answer
+      here, not chasing per-delimiter exceptions into the
+      bareword charset. Pairs with the render-short-names flag
       above; together they cover the "namespace-style state
       naming" pattern that is otherwise awkward in FSL today.
 

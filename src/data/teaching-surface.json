@@ -37,7 +37,7 @@
       "surface": "language",
       "title": "Transitions",
       "grammar": {
-        "rules": ["Exp", "Subexp", "Arrow", "ArrowTarget", "MixedArrow", "ForwardLightArrow", "BackLightArrow", "TwoWayLightArrow", "LightArrow"],
+        "rules": ["Exp", "Subexp", "Arrow", "ArrowTarget", "ArrowTargetBadSymbol", "ArrowTargetBadFirstChar", "MixedArrow", "ForwardLightArrow", "BackLightArrow", "TwoWayLightArrow", "LightArrow"],
         "terminals": ["->", "<-", "<->", "→", "←", "↔"]
       },
       "tier": "core",
@@ -99,7 +99,7 @@
       "surface": "language",
       "title": "Labels and quoting",
       "grammar": {
-        "rules": ["Label", "String", "Atom", "AtomFirstLetter", "AtomLetter", "ActionLabel", "ActionLabelChar", "ActionLabelQuoteMark", "ActionLabelUnescaped", "QuoteMark", "Char", "Escape", "Unescaped", "Stripe"],
+        "rules": ["Label", "String", "Atom", "AtomCodePoint", "AtomFirstLetter", "AtomLetter", "BarewordBadChar", "BarewordDashTail", "ActionLabel", "ActionLabelChar", "ActionLabelQuoteMark", "ActionLabelUnescaped", "QuoteMark", "Char", "Escape", "Unescaped", "Stripe"],
         "terminals": ["\"", "'"]
       },
       "tier": "core",
