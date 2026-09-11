@@ -66,11 +66,15 @@ describe('bareword charset — generative', () => {
         // The grammar's structural characters (whitespace, quotes, brackets,
         // arrow/decoration punctuation) can never be state names in either
         // form, so skip them here rather than assert on them — the same
-        // characters (including `&`, `#`, and `-`, called out explicitly
+        // characters (including `&`, `#`, `-`, and `+`, called out explicitly
         // since they're also members of Atom's own "bad trailing character"
         // set) are exercised directly, as deliberate rejections, by
-        // src/ts/tests/bareword_charset.spec.ts.
-        if (/[\s;"'[\]{}<>\-=~|&:%#/]/u.test(name)) { return; }
+        // src/ts/tests/bareword_charset.spec.ts and lexical.stoch.ts.
+        // `+` is structural because `+<digits>` is Cycle syntax, which the
+        // grammar accepts in source position as well as target position
+        // (a 5.x behavior this branch does not change), so a random draw
+        // like `+0` would otherwise be asserted as a rejection and parse.
+        if (/[\s;"'[\]{}<>\-+=~|&:%#/]/u.test(name)) { return; }
         if (is_bareword(name)) {
           const m = jssm.sm`${name} -> other;`;
           expect(m.has_state(name)).toBe(true);
