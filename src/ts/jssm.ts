@@ -75,7 +75,8 @@ import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 
 import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
-        state_name_chars, state_name_first_chars, action_label_chars } = constants;
+        state_name_chars, state_name_first_chars, action_label_chars,
+        is_state_name_first_char, is_state_name_char } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
 
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
@@ -2852,27 +2853,32 @@ class Machine<mDT> {
   }
 
   /**
-   * List the character ranges accepted by the FSL grammar in any but the
-   *  first position of a state name (atom).  Each entry is an inclusive
-   *  `{from, to}` range of single Unicode characters.
+   * List the ASCII character ranges accepted by the FSL grammar in any but
+   *  the first position of a state name (atom): digits, letters, and
+   *  underscore.  Each entry is an inclusive `{from, to}` range of single
+   *  Unicode characters.  Non-ASCII characters are classified by
+   *  {@link is_state_name_char}, the complete rule (#754).
    *  @returns An array of `{from, to}` inclusive character ranges.
    *  @example
    *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
-   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+   *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
+   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
    */
   all_state_name_chars(): ReadonlyArray<{ from: string, to: string }> {
     return state_name_chars;
   }
 
   /**
-   * List the character ranges accepted by the FSL grammar in the first
-   *  position of a state name (atom).  Narrower than
-   *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+   * List the ASCII character ranges accepted by the FSL grammar in the first
+   *  position of a state name (atom): letters and underscore (never a
+   *  digit).  Non-ASCII characters are classified by
+   *  {@link is_state_name_first_char}, the complete rule (#754).
    *  @returns An array of `{from, to}` inclusive character ranges.
    *  @example
    *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
+   *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
    *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
    */
   all_state_name_first_chars(): ReadonlyArray<{ from: string, to: string }> {
@@ -8061,6 +8067,9 @@ export {
   state_name_chars,
   state_name_first_chars,
   action_label_chars,
+
+  is_state_name_first_char,
+  is_state_name_char,
 
   is_hook_rejection,
     is_hook_complex_result,

@@ -50,6 +50,31 @@ function parse_target(target_src: string): unknown {
 
 
 
+/**
+ *  Run `fn`, assert that it throws the parser's `SyntaxError` (pegjs's
+ *  `peg$SyntaxError`, which carries `name === 'SyntaxError'` but subclasses
+ *  `Error` rather than the global `SyntaxError`, so `toThrow(SyntaxError)`
+ *  can't be used), and hand the error back so the caller can assert on its
+ *  message.
+ *  @param  fn  Thunk expected to throw.
+ *  @returns    The caught parser error.
+ *  @example
+ *    expect(syntax_error_from(() => parse_target('5')).message).toMatch(/starts with a digit/);
+ */
+function syntax_error_from(fn: () => unknown): Error {
+
+  let caught: unknown;
+  try { fn(); } catch (error) { caught = error; }
+
+  expect(caught).toBeInstanceOf(Error);
+  expect((caught as Error).name).toBe('SyntaxError');
+
+  return caught as Error;
+
+}
+
+
+
 
 
 describe('§6 ArrowTarget — Stripe `+|N` and `-|N`', () => {
@@ -216,8 +241,11 @@ describe('§6 ArrowTarget — precedence: Stripe / Cycle / LabelList tried befor
   //     AtomFirstLetter, but the test still pins the intended path).
   //   - `+|3` must be Stripe, not Cycle on `+`; the longer form
   //     wins because Stripe is tried before Cycle.
+  //   - a bare digit (#754: no longer a legal AtomFirstLetter) must
+  //     reach the leading-digit rejection, not be mistaken for Cycle;
+  //     its quoted form is a Label.
   //
-  // Both pin the documented "tries them in that order" invariant.
+  // All pin the documented "tries them in that order" invariant.
 
   test('`+|5` parses as Stripe, not Cycle (longer-prefix wins)', () => {
     expect(parse_target('+|5')).toEqual({ key: 'stripe', value: 5 });
@@ -231,11 +259,35 @@ describe('§6 ArrowTarget — precedence: Stripe / Cycle / LabelList tried befor
     expect(parse_target('+5')).toEqual({ key: 'cycle', value: 5 });
   });
 
-  test('A label that happens to be a digit (atom-first-letter-allowed) parses as Label, not Cycle', () => {
-    // `5` is a legal AtomFirstLetter and so is a valid Label, but
-    // Cycle requires `+` or `-` prefix.  Without a sign, the parser
-    // falls through to Label.
-    expect(parse_target('5')).toBe('5');
+  test('A bare digit label is rejected as a leading-digit bareword, not parsed as Cycle', () => {
+    // #754: a digit can't start a bareword, and Cycle requires a `+` or
+    // `-` sign, so a bare digit falls through every ArrowTarget shape into
+    // the targeted leading-digit rejection — never into Cycle, and never
+    // into pegjs's generic expectation error.
+    for (const d of '0123456789'.split('')) {
+      const message = syntax_error_from(() => parse_target(d)).message;
+      expect(message).toMatch(/starts with a digit/);
+      expect(message).toMatch(new RegExp(String.raw`quote it \("${d}"\)`));
+    }
+  });
+
+  test('A quoted digit label `"5"` parses as Label, not Cycle', () => {
+    // Quoting is the migration path the rejection suggests; the quoted
+    // form is a String and so a Label, and Cycle never sees it.
+    expect(parse_target('"5"')).toBe('5');
+  });
+
+  test('Random digit-only labels are rejected bare and parse as Label when quoted', () => {
+
+    fc.assert(
+      fc.property(fc.integer(0, 9999), (n) => {
+        const digits = String(n);
+        expect(syntax_error_from(() => parse_target(digits)).message).toMatch(/starts with a digit/);
+        expect(parse_target(`"${digits}"`)).toBe(digits);
+      }),
+      { numRuns: RUNS }
+    );
+
   });
 
 });

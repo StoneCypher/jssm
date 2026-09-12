@@ -110,6 +110,17 @@ with arrows between them, ending in a semicolon.  A traffic light:
 Red -> Green -> Yellow -> Red;
 ```
 
+### Names
+
+State names written without quotes are identifiers: they start with a letter
+or underscore and continue with letters, digits, underscores, or combining
+marks, in any script.  Anything else — spaces, punctuation, symbols, a
+leading digit — goes in double quotes:
+
+```fsl
+"in-progress" -> "done (final)";
+état -> 状態 -> "1st";
+```
 
 
 &nbsp;

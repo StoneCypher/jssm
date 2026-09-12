@@ -990,17 +990,7 @@ function compile_rule_handler(rule) {
     }
     // manually rehandled to carry the val type descriptor through
     if (rule.key === 'val_definition') {
-        // numeric-looking enum members would type-mismatch their own defaults: an
-        // enum member parses as a string, but a numeric default parses as a number,
-        // so they never compare equal.  Reject them at compile time (jssm#759).
-        if (rule.val_type.kind === 'enum') {
-            const numeric_members = rule.val_type.members.filter((m) => /^\d/.test(m));
-            if (numeric_members.length > 0) {
-                throw new JssmError(undefined, `Enum val "${rule.name}" has numeric-looking members ${JSON.stringify(numeric_members)}; `
-                    + 'enum members must not begin with a digit (a numeric default parses as a number and never '
-                    + 'matches the string member) — quote or rename them', { source_location: rule.loc });
-            }
-        }
+        // digit-leading enum members are rejected by the grammar (#754); the former jssm#759 post-parse check is gone
         const ret = { agg_as: 'val_definition', val: { name: rule.name, val_type: rule.val_type } };
         if (Object.prototype.hasOwnProperty.call(rule, 'default_value')) {
             ret.val.default_value = rule.default_value;

@@ -190,8 +190,25 @@ describe('conformance corpus — structural invariants', () => {
 describe('conformance corpus — every document parses', () => {
 
   for (const v of ALL_VECTORS) {
+    if (v.throws) { continue; } // asserted as rejected below instead
     test(`[${v.tier}] ${v.id} parses`, () => {
       expect(() => jssm.parse(v.document)).not.toThrow();
+    });
+  }
+
+});
+
+
+// ---------------------------------------------------------------------------
+// Vectors pinning that a document is *not* legal FSL (#754: `throws` vectors)
+// ---------------------------------------------------------------------------
+
+describe('conformance corpus — vectors pinning a rejected document', () => {
+
+  for (const v of ALL_VECTORS) {
+    if (!v.throws) { continue; }
+    test(`[${v.tier}] ${v.id} is rejected — ${v.title}`, () => {
+      expect(() => jssm.parse(v.document)).toThrow(v.throws);
     });
   }
 
@@ -205,6 +222,8 @@ describe('conformance corpus — every document parses', () => {
 describe('conformance corpus — canonical trace matches reference runtime', () => {
 
   for (const v of ALL_VECTORS) {
+
+    if (v.throws) { continue; } // no trace to run — see the rejected-document describe above
 
     describe(`[${v.tier}] ${v.id} — ${v.title}`, () => {
 

@@ -2295,27 +2295,32 @@ declare class Machine<mDT> {
      */
     all_themes(): FslTheme[];
     /**
-     * List the character ranges accepted by the FSL grammar in any but the
-     *  first position of a state name (atom).  Each entry is an inclusive
-     *  `{from, to}` range of single Unicode characters.
+     * List the ASCII character ranges accepted by the FSL grammar in any but
+     *  the first position of a state name (atom): digits, letters, and
+     *  underscore.  Each entry is an inclusive `{from, to}` range of single
+     *  Unicode characters.  Non-ASCII characters are classified by
+     *  {@link is_state_name_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
         to: string;
     }>;
     /**
-     * List the character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom).  Narrower than
-     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     * List the ASCII character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom): letters and underscore (never a
+     *  digit).  Non-ASCII characters are classified by
+     *  {@link is_state_name_first_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
      *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{

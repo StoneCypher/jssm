@@ -37,7 +37,7 @@
       "surface": "language",
       "title": "Transitions",
       "grammar": {
-        "rules": ["Exp", "Subexp", "Arrow", "ArrowTarget", "MixedArrow", "ForwardLightArrow", "BackLightArrow", "TwoWayLightArrow", "LightArrow"],
+        "rules": ["Exp", "Subexp", "Arrow", "ArrowTarget", "ArrowTargetBadSymbol", "ArrowTargetBadFirstChar", "MixedArrow", "ForwardLightArrow", "BackLightArrow", "TwoWayLightArrow", "LightArrow"],
         "terminals": ["->", "<-", "<->", "→", "←", "↔"]
       },
       "tier": "core",
@@ -99,7 +99,7 @@
       "surface": "language",
       "title": "Labels and quoting",
       "grammar": {
-        "rules": ["Label", "String", "Atom", "AtomFirstLetter", "AtomLetter", "ActionLabel", "ActionLabelChar", "ActionLabelQuoteMark", "ActionLabelUnescaped", "QuoteMark", "Char", "Escape", "Unescaped", "Stripe"],
+        "rules": ["Label", "String", "Atom", "AtomCodePoint", "AtomFirstLetter", "AtomLetter", "BarewordBadChar", "BarewordDashTail", "ActionLabel", "ActionLabelChar", "ActionLabelQuoteMark", "ActionLabelUnescaped", "QuoteMark", "Char", "Escape", "Unescaped", "Stripe"],
         "terminals": ["\"", "'"]
       },
       "tier": "core",
@@ -342,7 +342,7 @@
       "id": "api-constants",
       "surface": "api",
       "title": "Exported constants and vocabularies",
-      "units": ["constants", "shapes", "gviz_shapes", "named_colors", "state_name_chars", "state_name_first_chars", "action_label_chars", "FslDirections"],
+      "units": ["constants", "shapes", "gviz_shapes", "named_colors", "state_name_chars", "state_name_first_chars", "is_state_name_first_char", "is_state_name_char", "action_label_chars", "FslDirections"],
       "tier": "intermediate",
       "dependsOn": ["api-machine"],
       "indexTerms": ["constants", "shapes", "named_colors", "directions"]

@@ -11,7 +11,7 @@ declare const shapes: string[], gviz_shapes: string[], named_colors: string[], s
 }[], action_label_chars: readonly {
     from: string;
     to: string;
-}[];
+}[], is_state_name_first_char: (ch: string) => boolean, is_state_name_char: (ch: string) => boolean;
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
 /**
  *  Internal record holding a single registered event subscription: the
@@ -1009,27 +1009,32 @@ declare class Machine<mDT> {
      */
     all_themes(): FslTheme[];
     /**
-     * List the character ranges accepted by the FSL grammar in any but the
-     *  first position of a state name (atom).  Each entry is an inclusive
-     *  `{from, to}` range of single Unicode characters.
+     * List the ASCII character ranges accepted by the FSL grammar in any but
+     *  the first position of a state name (atom): digits, letters, and
+     *  underscore.  Each entry is an inclusive `{from, to}` range of single
+     *  Unicode characters.  Non-ASCII characters are classified by
+     *  {@link is_state_name_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
         to: string;
     }>;
     /**
-     * List the character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom).  Narrower than
-     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     * List the ASCII character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom): letters and underscore (never a
+     *  digit).  Non-ASCII characters are classified by
+     *  {@link is_state_name_first_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
      *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{
@@ -3080,7 +3085,7 @@ declare function compareVersions(v1: string, v2: string): number;
  * restored.state();  // => 'a'
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { transfer_state_properties, Machine, deserialize, compareVersions, sm, fsl, from, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, };
+export { transfer_state_properties, Machine, deserialize, compareVersions, sm, fsl, from, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_state_name_first_char, is_state_name_char, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, };
 export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
 export type { FencePart, FenceImageFormat, FenceDimensionUnit, FenceDimension, FenceDescriptor } from './fsl_markdown_fence';
 export { FslDirections } from './jssm_types.js';

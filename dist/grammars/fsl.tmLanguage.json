@@ -189,7 +189,7 @@
       "match": "\\.\\.\\.(?=\\s*&)"
     },
     {
-      "match": "(&)\\s*([0-9A-Za-z._!$^*?][0-9A-Za-z._+()*&$#@!?^-]*)",
+      "match": "(&)\\s*([\\p{L}\\p{Nl}_][\\p{L}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}_]*)",
       "captures": {
         "1": {
           "name": "punctuation.definition.group.fsl"

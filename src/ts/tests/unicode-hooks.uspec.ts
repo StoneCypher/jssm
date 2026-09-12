@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -16,24 +16,50 @@ const hook_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let subject_ast, action_ast;
+  // the action is always single-quoted (`'${cp}'`), a value position governed
+  // by ActionLabelUnescaped -- no branch on bareword_ok(cp) applies to it
+  let action_ast;
+
+  try {
+    action_ast = parse(`on enter s do '${cp}'; s -> b;`);
+  } catch {
+    throw new Error(`Broke (action) on ${idx} "${cp}"`);
+  }
+
+  const act = action_ast.find((t: any) => t.key === 'hook_decl');
+  expect( act?.action ).toBe(cp);
+
+  // the subject is a Label (Atom / String, #754), so it is a name position
+  let subject_ast;
+
+  if (bareword_ok(cp)) {
 
     try {
       subject_ast = parse(`on enter ${cp} do 'act'; a -> b;`);
-      action_ast  = parse(`on enter s do '${cp}'; s -> b;`);
     } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
+      throw new Error(`Bareword broke (subject) on ${idx} "${cp}"`);
     }
 
-    const subj = subject_ast.find((t: any) => t.key === 'hook_decl');
-    const act  = action_ast.find((t: any) => t.key === 'hook_decl');
+  } else {
 
-    expect( subj?.subject ).toBe(cp);
-    expect( act?.action   ).toBe(cp);
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(`on enter ${cp} do 'act'; a -> b;`)).toThrow();
+
+    const q = quoted(cp);
+
+    try {
+      subject_ast = parse(`on enter ${q} do 'act'; a -> b;`);
+    } catch {
+      throw new Error(`Quoted form broke (subject) on ${idx} ${q}`);
+    }
 
   }
+
+  const subj = subject_ast.find((t: any) => t.key === 'hook_decl');
+  expect( subj?.subject ).toBe(cp);
 
   return true;
 

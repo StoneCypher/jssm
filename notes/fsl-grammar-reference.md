@@ -114,15 +114,31 @@ distinct from a structural string.
 
 ### Atoms — `Atom`
 
-An identifier-like token.
+An identifier-like token — since 6.0 (#754), a Unicode identifier:
 
-- First letter:  `[0-9a-zA-Z._!$^*?,]` plus all of `\x80–<U+FFFF>`
-- Rest:          first-letter set plus `+ ( ) & # @`
+- First character: a Unicode letter (`\p{L}`), a letter-number (`\p{Nl}`,
+  e.g. `Ⅻ`), or `_`.
+- Rest: the first-character set plus combining marks (`\p{Mn}`, `\p{Mc}`),
+  decimal digits (`\p{Nd}`), and connector punctuation (`\p{Pc}`).
 
-Notable: `.` and digits are allowed *as the first character*; `+` and
-`(` `)` are allowed only after.  The atom set is intentionally broad
-to let users name states with things like `step.1`, `q!`, or non-Latin
-Unicode without quoting.
+Symbols and punctuation (`. - + & # @ $ ^ * ! ? ,` and every non-letter
+Unicode symbol such as emoji or arrows) and a leading digit are **not**
+atom characters; write those names as quoted strings (`"in-progress"`,
+`"node.start"`, `"1st"`, `"😀"`).  Astral letters (`𝛼`) count as one
+character.  A rejected bareword reports the offending character and
+suggests quoting.
+
+Implementation note: pegjs 0.10 cannot express `\p{}` classes, so
+`AtomCodePoint` matches one code point (surrogate pair or BMP unit) and
+`AtomFirstLetter` / `AtomLetter` test it with a `u`-flag regex in a
+semantic predicate.  `ValEnumMember` mirrors `Atom` with the same classes
+but its own bad-character set (the comma is the enum list's separator, not a
+bad character) and, since 6.0, also accepts a quoted `String`, so the "quote
+it" advice holds inside `enum(...)` as well.  A per-state `property : <name>`
+inside a state block likewise accepts a `Label` (bareword or string).
+
+5.x accepted `[0-9a-zA-Z._!$^*?,]` plus `U+0080`–`U+FFFF` as a first
+character and additionally `+ ( ) & # @` afterwards; that set is gone.
 
 ### Labels — `Label`
 
@@ -403,7 +419,11 @@ A transition's destination can be:
   this dimension" style state coordinates.
 - **`Cycle`**  — `+N` / `-N` / `+0`.  Returns
   `{ key:'cycle', value: ±N }`.  Note the asymmetry: only `+0` is
-  valid (no `-0`), and `0` alone is not a cycle.
+  valid (no `-0`), and `0` alone is not a cycle — it's not a
+  valid `Label` either (#754: a bareword can't start with a digit),
+  so a bare `0` target now **errors**, quoting-message and all,
+  rather than silently parsing as a one-character state name the
+  way it did pre-#754.
 - **`WeightedLabelList`** — `[a b c]` for fan-out/fan-in, or
   `[a 20% b 80%]` with optional per-member percent weights; see the
   `WeightedLabelList` entry in §2 for the full grammar and the 6.0
@@ -417,9 +437,33 @@ A transition's destination can be:
   before the share-splitting compiler pass runs.
 - **`Label`** — single state name
 
+If none of the above match, `ArrowTarget` tries three more alternatives
+in order, each existing only to turn what would otherwise be pegjs's
+generic "expected X but Y found" error into a targeted, quote-suggesting
+one (#754) — none of them ever contribute a successful parse, only a
+better-worded failure:
+
+- **digit-leading bareword** (`[0-9] AtomLetter*`) — `1st`, `99bottles`,
+  a bare `0`; rejected with "starts with a digit ... quote it".
+- **`ArrowTargetBadSymbol`** — a non-ASCII code point that can't start a
+  bareword (emoji, arrows, stars, other symbol/punctuation blocks, e.g.
+  `😀`, `→`); rejected with "starts with ... quote it".  Deliberately
+  scoped to non-ASCII only — reserved ASCII punctuation already has
+  dedicated grammar meaning elsewhere (arrows, decorations, quotes), so
+  it's covered by the next alternative instead.
+- **`ArrowTargetBadFirstChar`** — a bareword starting with a bad ASCII
+  punctuation character followed by at least one more identifier
+  character (`.foo`, `-foo`, `?x`); rejected with "contains ... quote
+  it".  5.x accepted these (its atom char set began with the symbol
+  itself); without this alternative they'd fall through to the generic
+  pegjs error instead of the #754 migration message.
+
 The grammar tries them in that order (`GroupRef` before `Label` so a
-leading `&` is read as a group reference) so e.g. `+1` is parsed as Cycle,
-not as the start of a label that begins with `+`.
+leading `&` is read as a group reference; `Stripe`/`Cycle` before all
+three error alternatives so they keep first claim on a leading `-`/`+`,
+e.g. `-1` is a Cycle target, not `ArrowTargetBadFirstChar`'s dash case)
+so e.g. `+1` is parsed as Cycle, not as the start of a label that begins
+with `+`.
 
 ### Arrow decorations
 
@@ -1002,3 +1046,27 @@ keywords (no prefix overlap with `arrange`).
   the existing tests and conventional in practice: leave one
   whitespace character between the URL and the terminator
   (`machine_definition: https://x.com ;`).
+
+- **`Exp` must not precede `ArrangeDeclaration` in `Term` (#754).**
+  `Atom`'s trailing-bad-character check ends in a hard `error()` call
+  (the #754 "quote it" messages), and — unlike an ordinary failed PEG
+  match — a thrown error aborts the whole parse instead of letting
+  `Term`'s `/`-choice backtrack to try the next alternative. That only
+  bites when a keyword's literal spelling can be *partially* re-matched
+  as a valid bareword prefix immediately followed by a character `Atom`
+  treats as illegal trailing punctuation, with no whitespace in
+  between — and of every `Term` keyword, only the arrange family has
+  that shape: `arrange-start` begins with the bareword-valid prefix
+  `arrange` immediately followed by a bare `-`. If `Exp` were tried
+  before `ArrangeDeclaration`, parsing `arrange-start [a c];` would have
+  `Atom` greedily match `arrange`, then hard-error on the trailing `-`
+  — killing the parse before `ArrangeDeclaration`'s own `"arrange-start"`
+  literal alternative ever got a chance at the same input. `Term`
+  therefore promotes `ArrangeDeclaration` (only) above `Exp`; every
+  other keyword either requires mandatory whitespace right after its
+  literal spelling (so a following non-whitespace character can't be
+  walked into by `Atom` while that keyword is still being matched) or
+  starts with a character `Atom` can never match as a bareword prefix
+  at all (`&`), so none of them need the same promotion — and
+  demoting them alongside `ArrangeDeclaration` measured a ~2.3×
+  slowdown on plain transitions for no behavioral gain.

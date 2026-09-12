@@ -12,7 +12,7 @@ import { theme_mapping, base_theme } from './jssm_theme.js';
 import { seq, weighted_rand_select, histograph, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, } from './jssm_util.js';
 import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 import * as constants from './jssm_constants.js';
-const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_state_name_first_char, is_state_name_char } = constants;
 const empty_string_set = new Set();
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
@@ -2033,26 +2033,31 @@ class Machine {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
     /**
-     * List the character ranges accepted by the FSL grammar in any but the
-     *  first position of a state name (atom).  Each entry is an inclusive
-     *  `{from, to}` range of single Unicode characters.
+     * List the ASCII character ranges accepted by the FSL grammar in any but
+     *  the first position of a state name (atom): digits, letters, and
+     *  underscore.  Each entry is an inclusive `{from, to}` range of single
+     *  Unicode characters.  Non-ASCII characters are classified by
+     *  {@link is_state_name_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_chars() {
         return state_name_chars;
     }
     /**
-     * List the character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom).  Narrower than
-     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     * List the ASCII character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom): letters and underscore (never a
+     *  digit).  Non-ASCII characters are classified by
+     *  {@link is_state_name_first_char}, the complete rule (#754).
      *  @returns An array of `{from, to}` inclusive character ranges.
      *  @example
      *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
      *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars() {
@@ -6273,7 +6278,7 @@ function deserialize(machine_string, ser) {
 }
 export { transfer_state_properties, Machine, deserialize, compareVersions, sm, fsl, from, 
 // WHARGARBL TODO these should be exported to a utility library
-shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense,
+shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_state_name_first_char, is_state_name_char, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense,
 //  FslThemes
  };
 export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';

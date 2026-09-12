@@ -637,7 +637,7 @@ export const DOCS_PAGES = [
             "quote",
             "action"
         ],
-        "body": "\n# Labels and quoting\n\nState names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a simple identifier — `Red`, `idle_2`. Anything with spaces or punctuation must be quoted, and the two quote styles mean different things:\n\n- **Single quotes** mark **action labels** — `'insert coin'`.\n- **Double quotes** mark **string literals** — used for attributes like `machine_name`.\n\n```fsl {teaches: labels-quoting, run: true}\nmachine_name : \"Vending Machine\";\nIdle 'insert coin' -> Paid;\nPaid 'refund' -> Idle;\n```\n\nThe quote styles are not interchangeable: single = action, double = string.\n"
+        "body": "\n# Labels and quoting\n\nState names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a Unicode identifier: it starts with a letter or underscore (in any script) and continues with letters, digits, underscores, or combining marks — `Red`, `idle_2`. Everything else — spaces, punctuation, symbols, a leading digit — must be quoted: `\"in-progress\"`, `\"node.start\"`, `\"1st\"`, `\"😀\"`. The two quote styles mean different things:\n\n- **Single quotes** mark **action labels** — `'insert coin'`.\n- **Double quotes** mark **string literals** — used for attributes like `machine_name`.\n\n```fsl {teaches: labels-quoting, run: true}\nmachine_name : \"Vending Machine\";\nIdle 'insert coin' -> Paid;\nPaid 'refund' -> Idle;\n```\n\nThe quote styles are not interchangeable: single = action, double = string.\n"
     },
     {
         "id": "tut-line-styles",

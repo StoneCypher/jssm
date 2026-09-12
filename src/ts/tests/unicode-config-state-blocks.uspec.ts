@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -21,7 +21,9 @@ const config_block_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
+
+  if (bareword_ok(cp)) {
 
     for (const kw of block_keywords) {
 
@@ -30,7 +32,31 @@ const config_block_test = (idx: number): boolean => {
       try {
         ast = parse(`a -> b; ${kw}: { label: ${cp}; };`);
       } catch {
-        throw new Error(`Broke on ${idx} "${cp}" for ${kw}`);
+        throw new Error(`Bareword broke on ${idx} "${cp}" for ${kw}`);
+      }
+
+      const node = ast.find((t: any) => typeof t.key === 'string' && t.key.endsWith('_config'));
+
+      expect( node?.value?.[0]?.value ).toBe(cp);
+
+    }
+
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(`a -> b; ${block_keywords[0]}: { label: ${cp}; };`)).toThrow();
+
+    const q = quoted(cp);
+
+    for (const kw of block_keywords) {
+
+      let ast;
+
+      try {
+        ast = parse(`a -> b; ${kw}: { label: ${q}; };`);
+      } catch {
+        throw new Error(`Quoted form broke on ${idx} ${q} for ${kw}`);
       }
 
       const node = ast.find((t: any) => typeof t.key === 'string' && t.key.endsWith('_config'));

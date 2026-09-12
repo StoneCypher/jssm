@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -16,20 +16,36 @@ const state_decl_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let ast;
+  let ast;
+
+  if (bareword_ok(cp)) {
 
     try {
       ast = parse(`state ${cp}: { color: red; };`);
     } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
+      throw new Error(`Bareword broke on ${idx} "${cp}"`);
     }
 
-    expect( ast[0].key  ).toBe('state_declaration');
-    expect( ast[0].name ).toBe(cp);
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(`state ${cp}: { color: red; };`)).toThrow();
+
+    const q = quoted(cp);
+
+    try {
+      ast = parse(`state ${q}: { color: red; };`);
+    } catch {
+      throw new Error(`Quoted form broke on ${idx} ${q}`);
+    }
 
   }
+
+  expect( ast[0].key  ).toBe('state_declaration');
+  expect( ast[0].name ).toBe(cp);
 
   return true;
 
