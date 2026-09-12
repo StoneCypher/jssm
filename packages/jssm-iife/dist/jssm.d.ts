@@ -268,8 +268,10 @@ type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataT
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
- *  `probability` for stochastic models, and an `after_time` for timed
- *  transitions.
+ *  `probability` for stochastic models, a `share` recording this edge's
+ *  fraction of the list side's default weight (6.0 list weights; set only
+ *  when the transition itself declared no `probability`), and an
+ *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
  *  @template DataType  - The machine's data payload type (`mDT`).
  */
@@ -282,6 +284,7 @@ type JssmTransition<StateType, DataType> = {
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
     probability?: number;
+    share?: number;
     kind: JssmArrowKind;
     forced_only: boolean;
     main_path: boolean;
@@ -630,6 +633,18 @@ type JssmGenericConfig<StateType, DataType> = {
     config_allows_override?: JssmAllowsOverride;
     dot_preamble?: string;
     start_states: Array<StateType>;
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0 list weights), e.g. `start_states: [idle 90% booting 10%];`.
+     *  One entry per name in {@link JssmGenericConfig.start_states}, shares
+     *  normalized to sum to 1.  Absent when `start_states` carried no inner
+     *  weights.  Consumed by `Machine.start_state_weights()` /
+     *  `Machine.sample_start_state()`.
+     */
+    start_state_weights?: Array<{
+        name: StateType;
+        share: number;
+    }>;
     end_states?: Array<StateType>;
     failed_outputs?: Array<StateType>;
     initial_state?: StateType;
@@ -709,6 +724,38 @@ type JssmGenericConfig<StateType, DataType> = {
     timeout_source?: (fn: () => void, delay_ms: number) => number;
     /** Cancels a timer previously scheduled by `timeout_source`.  Defaults to `clearTimeout`. */
     clear_timeout_source?: (handle: number) => void;
+};
+/**
+ *  One member of a {@link JssmWeightedList}, `name` with an optional
+ *  percent weight. This shape only appears inside a `weighted_list` node,
+ *  which the parser produces only once at least one sibling member carries
+ *  a weight — so a member here with no `weight` is a *mix* of weighted and
+ *  unweighted siblings, which the compiler rejects rather than defaulting.
+ *  @see JssmWeightedList
+ */
+type JssmWeightedListMember = {
+    name: string;
+    weight?: number;
+};
+/**
+ *  A list target or start-state list carrying per-member weights, as the
+ *  parser emits it for `a 50% -> [b 20% c 80%]` or
+ *  `start_states: [x 90% y 10%];`. Produced only when at least one member
+ *  of the source list carries a weight; a list with no weights parses to a
+ *  plain `Array<string>` instead, so every existing weightless-list
+ *  consumer sees a byte-identical AST.
+ *  @see JssmWeightedListMember
+ *  ```ts
+ *  const to: Array<string> | JssmWeightedList = {
+ *    key: 'weighted_list',
+ *    members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }],
+ *  };
+ *  ```
+ */
+type JssmWeightedList = {
+    key: 'weighted_list';
+    members: Array<JssmWeightedListMember>;
+    loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: one link in a chained transition
@@ -1760,6 +1807,37 @@ declare function wrap_parse<StateType = string, mDT = unknown>(input: string, op
 declare function membership_distance(registry: JssmGroupRegistry, state: string, group: string): number;
 /*********
  *
+ *  Resolves a list target or `start_states` list's members to their
+ *  within-list shares (6.0 list weights).  A plain list (or a weighted list
+ *  whose members carry no inner weight) shares uniformly (`1/n`); a
+ *  weighted list normalizes its inner weights (`w_i / Σw`).  Pure.
+ *
+ *  @param list A plain name array (`['b', 'c']`) or a parsed
+ *              {@link JssmWeightedList} node.
+ *
+ *  @returns One entry per member, in list order, with shares summing to 1.
+ *
+ *  @throws {JssmError} When a weighted list mixes weighted and unweighted
+ *                       members (every member must carry a weight, or none
+ *                       may), when its inner weights sum to zero (no member
+ *                       could ever be chosen), or when any inner weight is
+ *                       negative.
+ *
+ *  ```typescript
+ *  list_shares(['b', 'c']);
+ *  // [ { name: 'b', share: 0.5 }, { name: 'c', share: 0.5 } ]
+ *
+ *  list_shares({ key: 'weighted_list', members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }] });
+ *  // [ { name: 'b', share: 0.2 }, { name: 'c', share: 0.8 } ]
+ *  ```
+ *
+ */
+declare function list_shares(list: Array<string> | JssmWeightedList): Array<{
+    name: string;
+    share: number;
+}>;
+/*********
+ *
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
@@ -1862,7 +1940,11 @@ declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType
  *  Selects a single item from a weighted array of objects using cumulative
  *  probability.  Each object in the array should have a numeric property
  *  indicating its relative weight (defaults to `'probability'`).  Objects
- *  missing the property are treated as weight 1.
+ *  missing the property are treated as weight 1.  On the default
+ *  `'probability'` key only, an option's `share` (6.0 list weights) multiplies
+ *  its weight — `(probability ?? 1) × (share ?? 1)`; custom keys ignore
+ *  `share` entirely, so the generic weighted-selection API is unchanged for
+ *  callers who pass their own property name.
  *
  *  ```typescript
  *  const opts = [
@@ -1871,6 +1953,15 @@ declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType
  *  ];
  *
  *  weighted_rand_select(opts);  // most often { value: 'common', ... }
+ *
+ *  // default key: probability × share
+ *  const list_opts = [
+ *    { to: 'b', share: 0.2 },  // no declared probability -> weight 1 × 0.2
+ *    { to: 'c', share: 0.8 },  // weight 1 × 0.8
+ *    { to: 'd' }               // weight 1 × 1
+ *  ];
+ *
+ *  weighted_rand_select(list_opts);  // d most often (weights 0.2 : 0.8 : 1)
  *  ```
  *
  *  @param options              - Non-empty array of objects to choose from.
@@ -2342,6 +2433,7 @@ declare class Machine<mDT> {
     _edge_id_by_action_pair: Map<number, number>;
     _edge_to_ids: Array<number>;
     _start_states: Set<StateType>;
+    _start_state_weights: Map<StateType, number>;
     _end_states: Set<StateType>;
     _failed_outputs: Set<StateType>;
     _machine_author?: Array<string>;
@@ -2458,7 +2550,7 @@ declare class Machine<mDT> {
     _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, start_state_weights, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -2844,6 +2936,28 @@ declare class Machine<mDT> {
      *
      */
     is_start_state(whichState: StateType): boolean;
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0), normalized to sum 1.  Empty when the machine's start states are
+     *  unweighted.
+     *  @returns A map from start state to its share of the distribution.
+     *  @example
+     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+     *  m.start_state_weights().get('idle');  // => 0.9
+     *  @see Machine.sample_start_state
+     */
+    start_state_weights(): Map<StateType, number>;
+    /**
+     *  Draws a start state from {@link Machine.start_state_weights} using the
+     *  machine's RNG; on an unweighted machine returns the first declared
+     *  start state.  Does not change the machine's state.
+     *  @returns The sampled start state.
+     *  @example
+     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+     *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
+     *  @see Machine.start_state_weights
+     */
+    sample_start_state(): StateType;
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
@@ -3444,6 +3558,10 @@ declare class Machine<mDT> {
      *  Fixes StoneCypher/fsl#1325, in which the function previously returned
      *  every exit unconditionally — including forced-only exits and exits
      *  with no `probability`, which distorted the weighted distribution.
+     *
+     *  Share-only edges (an unweighted transition onto a weighted list; 6.0
+     *  list weights) carry no declared `probability` and so never evict their
+     *  siblings from the pool; their `share` is applied later, by the picker.
      *  @param whichState - The state to inspect.
      *  @returns An array of {@link JssmTransition} edges exiting the state,
      *  filtered as described above.  May be empty.
@@ -3456,6 +3574,9 @@ declare class Machine<mDT> {
      *  selectable weight is zero, because weighted selection over an all-zero
      *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
      *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+     *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
+     *  share-only edge (6.0 list weights) still contributes its fractional
+     *  weight to the total rather than being treated as 1.
      *  An empty pool is not this guard's concern (terminality is handled by the
      *  callers) and passes through untouched.
      *
@@ -3539,6 +3660,9 @@ declare class Machine<mDT> {
      *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
      *  {@link Machine.stochastic_summary}, the generator does NOT restore the
      *  prior seed afterward — a direct caller's machine is left reseeded.
+     *  When the machine declares weighted `start_states` (6.0), each run's
+     *  start is drawn independently via {@link Machine.sample_start_state}
+     *  instead of always starting from the machine's current state.
      *  @param opts - {@link JssmStochasticOptions}.
      *  @yields One {@link JssmStochasticRun} per completed walk.
      *  @returns A generator of per-run results.
@@ -3562,7 +3686,9 @@ declare class Machine<mDT> {
      *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
      *
      *  Timing (`after`) decorations and data-guard conditions are not modeled
-     *  by this sampler; it walks the probabilistic graph topology.
+     *  by this sampler; it walks the probabilistic graph topology.  When the
+     *  machine declares weighted `start_states` (6.0), each run starts from an
+     *  independently sampled start state (see {@link Machine.stochastic_runs}).
      *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
      *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
      *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
@@ -3656,9 +3782,12 @@ declare class Machine<mDT> {
      */
     list_exit_actions(whichState?: StateType): Array<StateType>;
     /**
-     * List all action exits from a state with their probabilities.
+     * List all action exits from a state with their probabilities and shares.
      *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of `{ action, probability }` objects.
+     *  @returns An array of `{ action, probability, share }` objects — `share`
+     *           is the edge's within-list share (6.0 list weights), present
+     *           only for an edge that landed on a list side with no declared
+     *           `probability`; `undefined` otherwise, same as the edge itself.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_action_exits(whichState?: StateType): Array<any>;
@@ -5337,5 +5466,5 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, JssmError, Machine, ReplayError, STOCHASTIC_DEFAULT_MAX_STEPS, STOCHASTIC_DEFAULT_RUNS, SUPPORTED_TAPE_VERSION, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fsl, fslCompletions, fslDiagnostics, fslSemanticSpans, fsl_fence_lang, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, list_shares, make, membership_distance, name_bind_prop_and_state, named_colors, wrap_parse as parse, parse_fence_info, parse_tape, replay, seq, serialize_tape, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
 export type { FenceDescriptor, FenceDimension, FenceDimensionUnit, FenceImageFormat, FencePart, JssmParseOptions, ReplayErrorKind, ReplayResult, ReplayStep, Stimulus, StimulusTape, TapeHeader };

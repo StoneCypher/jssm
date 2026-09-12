@@ -456,7 +456,7 @@ const DEFAULT_TIMEOUT_SOURCE = (f, a) => {
 const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, start_state_weights, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         _Machine_instances.add(this);
         this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
         this._create_started = this._time_source();
@@ -477,6 +477,12 @@ class Machine {
         this._edge_id_by_action_pair = new Map();
         this._edge_to_ids = [];
         this._start_states = new Set(start_states);
+        // Skip the intermediate array `.map()` builds for the common unweighted
+        // case (construct() is benchmarked) — an unweighted machine gets a
+        // freshly-allocated empty Map directly, not `new Map([].map(...))`.
+        this._start_state_weights = start_state_weights === undefined
+            ? new Map()
+            : new Map(start_state_weights.map(s => [s.name, s.share]));
         this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
         this._failed_outputs = new Set(failed_outputs);
         this._machine_author = array_box_if_string(machine_author);
@@ -702,12 +708,14 @@ class Machine {
                 cursor_from.to.push(tr.to);
                 cursor_to.from.push(tr.from);
             }
-            // duplicate-edge guard.  A probability-bearing action-less edge is exempt
-            // (a weighted fan-out may repeat a target); every other edge claims a slot
-            // — its action name, or '' for the one plain action-less edge — and a
-            // repeated slot throws.  Distinct actions between the same pair coexist
-            // (#325/#531).
-            const edge_exempt = (!tr.action) && (tr.probability !== undefined);
+            // duplicate-edge guard.  A probability- or share-bearing action-less
+            // edge is exempt (a weighted fan-out may repeat a target — including a
+            // list-target fan-out whose members carry only `share`, 6.0 list
+            // weights, with no declared `probability`); every other edge claims a
+            // slot — its action name, or '' for the one plain action-less edge —
+            // and a repeated slot throws.  Distinct actions between the same pair
+            // coexist (#325/#531).
+            const edge_exempt = (!tr.action) && ((tr.probability !== undefined) || (tr.share !== undefined));
             if (!edge_exempt) {
                 const slot = tr.action || '';
                 if (slots.has(slot)) {
@@ -1436,6 +1444,36 @@ class Machine {
      */
     is_start_state(whichState) {
         return this._start_states.has(whichState);
+    }
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0), normalized to sum 1.  Empty when the machine's start states are
+     *  unweighted.
+     *  @returns A map from start state to its share of the distribution.
+     *  @example
+     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+     *  m.start_state_weights().get('idle');  // => 0.9
+     *  @see Machine.sample_start_state
+     */
+    start_state_weights() {
+        return new Map(this._start_state_weights);
+    }
+    /**
+     *  Draws a start state from {@link Machine.start_state_weights} using the
+     *  machine's RNG; on an unweighted machine returns the first declared
+     *  start state.  Does not change the machine's state.
+     *  @returns The sampled start state.
+     *  @example
+     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+     *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
+     *  @see Machine.start_state_weights
+     */
+    sample_start_state() {
+        if (this._start_state_weights.size === 0) {
+            return this._start_states.values().next().value;
+        }
+        const opts = [...this._start_state_weights].map(([name, probability]) => ({ name, probability }));
+        return weighted_rand_select(opts, undefined, this._rng).name;
     }
     /********
      *
@@ -2184,6 +2222,10 @@ class Machine {
      *  Fixes StoneCypher/fsl#1325, in which the function previously returned
      *  every exit unconditionally — including forced-only exits and exits
      *  with no `probability`, which distorted the weighted distribution.
+     *
+     *  Share-only edges (an unweighted transition onto a weighted list; 6.0
+     *  list weights) carry no declared `probability` and so never evict their
+     *  siblings from the pool; their `share` is applied later, by the picker.
      *  @param whichState - The state to inspect.
      *  @returns An array of {@link JssmTransition} edges exiting the state,
      *  filtered as described above.  May be empty.
@@ -2233,6 +2275,9 @@ class Machine {
      *  selectable weight is zero, because weighted selection over an all-zero
      *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
      *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+     *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
+     *  share-only edge (6.0 list weights) still contributes its fractional
+     *  weight to the total rather than being treated as 1.
      *  An empty pool is not this guard's concern (terminality is handled by the
      *  callers) and passes through untouched.
      *
@@ -2253,7 +2298,7 @@ class Machine {
         }
         let total = 0;
         for (const e of exits) {
-            total += (e.probability === undefined) ? 1 : e.probability;
+            total += ((e.probability === undefined) ? 1 : e.probability) * ((e.share === undefined) ? 1 : e.share);
         }
         if (total > 0) {
             return;
@@ -2367,6 +2412,9 @@ class Machine {
      *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
      *  {@link Machine.stochastic_summary}, the generator does NOT restore the
      *  prior seed afterward — a direct caller's machine is left reseeded.
+     *  When the machine declares weighted `start_states` (6.0), each run's
+     *  start is drawn independently via {@link Machine.sample_start_state}
+     *  instead of always starting from the machine's current state.
      *  @param opts - {@link JssmStochasticOptions}.
      *  @yields One {@link JssmStochasticRun} per completed walk.
      *  @returns A generator of per-run results.
@@ -2384,11 +2432,12 @@ class Machine {
         const runs = (mode === 'steady_state')
             ? 1
             : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = this.editor_config()) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
-        const start = this.state();
+        const weighted_start = this._start_state_weights.size > 0;
+        const fixed_start = this.state();
         // one probable-exits memo for the whole run set; see _stochastic_one_walk
         const exit_memo = new Map();
         for (let i = 0; i < runs; i++) {
-            yield this._stochastic_one_walk(start, max_steps, exit_memo);
+            yield this._stochastic_one_walk(weighted_start ? this.sample_start_state() : fixed_start, max_steps, exit_memo);
         }
     }
     /**
@@ -2406,7 +2455,9 @@ class Machine {
      *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
      *
      *  Timing (`after`) decorations and data-guard conditions are not modeled
-     *  by this sampler; it walks the probabilistic graph topology.
+     *  by this sampler; it walks the probabilistic graph topology.  When the
+     *  machine declares weighted `start_states` (6.0), each run starts from an
+     *  independently sampled start state (see {@link Machine.stochastic_runs}).
      *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
      *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
      *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
@@ -2588,9 +2639,12 @@ class Machine {
         return [...ra_base.keys()];
     }
     /**
-     * List all action exits from a state with their probabilities.
+     * List all action exits from a state with their probabilities and shares.
      *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of `{ action, probability }` objects.
+     *  @returns An array of `{ action, probability, share }` objects — `share`
+     *           is the edge's within-list share (6.0 list weights), present
+     *           only for an edge that landed on a list side with no declared
+     *           `probability`; `undefined` otherwise, same as the edge itself.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_action_exits(whichState = this.state()) {
@@ -2607,7 +2661,8 @@ class Machine {
         ra_base.forEach((edgeId, action) => {
             exits.push({
                 action,
-                probability: this._edges[edgeId].probability
+                probability: this._edges[edgeId].probability,
+                share: this._edges[edgeId].share
             });
         });
         return exits;
@@ -6225,7 +6280,7 @@ export { fsl_fence_lang, parse_fence_info } from './fsl_markdown_fence';
 export { FslDirections } from './jssm_types.js';
 export { JssmError } from './jssm_error.js';
 export { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
-export { compile, wrap_parse as parse, make, membership_distance } from './jssm_compiler.js';
+export { compile, wrap_parse as parse, make, membership_distance, list_shares } from './jssm_compiler.js';
 export { unique, find_repeated, weighted_sample_select, weighted_histo_key, sleep, seq, weighted_rand_select, histograph, gen_splitmix32, name_bind_prop_and_state } from './jssm_util.js';
 export { replay } from './fsl_replay.js';
 export { parse_tape, serialize_tape, ReplayError, SUPPORTED_TAPE_VERSION } from './fsl_stimulus_tape.js';

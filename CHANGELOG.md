@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-588 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+589 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,28 +22,17 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 1:25:29 AM
+## [Untagged] - Sep 10, 2026 2:50:50 AM
 
-Commit [fafcf82db53fc89d072e90bbfb2de3225f020006](https://github.com/StoneCypher/jssm/commit/fafcf82db53fc89d072e90bbfb2de3225f020006)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): drop the quoted jssm-viz literal from wc_tag_helpers docs example
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Sep 10, 2026 1:25:15 AM
-
-Commit [0789641b132dcbe33d9381ef9560ae370504ed54](https://github.com/StoneCypher/jssm/commit/0789641b132dcbe33d9381ef9560ae370504ed54)
+Commit [7e5f8a2003e8718df06d59c1f5950c7219edc559](https://github.com/StoneCypher/jssm/commit/7e5f8a2003e8718df06d59c1f5950c7219edc559)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(wc): bundle-shape assertions match quoted tag literals, not define-call adjacency
+Merges [43c91861, 5b8d0821]
+
+  * Merge branch 'feat_26-09-09_retire-jssm-prefix' into feat_26-09-09_list-weights
+  * # Conflicts:
+#       v6_breaking_changes.json
 
 
 
@@ -52,13 +41,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 1:25:06 AM
+## [Untagged] - Sep 10, 2026 2:48:32 AM
 
-Commit [3c305f1d975e7ee5c1b646e09be38fa09c9dc3e7](https://github.com/StoneCypher/jssm/commit/3c305f1d975e7ee5c1b646e09be38fa09c9dc3e7)
+Commit [007a4b2fddabf72c785bfdbf44c4ed47aa944e05](https://github.com/StoneCypher/jssm/commit/007a4b2fddabf72c785bfdbf44c4ed47aa944e05)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(core): weighted start_states -- accessor, sampler, and stochastic runs
+  * perf(parser): regex-derived fast atom scanner with a charset drift guard (#754)
 
 
 
@@ -67,13 +56,19 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 1:11:03 AM
+## [Untagged] - Sep 10, 2026 2:44:12 AM
 
-Commit [24c3afcffa50f4c0f7b5730c2e2f5d352abedd13](https://github.com/StoneCypher/jssm/commit/24c3afcffa50f4c0f7b5730c2e2f5d352abedd13)
+Commit [43c918617517ca18a0597a9247d8d07e1c69edaa](https://github.com/StoneCypher/jssm/commit/43c918617517ca18a0597a9247d8d07e1c69edaa)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(core): the probabilistic picker weighs edge shares from weighted lists
+  * docs: clarify a list share is a fraction of the group's weight, not a draw frequency
+  * LanguageReference.md and the weighted-arrows tutorial both said "WinA and
+WinB each get 25%, splitting the 50% evenly" for `Idle 50% -> [WinA WinB];`
+with no other sibling edge from Idle in the example — readable as a 25%
+draw frequency in isolation, when it is actually 25% of Idle's total
+weight and the two are still drawn 50/50 against each other. Both now say
+"25% of Idle's total weight" and spell out the 50/50 draw outcome.
 
 
 
@@ -82,15 +77,27 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 1:05:09 AM
+## [Untagged] - Sep 10, 2026 2:43:57 AM
 
-Commit [f9552014f64afa85f546d26b55e6d38c95e86d2b](https://github.com/StoneCypher/jssm/commit/f9552014f64afa85f546d26b55e6d38c95e86d2b)
+Commit [90dbc69f761f72f564d75951819ccc6b90673c96](https://github.com/StoneCypher/jssm/commit/90dbc69f761f72f564d75951819ccc6b90673c96)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [167c43d8, 7a65f5c9]
-
-  * Merge branch 'docs_26-07-04_fable-v6-to-v16' into feat_26-09-09_retire-jssm-prefix
+  * test: unicode uspec perf fix; sample_select transition-matrix accumulation fix
+  * unicode-config-state-lists.uspec.ts's full-range sweep built a complete
+`sm`/Machine per Unicode code point just to check weighted start_states,
+adding roughly 164s to the run on top of the parse-level checks the sweep
+already does. Moves that assertion into its own describe block over five
+representative non-ASCII code points, one per major script (Latin-1
+Supplement, Cyrillic, CJK, a supplementary-plane math symbol, Devanagari),
+quoted unconditionally per the existing #754-charset-worktree note. The
+sweep body is otherwise unchanged.
+  * sample_select.spec.ts's derived transition matrix built `P[s][e.to] = ...`
+inside a loop over a state's exits; for any state with two edges landing
+on the same target (distinct actions, say), this would silently overwrite
+rather than sum their contributions. `P` is zero-initialized, so `+=` is
+the correct accumulation and a no-op for the currently-distinct-target
+DSL this file exercises today.
 
 
 
@@ -99,13 +106,32 @@ Merges [167c43d8, 7a65f5c9]
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 1:00:26 AM
+## [Untagged] - Sep 10, 2026 2:43:39 AM
 
-Commit [167c43d8992044d9b55810238ae8f71cfc46419b](https://github.com/StoneCypher/jssm/commit/167c43d8992044d9b55810238ae8f71cfc46419b)
+Commit [2a38c4014c8254cb3ff63f08e0f4215ed1327d9f](https://github.com/StoneCypher/jssm/commit/2a38c4014c8254cb3ff63f08e0f4215ed1327d9f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(wc): finish the jssm- identifier retirement and harden the bundle-shape assertions
+  * fix(jssm): make the duplicate-edge guard and probable_action_exits share-aware
+  * construct()'s duplicate-edge exemption only checked `tr.probability !==
+undefined`, so a share-only edge (an unweighted transition onto a weighted
+list, which carries `share` but no `probability`) was NOT exempt: a
+repeated list target like `a -> [b 20% b 80%];`, or a share-only edge later
+followed by a plain edge to the same target (`a -> [b 20% c 80%]; a -> b;`),
+incorrectly threw "already has ... to ...". The exemption now also checks
+`tr.share !== undefined`, matching the comment's original intent (a
+weighted fan-out may repeat a target).
+  * probable_action_exits() returned `{ action, probability }`, silently
+dropping `share` from its result even though the underlying edge carries
+it (mirroring probable_exits_for's shape); it now returns
+`{ action, probability, share }`, with the DocBlock's @returns updated.
+  * Also skips the intermediate array allocation `_start_state_weights`'s
+constructor built even for the common unweighted case — `new Map()`
+directly instead of `new Map((start_state_weights ?? []).map(...))` — since
+construct() is benchmarked.
+  * Adds three weighted_lists_runtime.spec.ts cases: the two duplicate-edge
+forms above no longer throw, and probable_action_exits includes share
+alongside probability.
 
 
 
@@ -114,25 +140,24 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 12:57:29 AM
+## [Untagged] - Sep 10, 2026 2:43:21 AM
 
-Commit [b4ef00a16faad9fbebe51b9ce573f4f8b815a209](https://github.com/StoneCypher/jssm/commit/b4ef00a16faad9fbebe51b9ce573f4f8b815a209)
+Commit [39cafe03d3a34161a99ab488e9785c36f52401d5](https://github.com/StoneCypher/jssm/commit/39cafe03d3a34161a99ab488e9785c36f52401d5)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(compiler): all-unweighted weighted_list shares uniformly; cover weighted-source shares
-  * list_shares() threw a bogus "weights sum to zero" error (interpolating
-`undefined%`) for a hand-built weighted_list node whose members all omit
-weight — contradicting both the spec ("no member carries a weight: shares
-are uniform 1/n") and its own DocBlock. The grammar never emits this shape
-(an unweighted list parses to a plain array), but list_shares is exported
-public API, so it must still handle it. Added the uniform-share branch and
-removed the now-stale comment that rationalized the throw.
-  * Also adds coverage for the from_has_weights path (a weighted list on the
-SOURCE side of an arrow), which review round 1 found untested:
-[a 20% b 80%] <- 50% e, [a 20% b 80%] <-> c, and
-[a 20% b 80%] 50% <-> 40% e. All three match the existing share-placement
-implementation exactly (no numbers changed).
+  * fix(viz): round a displayed probability to 6 significant digits
+  * A share-derived probability (e.g. 50 / 3 for a 3-member list) is often an
+inexact float, so a dot label rendered the raw value: 16.666666666666664.
+Both label composers (transition_label's taillabel, colored_label's
+headlabel/taillabel HTML) now format probability through a new
+format_probability() helper (Number(p.toPrecision(6))) before joining it
+into the label. Author-written values (25, 10, 0.5, ...) already have far
+fewer than 6 significant digits, so rounding is a no-op for them. The
+falsy-hiding behavior for probability 0 is preserved in both call sites
+(format_probability(0) is still filtered the same way the raw 0 was).
+  * Adds a viz_dot.spec.ts case asserting `a 50% -> [b c d];` renders 16.6667
+(not the raw float) and `a 25% -> b;` still renders 25.
 
 
 
@@ -141,13 +166,33 @@ implementation exactly (no numbers changed).
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 12:51:55 AM
+## [Untagged] - Sep 10, 2026 2:43:04 AM
 
-Commit [c06eea504d4fa8b4d6f4f712cce888a96420b2ff](https://github.com/StoneCypher/jssm/commit/c06eea504d4fa8b4d6f4f712cce888a96420b2ff)
+Commit [62e0a45e7c438b86580cdcab26f66fdf8b26fdeb](https://github.com/StoneCypher/jssm/commit/62e0a45e7c438b86580cdcab26f66fdf8b26fdeb)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(core)!: bareword predicates replace the symbol-bearing charset tables (#754)
+  * test(compiler): pin group-reference target sharing as explicit 6.0 semantics
+  * resolve_group_refs rewrites a group-reference transition TARGET (`&g`) to
+its member array before compile_rule_transition_step runs, so a
+probabilistic transition onto a group already shared its weight across the
+expanded members the same way it does across an equivalent literal list —
+this was an untested, undocumented side effect of the implementation
+rather than a deliberate, named behavior. Ruled as the desired semantics
+(a &g target behaves like its member list); this commit makes it explicit:
+  * - Compile test: `&g : [b c]; a 50% -> &g; a 50% -> d;` asserts a->b 25,
+  a->c 25, a->d 50 (matching a literal `[b c]` list target).
+- Also adds a test for list_shares' negative-inner-weight rejection (the
+  companion fix in the prior commit had no covering test yet).
+- v6_breaking_changes.json's probabilistic-list-weights entry now names
+  group-reference targets in both `summary` and `breaks`.
+- notes/fsl-grammar-reference.md: the §6 GroupRef bullet gets a sentence on
+  target-side sharing; the §14 cheat-sheet's Arrow target row, still
+  listing the pre-6.0 grammar names, is corrected to
+  `ArrowTarget (Stripe / Cycle / WeightedLabelList / GroupRef / Label)`;
+  and the §2 WeightedLabelList paragraph gains a clause noting that inner
+  weights written on a pure list SOURCE are parsed but ignored (there is
+  no per-member edge into a source's members for a share to apply to).
 
 
 
@@ -156,32 +201,23 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 12:43:05 AM
+## [Untagged] - Sep 10, 2026 2:42:11 AM
 
-Commit [84839cf56009da59272158ef5149a533d2b61a1d](https://github.com/StoneCypher/jssm/commit/84839cf56009da59272158ef5149a533d2b61a1d)
+Commit [d988a7a42b6af1f548983b7467ef88914d7bdd37](https://github.com/StoneCypher/jssm/commit/d988a7a42b6af1f548983b7467ef88914d7bdd37)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(compiler)!: list targets share a transition's probability; inner weights and edge shares
-  * Compiler-side half of probabilistic list-target weights (6.0 list weights,
-sub-project 4). Adds `list_shares()`, resolving a plain list to uniform 1/n
-shares and a weighted list (Task 1's JssmWeightedList) to normalized w_i/Σw
-shares, rejecting a mixed weighted/unweighted list or a zero-sum weight set.
-  * `compile_rule_transition_step` now applies that share to whichever compiled
-edge actually enters the list's members (the forward edge when the TARGET is
-a list, the reverse edge when the SOURCE is a list under a leftward arrow,
-e.g. `[a b] <- 50% e`), leaving a list SOURCE's own outgoing edges at full
-weight. A declared probability becomes `P x share`; an undeclared one records
-`share` on the edge instead, but only when the list carried real inner
-weights (a plain list's uniform share is not written out). `JssmTransition`
-gains `share?: number`, pre-declared alongside `probability` in
-`makeTransition`'s edge literal.
-  * `compile()` also resolves a weighted `start_states` list to plain names on
-`start_states` plus a new `start_state_weights` on `JssmGenericConfig`, for
-Task 4's Machine accessors.
-  * Also fixes compile.spec.ts's `toStrictEqual` edge-shape fixture, which pinned
-the exact key set of a compiled edge and needed `share: undefined` added to
-match every edge's new pre-declared field.
+  * fix(compiler): reject negative inner list weights in list_shares
+  * list_shares() is exported public API, so a hand-built weighted_list node
+could carry a negative weight (the grammar's NonNegNumber rule already
+rejects this at parse time, but the exported function has no equivalent
+guard). Throw a JssmError from the reduce that sums weights, naming the
+offending member, instead of silently producing a nonsensical share.
+  * Also turns apply_list_share's DocBlock @example, whose sample code did not
+type-check (casting a two-field object literal to JssmTransition), into a
+prose sentence — the function is @internal and not extracted by the
+doctest generator, so this was previously invalid code sitting unnoticed
+in the codebase rather than a build failure.
 
 
 
@@ -190,33 +226,36 @@ match every edge's new pre-declared field.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 12:31:25 AM
+## [Untagged] - Sep 10, 2026 2:41:54 AM
 
-Commit [20fa29d0fa05a1079c7f291f7d9f06b323789858](https://github.com/StoneCypher/jssm/commit/20fa29d0fa05a1079c7f291f7d9f06b323789858)
+Commit [71de8843281467715ba1073568d32f720e0a5f83](https://github.com/StoneCypher/jssm/commit/71de8843281467715ba1073568d32f720e0a5f83)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(grammar): fix round 1 for #754 review (quotable advice, enum msgs, bad-first-char)
-  * - ValEnumMember gains a slash-String alternative before the digit-catch, so
-  the "quote it" advice a symbol-bearing member gets (enum(a.b, c)) is
-  actually true -- a quoted member now parses.
-- SdStateProperty's two name:Atom bindings become name:Label, matching
-  MachineProperty (the top-level property-declaration a per-state override
-  must name-match), so a property name needing quotes can be quoted in
-  both places, not just one.
-- ArrowTarget gains a final ArrowTargetBadFirstChar alternative catching a
-  bareword starting with a bad ASCII symbol or punctuation character
-  (dot-foo, dash-foo, question-x) -- 5.x accepted these; without this
-  alternative they fell through to pegjs's generic expectation-list error
-  instead of the #754 migration message. Tried last, after Stripe and
-  Cycle, so their leading-dash/plus targets are unaffected.
-- Adds a pegjs initializer compiling the two bareword-class regexes once at
-  module load (BAREWORD_FIRST/BAREWORD_REST) instead of once per character
-  tested, addressing the fresh-regex-per-char cost the two semantic
-  predicates introduced.
-- bareword_charset.spec.ts: covers ValEnumMember's own digit/symbol
-  messages, proves the comma still separates multi-member enums, proves a
-  quoted enum member and a quoted per-state property name both parse and
-  are visible on the built machine, and covers the new bad-first-char
-  rejection in both source and target position plus the Cycle/Stripe
-  non-regression.
+  * fix(types): drop the docblock-breaking @example on JssmWeightedList
+  * The @example tag on JssmWeightedList's DocBlock was jssm_types.ts's first,
+so src/buildjs/extract_examples.cjs generated jssm_types.docex.ts with an
+unverifiable example (no expect(...) or // => marker), and vitest-docs
+(and so ci_build) failed. The file's own convention for a type-level code
+sample that isn't meant to be extracted and asserted is a plain fenced
+```ts block with no @example tag — switch to that. Deliberately not adding
+an @example to JssmWeightedListMember either, for the same reason.
+  * Also sharpens the JssmTransition.share field's DocBlock wording: "the list
+side's default weight" rather than "a list target's default weight", since
+share applies on whichever side (source or target) actually carries the
+list, not only a target.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 10, 2026 2:23:18 AM
+
+Commit [5a630412283cc6a82bd1d6b311d5ef108db97581](https://github.com/StoneCypher/jssm/commit/5a630412283cc6a82bd1d6b311d5ef108db97581)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(unicode): classify every code point as bareword or quoted-only (#754)

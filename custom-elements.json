@@ -4763,7 +4763,7 @@
               "description": "The suffix to match (e.g. `\"instance\"`)."
             }
           ],
-          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\n`fsl-<suffix>`, or `null` if none exists."
+          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\r\n`fsl-<suffix>`, or `null` if none exists."
         },
         {
           "kind": "function",
@@ -4789,7 +4789,7 @@
               "description": "Constructor to register under `canonical_tag`."
             }
           ],
-          "description": "Registers `canonical_tag` as a custom element under `CanonicalClass`.\nIdempotent: skips the `define` call when the tag is already registered.\nDoes not validate that `canonical_tag` carries the `fsl-` prefix — callers\nare responsible for passing a spelling that belongs in the registry."
+          "description": "Registers `canonical_tag` as a custom element under `CanonicalClass`.\r\nIdempotent: skips the `define` call when the tag is already registered.\r\nDoes not validate that `canonical_tag` carries the `fsl-` prefix — callers\r\nare responsible for passing a spelling that belongs in the registry."
         }
       ],
       "exports": [
