@@ -1,13 +1,4 @@
 import { LitElement, TemplateResult } from 'lit';
-import type { Machine } from '../jssm.js';
-/**
- * Structural shape used to detect a parent `<fsl-instance>` (or, while the
- * deprecated alias survives, `<jssm-instance>`) host without importing the
- * instance module — same duck-typed approach `<fsl-viz>` uses.
- */
-export interface JssmInstanceHost extends HTMLElement {
-    readonly machine: Machine<unknown>;
-}
 /**
  * The most recent transition observed on the host machine, captured from the
  * `transition` event detail.  `null` until the first transition fires.
@@ -27,8 +18,7 @@ export interface LastTransition {
  * event.
  *
  * Display-only: it never drives the machine. It binds by walking up to the
- * host via {@link closest_wc} (which matches both the canonical `fsl-instance`
- * and the deprecated `jssm-instance` host tags), so it works under either.
+ * host via {@link closest_wc}.
  * @element fsl-info-panel
  * @cssproperty [--fsl-info-panel-gap=0.25rem] - Vertical gap between rows.
  */

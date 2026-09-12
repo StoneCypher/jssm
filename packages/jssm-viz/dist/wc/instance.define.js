@@ -2,57 +2,37 @@ import { FslInstance } from './instance.js';
 export { FslInstance } from './instance.js';
 
 /**
- * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
- * web-component naming convention.  Centralizes the "match either prefix"
- * rule so it lives in exactly one place.
+ * Shared helpers for the `fsl-*` web-component tag convention.  The `jssm-*`
+ * synonym prefix was removed in 6.0; every registration and lookup now
+ * matches exactly one spelling, so the rule lives in one place.
  */
 /**
- * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
- * (case-insensitive).
- * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive).
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
- * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ * @returns `true` when `tag_name` is `fsl-<suffix>`.
+ * The retired jssm- prefix (e.g. what was jssm-viz) never matches — 6.0
+ * dropped that spelling entirely.
  * @example
- * wc_suffix_matches('FSL-VIZ', 'viz');   // true
- * wc_suffix_matches('jssm-viz', 'viz');  // true
- * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('FSL-VIZ', 'viz');    // true
  * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
  */
 /**
- * Registers a canonical custom-element tag and its synonym tag.
- *
- * `customElements.define` requires a distinct constructor per tag name, so
- * callers pass the canonical class and a thin subclass for the synonym.
- * The function is idempotent: if either tag is already registered it skips
- * that `define` call rather than throwing.
- * @param canonical_tag  - The primary tag name (e.g. `"fsl-instance"`).
- * @param synonym_tag    - The alias tag name (e.g. `"jssm-instance"`).
+ * Registers `canonical_tag` as a custom element under `CanonicalClass`.
+ * Idempotent: skips the `define` call when the tag is already registered.
+ * Does not validate that `canonical_tag` carries the `fsl-` prefix — callers
+ * are responsible for passing a spelling that belongs in the registry.
+ * @param canonical_tag - The tag name to register (e.g. `"fsl-info-panel"`).
  * @param CanonicalClass - Constructor to register under `canonical_tag`.
- * @param SynonymClass   - Constructor to register under `synonym_tag`
- *                         (must be a distinct class from `CanonicalClass`).
  * @example
- * class FslInstance extends HTMLElement {}
- * class JssmInstance extends FslInstance {}
- * define_with_synonym('fsl-instance', 'jssm-instance', FslInstance, JssmInstance);
- * @see closest_wc
+ * class FslInfoPanel extends HTMLElement {}
+ * define_canonical('fsl-info-panel', FslInfoPanel);
  */
-function define_with_synonym(canonical_tag, synonym_tag, CanonicalClass, SynonymClass) {
+function define_canonical(canonical_tag, CanonicalClass) {
     if (!customElements.get(canonical_tag))
         customElements.define(canonical_tag, CanonicalClass);
-    if (!customElements.get(synonym_tag))
-        customElements.define(synonym_tag, SynonymClass);
 }
 
-/**
- * Thin subclass so `<jssm-instance>` registers under a distinct constructor.
- * @deprecated The `jssm-*` tag and the `JssmInstance` class alias are
- * deprecated since v5 in favor of the canonical `<fsl-instance>` /
- * {@link FslInstance}, for fsl.tools brand alignment. They remain functional
- * but are slated for removal in v6 (tracked in `v6_breaking_changes.json` on
- * the `v6` branch). New components are `fsl-*`-only.
- */
-class JssmInstance extends FslInstance {
-}
-define_with_synonym('fsl-instance', 'jssm-instance', FslInstance, JssmInstance);
-
-export { JssmInstance };
+// The retired synonym tag and its class alias were removed in 6.0; the
+// only spelling is `<fsl-instance>` / {@link FslInstance}.
+define_canonical('fsl-instance', FslInstance);

@@ -7,7 +7,7 @@
     <!--
       #1934 fixture: two standalone auto-height <fsl-viz> elements rendering a
       deliberately tall machine, one capped by a plain external `max-height`
-      on the host, the other by the `--jssm-viz-max-height` custom-property
+      on the host, the other by the `--fsl-viz-max-height` custom-property
       seam. Same serving contract as the sibling fixtures — the e2e harness
       serves the REPO ROOT, and this import map resolves the viz bundle's
       externals to /node_modules and /dist.
@@ -38,7 +38,7 @@
       #capped     { max-height: 240px; }
 
       /* Same cap through the custom-property seam instead. */
-      #var-capped { --jssm-viz-max-height: 240px; }
+      #var-capped { --fsl-viz-max-height: 240px; }
     </style>
   </head>
 

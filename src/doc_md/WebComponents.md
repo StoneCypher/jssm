@@ -2,7 +2,7 @@
 
 `jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
 
-> **Tag names:** `fsl-*` is the canonical spelling (e.g. `<fsl-viz>`, class `FslViz`). The `jssm-*` tags (`<jssm-viz>`, `<jssm-instance>`, `<jssm-bind>`) and `Jssm*` class names are **deprecated as of v5** — for fsl.tools brand alignment — and **slated for removal in v6**. They remain fully functional aliases until then; migrate to `fsl-*` when convenient. Components introduced after the rename (the `<fsl-instance>` panels, etc.) are **`fsl-*`-only** — no `jssm-*` alias is minted for them.
+> **Tag names:** every component is spelled `fsl-*` (`<fsl-viz>`, class `FslViz`). The `jssm-*` tags, the `Jssm*` class aliases, the `data-jssm-*` attributes, and the `--jssm-viz-*` CSS properties were deprecated in 5.x and **removed in 6.0** — rename them to the `fsl-` spelling (`<jssm-viz>` → `<fsl-viz>`, `data-jssm-action` → `data-fsl-action`, `--jssm-viz-max-height` → `--fsl-viz-max-height`). A leftover `jssm-*` companion child (e.g. a stray `<jssm-hook>` or `<jssm-on>`) is no longer stripped from a host's inline-text FSL source and will corrupt it — remove or rename such children too.
 
 ## Quick start — CDN
 
@@ -37,8 +37,6 @@ Then anywhere in your markup:
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
-The `<jssm-viz>` alias is also accepted and renders identically, but is deprecated (removed in v6).
-
 ## Class export — rename or subclass
 
 To register the class under a different tag name, or to subclass it:
@@ -55,7 +53,7 @@ customElements.define('my-fsl-viz', class extends FslViz {
 });
 ```
 
-The class export has no side effects — importing it does not register any tag. `JssmViz` is also exported as a deprecated alias for `FslViz` (removed in v6).
+The class export has no side effects — importing it does not register any tag. The `JssmViz` alias was removed in 6.0.
 
 ## Properties
 
@@ -74,8 +72,8 @@ The class export has no side effects — importing it does not register any tag.
 
 | Property | Default | Description |
 |---|---|---|
-| `--jssm-viz-min-height` | `100px` | Minimum height of the rendered SVG container. |
-| `--jssm-viz-max-height` | `none` | Maximum height of the control; the rendered SVG stays bounded within it, aspect preserved (letterboxed). Setting `max-height` on the host from outside works identically. |
+| `--fsl-viz-min-height` | `100px` | Minimum height of the rendered SVG container. |
+| `--fsl-viz-max-height` | `none` | Maximum height of the control; the rendered SVG stays bounded within it, aspect preserved (letterboxed). Setting `max-height` on the host from outside works identically. |
 
 ## Methods — programmatic trace highlighting
 
@@ -194,8 +192,7 @@ document.querySelector('fsl-instance')
 Emitted events: `fsl-transition`, `fsl-entry`, `fsl-exit`, `fsl-terminal`, `fsl-complete`,
 `fsl-action`, `fsl-rejection`, `fsl-override`, `fsl-data-change`, `fsl-timeout`, `fsl-error`.
 
-> **Naming:** events use the canonical `fsl-` prefix only (not a `jssm-` synonym) — a symmetric
-> listener would otherwise run twice per machine event.
+> **Naming:** events use the canonical `fsl-` prefix only.
 
 **Ordering guarantee.** A `fsl-*` listener runs *after* the element has committed its render, so
 mechanism 1 (attributes), 2 (state slot), and 3 (`--current-state`) are all current when your handler

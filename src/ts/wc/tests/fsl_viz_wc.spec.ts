@@ -3,7 +3,7 @@
  */
 
 import '../fsl_instance_wc.define';
-import { FslViz, JssmViz } from '../fsl_viz_wc.define';
+import { FslViz } from '../fsl_viz_wc.define';
 import { FslViz as FslVizBase, normalize_viz_error } from '../fsl_viz_wc';
 import type { FslInstance } from '../fsl_instance_wc';
 
@@ -24,26 +24,11 @@ describe('FslViz registration', () => {
 
 });
 
-describe('JssmViz synonym registration', () => {
+describe('jssm-viz retirement', () => {
 
-  it('registers the jssm-viz tag', () => {
-    expect(customElements.get('jssm-viz')).toBe(JssmViz);
-  });
-
-  it('creates a jssm-viz element with createElement', () => {
-    const el = document.createElement('jssm-viz');
-    expect(el).toBeInstanceOf(JssmViz);
-    // The synonym is a subclass, so jssm-viz instances are also FslViz
-    // instances. This is the key invariant that keeps behavior identical.
-    expect(el).toBeInstanceOf(FslViz);
-  });
-
-  it('JssmViz is a subclass of FslViz, not the same constructor', () => {
-    // The empty-subclass pattern is the only way to register the same class
-    // under two tag names — customElements.define requires a distinct
-    // constructor per tag. The subclass adds no behavior of its own.
-    expect(JssmViz).not.toBe(FslViz);
-    expect(Object.getPrototypeOf(JssmViz)).toBe(FslViz);
+  it('does not register the retired jssm-viz tag (removed in 6.0)', () => {
+    expect(customElements.get('jssm-viz')).toBeUndefined();
+    expect(document.createElement('jssm-viz')).not.toBeInstanceOf(FslViz);
   });
 
 });
@@ -51,21 +36,18 @@ describe('JssmViz synonym registration', () => {
 describe('FslViz re-registration', () => {
 
   it('does not re-define or throw when the define module is re-evaluated', async () => {
-    // Covers the idempotent define_with_synonym false path: the import
-    // at the top of this file already registered the elements, so re-evaluating
-    // the define module must find them present and skip customElements.define
+    // Covers the idempotent define_canonical false path: the import at the
+    // top of this file already registered the element, so re-evaluating the
+    // define module must find it present and skip customElements.define
     // (a second define of the same name would throw a NotSupportedError).
-    const before_fsl  = customElements.get('fsl-viz');
-    const before_jssm = customElements.get('jssm-viz');
+    const before_fsl = customElements.get('fsl-viz');
     expect(before_fsl).toBe(FslViz);
-    expect(before_jssm).toBe(JssmViz);
 
     vi.resetModules();
     await expect(import('../fsl_viz_wc.define')).resolves.toBeDefined();
 
-    // Still the same constructors; nothing was re-registered or clobbered.
+    // Still the same constructor; nothing was re-registered or clobbered.
     expect(customElements.get('fsl-viz')).toBe(before_fsl);
-    expect(customElements.get('jssm-viz')).toBe(before_jssm);
   });
 
 });
@@ -232,58 +214,6 @@ describe('FslViz rendering', () => {
     el.remove();
   });
 
-  it('jssm-viz synonym renders identically to fsl-viz for the same fsl', async () => {
-    // The whole point of the synonym: given the same fsl, both tags must
-    // produce an SVG that contains the same state names. This guards against
-    // any future divergence sneaking into the JssmViz subclass.
-    const fsl_el  = document.createElement('fsl-viz');
-    const jssm_el = document.createElement('jssm-viz');
-    document.body.append(fsl_el);
-    document.body.append(jssm_el);
-
-    const source = 'Off -> On;';
-    fsl_el.fsl  = source;
-    jssm_el.fsl = source;
-
-    await (fsl_el  as any).updateComplete;
-    await (jssm_el as any).updateComplete;
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    await (fsl_el  as any).updateComplete;
-    await (jssm_el as any).updateComplete;
-
-    const fsl_html  = fsl_el.shadowRoot!.innerHTML;
-    const jssm_html = jssm_el.shadowRoot!.innerHTML;
-
-    expect(fsl_html).toContain('<svg');
-    expect(jssm_html).toContain('<svg');
-    expect(fsl_html).toContain('Off');
-    expect(jssm_html).toContain('Off');
-    expect(fsl_html).toContain('On');
-    expect(jssm_html).toContain('On');
-
-    fsl_el.remove();
-    jssm_el.remove();
-  });
-
-  it('jssm-viz fires viz-error on bad fsl just like fsl-viz', async () => {
-    // Confirms the synonym inherits the error path unchanged.
-    const el = document.createElement('jssm-viz');
-    document.body.append(el);
-
-    const errorEvent: Promise<CustomEvent> = new Promise(resolve => {
-      el.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
-    });
-
-    (el as any).fsl = 'this is not valid fsl !!!';
-
-    const evt = await errorEvent;
-    expect(evt.type).toBe('viz-error');
-    expect(typeof evt.detail.message).toBe('string');
-    expect(evt.detail.message.length).toBeGreaterThan(0);
-
-    el.remove();
-  });
-
   it('renders successfully when engine is set to a valid value', async () => {
     // Companion to the bad-engine test: with a valid engine the SVG must
     // render, proving the engine prop reaching the renderer doesn't break
@@ -333,11 +263,11 @@ describe('FslViz sizing constraints (#1934)', () => {
   // (src/ts/e2e/viz_sizing.spec.ts), which measures bounding boxes in a real
   // Chromium.
 
-  it('stylesheet exposes the --jssm-viz-max-height seam on the host', () => {
+  it('stylesheet exposes the --fsl-viz-max-height seam on the host', () => {
     const sheet = String(FslVizBase.styles);
-    expect(sheet).toContain('max-height: var(--jssm-viz-max-height, none)');
+    expect(sheet).toContain('max-height: var(--fsl-viz-max-height, none)');
     // The pre-existing min-height seam must survive alongside it.
-    expect(sheet).toContain('min-height: var(--jssm-viz-min-height, 100px)');
+    expect(sheet).toContain('min-height: var(--fsl-viz-min-height, 100px)');
   });
 
   it('stylesheet threads the max-height cap down to the svg via inherit', () => {
@@ -508,23 +438,6 @@ describe('FslViz parent-context binding', () => {
     host.do('flip');
     await new Promise(resolve => setTimeout(resolve, 500));
     expect((viz as any)._svg).toBe('POST_DETACH');
-
-    host.remove();
-  });
-
-  it('jssm-viz synonym also auto-binds when nested inside fsl-instance', async () => {
-    // Confirms the empty subclass inherits the nested-mode behavior.
-    const host = document.createElement('fsl-instance') as FslInstance;
-    host.setAttribute('fsl', 'SynRed -> SynGreen;');
-    const viz = document.createElement('jssm-viz');
-    host.append(viz);
-    document.body.append(host);
-
-    await settle_viz(viz);
-    const tree_html = viz.shadowRoot!.innerHTML;
-    expect(tree_html).toContain('<svg');
-    expect(tree_html).toContain('SynRed');
-    expect(tree_html).toContain('SynGreen');
 
     host.remove();
   });
@@ -705,34 +618,6 @@ describe('FslViz parent-context binding', () => {
     await p;
 
     expect((viz as any)._svg).toBe('STALE_GUARD');
-
-    host.remove();
-  });
-
-  it('mixed-prefix: jssm-viz nested inside fsl-instance binds and rerenders on transition', async () => {
-    // Mixed-prefix test: a <jssm-viz> (synonym tag) nested inside a
-    // <fsl-instance> (canonical tag) must find the parent via closest_wc,
-    // bind to its machine, and re-render after a transition.
-    const host = document.createElement('fsl-instance') as FslInstance;
-    host.setAttribute('fsl', "MixOff 'toggle' -> MixOn;");
-    const viz = document.createElement('jssm-viz');
-    host.append(viz);
-    document.body.append(host);
-
-    await settle_viz(viz);
-
-    const tree_html = viz.shadowRoot!.innerHTML;
-    expect(tree_html).toContain('<svg');
-    expect(tree_html).toContain('MixOff');
-    expect(tree_html).toContain('MixOn');
-
-    // Prove re-render runs on transition.
-    (viz as any)._svg = 'MIX_SENTINEL';
-    host.do('toggle');
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    expect((viz as any)._svg).not.toBe('MIX_SENTINEL');
-    expect((viz as any)._svg).toContain('<svg');
 
     host.remove();
   });

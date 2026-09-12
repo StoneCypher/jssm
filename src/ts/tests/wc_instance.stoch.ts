@@ -7,12 +7,12 @@ import * as fc from 'fast-check';
 import '../wc/fsl_instance_wc.define';
 import {
   FslInstance,
-  JSSM_ON_EVENT_NAMES,
-  parse_jssm_on_element, resolve_named_handler, compile_inline_body,
-  jssm_handler_registry, resolve_fsl_source
+  FSL_ON_EVENT_NAMES,
+  parse_fsl_on_element, resolve_named_handler, compile_inline_body,
+  fsl_handler_registry, resolve_fsl_source
 } from '../wc/fsl_instance_wc';
 
-import { wc_suffix_matches, closest_wc, define_with_synonym } from '../wc/wc_tag_helpers';
+import { wc_suffix_matches, closest_wc, define_canonical } from '../wc/wc_tag_helpers';
 
 /** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
 const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));
@@ -21,8 +21,8 @@ const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b
 
 
 
-// Property-based coverage for the web-component layer: the dual-prefix
-// tag helpers, the <jssm-on> directive parser, handler resolution, FSL
+// Property-based coverage for the web-component layer: the fsl- tag
+// helpers, the <fsl-on> directive parser, handler resolution, FSL
 // source-channel resolution, and the <fsl-instance> lifecycle itself
 // driven over random constructed machines.
 
@@ -47,22 +47,24 @@ const mixed_case = (s: string, flips: boolean[]): string =>
 
 describe('wc_tag_helpers', () => {
 
-  test('wc_suffix_matches accepts exactly fsl-/jssm- + suffix, in any case', () => {
+  test('wc_suffix_matches accepts exactly fsl- + suffix, in any case, and rejects jssm-', () => {
 
     fc.assert(
       fc.property(
         word,
-        fc.constantFrom('fsl', 'jssm'),
         fc.array(fc.boolean(), { minLength: 1, maxLength: 12 }),
-        (suffix, prefix, flips) => {
+        (suffix, flips) => {
 
-          expect(wc_suffix_matches(mixed_case(`${prefix}-${suffix}`, flips), suffix)).toBe(true);
+          expect(wc_suffix_matches(mixed_case(`fsl-${suffix}`, flips), suffix)).toBe(true);
 
           // near misses all reject
-          expect(wc_suffix_matches(`${prefix}-${suffix}x`, suffix)).toBe(false);
-          expect(wc_suffix_matches(`x${prefix}-${suffix}`, suffix)).toBe(false);
+          expect(wc_suffix_matches(`fsl-${suffix}x`, suffix)).toBe(false);
+          expect(wc_suffix_matches(`xfsl-${suffix}`, suffix)).toBe(false);
           expect(wc_suffix_matches(suffix, suffix)).toBe(false);
           expect(wc_suffix_matches(`other-${suffix}`, suffix)).toBe(false);
+
+          // the retired jssm- prefix no longer matches (removed in 6.0)
+          expect(wc_suffix_matches(mixed_case(`jssm-${suffix}`, flips), suffix)).toBe(false);
 
         }
       ),
@@ -76,7 +78,7 @@ describe('wc_tag_helpers', () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 0, max: 8 }),
-        fc.constantFrom('fsl-instance', 'jssm-instance'),
+        fc.constant('fsl-instance'),
         (depth, ancestor_tag) => {
 
           const ancestor = document.createElement(ancestor_tag);
@@ -105,7 +107,7 @@ describe('wc_tag_helpers', () => {
 
   });
 
-  test('define_with_synonym registers both tags and is idempotent', () => {
+  test('define_canonical registers the tag once and is idempotent', () => {
 
     fc.assert(
       fc.property(
@@ -115,18 +117,15 @@ describe('wc_tag_helpers', () => {
           // unique per draw so repeat registration within the test is the
           // only repetition exercised
           const canonical = `test-${base}-${Math.random().toString(36).slice(2)}`;
-          const synonym   = `${canonical}-syn`;
 
           class Canonical extends HTMLElement {}
-          class Synonym   extends Canonical {}
 
-          define_with_synonym(canonical, synonym, Canonical, Synonym);
+          define_canonical(canonical, Canonical);
 
           expect(customElements.get(canonical)).toBe(Canonical);
-          expect(customElements.get(synonym)).toBe(Synonym);
 
           // calling again must not throw and must not re-register
-          expect(() => define_with_synonym(canonical, synonym, Canonical, Synonym)).not.toThrow();
+          expect(() => define_canonical(canonical, Canonical)).not.toThrow();
           expect(customElements.get(canonical)).toBe(Canonical);
 
         }
@@ -142,17 +141,17 @@ describe('wc_tag_helpers', () => {
 
 
 
-describe('parse_jssm_on_element', () => {
+describe('parse_fsl_on_element', () => {
 
   /**
-   *  Builds a `<jssm-on>` element from parts.
+   *  Builds a `<fsl-on>` element from parts.
    *  @param attrs  Attributes to set (null values skipped).
    *  @param body   Optional text content.
    *  @returns      The constructed element.
    */
-  function jssm_on(attrs: Record<string, string | null>, body?: string): HTMLElement {
+  function fsl_on(attrs: Record<string, string | null>, body?: string): HTMLElement {
 
-    const el = document.createElement('jssm-on');
+    const el = document.createElement('fsl-on');
 
     for (const [k, v] of Object.entries(attrs)) {
       if (v !== null) { el.setAttribute(k, v); }
@@ -164,7 +163,7 @@ describe('parse_jssm_on_element', () => {
 
   }
 
-  const event_arb = fc.constantFrom(...JSSM_ON_EVENT_NAMES);
+  const event_arb = fc.constantFrom(...FSL_ON_EVENT_NAMES);
 
   test('a valid named-handler directive parses with its constructed parts', () => {
 
@@ -173,14 +172,14 @@ describe('parse_jssm_on_element', () => {
         event_arb, word, fc.boolean(), fc.option(word, { nil: undefined }),
         (event, handler, once, name) => {
 
-          const el = jssm_on({
+          const el = fsl_on({
             event,
             handler,
             ...(once && { once: '' }),
             ...((name !== undefined) && { name })
           });
 
-          const parsed = parse_jssm_on_element(el);
+          const parsed = parse_fsl_on_element(el);
 
           expect(parsed.event).toBe(event);
           expect(parsed.handler_name).toBe(handler);
@@ -202,8 +201,8 @@ describe('parse_jssm_on_element', () => {
         event_arb, word, word, word,
         (event, state, from, to) => {
 
-          const el = jssm_on({ event, handler: 'h', state, from, to });
-          const parsed = parse_jssm_on_element(el);
+          const el = fsl_on({ event, handler: 'h', state, from, to });
+          const parsed = parse_fsl_on_element(el);
 
           if (event === 'entry' || event === 'exit') {
             expect(parsed.filter).toEqual({ state });
@@ -224,20 +223,20 @@ describe('parse_jssm_on_element', () => {
 
     fc.assert(
       fc.property(
-        word.filter( w => !JSSM_ON_EVENT_NAMES.has(w) ),
+        word.filter( w => !FSL_ON_EVENT_NAMES.has(w) ),
         word,
         (bad_event, handler) => {
 
-          expect(() => parse_jssm_on_element(jssm_on({ handler })))
+          expect(() => parse_fsl_on_element(fsl_on({ handler })))
             .toThrow(/missing required `event`/);
 
-          expect(() => parse_jssm_on_element(jssm_on({ event: bad_event, handler })))
+          expect(() => parse_fsl_on_element(fsl_on({ event: bad_event, handler })))
             .toThrow(`unknown event "${bad_event}"`);
 
-          expect(() => parse_jssm_on_element(jssm_on({ event: 'transition', handler }, 'e => e')))
+          expect(() => parse_fsl_on_element(fsl_on({ event: 'transition', handler }, 'e => e')))
             .toThrow(/not both/);
 
-          expect(() => parse_jssm_on_element(jssm_on({ event: 'transition' })))
+          expect(() => parse_fsl_on_element(fsl_on({ event: 'transition' })))
             .toThrow(/must specify/);
 
         }
@@ -277,11 +276,11 @@ describe('handler resolution and inline compilation', () => {
             expect(resolve_named_handler(name)).toBe(from_global);
 
             // registry precedence
-            jssm_handler_registry.set(name, from_registry);
+            fsl_handler_registry.set(name, from_registry);
             expect(resolve_named_handler(name)).toBe(from_registry);
 
           } finally {
-            jssm_handler_registry.delete(name);
+            fsl_handler_registry.delete(name);
             delete g[name];
           }
 
@@ -367,12 +366,12 @@ describe('resolve_fsl_source channel arithmetic', () => {
 
   });
 
-  test('companion fsl-/jssm- children never contaminate the text channel', () => {
+  test('companion fsl-* children never contaminate the text channel', () => {
 
     fc.assert(
       fc.property(
         word, word,
-        fc.constantFrom('jssm-hook', 'fsl-hook', 'jssm-on', 'fsl-bind'),
+        fc.constantFrom('fsl-hook', 'fsl-on', 'fsl-bind'),
         (state, noise, companion_tag) => {
 
           const host = document.createElement('div');

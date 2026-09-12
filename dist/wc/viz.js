@@ -4,25 +4,24 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { machine_to_svg_string, fsl_to_svg_string, slug_for } from 'jssm/viz';
 
 /**
- * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
- * web-component naming convention.  Centralizes the "match either prefix"
- * rule so it lives in exactly one place.
+ * Shared helpers for the `fsl-*` web-component tag convention.  The `jssm-*`
+ * synonym prefix was removed in 6.0; every registration and lookup now
+ * matches exactly one spelling, so the rule lives in one place.
  */
 /**
- * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
- * (case-insensitive).
- * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive).
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
- * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ * @returns `true` when `tag_name` is `fsl-<suffix>`.
+ * The retired jssm- prefix (e.g. what was jssm-viz) never matches — 6.0
+ * dropped that spelling entirely.
  * @example
- * wc_suffix_matches('FSL-VIZ', 'viz');   // true
- * wc_suffix_matches('jssm-viz', 'viz');  // true
- * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('FSL-VIZ', 'viz');    // true
  * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
  */
 /**
  * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
- * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
+ * `fsl-<suffix>`, or `null` if none exists.
  * @param el     - The element to start the search from.
  * @param suffix - The suffix to match (e.g. `"instance"`).
  * @returns The closest matching ancestor element, or `null`.
@@ -32,7 +31,7 @@ import { machine_to_svg_string, fsl_to_svg_string, slug_for } from 'jssm/viz';
  * @see wc_suffix_matches
  */
 function closest_wc(el, suffix) {
-    return el.closest(`fsl-${suffix}, jssm-${suffix}`);
+    return el.closest(`fsl-${suffix}`);
 }
 
 /**
@@ -91,7 +90,7 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 /**
- * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Normalize an arbitrary thrown value into a {@link FslVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
  * strings, etc.) and always produces a string `message`.
  *
@@ -130,14 +129,14 @@ function normalize_viz_error(e) {
  *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *   2. **Nested** (inside a `<fsl-instance>` ancestor,
  *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
- * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
- * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
+ * @cssproperty [--fsl-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--fsl-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 class FslViz extends LitElement {
@@ -149,7 +148,7 @@ class FslViz extends LitElement {
         this.engine = undefined;
         this._svg = '';
         /**
-         * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+         * Parent `<fsl-instance>` host reference, set in
          * `connectedCallback` when a parent is found.  When non-null the viz is
          * in nested mode and renders the parent's machine instead of its own
          * `fsl` attribute.
@@ -191,7 +190,7 @@ class FslViz extends LitElement {
     }
     /**
      * Web Components lifecycle hook.  Walks up to find a parent
-     * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+     * `<fsl-instance>` ancestor via `closest_wc`; if
      * found, switches into nested mode and subscribes to the parent machine's
      * `transition` events.  Otherwise leaves standalone behavior intact.
      *
@@ -489,10 +488,10 @@ class FslViz extends LitElement {
 FslViz.styles = css `
     :host {
       display: block;
-      min-height: var(--jssm-viz-min-height, 100px);
+      min-height: var(--fsl-viz-min-height, 100px);
       /* #1934: embedder sizing seam — cap the control via the custom property
          (or plain external max-height on the host) without shadow surgery. */
-      max-height: var(--jssm-viz-max-height, none);
+      max-height: var(--fsl-viz-max-height, none);
     }
     .container {
       width: 100%;
