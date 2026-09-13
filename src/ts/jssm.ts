@@ -60,6 +60,34 @@ export {
   hook_registry, hooks_on, has_hook, state_has_hooks,
   is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step
 } from './machine/hooks.js';
+export {
+  data, set_data,
+  prop, strict_prop, props, known_prop, known_props,
+  val, set_val, vals, known_val, known_vals, val_type
+} from './machine/data.js';
+export {
+  state, label_for, display_text,
+  is_start_state, is_end_state,
+  failed_outputs, is_failed_output, is_failed,
+  state_is_final, is_final, canonical,
+  machine_author, machine_comment, machine_contributor, machine_definition,
+  machine_language, machine_license, machine_name,
+  editor_config, npm_name, default_size, machine_version,
+  raw_state_declarations, state_declaration, state_declarations,
+  fsl_version, machine_state,
+  states, state_for, has_state,
+  list_edges, list_named_transitions, list_actions,
+  uses_actions, uses_forced_transitions,
+  code_allows_override, config_allows_override, allows_override, allow_islands,
+  all_state_name_chars, all_state_name_first_chars, all_action_label_chars,
+  get_transition_by_state_names, lookup_transition_for,
+  list_transitions, list_entrances, list_exits,
+  actions, list_states_having_action, list_exit_actions, probable_action_exits,
+  is_unenterable, has_unenterables,
+  is_terminal, state_is_terminal, has_terminals,
+  is_complete, state_is_complete, has_completes,
+  edges_between, current_action_for, current_action_edge_for
+} from './machine/query.js';
 
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';

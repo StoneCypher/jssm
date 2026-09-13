@@ -123,6 +123,37 @@ import {
   hook_registry, hooks_on, has_hook, state_has_hooks
 } from './hooks.js';
 
+import {
+  data, set_data, data_ref,
+  prop, strict_prop, props, known_prop, known_props,
+  val, set_val, vals, known_val, known_vals, val_type,
+  validate_val_value
+} from './data.js';
+
+import {
+  state, label_for, display_text,
+  is_start_state, is_end_state,
+  failed_outputs, is_failed_output, is_failed,
+  state_is_final, is_final, canonical,
+  machine_author, machine_comment, machine_contributor, machine_definition,
+  machine_language, machine_license, machine_name,
+  editor_config, npm_name, default_size, machine_version,
+  raw_state_declarations, state_declaration, state_declarations,
+  fsl_version, machine_state,
+  states, state_for, has_state,
+  list_edges, list_named_transitions, list_actions,
+  uses_actions, uses_forced_transitions,
+  code_allows_override, config_allows_override, allows_override, allow_islands,
+  all_state_name_chars, all_state_name_first_chars, all_action_label_chars,
+  get_transition_by_state_names, lookup_transition_for,
+  list_transitions, list_entrances, list_exits,
+  actions, list_states_having_action, list_exit_actions, probable_action_exits,
+  is_unenterable, has_unenterables,
+  is_terminal, state_is_terminal, has_terminals,
+  is_complete, state_is_complete, has_completes,
+  edges_between, current_action_for, current_action_edge_for
+} from './query.js';
+
 
 
 /*********
@@ -134,60 +165,6 @@ import {
  *  @internal
  *
  */
-
-/*********
- *
- *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
- *  a {@link JssmError} on a type or range violation.  Used both at construction
- *  (initial values) and on every `set_val` write.
- *
- */
-
-function validate_val_value(name: string, vtype: JssmValType, value: any, machine: any): void {
-  switch (vtype.kind) {
-    case 'boolean': {
-      if (typeof value !== 'boolean') {
-        throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
-      }
-      break;
-    }
-    case 'string': {
-      if (typeof value !== 'string') {
-        throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
-      }
-      break;
-    }
-    case 'int': {
-      // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
-      if (!Number.isInteger(value)) {
-        throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
-      }
-      if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < (vtype as { lo: number }).lo) {
-        throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${(vtype as { lo: number }).lo}`);
-      }
-      if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > (vtype as { hi: number }).hi) {
-        throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${(vtype as { hi: number }).hi}`);
-      }
-      break;
-    }
-    case 'enum': {
-      if (!vtype.members.includes(value)) {
-        throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
-      }
-      break;
-    }
-    // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
-    // only ever emits four kinds of, so this default is unreachable at runtime;
-    // the `never` assignment turns an unhandled future kind into a compile error.
-    /* v8 ignore start */
-    default: {
-      const _exhaustive: never = vtype;
-      throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
-    }
-    /* v8 ignore stop */
-  }
-}
-
 
 function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
 
@@ -1510,561 +1487,229 @@ class Machine<mDT> {
 
 
 
-  /*********
-   *
-   *  Get the current state of a machine.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('on <=> off;');
-   *  console.log( lswitch.state() );             // 'on'
-   *
-   *  lswitch.transition('off');
-   *  console.log( lswitch.state() );             // 'off'
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The current state name.
-   *
+  /**
+   *  Get the current state of a machine.  Delegates to the query family's
+   *  {@link state}, which carries the full contract and example.
+   *  @see state
    */
-
   state(): StateType {
-    return this._state;
+    return state(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get the label for a given state, if any; return `undefined` otherwise.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-   *  console.log( lswitch.label_for('a') );              // 'Foo!'
-   *  console.log( lswitch.label_for('b') );              // undefined
-   *  ```
-   *
-   *  See also {@link display_text}.
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param state The state to get the label for.
-   *
-   *  @returns The label string, or `undefined` if no label is set.
-   *
+  /**
+   *  Get the label for a given state, if any.  Delegates to the query
+   *  family's {@link label_for}, which carries the full contract and example.
+   *  @see label_for
    */
-
   label_for(state: StateType): string {
-    return this._state_labels.get(state);
+    return label_for(this, state);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get whatever the node should show as text.
-   *
-   *  Currently, this means to get the label for a given state, if any;
-   *  otherwise to return the node's name.  However, this definition is expected
-   *  to grow with time, and it is currently considered ill-advised to manually
-   *  parse this text.
-   *
-   *  See also {@link label_for}.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-   *  console.log( lswitch.display_text('a') );              // 'Foo!'
-   *  console.log( lswitch.display_text('b') );              // 'b'
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param state The state to get display text for.
-   *
-   *  @returns The label if one exists, otherwise the state's name.
-   *
+  /**
+   *  Get whatever the node should show as text.  Delegates to the query
+   *  family's {@link display_text}, which carries the full contract and
+   *  example.
+   *  @see display_text
    */
-
   display_text(state: StateType): string {
-    return this._state_labels.get(state) ?? state;
+    return display_text(this, state);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get the current data of a machine.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('on <=> off;', {data: 1});
-   *  console.log( lswitch.data() );              // 1
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns A deep clone of the machine's current data value.
-   *
+  /**
+   *  Get the current data of a machine, as a deep clone.  Delegates to the
+   *  data family's {@link data}, which carries the full contract and example.
+   *  @see data
    */
-
   data(): mDT {
-    return structuredClone( this._data );
-  }
-
-
-
-  /*********
-   *
-   *  Replace the machine's data in place, without a transition.  This is the
-   *  practical way to assign any value — including `undefined`, `null`, or
-   *  `false` — outside a hook's complex return, closing the gap where an
-   *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
-   *  a `data-change` event with cause `'set_data'` when the value actually
-   *  changes; unlike {@link override} it requires no `allows_override`
-   *  config, because it never moves the state.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('on <=> off;', {data: 1});
-   *  console.log( lswitch.data() );              // 1
-   *
-   *  lswitch.set_data(2);
-   *  console.log( lswitch.data() );              // 2
-   *
-   *  lswitch.set_data(undefined);
-   *  console.log( lswitch.data() );              // undefined
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param newData The value to install as the machine's data.
-   *
-   *  @returns The machine, for chaining.
-   *
-   *  @see Machine.data
-   *  @see override
-   *
-   */
-
-  set_data(newData: mDT): Machine<mDT> {
-
-    const oldData = this._data;
-    this._data    = newData;
-
-    if (oldData !== newData) {
-      this._fire('data-change', {
-        from     : this._state,
-        to       : this._state,
-        old_data : oldData,
-        new_data : newData,
-        cause    : 'set_data'
-      });
-    }
-
-    return this;
-
+    return data(this);
   }
 
 
 
   /**
-   *  The machine's current data by REFERENCE — no clone.  The public
-   *  {@link Machine.data} contract is a deep clone per call (a mutation
-   *  boundary for external consumers, and deliberately untouched); that clone
-   *  is `structuredClone` of the whole data value, which same-package
-   *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
-   *  read one dotted path or serialize per transition — should not pay on
-   *  every event.  Callers MUST NOT mutate the returned value or store it
-   *  beyond the current tick; anything crossing a trust boundary must use
-   *  {@link Machine.data} instead.
-   *
-   *  ```typescript
-   *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
-   *  m._data_ref().a.b;   // 1, zero-copy
-   *  ```
+   *  Replace the machine's data in place, without a transition.  Delegates
+   *  to the data family's {@link set_data}, which carries the full contract
+   *  and example.
+   *  @returns The machine, for chaining.
+   *  @see set_data
+   */
+  set_data(newData: mDT): Machine<mDT> {
+    return set_data(this, newData);
+  }
+
+
+
+  /**
+   *  The machine's current data by REFERENCE — no clone.  Delegates to the
+   *  data family's {@link data_ref}, which carries the full contract; kept
+   *  on the class because the same-package panels (`fsl_bind_wc`) and tests
+   *  reach it by this name.
    *  @returns The live data value; treat as read-only.
-   *  @see Machine.data
+   *  @see data_ref
    *  @internal
    */
   _data_ref(): mDT {
-    return this._data;
+    return data_ref(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get the current value of a given property name.  Checks the current
-   *  state's properties first, then falls back to the global default.
-   *  Returns `undefined` if neither exists.  For a throwing variant, see
-   *  {@link strict_prop}.
-   *
-   *  ```typescript
-   *  const m = sm`property color default "grey"; a -> b;
-   *               state b: { property color "blue"; };`;
-   *
-   *  m.prop('color');  // 'grey'  (default, because state is 'a')
-   *  m.go('b');
-   *  m.prop('color');  // 'blue'  (state 'b' overrides the default)
-   *  m.prop('size');   // undefined (no such property)
-   *  ```
-   *
-   *  @param name The relevant property name to look up.
-   *
-   *  @returns The value behind the prop name, or `undefined` if not defined.
-   *
+  /**
+   *  Get the current value of a given property name, or `undefined`.
+   *  Delegates to the data family's {@link prop}, which carries the full
+   *  contract and example.
+   *  @see prop
    */
-
   prop(name: string): any {
-
-    const bound_name = name_bind_prop_and_state(name, this.state());
-
-    if (this._state_properties.has(bound_name)) {
-      return this._state_properties.get(bound_name);
-
-    }
-    return this._default_properties.has(name) ? this._default_properties.get(name) : undefined;
-
+    return prop(this, name);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get the current value of a given property name.  If missing on the state
-   *  and without a global default, throws a {@link JssmError}, unlike
-   *  {@link prop}, which would return `undefined` instead.
-   *
-   *  ```typescript
-   *  const m = sm`property color default "grey"; a -> b;`;
-   *
-   *  m.strict_prop('color');  // 'grey'
-   *  m.strict_prop('size');   // throws JssmError
-   *  ```
-   *
-   *  @param name The relevant property name to look up.
-   *
-   *  @returns The value behind the prop name.
-   *
+  /**
+   *  Get the current value of a given property name, throwing when it is
+   *  missing.  Delegates to the data family's {@link strict_prop}, which
+   *  carries the full contract and example.
    *  @throws {JssmError} If the property is not defined on the current state
    *  and has no default.
-   *
+   *  @see strict_prop
    */
-
   strict_prop(name: string): any {
-
-    const bound_name = name_bind_prop_and_state(name, this.state());
-
-    if (this._state_properties.has(bound_name)) {
-      return this._state_properties.get(bound_name);
-
-    }
-    if (this._default_properties.has(name)) {
-      return this._default_properties.get(name);
-
-    }
-    throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
-
+    return strict_prop(this, name);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get the current value of every prop, as an object.  If no current definition
-   *  exists for a prop — that is, if the prop was defined without a default and
-   *  the current state also doesn't define the prop — then that prop will be listed
-   *  in the returned object with a value of `undefined`.
-   *
-   *  ```typescript
-   *  const traffic_light = sm`
-   *
-   *    property can_go     default true;
-   *    property hesitate   default true;
-   *    property stop_first default false;
-   *
-   *    Off -> Red => Green => Yellow => Red;
-   *    [Red Yellow Green] ~> [Off FlashingRed];
-   *    FlashingRed -> Red;
-   *
-   *    state Red:         { property: stop_first true;  property: can_go false; };
-   *    state Off:         { property: stop_first true;  };
-   *    state FlashingRed: { property: stop_first true;  };
-   *    state Green:       { property: hesitate   false; };
-   *
-   *  `;
-   *
-   *  traffic_light.state();  // Off
-   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
-   *
-   *  traffic_light.go('Red');
-   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
-   *
-   *  traffic_light.go('Green');
-   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
-   *  ```
-   *
-   *  @returns An object mapping every known property name to its current value
-   *  (or `undefined` if the property has no default and the current state
-   *  doesn't define it).
-   *
+  /**
+   *  Get the current value of every prop, as an object.  Delegates to the
+   *  data family's {@link props}, which carries the full contract and
+   *  example.
+   *  @see props
    */
-
   props(): object {
-
-    const ret: object = {};
-    for (const p of this.known_props()) ret[p] = this.prop(p)
-    ;
-
-    return ret;
-
+    return props(this);
   }
 
 
 
 
 
-  // TODO: sparse_props — like props() but omits undefined entries
-  // sparse_props(name: string): object { }
-
-  // TODO: strict_props — like props() but throws on any undefined entry
-  // strict_props(name: string): object { }
-
-
-
-
-
-  /*********
-   *
-   *  Check whether a given string is a known property's name.
-   *
-   *  ```typescript
-   *  const example = sm`property foo default 1; a->b;`;
-   *
-   *  example.known_prop('foo');  // true
-   *  example.known_prop('bar');  // false
-   *  ```
-   *
-   *  @param prop_name The relevant property name to look up
-   *
+  /**
+   *  Check whether a given string is a known property's name.  Delegates to
+   *  the data family's {@link known_prop}.
+   *  @see known_prop
    */
-
   known_prop(prop_name: string): boolean {
-    return this._property_keys.has(prop_name);
+    return known_prop(this, prop_name);
   }
 
 
 
 
 
-  /*********
-   *
-   *  List all known property names.  If you'd also like values, use
-   *  {@link props} instead.  The order of the properties is not defined, and
-   *  the properties generally will not be sorted.
-   *
-   *  ```typescript
-   *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
-   *
-   *  m.known_props();  // ['color', 'size']
-   *  ```
-   *
-   *  @returns An array of all property name strings defined on this machine.
-   *
+  /**
+   *  List all known property names.  Delegates to the data family's
+   *  {@link known_props}.
+   *  @see known_props
    */
-
   known_props(): string[] {
-    return [... this._property_keys];
+    return known_props(this);
   }
 
 
-  /*********
-   *
-   *  Read the current value of a declared machine `val`.
-   *
-   *  ```typescript
-   *  const m = sm`val ok : boolean default true; a -> b;`;
-   *
-   *  m.val('ok');   // true
-   *  ```
-   *
-   *  @param name The declared val name to read.
-   *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+  /**
+   *  Read the current value of a declared machine `val`.  Delegates to the
+   *  data family's {@link val}, which carries the full contract and example.
    *  @throws {JssmError} If `name` is not a declared val.
-   *
+   *  @see val
    */
-
   val(name: string): any {
-    if (!this._val_keys.has(name)) {
-      throw new JssmError(this, `No such val "${name}"`);
-    }
-    return this._val_values.get(name);
+    return val(this, name);
   }
 
 
-  /*********
-   *
-   *  Set the value of a declared machine `val`, validating it against the val's
-   *  declared type.  This is the runtime mutation surface; source-level `assign`
-   *  arrives in a later phase.
-   *
-   *  ```typescript
-   *  const m = sm`val n : int default 0; a -> b;`;
-   *
-   *  m.set_val('n', 5);
-   *  m.val('n');   // 5
-   *  ```
-   *
-   *  @param name  The declared val name to write.
-   *  @param value The new value; must satisfy the val's declared type.
+  /**
+   *  Set the value of a declared machine `val`, validating it against the
+   *  val's declared type.  Delegates to the data family's {@link set_val},
+   *  which carries the full contract and example.
    *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
-   *
+   *  @see set_val
    */
-
   set_val(name: string, value: any): void {
-    if (!this._val_keys.has(name)) {
-      throw new JssmError(this, `No such val "${name}"`);
-    }
-    validate_val_value(name, this._val_types.get(name), value, this);
-    this._val_values.set(name, value);
+    set_val(this, name, value);
   }
 
 
-  /*********
-   *
-   *  Return a plain object mapping every declared val name to its current value.
-   *
-   *  ```typescript
-   *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
-   *
-   *  m.vals();   // { a: 1, b: false }
-   *  ```
-   *
-   *  @returns An object of every declared val name to its current value.
-   *
+  /**
+   *  Return a plain object mapping every declared val name to its current
+   *  value.  Delegates to the data family's {@link vals}.
+   *  @see vals
    */
-
   vals(): object {
-    const result: { [name: string]: any } = {};
-    this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
-    return result;
+    return vals(this);
   }
 
 
-  /*********
-   *
-   *  Check whether a string is the name of a declared `val`.
-   *
-   *  ```typescript
-   *  const m = sm`val a : int default 1; x -> y;`;
-   *
-   *  m.known_val('a');   // true
-   *  m.known_val('z');   // false
-   *  ```
-   *
-   *  @param name The candidate val name.
-   *  @returns Whether the name is a declared val.
-   *
+  /**
+   *  Check whether a string is the name of a declared `val`.  Delegates to
+   *  the data family's {@link known_val}.
+   *  @see known_val
    */
-
   known_val(name: string): boolean {
-    return this._val_keys.has(name);
+    return known_val(this, name);
   }
 
 
-  /*********
-   *
-   *  List every declared `val` name, in declaration order.
-   *
-   *  ```typescript
-   *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
-   *
-   *  m.known_vals();   // ['a', 'b']
-   *  ```
-   *
-   *  @returns The declared val names in declaration order.
-   *
+  /**
+   *  List every declared `val` name, in declaration order.  Delegates to the
+   *  data family's {@link known_vals}.
+   *  @see known_vals
    */
-
   known_vals(): string[] {
-    return [... this._val_keys];
+    return known_vals(this);
   }
 
 
-  /*********
-   *
-   *  Return the declared type descriptor of a `val`.
-   *
-   *  ```typescript
-   *  const m = sm`val n : int 0..3 default 0; x -> y;`;
-   *
-   *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
-   *  ```
-   *
-   *  @param name The declared val name.
-   *  @returns The val's declared type descriptor.
+  /**
+   *  Return the declared type descriptor of a `val`.  Delegates to the data
+   *  family's {@link val_type}.
    *  @throws {JssmError} If `name` is not a declared val.
-   *
+   *  @see val_type
    */
-
   val_type(name: string): JssmValType {
-    if (!this._val_keys.has(name)) {
-      throw new JssmError(this, `No such val "${name}"`);
-    }
-    return this._val_types.get(name);
+    return val_type(this, name);
   }
 
 
 
 
 
-  /********
-   *
-   *  Check whether a given state is a valid start state (either because it was
-   *  explicitly named as such, or because it was the first mentioned state.)
-   *
-   *  ```typescript
-   *  import { sm, is_start_state } from 'jssm';
-   *
-   *  const example = sm`a -> b;`;
-   *
-   *  console.log( final_test.is_start_state('a') );   // true
-   *  console.log( final_test.is_start_state('b') );   // false
-   *
-   *  const example = sm`start_states: [a b]; a -> b;`;
-   *
-   *  console.log( final_test.is_start_state('a') );   // true
-   *  console.log( final_test.is_start_state('b') );   // true
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The name of the state to check
-   *
+  /**
+   *  Check whether a given state is a valid start state.  Delegates to the
+   *  query family's {@link is_start_state}, which carries the full contract
+   *  and example.
+   *  @see is_start_state
    */
-
   is_start_state(whichState: StateType): boolean {
-    return this._start_states.has(whichState);
+    return is_start_state(this, whichState);
   }
 
 
@@ -2076,6 +1721,7 @@ class Machine<mDT> {
    *  unweighted.
    *  @returns A map from start state to its share of the distribution.
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
    *  m.start_state_weights().get('idle');  // => 0.9
    *  @see Machine.sample_start_state
@@ -2093,6 +1739,7 @@ class Machine<mDT> {
    *  start state.  Does not change the machine's state.
    *  @returns The sampled start state.
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
    *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
    *  @see Machine.start_state_weights
@@ -2107,141 +1754,77 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
-   *  Check whether a given state is a valid start state (either because it was
-   *  explicitly named as such, or because it was the first mentioned state.)
-   *
-   *  ```typescript
-   *  import { sm, is_end_state } from 'jssm';
-   *
-   *  const example = sm`a -> b;`;
-   *
-   *  console.log( final_test.is_start_state('a') );   // false
-   *  console.log( final_test.is_start_state('b') );   // true
-   *
-   *  const example = sm`end_states: [a b]; a -> b;`;
-   *
-   *  console.log( final_test.is_start_state('a') );   // true
-   *  console.log( final_test.is_start_state('b') );   // true
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The name of the state to check
-   *
+  /**
+   *  Check whether a given state is a declared end state.  Delegates to the
+   *  query family's {@link is_end_state}, which carries the full contract
+   *  and example.
+   *  @see is_end_state
    */
-
   is_end_state(whichState: StateType): boolean {
-    return this._end_states.has(whichState);
+    return is_end_state(this, whichState);
   }
 
 
 
 
-  /********
-   *
+  /**
    *  Get the set of states declared as failure outputs for this machine.
-   *  Returns an array of state labels, or an empty array when none were
-   *  declared.  A state in this list means the machine is in a failure
-   *  condition when it occupies that state.
-   *
-   *  @see {@link is_failed_output} to test a single state
-   *  @see {@link is_failed} to test the current state
-   *
+   *  Delegates to the query family's {@link failed_outputs}.
+   *  @see failed_outputs
    */
-
   failed_outputs(): Array<StateType> {
-    return [...this._failed_outputs];
+    return failed_outputs(this);
   }
 
 
 
 
-  /********
-   *
-   *  Check whether a given state is declared as a failure output.
-   *
-   *  @param whichState The name of the state to check
-   *
-   *  @see {@link failed_outputs} for the full failure-output set
-   *  @see {@link is_failed} to test the current state
-   *
+  /**
+   *  Check whether a given state is declared as a failure output.  Delegates
+   *  to the query family's {@link is_failed_output}.
+   *  @see is_failed_output
    */
-
   is_failed_output(whichState: StateType): boolean {
-    return this._failed_outputs.has(whichState);
+    return is_failed_output(this, whichState);
   }
 
 
 
 
-  /********
-   *
-   *  Check whether the machine is currently in a failure state — that is,
-   *  whether its current state is one of the declared `failed_outputs`.
-   *
-   *  @see {@link failed_outputs} for the full failure-output set
-   *  @see {@link is_failed_output} to test an arbitrary state
-   *
+  /**
+   *  Check whether the machine is currently in a failure state.  Delegates
+   *  to the query family's {@link is_failed}.
+   *  @see is_failed
    */
-
   is_failed(): boolean {
-    return this._failed_outputs.has(this._state);
+    return is_failed(this);
   }
 
 
 
 
 
-  /********
-   *
+  /**
    *  Check whether a given state is final (either has no exits or is marked
-   *  `complete`.)
-   *
-   *  ```typescript
-   *  import { sm, state_is_final } from 'jssm';
-   *
-   *  const final_test = sm`first -> second;`;
-   *
-   *  console.log( final_test.state_is_final('first') );   // false
-   *  console.log( final_test.state_is_final('second') );  // true
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The name of the state to check for finality
-   *
+   *  `complete`.)  Delegates to the query family's {@link state_is_final},
+   *  which carries the full contract and example.
+   *  @see state_is_final
    */
-
   state_is_final(whichState: StateType): boolean {
-    return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
+    return state_is_final(this, whichState);
   }
 
 
 
 
 
-  /********
-   *
-   *  Check whether the current state is final (either has no exits or is marked
-   *  `complete`.)
-   *
-   *  ```typescript
-   *  import { sm, is_final } from 'jssm';
-   *
-   *  const final_test = sm`first -> second;`;
-   *
-   *  console.log( final_test.is_final() );   // false
-   *  state.transition('second');
-   *  console.log( final_test.is_final() );   // true
-   *  ```
-   *
+  /**
+   *  Check whether the current state is final.  Delegates to the query
+   *  family's {@link is_final}, which carries the full contract and example.
+   *  @see is_final
    */
-
   is_final(): boolean {
-    //  return ((!this.is_changing()) && this.state_is_final(this.state()));
-    return this.state_is_final(this.state());
+    return is_final(this);
   }
 
 
@@ -2286,16 +1869,14 @@ class Machine<mDT> {
 
 
   /**
-   *  The RFC 8785 canonical-config identity of the current configuration
-   *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
-   *  hashing.  Excludes envelope fields (timestamp/comment/history).
+   *  The RFC 8785 canonical-config identity of the current configuration.
+   *  Delegates to the query family's {@link canonical}, which carries the
+   *  full contract and example.
    *  @returns The canonical config string.
-   *  @example
-   *    import { sm } from 'jssm';
-   *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+   *  @see canonical
    */
   canonical(): string {
-    return canonical_config(this._state, this._data);
+    return canonical(this);
   }
 
 
@@ -2363,214 +1944,154 @@ class Machine<mDT> {
 
 
   /**
-   * Get the machine's author list.  Set via the FSL `machine_author` directive.
-   *  @returns An array of author name strings.
+   * Get the machine's author list.  Delegates to the query family's
+   *  {@link machine_author}.
+   *  @see machine_author
    */
   machine_author(): Array<string> {
-    return this._machine_author;
+    return machine_author(this);
   }
 
   /**
-   * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
-   *  @returns The comment string.
+   * Get the machine's comment string.  Delegates to the query family's
+   *  {@link machine_comment}.
+   *  @see machine_comment
    */
   machine_comment(): string {
-    return this._machine_comment;
+    return machine_comment(this);
   }
 
   /**
-   * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
-   *  @returns An array of contributor name strings.
+   * Get the machine's contributor list.  Delegates to the query family's
+   *  {@link machine_contributor}.
+   *  @see machine_contributor
    */
   machine_contributor(): Array<string> {
-    return this._machine_contributor;
+    return machine_contributor(this);
   }
 
   /**
-   * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
-   *  @returns The definition string.
+   * Get the machine's definition string.  Delegates to the query family's
+   *  {@link machine_definition}.
+   *  @see machine_definition
    */
   machine_definition(): string {
-    return this._machine_definition;
+    return machine_definition(this);
   }
 
   /**
-   * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
-   *  `machine_language` directive, which accepts a language name or code, or a
-   *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
-   *  values resolve to `undefined`.
-   *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
-   *           supplied value did not resolve to a known language.
+   * Get the machine's natural language as an ISO 639-1 code.  Delegates to
+   *  the query family's {@link machine_language}, which carries the full
+   *  contract.
+   *  @see machine_language
    */
   machine_language(): string {
-    return this._machine_language;
+    return machine_language(this);
   }
 
   /**
-   * Get the machine's license string.  Set via the FSL `machine_license` directive.
-   *  @returns The license string.
+   * Get the machine's license string.  Delegates to the query family's
+   *  {@link machine_license}.
+   *  @see machine_license
    */
   machine_license(): string {
-    return this._machine_license;
+    return machine_license(this);
   }
 
   /**
-   * Get the machine's name.  Set via the FSL `machine_name` directive.
-   *  @returns The machine name string.
+   * Get the machine's name.  Delegates to the query family's
+   *  {@link machine_name}.
+   *  @see machine_name
    */
   machine_name(): string {
-    return this._machine_name;
+    return machine_name(this);
   }
 
   /**
    * The editor/panel defaults declared in the FSL `editor: {}` block, or
-   *  `undefined` when none was given.  Read by the all-widgets web control
-   *  (fsl#1334) — `panels` drives `request` panel mode.
-   *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
-   *  @example
-   *    const m = sm`editor: { panels: [history]; }; a -> b;`;
-   *    m.editor_config();  // => { panels: ['history'] }
+   *  `undefined`.  Delegates to the query family's {@link editor_config},
+   *  which carries the full contract and example.
+   *  @see editor_config
    */
   editor_config(): JssmEditorConfig | undefined {
-    return this._editor_config;
+    return editor_config(this);
   }
 
   /**
-   * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
-   *  Returns `undefined` when not present.
-   *  @returns The npm package name string, or `undefined`.
-   *  @see machine_name
-   */
-  npm_name(): string {
-    return this._npm_name;
-  }
-
-  /**
-   * Get the render-size hint for the machine's visualization.  Set via the
-   *  FSL `default_size` directive.  Returns `undefined` when not present.
-   *
-   *  The three FSL forms each produce a different subset of fields:
-   *
-   *  - `default_size: 800;`       → `{ width: 800 }`
-   *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
-   *  - `default_size: height 600;` → `{ height: 600 }`
-   *
-   *  This is a hint, not a hard constraint.  Renderers may ignore it.
-   *  @returns The size-hint object, or `undefined` if not set.
+   * Get the npm package name associated with the machine, or `undefined`.
+   *  Delegates to the query family's {@link npm_name}.
    *  @see npm_name
    */
-  default_size(): JssmDefaultSize | undefined {
-    return this._default_size;
+  npm_name(): string {
+    return npm_name(this);
   }
 
   /**
-   * Get the machine's declared version, parsed.  Set via the FSL
-   *  `machine_version` directive, which takes a semver triple; the parser
-   *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
-   *  exact source text in `full`.  Returns `undefined` when the directive
-   *  was not given.
-   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-   *  @example
-   *    const m = sm`machine_version: 1.2.3; a -> b;`;
-   *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
-   *  @see fsl_version
+   * Get the render-size hint for the machine's visualization, or
+   *  `undefined`.  Delegates to the query family's {@link default_size},
+   *  which carries the full contract.
+   *  @see default_size
+   */
+  default_size(): JssmDefaultSize | undefined {
+    return default_size(this);
+  }
+
+  /**
+   * Get the machine's declared version, parsed, or `undefined`.  Delegates
+   *  to the query family's {@link machine_version}, which carries the full
+   *  contract and example.
+   *  @see machine_version
    */
   machine_version(): JssmParsedSemver | undefined {
-    return this._machine_version;
+    return machine_version(this);
   }
 
   /**
    * Get the raw state declaration objects as parsed from the FSL source.
-   *  @returns An array of raw state declaration objects.
+   *  Delegates to the query family's {@link raw_state_declarations}.
+   *  @see raw_state_declarations
    */
   raw_state_declarations(): Array<object> {
-    return this._raw_state_declaration;
+    return raw_state_declarations(this);
   }
 
   /**
-   * Get the processed state declaration for a specific state.
-   *  @param which - The state to look up.
-   *  @returns The {@link JssmStateDeclaration} for the given state.
+   * Get the processed state declaration for a specific state.  Delegates to
+   *  the query family's {@link state_declaration}.
+   *  @see state_declaration
    */
   state_declaration(which: StateType): JssmStateDeclaration {
-    return this._state_declarations.get(which);
+    return state_declaration(this, which);
   }
 
   /**
-   * Get all processed state declarations as a Map.
-   *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
+   * Get all processed state declarations as a Map.  Delegates to the query
+   *  family's {@link state_declarations}.
+   *  @see state_declarations
    */
   state_declarations(): Map<StateType, JssmStateDeclaration> {
-    return this._state_declarations;
+    return state_declarations(this);
   }
 
   /**
-   * Get the FSL language version this machine declares, parsed.  Set via
-   *  the FSL `fsl_version` directive, which takes a semver triple; the
-   *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
-   *  the exact source text in `full`.  Returns `undefined` when the
-   *  directive was not given.
-   *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-   *  @example
-   *    const m = sm`fsl_version: 1.0.0; a -> b;`;
-   *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
-   *  @see machine_version
+   * Get the FSL language version this machine declares, parsed, or
+   *  `undefined`.  Delegates to the query family's {@link fsl_version},
+   *  which carries the full contract and example.
+   *  @see fsl_version
    */
   fsl_version(): JssmParsedSemver | undefined {
-    return this._fsl_version;
+    return fsl_version(this);
   }
 
 
 
   /**
    * Get the complete internal state of the machine as a serializable
-   *  structure.  Includes actions, edges, edge map, named transitions,
-   *  reverse actions, current state, and states map.
-   *  @returns A {@link JssmMachineInternalState} snapshot.
+   *  structure.  Delegates to the query family's {@link machine_state}.
+   *  @see machine_state
    */
   machine_state(): JssmMachineInternalState<mDT> {
-
-    return {
-
-      internal_state_impl_version : 1,
-
-      actions                     : this._actions,
-      edge_map                    : this._edge_map,
-      edges                       : this._edges,
-      named_transitions           : this._named_transitions,
-      reverse_actions             : this._reverse_actions,
-      // reverse_action_targets : this._reverse_action_targets,
-      state                       : this._state,
-      states                      : this._states
-
-    };
-
-  }
-
-
-
-
-
-  /*********
-   *
-   *  List all the states known by the machine.  Please note that the order of
-   *  these states is not guaranteed.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('on <=> off;');
-   *  console.log( lswitch.states() );             // ['on', 'off']
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns An array of all state names in the machine.
-   *
-   */
-
-  states(): Array<StateType> {
-    return [...this._states.keys()];
+    return machine_state(this);
   }
 
 
@@ -2578,215 +2099,140 @@ class Machine<mDT> {
 
 
   /**
-   * Get the internal state descriptor for a given state name.
-   *  @param whichState - The state to look up.
-   *  @returns The {@link JssmGenericState} descriptor.
+   *  List all the states known by the machine.  Delegates to the query
+   *  family's {@link states}, which carries the full contract and example.
+   *  @see states
+   */
+  states(): Array<StateType> {
+    return states(this);
+  }
+
+
+
+
+
+  /**
+   * Get the internal state descriptor for a given state name.  Delegates to
+   *  the query family's {@link state_for}.
    *  @throws {JssmError} If the state does not exist.
+   *  @see state_for
    */
   state_for(whichState: StateType): JssmGenericState {
-
-    const state: JssmGenericState = this._states.get(whichState);
-
-    if (state) {
-      return state;
-    }
-    throw new JssmError(this, 'No such state', { requested_state: whichState });
-
+    return state_for(this, whichState);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Check whether the machine knows a given state.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('on <=> off;');
-   *
-   *  console.log( lswitch.has_state('off') );     // true
-   *  console.log( lswitch.has_state('dance') );   // false
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The state to be checked for existence.
-   *
-   *  @returns `true` if the state exists, `false` otherwise.
-   *
+  /**
+   *  Check whether the machine knows a given state.  Delegates to the query
+   *  family's {@link has_state}, which carries the full contract and example.
+   *  @see has_state
    */
-
   has_state(whichState: StateType): boolean {
-    return this._states.has(whichState);
+    return has_state(this, whichState);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Lists all edges of a machine.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
-   *
-   *  lswitch.list_edges();
-   *  [
-   *    {
-   *      from: 'on',
-   *      to: 'off',
-   *      kind: 'main',
-   *      forced_only: false,
-   *      main_path: true,
-   *      action: 'toggle'
-   *    },
-   *    {
-   *      from: 'off',
-   *      to: 'on',
-   *      kind: 'main',
-   *      forced_only: false,
-   *      main_path: true,
-   *      action: 'toggle'
-   *    }
-   *  ]
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns An array of all {@link JssmTransition} edge objects.
-   *
+  /**
+   *  Lists all edges of a machine.  Delegates to the query family's
+   *  {@link list_edges}, which carries the full contract and example.
+   *  @see list_edges
    */
-
   list_edges(): Array<JssmTransition<StateType, mDT>> {
-    return this._edges;
+    return list_edges(this);
   }
 
   /**
-   * Get the map of named transitions (transitions with explicit names).
-   *  @returns A `Map` from transition name to edge index.
+   * Get the map of named transitions.  Delegates to the query family's
+   *  {@link list_named_transitions}.
+   *  @see list_named_transitions
    */
   list_named_transitions(): Map<StateType, number> {
-    return this._named_transitions;
+    return list_named_transitions(this);
   }
 
   /**
    * List all distinct action names defined anywhere in the machine.
-   *  @returns An array of action name strings.
+   *  Delegates to the query family's {@link list_actions}.
+   *  @see list_actions
    */
   list_actions(): Array<StateType> {
-    return [...this._actions.keys()];
+    return list_actions(this);
   }
 
   /**
-   * Whether any actions are defined on this machine.
-   *  @returns `true` if the machine has at least one action.
+   * Whether any actions are defined on this machine.  Delegates to the
+   *  query family's {@link uses_actions}.
+   *  @see uses_actions
    */
   get uses_actions(): boolean {
-    // Map.size answers emptiness without materializing the key list
-    return this._actions.size > 0;
+    return uses_actions(this);
   }
 
   /**
-   * Whether any forced (`~>`) transitions exist in this machine.
-   *  @returns `true` if at least one forced transition is defined.
+   * Whether any forced (`~>`) transitions exist in this machine.  Delegates
+   *  to the query family's {@link uses_forced_transitions}.
+   *  @see uses_forced_transitions
    */
   get uses_forced_transitions(): boolean {
-    return this._has_forced_transitions;
+    return uses_forced_transitions(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Check if the code that built the machine allows overriding state and data.
-   *
-   *  @returns The override permission from the FSL source code.
-   *
+  /**
+   *  Check if the code that built the machine allows overriding state and
+   *  data.  Delegates to the query family's {@link code_allows_override}.
+   *  @see code_allows_override
    */
-
   get code_allows_override(): JssmAllowsOverride {
-    return this._code_allows_override;
+    return code_allows_override(this);
   }
 
 
 
 
 
-  /*********
-   *
+  /**
    *  Check if the machine config allows overriding state and data.
-   *
-   *  @returns The override permission from the runtime config.
-   *
+   *  Delegates to the query family's {@link config_allows_override}.
+   *  @see config_allows_override
    */
-
   get config_allows_override(): JssmAllowsOverride {
-    return this._config_allows_override;
+    return config_allows_override(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Check if a machine allows overriding state and data.  Resolves the
-   *  combined effect of code and config permissions — config may not be
-   *  less strict than code.
-   *
-   *  @returns The effective override permission.
-   *
+  /**
+   *  Check if a machine allows overriding state and data, resolving code
+   *  and config.  Delegates to the query family's {@link allows_override},
+   *  which carries the full contract.
+   *  @see allows_override
    */
-
   get allows_override(): JssmAllowsOverride {
-
-    // tri-state throughout: undefined is a legal, distinct value for both
-    // fields — literal comparisons are semantics, not style
-
-    // code false?  config true, throw.  config false, false.  config undefined, false.
-    if (this._code_allows_override === false) {
-      /* istanbul ignore next */
-      if (this._config_allows_override === true) {
-        /* istanbul ignore next */
-        throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
-      }
-      return false;
-    }
-
-    // code true?  config true, true.  config false, false.  config undefined, true.
-    if (this._code_allows_override === true) {
-      return this._config_allows_override !== false;
-    }
-
-    // code must be undefined.  config false, false.  config true, true.  config undefined, false.
-    return this._config_allows_override === true;
-
+    return allows_override(this);
   }
 
 
 
 
-  /*********
-   *
-   *  Return the effective island policy for this machine.  `true` means
-   *  disconnected components are allowed (the default), `false` requires a
-   *  single connected component, and `'with_start'` allows islands only when
-   *  every component contains at least one start state.
-   *
-   *  @returns The island policy stored in the machine.
-   *
+  /**
+   *  Return the effective island policy for this machine.  Delegates to the
+   *  query family's {@link allow_islands}, which carries the full contract.
+   *  @see allow_islands
    */
-
   get allow_islands(): JssmAllowIslands {
-    return this._allow_islands;
+    return allow_islands(this);
   }
 
 
@@ -2802,51 +2248,35 @@ class Machine<mDT> {
   }
 
   /**
-   * List the ASCII character ranges accepted by the FSL grammar in any but
-   *  the first position of a state name (atom): digits, letters, and
-   *  underscore.  Each entry is an inclusive `{from, to}` range of single
-   *  Unicode characters.  Non-ASCII characters are classified by
-   *  {@link is_state_name_char}, the complete rule (#754).
-   *  @returns An array of `{from, to}` inclusive character ranges.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`a -> b;`;
-   *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
-   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+   * List the ASCII character ranges accepted in any but the first position
+   *  of a state name.  Delegates to the query family's
+   *  {@link all_state_name_chars}, which carries the full contract and
+   *  example.
+   *  @see all_state_name_chars
    */
   all_state_name_chars(): ReadonlyArray<{ from: string, to: string }> {
-    return state_name_chars;
+    return all_state_name_chars(this);
   }
 
   /**
-   * List the ASCII character ranges accepted by the FSL grammar in the first
-   *  position of a state name (atom): letters and underscore (never a
-   *  digit).  Non-ASCII characters are classified by
-   *  {@link is_state_name_first_char}, the complete rule (#754).
-   *  @returns An array of `{from, to}` inclusive character ranges.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`a -> b;`;
-   *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
-   *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+   * List the ASCII character ranges accepted in the first position of a
+   *  state name.  Delegates to the query family's
+   *  {@link all_state_name_first_chars}, which carries the full contract
+   *  and example.
+   *  @see all_state_name_first_chars
    */
   all_state_name_first_chars(): ReadonlyArray<{ from: string, to: string }> {
-    return state_name_first_chars;
+    return all_state_name_first_chars(this);
   }
 
   /**
    * List the character ranges accepted inside a single-quoted FSL action
-   *  label without escaping.  Space is allowed; the apostrophe `'` is
-   *  explicitly excluded since it terminates the label.
-   *  @returns An array of `{from, to}` inclusive character ranges.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`a -> b;`;
-   *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
-   *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+   *  label.  Delegates to the query family's {@link all_action_label_chars},
+   *  which carries the full contract and example.
+   *  @see all_action_label_chars
    */
   all_action_label_chars(): ReadonlyArray<{ from: string, to: string }> {
-    return action_label_chars;
+    return all_action_label_chars(this);
   }
 
   /**
@@ -2895,126 +2325,63 @@ class Machine<mDT> {
 
   /**
    * Look up a transition's edge index by source and target state names.
-   *  @param from - Source state name.
-   *  @param to   - Target state name.
-   *  @returns The edge index in the edges array, or `undefined` if no
-   *  such transition exists.
+   *  Delegates to the query family's {@link get_transition_by_state_names}.
+   *  @see get_transition_by_state_names
    */
   get_transition_by_state_names(from: StateType, to: StateType): number {
-
-    const emg: Map<StateType, number> = this._edge_map.get(from);
-
-    return emg ? emg.get(to) : undefined;
-
+    return get_transition_by_state_names(this, from, to);
   }
 
 
 
   /**
    * Look up the full transition object for a given source→target pair.
-   *  @param from - Source state name.
-   *  @param to   - Target state name.
-   *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
+   *  Delegates to the query family's {@link lookup_transition_for}.
+   *  @see lookup_transition_for
    */
   lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT> {
-    const id: number = this.get_transition_by_state_names(from, to);
-    return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
+    return lookup_transition_for(this, from, to);
   }
 
 
 
 
 
-  /********
-   *
-   *  List all transitions attached to the current state, sorted by entrance and
-   *  exit.  The order of each sublist is not defined.  A node could appear in
-   *  both lists.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-   *
-   *  light.state();               // 'red'
-   *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The state whose transitions to have listed
-   *
+  /**
+   *  List all transitions attached to a state, sorted by entrance and exit.
+   *  Delegates to the query family's {@link list_transitions}, which carries
+   *  the full contract and example.
+   *  @see list_transitions
    */
-
   list_transitions(whichState: StateType = this.state()): JssmTransitionList {
-    return { entrances: this.list_entrances(whichState), exits: this.list_exits(whichState) };
+    return list_transitions(this, whichState);
   }
 
 
 
 
 
-  /********
-   *
-   *  List all entrances attached to the current state.  Please note that the
-   *  order of the list is not defined.  This list includes both unforced and
-   *  forced entrances; if this isn't desired, consider
-   *  `list_unforced_entrances` or `list_forced_entrances` as
-   *  appropriate.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-   *
-   *  light.state();               // 'red'
-   *  light.list_entrances();      // [ 'yellow', 'off' ]
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The state whose entrances to have listed
-   *
+  /**
+   *  List all entrances attached to a state.  Delegates to the query
+   *  family's {@link list_entrances}, which carries the full contract and
+   *  example.
+   *  @see list_entrances
    */
-
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
-
-    const guaranteed = (this._states.get(whichState) ?? { from: undefined });
-    return guaranteed.from ?? [];
-
+    return list_entrances(this, whichState);
   }
 
 
 
 
 
-  /********
-   *
-   *  List all exits attached to the current state.  Please note that the order
-   *  of the list is not defined.  This list includes both unforced and forced
-   *  exits; if this isn't desired, consider `list_unforced_exits` or
-   *  `list_forced_exits` as appropriate.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-   *
-   *  light.state();               // 'red'
-   *  light.list_exits();          // [ 'green', 'off' ]
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The state whose exits to have listed
-   *
+  /**
+   *  List all exits attached to a state.  Delegates to the query family's
+   *  {@link list_exits}, which carries the full contract and example.
+   *  @see list_exits
    */
-
   list_exits(whichState: StateType = this.state()): Array<StateType> {
-
-    const guaranteed = (this._states.get(whichState) ?? { to: undefined });
-    return guaranteed.to ?? [];
-
+    return list_exits(this, whichState);
   }
 
 
@@ -3254,6 +2621,7 @@ class Machine<mDT> {
    *  @yields One {@link JssmStochasticRun} per completed walk.
    *  @returns A generator of per-run results.
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`a 'go' -> b 'go' -> c;`;
    *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
    */
@@ -3307,6 +2675,7 @@ class Machine<mDT> {
    *  @see Machine.probabilistic_walk
    *  @see Machine.editor_config
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`a 'go' -> b 'go' -> c;`;
    *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
    *  s.terminal_reached;  // => 100
@@ -3366,142 +2735,44 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
-   *  List all actions available from this state.  Please note that the order of
-   *  the actions is not guaranteed.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const machine = sm`
-   *    red 'next' -> green 'next' -> yellow 'next' -> red;
-   *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-   *  `;
-   *
-   *  console.log( machine.state() );    // logs 'red'
-   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-   *
-   *  machine.action('next');            // true
-   *  console.log( machine.state() );    // logs 'green'
-   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-   *
-   *  machine.action('shutdown');        // true
-   *  console.log( machine.state() );    // logs 'off'
-   *  console.log( machine.actions() );  // logs ['start']
-   *
-   *  machine.action('start');           // true
-   *  console.log( machine.state() );    // logs 'red'
-   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The state whose actions to list.  Defaults to the
-   *  current state.
-   *
-   *  @returns An array of action names available from the given state.
-   *
+  /**
+   *  List all actions available from a state.  Delegates to the query
+   *  family's {@link actions}, which carries the full contract and example.
+   *  @throws {JssmError} If the state does not exist.
+   *  @see actions
    */
-
   actions(whichState: StateType = this.state()): Array<StateType> {
-
-    const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
-
-    if (wstate) {
-      return [...wstate.keys()];
-    }
-    if (this.has_state(whichState)) {
-      return [];
-    }
-    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    return actions(this, whichState);
   }
 
 
 
 
-
-  /********
-   *
-   *  List all states that have a specific action attached.  Please note that
-   *  the order of the states is not guaranteed.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const machine = sm`
-   *    red 'next' -> green 'next' -> yellow 'next' -> red;
-   *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-   *  `;
-   *
-   *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
-   *  console.log( machine.list_states_having_action('start') );   // ['off']
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param whichState The action to be checked for associated states
-   *
-   */
-
-  list_states_having_action(whichState: StateType): Array<StateType> {
-
-    const wstate: Map<StateType, number> = this._actions.get(whichState);
-
-    if (wstate) {
-      return [...wstate.keys()];
-    }
-    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-
-  }
-
-
-
-
-
-  // comeback
-  /*
-    list_entrance_actions(whichState: mNT = this.state() ) : Array<mNT> {
-      return [... (this._reverse_action_targets.get(whichState) || new Map()).values()] // wasteful
-             .map( (edgeId:any) => (this._edges[edgeId] : any)) // whargarbl burn out any
-             .filter( (o:any) => o.to === whichState)
-             .map( filtered => filtered.from );
-    }
-  */
 
   /**
-   * List all action names available as exits from a given state.
-   *
-   *  Returns the empty array (does not throw) when `whichState` exists but has
-   *  no action-named exits — including terminal states, states whose only
-   *  exits are plain `->` transitions, and states in machines that use no
-   *  actions at all.  Only nonexistent states cause a throw.
-   *  @param whichState - The state to inspect.  Defaults to the current state.
-   *  @returns An array of action name strings, possibly empty.
+   *  List all states that have a specific action attached.  Delegates to
+   *  the query family's {@link list_states_having_action}, which carries the
+   *  full contract and example.
+   *  @throws {JssmError} If no state has the action.
+   *  @see list_states_having_action
+   */
+  list_states_having_action(whichState: StateType): Array<StateType> {
+    return list_states_having_action(this, whichState);
+  }
+
+
+
+
+
+  /**
+   * List all action names available as exits from a given state.  Delegates
+   *  to the query family's {@link list_exit_actions}, which carries the full
+   *  contract and example.
    *  @throws {JssmError} If the state does not exist.
-   *  @example
-   *    const m = sm`a 'go' -> b; b -> c;`;
-   *    m.list_exit_actions('a');  // => ['go']
-   *    m.list_exit_actions('b');  // => []
-   *    m.list_exit_actions('c');  // => []
-   *    expect(() => m.list_exit_actions('z')).toThrow();
+   *  @see list_exit_actions
    */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
-
-    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-
-    if (!(ra_base)) {
-      if (this.has_state(whichState)) {
-        return [];
-      }
-      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-    }
-
-    // `_reverse_actions` is keyed by edge.from (see its population), so every
-    // action stored under whichState belongs to whichState by construction — no
-    // from-filter is needed, and the keys are exactly the exit actions.
-    return [...ra_base.keys()];
-
+    return list_exit_actions(this, whichState);
   }
 
 
@@ -3510,85 +2781,64 @@ class Machine<mDT> {
 
   /**
    * List all action exits from a state with their probabilities and shares.
-   *  @param whichState - The state to inspect.  Defaults to the current state.
-   *  @returns An array of `{ action, probability, share }` objects — `share`
-   *           is the edge's within-list share (6.0 list weights), present
-   *           only for an edge that landed on a list side with no declared
-   *           `probability`; `undefined` otherwise, same as the edge itself.
+   *  Delegates to the query family's {@link probable_action_exits}, which
+   *  carries the full contract.
    *  @throws {JssmError} If the state does not exist.
+   *  @see probable_action_exits
    */
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
-    const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) {
-      if (this.has_state(whichState)) {
-        return [];
-      }
-      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-    }
-
-    const exits: Array<any> = [];          // TODO FIXME no any
-
-    // `_reverse_actions` is keyed by edge.from, so every entry belongs to
-    // whichState by construction; no from-filter is needed.
-    ra_base.forEach((edgeId: number, action: StateType) => {
-      exits.push({
-        action,
-        probability: this._edges[edgeId].probability,
-        share: this._edges[edgeId].share
-      });
-    });
-
-    return exits;
+    return probable_action_exits(this, whichState);
   }
 
 
 
   /**
-   * Check whether a state has no incoming transitions (unreachable after start).
-   *  @param whichState - The state to check.
-   *  @returns `true` if the state has zero entrances.
+   * Check whether a state has no incoming transitions.  Delegates to the
+   *  query family's {@link is_unenterable}.
    *  @throws {JssmError} If the state does not exist.
+   *  @see is_unenterable
    */
   is_unenterable(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { throw new JssmError(this, `No such state ${whichState}`); }
-    return this.list_entrances(whichState).length === 0;
+    return is_unenterable(this, whichState);
   }
 
   /**
-   * Check whether any state in the machine is unenterable.
-   *  @returns `true` if at least one state has no incoming transitions.
+   * Check whether any state in the machine is unenterable.  Delegates to
+   *  the query family's {@link has_unenterables}.
+   *  @see has_unenterables
    */
   has_unenterables(): boolean {
-    return this.states().some((x: StateType): boolean => this.is_unenterable(x));
+    return has_unenterables(this);
   }
 
 
 
   /**
-   * Check whether the current state is terminal (has no exits).
-   *  @returns `true` if the current state has zero exits.
+   * Check whether the current state is terminal (has no exits).  Delegates
+   *  to the query family's {@link is_terminal}.
+   *  @see is_terminal
    */
   is_terminal(): boolean {
-    return this.state_is_terminal(this.state());
+    return is_terminal(this);
   }
 
   /**
-   * Check whether a specific state is terminal (has no exits).
-   *  @param whichState - The state to check.
-   *  @returns `true` if the state has zero exits.
+   * Check whether a specific state is terminal (has no exits).  Delegates
+   *  to the query family's {@link state_is_terminal}.
    *  @throws {JssmError} If the state does not exist.
+   *  @see state_is_terminal
    */
   state_is_terminal(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { throw new JssmError(this, `No such state ${whichState}`); }
-    return this.list_exits(whichState).length === 0;
+    return state_is_terminal(this, whichState);
   }
 
   /**
-   * Check whether any state in the machine is terminal.
-   *  @returns `true` if at least one state has no exits.
+   * Check whether any state in the machine is terminal.  Delegates to the
+   *  query family's {@link has_terminals}.
+   *  @see has_terminals
    */
   has_terminals(): boolean {
-    return this.states().some((x): boolean => this.state_is_terminal(x));
+    return has_terminals(this);
   }
 
 
@@ -3737,31 +2987,31 @@ class Machine<mDT> {
 
 
   /**
-   * Check whether the current state is complete (every exit has an action).
-   *  @returns `true` if the current state is complete.
+   * Check whether the current state is complete.  Delegates to the query
+   *  family's {@link is_complete}.
+   *  @see is_complete
    */
   is_complete(): boolean {
-    return this.state_is_complete(this.state());
+    return is_complete(this);
   }
 
   /**
-   * Check whether a specific state is complete (every exit has an action).
-   *  @param whichState - The state to check.
-   *  @returns `true` if the state is complete.
+   * Check whether a specific state is complete.  Delegates to the query
+   *  family's {@link state_is_complete}.
    *  @throws {JssmError} If the state does not exist.
+   *  @see state_is_complete
    */
   state_is_complete(whichState: StateType): boolean {
-    const wstate: JssmGenericState = this._states.get(whichState);
-    if (wstate) { return wstate.complete; }
-    throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    return state_is_complete(this, whichState);
   }
 
   /**
-   * Check whether any state in the machine is complete.
-   *  @returns `true` if at least one state is complete.
+   * Check whether any state in the machine is complete.  Delegates to the
+   *  query family's {@link has_completes}.
+   *  @see has_completes
    */
   has_completes(): boolean {
-    return this.states().some((x): boolean => this.state_is_complete(x));
+    return has_completes(this);
   }
 
 
@@ -4239,33 +3489,12 @@ class Machine<mDT> {
 
   /**
    * Get all edges between two states (there can be multiple with
-   *  different actions).
-   *  @param from - Source state name.
-   *  @param to   - Target state name.
-   *  @returns An array of matching {@link JssmTransition} objects.
+   *  different actions).  Delegates to the query family's
+   *  {@link edges_between}, which carries the full contract.
+   *  @see edges_between
    */
   edges_between(from: string, to: string): JssmTransition<StateType, mDT>[] {
-    // Filter only this state's outbound edges instead of the full _edges array.
-    // For machines with E total edges and average out-degree d, this is O(d)
-    // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
-    // covers from-states that have no outgoing edges (terminal states) and
-    // states that don't exist at all, both of which return [] without iterating.
-    //
-    // The match itself compares interned numeric state ids against the packed
-    // _edge_to_ids array rather than dereferencing each edge object for a
-    // string compare: non-matching edges never touch an edge object, which is
-    // most of the cost on dense shapes (heavier edge objects degrade a deref
-    // loop — the 5.142/5.143 regression mechanism).  Every state named by any
-    // edge is interned at construction, so an unknown `to` provably has no
-    // edges and returns [] immediately.
-    const to_id = this._state_interner.id_of(to);
-    if (to_id === undefined) { return []; }
-    const outbound: Array<number> = this._outbound_edge_ids.get(from) ?? [];
-    const result: JssmTransition<StateType, mDT>[] = [];
-    for (const edgeId of outbound) {
-      if (this._edge_to_ids[edgeId] === to_id) { result.push(this._edges[edgeId]); }
-    }
-    return result;
+    return edges_between(this, from, to);
   }
 
 
@@ -5203,29 +4432,23 @@ class Machine<mDT> {
 
 
   /**
-   * Get the edge index for an action from the current state.
-   *  Interned dispatch: resolves via the numeric (action, from) index —
-   *  unknown action names miss without throwing.
-   *  @param action - The action name.
-   *  @returns The edge index, or `undefined` if the action is not available.
+   * Get the edge index for an action from the current state.  Delegates to
+   *  the query family's {@link current_action_for}, which carries the full
+   *  contract.
+   *  @see current_action_for
    */
   current_action_for(action: StateType): number {
-    const action_id = this._action_interner.id_of(action);
-    return (action_id === undefined)
-      ? undefined
-      : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
+    return current_action_for(this, action);
   }
 
   /**
    * Get the full transition object for an action from the current state.
-   *  @param action - The action name.
-   *  @returns The {@link JssmTransition} object.
+   *  Delegates to the query family's {@link current_action_edge_for}.
    *  @throws {JssmError} If the action is not available from the current state.
+   *  @see current_action_edge_for
    */
   current_action_edge_for(action: StateType): JssmTransition<StateType, mDT> {
-    const idx: number = this.current_action_for(action);
-    if ((idx === undefined) || (idx === null)) { throw new JssmError(this, `No such action ${JSON.stringify(action)}`); }
-    return this._edges[idx];
+    return current_action_edge_for(this, action);
   }
 
   /**

@@ -2,7 +2,7 @@
 import { describe, test, expect } from 'vitest';
 import * as fc from 'fast-check';
 
-import { from as sm_from, on, history, set_history_length, transition, act, hook, post_hook_any_transition, hook_registry } from '../jssm';
+import { from as sm_from, on, history, set_history_length, transition, act, hook, post_hook_any_transition, hook_registry, state, data, set_data } from '../jssm';
 
 
 
@@ -21,7 +21,9 @@ import { from as sm_from, on, history, set_history_length, transition, act, hook
 //   - Task 4: the hooks arm — the same veto hook and post hook installed
 //     through `hook(m, …)` / `post_hook_any_transition(m, …)` on one side and
 //     `m.hook(…)` / `m.post_hook_any_transition(…)` on the other.
-//   - Task 5 switches the `state` and `data` reads to `state(m)` / `data(m)`.
+//   - Task 5: the `state` and `data` reads go through `state(m)` / `data(m)`,
+//     and a `set_data` arm installs random data on both sides so the data
+//     comparison at the end compares something other than undefined.
 //   - Task 6 adds the `probabilistic_transition` arm and `set_rng_seed`.
 
 const SOURCE = `a 'go' -> b 'go' -> c 'go' -> a; a 'jump' -> c; c 'reset' -> a; b -> a;`;
@@ -38,13 +40,15 @@ describe('class and function surfaces agree', () => {
         fc.oneof(
           fc.constantFrom('go', 'jump', 'reset', 'nope').map(a => ({ kind: 'act' as const, a })),
           fc.constantFrom('a', 'b', 'c', 'zed').map(s => ({ kind: 'transition' as const, s })),
+          fc.oneof(fc.integer(), fc.string(), fc.constant(undefined), fc.constant(null), fc.record({ n: fc.integer() }))
+            .map(d => ({ kind: 'set_data' as const, d })),
         ),
         { minLength: 1, maxLength: 40 }
       ),
       (program) => {
 
-        const via_class = sm_from(SOURCE, { history: HISTORY });
-        const via_fns   = sm_from(SOURCE, { history: HISTORY });
+        const via_class = sm_from<unknown>(SOURCE, { history: HISTORY });
+        const via_fns   = sm_from<unknown>(SOURCE, { history: HISTORY });
 
         const log_class: string[] = [];
         const log_fns:   string[] = [];
@@ -54,23 +58,30 @@ describe('class and function surfaces agree', () => {
         on(via_fns, 'action', ev => { log_fns.push(`!${ev.action}`); });
         via_class.on('rejection', ev => { log_class.push(`x${ev.to}:${ev.reason}`); });
         on(via_fns, 'rejection', ev => { log_fns.push(`x${ev.to}:${ev.reason}`); });
+        via_class.on('data-change', ev => { log_class.push(`d${ev.cause}:${JSON.stringify(ev.new_data)}`); });
+        on(via_fns, 'data-change', ev => { log_fns.push(`d${ev.cause}:${JSON.stringify(ev.new_data)}`); });
 
         for (const step of program) {
           let r1: boolean, r2: boolean;
           if (step.kind === 'act') {
             r1 = via_class.action(step.a);
             r2 = act(via_fns, step.a);
-          } else {
+          } else if (step.kind === 'transition') {
             r1 = via_class.transition(step.s);
             r2 = transition(via_fns, step.s);
+          } else {
+            // both sides get their own clone so neither machine aliases the other's data
+            r1 = via_class.set_data(structuredClone(step.d)) === via_class;
+            r2 = set_data(via_fns, structuredClone(step.d)) === via_fns;
           }
           expect(r2).toBe(r1);
-          expect(via_fns.state()).toBe(via_class.state());
+          expect(state(via_fns)).toBe(via_class.state());
+          expect(data(via_fns)).toStrictEqual(via_class.data());
           expect(history(via_fns)).toStrictEqual(via_class.history);
         }
 
         expect(log_fns).toStrictEqual(log_class);
-        expect(via_fns.data()).toStrictEqual(via_class.data());
+        expect(data(via_fns)).toStrictEqual(via_class.data());
 
       }
     ), { numRuns: 200 });
@@ -123,7 +134,7 @@ describe('class and function surfaces agree', () => {
           const r1 = via_class.transition(s);
           const r2 = transition(via_fns, s);
           expect(r2).toBe(r1);
-          expect(via_fns.state()).toBe(via_class.state());
+          expect(state(via_fns)).toBe(via_class.state());
         }
 
         expect(post_fns).toStrictEqual(post_class);

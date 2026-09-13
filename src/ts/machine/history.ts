@@ -11,6 +11,9 @@
 
 import type { Machine } from './machine.js';
 
+import { state } from './query.js';
+import { data }  from './data.js';
+
 type StateType = string;
 
 
@@ -108,11 +111,7 @@ export function history<mDT>(m: Machine<mDT>): Array<[StateType, mDT]> {
 
 export function history_inclusive<mDT>(m: Machine<mDT>): Array<[StateType, mDT]> {
   const ret = m._history.toArray();
-  // the current state is the `_state` field (what `state(m)` reads) and the
-  // data is a structured clone of `_data` (what `data(m)` returns); Task 5
-  // of the bare-functions plan replaces these two reads with the query and
-  // data family functions once those files exist
-  ret.push([ m._state, structuredClone(m._data) ]);
+  ret.push([ state(m), data(m) ]);
   return ret;
 }
 

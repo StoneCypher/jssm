@@ -34,6 +34,8 @@ import { clear_state_timeout, auto_set_state_timeout } from './timers.js';
 
 import { abstract_hook_step, abstract_everything_hook_step, update_hook_fields } from './hooks.js';
 
+import { state, allows_override, current_action_for, lookup_transition_for } from './query.js';
+
 type StateType = string;
 
 // Shared empty group set for states that belong to no group (see
@@ -844,7 +846,7 @@ export function override<mDT>(m: Machine<mDT>, newState: StateType, newData?: mD
   // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
   const dataProvided = arguments.length >= 3;
 
-  if (m.allows_override) {
+  if (allows_override(m)) {
 
     if (m._states.has(newState)) {
       const fromState = m._state;
@@ -905,7 +907,7 @@ export function override<mDT>(m: Machine<mDT>, newState: StateType, newData?: mD
 export function valid_action<mDT>(m: Machine<mDT>, action: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
   // todo whargarbl implement data stuff
   // todo major incomplete whargarbl comeback
-  return m.current_action_for(action) !== undefined;
+  return current_action_for(m, action) !== undefined;
 }
 
 
@@ -933,7 +935,7 @@ export function valid_action<mDT>(m: Machine<mDT>, action: StateType, _newData?:
 export function valid_transition<mDT>(m: Machine<mDT>, newState: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
   // todo whargarbl implement data stuff
   // todo major incomplete whargarbl comeback
-  const transition_for: JssmTransition<StateType, mDT> = m.lookup_transition_for(m.state(), newState);
+  const transition_for: JssmTransition<StateType, mDT> = lookup_transition_for(m, state(m), newState);
 
   if (!(transition_for)) { return false; }
   if (transition_for.forced_only) { return false; }
@@ -967,7 +969,7 @@ export function valid_transition<mDT>(m: Machine<mDT>, newState: StateType, _new
 export function valid_force_transition<mDT>(m: Machine<mDT>, newState: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
   // todo whargarbl implement data stuff
   // todo major incomplete whargarbl comeback
-  return (m.lookup_transition_for(m.state(), newState) !== undefined);
+  return (lookup_transition_for(m, state(m), newState) !== undefined);
 }
 
 
