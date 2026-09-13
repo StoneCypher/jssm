@@ -62,9 +62,11 @@ the family file gets, docblock moved with it:
 
 ```typescript
 export function transition<mDT>(m: Machine<mDT>, newState: StateType, newData?: mDT): boolean {
-  return transition_impl(m, newState, newData, false, false, arguments.length >= 2);
+  return transition_impl(m, newState, newData, false, false, arguments.length >= 3);
 }
 ```
+
+(Note the `>= 3`: with the machine in argument slot 0, the data argument is the third. The class delegates keep `>= 2`. Ruling from Task 3, 2026-09-13, where the implementer caught the plan's original `>= 2` in the function form.)
 
 and the class keeps a delegate that preserves `arguments.length` semantics (never forward `newData` through a wrapper that would turn an omitted argument into an explicit `undefined`; see the fsl#1264 note at `jssm.ts:6174-6176`):
 
