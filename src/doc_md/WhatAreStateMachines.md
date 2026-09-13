@@ -203,10 +203,10 @@ don't much care about readability.)
 Now, we can interact with the machine in this easier way:
 
 ```typescript
-TrafficLight.do('enable');  // to red
-TrafficLight.do('next');    // to green
-TrafficLight.do('next');    // to yellow
-TrafficLight.do('next');    // to red
+TrafficLight.act('enable');  // to red
+TrafficLight.act('next');    // to green
+TrafficLight.act('next');    // to yellow
+TrafficLight.act('next');    // to red
 ```
 
 

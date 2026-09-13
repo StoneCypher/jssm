@@ -136,6 +136,21 @@ export function new_state<mDT>(m: Machine<mDT>, state_config: JssmGenericState):
  *  string to recreate (to not waste repeated space;) if you want the machine
  *  string embedded, call `serialize_with_string` instead.
  *
+ *  @example
+ *  import { from, serialize, deserialize, transition, state, data } from 'jssm';
+ *
+ *  const m = from('a -> b;', { data: 7 });
+ *  transition(m, 'b');
+ *
+ *  const ser = serialize(m, 'checkpoint');
+ *  ser.state;    // => 'b'
+ *  ser.data;     // => 7
+ *  ser.comment;  // => 'checkpoint'
+ *
+ *  const restored = deserialize('a -> b;', ser);
+ *  state(restored);  // => 'b'
+ *  data(restored);   // => 7
+ *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
  *  @param m The machine to serialize.
@@ -172,6 +187,10 @@ export function serialize<mDT>(m: Machine<mDT>, comment?: string  ): JssmSeriali
  * Get the instance name of this machine, if one was assigned at creation.
  *  @param m The machine to read.
  *  @returns The instance name string, or `undefined`.
+ *  @example
+ *  import { from, instance_name } from 'jssm';
+ *  instance_name(from('a -> b;'));                                   // => undefined
+ *  instance_name(from('a -> b;', { instance_name: 'lamp' }));        // => 'lamp'
  */
 export function instance_name<mDT>(m: Machine<mDT>): string | undefined {
   return m._instance_name;
@@ -183,6 +202,11 @@ export function instance_name<mDT>(m: Machine<mDT>): string | undefined {
  * Get the creation date of this machine as a `Date` object.
  *  @param m The machine to read.
  *  @returns A `Date` representing when the machine was created.
+ *  @example
+ *  import { sm, creation_date, creation_timestamp } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  creation_date(m) instanceof Date;                          // => true
+ *  creation_date(m).getTime() === creation_timestamp(m);      // => true
  */
 export function creation_date<mDT>(m: Machine<mDT>): Date {
   return new Date(Math.floor( creation_timestamp(m) ));
@@ -205,6 +229,11 @@ export function creation_timestamp<mDT>(m: Machine<mDT>): number {
  * Get the timestamp when construction began (before parsing).
  *  @param m The machine to read.
  *  @returns The start-of-construction timestamp as a number.
+ *  @example
+ *  import { sm, create_start_time, creation_timestamp } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  // construction starts before it finishes:
+ *  create_start_time(m) <= creation_timestamp(m);   // => true
  */
 export function create_start_time<mDT>(m: Machine<mDT>): number {
   return m._create_started;

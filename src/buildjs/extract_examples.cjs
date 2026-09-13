@@ -299,9 +299,13 @@ function buildTestFile(records, moduleBasename) {
 // The doctested modules, as `src/ts/`-relative paths without the `.ts`
 // extension: the 7 TypeDoc entry points plus the modules whose docblocks the
 // entry points re-export.  `jssm` is a barrel since 6.0; the `Machine` class
-// and its examples live in `machine/machine.ts`.
+// and the factories live in `machine/machine.ts`, and the bare functions the
+// barrel re-exports live in the eleven family files under `machine/`.
 const ENTRY_POINTS = [
-  'jssm', 'machine/machine', 'machine/hooks', 'machine/query', 'machine/stochastic', 'jssm_viz', 'jssm_types', 'jssm_constants',
+  'jssm', 'machine/machine',
+  'machine/events', 'machine/history', 'machine/timers', 'machine/transition', 'machine/hooks',
+  'machine/data', 'machine/query', 'machine/stochastic', 'machine/groups', 'machine/style', 'machine/create',
+  'jssm_viz', 'jssm_types', 'jssm_constants',
   'jssm_error', 'jssm_util', 'version'
 ];
 

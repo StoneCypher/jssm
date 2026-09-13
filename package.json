@@ -44,7 +44,8 @@
     "dist/grammars/fsl.tmLanguage.json",
     "jssm.es6.d.ts",
     "jssm.compat.d.ts",
-    "MIGRATING-jssm-viz.md"
+    "MIGRATING-jssm-viz.md",
+    "MIGRATING-5-to-6.md"
   ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript.  Visualization, CLI, markdown fences and verification ship as separate packages.  MIT License.",
   "main": "dist/jssm.es6.mjs",

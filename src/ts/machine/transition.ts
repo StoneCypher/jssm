@@ -610,7 +610,7 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
  *
  *  Instruct the machine to complete a transition.  Synonym for {@link go}.
  *
- *  ```typescript
+ *  @example
  *  import { sm, transition, state } from 'jssm';
  *
  *  const light = sm`
@@ -619,16 +619,17 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
  *    [red yellow green] 'shutdown' ~> off;
  *  `;
  *
- *  state(light);                 // 'off'
- *  transition(light, 'red');     // true
- *  state(light);                 // 'red'
- *  transition(light, 'green');   // true
- *  state(light);                 // 'green'
- *  transition(light, 'blue');    // !! false - no such state
- *  state(light);                 // 'green'
- *  transition(light, 'red');     // !! false - green may not go directly to red, only to yellow
- *  state(light);                 // 'green'
- *  ```
+ *  state(light);                 // => 'off'
+ *  transition(light, 'red');     // => true
+ *  state(light);                 // => 'red'
+ *  transition(light, 'green');   // => true
+ *  state(light);                 // => 'green'
+ *  // no such state, so the transition is refused and the machine stays put:
+ *  transition(light, 'blue');    // => false
+ *  state(light);                 // => 'green'
+ *  // green may not go directly to red, only to yellow:
+ *  transition(light, 'red');     // => false
+ *  state(light);                 // => 'green'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -663,15 +664,14 @@ export function transition<mDT>(m: Machine<mDT>, newState: StateType, newData?: 
  *
  *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
  *
- *  ```typescript
+ *  @example
  *  import { sm, go, state } from 'jssm';
  *
  *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
  *
- *  state(light);          // 'red'
- *  go(light, 'green');    // true
- *  state(light);          // 'green'
- *  ```
+ *  state(light);          // => 'red'
+ *  go(light, 'green');    // => true
+ *  state(light);          // => 'green'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -704,17 +704,16 @@ export function go<mDT>(m: Machine<mDT>, newState: StateType, newData?: mDT): bo
  *  qualifies, forced-only or not; a target with no edge from the current
  *  state is refused.
  *
- *  ```typescript
+ *  @example
  *  import { sm, transition, force_transition, state } from 'jssm';
  *
  *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
  *
- *  state(light);                        // 'red'
- *  transition(light, 'off');            // false
- *  state(light);                        // 'red'
- *  force_transition(light, 'off');      // true
- *  state(light);                        // 'off'
- *  ```
+ *  state(light);                        // => 'red'
+ *  transition(light, 'off');            // => false
+ *  state(light);                        // => 'red'
+ *  force_transition(light, 'off');      // => true
+ *  state(light);                        // => 'off'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -751,7 +750,7 @@ export function force_transition<mDT>(m: Machine<mDT>, newState: StateType, newD
  *  JavaScript reserved word, and `Machine.do()` is deprecated in its favor
  *  (removal tracked as StoneCypher/fsl#1992).
  *
- *  ```typescript
+ *  @example
  *  import { sm, act, state } from 'jssm';
  *
  *  const light = sm`
@@ -760,18 +759,19 @@ export function force_transition<mDT>(m: Machine<mDT>, newState: StateType, newD
  *    [red yellow green] 'shutdown' ~> off;
  *  `;
  *
- *  state(light);           // 'off'
- *  act(light, 'start');    // true
- *  state(light);           // 'red'
- *  act(light, 'next');     // true
- *  state(light);           // 'green'
- *  act(light, 'next');     // true
- *  state(light);           // 'yellow'
- *  act(light, 'dance');    // !! false - no such action
- *  state(light);           // 'yellow'
- *  act(light, 'start');    // !! false - yellow does not have the action start
- *  state(light);           // 'yellow'
- *  ```
+ *  state(light);           // => 'off'
+ *  act(light, 'start');    // => true
+ *  state(light);           // => 'red'
+ *  act(light, 'next');     // => true
+ *  state(light);           // => 'green'
+ *  act(light, 'next');     // => true
+ *  state(light);           // => 'yellow'
+ *  // no such action anywhere in the machine:
+ *  act(light, 'dance');    // => false
+ *  state(light);           // => 'yellow'
+ *  // yellow does not have the action 'start':
+ *  act(light, 'start');    // => false
+ *  state(light);           // => 'yellow'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -812,19 +812,18 @@ export { act as action };
  *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
  *  argument silently cleared the data.
  *
- *  ```typescript
+ *  @example
  *  import { sm, go, override, state } from 'jssm';
  *
  *  const machine = sm`allows_override: true; a -> b -> c;`;
- *  state(machine);    // 'a'
+ *  state(machine);    // => 'a'
  *
  *  go(machine, 'b');
  *  go(machine, 'c');
- *  state(machine);    // 'c'
+ *  state(machine);    // => 'c'
  *
  *  override(machine, 'a');
- *  state(machine);    // 'a'
- *  ```
+ *  state(machine);    // => 'a'
  *
  *  @param m The machine to teleport; must have `allows_override` on.
  *
@@ -889,15 +888,16 @@ export function override<mDT>(m: Machine<mDT>, newState: StateType, newData?: mD
 /**
  * Check whether an action is available from the current state.
  *
- *  ```typescript
+ *  @example
  *  import { sm, act, valid_action } from 'jssm';
  *
  *  const m = sm`a 'next' -> b 'back' -> a;`;
- *  valid_action(m, 'next');   // true
- *  valid_action(m, 'back');   // false - b has it, a does not
+ *  valid_action(m, 'next');   // => true
+ *  // b has 'back'; a does not:
+ *  valid_action(m, 'back');   // => false
  *  act(m, 'next');
- *  valid_action(m, 'back');   // true
- *  ```
+ *  valid_action(m, 'back');   // => true
+ *
  *  @param m        - The machine to inspect; it does not move.
  *  @param action   - The action name to check.
  *  @param _newData - Reserved for future data validation.
@@ -918,14 +918,16 @@ export function valid_action<mDT>(m: Machine<mDT>, action: StateType, _newData?:
  * Check whether a transition to a given state is legal (non-forced) from
  *  the current state.
  *
- *  ```typescript
+ *  @example
  *  import { sm, valid_transition } from 'jssm';
  *
  *  const m = sm`a -> b; a ~> c;`;
- *  valid_transition(m, 'b');   // true
- *  valid_transition(m, 'c');   // false - forced-only edge
- *  valid_transition(m, 'd');   // false - no such state
- *  ```
+ *  valid_transition(m, 'b');   // => true
+ *  // a forced-only edge:
+ *  valid_transition(m, 'c');   // => false
+ *  // no such state:
+ *  valid_transition(m, 'd');   // => false
+ *
  *  @param m        - The machine to inspect; it does not move.
  *  @param newState - The target state.
  *  @param _newData - Reserved for future data validation.
@@ -952,14 +954,15 @@ export function valid_transition<mDT>(m: Machine<mDT>, newState: StateType, _new
  * Check whether a forced transition to a given state exists from the
  *  current state.
  *
- *  ```typescript
+ *  @example
  *  import { sm, valid_force_transition } from 'jssm';
  *
  *  const m = sm`a -> b; a ~> c; d -> e;`;
- *  valid_force_transition(m, 'b');   // true
- *  valid_force_transition(m, 'c');   // true
- *  valid_force_transition(m, 'e');   // false - no edge from a
- *  ```
+ *  valid_force_transition(m, 'b');   // => true
+ *  valid_force_transition(m, 'c');   // => true
+ *  // no edge from a to e:
+ *  valid_force_transition(m, 'e');   // => false
+ *
  *  @param m        - The machine to inspect; it does not move.
  *  @param newState - The target state.
  *  @param _newData - Reserved for future data validation.

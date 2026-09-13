@@ -53,7 +53,7 @@ export type JssmEventEntry<mDT, Ev extends JssmEventName> = {
  *  re-emitted as an `error` event whose detail names the original event
  *  and the offending handler.
  *
- *  ```typescript
+ *  @example
  *  import { sm, on, transition } from 'jssm';
  *
  *  const m    = sm`a -> b -> c;`;
@@ -62,13 +62,13 @@ export type JssmEventEntry<mDT, Ev extends JssmEventName> = {
  *  on(m, 'transition', e => { seen.push(`${e.from} -> ${e.to}`); });
  *  on(m, 'entry', { state: 'c' }, e => { seen.push(`entered ${e.state}`); });
  *
- *  const off = on(m, 'transition', () => { seen.push('never'); });
- *  off();  // unsubscribe
+ *  const unsubscribe = on(m, 'transition', () => { seen.push('never'); });
+ *  unsubscribe();
  *
  *  transition(m, 'b');
  *  transition(m, 'c');
  *  seen;  // => ['a -> b', 'b -> c', 'entered c']
- *  ```
+ *
  *  @template Ev      The event name (drives the detail type).
  *  @param m           The machine to subscribe on.
  *  @param name        The event name to subscribe to.
@@ -100,7 +100,7 @@ export function on<mDT, Ev extends JssmEventName>(
  *  auto-remove.  Accepts the same `(m, name, handler)` and `(m, name, filter,
  *  handler)` shapes as {@link on}.
  *
- *  ```typescript
+ *  @example
  *  import { sm, once, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
@@ -111,7 +111,7 @@ export function on<mDT, Ev extends JssmEventName>(
  *  transition(m, 'b');
  *  transition(m, 'c');
  *  count;  // => 1
- *  ```
+ *
  *  @template Ev      The event name.
  *  @param m           The machine to subscribe on.
  *  @param name        The event name.
@@ -143,16 +143,16 @@ export function once<mDT, Ev extends JssmEventName>(
  *  the same function value passed to {@link on} or {@link once}.  Returns
  *  `true` if a subscription was found and removed, `false` otherwise.
  *
- *  ```typescript
+ *  @example
  *  import { sm, on, off } from 'jssm';
  *
  *  const m  = sm`a -> b;`;
- *  const fn = (e: any) => console.log(e);
+ *  const fn = () => {};
  *
  *  on(m, 'transition', fn);
  *  off(m, 'transition', fn);  // => true
  *  off(m, 'transition', fn);  // => false
- *  ```
+ *
  *  @param m       The machine the handler was registered on.
  *  @param name    The event name.
  *  @param handler The handler reference to remove.
@@ -317,9 +317,10 @@ export function fire_one<mDT, Ev extends JssmEventName>(
  *  @returns `true` when a subsequent `fire(m, name, ...)` would reach at
  *  least one handler.
  *
+ *  Not a doctest: `has_subscribers` is module-only and cannot be imported from `'jssm'`.
  *  ```typescript
- *  import { sm } from 'jssm';
- *  import { on, has_subscribers } from './events';
+ *  import { sm, on } from 'jssm';
+ *  import { has_subscribers } from './events';   // same-package import; not on the barrel
  *
  *  const machine = sm`a -> b;`;
  *  on(machine, 'transition', () => {});

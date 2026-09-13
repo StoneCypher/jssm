@@ -29,7 +29,10 @@ type StateType = string;
  *  History *does not contain the current state*.  If you want that, call
  *  `history_inclusive` instead.
  *
- *  ```typescript
+ *  Notice that in the example the machine's current state, `e`, is not in
+ *  the returned list.
+ *
+ *  @example
  *  import { from, act, history } from 'jssm';
  *
  *  const foo = from(
@@ -43,9 +46,6 @@ type StateType = string;
  *  act(foo, 'next');
  *
  *  history(foo);  // => [ ['b', undefined], ['c', undefined], ['d', undefined] ]
- *  ```
- *
- *  Notice that the machine's current state, `e`, is not in the returned list.
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -80,7 +80,10 @@ export function history<mDT>(m: Machine<mDT>): Array<[StateType, mDT]> {
  *  history buffer kept gets the current state added to it to produce this
  *  list.
  *
- *  ```typescript
+ *  Notice that in the example the machine's current state, `e`, is in the
+ *  returned list.
+ *
+ *  @example
  *  import { from, act, history_inclusive } from 'jssm';
  *
  *  const foo = from(
@@ -94,9 +97,6 @@ export function history<mDT>(m: Machine<mDT>): Array<[StateType, mDT]> {
  *  act(foo, 'next');
  *
  *  history_inclusive(foo);  // => [ ['b', undefined], ['c', undefined], ['d', undefined], ['e', undefined] ]
- *  ```
- *
- *  Notice that the machine's current state, `e`, is in the returned list.
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -124,7 +124,7 @@ export function history_inclusive<mDT>(m: Machine<mDT>): Array<[StateType, mDT]>
  *  Find out how long a history this machine is keeping.  Defaults to zero.
  *  Change it with `set_history_length`.
  *
- *  ```typescript
+ *  @example
  *  import { from, history_length, set_history_length } from 'jssm';
  *
  *  const foo = from("a -> b;");
@@ -134,7 +134,6 @@ export function history_inclusive<mDT>(m: Machine<mDT>): Array<[StateType, mDT]>
  *  history_length(bar);                                 // => 3
  *  set_history_length(bar, 5);
  *  history_length(bar);                                 // => 5
- *  ```
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -161,7 +160,7 @@ export function history_length<mDT>(m: Machine<mDT>): number {
  *  the most recent `to` survive; zero turns history off and empties it.
  *  Takes effect for every later transition.
  *
- *  ```typescript
+ *  @example
  *  import { from, act, history, set_history_length } from 'jssm';
  *
  *  const foo = from("a 'next' <-> 'next' b;");
@@ -177,7 +176,6 @@ export function history_length<mDT>(m: Machine<mDT>): number {
  *
  *  set_history_length(foo, 0);
  *  history(foo);              // => []
- *  ```
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *

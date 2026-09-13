@@ -173,7 +173,10 @@ export function probable_exits_for<mDT>(m: Machine<mDT>, whichState: StateType):
  *  An empty pool is not this guard's concern (terminality is handled by the
  *  callers) and passes through untouched.
  *
+ *  Not a doctest: `assert_selectable_exit_pool` is module-private; the guard is reached through `probabilistic_transition`.
  *  ```typescript
+ *  import { sm, probabilistic_transition } from 'jssm';
+ *
  *  const m = sm`a 0% -> b; a 0% -> c;`;
  *  probabilistic_transition(m);  // throws JssmError — every exit is 0%
  *  ```

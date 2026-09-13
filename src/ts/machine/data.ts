@@ -101,12 +101,11 @@ export function validate_val_value(name: string, vtype: JssmValType, value: any,
  *
  *  Get the current data of a machine.
  *
- *  ```typescript
+ *  @example
  *  import { from, data } from 'jssm';
  *
  *  const lswitch = from('on <=> off;', {data: 1});
- *  console.log( data(lswitch) );              // 1
- *  ```
+ *  data(lswitch);              // => 1
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -134,18 +133,17 @@ export function data<mDT>(m: Machine<mDT>): mDT {
  *  changes; unlike {@link override} it requires no `allows_override`
  *  config, because it never moves the state.
  *
- *  ```typescript
+ *  @example
  *  import { from, data, set_data } from 'jssm';
  *
  *  const lswitch = from('on <=> off;', {data: 1});
- *  console.log( data(lswitch) );              // 1
+ *  data(lswitch);              // => 1
  *
  *  set_data(lswitch, 2);
- *  console.log( data(lswitch) );              // 2
+ *  data(lswitch);              // => 2
  *
  *  set_data(lswitch, undefined);
- *  console.log( data(lswitch) );              // undefined
- *  ```
+ *  data(lswitch);              // => undefined
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -193,6 +191,7 @@ export function set_data<mDT>(m: Machine<mDT>, newData: mDT): Machine<mDT> {
  *  tick; anything crossing a trust boundary must use {@link data} instead.
  *  The class exposes this as `_data_ref()`; it is not part of the barrel.
  *
+ *  Not a doctest: `data_ref` is module-only and cannot be imported from `'jssm'`.
  *  ```typescript
  *  import { from } from 'jssm';
  *  import { data_ref } from './machine/data.js';   // same-package import; not on the barrel
@@ -220,17 +219,19 @@ export function data_ref<mDT>(m: Machine<mDT>): mDT {
  *  Returns `undefined` if neither exists.  For a throwing variant, see
  *  {@link strict_prop}.
  *
- *  ```typescript
+ *  @example
  *  import { sm, go, prop } from 'jssm';
  *
  *  const m = sm`property color default "grey"; a -> b;
- *               state b: { property color "blue"; };`;
+ *               state b: { property: color "blue"; };`;
  *
- *  prop(m, 'color');  // 'grey'  (default, because state is 'a')
+ *  // the default, because the state is 'a':
+ *  prop(m, 'color');  // => 'grey'
  *  go(m, 'b');
- *  prop(m, 'color');  // 'blue'  (state 'b' overrides the default)
- *  prop(m, 'size');   // undefined (no such property)
- *  ```
+ *  // state 'b' overrides the default:
+ *  prop(m, 'color');  // => 'blue'
+ *  // no such property:
+ *  prop(m, 'size');   // => undefined
  *
  *  @param m    The machine to read the property from.
  *  @param name The relevant property name to look up.
@@ -261,14 +262,14 @@ export function prop<mDT>(m: Machine<mDT>, name: string): any {
  *  and without a global default, throws a {@link JssmError}, unlike
  *  {@link prop}, which would return `undefined` instead.
  *
- *  ```typescript
+ *  @example
  *  import { sm, strict_prop } from 'jssm';
  *
  *  const m = sm`property color default "grey"; a -> b;`;
  *
- *  strict_prop(m, 'color');  // 'grey'
- *  strict_prop(m, 'size');   // throws JssmError
- *  ```
+ *  strict_prop(m, 'color');  // => 'grey'
+ *  // an undeclared property throws a JssmError:
+ *  expect(() => strict_prop(m, 'size')).toThrow();
  *
  *  @param m    The machine to read the property from.
  *  @param name The relevant property name to look up.
@@ -307,7 +308,7 @@ export function strict_prop<mDT>(m: Machine<mDT>, name: string): any {
  *  the current state also doesn't define the prop — then that prop will be listed
  *  in the returned object with a value of `undefined`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, go, state, props } from 'jssm';
  *
  *  const traffic_light = sm`
@@ -327,15 +328,14 @@ export function strict_prop<mDT>(m: Machine<mDT>, name: string): any {
  *
  *  `;
  *
- *  state(traffic_light);  // Off
- *  props(traffic_light);  // { can_go: true,  hesitate: true,  stop_first: true  }
+ *  state(traffic_light);  // => 'Off'
+ *  props(traffic_light);  // => { can_go: true,  hesitate: true,  stop_first: true  }
  *
  *  go(traffic_light, 'Red');
- *  props(traffic_light);  // { can_go: false, hesitate: true,  stop_first: true  }
+ *  props(traffic_light);  // => { can_go: false, hesitate: true,  stop_first: true  }
  *
  *  go(traffic_light, 'Green');
- *  props(traffic_light);  // { can_go: true,  hesitate: false, stop_first: false }
- *  ```
+ *  props(traffic_light);  // => { can_go: true,  hesitate: false, stop_first: false }
  *
  *  @param m The machine to read the properties from.
  *
@@ -373,14 +373,13 @@ export function props<mDT>(m: Machine<mDT>): object {
  *
  *  Check whether a given string is a known property's name.
  *
- *  ```typescript
+ *  @example
  *  import { sm, known_prop } from 'jssm';
  *
  *  const example = sm`property foo default 1; a->b;`;
  *
- *  known_prop(example, 'foo');  // true
- *  known_prop(example, 'bar');  // false
- *  ```
+ *  known_prop(example, 'foo');  // => true
+ *  known_prop(example, 'bar');  // => false
  *
  *  @param m         The machine to inspect.
  *  @param prop_name The relevant property name to look up
@@ -403,13 +402,12 @@ export function known_prop<mDT>(m: Machine<mDT>, prop_name: string): boolean {
  *  {@link props} instead.  The order of the properties is not defined, and
  *  the properties generally will not be sorted.
  *
- *  ```typescript
+ *  @example
  *  import { sm, known_props } from 'jssm';
  *
  *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
  *
- *  known_props(m);  // ['color', 'size']
- *  ```
+ *  known_props(m).sort();  // => ['color', 'size']
  *
  *  @param m The machine to inspect.
  *
@@ -429,13 +427,12 @@ export function known_props<mDT>(m: Machine<mDT>): string[] {
  *
  *  Read the current value of a declared machine `val`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, val } from 'jssm';
  *
  *  const m = sm`val ok : boolean default true; a -> b;`;
  *
- *  val(m, 'ok');   // true
- *  ```
+ *  val(m, 'ok');   // => true
  *
  *  @param m    The machine to read the val from.
  *  @param name The declared val name to read.
@@ -461,14 +458,13 @@ export function val<mDT>(m: Machine<mDT>, name: string): any {
  *  declared type.  This is the runtime mutation surface; source-level `assign`
  *  arrives in a later phase.
  *
- *  ```typescript
+ *  @example
  *  import { sm, val, set_val } from 'jssm';
  *
  *  const m = sm`val n : int default 0; a -> b;`;
  *
  *  set_val(m, 'n', 5);
- *  val(m, 'n');   // 5
- *  ```
+ *  val(m, 'n');   // => 5
  *
  *  @param m     The machine to write the val on.
  *  @param name  The declared val name to write.
@@ -493,13 +489,12 @@ export function set_val<mDT>(m: Machine<mDT>, name: string, value: any): void {
  *
  *  Return a plain object mapping every declared val name to its current value.
  *
- *  ```typescript
+ *  @example
  *  import { sm, vals } from 'jssm';
  *
  *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
  *
- *  vals(m);   // { a: 1, b: false }
- *  ```
+ *  vals(m);   // => { a: 1, b: false }
  *
  *  @param m The machine to read the vals from.
  *
@@ -521,14 +516,13 @@ export function vals<mDT>(m: Machine<mDT>): object {
  *
  *  Check whether a string is the name of a declared `val`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, known_val } from 'jssm';
  *
  *  const m = sm`val a : int default 1; x -> y;`;
  *
- *  known_val(m, 'a');   // true
- *  known_val(m, 'z');   // false
- *  ```
+ *  known_val(m, 'a');   // => true
+ *  known_val(m, 'z');   // => false
  *
  *  @param m    The machine to inspect.
  *  @param name The candidate val name.
@@ -548,13 +542,12 @@ export function known_val<mDT>(m: Machine<mDT>, name: string): boolean {
  *
  *  List every declared `val` name, in declaration order.
  *
- *  ```typescript
+ *  @example
  *  import { sm, known_vals } from 'jssm';
  *
  *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
  *
- *  known_vals(m);   // ['a', 'b']
- *  ```
+ *  known_vals(m);   // => ['a', 'b']
  *
  *  @param m The machine to inspect.
  *
@@ -574,13 +567,12 @@ export function known_vals<mDT>(m: Machine<mDT>): string[] {
  *
  *  Return the declared type descriptor of a `val`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, val_type } from 'jssm';
  *
  *  const m = sm`val n : int 0..3 default 0; x -> y;`;
  *
- *  val_type(m, 'n');   // { kind: 'int', lo: 0, hi: 3 }
- *  ```
+ *  val_type(m, 'n');   // => { kind: 'int', lo: 0, hi: 3 }
  *
  *  @param m    The machine to inspect.
  *  @param name The declared val name.

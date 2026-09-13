@@ -3096,20 +3096,26 @@ class Machine<mDT> {
    *
    *  Instruct the machine to complete an action.  Synonym for {@link action}
    *  and {@link act}; the class form of the transition family's {@link act},
-   *  which carries the full contract and example.
+   *  which carries the full contract and example.  Prefer `act()` — `do` is a
+   *  JavaScript reserved word, so it has no function form and is deprecated
+   *  here.
    *
    *  ```typescript
+   *  import { sm } from 'jssm/compat';
+   *
    *  const light = sm`
    *    off 'start' -> red;
    *    red 'next' -> green 'next' -> yellow 'next' -> red;
    *    [red yellow green] 'shutdown' ~> off;
    *  `;
    *
-   *  light.state();       // 'off'
-   *  light.do('start');   // true
-   *  light.state();       // 'red'
-   *  light.do('dance');   // !! false - no such action
-   *  light.state();       // 'red'
+   *  light.state();        // 'off'
+   *  light.act('start');   // true  - the preferred spelling
+   *  light.state();        // 'red'
+   *  light.do('next');     // true  - still works, but deprecated
+   *  light.state();        // 'green'
+   *  light.act('dance');   // !! false - no such action
+   *  light.state();        // 'green'
    *  ```
    *
    *  @deprecated Use act() or action(); do is a JavaScript reserved word and has no function form. Removal is tracked as StoneCypher/fsl#1992.
@@ -3439,16 +3445,17 @@ class Machine<mDT> {
  *  6.0 that record is also a `Machine` instance, so `instanceof Machine`
  *  holds and the 5.x methods remain reachable through `jssm/compat`.
  *
- *  ```typescript
- *  import { create } from 'jssm';
+ *  @example
+ *  import { create, state, transition } from 'jssm';
  *
  *  const m = create({
  *    start_states : ['a'],
  *    transitions  : [ { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false } ],
  *  });
  *
- *  m.state();   // 'a'
- *  ```
+ *  state(m);             // => 'a'
+ *  transition(m, 'b');   // => true
+ *  state(m);             // => 'b'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -3488,16 +3495,17 @@ type JssmMachine<mDT = unknown> = Machine<mDT>;
  *  Create a state machine from a template string.  This is one of the two main
  *  paths for working with JSSM, alongside {@link from}.
  *
- *  Use this method when you want to work directly and conveniently with a
- *  constant template expression.  Use `.from` when you want to pull from
+ *  Use this function when you want to work directly and conveniently with a
+ *  constant template expression.  Use `from` when you want to pull from
  *  dynamic strings.
  *
+ *  @example
+ *  import { sm, state, transition } from 'jssm';
  *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const lswitch = jssm.from('on <=> off;');
- *  ```
+ *  const lswitch = sm`on <=> off;`;
+ *  state(lswitch);              // => 'on'
+ *  transition(lswitch, 'off');  // => true
+ *  state(lswitch);              // => 'off'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -3544,12 +3552,11 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *  Identical to {@link sm} in every respect: same parameters, same return, same
  *  errors.  Neither is deprecated.
  *
- *  ```typescript
- *  import { fsl } from 'jssm';
+ *  @example
+ *  import { fsl, state } from 'jssm';
  *
  *  const lswitch = fsl`on <=> off;`;
- *  lswitch.state();  // => 'on'
- *  ```
+ *  state(lswitch);  // => 'on'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -3575,15 +3582,16 @@ function fsl<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argu
  *  Create a state machine from an implementation string.  This is one of the
  *  two main paths for working with JSSM, alongside {@link sm}.
  *
- *  Use this method when you want to conveniently pull a state machine from a
- *  string dynamically.  Use operator `sm` when you just want to work with a
- *  template expression.
+ *  Use this function when you want to conveniently pull a state machine from
+ *  a string dynamically.  Use the template tag `sm` when you just want to
+ *  work with a template expression.
  *
- *  ```typescript
- *  import * as jssm from 'jssm';
+ *  @example
+ *  import { from, state, data } from 'jssm';
  *
- *  const lswitch = jssm.from('on <=> off;');
- *  ```
+ *  const lswitch = from('on <=> off;', { data: 1 });
+ *  state(lswitch);  // => 'on'
+ *  data(lswitch);   // => 1
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -3716,11 +3724,12 @@ function compareVersions(v1: string, v2: string): number {
  * @returns {Machine<mDT>} - The restored machine instance
  * @throws {Error} If the serialization is from a future version
  * @example
- * import { from, deserialize } from 'jssm';
+ * import { from, deserialize, serialize, state, transition } from 'jssm';
  * const machine    = from("a -> b;");
- * const serialized = machine.serialize();
+ * transition(machine, 'b');
+ * const serialized = serialize(machine);
  * const restored   = deserialize("a -> b;", serialized);
- * restored.state();  // => 'a'
+ * state(restored);  // => 'b'
  */
 
 function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT> {

@@ -35,15 +35,17 @@ type StateType = string;
  *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
  *  members, so this returns `false` rather than throwing.
  *
- *  ```typescript
+ *  @example
  *  import { sm, act, isIn } from 'jssm';
  *
  *  const m = sm`&busy : [working]; idle 'go' -> working;`;
- *  isIn(m, 'busy');     // false — current state is 'idle'
+ *  // the current state is 'idle':
+ *  isIn(m, 'busy');     // => false
  *  act(m, 'go');
- *  isIn(m, 'busy');     // true  — current state is now 'working'
- *  isIn(m, 'nonesuch'); // false — undeclared group has no members
- *  ```
+ *  // the current state is now 'working':
+ *  isIn(m, 'busy');     // => true
+ *  // an undeclared group has no members:
+ *  isIn(m, 'nonesuch'); // => false
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -74,14 +76,15 @@ export function isIn<mDT>(m: Machine<mDT>, groupName: string): boolean {
  *  is constant-time.  A state that belongs to no group (or a state name that
  *  appears in no group) yields an empty `Set`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, groupsOf } from 'jssm';
  *
  *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
- *  groupsOf(m, 'a');     // Set { 'inner', 'outer' }  — deep through &inner
- *  groupsOf(m, 'b');     // Set { 'outer' }
- *  groupsOf(m, 'z');     // Set {}                    — not in any group
- *  ```
+ *  // deep: a is in &outer through &inner
+ *  groupsOf(m, 'a');     // => new Set(['inner', 'outer'])
+ *  groupsOf(m, 'b');     // => new Set(['outer'])
+ *  // z is in no group
+ *  groupsOf(m, 'z');     // => new Set()
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -112,12 +115,11 @@ export function groupsOf<mDT>(m: Machine<mDT>, state: StateType): Set<string> {
  *  is the same order used to break depth-specificity ties in the config
  *  cascade.  Machines that declare no groups return an empty array.
  *
- *  ```typescript
+ *  @example
  *  import { sm, groups } from 'jssm';
  *
  *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
- *  groups(m);  // [ 'first', 'second' ]
- *  ```
+ *  groups(m);  // => [ 'first', 'second' ]
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -144,13 +146,12 @@ export function groups<mDT>(m: Machine<mDT>): string[] {
  *  flattened membership of the group, descending through nested and spread
  *  sub-groups, in member-declaration order.
  *
- *  ```typescript
+ *  @example
  *  import { sm, statesIn } from 'jssm';
  *
  *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
- *  statesIn(m, 'outer');  // [ 'a', 'b', 'c' ]
- *  statesIn(m, 'inner');  // [ 'a', 'b' ]
- *  ```
+ *  statesIn(m, 'outer');  // => [ 'a', 'b', 'c' ]
+ *  statesIn(m, 'inner');  // => [ 'a', 'b' ]
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *

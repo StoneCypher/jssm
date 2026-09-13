@@ -101,48 +101,12 @@ export function transfer_state_properties(state_decl: JssmStateDeclaration): Jss
 
 /**
  *
- *  Collapse a list of individual state-style key/value pairs into a single
- *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
- *  camelCase field names the runtime uses.
- *
- *  The parser emits state styling as a flat array like
- *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
- *  because that is the most natural shape for the grammar to produce.  This
- *  helper runs once per style bucket during `Machine` construction to turn
- *  those arrays into the compact `{ color, lineStyle, ... }` objects the
- *  graph-rendering code expects.
- *
- *  ```typescript
- *  state_style_condense([
- *    { key: 'color',      value: 'red' },
- *    { key: 'shape',      value: 'oval' },
- *    { key: 'line-style', value: 'dashed' }
- *  ]);
- *  // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
- *
- *  state_style_condense(undefined);
- *  // => {}
- *  ```
- *  @param jssk The list of style keys to condense.  `undefined` is accepted
- *  and yields an empty config.
- *  @param machine Optional `Machine` reference, used only so that any
- *  {@link JssmError} thrown can point at the offending machine in its
- *  diagnostic message.
- *  @returns A `JssmStateConfig` object containing every key from `jssk`
- *  remapped into its camelCase field.
- *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
- *  element is not an object, if the same key appears more than once, or if a
- *  key is not one of the recognized style names.
- *  @internal
- */
-
-/**
- *
  *  Applies one parsed state-style key/value pair onto a condensing
  *  {@link JssmStateConfig}, remapping the kebab-case FSL key to its camelCase
  *  field and rejecting redefinition.  Exists as the switch body of
  *  {@link state_style_condense}, one call per list element.
  *
+ *  Not a doctest: `apply_state_style_key` is module-private and cannot be imported from `'jssm'`.
  *  ```typescript
  *  const cfg = {};
  *  apply_state_style_key(cfg, { key: 'color', value: 'red' });  // cfg.color === 'red'
@@ -240,6 +204,44 @@ function apply_state_style_key(state_style: JssmStateConfig, key: JssmStateStyle
 
 
 
+/**
+ *
+ *  Collapse a list of individual state-style key/value pairs into a single
+ *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
+ *  camelCase field names the runtime uses.
+ *
+ *  The parser emits state styling as a flat array like
+ *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
+ *  because that is the most natural shape for the grammar to produce.  This
+ *  helper runs once per style bucket during `Machine` construction to turn
+ *  those arrays into the compact `{ color, lineStyle, ... }` objects the
+ *  graph-rendering code expects.
+ *
+ *  @example
+ *  import { state_style_condense } from 'jssm';
+ *
+ *  const condensed = state_style_condense([
+ *    { key: 'color',      value: 'red' },
+ *    { key: 'shape',      value: 'oval' },
+ *    { key: 'line-style', value: 'dashed' }
+ *  ]);
+ *  condensed;                         // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
+ *
+ *  state_style_condense(undefined);   // => {}
+ *
+ *  @param jssk The list of style keys to condense.  `undefined` is accepted
+ *  and yields an empty config.
+ *  @param machine Optional `Machine` reference, used only so that any
+ *  {@link JssmError} thrown can point at the offending machine in its
+ *  diagnostic message.
+ *  @returns A `JssmStateConfig` object containing every key from `jssk`
+ *  remapped into its camelCase field.
+ *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
+ *  element is not an object, if the same key appears more than once, or if a
+ *  key is not one of the recognized style names.
+ *  @internal
+ */
+
 export function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig {
 
   const state_style: JssmStateConfig = {};
@@ -284,6 +286,7 @@ export function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any)
  *  active) over less-specific ones (theme, kind defaults) and the later tier is
  *  meant to win.  Neither input is mutated; a fresh object is returned.
  *
+ *  Not a doctest: `merge_state_config` is module-private and cannot be imported from `'jssm'`.
  *  ```typescript
  *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
  *  // => { color: 'blue', shape: 'box' }
@@ -351,11 +354,10 @@ export function dot_preamble<mDT>(m: Machine<mDT>): string {
  *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
  *  every edge inherits it.
  *
- *  ```typescript
+ *  @example
  *  import { sm, default_transition_config } from 'jssm';
- *  default_transition_config(sm`a -> b; transition: { color: blue; };`);
- *  // [ { key: 'color', value: '#0000ffff' } ]
- *  ```
+ *  default_transition_config(sm`a -> b; transition: { color: blue; };`);   // => [ { key: 'color', value: '#0000ffff' } ]
+ *
  *  @param m The machine to read.
  *  @returns The transition-config item list, or `undefined` if the machine
  *  declared no `transition: {}` block.
@@ -377,11 +379,10 @@ export function default_transition_config<mDT>(m: Machine<mDT>): JssmTransitionC
  *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
  *  `background-color` → `bgcolor`).
  *
- *  ```typescript
+ *  @example
  *  import { sm, default_graph_config } from 'jssm';
- *  default_graph_config(sm`a -> b; graph: { background-color: #ffffff; };`);
- *  // [ { key: 'background-color', value: '#ffffffff' } ]
- *  ```
+ *  default_graph_config(sm`a -> b; graph: { background-color: #ffffff; };`);   // => [ { key: 'background-color', value: '#ffffffff' } ]
+ *
  *  @param m The machine to read.
  *  @returns The graph-config item list, or `undefined` if the machine has no
  *  graph config (no `graph: {}` block and no deprecated graph keyword).
@@ -423,12 +424,17 @@ export function themes<mDT>(m: Machine<mDT>): FslTheme | FslTheme[] {
  *  Also drops every memoized static state config, so styles resolved
  *  before the change re-resolve under the new theme stack.
  *
- *  ```typescript
- *  const m = sm`a -> b;`;
- *  style_for(m, 'b');                 // resolved under the default theme
+ *  @example
+ *  import { sm, style_for, set_themes, themes } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  // b is a plain state; resolved (and memoized) under the default theme:
+ *  style_for(m, 'b').backgroundColor;   // => 'white'
  *  set_themes(m, 'ocean');
- *  style_for(m, 'b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
- *  ```
+ *  themes(m);                           // => ['ocean']
+ *  // ocean's plain-state color, not the stale default:
+ *  style_for(m, 'b').backgroundColor;   // => 'cadetblue1'
+ *
  *  @param m The machine to re-theme.
  *  @param to - A theme name or array of theme names to apply.
  *  @see resolve_state_config
@@ -465,15 +471,14 @@ export function flow<mDT>(m: Machine<mDT>): FslDirection {
  *  composition from an applied theme, or things from the underlying base
  *  stylesheet; only the modifications applied by this machine.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(standard_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, standard_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; state: { shape: circle; };`;
- *  console.log(standard_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  standard_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; state: { shape: circle; };`;
+ *  standard_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -501,15 +506,14 @@ export function standard_state_style<mDT>(m: Machine<mDT>): JssmStateConfig {
  *  graph.  Open hooks set through the external API aren't graphed, because
  *  that would be literally every node.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(hooked_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, hooked_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
- *  console.log(hooked_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  hooked_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; hooked_state: { shape: circle; };`;
+ *  hooked_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -536,15 +540,14 @@ export function hooked_state_style<mDT>(m: Machine<mDT>): JssmStateConfig {
  *  Start states are defined by the directive `start_states`, or in absentia,
  *  are the first mentioned state.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(start_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, start_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; start_state: { shape: circle; };`;
- *  console.log(start_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  start_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; start_state: { shape: circle; };`;
+ *  start_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -576,15 +579,14 @@ export function start_state_style<mDT>(m: Machine<mDT>): JssmStateConfig {
  *  recursive or iterative nodes, there is such a thing as an end state that
  *  is not a terminal state.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(end_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, end_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; end_state: { shape: circle; };`;
- *  console.log(end_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  end_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; end_state: { shape: circle; };`;
+ *  end_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -611,15 +613,14 @@ export function end_state_style<mDT>(m: Machine<mDT>): JssmStateConfig {
  *  Terminal state styles are automatically determined by the machine.  Any
  *  state without a valid exit transition is terminal.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(terminal_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, terminal_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
- *  console.log(terminal_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  terminal_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; terminal_state: { shape: circle; };`;
+ *  terminal_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -643,15 +644,14 @@ export function terminal_state_style<mDT>(m: Machine<mDT>): JssmStateConfig {
  *  composition from an applied theme, or things from the underlying base
  *  stylesheet; only the modifications applied by this machine.
  *
- *  ```typescript
- *  const light = sm`a -> b;`;
- *  console.log(active_state_style(light));
- *  // {}
+ *  @example
+ *  import { sm, active_state_style } from 'jssm';
  *
- *  const light = sm`a -> b; active_state: { shape: circle; };`;
- *  console.log(active_state_style(light));
- *  // { shape: 'circle' }
- *  ```
+ *  const plain = sm`a -> b;`;
+ *  active_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; active_state: { shape: circle; };`;
+ *  active_state_style(styled);   // => { shape: 'circle' }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -873,12 +873,12 @@ function compose_state_config<mDT>(m: Machine<mDT>, state: StateType, active: bo
  *  Every fold uses `merge_state_config`, so a key set at a lower tier is
  *  overridden — never rejected — by a higher one.
  *
- *  ```typescript
+ *  @example
  *  import { sm, resolve_state_config } from 'jssm';
  *
  *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
- *  resolve_state_config(m, 'working').color;  // '#ffa500ff' — from group &busy
- *  ```
+ *  // from group &busy:
+ *  resolve_state_config(m, 'working').color;  // => '#ffa500ff'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -930,6 +930,13 @@ export function resolve_state_config<mDT>(m: Machine<mDT>, state: StateType): Js
  *  (terminal, start, end), then depth-ordered group metadata (inner groups
  *  winning over outer), then the per-state config, and finally — for the
  *  current state only — the active overlay.  Last wins at every tier.
+ *
+ *  @example
+ *  import { sm, style_for, resolve_state_config } from 'jssm';
+ *
+ *  const m = sm`a -> b; state b : { shape: circle; };`;
+ *  style_for(m, 'b').shape;   // => 'circle'
+ *  style_for(m, 'b');         // => resolve_state_config(m, 'b')
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *

@@ -65,14 +65,14 @@ export const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number): void => clearTimeout(h)
  *  Schedule an automatic transition to `next_state` after `after_time`
  *  milliseconds.  Only one timeout may be active at a time.
  *
- *  ```typescript
+ *  @example
  *  import { sm, set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
  *
  *  const m = sm`a -> b;`;
  *  set_state_timeout(m, 'b', 1000);
  *  current_state_timeout(m);  // => ['b', 1000]
  *  clear_state_timeout(m);
- *  ```
+ *
  *  @param m          - The machine to arm.
  *  @param next_state - The state to transition to when the timer fires.
  *  @param after_time - Delay in milliseconds.
@@ -127,14 +127,14 @@ export function set_state_timeout<mDT>(m: Machine<mDT>, next_state: StateType, a
 /**
  *  Cancel any pending state timeout.  Safe to call when no timeout is active.
  *
- *  ```typescript
+ *  @example
  *  import { sm, set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
  *
  *  const m = sm`a -> b;`;
  *  set_state_timeout(m, 'b', 1000);
  *  clear_state_timeout(m);
  *  current_state_timeout(m);  // => undefined
- *  ```
+ *
  *  @param m - The machine to disarm.
  *  @see set_state_timeout
  */
@@ -159,14 +159,14 @@ export function clear_state_timeout<mDT>(m: Machine<mDT>): void {
 /**
  *  Get the configured `after` timeout for a given state, if any.
  *
- *  ```typescript
+ *  @example
  *  import { sm, state_timeout_for, clear_state_timeout } from 'jssm';
  *
  *  const m = sm`a after 5s -> b; b -> c;`;
  *  state_timeout_for(m, 'a');  // => ['b', 5000]
  *  state_timeout_for(m, 'b');  // => undefined
  *  clear_state_timeout(m);
- *  ```
+ *
  *  @param m           - The machine to inspect.
  *  @param which_state - The state to look up.
  *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
@@ -186,14 +186,14 @@ export function state_timeout_for<mDT>(m: Machine<mDT>, which_state: StateType):
  *  currently armed, whether it came from an FSL `after` clause or from
  *  `set_state_timeout`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, current_state_timeout, clear_state_timeout } from 'jssm';
  *
  *  const m = sm`a after 5s -> b;`;
  *  current_state_timeout(m);  // => ['b', 5000]
  *  clear_state_timeout(m);
  *  current_state_timeout(m);  // => undefined
- *  ```
+ *
  *  @param m - The machine to inspect.
  *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
  *  @see state_timeout_for
@@ -212,7 +212,7 @@ export function current_state_timeout<mDT>(m: Machine<mDT>): [StateType, number]
  *  If the current state has an `after` timeout configured, schedule it.
  *  Called internally after each transition.
  *
- *  ```typescript
+ *  @example
  *  import { sm, auto_set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
  *
  *  const m = sm`a after 5s -> b;`;
@@ -221,7 +221,7 @@ export function current_state_timeout<mDT>(m: Machine<mDT>): [StateType, number]
  *  auto_set_state_timeout(m);
  *  current_state_timeout(m);  // => ['b', 5000]
  *  clear_state_timeout(m);
- *  ```
+ *
  *  @param m - The machine to arm.
  *  @throws JssmError If a timeout is already pending and the current state
  *  has an `after` mapping (see `set_state_timeout`).

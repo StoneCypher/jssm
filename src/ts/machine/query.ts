@@ -44,15 +44,14 @@ type StateType = string;
  *
  *  Get the current state of a machine.
  *
- *  ```typescript
+ *  @example
  *  import { from, transition, state } from 'jssm';
  *
  *  const lswitch = from('on <=> off;');
- *  console.log( state(lswitch) );             // 'on'
+ *  state(lswitch);             // => 'on'
  *
  *  transition(lswitch, 'off');
- *  console.log( state(lswitch) );             // 'off'
- *  ```
+ *  state(lswitch);             // => 'off'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -74,15 +73,14 @@ export function state<mDT>(m: Machine<mDT>): StateType {
  *
  *  Get the label for a given state, if any; return `undefined` otherwise.
  *
- *  ```typescript
+ *  See also {@link display_text}.
+ *
+ *  @example
  *  import { from, label_for } from 'jssm';
  *
  *  const lswitch = from('a -> b; state a: { label: "Foo!"; };');
- *  console.log( label_for(lswitch, 'a') );              // 'Foo!'
- *  console.log( label_for(lswitch, 'b') );              // undefined
- *  ```
- *
- *  See also {@link display_text}.
+ *  label_for(lswitch, 'a');              // => 'Foo!'
+ *  label_for(lswitch, 'b');              // => undefined
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -112,13 +110,12 @@ export function label_for<mDT>(m: Machine<mDT>, state: StateType): string {
  *
  *  See also {@link label_for}.
  *
- *  ```typescript
+ *  @example
  *  import { from, display_text } from 'jssm';
  *
  *  const lswitch = from('a -> b; state a: { label: "Foo!"; };');
- *  console.log( display_text(lswitch, 'a') );              // 'Foo!'
- *  console.log( display_text(lswitch, 'b') );              // 'b'
- *  ```
+ *  display_text(lswitch, 'a');              // => 'Foo!'
+ *  display_text(lswitch, 'b');              // => 'b'
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -142,19 +139,18 @@ export function display_text<mDT>(m: Machine<mDT>, state: StateType): string {
  *  Check whether a given state is a valid start state (either because it was
  *  explicitly named as such, or because it was the first mentioned state.)
  *
- *  ```typescript
+ *  @example
  *  import { sm, is_start_state } from 'jssm';
  *
  *  const example = sm`a -> b;`;
  *
- *  console.log( is_start_state(example, 'a') );   // true
- *  console.log( is_start_state(example, 'b') );   // false
+ *  is_start_state(example, 'a');   // => true
+ *  is_start_state(example, 'b');   // => false
  *
  *  const example2 = sm`start_states: [a b]; a -> b;`;
  *
- *  console.log( is_start_state(example2, 'a') );   // true
- *  console.log( is_start_state(example2, 'b') );   // true
- *  ```
+ *  is_start_state(example2, 'a');   // => true
+ *  is_start_state(example2, 'b');   // => true
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -177,19 +173,18 @@ export function is_start_state<mDT>(m: Machine<mDT>, whichState: StateType): boo
  *
  *  Check whether a given state is a declared end state.
  *
- *  ```typescript
+ *  @example
  *  import { sm, is_end_state } from 'jssm';
  *
  *  const example = sm`a -> b;`;
  *
- *  console.log( is_end_state(example, 'a') );   // false
- *  console.log( is_end_state(example, 'b') );   // false
+ *  is_end_state(example, 'a');   // => false
+ *  is_end_state(example, 'b');   // => false
  *
  *  const example2 = sm`end_states: [a b]; a -> b;`;
  *
- *  console.log( is_end_state(example2, 'a') );   // true
- *  console.log( is_end_state(example2, 'b') );   // true
- *  ```
+ *  is_end_state(example2, 'a');   // => true
+ *  is_end_state(example2, 'b');   // => true
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -281,14 +276,13 @@ export function is_failed<mDT>(m: Machine<mDT>): boolean {
  *  Check whether a given state is final (either has no exits or is marked
  *  `complete`.)
  *
- *  ```typescript
+ *  @example
  *  import { sm, state_is_final } from 'jssm';
  *
  *  const final_test = sm`first -> second;`;
  *
- *  console.log( state_is_final(final_test, 'first') );   // false
- *  console.log( state_is_final(final_test, 'second') );  // true
- *  ```
+ *  state_is_final(final_test, 'first');   // => false
+ *  state_is_final(final_test, 'second');  // => true
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -312,15 +306,14 @@ export function state_is_final<mDT>(m: Machine<mDT>, whichState: StateType): boo
  *  Check whether the current state is final (either has no exits or is marked
  *  `complete`.)
  *
- *  ```typescript
+ *  @example
  *  import { sm, transition, is_final } from 'jssm';
  *
  *  const final_test = sm`first -> second;`;
  *
- *  console.log( is_final(final_test) );   // false
+ *  is_final(final_test);   // => false
  *  transition(final_test, 'second');
- *  console.log( is_final(final_test) );   // true
- *  ```
+ *  is_final(final_test);   // => true
  *
  *  @param m The machine to read.
  *
@@ -568,12 +561,11 @@ export function machine_state<mDT>(m: Machine<mDT>): JssmMachineInternalState<mD
  *  List all the states known by the machine.  Please note that the order of
  *  these states is not guaranteed.
  *
- *  ```typescript
+ *  @example
  *  import { from, states } from 'jssm';
  *
  *  const lswitch = from('on <=> off;');
- *  console.log( states(lswitch) );             // ['on', 'off']
- *  ```
+ *  states(lswitch).sort();             // => ['off', 'on']
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -617,14 +609,13 @@ export function state_for<mDT>(m: Machine<mDT>, whichState: StateType): JssmGene
  *
  *  Check whether the machine knows a given state.
  *
- *  ```typescript
+ *  @example
  *  import { from, has_state } from 'jssm';
  *
  *  const lswitch = from('on <=> off;');
  *
- *  console.log( has_state(lswitch, 'off') );     // true
- *  console.log( has_state(lswitch, 'dance') );   // false
- *  ```
+ *  has_state(lswitch, 'off');     // => true
+ *  has_state(lswitch, 'dance');   // => false
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -645,33 +636,17 @@ export function has_state<mDT>(m: Machine<mDT>, whichState: StateType): boolean 
 
 /*********
  *
- *  Lists all edges of a machine.
+ *  Lists all edges of a machine.  Each edge is a {@link JssmTransition}
+ *  record such as `{ from: 'on', to: 'off', kind: 'main', forced_only: false,
+ *  main_path: true, action: 'toggle' }`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, list_edges } from 'jssm';
  *
  *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
  *
- *  list_edges(lswitch);
- *  [
- *    {
- *      from: 'on',
- *      to: 'off',
- *      kind: 'main',
- *      forced_only: false,
- *      main_path: true,
- *      action: 'toggle'
- *    },
- *    {
- *      from: 'off',
- *      to: 'on',
- *      kind: 'main',
- *      forced_only: false,
- *      main_path: true,
- *      action: 'toggle'
- *    }
- *  ]
- *  ```
+ *  list_edges(lswitch).length;                                      // => 2
+ *  list_edges(lswitch).map(e => [e.from, e.to, e.kind, e.action]);  // => [ ['on', 'off', 'main', 'toggle'], ['off', 'on', 'main', 'toggle'] ]
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -919,14 +894,13 @@ export function lookup_transition_for<mDT>(m: Machine<mDT>, from: StateType, to:
  *  exit.  The order of each sublist is not defined.  A node could appear in
  *  both lists.
  *
- *  ```typescript
+ *  @example
  *  import { sm, state, list_transitions } from 'jssm';
  *
  *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
  *
- *  state(light);               // 'red'
- *  list_transitions(light);    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
- *  ```
+ *  state(light);               // => 'red'
+ *  list_transitions(light);    // => { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -953,14 +927,13 @@ export function list_transitions<mDT>(m: Machine<mDT>, whichState: StateType = s
  *  `list_unforced_entrances` or `list_forced_entrances` as
  *  appropriate.
  *
- *  ```typescript
+ *  @example
  *  import { sm, state, list_entrances } from 'jssm';
  *
  *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
  *
- *  state(light);               // 'red'
- *  list_entrances(light);      // [ 'yellow', 'off' ]
- *  ```
+ *  state(light);               // => 'red'
+ *  list_entrances(light);      // => [ 'yellow', 'off' ]
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -989,14 +962,13 @@ export function list_entrances<mDT>(m: Machine<mDT>, whichState: StateType = sta
  *  exits; if this isn't desired, consider `list_unforced_exits` or
  *  `list_forced_exits` as appropriate.
  *
- *  ```typescript
+ *  @example
  *  import { sm, state, list_exits } from 'jssm';
  *
  *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
  *
- *  state(light);               // 'red'
- *  list_exits(light);          // [ 'green', 'off' ]
- *  ```
+ *  state(light);               // => 'red'
+ *  list_exits(light);          // => [ 'green', 'off' ]
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -1023,7 +995,7 @@ export function list_exits<mDT>(m: Machine<mDT>, whichState: StateType = state(m
  *  List all actions available from this state.  Please note that the order of
  *  the actions is not guaranteed.
  *
- *  ```typescript
+ *  @example
  *  import { sm, act, state, actions } from 'jssm';
  *
  *  const machine = sm`
@@ -1031,21 +1003,20 @@ export function list_exits<mDT>(m: Machine<mDT>, whichState: StateType = state(m
  *    [red yellow green] 'shutdown' ~> off 'start' -> red;
  *  `;
  *
- *  console.log( state(machine) );    // logs 'red'
- *  console.log( actions(machine) );  // logs ['next', 'shutdown']
+ *  state(machine);             // => 'red'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
  *
- *  act(machine, 'next');             // true
- *  console.log( state(machine) );    // logs 'green'
- *  console.log( actions(machine) );  // logs ['next', 'shutdown']
+ *  act(machine, 'next');       // => true
+ *  state(machine);             // => 'green'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
  *
- *  act(machine, 'shutdown');         // true
- *  console.log( state(machine) );    // logs 'off'
- *  console.log( actions(machine) );  // logs ['start']
+ *  act(machine, 'shutdown');   // => true
+ *  state(machine);             // => 'off'
+ *  actions(machine);           // => ['start']
  *
- *  act(machine, 'start');            // true
- *  console.log( state(machine) );    // logs 'red'
- *  console.log( actions(machine) );  // logs ['next', 'shutdown']
- *  ```
+ *  act(machine, 'start');      // => true
+ *  state(machine);             // => 'red'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *
@@ -1081,7 +1052,7 @@ export function actions<mDT>(m: Machine<mDT>, whichState: StateType = state(m)):
  *  List all states that have a specific action attached.  Please note that
  *  the order of the states is not guaranteed.
  *
- *  ```typescript
+ *  @example
  *  import { sm, list_states_having_action } from 'jssm';
  *
  *  const machine = sm`
@@ -1089,9 +1060,8 @@ export function actions<mDT>(m: Machine<mDT>, whichState: StateType = state(m)):
  *    [red yellow green] 'shutdown' ~> off 'start' -> red;
  *  `;
  *
- *  console.log( list_states_having_action(machine, 'next') );    // ['red', 'green', 'yellow']
- *  console.log( list_states_having_action(machine, 'start') );   // ['off']
- *  ```
+ *  list_states_having_action(machine, 'next').sort();    // => ['green', 'red', 'yellow']
+ *  list_states_having_action(machine, 'start');          // => ['off']
  *
  *  @typeParam mDT The type of the machine data member; usually omitted
  *

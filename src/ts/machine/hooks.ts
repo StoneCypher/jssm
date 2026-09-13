@@ -139,13 +139,14 @@ function validate_hook_description<mDT>(m: Machine<mDT>, HookDesc: HookDescripti
  *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
  *  calling this directly.
  *
- *  ```typescript
+ *  @example
  *  import { sm, set_hook, transition } from 'jssm';
  *
  *  const m = sm`a -> b;`;
  *  set_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: () => false });
- *  transition(m, 'b');   // false - the hook vetoed it
- *  ```
+ *  // the hook vetoed it:
+ *  transition(m, 'b');   // => false
+ *
  *  @param m        - The machine to register the hook on.
  *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
  *  @throws JssmError if the descriptor is mis-shaped (unknown kind, missing
@@ -389,15 +390,15 @@ export function set_hook<mDT>(m: Machine<mDT>, HookDesc: HookDescription<mDT>): 
  *  event-bridging use case (#638).  Reasoning about hooks via observation
  *  events requires being able to observe their disappearance too.
  *
- *  ```typescript
+ *  @example
  *  import { sm, set_hook, remove_hook } from 'jssm';
  *
  *  const m = sm`a -> b;`;
  *  const fn = () => true;
  *  set_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });
- *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // true
- *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // false
- *  ```
+ *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // => true
+ *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // => false
+ *
  *  @param m        - The machine to remove the hook from.
  *  @param HookDesc - A hook descriptor identifying the hook to remove.
  *  @returns `true` if a hook was removed, `false` otherwise.
@@ -675,13 +676,15 @@ function recompute_hook_flags<mDT>(m: Machine<mDT>): void {
  *  transitioning from `from` to `to`.  If the handler returns `false`, the
  *  transition is blocked.
  *
- *  ```typescript
+ *  @example
  *  import { sm, hook, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
- *  hook(m, 'a', 'b', () => console.log('a->b'));
- *  transition(m, 'b');   // logs 'a->b', returns true
- *  ```
+ *  const seen: string[] = [];
+ *  hook(m, 'a', 'b', () => { seen.push('a->b'); });
+ *  transition(m, 'b');   // => true
+ *  seen;                 // => ['a->b']
+ *
  *  @param m       - The machine to register the hook on.
  *  @param from    - Source state name.
  *  @param to      - Target state name.
@@ -1079,15 +1082,18 @@ export function post_hook_exit<mDT>(m: Machine<mDT>, from: string, handler: Hook
  *  blocked.  The handler receives an {@link EverythingHookContext} whose
  *  `hook_name` is `'pre everything'`.
  *
- *  ```typescript
- *  import { sm, hook_pre_everything } from 'jssm';
+ *  @example
+ *  import { sm, hook_pre_everything, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
  *  hook_pre_everything(m, ({ hook_name }) => {
- *    console.log(`${hook_name} fired`);
+ *    fired.push(hook_name);
  *    return true;
  *  });
- *  ```
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['pre everything']
+ *
  *  @param m       - The machine to register the hook on.
  *  @param handler - Callback invoked before all other pre-hooks.
  *  @returns The machine, for chaining.
@@ -1107,15 +1113,18 @@ export function hook_pre_everything<mDT>(m: Machine<mDT>, handler: EverythingHoo
  *  blocked.  The handler receives an {@link EverythingHookContext} whose
  *  `hook_name` is `'everything'`.
  *
- *  ```typescript
- *  import { sm, hook_everything } from 'jssm';
+ *  @example
+ *  import { sm, hook_everything, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
  *  hook_everything(m, ({ hook_name }) => {
- *    console.log(`${hook_name} fired`);
+ *    fired.push(hook_name);
  *    return true;
  *  });
- *  ```
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['everything']
+ *
  *  @param m       - The machine to register the hook on.
  *  @param handler - Callback invoked after all other pre-hooks.
  *  @returns The machine, for chaining.
@@ -1135,14 +1144,17 @@ export function hook_everything<mDT>(m: Machine<mDT>, handler: EverythingHookHan
  *  handler receives an {@link EverythingHookContext} whose `hook_name` is
  *  `'post everything'`.
  *
- *  ```typescript
- *  import { sm, hook_post_everything } from 'jssm';
+ *  @example
+ *  import { sm, hook_post_everything, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
  *  hook_post_everything(m, ({ hook_name }) => {
- *    console.log(`${hook_name} fired`);
+ *    fired.push(hook_name);
  *  });
- *  ```
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['post everything']
+ *
  *  @param m       - The machine to register the hook on.
  *  @param handler - Callback invoked after all other post-hooks.
  *  @returns The machine, for chaining.
@@ -1162,14 +1174,17 @@ export function hook_post_everything<mDT>(m: Machine<mDT>, handler: PostEverythi
  *  handler receives an {@link EverythingHookContext} whose `hook_name` is
  *  `'pre post everything'`.
  *
- *  ```typescript
- *  import { sm, hook_pre_post_everything } from 'jssm';
+ *  @example
+ *  import { sm, hook_pre_post_everything, transition } from 'jssm';
  *
  *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
  *  hook_pre_post_everything(m, ({ hook_name }) => {
- *    console.log(`${hook_name} fired`);
+ *    fired.push(hook_name);
  *  });
- *  ```
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['pre post everything']
+ *
  *  @param m       - The machine to register the hook on.
  *  @param handler - Callback invoked before all other post-hooks.
  *  @returns The machine, for chaining.
@@ -1201,14 +1216,12 @@ export function hook_pre_post_everything<mDT>(m: Machine<mDT>, handler: PostEver
  *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
  *  transition-class, and `everything` observers become `{ scope: 'global' }`.
  *
- *  ```typescript
+ *  @example
  *  import { sm, hook_entry, hook_registry } from 'jssm';
  *
  *  const m = sm`a 'go' -> b;`;
  *  hook_entry(m, 'b', () => true);
- *  hook_registry(m);
- *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
- *  ```
+ *  hook_registry(m);   // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
  *
  *  @param m The machine to inspect.
  *
@@ -1469,14 +1482,14 @@ function entry_matches_group(entry: HookRegistryEntry, group: string): boolean {
  *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
  *    are matched by name only and do not propagate to member states).
  *
- *  ```typescript
+ *  @example
  *  import { sm, hook_entry, hooks_on } from 'jssm';
  *
  *  const m = sm`a 'go' -> b;`;
  *  hook_entry(m, 'b', () => true);
- *  hooks_on(m, 'b').length;             // 1
- *  hooks_on(m, { from: 'a', to: 'b' }); // []  (no edge hook registered)
- *  ```
+ *  hooks_on(m, 'b').length;             // => 1
+ *  // no edge hook is registered:
+ *  hooks_on(m, { from: 'a', to: 'b' }); // => []
  *
  *  @param m     The machine to inspect.
  *  @param query The {@link HookQuery} naming the target to inspect.
@@ -1516,15 +1529,15 @@ export function hooks_on<mDT>(m: Machine<mDT>, query: HookQuery): HookRegistryEn
  *  optional `phase` narrows the test to pre- or post-transition hooks only;
  *  omitted, either phase satisfies it.
  *
- *  ```typescript
+ *  @example
  *  import { sm, hook_entry, has_hook } from 'jssm';
  *
  *  const m = sm`a -> b;`;
- *  has_hook(m, 'b');                 // false
+ *  has_hook(m, 'b');                 // => false
  *  hook_entry(m, 'b', () => true);
- *  has_hook(m, 'b');                 // true
- *  has_hook(m, 'b', 'post');         // false  (the entry hook is pre-phase)
- *  ```
+ *  has_hook(m, 'b');                 // => true
+ *  // the entry hook is pre-phase:
+ *  has_hook(m, 'b', 'post');         // => false
  *
  *  @param m     The machine to inspect.
  *  @param query The {@link HookQuery} naming the target to inspect.
@@ -1551,14 +1564,13 @@ export function has_hook<mDT>(m: Machine<mDT>, query: HookQuery, phase?: HookPha
  *  `hooked` styling layer in `resolve_state_config`; replaces
  *  the long-stubbed `has_hooks` placeholder (megaspec §12).
  *
- *  ```typescript
+ *  @example
  *  import { sm, hook_exit, state_has_hooks } from 'jssm';
  *
  *  const m = sm`a -> b;`;
- *  state_has_hooks(m, 'a');          // false
+ *  state_has_hooks(m, 'a');          // => false
  *  hook_exit(m, 'a', () => true);
- *  state_has_hooks(m, 'a');          // true
- *  ```
+ *  state_has_hooks(m, 'a');          // => true
  *
  *  @param m     The machine to inspect.
  *  @param state The state to test.
@@ -1591,13 +1603,15 @@ export function state_has_hooks<mDT>(m: Machine<mDT>, state: StateType): boolean
  *  hook-dispatch machinery to tell "hook returned a complex object" from
  *  "hook returned a bare boolean / null / undefined".
  *
- *  ```typescript
- *  is_hook_complex_result({ pass: true });                 // true
- *  is_hook_complex_result({ pass: false, data: { x: 1 }}); // true
- *  is_hook_complex_result(true);                           // false
- *  is_hook_complex_result(null);                           // false
- *  is_hook_complex_result({ other: 'thing' });             // false
- *  ```
+ *  @example
+ *  import { is_hook_complex_result } from 'jssm';
+ *
+ *  is_hook_complex_result({ pass: true });                 // => true
+ *  is_hook_complex_result({ pass: false, data: { x: 1 }}); // => true
+ *  is_hook_complex_result(true);                           // => false
+ *  is_hook_complex_result(null);                           // => false
+ *  is_hook_complex_result({ other: 'thing' });             // => false
+ *
  *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr The value to test.
  *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
@@ -1627,6 +1641,7 @@ export function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResul
  *  most hooks return `true` or `undefined`) the function returns `false`
  *  immediately without touching `hook_args`.
  *
+ *  Not a doctest: `update_hook_fields` is module-only and cannot be imported from `'jssm'`.
  *  ```typescript
  *  const args = { data: 'old', next_data: undefined, ... };
  *  const changed = update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
@@ -1690,13 +1705,17 @@ export function update_hook_fields<mDT>(hook_args: HookContext<mDT>, res: HookCo
  *  collapses all of those shapes into one boolean so callers don't have to
  *  re-implement the matrix.
  *
- *  ```typescript
- *  is_hook_rejection(true);            // false (pass)
- *  is_hook_rejection(undefined);       // false (pass)
- *  is_hook_rejection(false);           // true  (reject)
- *  is_hook_rejection({ pass: true });  // false (pass)
- *  is_hook_rejection({ pass: false }); // true  (reject)
- *  ```
+ *  @example
+ *  import { is_hook_rejection } from 'jssm';
+ *
+ *  // passes:
+ *  is_hook_rejection(true);            // => false
+ *  is_hook_rejection(undefined);       // => false
+ *  is_hook_rejection({ pass: true });  // => false
+ *  // rejections:
+ *  is_hook_rejection(false);           // => true
+ *  is_hook_rejection({ pass: false }); // => true
+ *
  *  @template mDT The type of the machine data member; usually omitted.
  *  @param hr A hook result of any legal shape.
  *  @returns `true` if the hook rejected the transition; `false` if it passed.
