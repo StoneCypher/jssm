@@ -21,6 +21,12 @@ import { JssmError } from '../jssm_error.js';
 
 import { fire } from './events.js';
 
+// transition.ts imports clear_state_timeout / auto_set_state_timeout from this
+// module, so this is an ESM cycle; it is safe because both sides only reach
+// the other's bindings inside function bodies (the timer callback below, the
+// commit tail of transition_impl), never at module evaluation.
+import { go } from './transition.js';
+
 type StateType = string;
 
 
@@ -102,10 +108,7 @@ export function set_state_timeout<mDT>(m: Machine<mDT>, next_state: StateType, a
 
       fire(m, 'timeout', { from: from_state, to: next_state, after_time });
 
-      // `go(m, next_state)` once the transition family exists (Task 3 of the
-      // bare-functions plan); until then the timed hop goes through the
-      // class delegate, which is the same transition_impl call
-      m.go(next_state);
+      go(m, next_state);
     },
 
     after_time

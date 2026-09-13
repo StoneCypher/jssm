@@ -52,6 +52,7 @@ export type { Machine, JssmMachine } from './machine/machine.js';
 export { on, once, off } from './machine/events.js';
 export { history, history_inclusive, history_length, set_history_length } from './machine/history.js';
 export { set_state_timeout, clear_state_timeout, state_timeout_for, current_state_timeout, auto_set_state_timeout } from './machine/timers.js';
+export { transition, go, force_transition, act, action, override, valid_action, valid_transition, valid_force_transition } from './machine/transition.js';
 
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
