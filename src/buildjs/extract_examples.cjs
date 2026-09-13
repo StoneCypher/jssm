@@ -301,7 +301,7 @@ function buildTestFile(records, moduleBasename) {
 // entry points re-export.  `jssm` is a barrel since 6.0; the `Machine` class
 // and its examples live in `machine/machine.ts`.
 const ENTRY_POINTS = [
-  'jssm', 'machine/machine', 'machine/hooks', 'machine/query', 'jssm_viz', 'jssm_types', 'jssm_constants',
+  'jssm', 'machine/machine', 'machine/hooks', 'machine/query', 'machine/stochastic', 'jssm_viz', 'jssm_types', 'jssm_constants',
   'jssm_error', 'jssm_util', 'version'
 ];
 

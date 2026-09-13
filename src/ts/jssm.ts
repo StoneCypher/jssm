@@ -22,9 +22,6 @@ export {
   deserialize,
   compareVersions,
 
-  transfer_state_properties,
-  state_style_condense,
-
   shapes,
   gviz_shapes,
   named_colors,
@@ -35,9 +32,6 @@ export {
 
   is_state_name_first_char,
   is_state_name_char,
-
-  STOCHASTIC_DEFAULT_RUNS,
-  STOCHASTIC_DEFAULT_MAX_STEPS,
 
 } from './machine/machine.js';
 
@@ -88,6 +82,22 @@ export {
   is_complete, state_is_complete, has_completes,
   edges_between, current_action_for, current_action_edge_for
 } from './machine/query.js';
+export {
+  start_state_weights, sample_start_state, probable_exits_for,
+  probabilistic_transition, probabilistic_walk, probabilistic_histo_walk,
+  stochastic_runs, stochastic_summary, rng_seed, set_rng_seed,
+  STOCHASTIC_DEFAULT_RUNS, STOCHASTIC_DEFAULT_MAX_STEPS
+} from './machine/stochastic.js';
+export { isIn, groupsOf, groups, statesIn } from './machine/groups.js';
+export {
+  graph_layout, dot_preamble, default_transition_config, default_graph_config,
+  all_themes, themes, set_themes, flow,
+  standard_state_style, hooked_state_style, start_state_style,
+  end_state_style, terminal_state_style, active_state_style,
+  resolve_state_config, style_for,
+  transfer_state_properties, state_style_condense
+} from './machine/style.js';
+export { serialize, instance_name, creation_date, creation_timestamp, create_start_time } from './machine/create.js';
 
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';

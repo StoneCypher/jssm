@@ -18,11 +18,11 @@ import {
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmEditorConfig,
-  JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
+  JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
   JssmParsedSemver,
   JssmParseTree,
-  JssmStateDeclaration, JssmStateDeclarationRule,
+  JssmStateDeclaration,
   JssmStateStyleKey, JssmStateStyleKeyList,
   JssmTransitionConfig, JssmGraphConfig,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
@@ -35,7 +35,6 @@ import {
   HookDescription, HookHandler, EverythingHookHandler, PostEverythingHookHandler,
   HookPhase, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
-  JssmBaseTheme,
   JssmGroupRegistry, JssmGroupHooks, JssmStateHooks,
   JssmRng
 
@@ -47,23 +46,16 @@ import {
 
 
 import {  make, makeTransition,
-         transitive_members, membership_distance }            from '../jssm_compiler.js';
-import { canonical_config }                                    from '../fsl_canonical.js';
-import { theme_mapping, base_theme }                          from '../jssm_theme.js';
+         transitive_members }                                 from '../jssm_compiler.js';
 
 
 
 
 
 import {
-  seq,
-   
-  weighted_rand_select, 
-  histograph, 
   array_box_if_string,
   name_bind_prop_and_state,
   gen_splitmix32,
-  
 } from '../jssm_util.js';
 
 import { Interner, pair_key } from '../jssm_intern.js';
@@ -154,281 +146,27 @@ import {
   edges_between, current_action_for, current_action_edge_for
 } from './query.js';
 
+import {
+  start_state_weights, sample_start_state, probable_exits_for,
+  probabilistic_transition, probabilistic_walk, probabilistic_histo_walk,
+  stochastic_runs, stochastic_summary, rng_seed, set_rng_seed
+} from './stochastic.js';
 
+import { isIn, groupsOf, groups, statesIn } from './groups.js';
 
-/*********
- *
- *  An internal method meant to take a series of declarations and fold them into
- *  a single multi-faceted declaration, in the process of building a state.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
+import {
+  graph_layout, dot_preamble, default_transition_config, default_graph_config,
+  all_themes, themes, set_themes, flow,
+  standard_state_style, hooked_state_style, start_state_style,
+  end_state_style, terminal_state_style, active_state_style,
+  resolve_state_config, style_for,
+  transfer_state_properties, state_style_condense
+} from './style.js';
 
-function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
-
-  state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
-
-    switch (d.key) {
-
-      case 'shape'            : { state_decl.shape           = d.value; break;
-      }
-      case 'color'            : { state_decl.color           = d.value; break;
-      }
-      case 'corners'          : { state_decl.corners         = d.value; break;
-      }
-      case 'line-style'       : { state_decl.lineStyle       = d.value; break;
-      }
-
-      case 'text-color'       : { state_decl.textColor       = d.value; break;
-      }
-      case 'background-color' : { state_decl.backgroundColor = d.value; break;
-      }
-      case 'state-label'      : { state_decl.stateLabel      = d.value; break;
-      }
-      case 'border-color'     : { state_decl.borderColor     = d.value; break;
-      }
-
-      case 'image'            : { state_decl.image           = d.value; break;
-      }
-      case 'url'              : { state_decl.url             = d.value; break;
-      }
-
-      case 'state_property'   : { state_decl.property        = { name: d.name, value: d.value }; break;
-      }
-
-      default: { throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
-      }
-
-    }
-
-  } );
-
-  return state_decl;
-
-}
-
-
-
-
-
-/**
- *
- *  Collapse a list of individual state-style key/value pairs into a single
- *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
- *  camelCase field names the runtime uses.
- *
- *  The parser emits state styling as a flat array like
- *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
- *  because that is the most natural shape for the grammar to produce.  This
- *  helper runs once per style bucket during `Machine` construction to turn
- *  those arrays into the compact `{ color, lineStyle, ... }` objects the
- *  graph-rendering code expects.
- *
- *  ```typescript
- *  state_style_condense([
- *    { key: 'color',      value: 'red' },
- *    { key: 'shape',      value: 'oval' },
- *    { key: 'line-style', value: 'dashed' }
- *  ]);
- *  // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
- *
- *  state_style_condense(undefined);
- *  // => {}
- *  ```
- *  @param jssk The list of style keys to condense.  `undefined` is accepted
- *  and yields an empty config.
- *  @param machine Optional `Machine` reference, used only so that any
- *  {@link JssmError} thrown can point at the offending machine in its
- *  diagnostic message.
- *  @returns A `JssmStateConfig` object containing every key from `jssk`
- *  remapped into its camelCase field.
- *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
- *  element is not an object, if the same key appears more than once, or if a
- *  key is not one of the recognized style names.
- *  @internal
- */
-
-/**
- *
- *  Applies one parsed state-style key/value pair onto a condensing
- *  {@link JssmStateConfig}, remapping the kebab-case FSL key to its camelCase
- *  field and rejecting redefinition.  Exists as the switch body of
- *  {@link state_style_condense}, one call per list element.
- *
- *  ```typescript
- *  const cfg = {};
- *  apply_state_style_key(cfg, { key: 'color', value: 'red' });  // cfg.color === 'red'
- *  ```
- *  @throws {JssmError} If the key was already set, or is not a recognized
- *  style name.
- *  @see state_style_condense
- *  @internal
- */
-
-function apply_state_style_key(state_style: JssmStateConfig, key: JssmStateStyleKeyList[number], machine?: any): void {
-
-  switch (key.key) {
-
-    case 'shape': {
-      if (state_style.shape !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
-      }
-      state_style.shape = key.value;
-      return;
-    }
-
-    case 'color': {
-      if (state_style.color !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
-      }
-      state_style.color = key.value;
-      return;
-    }
-
-    case 'text-color': {
-      if (state_style.textColor !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
-      }
-      state_style.textColor = key.value;
-      return;
-    }
-
-    case 'corners': {
-      if (state_style.corners !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
-      }
-      state_style.corners = key.value;
-      return;
-    }
-
-    case 'line-style': {
-      if (state_style.lineStyle !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
-      }
-      state_style.lineStyle = key.value;
-      return;
-    }
-
-    case 'background-color': {
-      if (state_style.backgroundColor !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
-      }
-      state_style.backgroundColor = key.value;
-      return;
-    }
-
-    case 'state-label': {
-      if (state_style.stateLabel !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
-      }
-      state_style.stateLabel = key.value;
-      return;
-    }
-
-    case 'border-color': {
-      if (state_style.borderColor !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
-      }
-      state_style.borderColor = key.value;
-      return;
-    }
-
-    case 'url': {
-      if (state_style.url !== undefined) {
-        throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
-      }
-      state_style.url = (key as any).value;
-      return;
-    }
-
-    default: {
-      // TODO do that <never> trick to assert this list is complete
-      throw new JssmError(machine, `unknown state style key in condense: ${(key as any).key}`);
-    }
-
-  }
-
-}
-
-
-
-function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig {
-
-  const state_style: JssmStateConfig = {};
-
-  if (Array.isArray(jssk)) {
-
-    for (const [i, key] of jssk.entries()) {
-
-      if (typeof key !== 'object') {
-        throw new JssmError(machine, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
-      }
-
-      apply_state_style_key(state_style, key, machine);
-
-    }
-
-  } else if (jssk === undefined) {
-    // do nothing, undefined is legal and means we should return the empty container above
-  } else {
-    throw new JssmError(machine, 'state_style_condense received a non-array');
-  }
-
-  return state_style;
-
-}
-
-
-
-
-
-/*********
- *
- *  Shallow-merges one {@link JssmStateConfig} style tier over another, with
- *  later-wins, undefined-skipping semantics — the across-tier folding primitive
- *  for the unified config cascade in {@link Machine.resolve_state_config}.
- *
- *  Every defined key in `over` replaces the corresponding key in the result;
- *  keys whose `over` value is `undefined` leave the `base` value untouched.
- *  Unlike {@link state_style_condense} — which throws when a key is redefined
- *  *within a single declaration block* — this NEVER throws on a key collision,
- *  because the cascade deliberately layers more-specific tiers (group, per-state,
- *  active) over less-specific ones (theme, kind defaults) and the later tier is
- *  meant to win.  Neither input is mutated; a fresh object is returned.
- *
- *  ```typescript
- *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
- *  // => { color: 'blue', shape: 'box' }
- *
- *  merge_state_config({ color: 'red' }, { color: undefined, shape: 'oval' });
- *  // => { color: 'red', shape: 'oval' }  (undefined `over` keys are ignored)
- *  ```
- *
- *  @param base The lower-precedence style tier (the accumulator so far).
- *  @param over The higher-precedence style tier; its defined keys win.
- *
- *  @returns A new {@link JssmStateConfig} with `over`'s defined keys layered
- *  over `base`.
- *
- *  @internal
- *
- */
-
-function merge_state_config(base: JssmStateConfig, over: JssmStateConfig): JssmStateConfig {
-
-  const merged: JssmStateConfig = { ...base };
-
-  for (const [key, value] of Object.entries(over)) {
-    if (value !== undefined) {
-      merged[key] = value;
-    }
-  }
-
-  return merged;
-
-}
+import {
+  new_state, serialize, instance_name, creation_date, creation_timestamp, create_start_time,
+  find_connected_components
+} from './create.js';
 
 
 
@@ -454,77 +192,6 @@ function merge_state_config(base: JssmStateConfig, over: JssmStateConfig): JssmS
  *  `.data()`.  Defaults to `undefined` when no data is used.
  *
  */
-
-
-
-/*********
- *
- *  Partition a state graph into its connected components using an undirected
- *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
- *  that island membership is topology-based rather than flow-based.
- *
- *  Used at construction time to enforce the `allow_islands` constraint.
- *
- *  @param states  The machine's state map (keys are state names).
- *  @param edges   The machine's edge list; only `from` and `to` are used.
- *  @returns       An array of components, each component an array of state names.
- *
- */
-
-function find_connected_components<mDT>(
-  states : Map<StateType, JssmGenericState>,
-  edges  : Array<JssmTransition<StateType, mDT>>
-): Array<Array<StateType>> {
-
-  // Build undirected adjacency list
-  const adj: Map<StateType, Set<StateType>> = new Map();
-  for (const name of states.keys()) {
-    adj.set(name, new Set());
-  }
-  for (const edge of edges) {
-    adj.get(edge.from).add(edge.to);
-    adj.get(edge.to).add(edge.from);
-  }
-
-  const visited : Set<StateType>             = new Set();
-  const result  : Array<Array<StateType>>    = [];
-
-  for (const start of states.keys()) {
-    if (visited.has(start)) { continue; }
-
-    // BFS to collect this component
-    const component : Array<StateType> = [];
-    const queue     : Array<StateType> = [start];
-    visited.add(start);
-
-    const enqueue_unvisited = (neighbor: StateType): void => {
-      if (visited.has(neighbor)) { return; }
-      visited.add(neighbor);
-      queue.push(neighbor);
-    };
-
-    // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
-    // worst case; reading by cursor keeps it O(V + E)
-    let head = 0;
-    while (head < queue.length) {
-      const node      = queue[head++];
-      component.push(node);
-      for (const neighbor of adj.get(node)) { enqueue_unvisited(neighbor); }
-    }
-
-    result.push(component);
-  }
-
-  return result;
-
-}
-
-/** Default number of independent Monte-Carlo runs when none is declared. */
-export const STOCHASTIC_DEFAULT_RUNS = 1000;
-/** Default per-run step cap (montecarlo) / walk length (steady_state). */
-export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
-
-
 
 class Machine<mDT> {
 
@@ -1111,13 +778,13 @@ class Machine<mDT> {
       let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
       if (cursor_from === undefined) {
         cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
-        this._new_state(cursor_from);
+        new_state(this, cursor_from);
       }
 
       let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
       if (cursor_to === undefined) {
         cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
-        this._new_state(cursor_to);
+        new_state(this, cursor_to);
       }
 
       // record (from -> to) adjacency once per distinct target, even when
@@ -1466,21 +1133,17 @@ class Machine<mDT> {
   /********
    *
    *  Internal method for fabricating states.  Not meant for external use.
+   *  Delegates to the create family's {@link new_state}, which carries the
+   *  full contract.
+   *
+   *  @see new_state
    *
    *  @internal
    *
    */
 
   _new_state(state_config: JssmGenericState): StateType {
-
-    if (this._states.has(state_config.name)) {
-      throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
-    }
-
-    this._states.set(state_config.name, state_config);
-    this._state_interner.intern(state_config.name);
-    return state_config.name;
-
+    return new_state(this, state_config);
   }
 
 
@@ -1717,37 +1380,27 @@ class Machine<mDT> {
 
   /**
    *  The initial distribution declared by a weighted `start_states` list
-   *  (6.0), normalized to sum 1.  Empty when the machine's start states are
-   *  unweighted.
-   *  @returns A map from start state to its share of the distribution.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
-   *  m.start_state_weights().get('idle');  // => 0.9
-   *  @see Machine.sample_start_state
+   *  (6.0).  Delegates to the stochastic family's
+   *  {@link start_state_weights}, which carries the full contract and
+   *  example.
+   *  @see start_state_weights
    */
   start_state_weights(): Map<StateType, number> {
-    return new Map(this._start_state_weights);
+    return start_state_weights(this);
   }
 
 
 
 
   /**
-   *  Draws a start state from {@link Machine.start_state_weights} using the
-   *  machine's RNG; on an unweighted machine returns the first declared
-   *  start state.  Does not change the machine's state.
-   *  @returns The sampled start state.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
-   *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
-   *  @see Machine.start_state_weights
+   *  Draws a start state from the weighted start distribution using the
+   *  machine's RNG.  Delegates to the stochastic family's
+   *  {@link sample_start_state}, which carries the full contract and
+   *  example.
+   *  @see sample_start_state
    */
   sample_start_state(): StateType {
-    if (this._start_state_weights.size === 0) { return this._start_states.values().next().value as StateType; }
-    const opts = [...this._start_state_weights].map(([name, probability]) => ({ name, probability }));
-    return weighted_rand_select(opts, undefined, this._rng).name;
+    return sample_start_state(this);
   }
 
 
@@ -1831,37 +1484,13 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
-   *  Serialize the current machine, including all defining state but not the
-   *  machine string, to a structure.  This means you will need the machine
-   *  string to recreate (to not waste repeated space;) if you want the machine
-   *  string embedded, call `serialize_with_string` instead.
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param comment An optional comment string to embed in the serialized
-   *  output for identification or debugging.
-   *
-   *  @returns A {@link JssmSerialization} object containing the machine's
-   *  current state, data, and timestamp.
-   *
+  /**
+   *  Serialize the current machine to a structure.  Delegates to the create
+   *  family's {@link serialize}, which carries the full contract.
+   *  @see serialize
    */
-
   serialize(comment?: string  ): JssmSerialization<mDT> {
-
-    return {
-
-      comment,
-      state            : this._state,
-      data             : this._data,
-      jssm_version     : version,
-      history          : this._history.toArray(),
-      history_capacity : this._history.capacity,
-      timestamp        : this._time_source(),
-
-    };
-
+    return serialize(this, comment);
   }
 
 
@@ -1881,64 +1510,41 @@ class Machine<mDT> {
 
 
   /**
-   * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
-   *  FSL `graph_layout` directive.
-   *  @returns The layout string, or the default if not set.
+   * Get the graph layout direction.  Delegates to the style family's
+   *  {@link graph_layout}.
+   *  @see graph_layout
    */
   graph_layout(): string {
-    return this._graph_layout;
+    return graph_layout(this);
   }
 
   /**
-   * Get the Graphviz DOT preamble string, injected before the graph body
-   *  during visualization.  Set via the FSL `dot_preamble` directive.
-   *  @returns The preamble string.
+   * Get the Graphviz DOT preamble string.  Delegates to the style family's
+   *  {@link dot_preamble}.
+   *  @see dot_preamble
    */
   dot_preamble(): string {
-    return this._dot_preamble;
+    return dot_preamble(this);
   }
 
   /**
-   * Get the consolidated `transition: {}` default-config block: the ordered,
-   *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
-   *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
-   *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
-   *  every edge inherits it.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
-   *  // [ { key: 'color', value: '#0000ffff' } ]
-   *  ```
-   *  @returns The transition-config item list, or `undefined` if the machine
-   *  declared no `transition: {}` block.
-   *  @see default_graph_config
-   */
-  default_transition_config(): JssmTransitionConfig | undefined {
-    return this._default_transition_config;
-  }
-
-  /**
-   * Get the consolidated `graph: {}` default-config block: the ordered,
-   *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
-   *  compiler folds the deprecated top-level graph keywords
-   *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
-   *  `flow`, `dot_preamble`) into this list first, then lets an explicit
-   *  `graph: {}` block win on key conflict.  The viz layer projects the
-   *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
-   *  `background-color` → `bgcolor`).
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
-   *  // [ { key: 'background-color', value: '#ffffffff' } ]
-   *  ```
-   *  @returns The graph-config item list, or `undefined` if the machine has no
-   *  graph config (no `graph: {}` block and no deprecated graph keyword).
+   * Get the consolidated `transition: {}` default-config block.  Delegates
+   *  to the style family's {@link default_transition_config}, which carries
+   *  the full contract and example.
    *  @see default_transition_config
    */
+  default_transition_config(): JssmTransitionConfig | undefined {
+    return default_transition_config(this);
+  }
+
+  /**
+   * Get the consolidated `graph: {}` default-config block.  Delegates to
+   *  the style family's {@link default_graph_config}, which carries the full
+   *  contract and example.
+   *  @see default_graph_config
+   */
   default_graph_config(): JssmGraphConfig | undefined {
-    return this._default_graph_config;
+    return default_graph_config(this);
   }
 
 
@@ -2240,11 +1846,12 @@ class Machine<mDT> {
 
 
   /**
-   * List all available theme names.
-   *  @returns An array of theme name strings.
+   * List all available theme names.  Delegates to the style family's
+   *  {@link all_themes}.
+   *  @see all_themes
    */
   all_themes(): FslTheme[] {
-    return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
+    return all_themes(this);
   }
 
   /**
@@ -2280,45 +1887,31 @@ class Machine<mDT> {
   }
 
   /**
-   * Get the active theme(s) for this machine.  Always stored as an array
-   *  internally; the union return type exists for setter compatibility.
-   *  @returns The current theme or array of themes.
+   * Get the active theme(s) for this machine.  Delegates to the style
+   *  family's {@link themes}.
+   *  @see themes
    */
   get themes(): FslTheme | FslTheme[] {
-    return this._themes;     // constructor sets this to "default" otherwise
+    return themes(this);
   }
 
   /**
-   * Set the active theme(s).  Accepts a single theme name or an array.
-   *  Also drops every memoized static state config, so styles resolved
-   *  before the change re-resolve under the new theme stack.
-   *
-   *  ```typescript
-   *  const m = sm`a -> b;`;
-   *  m.style_for('b');                 // resolved under the default theme
-   *  m.themes = 'ocean';
-   *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
-   *  ```
-   *  @param to - A theme name or array of theme names to apply.
-   *  @see resolve_state_config
+   * Set the active theme(s).  Delegates to the style family's
+   *  {@link set_themes}, which carries the full contract and example
+   *  (including the config-cache invalidation).
+   *  @see set_themes
    */
   set themes(to: FslTheme | FslTheme[]) {
-    this._themes = typeof to === 'string' ? [to] : to;
-    // Themes feed tier 1 (and the per-kind/hooked theme layers) of
-    // resolve_state_config's cascade, whose static resolution is memoized
-    // per state.  Invalidate the memo so a theme assigned after a style has
-    // been computed is not shadowed by the old theme's cached resolution —
-    // the same rule set_hook / remove_hook apply for the hooked layer.
-    this._static_state_config_cache.clear();
+    set_themes(this, to);
   }
 
   /**
-   * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
-   *  Set via the FSL `flow` directive.
-   *  @returns The current flow direction.
+   * Get the flow direction for graph layout.  Delegates to the style
+   *  family's {@link flow}.
+   *  @see flow
    */
   flow(): FslDirection {
-    return this._flow;
+    return flow(this);
   }
 
 
@@ -2390,347 +1983,66 @@ class Machine<mDT> {
 
   /**
    * Get the transitions available from a state for use by the probabilistic
-   *  walk system.
-   *
-   *  If any exit declares a `probability`, only those probability-bearing
-   *  exits are returned, so that non-probability peers cannot dilute the
-   *  declared distribution.  If no exit declares a `probability`, every
-   *  legal (non-forced) exit is returned, which `weighted_rand_select`
-   *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
-   *  since they cannot be taken by an ordinary `transition()` call.
-   *
-   *  Fixes StoneCypher/fsl#1325, in which the function previously returned
-   *  every exit unconditionally — including forced-only exits and exits
-   *  with no `probability`, which distorted the weighted distribution.
-   *
-   *  Share-only edges (an unweighted transition onto a weighted list; 6.0
-   *  list weights) carry no declared `probability` and so never evict their
-   *  siblings from the pool; their `share` is applied later, by the picker.
-   *  @param whichState - The state to inspect.
-   *  @returns An array of {@link JssmTransition} edges exiting the state,
-   *  filtered as described above.  May be empty.
+   *  walk system.  Delegates to the stochastic family's
+   *  {@link probable_exits_for}, which carries the full contract.
    *  @throws {JssmError} If the state does not exist.
-   */
-  probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
-
-    const wstate: JssmGenericState = this._states.get(whichState);
-    if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
-
-    // single pass over the state's exits, replacing the old map -> filter ->
-    // filter -> filter chain and its three intermediate arrays; selection and
-    // ordering semantics are unchanged
-    const legal_exits          : Array<JssmTransition<StateType, mDT>> = [],
-          probability_bearing  : Array<JssmTransition<StateType, mDT>> = [];
-
-    // hoisted: every exit shares whichState, so probe _edge_map for the
-    // from-side once instead of re-hashing the same key per exit inside
-    // lookup_transition_for.  wstate.to is non-empty only when at least one
-    // outbound edge exists, and every outbound edge creates the from-side
-    // mapping at construction — so emg is defined whenever the loop runs.
-    const emg: Map<StateType, number> = this._edge_map.get(whichState);
-
-    for (const ws of wstate.to) {
-
-      // wstate.to is built from the same edge set _edge_map indexes, so the
-      // per-target get cannot miss; the guard mirrors the old defensive
-      // .filter(Boolean) and is equally unreachable.
-      const edge: JssmTransition<StateType, mDT> = this._edges[ emg.get(ws) ];
-      /* v8 ignore next */
-      if (!edge) { continue; }
-
-      // forced-only exits cannot be reached by transition(), so they are
-      // never legal probabilistic outcomes
-      if (edge.forced_only) { continue; }
-
-      legal_exits.push(edge);
-
-      // if any legal exit declares a probability, only those are returned, so
-      // that probability-bearing edges are not diluted by their peers
-      if (edge.probability !== undefined) { probability_bearing.push(edge); }
-
-    }
-
-    return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
-
-  }
-
-  /**
-   * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
-   *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
-   *  selectable weight is zero, because weighted selection over an all-zero
-   *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
-   *  probabilities count as weight 1, matching {@link weighted_rand_select}.
-   *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
-   *  share-only edge (6.0 list weights) still contributes its fractional
-   *  weight to the total rather than being treated as 1.
-   *  An empty pool is not this guard's concern (terminality is handled by the
-   *  callers) and passes through untouched.
-   *
-   *  ```typescript
-   *  const m = sm`a 0% -> b; a 0% -> c;`;
-   *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
-   *  ```
-   *  @param whichState - The state the pool exits from, named in the error.
-   *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
-   *  @throws {JssmError} If the pool is non-empty and every candidate edge
-   *  has probability 0 — including the case where explicit `0%` edges
-   *  excluded their unweighted sibling edges from the candidate pool.
    *  @see probable_exits_for
    */
-  private _assert_selectable_exit_pool(whichState: StateType, exits: Array<JssmTransition<StateType, mDT>>): void {
-
-    if (exits.length === 0) { return; }
-
-    let total: number = 0;
-    for (const e of exits) {
-      total += ((e.probability === undefined) ? 1 : e.probability) * ((e.share === undefined) ? 1 : e.share);
-    }
-
-    if (total > 0) { return; }
-
-    throw new JssmError(this,
-      `Cannot randomly select an exit from state ${JSON.stringify(whichState)}: every candidate edge has probability 0%.  Note that an explicit 0% edge excludes unweighted sibling edges from the candidate pool (StoneCypher/fsl#1248)`
-    );
-
+  probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
+    return probable_exits_for(this, whichState);
   }
 
   /**
    * Take a single random transition from the current state, weighted by
-   *  edge probabilities.
-   *  @returns `true` if a transition was taken, `false` otherwise.
-   *  @throws {JssmError} If the candidate exit pool is non-empty but its
-   *  total weight is zero — every candidate declares `0%` — per
-   *  StoneCypher/fsl#1248.
+   *  edge probabilities.  Delegates to the stochastic family's
+   *  {@link probabilistic_transition}, which carries the full contract.
+   *  @see probabilistic_transition
    */
   probabilistic_transition(): boolean {
-    const exits: Array<JssmTransition<StateType, mDT>> = this.probable_exits_for(this.state());
-    this._assert_selectable_exit_pool(this.state(), exits);
-    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(exits, undefined, this._rng);
-    return this.transition(selected.to);
+    return probabilistic_transition(this);
   }
 
   /**
-   * Take `n` consecutive probabilistic transitions and return the sequence
-   *  of states visited (before each transition).
-   *  @param n - Number of steps to walk.
-   *  @returns An array of state names visited during the walk.
-   *  @throws {JssmError} If a visited state's candidate exit pool is
-   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+   * Take `n` consecutive probabilistic transitions and return the states
+   *  visited.  Delegates to the stochastic family's
+   *  {@link probabilistic_walk}, which carries the full contract.
+   *  @see probabilistic_walk
    */
   probabilistic_walk(n: number): Array<StateType> {
-    return [...seq(n)
-      .map((): StateType => {
-        const state_was: StateType = this.state();
-        this.probabilistic_transition();
-        return state_was;
-      }), this.state()];
+    return probabilistic_walk(this, n);
   }
 
   /**
-   * Take `n` probabilistic steps and return a histograph of how many times
-   *  each state was visited.
-   *  @param n - Number of steps to walk.
-   *  @returns A `Map` from state name to visit count.
-   *  @throws {JssmError} If a visited state's candidate exit pool is
-   *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+   * Take `n` probabilistic steps and return a histograph of the visits.
+   *  Delegates to the stochastic family's {@link probabilistic_histo_walk},
+   *  which carries the full contract.
+   *  @see probabilistic_histo_walk
    */
   probabilistic_histo_walk(n: number): Map<StateType, number> {
-    return histograph(this.probabilistic_walk(n));
+    return probabilistic_histo_walk(this, n);
   }
 
   /**
-   * One non-destructive weighted-random walk over the graph from `start`.
-   *
-   *  Reads the graph and advances the PRNG only — it never calls
-   *  {@link Machine.transition}, so it fires no hooks, mutates no machine
-   *  state, and touches no `data`.  A state with no probabilistic exits
-   *  (a terminal, or a forced-only `~>` state) ends the walk.
-   *
-   *  Terminality is checked before the first transition and after every
-   *  transition.  A terminal start therefore completes with length zero even
-   *  when `max_steps` is zero, and a terminal reached on the final permitted
-   *  transition is completed rather than step-capped.
-   *  @param start - State to begin the walk from.
-   *  @param max_steps - Maximum transitions before the walk is step-capped.
-   *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
-   *    results.  The graph is immutable after construction, so a state's
-   *    probable exits never change; sharing one memo across a generator's
-   *    runs collapses runs×steps re-derivations (two array allocations and an
-   *    exit rescan per step) to one per distinct state.  The memo only reuses
-   *    the derived arrays — RNG draw order is untouched, so seeded walks
-   *    reproduce exactly.
-   *  @returns The {@link JssmStochasticRun} for this walk.
-   *  @throws {JssmError} If a visited state's candidate exit pool is
-   *  non-empty but all-zero-weight — see
-   *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
-   */
-  private _stochastic_one_walk(
-    start     : StateType,
-    max_steps : number,
-    exit_memo : Map<StateType, Array<JssmTransition<StateType, mDT>>>
-  ): JssmStochasticRun {
-
-    const states : Array<string> = [start];
-    const edges  : Array<string> = [];
-
-    let cur   : StateType = start;
-    let exits = exit_memo.get(cur);
-    if (exits === undefined) {
-      exits = this.probable_exits_for(cur);
-      this._assert_selectable_exit_pool(cur, exits);
-      exit_memo.set(cur, exits);
-    }
-    let terminated: boolean = exits.length === 0;
-
-    for (let step = 0; step < max_steps && !terminated; step++) {
-      const selected = weighted_rand_select(exits, undefined, this._rng);
-      edges.push(`${cur}→${selected.to}`);
-      cur = selected.to;
-      states.push(cur);
-      exits = exit_memo.get(cur);
-      if (exits === undefined) {
-        exits = this.probable_exits_for(cur);
-        this._assert_selectable_exit_pool(cur, exits);
-        exit_memo.set(cur, exits);
-      }
-      terminated = exits.length === 0;
-    }
-
-    return { states, edges, length: states.length - 1, terminated };
-
-  }
-
-  /**
-   * Lazily yield one {@link JssmStochasticRun} at a time.
-   *
-   *  In `montecarlo` mode (default) yields `runs` independent walks from the
-   *  current state, each ending at a terminal or after `max_steps`.  In
-   *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
-   *  is the lazy engine behind {@link Machine.stochastic_summary}; the
-   *  fsl-stochastic panel drives it across animation frames.  A walk already
-   *  at a terminal is reported as terminated with length zero, including when
-   *  `max_steps` is zero.
-   *
-   *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
-   *  {@link Machine.stochastic_summary}, the generator does NOT restore the
-   *  prior seed afterward — a direct caller's machine is left reseeded.
-   *  When the machine declares weighted `start_states` (6.0), each run's
-   *  start is drawn independently via {@link Machine.sample_start_state}
-   *  instead of always starting from the machine's current state.
-   *  @param opts - {@link JssmStochasticOptions}.
-   *  @yields One {@link JssmStochasticRun} per completed walk.
-   *  @returns A generator of per-run results.
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`a 'go' -> b 'go' -> c;`;
-   *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+   * Lazily yield one {@link JssmStochasticRun} at a time.  Delegates to the
+   *  stochastic family's {@link stochastic_runs} generator, which carries
+   *  the full contract and example; `yield*` forwards every yielded run and
+   *  the generator's completion unchanged.
+   *  @see stochastic_runs
    */
   *stochastic_runs(opts: JssmStochasticOptions = {}): Generator<JssmStochasticRun> {
-
-    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
-
-    const mode      : JssmStochasticMode = opts.mode ?? 'montecarlo';
-    const max_steps : number             = opts.max_steps ?? STOCHASTIC_DEFAULT_MAX_STEPS;
-    const runs      : number             = (mode === 'steady_state')
-      ? 1
-      : (opts.runs ?? this.editor_config()?.stochastic_run_count ?? STOCHASTIC_DEFAULT_RUNS);
-
-    const weighted_start: boolean   = this._start_state_weights.size > 0;
-    const fixed_start   : StateType = this.state();
-
-    // one probable-exits memo for the whole run set; see _stochastic_one_walk
-    const exit_memo: Map<StateType, Array<JssmTransition<StateType, mDT>>> = new Map();
-
-    for (let i = 0; i < runs; i++) {
-      yield this._stochastic_one_walk(weighted_start ? this.sample_start_state() : fixed_start, max_steps, exit_memo);
-    }
-
+    yield* stochastic_runs(this, opts);
   }
 
 
 
   /**
    * Run many weighted-random walks and return aggregate statistics.
-   *
-   *  Honors `%` transition probabilities (via the existing probabilistic
-   *  machinery).  Non-destructive: the machine's current state and
-   *  {@link Machine.rng_seed} are restored before returning, so calling this
-   *  never perturbs the live machine.  `montecarlo` mode (default) reports
-   *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
-   *  mode runs one long walk and omits those fields.
-   *
-   *  Monte-Carlo runs count as `terminal_reached` when they start at a
-   *  terminal or reach one on the final permitted transition.  Terminal
-   *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
-   *
-   *  Timing (`after`) decorations and data-guard conditions are not modeled
-   *  by this sampler; it walks the probabilistic graph topology.  When the
-   *  machine declares weighted `start_states` (6.0), each run starts from an
-   *  independently sampled start state (see {@link Machine.stochastic_runs}).
-   *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
-   *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
-   *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
-   *  @returns A {@link JssmStochasticSummary}.
-   *  @see Machine.stochastic_runs
-   *  @see Machine.probabilistic_walk
-   *  @see Machine.editor_config
-   *  @example
-   *  import { sm } from 'jssm';
-   *  const m = sm`a 'go' -> b 'go' -> c;`;
-   *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
-   *  s.terminal_reached;  // => 100
+   *  Delegates to the stochastic family's {@link stochastic_summary}, which
+   *  carries the full contract and example.
+   *  @see stochastic_summary
    */
   stochastic_summary(opts: JssmStochasticOptions = {}): JssmStochasticSummary {
-
-    const mode       : JssmStochasticMode = opts.mode ?? 'montecarlo';
-    const saved_seed : number             = this._rng_seed;
-
-    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
-    const effective_seed: number = this._rng_seed;
-
-    const state_visits    : Map<string, number> = new Map();
-    const edge_traversals : Map<string, number> = new Map();
-    const path_lengths    : Array<number>       = [];
-
-    let terminal_reached = 0,
-        capped           = 0,
-        runs             = 0;
-
-    try {
-      const run_stream = this.stochastic_runs({ ...opts, mode });
-      for (const run of run_stream) {
-        runs += 1;
-        for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
-        for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
-        if (mode === 'montecarlo') {
-          if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
-          else                { capped += 1; }
-        }
-      }
-    } finally {
-      // restore the PRNG so the call is non-destructive even when the loop throws
-      this.rng_seed = saved_seed;
-    }
-
-    const total_visits         : number             = [...state_visits.values()].reduce((a, b) => a + b, 0);
-    const state_visit_fraction : Map<string, number> = new Map();
-    for (const [s, c] of state_visits) {
-      state_visit_fraction.set(s, c / total_visits);
-    }
-
-    const summary: JssmStochasticSummary = {
-      mode, runs, seed: effective_seed,
-      state_visits, state_visit_fraction, edge_traversals,
-    };
-
-    if (mode === 'montecarlo') {
-      summary.path_lengths     = path_lengths;
-      summary.terminal_reached = terminal_reached;
-      summary.capped           = capped;
-    }
-
-    return summary;
-
+    return stochastic_summary(this, opts);
   }
 
 
@@ -2845,143 +2157,57 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
+  /**
    *  Reports whether the machine's CURRENT state is a transitive member of a
-   *  named group.  Membership is deep: a state counts as in `groupName` if it
-   *  belongs to that group directly, or via any nested (`&child`) or spread
-   *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
-   *  members, so this returns `false` rather than throwing.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const m = sm`&busy : [working]; idle 'go' -> working;`;
-   *  m.isIn('busy');     // false — current state is 'idle'
-   *  m.action('go');
-   *  m.isIn('busy');     // true  — current state is now 'working'
-   *  m.isIn('nonesuch'); // false — undeclared group has no members
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param groupName The group to test the current state against.
-   *
-   *  @returns `true` if the current state is a transitive member of `groupName`.
-   *
-   *  @see groupsOf
-   *  @see statesIn
-   *
-   */
-
-  isIn(groupName: string): boolean {
-    return this.groupsOf(this.state()).has(groupName);
-  }
-
-
-
-
-
-  /********
-   *
-   *  Lists every group that transitively contains a given state.  Membership is
-   *  deep — direct, nested, and spread sub-group containment all count — and the
-   *  result is the precomputed inverse-index entry for the state, so the lookup
-   *  is constant-time.  A state that belongs to no group (or a state name that
-   *  appears in no group) yields an empty `Set`.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
-   *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
-   *  m.groupsOf('b');     // Set { 'outer' }
-   *  m.groupsOf('z');     // Set {}                    — not in any group
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param state The state whose containing groups are wanted.
-   *
-   *  @returns A `Set` of every group name transitively containing `state`;
-   *  empty when `state` belongs to no group.
-   *
+   *  named group.  Delegates to the groups family's {@link isIn}, which
+   *  carries the full contract and example.
    *  @see isIn
-   *  @see groups
-   *
    */
+  isIn(groupName: string): boolean {
+    return isIn(this, groupName);
+  }
 
+
+
+
+
+  /**
+   *  Lists every group that transitively contains a given state.  Delegates
+   *  to the groups family's {@link groupsOf}, which carries the full
+   *  contract and example.
+   *  @see groupsOf
+   */
   groupsOf(state: StateType): Set<string> {
-    return new Set(this._state_to_groups.get(state));
+    return groupsOf(this, state);
   }
 
 
 
 
 
-  /********
-   *
-   *  Lists all declared group names, in source declaration order.  The order
-   *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
-   *  is the same order used to break depth-specificity ties in the config
-   *  cascade.  Machines that declare no groups return an empty array.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
-   *  m.groups();  // [ 'first', 'second' ]
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The declared group names, in declaration order.
-   *
-   *  @see groupsOf
-   *  @see statesIn
-   *
-   */
-
-  groups(): string[] {
-    return [ ...this._group_order ];
-  }
-
-
-
-
-
-  /********
-   *
-   *  Lists every state that is a transitive member of a named group — the
-   *  flattened membership of the group, descending through nested and spread
-   *  sub-groups, in member-declaration order.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
-   *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
-   *  m.statesIn('inner');  // [ 'a', 'b' ]
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param groupName The group whose transitive member states are wanted.
-   *
-   *  @returns The transitive member states of `groupName`, in declaration order.
-   *
-   *  @throws {JssmError} If `groupName` is not a declared group.
-   *
+  /**
+   *  Lists all declared group names, in source declaration order.  Delegates
+   *  to the groups family's {@link groups}, which carries the full contract
+   *  and example.
    *  @see groups
-   *  @see groupsOf
-   *
    */
+  groups(): string[] {
+    return groups(this);
+  }
 
+
+
+
+
+  /**
+   *  Lists every state that is a transitive member of a named group.
+   *  Delegates to the groups family's {@link statesIn}, which carries the
+   *  full contract and example.
+   *  @throws {JssmError} If `groupName` is not a declared group.
+   *  @see statesIn
+   */
   statesIn(groupName: string): Array<StateType> {
-    if (!(this._group_registry.has(groupName))) {
-      throw new JssmError(this, `No such group ${JSON.stringify(groupName)}`);
-    }
-    return transitive_members(this._group_registry, groupName, new Map());
+    return statesIn(this, groupName);
   }
 
 
@@ -3456,25 +2682,21 @@ class Machine<mDT> {
 
 
   /**
-   * Get the current RNG seed used for probabilistic transitions.
-   *  @returns The numeric seed value.
+   * Get the current RNG seed used for probabilistic transitions.  Delegates
+   *  to the stochastic family's {@link rng_seed}.
+   *  @see rng_seed
    */
   get rng_seed(): number {
-    return this._rng_seed;
+    return rng_seed(this);
   }
 
   /**
-   * Set the RNG seed.  Pass `undefined` to reseed from the current time.
-   *  Resets the internal PRNG so subsequent probabilistic operations use the
-   *  new seed.
-   *  @param to - The seed value, or `undefined` for time-based seeding.
+   * Set the RNG seed.  Delegates to the stochastic family's
+   *  {@link set_rng_seed}, which carries the full contract.
+   *  @see set_rng_seed
    */
   set rng_seed(to: number | undefined) {
-
-    this._rng_seed = to === undefined ? Date.now() : to;
-
-    this._rng = gen_splitmix32(this._rng_seed);
-
+    set_rng_seed(this, to);
   }
 
 
@@ -3710,198 +2932,82 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
-   *  Get the standard style for a single state.  ***Does not*** include
-   *  composition from an applied theme, or things from the underlying base
-   *  stylesheet; only the modifications applied by this machine.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.standard_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; state: { shape: circle; };`;
-   *  console.log(light.standard_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for standard states.
-   *
+  /**
+   *  Get the standard style for a single state.  Delegates to the style
+   *  family's {@link standard_state_style}, which carries the full contract
+   *  and example.
+   *  @see standard_state_style
    */
-
   get standard_state_style(): JssmStateConfig {
-    return this._state_style;
+    return standard_state_style(this);
   }
 
 
 
 
 
-  /********
-   *
-   *  Get the hooked state style.  ***Does not*** include
-   *  composition from an applied theme, or things from the underlying base
-   *  stylesheet; only the modifications applied by this machine.
-   *
-   *  The hooked style is only applied to nodes which have a named hook in the
-   *  graph.  Open hooks set through the external API aren't graphed, because
-   *  that would be literally every node.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.hooked_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
-   *  console.log(light.hooked_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for hooked states.
-   *
+  /**
+   *  Get the hooked state style.  Delegates to the style family's
+   *  {@link hooked_state_style}, which carries the full contract and
+   *  example.
+   *  @see hooked_state_style
    */
-
   get hooked_state_style(): JssmStateConfig {
-    return this._hooked_state_style;
+    return hooked_state_style(this);
   }
 
 
 
 
 
-  /********
-   *
-   *  Get the start state style.  ***Does not*** include composition from an
-   *  applied theme, or things from the underlying base stylesheet; only the
-   *  modifications applied by this machine.
-   *
-   *  Start states are defined by the directive `start_states`, or in absentia,
-   *  are the first mentioned state.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.start_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; start_state: { shape: circle; };`;
-   *  console.log(light.start_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for start states.
-   *
+  /**
+   *  Get the start state style.  Delegates to the style family's
+   *  {@link start_state_style}, which carries the full contract and example.
+   *  @see start_state_style
    */
-
   get start_state_style(): JssmStateConfig {
-    return this._start_state_style;
+    return start_state_style(this);
   }
 
 
 
 
 
-  /********
-   *
-   *  Get the end state style.  ***Does not*** include
-   *  composition from an applied theme, or things from the underlying base
-   *  stylesheet; only the modifications applied by this machine.
-   *
-   *  End states are defined in the directive `end_states`, and are distinct
-   *  from terminal states.  End states are voluntary successful endpoints for a
-   *  process.  Terminal states are states that cannot be exited.  By example,
-   *  most error states are terminal states, but not end states.  Also, since
-   *  some end states can be exited and are determined by hooks, such as
-   *  recursive or iterative nodes, there is such a thing as an end state that
-   *  is not a terminal state.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.standard_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; end_state: { shape: circle; };`;
-   *  console.log(light.standard_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for end states.
-   *
+  /**
+   *  Get the end state style.  Delegates to the style family's
+   *  {@link end_state_style}, which carries the full contract and example.
+   *  @see end_state_style
    */
-
   get end_state_style(): JssmStateConfig {
-    return this._end_state_style;
+    return end_state_style(this);
   }
 
 
 
 
 
-  /********
-   *
-   *  Get the terminal state style.  ***Does not*** include
-   *  composition from an applied theme, or things from the underlying base
-   *  stylesheet; only the modifications applied by this machine.
-   *
-   *  Terminal state styles are automatically determined by the machine.  Any
-   *  state without a valid exit transition is terminal.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.terminal_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
-   *  console.log(light.terminal_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for terminal states.
-   *
+  /**
+   *  Get the terminal state style.  Delegates to the style family's
+   *  {@link terminal_state_style}, which carries the full contract and
+   *  example.
+   *  @see terminal_state_style
    */
-
   get terminal_state_style(): JssmStateConfig {
-    return this._terminal_state_style;
+    return terminal_state_style(this);
   }
 
 
 
 
 
-  /********
-   *
-   *  Get the style for the active state.  ***Does not*** include
-   *  composition from an applied theme, or things from the underlying base
-   *  stylesheet; only the modifications applied by this machine.
-   *
-   *  ```typescript
-   *  const light = sm`a -> b;`;
-   *  console.log(light.active_state_style);
-   *  // {}
-   *
-   *  const light = sm`a -> b; active_state: { shape: circle; };`;
-   *  console.log(light.active_state_style);
-   *  // { shape: 'circle' }
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @returns The {@link JssmStateConfig} for the active state.
-   *
+  /**
+   *  Get the style for the active state.  Delegates to the style family's
+   *  {@link active_state_style}, which carries the full contract and
+   *  example.
+   *  @see active_state_style
    */
-
   get active_state_style(): JssmStateConfig {
-    return this._active_state_style;
+    return active_state_style(this);
   }
 
 
@@ -3959,314 +3065,27 @@ class Machine<mDT> {
 
 
 
-  /********
-   *
-   *  Returns the list of resolved theme implementations for this machine, in
-   *  the order they should layer (outer/base-most first).  Each declared theme
-   *  name is mapped through {@link theme_mapping}; unknown names are skipped.
-   *
-   *  The list is reversed relative to declaration order to match the historical
-   *  layering of {@link style_for}: a later-declared theme layers under an
-   *  earlier-declared one.
-   *
-   *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
-   *
-   *  @internal
-   *
-   */
-
-  #resolved_themes(): JssmBaseTheme[] {
-
-    const themes: JssmBaseTheme[] = [];
-
-    for (const th of this._themes) {
-      const theme_impl = theme_mapping.get(th);
-      if (theme_impl !== undefined) {
-        themes.push(theme_impl);
-      }
-    }
-
-    return themes.reverse();
-
-  }
-
-
-
-
-  /********
-   *
-   *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
-   *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
-   *  "`state foo : { … }`" contribution of the config cascade.  A state with no
-   *  declaration yields an all-`undefined` config (which contributes nothing
-   *  once folded with `merge_state_config`).
-   *
-   *  @param state The state whose per-state declared style is wanted.
-   *
-   *  @returns The per-state style config (fields may be `undefined`).
-   *
-   *  @internal
-   *
-   */
-
-  #individual_state_config(state: StateType): JssmStateConfig {
-
-    const decl: JssmStateDeclaration = this._state_declarations.get(state);
-
-    return {
-      color           : decl?.color,
-      textColor       : decl?.textColor,
-      borderColor     : decl?.borderColor,
-      backgroundColor : decl?.backgroundColor,
-      lineStyle       : decl?.lineStyle,
-      corners         : decl?.corners,
-      shape           : decl?.shape,
-      image           : decl?.image,
-      url             : decl?.url
-    };
-
-  }
-
-
-
-
-  /********
-   *
-   *  Orders the groups a state belongs to by nesting depth for the config
-   *  cascade — outermost first, innermost last — so that, folded in order,
-   *  the innermost (nearest / smallest {@link membership_distance}) group's
-   *  metadata wins.  Equal-distance groups are ordered by group declaration
-   *  order, so a later-declared group of the same depth wins the tie.
-   *
-   *  Concretely: groups are sorted by descending membership distance (largest
-   *  distance applied first / wins least), and for equal distances by
-   *  ascending declaration index (later index applied last / wins most).
-   *
-   *  @param state The state whose containing groups are being ordered.
-   *
-   *  @returns The containing group names, ordered for outer→inner folding
-   *  (the last entry wins).
-   *
-   *  @internal
-   *
-   */
-
-  #groups_by_depth(state: StateType): string[] {
-
-    const containing: string[] = [ ...this.groupsOf(state) ];
-
-    if (containing.length < 2) { return containing; }
-
-    return containing.sort((ga: string, gb: string): number => {
-
-      const da: number = membership_distance(this._group_registry, state, ga),
-            db: number = membership_distance(this._group_registry, state, gb);
-
-      // Larger distance (more "outer") sorts earlier so it is applied first and
-      // overridden by nearer groups.
-      if (da !== db) { return db - da; }
-
-      // Equal depth: earlier-declared group sorts earlier (applied first), so
-      // the later-declared group of the same depth wins the tie.
-      return this._group_order.indexOf(ga) - this._group_order.indexOf(gb);
-
-    });
-
-  }
-
-
-
-
-  /********
-   *
-   *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
-   *  — when `active` is set — the active-state THEME layers, which historically
-   *  sit just below the per-state config so that a `state foo : { … }` block
-   *  still overrides a theme's `active` styling.  The user `active_state : { … }`
-   *  overlay (tier 6) is NOT applied here; it is layered on top by
-   *  {@link resolve_state_config} so it wins over per-state config.
-   *
-   *  Tiers, folded least-specific → most-specific with `merge_state_config`
-   *  (later wins, never throwing on a cross-tier key collision):
-   *
-   *    1. theme defaults — `base_theme.state`, then each selected theme's
-   *       `.state` block.
-   *    2. `default_state_config` (the implicit `state : { … }` root over every
-   *       state).
-   *    3. static per-kind defaults selected by structural kind — terminal,
-   *       then start, then end — each contributing its `base_theme.<kind>`,
-   *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
-   *       When `active`, the active-state theme layers (`base_theme.active` and
-   *       each selected theme's `.active`) are folded here too.
-   *    4. group metadata, depth-ordered outer→inner (see {@link _groups_by_depth}),
-   *       each group's RAW `{ declarations }` already condensed at construction.
-   *    5. the per-state `state foo : { … }` config.
-   *
-   *  @param state  The state to resolve config for.
-   *  @param active Whether to include the active-state theme layers (true only
-   *                for the machine's currently-occupied state).
-   *
-   *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
-   *
-   *  @internal
-   *
-   */
-
-  #compose_state_config(state: StateType, active: boolean): JssmStateConfig {
-
-    const themes: JssmBaseTheme[] = this.#resolved_themes();
-
-    let acc: JssmStateConfig = {};
-
-    // tier 1 — theme defaults (base, then selected themes)
-    acc = merge_state_config(acc, base_theme.state);
-    for (const theme of themes) {
-      if (theme.state) { acc = merge_state_config(acc, theme.state); }
-    }
-
-    // tier 2 — default_state_config (implicit root over all states)
-    acc = merge_state_config(acc, this._state_style);
-
-    // tier 2.5 — hooked-state styling, applied when the state carries any
-    // observational or boundary hook.  Sits above the root default and below
-    // the per-kind/group/per-state tiers, preserving the historical layer
-    // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
-    if (this.state_has_hooks(state)) {
-      acc = merge_state_config(acc, base_theme.hooked);
-      for (const theme of themes) { if (theme.hooked) { acc = merge_state_config(acc, theme.hooked); } }
-      acc = merge_state_config(acc, this._hooked_state_style);
-    }
-
-    // tier 3 — static per-kind defaults, selected by structural kind
-    if (this.state_is_terminal(state)) {
-      acc = merge_state_config(acc, base_theme.terminal);
-      for (const theme of themes) { if (theme.terminal) { acc = merge_state_config(acc, theme.terminal); } }
-      acc = merge_state_config(acc, this._terminal_state_style);
-    }
-
-    if (this.is_start_state(state)) {
-      acc = merge_state_config(acc, base_theme.start);
-      for (const theme of themes) { if (theme.start) { acc = merge_state_config(acc, theme.start); } }
-      acc = merge_state_config(acc, this._start_state_style);
-    }
-
-    if (this.is_end_state(state)) {
-      acc = merge_state_config(acc, base_theme.end);
-      for (const theme of themes) { if (theme.end) { acc = merge_state_config(acc, theme.end); } }
-      acc = merge_state_config(acc, this._end_state_style);
-    }
-
-    // tier 3 (active kind) — active-state THEME layers, below per-state so a
-    // per-state block still wins (preserving the historical layer order).
-    if (active) {
-      acc = merge_state_config(acc, base_theme.active);
-      for (const theme of themes) { if (theme.active) { acc = merge_state_config(acc, theme.active); } }
-    }
-
-    // tier 4 — group metadata, outer→inner (inner / nearest group wins)
-    for (const group_name of this.#groups_by_depth(state)) {
-      const group_cfg: JssmStateConfig | undefined = this._group_metadata.get(group_name);
-      if (group_cfg !== undefined) { acc = merge_state_config(acc, group_cfg); }
-    }
-
-    // tier 5 — per-state `state foo : { … }`
-    acc = merge_state_config(acc, this.#individual_state_config(state));
-
-    return acc;
-
-  }
-
-
-
-
-  /********
-   *
-   *  Resolves the full unified style/config cascade for a state — the runtime
-   *  successor to the ad-hoc layer merge {@link style_for} used to perform.
-   *
-   *  For any state OTHER than the current one, this returns the memoized static
-   *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
-   *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-   *  per-state config.  The cache is keyed by state; those tiers do not depend
-   *  on which state is current, so it survives transitions, but the mutable
-   *  cascade inputs each clear it when they change — hook registration and
-   *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
-   *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
-   *  per-kind theme layers).
-   *
-   *  For the machine's CURRENTLY-occupied state the result is recomputed each
-   *  call (never cached) and additionally carries the dynamic `active_state`
-   *  layers: the active-state THEME layers fold in just below the per-state
-   *  config (tier 3-active), and the user `active_state : { … }` overlay folds
-   *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-   *  Every fold uses `merge_state_config`, so a key set at a lower tier is
-   *  overridden — never rejected — by a higher one.
-   *
-   *  ```typescript
-   *  import { sm } from 'jssm';
-   *
-   *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
-   *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param state The state to compute the composite config for.
-   *
-   *  @returns The fully composited {@link JssmStateConfig} for the state,
-   *  including the active overlay when the state is current.
-   *
-   *  @see style_for
-   *
-   */
-
-  resolve_state_config(state: StateType): JssmStateConfig {
-
-    // The current state carries the dynamic active layers and is recomputed
-    // each call so the overlay tracks transitions; it is never memoized.
-    if (this.state() === state) {
-      const acc: JssmStateConfig = this.#compose_state_config(state, true);
-      // tier 6 — user active_state overlay, on top of per-state config.
-      return merge_state_config(acc, this._active_state_style);
-    }
-
-    // Non-current states: tiers 1–5 only, memoized.
-    const cached: JssmStateConfig | undefined = this._static_state_config_cache.get(state);
-    if (cached !== undefined) { return cached; }
-
-    const resolved: JssmStateConfig = this.#compose_state_config(state, false);
-    this._static_state_config_cache.set(state, resolved);
-    return resolved;
-
-  }
-
-
-
-
-  /********
-   *
-   *  Gets the composite style for a specific node — the public viz entry point,
-   *  now a thin wrapper over the unified config cascade in
-   *  {@link resolve_state_config}.
-   *
-   *  The order of composition runs least-specific to most-specific: theme
-   *  defaults, then the `default_state_config` root, then per-kind defaults
-   *  (terminal, start, end), then depth-ordered group metadata (inner groups
-   *  winning over outer), then the per-state config, and finally — for the
-   *  current state only — the active overlay.  Last wins at every tier.
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   *  @param state The state to compute the composite style for.
-   *
-   *  @returns The fully composited {@link JssmStateConfig} for the given state.
-   *
+  /**
+   *  Resolves the full unified style/config cascade for a state.  Delegates
+   *  to the style family's {@link resolve_state_config}, which carries the
+   *  full contract and example.
    *  @see resolve_state_config
-   *
    */
+  resolve_state_config(state: StateType): JssmStateConfig {
+    return resolve_state_config(this, state);
+  }
 
+
+
+
+  /**
+   *  Gets the composite style for a specific node — the public viz entry
+   *  point.  Delegates to the style family's {@link style_for}, which
+   *  carries the full contract.
+   *  @see style_for
+   */
   style_for(state: StateType): JssmStateConfig {
-    return this.resolve_state_config(state);
+    return style_for(this, state);
   }
 
 
@@ -4490,37 +3309,41 @@ class Machine<mDT> {
   }
 
   /**
-   * Get the instance name of this machine, if one was assigned at creation.
-   *  @returns The instance name string, or `undefined`.
+   * Get the instance name of this machine.  Delegates to the create family's
+   *  {@link instance_name}.
+   *  @see instance_name
    */
   instance_name(): string | undefined {
-    return this._instance_name;
+    return instance_name(this);
   }
 
 
 
   /**
-   * Get the creation date of this machine as a `Date` object.
-   *  @returns A `Date` representing when the machine was created.
+   * Get the creation date of this machine as a `Date` object.  Delegates to
+   *  the create family's {@link creation_date}.
+   *  @see creation_date
    */
   get creation_date(): Date {
-    return new Date(Math.floor( this.creation_timestamp ));
+    return creation_date(this);
   }
 
   /**
-   * Get the creation timestamp (milliseconds since epoch).
-   *  @returns The timestamp as a number.
+   * Get the creation timestamp (milliseconds since epoch).  Delegates to the
+   *  create family's {@link creation_timestamp}.
+   *  @see creation_timestamp
    */
   get creation_timestamp(): number {
-    return this._created;
+    return creation_timestamp(this);
   }
 
   /**
-   * Get the timestamp when construction began (before parsing).
-   *  @returns The start-of-construction timestamp as a number.
+   * Get the timestamp when construction began (before parsing).  Delegates
+   *  to the create family's {@link create_start_time}.
+   *  @see create_start_time
    */
   get create_start_time(): number {
-    return this._create_started;
+    return create_start_time(this);
   }
 
 
@@ -4935,11 +3758,6 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
 
 export {
 
-  
-    
-
-  transfer_state_properties,
-
   Machine,
   create,
   deserialize,
@@ -4980,9 +3798,6 @@ export {
 
   is_state_name_first_char,
   is_state_name_char,
-
-  state_style_condense,
-
 
 //  FslThemes
 

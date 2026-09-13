@@ -2,7 +2,7 @@
 import { describe, test, expect } from 'vitest';
 import * as fc from 'fast-check';
 
-import { from as sm_from, on, history, set_history_length, transition, act, hook, post_hook_any_transition, hook_registry, state, data, set_data } from '../jssm';
+import { from as sm_from, on, history, set_history_length, transition, act, hook, post_hook_any_transition, hook_registry, state, data, set_data, probabilistic_transition, set_rng_seed } from '../jssm';
 
 
 
@@ -24,7 +24,9 @@ import { from as sm_from, on, history, set_history_length, transition, act, hook
 //   - Task 5: the `state` and `data` reads go through `state(m)` / `data(m)`,
 //     and a `set_data` arm installs random data on both sides so the data
 //     comparison at the end compares something other than undefined.
-//   - Task 6 adds the `probabilistic_transition` arm and `set_rng_seed`.
+//   - Task 6: the `probabilistic` arm — both machines are seeded from the
+//     same drawn seed (`m.rng_seed = seed` / `set_rng_seed(m, seed)`) so the
+//     weighted-random exits they pick must coincide step for step.
 
 const SOURCE = `a 'go' -> b 'go' -> c 'go' -> a; a 'jump' -> c; c 'reset' -> a; b -> a;`;
 
@@ -34,21 +36,26 @@ const HISTORY = 5;
 
 describe('class and function surfaces agree', () => {
 
-  test('a random program of actions and transitions leaves both machines in the same state, history, data, and event log', () => {
+  test('a random program of actions, transitions, and seeded probabilistic steps leaves both machines in the same state, history, data, and event log', () => {
     fc.assert(fc.property(
+      fc.integer({ min: 1, max: 2 ** 31 - 1 }),
       fc.array(
         fc.oneof(
           fc.constantFrom('go', 'jump', 'reset', 'nope').map(a => ({ kind: 'act' as const, a })),
           fc.constantFrom('a', 'b', 'c', 'zed').map(s => ({ kind: 'transition' as const, s })),
           fc.oneof(fc.integer(), fc.string(), fc.constant(undefined), fc.constant(null), fc.record({ n: fc.integer() }))
             .map(d => ({ kind: 'set_data' as const, d })),
+          fc.constant({ kind: 'probabilistic' as const }),
         ),
         { minLength: 1, maxLength: 40 }
       ),
-      (program) => {
+      (seed, program) => {
 
         const via_class = sm_from<unknown>(SOURCE, { history: HISTORY });
         const via_fns   = sm_from<unknown>(SOURCE, { history: HISTORY });
+
+        via_class.rng_seed = seed;
+        set_rng_seed(via_fns, seed);
 
         const log_class: string[] = [];
         const log_fns:   string[] = [];
@@ -69,6 +76,10 @@ describe('class and function surfaces agree', () => {
           } else if (step.kind === 'transition') {
             r1 = via_class.transition(step.s);
             r2 = transition(via_fns, step.s);
+          } else if (step.kind === 'probabilistic') {
+            // every state of SOURCE has at least one legal exit, so this never throws
+            r1 = via_class.probabilistic_transition();
+            r2 = probabilistic_transition(via_fns);
           } else {
             // both sides get their own clone so neither machine aliases the other's data
             r1 = via_class.set_data(structuredClone(step.d)) === via_class;
