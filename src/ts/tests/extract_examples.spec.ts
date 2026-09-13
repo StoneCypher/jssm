@@ -83,6 +83,24 @@ describe('rewriteImportSpecifier', () => {
 
 });
 
+const { docexFileName } = require('../../buildjs/extract_examples.cjs');
+
+describe('docexFileName', () => {
+
+  it('flattens a nested entry into a single generated file name', () => {
+    expect(docexFileName('machine/machine')).toBe('machine_machine.docex.ts');
+  });
+
+  it('leaves a top-level entry name as it is', () => {
+    expect(docexFileName('jssm_util')).toBe('jssm_util.docex.ts');
+  });
+
+  it('folds every separator of a deeper path', () => {
+    expect(docexFileName('a/b/c')).toBe('a_b_c.docex.ts');
+  });
+
+});
+
 const { rewriteOutputComments } = require('../../buildjs/extract_examples.cjs');
 
 describe('rewriteOutputComments', () => {

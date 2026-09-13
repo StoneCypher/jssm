@@ -12,14 +12,15 @@
  * in the {@link Machine} constructor, a stage past `compile`. We therefore also
  * construct the machine so the editor surfaces those construction-time errors
  * instead of calling such a machine valid. The `Machine` import comes from the
- * `compat` entry (the default `jssm` entry exports the class as a type only since
- * 6.0) and closes a cycle (`compat` re-exports `jssm`, which re-exports this
+ * class module itself (the default `jssm` entry exports the class as a type only
+ * since 6.0; intra-core code never routes through `jssm/compat`) and closes a
+ * cycle (`machine/machine.js` is reached from the barrel that re-exports this
  * module), but it is only referenced at call time inside {@link fslDiagnostics},
  * never during module initialization, so the cycle is benign.
  */
 
 import { wrap_parse, compile } from '../jssm_compiler.js';
-import { Machine } from '../compat.js';
+import { Machine } from '../machine/machine.js';
 import type { Diagnostic, Range } from './types.js';
 
 interface Located { start: { offset: number }; end: { offset: number }; }
