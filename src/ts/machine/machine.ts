@@ -131,17 +131,19 @@ import { JssmError }           from '../jssm_error.js';
 
 
 
-/**
- *  Internal record holding a single registered event subscription: the
- *  handler, its optional filter, and a flag for `once` semantics.  Not
- *  exported.
- *  @internal
- */
-type JssmEventEntry<mDT, Ev extends JssmEventName> = {
-  handler : JssmEventHandler<mDT, Ev>,
-  filter? : JssmEventFilter<mDT, Ev>,
-  once    : boolean
-};
+// The bare-function families.  Each family file imports this class as a
+// type only, so these are one-way runtime edges: the class is the runtime
+// root and every member below is a one-line delegate onto its family.
+
+import { on, once, off, fire, fire_one, has_subscribers } from './events.js';
+import type { JssmEventEntry }                            from './events.js';
+
+import { history, history_inclusive, history_length, set_history_length } from './history.js';
+
+import {
+  set_state_timeout, clear_state_timeout, state_timeout_for, current_state_timeout, auto_set_state_timeout,
+  DEFAULT_TIME_SOURCE, DEFAULT_TIMEOUT_SOURCE, DEFAULT_CLEAR_TIMEOUT_SOURCE
+} from './timers.js';
 
 
 
@@ -566,34 +568,6 @@ function find_connected_components<mDT>(
 export const STOCHASTIC_DEFAULT_RUNS = 1000;
 /** Default per-run step cap (montecarlo) / walk length (steady_state). */
 export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
-
-
-
-/**
- *  Default time / timeout sources, hoisted to module scope so machines that
- *  don't override them (nearly all) share three singletons instead of
- *  allocating three fresh closures per construction.
- *  @internal
- */
-const DEFAULT_TIME_SOURCE          = (): number => Date.now();
-const DEFAULT_TIMEOUT_SOURCE       = (f: () => void, a: number): number => {
-  const handle = setTimeout(f, a);
-  // In Node, setTimeout returns a Timeout with .unref(), so a pending `after`
-  // timer does NOT by itself keep the process alive -- an abandoned machine can
-  // be collected and the process can exit instead of hanging until the timer
-  // fires go() on it.  The browser returns a plain number with no such method.
-  // A consumer who wants the timer to hold the loop open can supply their own
-  // timeout_source.  StoneCypher/fsl#1952
-  const maybe_unref = handle as unknown as { unref?: () => void };
-  // The no-unref path is the browser's numeric handle; it can't be reached in
-  // the node-only coverage environment, so the false branch is ignored here.
-  /* v8 ignore next */
-  if (typeof maybe_unref.unref === 'function') { maybe_unref.unref(); }
-  return handle as unknown as number;
-};
-const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h: number): void => clearTimeout(h);
-
-
 
 
 
@@ -3815,33 +3789,9 @@ class Machine<mDT> {
 
 
   /**
-   *  Subscribe to a typed observation event.  Hooks (`set_hook` and friends)
-   *  intercept and may cancel a transition; events fire alongside the same
-   *  state-machine moments but cannot influence the outcome.  This is the
-   *  surface most users actually want for "tell me when state changes".
-   *
-   *  Handlers run synchronously, in registration order.  A throwing handler
-   *  does not block subsequent handlers — its exception is caught and
-   *  re-emitted as an `error` event whose detail names the original event
-   *  and the offending handler.
-   *
-   *  ```typescript
-   *  const m = sm`a -> b -> c;`;
-   *
-   *  m.on('transition', e => console.log(`${e.from} -> ${e.to}`));
-   *  m.on('entry', { state: 'b' }, e => console.log(`entered ${e.state}`));
-   *
-   *  const off = m.on('transition', () => {});
-   *  off();  // unsubscribe
-   *  ```
-   *  @template Ev      The event name (drives the detail type).
-   *  @param name        The event name to subscribe to.
-   *  @param handler     The handler invoked on each matching delivery.  The
-   *                     three-argument `(name, filter, handler)` form inserts a
-   *                     filter object before the handler (see the example above).
-   *  @returns A function that unsubscribes when called.
-   *  @see Machine.off
-   *  @see Machine.once
+   *  Subscribe to a typed observation event.  Delegates to the events
+   *  family's {@link on}, which carries the full contract and examples.
+   *  @see on
    */
   on<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
   on<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
@@ -3850,28 +3800,15 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return this.#subscribe(name, filterOrFn, maybeFn, false);
+    return on(this, name, filterOrFn, maybeFn);
   }
 
 
 
   /**
    *  Subscribe to a typed observation event for one matching delivery, then
-   *  auto-remove.  Accepts the same `(name, handler)` and `(name, filter,
-   *  handler)` shapes as {@link Machine.on}.
-   *
-   *  ```typescript
-   *  m.once('terminal', e => console.log(`done at ${e.state}`));
-   *  ```
-   *  @template Ev      The event name.
-   *  @param name        The event name.
-   *  @param handler     The handler invoked on the first matching delivery.  The
-   *                     three-argument `(name, filter, handler)` form inserts a
-   *                     filter object before the handler (same shapes as `on`).
-   *  @returns A function that unsubscribes early if called before the
-   *           handler has fired.
-   *  @see Machine.on
-   *  @see Machine.off
+   *  auto-remove.  Delegates to the events family's {@link once}.
+   *  @see once
    */
   once<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
   once<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
@@ -3880,107 +3817,25 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return this.#subscribe(name, filterOrFn, maybeFn, true);
+    return once(this, name, filterOrFn, maybeFn);
   }
 
 
 
   /**
-   *  Remove a previously-registered event handler.  Match is by reference —
-   *  the same function value passed to {@link Machine.on} or
-   *  {@link Machine.once}.  Returns `true` if a subscription was found and
-   *  removed, `false` otherwise.
-   *
-   *  ```typescript
-   *  const fn = (e: any) => console.log(e);
-   *  m.on('transition', fn);
-   *  m.off('transition', fn);  // true
-   *  m.off('transition', fn);  // false
-   *  ```
-   *  @param name    The event name.
-   *  @param handler The handler reference to remove.
-   *  @returns `true` if removed, `false` if no match was registered.
+   *  Remove a previously-registered event handler.  Delegates to the events
+   *  family's {@link off}.
+   *  @see off
    */
   off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean {
-    const set = this._event_handlers.get(name);
-    if (set === undefined) { return false; }
-    for (const entry of set) {
-      if (entry.handler === handler) {
-        this.#unsubscribe_entry(set, entry);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   *  Remove one event-subscription entry from its set and keep
-   *  {@link Machine._event_listener_count} in sync.  The count is decremented
-   *  only when the entry was actually present, so calling a stale unsubscribe
-   *  closure (or removing an already-fired `once` entry) is idempotent and
-   *  cannot drive the count negative.
-   *  @param set   The per-event-name subscription set.
-   *  @param entry The entry to remove.
-   *  @internal
-   */
-  #unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void {
-    if (set.delete(entry)) { this._event_listener_count--; }
+    return off(this, name, handler);
   }
 
 
 
   /**
-   *  Shared registration core used by {@link Machine.on} and
-   *  {@link Machine.once}.  Normalizes the optional filter argument and
-   *  installs the entry into the per-event subscription set.
-   *  @internal
-   */
-  #subscribe<Ev extends JssmEventName>(
-    name: Ev,
-    filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
-    maybeFn: JssmEventHandler<mDT, Ev> | undefined,
-    once: boolean
-  ): JssmUnsubscribe {
-
-    let filter: JssmEventFilter<mDT, Ev> | undefined;
-    let handler: JssmEventHandler<mDT, Ev>;
-
-    if (typeof filterOrFn === 'function') {
-      filter  = undefined;
-      handler = filterOrFn;
-    } else {
-      filter  = filterOrFn;
-      handler = maybeFn;
-    }
-
-    if (typeof handler !== 'function') {
-      throw new JssmError(this, `event handler for "${name}" must be a function`);
-    }
-
-    let set = this._event_handlers.get(name);
-    if (set === undefined) {
-      set = new Set();
-      this._event_handlers.set(name, set);
-    }
-
-    const entry: JssmEventEntry<mDT, Ev> = { handler, filter, once };
-    set.add(entry);
-    this._event_listener_count++;
-
-    return () => { this.#unsubscribe_entry(set, entry); };
-  }
-
-
-
-  /**
-   *  Invoke a single event-handler entry, respecting its filter, once-removal
-   *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
-   *  {@link _fire} can share identical behavior between the size-1 fast-path
-   *  and the general snapshotted loop.
-   *  @param entry  - The subscriber descriptor to invoke.
-   *  @param set    - The live Set that owns `entry`; needed for once-removal.
-   *  @param name   - The event name being dispatched (used in error re-fires).
-   *  @param detail - The event payload forwarded to the handler.
+   *  Invoke a single event-handler entry.  Delegates to the events family's
+   *  {@link fire_one}.
    *  @internal
    */
   // PERF: this and the sibling dispatch methods (_fire, _fire_boundary_actions,
@@ -3996,109 +3851,29 @@ class Machine<mDT> {
     name   : Ev,
     detail : JssmEventDetailMap<mDT>[Ev]
   ): void {
-
-    // filter check
-    if (entry.filter !== undefined) {
-      for (const [k, v] of Object.entries(entry.filter)) {
-        if (v !== (detail as any)[k]) { return; }
-      }
-    }
-
-    // once removal happens BEFORE invocation so a throwing handler still
-    // gets removed and so re-entrant `on` calls during the handler see
-    // the post-removal state.
-    if (entry.once) { this.#unsubscribe_entry(set, entry); }
-
-    try {
-      entry.handler(detail);
-    } catch (error) {
-      if (name === 'error' || this._firing_error) {
-        // surface to stderr as a last resort but never recurse;
-        // `console` is in the JS standard library and present in every
-        // supported runtime, so guarding it would just add an untestable
-        // branch.  See #638.
-         
-        console.error(error);
-      } else {
-        this._firing_error = true;
-        try {
-          this._fire('error', {
-            error         : error,
-            source_event  : name,
-            source_detail : detail,
-            handler       : entry.handler
-          });
-        } finally {
-          this._firing_error = false;
-        }
-      }
-    }
+    fire_one(this, entry, set, name, detail);
   }
 
 
 
   /**
-   *  Dispatch an event to every registered subscriber in registration
-   *  order.  Filters are checked first; non-matching handlers are skipped
-   *  without invoking the handler.  Exceptions thrown by a handler are
-   *  caught and re-emitted as an `error` event so subsequent handlers
-   *  still run.
-   *
-   *  Re-entry into the `error` event itself is guarded — if an `error`
-   *  handler throws, the new exception is swallowed rather than rebroadcast
-   *  to avoid an infinite loop.
-   *
-   *  When exactly one subscriber is registered the common case avoids the
-   *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
-   *  local first — equivalent to a 1-element snapshot but allocation-free.
-   *  The general path still snapshots for re-entrancy safety.
-   *  @internal
-   */
-  /**
-   *  Whether at least one live subscriber is registered for `name`.  Used by
-   *  the transition-commit observation block to skip building a detail
-   *  literal that {@link Machine._fire} would immediately discard — a panel
-   *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
-   *  previously paid for the exit/entry/data-change detail allocations on
-   *  every transition.  Read at fire time, so a listener installed by a
-   *  pre-hook is still seen (#671).
-   *  @param name The event name to probe.
-   *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
-   *  least one handler.
-   *
-   *  ```typescript
-   *  machine.on('transition', () => {});
-   *  machine._has_subscribers('transition');  // true
-   *  machine._has_subscribers('exit');        // false
-   *  ```
-   *  @see Machine._fire
+   *  Whether at least one live subscriber is registered for `name`.
+   *  Delegates to the events family's {@link has_subscribers}.
    *  @internal
    */
   _has_subscribers(name: JssmEventName): boolean {
-    const set = this._event_handlers.get(name);
-    return (set !== undefined) && (set.size > 0);
+    return has_subscribers(this, name);
   }
 
+
+
+  /**
+   *  Dispatch an event to every registered subscriber.  Delegates to the
+   *  events family's {@link fire}.
+   *  @internal
+   */
   _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
-
-    const set = this._event_handlers.get(name);
-    if (set === undefined || set.size === 0) { return; }
-
-    // Fast-path: single subscriber — capture entry before invoking so that
-    // even if the handler mutates `set` (via off/once auto-removal) we hold a
-    // stable reference.  Behaviorally identical to a 1-element snapshot.
-    if (set.size === 1) {
-      const only = set.values().next().value as JssmEventEntry<mDT, Ev>;
-      this._fire_one(only, set, name, detail);
-      return;
-    }
-
-    // General path: snapshot so handlers can `off()` mid-loop without
-    // disturbing iteration.
-    const entries = [...set];
-    for (const entry of entries) {
-      this._fire_one(entry, set, name, detail);
-    }
+    fire(this, name, detail);
   }
 
 
@@ -6010,135 +5785,59 @@ class Machine<mDT> {
 
 
   /**
-   * If the current state has an `after` timeout configured, schedule it.
-   *  Called internally after each transition.
+   *  If the current state has an `after` timeout configured, schedule it.
+   *  Delegates to the timers family's {@link auto_set_state_timeout}.
+   *  @see auto_set_state_timeout
    */
   auto_set_state_timeout(): void {
-
-    // called on every successful transition-commit.  Machines with no `after`
-    // clauses at all (the overwhelmingly common case) previously still paid a
-    // string hash + map probe here per transition; one integer size read
-    // short-circuits that.
-    if (this._after_mapping.size === 0) { return; }
-
-    const after_res = this._after_mapping.get(this._state);
-    if (after_res !== undefined) {
-      const [ next_state, after_time ] = after_res;
-      this.set_state_timeout(next_state, after_time);
-    }
-
+    auto_set_state_timeout(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Get a truncated history of the recent states and data of the machine.
-   *  Turned off by default; configure with `.from('...', {data: 5})` by length,
-   *  or set `.history_length` at runtime.
-   *
-   *  History *does not contain the current state*.  If you want that, call
-   *  `.history_inclusive` instead.
-   *
-   *  ```typescript
-   *  const foo = jssm.from(
-   *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-   *    { history: 3 }
-   *  );
-   *
-   *  foo.action('next');
-   *  foo.action('next');
-   *  foo.action('next');
-   *  foo.action('next');
-   *
-   *  foo.history;  // [ ['b',undefined], ['c',undefined], ['d',undefined] ]
-   *  ```
-   *
-   *  Notice that the machine's current state, `e`, is not in the returned list.
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
-   */
-
-  get history() {
-    return this._history.toArray();
-  }
-
-
-
-
-
-  /*********
-   *
+  /**
    *  Get a truncated history of the recent states and data of the machine,
-   *  including the current state.  Turned off by default; configure with
-   *  `.from('...', {data: 5})` by length, or set `.history_length` at runtime.
-   *
-   *  History inclusive contains the current state.  If you only want past
-   *  states, call `.history` instead.
-   *
-   *  The list returned will be one longer than the history buffer kept, as the
-   *  history buffer kept gets the current state added to it to produce this
-   *  list.
-   *
-   *  ```typescript
-   *  const foo = jssm.from(
-   *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-   *    { history: 3 }
-   *  );
-   *
-   *  foo.action('next');
-   *  foo.action('next');
-   *  foo.action('next');
-   *  foo.action('next');
-   *
-   *  foo.history_inclusive;  // [ ['b',undefined], ['c',undefined], ['d',undefined], ['e',undefined] ]
-   *  ```
-   *
-   *  Notice that the machine's current state, `e`, is in the returned list.
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
+   *  without the current state.  Delegates to the history family's
+   *  {@link history}, which carries the full contract and examples.
+   *  @see history
    */
-
-  get history_inclusive() {
-    const ret = this._history.toArray();
-    ret.push([ this.state(), this.data() ]);
-    return ret;
+  get history(): Array<[StateType, mDT]> {
+    return history(this);
   }
 
 
 
 
 
-  /*********
-   *
-   *  Find out how long a history this machine is keeping.  Defaults to zero.
-   *  Settable directly.
-   *
-   *  ```typescript
-   *  const foo = jssm.from("a -> b;");
-   *  foo.history_length;                                  // 0
-   *
-   *  const bar = jssm.from("a -> b;", { history: 3 });
-   *  foo.history_length;                                  // 3
-   *  foo.history_length = 5;
-   *  foo.history_length;                                  // 5
-   *  ```
-   *
-   *  @typeParam mDT The type of the machine data member; usually omitted
-   *
+  /**
+   *  Get a truncated history of the recent states and data of the machine,
+   *  including the current state.  Delegates to the history family's
+   *  {@link history_inclusive}.
+   *  @see history_inclusive
    */
+  get history_inclusive(): Array<[StateType, mDT]> {
+    return history_inclusive(this);
+  }
 
-  get history_length() {
-    return this._history_length;
+
+
+
+
+  /**
+   *  Find out how long a history this machine is keeping.  Delegates to the
+   *  history family's {@link history_length}; the setter delegates to
+   *  {@link set_history_length}.
+   *  @see history_length
+   *  @see set_history_length
+   */
+  get history_length(): number {
+    return history_length(this);
   }
 
   set history_length(to: number) {
-    this._history_length = to;
-    this._history.resize(to, true);
+    set_history_length(this, to);
   }
 
 
@@ -7325,93 +7024,47 @@ class Machine<mDT> {
 
 
   /**
-   * Schedule an automatic transition to `next_state` after `after_time`
-   *  milliseconds.  Only one timeout may be active at a time.
-   *  @param next_state - The state to transition to when the timer fires.
-   *  @param after_time - Delay in milliseconds.
-   *  @throws {JssmError} If a timeout is already pending.
+   *  Schedule an automatic transition to `next_state` after `after_time`
+   *  milliseconds.  Delegates to the timers family's
+   *  {@link set_state_timeout}, which carries the full contract.
+   *  @throws JssmError If a timeout is already pending.
+   *  @see set_state_timeout
    */
-  set_state_timeout(next_state: StateType, after_time: number) {
-
-    if (this._timeout_handle !== undefined) {
-      throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
-    }
-
-    this._timeout_handle = this._timeout_source(
-
-      // it seems like istanbul can't see this line being followed, even though it is, actively
-      // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
-      // we'll mark it no-check so that our coverage numbers aren't wrecked
-
-      /* istanbul ignore next */
-      /* v8 ignore next 10 */
-      () => {
-        const from_state = this.state();
-        this.clear_state_timeout();
-
-        if (this._has_after_hooks) {
-          const ah = this._after_hooks.get(from_state);
-          if (ah !== undefined) { ah({ data: this._data, next_data: this._data }); }
-          // a specific after hook firing implies the any-after hook fires too,
-          // afterward; and it also fires alone (StoneCypher/fsl#1299)
-          if (this._after_any_hook !== undefined) { this._after_any_hook({ data: this._data, next_data: this._data }); }
-        }
-
-        this._fire('timeout', { from: from_state, to: next_state, after_time });
-
-        this.go(next_state);
-      },
-
-      after_time
-
-    );
-
-    this._timeout_target      = next_state;
-    this._timeout_target_time = after_time;
-
+  set_state_timeout(next_state: StateType, after_time: number): void {
+    set_state_timeout(this, next_state, after_time);
   }
 
 
 
   /**
-    Cancel any pending state timeout.  Safe to call when no timeout is active.
+   *  Cancel any pending state timeout.  Delegates to the timers family's
+   *  {@link clear_state_timeout}.
+   *  @see clear_state_timeout
    */
-  clear_state_timeout() {
-
-    if (this._timeout_handle === undefined) {
-      return;  // calling with no timeout is a no-op, means it can be called glad-handedly
-    }
-
-    this._clear_timeout_source( this._timeout_handle );
-
-    this._timeout_handle      = undefined;
-    this._timeout_target      = undefined;
-    this._timeout_target_time = undefined;
-
+  clear_state_timeout(): void {
+    clear_state_timeout(this);
   }
 
 
 
   /**
-   * Get the configured `after` timeout for a given state, if any.
-   *  @param which_state - The state to look up.
-   *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
-   *  is configured for that state.
+   *  Get the configured `after` timeout for a given state, if any.
+   *  Delegates to the timers family's {@link state_timeout_for}.
+   *  @see state_timeout_for
    */
   state_timeout_for(which_state: StateType): [StateType, number] | undefined {
-    return this._after_mapping.get(which_state);
+    return state_timeout_for(this, which_state);
   }
 
 
 
   /**
-   * Get the configured `after` timeout for the current state, if any.
-   *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
+   *  Get the pending state timeout, if any.  Delegates to the timers
+   *  family's {@link current_state_timeout}.
+   *  @see current_state_timeout
    */
   current_state_timeout(): [StateType, number] | undefined {
-    return (this._timeout_target === undefined)
-      ? undefined
-      : [ this._timeout_target, this._timeout_target_time ];
+    return current_state_timeout(this);
   }
 
 
