@@ -95,6 +95,7 @@ export const hook_spatial_fields = ['from', 'to', 'action'] as const;
  *  @throws JssmError if the kind is unknown, the handler is not a function, a
  *          required field is missing, or an inapplicable field is present.
  *  @example
+ *    import { sm, set_hook } from 'jssm';
  *    const m = sm`a -> b;`;
  *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
  *    expect(() => set_hook(m, { kind: 'exit', to: 'a', handler: () => true })).toThrow();
@@ -853,6 +854,7 @@ export function hook_exit<mDT>(m: Machine<mDT>, from: string, handler: HookHandl
  *                   cannot reject the transition.
  *  @returns The machine, for chaining.
  *  @example
+ *    import { sm, hook_after, go, clear_state_timeout } from 'jssm';
  *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
  *    let calls = 0;
  *    hook_after(m, 'a', () => { calls += 1; });
@@ -888,6 +890,7 @@ export function hook_after<mDT>(m: Machine<mDT>, from: string, handler: HookHand
  *                   before the timed transition is taken.
  *  @returns The machine, for chaining.
  *  @example
+ *    import { sm, hook_after_any, go, clear_state_timeout } from 'jssm';
  *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
  *    let calls = 0;
  *    hook_after_any(m, () => { calls += 1; });

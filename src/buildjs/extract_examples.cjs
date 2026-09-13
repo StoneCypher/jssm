@@ -196,8 +196,48 @@ function splitExample(body, definingModule) {
 }
 
 /**
+ *  Merge the hoisted import lines of every example in one module into one
+ *  import per module specifier, so two examples that both import `sm` (or any
+ *  overlapping name set) from `'jssm'` do not hoist two declarations of the
+ *  same binding — which would make the generated file unparseable.  Named
+ *  imports (`import { a, b } from 'x'`) are unioned per specifier in
+ *  first-seen order; any other import form (default, namespace, side-effect)
+ *  is kept verbatim and de-duplicated by exact line.
+ *
+ *  @param {string[]} lines - the hoisted import lines, specifiers already
+ *         rewritten, in the order the examples produced them.
+ *  @returns {string[]} the merged import lines, sorted for a stable output.
+ *
+ *  @example
+ *  mergeImports(["import { sm, a } from '../../jssm';", "import { sm, b } from '../../jssm';"])
+ *  // => ["import { sm, a, b } from '../../jssm';"]
+ */
+function mergeImports(lines) {
+  const named = new Map();   // specifier -> Set of imported names
+  const other = new Set();   // verbatim lines of every other import form
+
+  for (const line of lines) {
+    const m = line.match(/^import\s*\{\s*(.*?)\s*\}\s*from\s*'(.+?)';$/);
+    if (!m) { other.add(line); continue; }
+    if (!named.has(m[2])) { named.set(m[2], new Set()); }
+    const names = named.get(m[2]);
+    for (const name of m[1].split(',')) {
+      const trimmed = name.trim();
+      if (trimmed !== '') { names.add(trimmed); }
+    }
+  }
+
+  const merged = [...named.entries()].map(
+    ([spec, names]) => `import { ${[...names].join(', ')} } from '${spec}';`
+  );
+
+  return [...merged, ...other].sort();
+}
+
+/**
  *  Build the full text of a generated `.docex.ts` test file: a generated-by
- *  header, hoisted and de-duplicated imports, and one `it()` per example.
+ *  header, hoisted and de-duplicated imports (merged per module specifier by
+ *  {@link mergeImports}), and one `it()` per example.
  *  An example with neither an `expect(` call nor a `// =>` marker yields a
  *  deliberately failing test, so the convention is enforced not skipped.
  *
@@ -216,12 +256,12 @@ function splitExample(body, definingModule) {
  */
 function buildTestFile(records, moduleBasename) {
   const definingModule = `${moduleBasename}.ts`;
-  const allImports     = new Set();
+  const allImports     = [];
   const blocks         = [];
 
   for (const rec of records) {
     const { imports, code } = splitExample(rec.body, definingModule);
-    for (const i of imports) { allImports.add(i); }
+    allImports.push(...imports);
 
     const hasExpect = code.some(l => l.includes('expect('));
     const hasMarker = code.some(l => l.includes('// =>'));
@@ -250,7 +290,7 @@ function buildTestFile(records, moduleBasename) {
   return (
     header +
     `import { describe, it, expect } from 'vitest';\n` +
-    [...allImports].sort().join('\n') + '\n\n' +
+    mergeImports(allImports).join('\n') + '\n\n' +
     `describe('${moduleBasename}.ts docblock examples', () => {\n\n` +
     blocks.join('\n\n') + '\n\n});\n'
   );
@@ -261,7 +301,7 @@ function buildTestFile(records, moduleBasename) {
 // entry points re-export.  `jssm` is a barrel since 6.0; the `Machine` class
 // and its examples live in `machine/machine.ts`.
 const ENTRY_POINTS = [
-  'jssm', 'machine/machine', 'jssm_viz', 'jssm_types', 'jssm_constants',
+  'jssm', 'machine/machine', 'machine/hooks', 'jssm_viz', 'jssm_types', 'jssm_constants',
   'jssm_error', 'jssm_util', 'version'
 ];
 
@@ -320,4 +360,4 @@ function main() {
 
 if (require.main === module) { main(); }
 
-module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, buildTestFile, docexFileName, main };
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, mergeImports, buildTestFile, docexFileName, main };

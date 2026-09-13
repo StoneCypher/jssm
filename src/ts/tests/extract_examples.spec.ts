@@ -145,6 +145,23 @@ describe('buildTestFile', () => {
     expect(text).toContain('expect(add(0, 0)).toStrictEqual(0);');
   });
 
+  it('merges overlapping named imports from the same module into one declaration', () => {
+    // two examples that both import `sm` must not hoist two `sm` bindings
+    const records = [
+      { symbol: 'f', line: 3, body:
+        "import { sm, f } from 'jssm';\nf(sm`a -> b;`);  // => 1" },
+      { symbol: 'g', line: 9, body:
+        "import { sm, g } from 'jssm';\ng(sm`a -> b;`);  // => 2" }
+    ];
+
+    const text = buildTestFile(records, 'jssm');
+
+    expect(text).toContain("import { sm, f, g } from '../../jssm';");
+    expect(text.split("from '../../jssm';")).toHaveLength(2);
+    expect(text).toContain('expect(f(sm`a -> b;`)).toStrictEqual(1);');
+    expect(text).toContain('expect(g(sm`a -> b;`)).toStrictEqual(2);');
+  });
+
   it('emits a failing test for an example with no verifiable assertion', () => {
     const records = [
       { symbol: 'noop', line: 5, body: "import { noop } from 'jssm';\nnoop();" }
@@ -162,6 +179,38 @@ describe('buildTestFile', () => {
     ];
 
     expect(buildTestFile(records, 'jssm')).toContain('expect(add(1, 1)).toBe(2);');
+  });
+
+});
+
+const { mergeImports } = require('../../buildjs/extract_examples.cjs');
+
+describe('mergeImports', () => {
+
+  it('unions named imports per specifier in first-seen order and sorts the lines', () => {
+    expect(mergeImports([
+      "import { sm, a } from '../../jssm';",
+      "import { b } from '../../jssm_util';",
+      "import { sm, b } from '../../jssm';"
+    ])).toStrictEqual([
+      "import { b } from '../../jssm_util';",
+      "import { sm, a, b } from '../../jssm';"
+    ]);
+  });
+
+  it('keeps non-named import forms verbatim, de-duplicated by line', () => {
+    expect(mergeImports([
+      "import * as jssm from '../../jssm';",
+      "import * as jssm from '../../jssm';",
+      "import { x } from '../../jssm';"
+    ])).toStrictEqual([
+      "import * as jssm from '../../jssm';",
+      "import { x } from '../../jssm';"
+    ]);
+  });
+
+  it('returns an empty list when no example imported anything', () => {
+    expect(mergeImports([])).toStrictEqual([]);
   });
 
 });
