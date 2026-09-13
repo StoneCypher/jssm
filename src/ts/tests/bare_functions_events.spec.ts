@@ -98,6 +98,16 @@ describe('bare functions — events family', () => {
       expect(() => (on as any)(m, 'transition', { from: 'a' }, 'not a function')).toThrow();
     });
 
+    // Only the two documented shapes exist: (m, name, handler) and
+    // (m, name, filter, handler).  A filter with no handler must be rejected
+    // by the type (the @ts-expect-error holds only while no wider overload
+    // is exported) and by the runtime guard alike.
+    test('a filter without a handler is a type error and a runtime error', () => {
+      const m = sm`a -> b;`;
+      // @ts-expect-error exercising the runtime guard: a filter alone matches neither shape of on
+      expect(() => on(m, 'transition', { to: 'b' })).toThrow();
+    });
+
   });
 
 
@@ -129,6 +139,12 @@ describe('bare functions — events family', () => {
       m.transition('b');
       m.transition('c');
       expect(seen).toEqual(['c']);
+    });
+
+    test('a filter without a handler is a type error and a runtime error', () => {
+      const m = sm`a -> b;`;
+      // @ts-expect-error exercising the runtime guard: a filter alone matches neither shape of once
+      expect(() => once(m, 'transition', { to: 'b' })).toThrow();
     });
 
   });

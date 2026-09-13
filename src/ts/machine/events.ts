@@ -82,7 +82,6 @@ export type JssmEventEntry<mDT, Ev extends JssmEventName> = {
  */
 export function on<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
 export function on<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
-export function on<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn?: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
 export function on<mDT, Ev extends JssmEventName>(
   m          : Machine<mDT>,
   name       : Ev,
@@ -126,7 +125,6 @@ export function on<mDT, Ev extends JssmEventName>(
  */
 export function once<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
 export function once<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
-export function once<mDT, Ev extends JssmEventName>(m: Machine<mDT>, name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn?: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
 export function once<mDT, Ev extends JssmEventName>(
   m          : Machine<mDT>,
   name       : Ev,

@@ -3800,7 +3800,11 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return on(this, name, filterOrFn, maybeFn);
+    // the family exports only the two documented shapes; split here so the
+    // union-typed implementation parameter never widens the public signature
+    return (typeof filterOrFn === 'function')
+      ? on(this, name, filterOrFn)
+      : on(this, name, filterOrFn, maybeFn);
   }
 
 
@@ -3817,7 +3821,9 @@ class Machine<mDT> {
     filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
     maybeFn?: JssmEventHandler<mDT, Ev>
   ): JssmUnsubscribe {
-    return once(this, name, filterOrFn, maybeFn);
+    return (typeof filterOrFn === 'function')
+      ? once(this, name, filterOrFn)
+      : once(this, name, filterOrFn, maybeFn);
   }
 
 
