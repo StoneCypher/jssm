@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as jssm from '../jssm';
+import * as jssm from '../compat';
 
 // Seeded histogram over many single probabilistic steps from `from`.
 const histo = (src: string, from: string, n: number, seed: number): Map<string, number> => {

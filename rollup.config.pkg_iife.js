@@ -8,6 +8,11 @@
 //
 // This is also the build the CDN serves, so it is the one artifact whose shape
 // is dictated by the consumer having no tooling whatsoever.
+//
+// The input is the `jssm/compat` entry (dist/es6/compat.js), not the default
+// entry: a browser global has no subpaths, so the IIFE carries the superset --
+// every bare function and factory of the default entry PLUS the 5.x `Machine`
+// class -- and `jssm.Machine` keeps working from a script tag.
 
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs    from '@rollup/plugin-commonjs';
@@ -17,7 +22,7 @@ import dts         from 'rollup-plugin-dts';
 export default [
 
   {
-    input  : 'dist/es6/jssm.js',
+    input  : 'dist/es6/compat.js',
     output : {
       file   : 'packages/jssm-iife/dist/jssm.iife.js',
       format : 'iife',
@@ -40,9 +45,10 @@ export default [
   },
 
   //  Bundlers and editors still want types even for a global build, and they
-  //  ship here rather than in a separate package.
+  //  ship here rather than in a separate package.  The compat declaration,
+  //  to match the superset the bundle carries.
   {
-    input  : 'dist/es6/jssm.d.ts',
+    input  : 'dist/es6/compat.d.ts',
     output : { file: 'packages/jssm-iife/dist/jssm.d.ts', format: 'es' },
     plugins: [dts()],
   },

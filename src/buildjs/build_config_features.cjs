@@ -101,6 +101,8 @@ const FEATURES = {
   minify:       { script: 'minify',       stages: [5], optional: true, defaultEnabled: true },
   min_iife:     { script: 'min_iife',     stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_es6:      { script: 'min_es6',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
+  // the jssm/compat entry (6.0): es-only twin of min_es6, from the same make_core run
+  min_compat:   { script: 'min_compat',   stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_cjs:      { script: 'min_cjs',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_core'] },
   min_viz_iife: { script: 'min_viz_iife', stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_es6:  { script: 'min_viz_es6',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },

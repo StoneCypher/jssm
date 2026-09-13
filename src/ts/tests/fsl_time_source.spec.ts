@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Machine, make } from '../jssm';
+import { make }    from '../jssm';
+import { Machine } from '../compat';
 
 function build(src: string, time_source: () => number) {
   return new Machine<unknown>({ ...make<string, unknown>(src), time_source });

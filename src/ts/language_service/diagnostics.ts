@@ -11,14 +11,15 @@
  * Some validity checks (e.g. a `required` property that no state defines) live
  * in the {@link Machine} constructor, a stage past `compile`. We therefore also
  * construct the machine so the editor surfaces those construction-time errors
- * instead of calling such a machine valid. The `Machine` import closes a cycle
- * (`jssm` re-exports this module), but it is only referenced at call time inside
- * {@link fslDiagnostics}, never during module initialization, so the cycle is
- * benign.
+ * instead of calling such a machine valid. The `Machine` import comes from the
+ * `compat` entry (the default `jssm` entry exports the class as a type only since
+ * 6.0) and closes a cycle (`compat` re-exports `jssm`, which re-exports this
+ * module), but it is only referenced at call time inside {@link fslDiagnostics},
+ * never during module initialization, so the cycle is benign.
  */
 
 import { wrap_parse, compile } from '../jssm_compiler.js';
-import { Machine } from '../jssm.js';
+import { Machine } from '../compat.js';
 import type { Diagnostic, Range } from './types.js';
 
 interface Located { start: { offset: number }; end: { offset: number }; }

@@ -256,14 +256,36 @@ function buildTestFile(records, moduleBasename) {
   );
 }
 
-// The 7 TypeDoc entry points, by basename, in `src/ts/`.
+// The doctested modules, as `src/ts/`-relative paths without the `.ts`
+// extension: the 7 TypeDoc entry points plus the modules whose docblocks the
+// entry points re-export.  `jssm` is a barrel since 6.0; the `Machine` class
+// and its examples live in `machine/machine.ts`.
 const ENTRY_POINTS = [
-  'jssm', 'jssm_viz', 'jssm_types', 'jssm_constants',
+  'jssm', 'machine/machine', 'jssm_viz', 'jssm_types', 'jssm_constants',
   'jssm_error', 'jssm_util', 'version'
 ];
 
 const SRC_TS_DIR = path.join(__dirname, '..', 'ts');
 const OUT_DIR    = path.join(SRC_TS_DIR, 'tests', 'generated');
+
+/**
+ *  The generated test's file name for one entry: the entry's path with every
+ *  directory separator folded into an underscore, so every generated file
+ *  sits flat in `tests/generated/` (where the `.gitignore` and `clean`
+ *  patterns expect it) and the `'../..'` import prefix stays correct.
+ *
+ *  @param {string} base - the entry, `src/ts/`-relative, without `.ts`.
+ *  @returns {string} the `.docex.ts` file name.
+ *
+ *  @example
+ *  docexFileName('machine/machine')  // => 'machine_machine.docex.ts'
+ *
+ *  @example
+ *  docexFileName('jssm_util')  // => 'jssm_util.docex.ts'
+ */
+function docexFileName(base) {
+  return `${base.replace(/\//g, '_')}.docex.ts`;
+}
 
 /**
  *  Generate one `.docex.ts` test file per entry point that carries
@@ -287,7 +309,7 @@ function main() {
     if (records.length === 0) { continue; }
 
     fs.writeFileSync(
-      path.join(OUT_DIR, `${base}.docex.ts`),
+      path.join(OUT_DIR, docexFileName(base)),
       buildTestFile(records, base)
     );
     total += records.length;
@@ -298,4 +320,4 @@ function main() {
 
 if (require.main === module) { main(); }
 
-module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, buildTestFile, main };
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, buildTestFile, docexFileName, main };

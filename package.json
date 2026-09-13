@@ -16,6 +16,11 @@
       "import": "./dist/jssm.es6.mjs",
       "default": "./dist/jssm.es6.mjs"
     },
+    "./compat": {
+      "types": "./jssm.compat.d.ts",
+      "import": "./dist/jssm.compat.es6.mjs",
+      "default": "./dist/jssm.compat.es6.mjs"
+    },
     "./grammar": "./dist/grammars/fsl.tmLanguage.json",
     "./grammars/fsl.tmLanguage.json": "./dist/grammars/fsl.tmLanguage.json"
   },
@@ -35,8 +40,10 @@
   "sideEffects": false,
   "files": [
     "dist/jssm.es6.mjs",
+    "dist/jssm.compat.es6.mjs",
     "dist/grammars/fsl.tmLanguage.json",
     "jssm.es6.d.ts",
+    "jssm.compat.d.ts",
     "MIGRATING-jssm-viz.md"
   ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript.  Visualization, CLI, markdown fences and verification ship as separate packages.  MIT License.",
@@ -136,6 +143,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
     "min_es6": "mv dist/jssm.es6.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.mjs",
+    "min_compat": "mv dist/jssm.compat.es6.js dist/jssm.compat.nonmin.cjs && terser dist/jssm.compat.nonmin.cjs > dist/jssm.compat.es6.mjs",
     "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
@@ -146,7 +154,7 @@
     "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
     "site_fsl_tools": "cd docs && mkdir fsl.tools && cd .. && cp -r src/fsl.tools/site/* docs/fsl.tools/ && rm -rf docs/fsl.tools/recipes docs/fsl.tools/scripts",
     "build:shootout": "node src/buildjs/build_shootout.mjs",
-    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_viz.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
+    "docs": "typedoc src/ts/jssm.ts src/ts/compat.ts src/ts/jssm_viz.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.cjs",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"

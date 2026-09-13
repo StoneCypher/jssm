@@ -1,5 +1,5 @@
 
-import * as jssm         from '../jssm';
+import * as jssm         from '../compat';
 import { JssmArrowKind } from '../jssm_types';
 
 const sm = jssm.sm;
