@@ -16,7 +16,10 @@ const TrafficLight = sm`Red -> Green -> Yellow -> Red;`;
 ```
 
 That's it.  Using it is equally easy: every function takes the machine
-first, and imports only what you use, so the rest tree-shakes away.
+first.  A module that imports only functions and is handed a machine sheds
+the `Machine` class; a bundle that builds one with `sm` still carries the
+class and every family in 6.0, because the value is a `Machine` instance,
+and the full size win lands when a later major drops that prototype.
 
 ```javascript
 state(TrafficLight);                // 'Red'

@@ -25,8 +25,9 @@
  *      node src/scripts/make_method_function_table.cjs
  *
  *  Pure helpers are exported for the unit test in
- *  `src/scripts/tests/make_method_function_table.spec.ts`; `main()` runs only
- *  when the file is executed directly.
+ *  `src/ts/tests/make_method_function_table.spec.ts` (which also pins the
+ *  table embedded in the migration guide to this generator's output);
+ *  `main()` runs only when the file is executed directly.
  *
  *  @see MIGRATING-5-to-6.md
  *  @see src/ts/machine/machine.ts

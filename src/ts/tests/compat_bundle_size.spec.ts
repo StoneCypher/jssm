@@ -1,16 +1,24 @@
 /*******
  *
- *  The tree-shaking claim of the 6.0 bare-functions split (bare-functions
- *  design, "Entry points and packaging"): a consumer bundle that imports only
- *  `{ sm, transition, state }` from the default `jssm` entry must come out
- *  smaller than one that imports `{ Machine }` from `jssm/compat`, because
- *  the class drags every delegate — and so every family — into the graph,
- *  while the functions bring only what they call.
+ *  What the 6.0 bare-functions split does and does not buy a bundler
+ *  (bare-functions design, "Entry points and packaging"; controller ruling
+ *  2026-09-13).
  *
- *  Both bundles are produced here with rollup's JS API over the compiled
+ *  A module that imports only functions from the default `jssm` entry and is
+ *  handed a machine from elsewhere sheds the `Machine` class entirely: the
+ *  functions read the machine's fields and never reference the prototype.
+ *
+ *  A bundle that constructs a machine — `sm`, `fsl`, `from`, `create` — still
+ *  carries the compat class, and through its one-line delegates every family,
+ *  because in 6.0 the value those factories return IS a `Machine` instance
+ *  (decision 3).  The full size win lands when a later major drops the
+ *  prototype from the default value.  So no size comparison between a
+ *  factory-importing bundle and a `jssm/compat` bundle is asserted here; that
+ *  claim is false by construction in 6.0.
+ *
+ *  Both facts are produced here with rollup's JS API over the compiled
  *  `dist/es6/` modules, using the same plugin stack `rollup.config.core.js`
- *  uses, unminified, with tree-shaking on.  The assertion is only "smaller",
- *  never a byte count, so there is no golden number to rot.
+ *  uses, unminified, with tree-shaking on.
  *
  *  `dist/es6/compat.js` exists only after a full build; the ci-lite legs
  *  clean `dist/` and rebuild only the wc/cm6/cli bundles, so this suite
@@ -38,6 +46,12 @@ const functions_entry = resolve(root, 'dist/es6/jssm.js');
 const compat_entry    = resolve(root, 'dist/es6/compat.js');
 
 const compat_dist_present = existsSync(compat_entry);
+
+/** The class declaration as the es2017 emit spells it; its presence is the whole question. */
+const CLASS_MARKER = 'class Machine';
+
+/** A field only the transition core touches; its presence proves the functions were bundled. */
+const TRANSITION_CORE_MARKER = '_committing_transition';
 
 
 
@@ -101,26 +115,44 @@ const as_import_path = (p: string): string => p.replace(/\\/g, '/');
 
 
 
-describe.skipIf(!compat_dist_present)('jssm/compat bundle size (full dist only)', () => {
+describe.skipIf(!compat_dist_present)('bare functions and the compat class in a consumer bundle (full dist only)', () => {
 
-  test('importing { sm, transition, state } from jssm bundles smaller than importing { Machine } from jssm/compat', async () => {
+  test('a functions-only import (no factory) sheds the Machine class but keeps the transition core', async () => {
 
-    const functions_code = await bundle_consumer(
-      '\0consumer-functions.js',
-      `export { sm, transition, state } from '${as_import_path(functions_entry)}';`
+    const functions_only = await bundle_consumer(
+      '\0consumer-functions-only.js',
+      `export { state, transition } from '${as_import_path(functions_entry)}';`
     );
 
-    const compat_code = await bundle_consumer(
-      '\0consumer-compat.js',
-      `export { Machine } from '${as_import_path(compat_entry)}';`
-    );
-
-    // both bundles are real: each carries the factory it was asked for
-    expect(functions_code).toContain('function sm(');
-    expect(compat_code).toContain('class Machine');
-
-    expect(functions_code.length).toBeLessThan(compat_code.length);
+    expect(functions_only).not.toContain(CLASS_MARKER);
+    expect(functions_only).toContain(TRANSITION_CORE_MARKER);
 
   }, 120_000);
+
+  describe('in 6.0 a factory import carries the compat class (decision 3: the value is a Machine instance)', () => {
+
+    test('importing { sm, state } from jssm bundles the Machine class', async () => {
+
+      const with_factory = await bundle_consumer(
+        '\0consumer-factory.js',
+        `export { sm, state } from '${as_import_path(functions_entry)}';`
+      );
+
+      expect(with_factory).toContain(CLASS_MARKER);
+
+    }, 120_000);
+
+    test('importing { Machine } from jssm/compat bundles the Machine class', async () => {
+
+      const with_compat = await bundle_consumer(
+        '\0consumer-compat.js',
+        `export { Machine } from '${as_import_path(compat_entry)}';`
+      );
+
+      expect(with_compat).toContain(CLASS_MARKER);
+
+    }, 120_000);
+
+  });
 
 });

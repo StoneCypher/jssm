@@ -1,18 +1,23 @@
 import { createRequire } from 'node:module';
 import { readFileSync }  from 'node:fs';
+import { resolve }       from 'node:path';
 import { describe, it, expect } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const mmft    = require('../make_method_function_table.cjs');
+const mmft    = require('../../scripts/make_method_function_table.cjs');
 
 const { classBodyLines, precedingDocblockIsInternal, publicMembers, functionFor, methodFor, buildTable, MACHINE_SOURCE } = mmft;
 
+const root = resolve(__dirname, '../../..');
+
 // The migration table for MIGRATING-5-to-6.md is generated from the Machine
 // class source.  These tests pin the parser on literal class-shaped snippets
-// (so an expectation never comes from the code under test) and then run the
-// real source through it, asserting a handful of rows that are known from
-// the class by name, the do -> act/action rule, and that nothing `_`-prefixed
-// or `@internal` leaks into the migration surface.
+// (so an expectation never comes from the code under test), run the real
+// source through it, asserting a handful of rows that are known from the
+// class by name, the do -> act/action rule, and that nothing `_`-prefixed or
+// `@internal` leaks into the migration surface, and finally pin the table
+// embedded in MIGRATING-5-to-6.md to the generator's exact output so the
+// guide cannot drift from the class it describes.
 
 
 
@@ -205,6 +210,11 @@ describe('against the real Machine class', () => {
     // regression that silently matched nothing must not pass
     expect(members.length).toBeGreaterThan(100);
     expect(rows.filter(r => r.startsWith('| `')).length).toBe(members.length);
+  });
+
+  it('is embedded verbatim in MIGRATING-5-to-6.md, so the guide cannot drift from the class', () => {
+    const guide = readFileSync(resolve(root, 'MIGRATING-5-to-6.md'), 'utf8').replace(/\r\n/g, '\n');
+    expect(guide).toContain(table);
   });
 
 });

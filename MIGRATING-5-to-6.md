@@ -68,16 +68,18 @@ set_themes(m, 'ocean');        // was m.themes = 'ocean'
 The class constructor's function form is `create(config)`; `sm`, `fsl`,
 `from`, and `deserialize` are unchanged and return the same value.
 
-Why: importing only the functions you call lets a bundler drop the rest.  A
-consumer that imports `{ sm, transition, state }` bundles smaller than one
-that imports `{ Machine }`, because the class carries every method — and so
-every family of behavior — into the graph.
+Why: 6.0 delivers the function API and the per-family module split, so a
+module that imports only functions and is handed a machine from elsewhere
+sheds the `Machine` class entirely.  A bundle that constructs a machine via
+`sm` / `from` / `create` still carries the compat class and every family in
+6.0, because the value those factories return is a `Machine` instance
+(decision 3); the full size win lands when a later major drops the prototype
+from the default value.
 
 ### What still works on the default entry
 
 In 6.0 the value `sm` / `fsl` / `from` / `create` return **is** a `Machine`
-instance.  The functions read its fields and never touch the prototype, so
-tree-shaking still works, and:
+instance.  The functions read its fields and never touch the prototype, and:
 
 - method calls on that value (`light.transition('Green')`) keep working;
 - `instanceof Machine` keeps working for code that imports the class from
