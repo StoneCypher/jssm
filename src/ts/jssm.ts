@@ -25,11 +25,6 @@ export {
   transfer_state_properties,
   state_style_condense,
 
-  is_hook_rejection,
-  is_hook_complex_result,
-  abstract_hook_step,
-  abstract_everything_hook_step,
-
   shapes,
   gviz_shapes,
   named_colors,
@@ -53,6 +48,18 @@ export { on, once, off } from './machine/events.js';
 export { history, history_inclusive, history_length, set_history_length } from './machine/history.js';
 export { set_state_timeout, clear_state_timeout, state_timeout_for, current_state_timeout, auto_set_state_timeout } from './machine/timers.js';
 export { transition, go, force_transition, act, action, override, valid_action, valid_transition, valid_force_transition } from './machine/transition.js';
+export {
+  set_hook, remove_hook,
+  hook, hook_action, hook_global_action, hook_any_action,
+  hook_standard_transition, hook_main_transition, hook_forced_transition, hook_any_transition,
+  hook_entry, hook_exit, hook_after, hook_after_any,
+  post_hook, post_hook_action, post_hook_global_action, post_hook_any_action,
+  post_hook_standard_transition, post_hook_main_transition, post_hook_forced_transition, post_hook_any_transition,
+  post_hook_entry, post_hook_exit,
+  hook_pre_everything, hook_everything, hook_post_everything, hook_pre_post_everything,
+  hook_registry, hooks_on, has_hook, state_has_hooks,
+  is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step
+} from './machine/hooks.js';
 
 // Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
 export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';

@@ -2,7 +2,7 @@
 import { describe, test, expect } from 'vitest';
 import * as fc from 'fast-check';
 
-import { from as sm_from, on, history, set_history_length, transition, act } from '../jssm';
+import { from as sm_from, on, history, set_history_length, transition, act, hook, post_hook_any_transition, hook_registry } from '../jssm';
 
 
 
@@ -18,6 +18,9 @@ import { from as sm_from, on, history, set_history_length, transition, act } fro
 //   - Task 3: the `act` arm, and the function-side machine steps through
 //     `transition(m, x)` / `act(m, x)` while the class-side machine steps
 //     through its methods, so the walk compares the two surfaces.
+//   - Task 4: the hooks arm — the same veto hook and post hook installed
+//     through `hook(m, …)` / `post_hook_any_transition(m, …)` on one side and
+//     `m.hook(…)` / `m.post_hook_any_transition(…)` on the other.
 //   - Task 5 switches the `state` and `data` reads to `state(m)` / `data(m)`.
 //   - Task 6 adds the `probabilistic_transition` arm and `set_rng_seed`.
 
@@ -94,6 +97,38 @@ describe('class and function surfaces agree', () => {
 
         expect(via_fns.history_length).toBe(via_class.history_length);
         expect(history(via_fns)).toStrictEqual(via_class.history);
+
+      }
+    ), { numRuns: 200 });
+  });
+
+
+
+  test('a veto hook and a post hook installed through the functions and through the methods leave both machines in agreement', () => {
+    fc.assert(fc.property(
+      fc.array(fc.constantFrom('a', 'b', 'c', 'zed'), { minLength: 1, maxLength: 40 }),
+      (walk) => {
+
+        const via_class = sm_from(SOURCE, { history: HISTORY });
+        const via_fns   = sm_from(SOURCE, { history: HISTORY });
+
+        const post_class: string[] = [];
+        const post_fns:   string[] = [];
+
+        // b -> c is vetoed on both; every committed transition is logged on both
+        via_class.hook('b', 'c', () => false).post_hook_any_transition(({ from, to }) => { post_class.push(`${from}>${to}`); });
+        post_hook_any_transition(hook(via_fns, 'b', 'c', () => false), ({ from, to }) => { post_fns.push(`${from}>${to}`); });
+
+        for (const s of walk) {
+          const r1 = via_class.transition(s);
+          const r2 = transition(via_fns, s);
+          expect(r2).toBe(r1);
+          expect(via_fns.state()).toBe(via_class.state());
+        }
+
+        expect(post_fns).toStrictEqual(post_class);
+        expect(history(via_fns)).toStrictEqual(via_class.history);
+        expect(hook_registry(via_fns)).toStrictEqual(via_class.hook_registry());
 
       }
     ), { numRuns: 200 });

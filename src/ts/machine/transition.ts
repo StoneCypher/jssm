@@ -32,14 +32,7 @@ import { pair_key }  from '../jssm_intern.js';
 import { fire, has_subscribers }                       from './events.js';
 import { clear_state_timeout, auto_set_state_timeout } from './timers.js';
 
-// TEMPORARY VALUE IMPORT (Task 4 of the bare-functions plan removes it).  The
-// hook step helpers still live in machine.ts until the hooks family is
-// extracted; Task 4 moves them to hooks.ts and points this line there.  It is
-// the one runtime edge from a family file back to the class module, and it is
-// safe only because every use is inside a function body — nothing here reads
-// these bindings at module evaluation, so the machine.ts <-> transition.ts
-// cycle never observes an uninitialized binding.
-import { abstract_hook_step, abstract_everything_hook_step, _update_hook_fields } from './machine.js';
+import { abstract_hook_step, abstract_everything_hook_step, update_hook_fields } from './hooks.js';
 
 type StateType = string;
 
@@ -259,19 +252,19 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
       if (m._pre_everything_hook !== undefined) {
         const outcome = abstract_everything_hook_step(m._pre_everything_hook, { ...hook_args, hook_name: 'pre everything' });
         if (!outcome.pass) { fire_hook_rejection(m, 'pre everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       if (wasAction) {
         // 1a. any action hook
         const outcome = abstract_hook_step(m._any_action_hook, hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'any action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         // 1b. global specific action hook
         const outcome2 = abstract_hook_step(m._global_action_hooks.get(actionId), hook_args);
         if (!outcome2.pass) { fire_hook_rejection(m, 'global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome2)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome2)) { data_changed = true; }
       }
 
       // 2. (removed) After hooks do NOT fire on dispatch.  They are the
@@ -285,14 +278,14 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
       if (m._any_transition_hook !== undefined) {
         const outcome = abstract_hook_step(m._any_transition_hook, hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'any transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       // 4. exit hook
       if (m._has_exit_hooks) {
         const outcome = abstract_hook_step(m._exit_hooks.get(m._state_id), hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       // shared by steps 5 and 6: pre-commit, m._state_id is still the
@@ -308,7 +301,7 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
           const outcome = abstract_hook_step(nh, hook_args);
 
           if (!outcome.pass) { fire_hook_rejection(m, 'named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+          if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
         }
 
@@ -320,7 +313,7 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
         const outcome = abstract_hook_step(h, hook_args);
 
         if (!outcome.pass) { fire_hook_rejection(m, 'hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
       }
 
@@ -330,33 +323,33 @@ export function transition_impl<mDT>(m: Machine<mDT>, newStateOrAction: StateTyp
       if (trans_type === 'legal') {
         const outcome = abstract_hook_step(m._standard_transition_hook, hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'standard transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
       // 7b. main type hook
       } else if (trans_type === 'main') {
         const outcome = abstract_hook_step(m._main_transition_hook, hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'main transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
       // 7c. forced transition hook
       } else if (trans_type === 'forced') {
         const outcome = abstract_hook_step(m._forced_transition_hook, hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'forced transition', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       // 8. entry hook
       if (m._has_entry_hooks) {
         const outcome = abstract_hook_step(m._entry_hooks.get(newStateId), hook_args);
         if (!outcome.pass) { fire_hook_rejection(m, 'entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       // 9. everything hook (fires after all other pre-hooks)
       if (m._everything_hook !== undefined) {
         const outcome = abstract_everything_hook_step(m._everything_hook, { ...hook_args, hook_name: 'everything' });
         if (!outcome.pass) { fire_hook_rejection(m, 'everything', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
-        if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+        if (update_hook_fields(hook_args, outcome)) { data_changed = true; }
       }
 
       // all hooks passed!  let's now establish the result
