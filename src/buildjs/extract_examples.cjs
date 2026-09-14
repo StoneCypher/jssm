@@ -332,8 +332,30 @@ function docexFileName(base) {
 }
 
 /**
+ *  Remove every stale generated `*.docex.ts` from an output directory, so a
+ *  shrinking or moving entry list cannot leave a dead doctest behind for the
+ *  docs vitest run to pick up.  Only names ending in `.docex.ts` are touched;
+ *  `.gitkeep` and any other file are left alone.
+ *
+ *  @param {string} outDir - the directory holding the generated doctests.
+ *  @returns {string[]} the file names that were removed, in directory order.
+ *
+ *  @example
+ *  // with `dir` holding `a.docex.ts`, `.gitkeep`, and `notes.txt`:
+ *  pruneStaleDocex(dir);  // => ['a.docex.ts']
+ */
+function pruneStaleDocex(outDir) {
+  const stale = fs.readdirSync(outDir).filter(name => name.endsWith('.docex.ts'));
+  for (const name of stale) { fs.unlinkSync(path.join(outDir, name)); }
+  return stale;
+}
+
+/**
  *  Generate one `.docex.ts` test file per entry point that carries
  *  `@example` blocks.  Entry points with no examples produce no file.
+ *  Before generating, prunes every stale generated file from `OUT_DIR` (via
+ *  {@link pruneStaleDocex}) so a shrinking or moving entry list cannot leave
+ *  a dead doctest behind.
  *
  *  @returns {void}
  *
@@ -343,6 +365,7 @@ function docexFileName(base) {
  */
 function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
+  pruneStaleDocex(OUT_DIR);
 
   let total = 0;
   for (const base of ENTRY_POINTS) {
@@ -364,4 +387,4 @@ function main() {
 
 if (require.main === module) { main(); }
 
-module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, mergeImports, buildTestFile, docexFileName, main };
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, mergeImports, buildTestFile, docexFileName, pruneStaleDocex, main };

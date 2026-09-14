@@ -54,7 +54,7 @@ hook(light, 'Red', 'Green', () => true);     // was light.hook('Red', 'Green', .
 Getters become plain functions and setters become `set_<name>`:
 
 ```typescript
-import { from, history, history_length, set_history_length, rng_seed, set_rng_seed, themes, set_themes } from 'jssm';
+import { from, history, history_length, set_history_length, set_rng_seed, set_themes } from 'jssm';
 
 const m = from('a -> b -> c;', { history: 3 });
 

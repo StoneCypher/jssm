@@ -101,6 +101,41 @@ describe('docexFileName', () => {
 
 });
 
+const { pruneStaleDocex } = require('../../buildjs/extract_examples.cjs');
+const fs   = require('node:fs');
+const os   = require('node:os');
+const path = require('node:path');
+
+describe('pruneStaleDocex', () => {
+
+  it('removes only the .docex.ts files, leaving .gitkeep and other files alone', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'jssm-prune-'));
+    try {
+      fs.writeFileSync(path.join(dir, 'a.docex.ts'), '// stale');
+      fs.writeFileSync(path.join(dir, '.gitkeep'),   '');
+      fs.writeFileSync(path.join(dir, 'notes.txt'),  'keep me');
+
+      expect(pruneStaleDocex(dir)).toStrictEqual(['a.docex.ts']);
+      expect(fs.readdirSync(dir).sort((a: string, b: string) => a.localeCompare(b))).toStrictEqual(['.gitkeep', 'notes.txt']);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('returns an empty list and removes nothing from a directory with no generated files', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'jssm-prune-'));
+    try {
+      fs.writeFileSync(path.join(dir, '.gitkeep'), '');
+
+      expect(pruneStaleDocex(dir)).toStrictEqual([]);
+      expect(fs.readdirSync(dir)).toStrictEqual(['.gitkeep']);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+});
+
 const { rewriteOutputComments } = require('../../buildjs/extract_examples.cjs');
 
 describe('rewriteOutputComments', () => {

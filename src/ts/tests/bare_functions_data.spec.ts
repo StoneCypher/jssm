@@ -191,9 +191,9 @@ describe('bare functions — data family', () => {
       expect(known_prop(m, 'size')).toBe(false);
     });
 
-    test('known_props lists the declared property names in declaration order', () => {
+    test('known_props lists every declared property name (order is not part of the contract)', () => {
       const m = sm_from(source);
-      expect(known_props(m)).toStrictEqual(['can_go', 'stop_first']);
+      expect(known_props(m).sort((a, b) => a.localeCompare(b))).toStrictEqual(['can_go', 'stop_first']);
     });
 
     test('known_props is empty on a machine without properties', () => {

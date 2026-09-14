@@ -36,10 +36,17 @@ describe('package entry points (decision 3: the record is a Machine instance)', 
     expect(Object.keys(compat)).toContain('Machine');
   });
 
-  test('create, sm, and from return Machine instances', () => {
+  test('create, sm, fsl, from, and deserialize return Machine instances', () => {
     expect(jssm.sm`a -> b;`).toBeInstanceOf(compat.Machine);
+    expect(jssm.fsl`a -> b;`).toBeInstanceOf(compat.Machine);
     expect(jssm.from('a -> b;')).toBeInstanceOf(compat.Machine);
     expect(jssm.create(ONE_EDGE_CONFIG)).toBeInstanceOf(compat.Machine);
+
+    const source   = 'a -> b;';
+    const ser      = jssm.serialize(jssm.sm`a -> b;`);
+    const restored = jssm.deserialize(source, ser);
+    expect(restored).toBeInstanceOf(compat.Machine);
+    expect(restored.state()).toBe('a');
   });
 
   test('create builds the same machine as the class constructor', () => {

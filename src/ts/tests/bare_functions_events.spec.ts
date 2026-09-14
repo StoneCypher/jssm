@@ -202,8 +202,8 @@ describe('bare functions — events family', () => {
 
 
   // The class keeps `_fire_one`, `_fire`, and `_has_subscribers` as
-  // underscore delegates for transition_impl (until Task 3) and for the
-  // existing tests that reach them by name.  `fire` now dispatches through
+  // underscore delegates for the compat class and for the existing tests
+  // that reach them by name.  `fire` now dispatches through
   // the family's `fire_one` directly, so the `_fire_one` delegate is only
   // reachable by calling it, which these do.
 
