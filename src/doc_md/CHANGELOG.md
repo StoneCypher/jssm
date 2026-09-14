@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-590 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+593 merges; 420 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,34 +22,20 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:53:11 AM
+## [Untagged] - Sep 13, 2026 5:20:54 PM
 
-Commit [1b14ec8e610af07a6703b8aadd92d35d7a8bc841](https://github.com/StoneCypher/jssm/commit/1b14ec8e610af07a6703b8aadd92d35d7a8bc841)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(stoch): retarget the lexical and transition-target atom tests at the 6.0 bareword charset (#754)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Sep 10, 2026 4:39:56 AM
-
-Commit [4af8e90ae8fa912a5454f3649dc461f5e7a81f2e](https://github.com/StoneCypher/jssm/commit/4af8e90ae8fa912a5454f3649dc461f5e7a81f2e)
+Commit [57e539761112221587f95b13b6e7e10fcf5f391b](https://github.com/StoneCypher/jssm/commit/57e539761112221587f95b13b6e7e10fcf5f391b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6bbfa3f4, 19f5e549]
-
-  * Merge branch 'feat_26-09-09_list-weights' into feat_26-09-09_bareword-charset_754
-  * # Conflicts:
-#       notes/fsl-grammar-reference.md
-#       src/doc_md/LanguageReference.md
-#       src/ts/fsl_parser.ts
+  * fix(core): final review wave — manifest summary, diagnostics header, extractor prune, test tightenings
+  * - v6_breaking_changes.json: replace the tree-shaking claim in the bare-functions summary with the accurate shed-vs-carry statement
+- language_service/diagnostics.ts: header now says the machine import is a diamond, not a cycle
+- extract_examples.cjs: add pruneStaleDocex() and call it from main() so a shrinking entry list cannot leave a dead doctest behind; tested in extract_examples.spec.ts
+- entry_points.spec.ts: fsl and deserialize now asserted to return Machine instances
+- bare_functions_data.spec.ts: known_props compared sorted, matching its documented order-free contract
+- bare_functions_events.spec.ts: drop the stale 'until Task 3' clause
+- MIGRATING-5-to-6.md: remove unused rng_seed / themes from the getter/setter import line
 
 
 
@@ -58,27 +44,14 @@ Merges [6bbfa3f4, 19f5e549]
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:23:58 AM
+## [Untagged] - Sep 13, 2026 4:43:53 PM
 
-Commit [6bbfa3f419653168ee0d2fd05dce5b37c8f0b11f](https://github.com/StoneCypher/jssm/commit/6bbfa3f419653168ee0d2fd05dce5b37c8f0b11f)
+Commit [fe01f05eb0010aba1c61f6ae87ec8c3a272ccdd7](https://github.com/StoneCypher/jssm/commit/fe01f05eb0010aba1c61f6ae87ec8c3a272ccdd7)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(grammar): cover the reviewer's keyword-bareword probes for the narrowed Term reorder
-  * Adds the eight probes the review verified by hand (arrange, oarrange,
-state, val, property, graph, transition, arrangement, each written as
-a transition from that bareword to b) as spec cases, missed in the
-prior commit of this fix wave. All eight parse as ordinary bareword
-transitions: every keyword alternative these words could match
-requires more syntax than a bare arrow supplies (a following label
-list, name, colon, or block), so each falls through to Exp unchanged
-from 5.x behavior. "arrangement" is the sharpest case verified here:
-PEG's literal "arrange" match has no word-boundary check, so
-RegularArrangeDeclaration's literal DOES match the first 7 characters
-before failing later and backtracking whole.
-  * Covering: src/ts/tests/bareword_charset.spec.ts, coverage off, 62/62
-passed (was 54, plus 8 for the new describe block). tsc clean. eslint
-clean.
+  * test(v6): bundle spec asserts the 6.0 truth (functions-only sheds Machine; factory and compat carry it), table spec gated and pins the migration guide
+  * Fix round 1 for Task 7. compat_bundle_size.spec.ts no longer compares sizes: a { state, transition } bundle contains no class Machine but does contain the transition core; { sm, state } and { Machine } from compat both contain the class. The bundle-size prose in MIGRATING-5-to-6.md, README_base.md, the manifest implementation field, the design spec, and the plan's Task 7 Step 2 now state the 2026-09-13 ruling: a module handed a machine sheds the class, a factory-constructing bundle carries the compat class and every family in 6.0, and the full win lands when a later major drops the prototype. make_method_function_table.spec.ts moved under src/ts/tests so eslint and tsconfig.test.json gate it, and it pins the table embedded in MIGRATING-5-to-6.md to the generator's exact output.
 
 
 
@@ -87,26 +60,14 @@ clean.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:21:43 AM
+## [Untagged] - Sep 13, 2026 4:19:37 PM
 
-Commit [ac5c9d5c728040f46289cc2ccdd1c7c9152aef53](https://github.com/StoneCypher/jssm/commit/ac5c9d5c728040f46289cc2ccdd1c7c9152aef53)
+Commit [37fce3462cdbc1dfc2e359634a6d0ef88cb44785](https://github.com/StoneCypher/jssm/commit/37fce3462cdbc1dfc2e359634a6d0ef88cb44785)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(language): quote only non-identifier fixture tokens, not every name
-  * language.spec.ts blanket-quoted every name in its multilingual
-fixtures to sidestep the #754 bareword charset. That silently dropped
-this suite's only cross-validation of is_state_name_first_char and
-is_state_name_char against real-world text: a regression in either
-predicate would go undetected if every name, including ones already
-valid as barewords like état and состояние, were quoted unconditionally.
-  * bareword(s) reimplements the grammar's own rule over the fixture text
-(first code point passes is_state_name_first_char, every remaining
-code point passes is_state_name_char, both imported from ../jssm), and
-quote(s) leaves an already-legal bareword untouched, quoting only what
-actually needs it.
-  * Covering: src/ts/tests/language.spec.ts, coverage off, 68/68 passed
-across all 11 language fixtures. tsc clean. eslint clean.
+  * docs(v6)!: bare-functions contract tests, doctests for the family files, MIGRATING-5-to-6, manifest landed
+  * Task 7 of the bare-functions plan. Adds bare_functions_surface.spec.ts (every public Machine member has a function form; every family export reaches the barrel with the same identity), compat_bundle_size.spec.ts (rollup JS API, skips without dist/es6/compat.js), the eleven family files in the doctest extractor with their fenced examples converted to @example doctests (27 -> 112), make_method_function_table.cjs with its spec, MIGRATING-5-to-6.md (published), the README quick start in the function form with a Coming-from-5.x box, do -> act in the taught docs, and the bare-functions-default-api manifest entry set to landed.
 
 
 
@@ -115,45 +76,13 @@ across all 11 language fixtures. tsc clean. eslint clean.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:21:36 AM
+## [Untagged] - Sep 13, 2026 3:35:55 PM
 
-Commit [23fb8bd2243893d841d4d85a0e004ec88a85b700](https://github.com/StoneCypher/jssm/commit/23fb8bd2243893d841d4d85a0e004ec88a85b700)
+Commit [0ca1720eac35ac2a3df0752a4e7aa86ba4bf8040](https://github.com/StoneCypher/jssm/commit/0ca1720eac35ac2a3df0752a4e7aa86ba4bf8040)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(grammar): bring the #754 migration docs and teaching-surface manifest up to date
-  * Final whole-branch review fixes for #754, part 2 (docs and manifests).
-  * v6_breaking_changes.json: the atom-charset-restriction entry's "breaks"
-field still described the old non-[A-Za-z0-9_] rule; rewritten to the
-real Unicode identifier classes. "implementation" still said
-ValEnumMember = Atom; rewritten to describe the real rule (its own
-comma-free bad-char set, a String alternative, a digit-leading catch)
-plus the two additive changes (quoted enum members, quoted per-state
-property names).
-  * src/doc_md/todo.md: the "custom name-chain delimiter" idea taught the
-5.x atom char set and proposed expanding it to admit a chosen
-delimiter. Rewritten for 6.0: dot-chained names like
-auth.login.pending now always need quoting too (dot is no longer an
-exception), so expanding the atom char set per delimiter is no longer
-really on the table.
-  * notes/fsl-grammar-reference.md: documents the three new ArrowTarget
-error alternatives (digit-leading catch, ArrowTargetBadSymbol,
-ArrowTargetBadFirstChar), corrects "0 alone is not a cycle" (it now
-errors rather than parsing as a one-character state name), and adds a
-section 15 quirk explaining why Exp must not precede ArrangeDeclaration
-in Term.
-  * src/data/teaching-surface.json: claims the five #754 grammar rules that
-belong to existing, coherent features (AtomCodePoint, BarewordBadChar,
-BarewordDashTail under labels-quoting; ArrowTargetBadSymbol,
-ArrowTargetBadFirstChar under transitions). ValEnumBadChar is left
-unclaimed deliberately: there is no existing vals/enum teaching-surface
-feature at all today (enum and val declarations are an entirely
-pre-existing, unrelated manifest gap), and authoring one from scratch
-to give ValEnumBadChar a coherent home is a bigger task than this fix
-wave's scope.
-  * Covering: node -e JSON.parse check on both JSON files. check_partition.cjs
-confirms the five rules are no longer unclaimed and introduces no
-double-claims.
+  * refactor(core): extract the stochastic, groups, style, and create families; Machine is delegates only
 
 
 
@@ -162,24 +91,13 @@ double-claims.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:21:23 AM
+## [Untagged] - Sep 13, 2026 2:45:05 PM
 
-Commit [e6e35db4beb292729963f4fe44586a8ce2eceed2](https://github.com/StoneCypher/jssm/commit/e6e35db4beb292729963f4fe44586a8ce2eceed2)
+Commit [bd69d752699ce98b8ce266a342dda17087169b6f](https://github.com/StoneCypher/jssm/commit/bd69d752699ce98b8ce266a342dda17087169b6f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(buildjs): update the tmLanguage group-ref pattern to the 6.0 bareword charset
-  * The FSL TextMate grammar generator's group-reference pattern (&Name)
-still encoded 5.x's atom char set. A group reference's name is a
-bareword, so it follows #754's Unicode identifier classes now: first
-character L/Nl/underscore, continuation adds Mn/Mc/Nd/Pc. Oniguruma
-(the regex engine TextMate and VSCode grammars run under) supports
-these property escapes natively.
-  * The committed dist/grammars/fsl.tmLanguage.json is intentionally left
-alone here (rebuilt by the controller's full build); the generator spec
-therefore still fails its one staleness check until that rebuild lands.
-  * Covering: src/buildjs/tests/fsl_tmlanguage.spec.ts, coverage off, 4 of 5
-passing (the staleness check is the expected exception, see above).
+  * refactor(core): extract the data and query families as bare functions
 
 
 
@@ -188,43 +106,13 @@ passing (the staleness check is the expected exception, see above).
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 4:21:15 AM
+## [Untagged] - Sep 13, 2026 2:17:43 PM
 
-Commit [85356faa6f1949b5bb7059191f9bff2fbed55d7a](https://github.com/StoneCypher/jssm/commit/85356faa6f1949b5bb7059191f9bff2fbed55d7a)
+Commit [d2b054131f8dd94c54df294e5c3b9a796c487607](https://github.com/StoneCypher/jssm/commit/d2b054131f8dd94c54df294e5c3b9a796c487607)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * perf(grammar)!: narrow the Term reorder to ArrangeDeclaration, print full names in bad-bareword messages
-  * Final whole-branch review fixes for #754, part 1 (grammar core).
-  * Term: only ArrangeDeclaration is promoted above Exp now, not every
-keyword alternative. The prior all-keywords-first reorder fixed the
-arrange-start/arrange-end hard-error collision but cost roughly 2.3x on
-plain transitions. This narrower reorder is the only promotion the
-hazard actually requires (measured roughly 1.04x over 232 src/machines
-files plus keyword-bareword probes, zero behavioral difference from the
-wider reorder).
-  * Atom and ValEnumMember now capture the rest of an offending token
-(one optional [bad, rest] unit alongside the bad character, so a
-legitimate atom like "a->b" is untouched) and print the FULL name in
-their "quote it" messages instead of a truncated one. fixparser.cjs's
-fast Atom scanner passes the same extra argument, read directly from
-input with the identical character class, so both paths stay
-byte-identical. Its test fixture is updated to the real pegjs
-raw-emission shape for the new rule.
-  * Two leaked backslash-u-2014 escapes in .peg comments (one pre-existing,
-two introduced this round) are now real em-dash characters.
-  * bareword_charset.spec.ts needles now use a proper regex-escape and
-assert the literal contains-X claim a message makes, not a bare
-escaped-character pattern. New cases cover the narrower Term reorder
-(arrange, oarrange, state, val, property, graph, transition,
-arrangement as bareword transition sources) and ValEnumMember's own
-digit and comma messages. The BAREWORD_REST hand-copies (.peg,
-jssm_constants.ts, fixparser.cjs, bareword_charset.stoch.ts) now
-cross-reference each other and the stoch drift guard.
-  * Covering: full spec config, coverage off, 10911 passed, only the two
-pre-existing dist-artifact failures remain (fsl_tmlanguage,
-bundle_shape, both confirmed untouched by this branch). Drift guard
-green. tsc clean on both configs. eslint clean on every touched file.
+  * build(doctests): doctest the hooks family; merge hoisted example imports per module in the extractor
 
 
 
@@ -233,13 +121,13 @@ green. tsc clean on both configs. eslint clean on every touched file.
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 3:26:02 AM
+## [Untagged] - Sep 13, 2026 2:14:39 PM
 
-Commit [396af4c92dc61569a76b052445c364dd13699de5](https://github.com/StoneCypher/jssm/commit/396af4c92dc61569a76b052445c364dd13699de5)
+Commit [8902548b43055070f38c16838d712cf5270496b8](https://github.com/StoneCypher/jssm/commit/8902548b43055070f38c16838d712cf5270496b8)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(grammar): document the 6.0 bareword charset and mark #754 landed
+  * docs(v6): plan ruling — doctests move with their members; regenerate before the docs suite
 
 
 
@@ -248,13 +136,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 3:22:43 AM
+## [Untagged] - Sep 13, 2026 2:03:22 PM
 
-Commit [b39421448b3770efd742db68e435f6d4e8fb7bcc](https://github.com/StoneCypher/jssm/commit/b39421448b3770efd742db68e435f6d4e8fb7bcc)
+Commit [f81eef9f0e78f1dd462e839fdf7f22df1741fbd0](https://github.com/StoneCypher/jssm/commit/f81eef9f0e78f1dd462e839fdf7f22df1741fbd0)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(charset): sweep fixtures, corpus, examples, and tooling specs for the 6.0 bareword rule (#754)
+  * refactor(core): extract the hooks family as bare functions
 
 
 
@@ -263,23 +151,25 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Sep 10, 2026 3:07:00 AM
+## [Untagged] - Sep 13, 2026 1:37:15 PM
 
-Commit [c71dd03e7aca7fdf37c8c512da6ee0f5d327fdda](https://github.com/StoneCypher/jssm/commit/c71dd03e7aca7fdf37c8c512da6ee0f5d327fdda)
+Commit [3672ffdf12b3c0796679a2e36813db0b02de1131](https://github.com/StoneCypher/jssm/commit/3672ffdf12b3c0796679a2e36813db0b02de1131)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(parser): close fast-atom review gaps — liveness test, balanced drift-guard coverage, ordering guard (#754)
-  * - add a build-drift/liveness test that reads the committed fsl_parser.ts
-  and asserts the fast atom scanner is actually installed there, so
-  dropping inline_fast_atom from the pipeline composition fails a test
-- fix the fixparser unit fixture to be pegjs's raw (unguarded) emission,
-  matching what inline_fast_atom actually receives in the real pipeline
-- weight the stoch drift guard's generator (fc.oneof of an
-  always-identifier and an unrestricted generator) so both branches get
-  real coverage instead of ~9 positive samples per 400 runs
-- document the skip regex's structural-character exclusions and the
-  intentional REST regex's _/\p{Pc} redundancy removal
-- add an explicit ordering comment plus a runtime assertion in main()
-  that no unguarded peg$fail site survives the pipeline, protecting the
-  inline_fast_atom-before-inline_fail_guard invariant
+  * docs(v6): plan ruling — function forms detect data provision with arguments.length >= 3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Sep 13, 2026 1:35:24 PM
+
+Commit [d391b4532a73b27904e0bf904e64d70c510b071f](https://github.com/StoneCypher/jssm/commit/d391b4532a73b27904e0bf904e64d70c510b071f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(core)!: extract the transition family; act/action are the function forms, Machine.do() is deprecated (fsl#1992)
