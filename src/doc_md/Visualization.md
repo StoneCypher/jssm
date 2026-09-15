@@ -71,8 +71,8 @@ serving over HTTP, or interpolating into HTML.
 
 ```html
 <script type="module">
-  import { sm }                     from 'https://esm.sh/jssm';
-  import { fsl_to_svg_element }     from 'https://esm.sh/jssm-viz';
+  import { sm }                     from 'https://esm.sh/jssm@6';
+  import { fsl_to_svg_element }     from 'https://esm.sh/jssm-viz@6';
 
   const el = await fsl_to_svg_element('a -> b;');
   document.getElementById('chart').appendChild(el);
@@ -105,16 +105,13 @@ are two separate packages:
   `<fsl-viz>`) and `dist/cdn/instance.js` (registers `<fsl-instance>`)
 
 So a no-tooling page mixes a classic tag for the machine global with a module
-tag for the drawing, and declares an import map so the dynamic
-`import('@viz-js/viz')` inside `jssm-viz` can be resolved:
+tag for the drawing.  Loaded this way, nothing else is needed: esm.sh rewrites
+the bare `import('@viz-js/viz')` inside `jssm-viz` into a URL before your page
+ever sees it.
 
 ```html
-<script type="importmap">
-  { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz/+esm" } }
-</script>
-
 <!-- the machine library, as the classic global `jssm` -->
-<script src="https://cdn.jsdelivr.net/npm/jssm-iife/dist/jssm.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js"></script>
 
 <!-- the drawing functions, as a module -->
 <script type="module">
@@ -126,17 +123,24 @@ tag for the drawing, and declares an import map so the dynamic
 ```
 
 If all you want is a rendered machine in markup, skip the functions entirely
-and load the custom element instead:
+and load the custom element straight from the CDN instead.  This entry is a
+plain file rather than an esm.sh rewrite, so the page must declare an import
+map for it:
 
 ```html
+<script type="importmap">
+  { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz/+esm" } }
+</script>
+
 <script type="module"
-        src="https://cdn.jsdelivr.net/npm/jssm-viz/dist/cdn/viz.js"></script>
+        src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 
 <fsl-viz fsl="a -> b;"></fsl-viz>
 ```
 
-The import map is document-scoped; the same map services both classic
-script-tag loads and `<script type="module">` loads on the same page.
+The import map is what lets `dist/cdn/viz.js` resolve its bare
+`import('@viz-js/viz')`.  A module loaded from an ESM CDN such as esm.sh does
+not need one — that CDN rewrites the specifier before your page ever sees it.
 
 
 

@@ -176,7 +176,7 @@ this:
 
       window.onload = () => {
 
-        const traffic_light = sm`
+        const traffic_light = jssm.sm`
           Red 'next' => Green 'next' => Yellow 'next' => Red;
         `;
 

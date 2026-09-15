@@ -136,9 +136,9 @@ import { fsl_to_svg_string }   from 'jssm-viz';
 const svg = await fsl_to_svg_string('a -> b;');
 ```
 
-It is a separate install - `npm install jssm-viz` - so importing only from
-`jssm` never pulls in `@viz-js/viz`. See the Visualization doc page for
-browser, ESM, and CDN usage patterns.
+It is a separate install - `npm install jssm-viz`.  Importing only from `jssm`
+never loads `@viz-js/viz`: the core bundle contains no reference to it.  See
+the Visualization doc page for browser, ESM, and CDN usage patterns.
 
 
 
@@ -265,7 +265,7 @@ The grammar is generated from — and build-verified against — the same `fsl_p
 CDN one-liner (with an import map for `@viz-js/viz`):
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz/dist/cdn/viz.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
