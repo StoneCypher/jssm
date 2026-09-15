@@ -484,8 +484,9 @@ page left on the 5.x spellings renders and does nothing — so grep for
 
 **Status:** landed.  The main `jssm` package ships ESM only: its `exports`
 are `.` (`dist/jssm.es6.mjs`), `./compat` (`dist/jssm.compat.es6.mjs`), and
-the grammar JSON — there is no `main`, no `require` condition, and no
-bundled global.  The CommonJS and IIFE builds are published as their own
+the grammar JSON.  Every condition resolves to an ES module: there is no
+`require` condition and no bundled global, and `main` and `module` both
+point at the same `.mjs`.  The CommonJS and IIFE builds are published as their own
 packages, **`jssm-commonjs`** and **`jssm-iife`**.  The repository does
 still *build* `dist/jssm.es5.cjs` and `dist/jssm.es5.iife.js`, because the
 benchmark harness (`src/buildjs/benchmark.cjs`,
