@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/StoneCypher/jssm.git", "directory": "packages/jssm-commonjs" },
   "keywords": ["jssm", "fsl", "state machine", "finite state machine", "commonjs", "cjs"],
-  "engines": { "node": ">=10.0.0" },
+  "engines": { "node": ">=20.0.0" },
   "main": "./dist/jssm.cjs",
   "types": "./dist/jssm.d.cts",
   "exports": {

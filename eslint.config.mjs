@@ -280,10 +280,12 @@ export default tseslint.config(
 
 
   //  build scripts: CommonJS under node, no type-aware rules.
-  //  The n version is pinned here to what maintainers actually run, because
-  //  package.json engines still claims node >=10 — a decade-stale statement
-  //  that must be corrected as its own deliberate (consumer-facing) decision,
-  //  not smuggled into a lint chore. These scripts are repo-internal.
+  //  The n version is pinned here to what actually runs these scripts, which
+  //  is ahead of the package's published floor: as of 6.0 package.json engines
+  //  declares node >=20, matching the CI matrix's floor leg
+  //  (.github/workflows/nodejs.yml, "engine floor"), while every job that runs
+  //  lint or the build is on 24.x. These scripts are repo-internal and never
+  //  shipped, so they are held to the maintainer runtime, not the floor.
   //
   {
     files: ['src/buildjs/**/*.cjs', 'src/buildjs/**/*.js'],

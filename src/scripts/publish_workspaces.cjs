@@ -2,9 +2,10 @@
 
 /**
  * Dependency-ordered workspace publisher (fsl#1969). The v6 monorepo ships
- * four npm packages from one repo — `jssm` (root) plus the `packages/*`
- * workspace members `jssm-viz`, `jssm-fence`, `jssm-cli` — and each member
- * depends on the ones before it in {@link PUBLISH_ORDER}. This script
+ * seven npm packages from one repo — `jssm` (root) plus the `packages/*`
+ * workspace members `jssm-viz`, `jssm-fence`, `jssm-cli`, `jssm-commonjs`,
+ * `jssm-iife`, `jssm-verify` — and each member depends only on names that
+ * precede it in {@link PUBLISH_ORDER}. This script
  * publishes them one at a time, in that fixed order, so a consumer installing
  * a just-published package never resolves to a sibling that isn't on the
  * registry yet.
@@ -31,8 +32,8 @@
  * whole script after a partial failure, since already-shipped packages are
  * never re-attempted. An unpublished-version lookup surfaces as one of two
  * npm error shapes depending on whether the package itself has ever shipped:
- * `E404` (the package name has never been published — true today for
- * `jssm-viz`/`jssm-fence`/`jssm-cli`, which are new in v6) or `ETARGET`/"No
+ * `E404` (the package name has never been published — true today for every
+ * `packages/*` member, all six of which are new in v6) or `ETARGET`/"No
  * matching version found" (the package exists, but not at this exact
  * version — true for `jssm` itself, which has published 5.x for years and
  * only lacks THIS release). {@link isUnpublishedVersionError} recognizes
@@ -61,7 +62,7 @@
  * npm's workspace filtering already resolves `-w` to the right package
  * directory and packs/provenance-attests it correctly, so there is no need to
  * change the process's working directory per package — one invocation shape
- * for all four packages, root included, keeps the loop uniform and avoids
+ * for all seven packages, root included, keeps the loop uniform and avoids
  * relative-path bugs across POSIX/Windows.
  *
  * {@link PUBLISH_ORDER}'s dependency ORDER is hand-maintained (a new
@@ -71,7 +72,7 @@
  * glob (`resolveWorkspaceDirNames`, duplicated from `makever.cjs`/
  * `verify_version_bump.cjs` by the same "independent CLI entry points" design
  * noted above) and throws if a real `packages/*` member has no
- * {@link PUBLISH_ORDER} slot — so a 4th workspace package added later fails
+ * {@link PUBLISH_ORDER} slot — so an 8th workspace package added later fails
  * loudly here instead of silently never being published.
  *
  * @example
@@ -815,7 +816,7 @@ const main = () => {
   }
 
   // One tag for the whole run, derived from the lockstep version that
-  // verify_version_bump already proved identical across all four packages — so
+  // verify_version_bump already proved identical across all seven packages — so
   // the root and its members can never land on different channels.
   let dist_tag;
 
