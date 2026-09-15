@@ -344,6 +344,35 @@ after the first character, never as it.
 **Migration:** Quote the affected names (`"in-progress"`, `"node.start"`,
 `"1"`) or rename them to identifier form (`in_progress`).
 
+Before — 5.x accepted both of these barewords:
+
+```fsl
+1st 'begin' -> in-progress 'finish' -> done;
+```
+
+After — quote the two names that are no longer identifiers:
+
+```fsl
+"1st" 'begin' -> "in-progress" 'finish' -> done;
+```
+
+Or rename them, which keeps every name a bareword:
+
+```fsl
+first_pass 'begin' -> in_progress 'finish' -> done;
+```
+
+Both rejections name the offending character and spell out the repair:
+
+```
+The bareword "1st" starts with a digit, which is not allowed in an unquoted name; quote it ("1st")
+The bareword "in-progress" contains "-", which is not allowed in an unquoted name; quote it ("in-progress") or rename it (in_progress)
+```
+
+Non-ASCII names are unaffected: `\p{L}` is *every* Unicode letter, so
+`état -> 状態;` needs no quotes in 6.0, exactly as in 5.x.  What the rule
+excludes is symbols and punctuation, not alphabets.
+
 ### A probabilistic transition onto a list shares its weight across the members
 
 **Status:** landed.
@@ -356,6 +385,39 @@ list's or group's members now draw less often than before.  In 6.0,
 **Migration:** Multiply the outer probability by the member count to keep
 5.x odds (`a 50% -> [b c]` becomes `a 100% -> [b c]`), or write inner
 weights (`a 50% -> [b 20% c 80%]`).
+
+Before — one 5.x source, read two different ways:
+
+```fsl
+a 50% -> [b c];
+a 50% -> d;
+```
+
+In 5.x that compiled to three edges each weighted 50 (`a->b 50`,
+`a->c 50`, `a->d 50`), so `b`, `c` and `d` each drew one time in three.
+In 6.0 the very same source compiles to `a->b 25`, `a->c 25`, `a->d 50`:
+the list keeps the 50 it was handed and its two members split it, so `d`
+now draws half the time instead of a third.
+
+After — multiply the outer probability by the member count to restore the
+5.x odds:
+
+```fsl
+a 100% -> [b c];
+a 50% -> d;
+```
+
+compiling to `a->b 50`, `a->c 50`, `a->d 50` — the 5.x numbers exactly.
+
+Or give the members their own weights, a form 6.0 adds and 5.x had no
+spelling for:
+
+```fsl
+a 50% -> [b 20% c 80%];
+a 50% -> d;
+```
+
+compiling to `a->b 10`, `a->c 40`, `a->d 50`.
 
 ### Web components drop the jssm- prefix entirely
 
@@ -384,16 +446,86 @@ stray `<jssm-hook>` or `<jssm-on>`) is no longer stripped from a host's
 inline-text FSL source and will corrupt it — remove or rename such children
 to `fsl-*`.
 
+Before — 5.x markup, every affected spelling in one page:
+
+```html
+<style>
+  jssm-viz { --jssm-viz-max-height: 240px; }
+</style>
+
+<jssm-instance fsl="Off 'flip' -> On 'flip' -> Off;">
+  <input type="button" value="flip" data-jssm-action="flip">
+  <jssm-viz></jssm-viz>
+</jssm-instance>
+```
+
+After — the same page in 6.0, with `jssm-` rewritten to `fsl-` in all four
+places (two tags, one data attribute, one CSS custom property):
+
+```html
+<style>
+  fsl-viz { --fsl-viz-max-height: 240px; }
+</style>
+
+<fsl-instance fsl="Off 'flip' -> On 'flip' -> Off;">
+  <input type="button" value="flip" data-fsl-action="flip">
+  <fsl-viz></fsl-viz>
+</fsl-instance>
+```
+
+Nothing is aliased any more, and nothing warns.  In 6.0 `<jssm-instance>`
+and `<jssm-viz>` are not registered custom elements, so the browser leaves
+them as inert unknown elements; `[data-jssm-action]` is not a selector the
+host scans; and `--jssm-viz-max-height` is not read by any stylesheet.  A
+page left on the 5.x spellings renders and does nothing — so grep for
+`jssm-` in your markup and CSS rather than waiting for an error.
+
 ### Main jssm package ships ESM only; es5/iife relocate to compatibility packages
 
-**Status:** accepted (decided; the packaging split is still landing on the
-v6 line, so check `v6_breaking_changes.json` for the current status).
+**Status:** landed.  The main `jssm` package ships ESM only: its `exports`
+are `.` (`dist/jssm.es6.mjs`), `./compat` (`dist/jssm.compat.es6.mjs`), and
+the grammar JSON — there is no `main`, no `require` condition, and no
+bundled global.  The CommonJS and IIFE builds are published as their own
+packages, **`jssm-commonjs`** and **`jssm-iife`**.  The repository does
+still *build* `dist/jssm.es5.cjs` and `dist/jssm.es5.iife.js`, because the
+benchmark harness (`src/buildjs/benchmark.cjs`,
+`src/buildjs/benchmark_scaling.cjs`) and `src/scripts/graviton_envelope.cjs`
+load them; neither path is in the package's `files` array, so no consumer
+ever receives one.  (Ruled 2026-09-14.)
 
 **Breaks:** Consumers that relied on the main `jssm` package directly
 providing a CJS/require entry, an iife global build, or an es5 build.
 
-**Migration:** Install the matching compatibility package (es5 / iife /
-cjs), or load iife from the CDN.  ESM consumers are unaffected.  The
-`jssm/compat` class entry is available from the CommonJS package as its own
-`./compat` subpath, and the IIFE global carries the class entry, since a
-global has no subpaths.
+**Migration:** Install `jssm-commonjs` to `require()`, or `jssm-iife` for a
+`<script>` tag or a CDN global.  ESM consumers are unaffected.
+
+Before and after, for `require()` consumers:
+
+```javascript
+// 5.x
+const { Machine, sm } = require('jssm');
+
+// 6.0 — the 5.x class API
+const { Machine, sm } = require('jssm-commonjs/compat');
+
+// 6.0 — the bare-function API
+const { sm, state, act } = require('jssm-commonjs');
+```
+
+`jssm-commonjs` mirrors the main package's two entries: `.` is the function
+API and `./compat` adds the `Machine` class, since a CommonJS package can
+carry subpaths.
+
+Before and after, for script-tag consumers:
+
+```html
+<!-- 5.x -->
+<script src="https://cdn.jsdelivr.net/npm/jssm@5/dist/jssm.es5.iife.js"></script>
+
+<!-- 6.0 -->
+<script src="https://cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js"></script>
+```
+
+The global is still named `jssm`, and it carries the class entry alongside
+the functions — `jssm.Machine` is there — because a global has no subpaths
+to split them across.
