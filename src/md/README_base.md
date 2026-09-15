@@ -6,8 +6,9 @@
 [Issues](https://github.com/StoneCypher/fsl/issues)
 
 **Easy.**  Tiny.  Fast.  Finite state machines as one-liner strings, for
-TypeScript and JavaScript.  Renders to PNG, SVG, and JPEG.  Runs in Node,
-browsers, and Deno.  MIT licensed.
+TypeScript and JavaScript.  An ESM library for Node and browsers.  Rendering
+is a separate install: `jssm-viz` draws SVG, and `jssm-cli` rasterizes to PNG
+and JPEG.  MIT licensed.
 
 ```javascript
 import { sm, transition, state } from 'jssm';
@@ -82,22 +83,13 @@ The same string is the runtime and the diagram.  They cannot drift apart.
 npm install jssm
 ```
 
-The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
-and TypeScript typings.  A Deno build is included.  Node 10 or newer.
+The package ships one ES module build, the `jssm/compat` entry, the FSL
+TextMate grammar, and TypeScript typings.  CommonJS and browser-global
+builds are their own packages, `jssm-commonjs` and `jssm-iife`.  Node 20 or
+newer.
 
-### Trying the v6 alpha
-
-The v6 line publishes under the `alpha` dist-tag, so it never lands on a
-plain `npm install`:
-
-```
-npm install jssm@alpha
-```
-
-It is an alpha in the real sense — the API surface is not frozen, and the
-breaking changes recorded in `v6_breaking_changes.json` have not all landed
-yet.  Use it to try the new work and report what breaks, not to ship.
-Stay on `npm install jssm` for anything that matters.
+Upgrading from 5.x?  [MIGRATING-5-to-6.md](MIGRATING-5-to-6.md) has a
+before/after for every break.
 
 
 
@@ -105,20 +97,28 @@ Stay on `npm install jssm` for anything that matters.
 
 ## Package family
 
-As of v6, this repository publishes four packages in lockstep versions.
-The `jssm` core stays dependency-light; the other three depend on the
-published core instead of embedding it, so you install only what you use.
+As of v6, this repository publishes seven packages in lockstep versions, so
+you install only what you use.  `jssm-viz`, `jssm-fence`, and `jssm-cli`
+depend on the published core instead of embedding it.  `jssm-commonjs` and
+`jssm-iife` deliberately do not: a `require()` caller or a `<script>` tag
+cannot resolve an ESM-only dependency, so each carries its own complete
+build.  `jssm-verify` uses the core for types only and declares it an
+optional peer.
 
 | Package | What it is |
 |---|---|
 | `jssm` | The state-machine language and runtime (this package) |
-| `jssm-viz` | Graphviz-based visualization: SVG/PNG/JPEG renders and the web components |
+| `jssm-viz` | Graphviz-based SVG visualization and the `fsl-*` web components |
 | `jssm-fence` | Markdown fence rendering for FSL code blocks |
-| `jssm-cli` | The `fsl` command line: render, codegen, import/export, run |
+| `jssm-cli` | The `fsl` command line and its library API: render, rasterize, codegen, import/export |
+| `jssm-commonjs` | The CommonJS build, for consumers that `require()` rather than `import` |
+| `jssm-iife` | The browser-global (IIFE) build, for `<script>` tags and CDN use |
+| `jssm-verify` | Safety-property verification: invariants, reachability, and replayable counterexample traces |
 
-During the 6.0 cycle, `jssm` itself still carries its historical `/viz`,
-`/fence`, `/cli`, and related subpaths; 6.0.0 slims the core package by
-retiring those embedded copies in favor of the packages above.
+`jssm` itself exports exactly four entries - `.`, `./compat`, `./grammar`,
+and `./grammars/fsl.tmLanguage.json` - and nothing else.  The historical
+`/viz`, `/fence`, `/cli`, and `/wc` subpaths are gone; each is one of the
+packages above.
 
 
 
@@ -126,19 +126,19 @@ retiring those embedded copies in favor of the packages above.
 
 ## Visualization
 
-`jssm` ships with a visualization subpath that renders state machines to
-SVG using Graphviz (via [`@viz-js/viz`](https://www.npmjs.com/package/@viz-js/viz)).
+`jssm-viz` renders state machines to SVG using Graphviz (via
+[`@viz-js/viz`](https://www.npmjs.com/package/@viz-js/viz)).
 
 ```typescript
 import { sm }                  from 'jssm';
-import { fsl_to_svg_string }   from 'jssm/viz';
+import { fsl_to_svg_string }   from 'jssm-viz';
 
 const svg = await fsl_to_svg_string('a -> b;');
 ```
 
-The viz subpath is opt-in - importing only from `jssm` does not pull in
-`@viz-js/viz`. See the Visualization doc page for browser, ESM, and IIFE
-usage patterns.
+It is a separate install - `npm install jssm-viz` - so importing only from
+`jssm` never pulls in `@viz-js/viz`. See the Visualization doc page for
+browser, ESM, and CDN usage patterns.
 
 
 
@@ -146,15 +146,16 @@ usage patterns.
 
 ## Command-line interface
 
-`jssm` ships a CLI for rendering FSL machines to images and other formats.
+`jssm-cli` renders FSL machines to images and other formats from the command
+line.
 
 ### Installation
 
 ```sh
-npm install -g jssm
+npm install -g jssm-cli
 ```
 
-This installs three binaries: `fsl` (the dispatcher), `jssm` (alias for `fsl`), and `fsl-render` (the render plugin).
+This installs four binaries: `fsl` (the dispatcher), `jssm` (alias for `fsl`), `fsl-render` (the render plugin), and `fsl-export-system-prompt` (prints an FSL authoring prompt to stdout, for LLM use).
 
 ### Render
 
@@ -200,7 +201,7 @@ The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (dis
 
 CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
 
-See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm-cli` library API.
 
 ### Plugin architecture
 
@@ -211,7 +212,7 @@ Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. T
 The same render functions are available programmatically:
 
 ```js
-import { render, renderSet } from 'jssm/cli';
+import { render, renderSet } from 'jssm-cli';
 
 const result = await render(fslText, { target: 'svg' });
 if (result.kind === 'text') console.log(result.content);
@@ -221,12 +222,12 @@ if (result.kind === 'text') console.log(result.content);
 
 <br/>
 
-## Static fence rendering (`jssm/fence`)
+## Static fence rendering (`jssm-fence`)
 
-`jssm/fence` renders FSL code fences to static, editor-parity-highlighted HTML — no browser, no editor, no live machine required — for Markdown pipelines, static site generators, and doc tooling.
+`jssm-fence` renders FSL code fences to static, editor-parity-highlighted HTML — no browser, no editor, no live machine required — for Markdown pipelines, static site generators, and doc tooling.
 
 ```typescript
-import { transform_markdown } from 'jssm/fence';
+import { transform_markdown } from 'jssm-fence';
 
 const html = await transform_markdown(markdown);
 // every fsl/jssm fence becomes rendered, highlighted HTML
@@ -236,7 +237,7 @@ console.log(html);
 
 `render_fence_gif` walks a machine's main path (or every edge, if there is no main path) into a looping animated GIF, one Graphviz layout patched per frame: 70cs per-frame delay, loops forever, and a 64-frame walk cap by default, all overridable via options.
 
-PNG, JPEG, and GIF output rasterize through the same optional backend as the CLI — install it with `npm install @resvg/resvg-wasm`.
+PNG, JPEG, and GIF output rasterize through the same optional backend `jssm-cli` uses — install it with `npm install @resvg/resvg-wasm`.
 
 
 
@@ -259,19 +260,19 @@ The grammar is generated from — and build-verified against — the same `fsl_p
 
 ## Web Components
 
-`jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
+`jssm-viz` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
 
 CDN one-liner (with an import map for `@viz-js/viz`):
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz/dist/cdn/viz.js"></script>
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
 npm one-liner:
 
 ```ts
-import 'jssm/wc/viz/define';
+import 'jssm-viz/wc/viz/define';
 // then use <fsl-viz fsl="..."> anywhere
 ```
 
@@ -411,7 +412,7 @@ That decision shows up everywhere downstream:
 ## Documentation
 
 - [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) - conceptual intro for newcomers
-- [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
+- [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library in Node, in browsers, from a CDN, and in TypeScript
 - [Using jssm in the browser](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Environments_Browser.md) - script tags, CDN, native ES modules, bundlers, and web components
 - [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
 - [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
@@ -455,7 +456,7 @@ table is in [MIGRATING-5-to-6.md](MIGRATING-5-to-6.md).
 
 ## Status
 
-In production use since May 2017.  Current series is 5.x and the DSL is
+In production use since May 2017.  Current series is 6.x and the DSL is
 stable; the runtime API has been additive for several years.  MIT licensed
 end to end.  Test data and parser cases are included for English, German,
 French, Spanish, Hebrew, Russian, Ukrainian, Belarusian, Bengali,
