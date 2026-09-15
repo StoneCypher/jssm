@@ -60,30 +60,35 @@ export interface RasterResult {
 export type RenderResult = TextResult | RasterResult;
 
 /**
- * Base error class for render-time failures.
+ * Re-exported from their new home in `src/ts/fsl_rasterize_errors.ts`: the
+ * render error classes moved to fence/core level with the rasterizer, so
+ * that jssm-fence does not depend on jssm-cli (and so a future package split
+ * can't bundle two copies of the class, which would break `instanceof`
+ * across the boundary). Re-exporting preserves class identity for every
+ * existing importer of this path.
+ * @see fsl_rasterize_errors.ts
  */
-export class RenderError extends Error {
+export { RenderError, RasterizationUnsupportedError } from '../fsl_rasterize_errors.js';
+
+/**
+ * Error class for `typegen`-time failures (parse error, unsupported target).
+ *
+ * Carries the same optional source-location fields as {@link RenderError} so
+ * the plugin's error printer can report a path and line uniformly across
+ * verbs. Distinct from `RenderError` because `typegen` is a separate verb
+ * with its own failure surface — declarations, not images.
+ */
+export class TypegenError extends Error {
   public readonly path?: string;
   public readonly line?: number;
   public readonly column?: number;
 
   constructor(message: string, opts: { path?: string; line?: number; column?: number } = {}) {
     super(message);
-    this.name = 'RenderError';
+    this.name = 'TypegenError';
     this.path = opts.path;
     this.line = opts.line;
     this.column = opts.column;
-  }
-}
-
-/**
- * Thrown when raster output is requested in a runtime that supports neither
- * native OffscreenCanvas nor `@resvg/resvg-wasm`.
- */
-export class RasterizationUnsupportedError extends RenderError {
-  constructor(message: string) {
-    super(message);
-    this.name = 'RasterizationUnsupportedError';
-    Object.setPrototypeOf(this, RasterizationUnsupportedError.prototype);
+    Object.setPrototypeOf(this, TypegenError.prototype);
   }
 }

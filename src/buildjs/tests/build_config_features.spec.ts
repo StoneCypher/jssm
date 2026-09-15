@@ -56,3 +56,49 @@ describe('feature catalog', () => {
     }
   });
 });
+
+describe('externalized package-bundle features (v6 workspace split)', () => {
+  const pkg_bundlers   = ['make_pkg_viz', 'make_pkg_fence', 'make_pkg_cli'] as const;
+  const pkg_finishers  = ['min_pkg_viz', 'min_pkg_fence', 'min_pkg_cli', 'dts_pkg_viz', 'dts_pkg_fence', 'dts_pkg_cli'] as const;
+
+  test('each package feature exists, is optional, on by default, and names a real script', () => {
+    for (const name of [...pkg_bundlers, ...pkg_finishers]) {
+      const def = F.FEATURES[name];
+      expect(def, name).toBeDefined();
+      expect(def.optional,       `${name}.optional`).toBe(true);
+      expect(def.defaultEnabled, `${name}.defaultEnabled`).toBe(true);
+      expect(pkg.scripts[def.script], `script "${def.script}" for feature ${name}`).toBeDefined();
+    }
+  });
+
+  test('package bundlers run in the rollup stage (4)', () => {
+    for (const name of pkg_bundlers) {
+      expect(F.FEATURES[name].stages, name).toEqual([4]);
+    }
+  });
+
+  test('package finishers run in the minify stage (5) and require their stage-4 bundler', () => {
+    for (const name of pkg_finishers) {
+      expect(F.FEATURES[name].stages, name).toEqual([5]);
+      const bundler = name.replace(/^(min|dts)_/, 'make_');
+      expect(F.FEATURES[name].requires, name).toContain(bundler);
+    }
+  });
+
+  test('dts copies also require the embedded bundler that writes the rolled d.ts', () => {
+    expect(F.FEATURES.dts_pkg_viz.requires).toContain('make_viz');
+    expect(F.FEATURES.dts_pkg_fence.requires).toContain('make_fence');
+    expect(F.FEATURES.dts_pkg_cli.requires).toContain('make_cli');
+  });
+
+  test('package finisher scripts target files under packages/ only', () => {
+    for (const name of pkg_finishers) {
+      const script = pkg.scripts[F.FEATURES[name].script];
+      const targets = [...script.matchAll(/(?:-o|>)\s+(\S+)|cp\s+\S+\s+(\S+)/g)].map(m => m[1] ?? m[2]);
+      expect(targets.length, `${name} must have write targets`).toBeGreaterThan(0);
+      for (const out of targets) {
+        expect(out.startsWith('packages/'), `${name} writes ${out}`).toBe(true);
+      }
+    }
+  });
+});

@@ -10,25 +10,35 @@ TypeScript and JavaScript.  Renders to PNG, SVG, and JPEG.  Runs in Node,
 browsers, and Deno.  MIT licensed.
 
 ```javascript
-import { sm } from 'jssm';
+import { sm, transition, state } from 'jssm';
 
 const TrafficLight = sm`Red -> Green -> Yellow -> Red;`;
 ```
 
-That's it.  Using it is equally easy:
+That's it.  Using it is equally easy: every function takes the machine
+first.  A module that imports only functions and is handed a machine sheds
+the `Machine` class; a bundle that builds one with `sm` still carries the
+class and every family in 6.0, because the value is a `Machine` instance,
+and the full size win lands when a later major drops that prototype.
 
 ```javascript
-TrafficLight.state();      // 'Red'
-TrafficLight.go('Green');  // true
-TrafficLight.state();      // 'Green'
+state(TrafficLight);                // 'Red'
+transition(TrafficLight, 'Green');  // true
+state(TrafficLight);                // 'Green'
 ```
 
 The point of a state machine is to refuse to do things that aren't correct:
 
 ```javascript
-TrafficLight.go('Red');    // false  - Green doesn't go to Red, only Yellow
-TrafficLight.go('Blue');   // throws - Blue doesn't exist at all
+transition(TrafficLight, 'Red');    // false - Green doesn't go to Red, only Yellow
+transition(TrafficLight, 'Blue');   // false - Blue doesn't exist at all
 ```
+
+> **Coming from 5.x?**  The class API is unchanged at `jssm/compat`:
+> `import { Machine, sm } from 'jssm/compat'` is a drop-in for the 5.x
+> `import { Machine, sm } from 'jssm'`, and `TrafficLight.go('Green')` keeps
+> working on the machines the default entry builds, too.  See
+> [MIGRATING-5-to-6.md](MIGRATING-5-to-6.md).
 
 A more involved machine, with main paths, forced paths, and per-state
 styling, renders to:
@@ -74,6 +84,41 @@ npm install jssm
 
 The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
 and TypeScript typings.  A Deno build is included.  Node 10 or newer.
+
+### Trying the v6 alpha
+
+The v6 line publishes under the `alpha` dist-tag, so it never lands on a
+plain `npm install`:
+
+```
+npm install jssm@alpha
+```
+
+It is an alpha in the real sense — the API surface is not frozen, and the
+breaking changes recorded in `v6_breaking_changes.json` have not all landed
+yet.  Use it to try the new work and report what breaks, not to ship.
+Stay on `npm install jssm` for anything that matters.
+
+
+
+<br/>
+
+## Package family
+
+As of v6, this repository publishes four packages in lockstep versions.
+The `jssm` core stays dependency-light; the other three depend on the
+published core instead of embedding it, so you install only what you use.
+
+| Package | What it is |
+|---|---|
+| `jssm` | The state-machine language and runtime (this package) |
+| `jssm-viz` | Graphviz-based visualization: SVG/PNG/JPEG renders and the web components |
+| `jssm-fence` | Markdown fence rendering for FSL code blocks |
+| `jssm-cli` | The `fsl` command line: render, codegen, import/export, run |
+
+During the 6.0 cycle, `jssm` itself still carries its historical `/viz`,
+`/fence`, `/cli`, and related subpaths; 6.0.0 slims the core package by
+retiring those embedded copies in favor of the packages above.
 
 
 
@@ -138,6 +183,24 @@ Pipe FSL via stdin:
 ```sh
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
+
+### Configuration
+
+The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
+
+```json
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}
+```
+
+CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
+
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
 
 ### Plugin architecture
 
@@ -209,7 +272,7 @@ npm one-liner:
 
 ```ts
 import 'jssm/wc/viz/define';
-// then use <fsl-viz fsl="..."> anywhere; <jssm-viz> is an accepted alias
+// then use <fsl-viz fsl="..."> anywhere
 ```
 
 Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
@@ -223,13 +286,18 @@ Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
 **Actions** let a machine advance without the caller knowing the next state:
 
 ```javascript
+import { sm, act, state } from 'jssm';
+
 const Light = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`;
 
-Light.action('next');  // true
-Light.state();         // 'Green'
-Light.action('next');  // true
-Light.state();         // 'Yellow'
+act(Light, 'next');  // true
+state(Light);        // 'Green'
+act(Light, 'next');  // true
+state(Light);        // 'Yellow'
 ```
+
+(`action` is an alias of `act`; the 5.x class spelling `do()` is deprecated,
+because `do` is a reserved word and has no function form.)
 
 **Three arrow types** distinguish kinds of transition:
 
@@ -247,10 +315,13 @@ useful for emergency stops, resets, and other rarities.
 **Hooks** observe and gate transitions:
 
 ```javascript
-const m = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`
-  .hook('Red', 'Green', () => console.log('GO'))            // specific edge
-  .hook_entry('Red', () => console.log('STOP'))             // entering a state
-  .hook_action('Yellow', 'Red', 'next', () => allowed());   // gate a specific action; return false to block
+import { sm, hook, hook_entry, hook_action } from 'jssm';
+
+const m = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`;
+
+hook(m, 'Red', 'Green', () => console.log('GO'));            // specific edge
+hook_entry(m, 'Red', () => console.log('STOP'));             // entering a state
+hook_action(m, 'Yellow', 'Red', 'next', () => allowed());   // gate a specific action; return false to block
 ```
 
 Pre-hooks fire before the state changes and may return `false` to refuse the
@@ -260,8 +331,9 @@ transition.  Post-hooks fire after.  Four `*_everything` hooks
 observation point.
 
 **Refusals and errors are deliberately different.**  An illegal transition
-returns `false`.  An unknown state throws.  Branching code can rely on the
-distinction.
+returns `false`.  Asking a question about a state that does not exist
+(`state_is_terminal(m, 'Blue')`, `list_exit_actions(m, 'Blue')`) throws.
+Branching code can rely on the distinction.
 
 **Overlapping state groups** let a state belong to several groups at once -
 something a strict hierarchy can't express.  A group is declared with `&`,
@@ -269,6 +341,8 @@ and the same `&name` then drives transitions, shared metadata, boundary
 hooks, and runtime queries:
 
 ```javascript
+import { sm, act, isIn, groupsOf } from 'jssm';
+
 const req = sm`
   &InProgress : [connecting sending receiving];
   &Receiving  : [receiving draining];
@@ -280,9 +354,9 @@ const req = sm`
   on enter &Receiving do 'log_rx';    // boundary hook fires crossing in
 `;
 
-req.action('send');
-req.isIn('InProgress');     // true  - connecting is in &InProgress
-req.groupsOf('receiving');  // Set { 'InProgress', 'Receiving' }  - overlap
+act(req, 'send');
+isIn(req, 'InProgress');     // true  - connecting is in &InProgress
+groupsOf(req, 'receiving');  // Set { 'InProgress', 'Receiving' }  - overlap
 ```
 
 `receiving` is in **both** groups simultaneously - it is in-progress *and*
@@ -352,23 +426,28 @@ That decision shows up everywhere downstream:
 
 ## API at a glance
 
-| Method | Purpose |
+Every function takes the machine `m` as its first argument.  The same names
+are methods on the `Machine` class at `jssm/compat`.
+
+| Function | Purpose |
 |---|---|
 | `` sm`...` `` | Build a machine from DSL |
-| `.state()` | The current state |
-| `.transition(state)` | Move to a state. Returns `false` if illegal, throws if unknown. |
-| `.force_transition(state)` | Move to a state across a `~>` forced edge |
-| `.action(name)` | Trigger a named action. The next state is derived from the current state. |
-| `.valid_transition(state)` · `.valid_action(name)` | Test whether a transition or action is legal from the current state, without taking it |
-| `.hook(from, to, fn)` | Run on a specific edge. Pre-hook; return `false` to block. |
-| `.hook_entry(state, fn)` · `.hook_exit(state, fn)` | Run when entering or leaving a state |
-| `.hook_action(from, to, action, fn)` | Run when a named action causes a specific edge |
-| `.hook_pre_everything(fn)` · `.hook_everything(fn)` | Bracket the pre-hook pipeline |
-| `.hook_pre_post_everything(fn)` · `.hook_post_everything(fn)` | Bracket the post-hook pipeline |
+| `` fsl`...` `` | Exact alias of `` sm`...` ``.  Prefer it in highlighted sources: syntax highlighters key on the tag name, and `fsl` names the language unambiguously where `sm` collides with ordinary identifiers. |
+| `state(m)` | The current state |
+| `transition(m, state)` | Move to a state. Returns `false` if illegal or unknown. |
+| `force_transition(m, state)` | Move to a state across a `~>` forced edge |
+| `act(m, name)` | Trigger a named action. The next state is derived from the current state.  `action` is an alias. |
+| `valid_transition(m, state)` · `valid_action(m, name)` | Test whether a transition or action is legal from the current state, without taking it |
+| `hook(m, from, to, fn)` | Run on a specific edge. Pre-hook; return `false` to block. |
+| `hook_entry(m, state, fn)` · `hook_exit(m, state, fn)` | Run when entering or leaving a state |
+| `hook_action(m, from, to, action, fn)` | Run when a named action causes a specific edge |
+| `hook_pre_everything(m, fn)` · `hook_everything(m, fn)` | Bracket the pre-hook pipeline |
+| `hook_pre_post_everything(m, fn)` · `hook_post_everything(m, fn)` | Bracket the post-hook pipeline |
 
 The full surface - including history, validators, factories, data, and the
-graph-introspection methods - is in the [generated API
-docs](https://stonecypher.github.io/jssm/docs/).
+graph-introspection functions - is in the [generated API
+docs](https://stonecypher.github.io/jssm/docs/); the method-to-function
+table is in [MIGRATING-5-to-6.md](MIGRATING-5-to-6.md).
 
 
 

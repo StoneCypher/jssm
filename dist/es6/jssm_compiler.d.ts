@@ -1,4 +1,4 @@
-import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmParseOptions, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
+import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmParseOptions, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation, JssmWeightedList } from './jssm_types.js';
 /*********
  *
  *  Returns the source span of the `n`-th parse-tree node (1-based) matching
@@ -51,18 +51,19 @@ declare function makeTransition<StateType, mDT>(this_se: JssmCompileSe<StateType
  *
  *  Parses the intermediate representation of a compiled string down to a
  *  machine configuration object.  If you're using this (probably don't,) you're
- *  probably also using {@link compile} and {@link Machine.constructor}.
+ *  probably also using {@link compile} and {@link create} (or, through
+ *  `jssm/compat`, the `Machine` constructor).
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  import { parse, compile, create } from 'jssm';
  *
- *  const intermediate = wrap_parse('a -> b;', {});
+ *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
  *
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *
@@ -277,13 +278,44 @@ declare function validate_group_members(registry: JssmGroupRegistry): void;
 declare function membership_distance(registry: JssmGroupRegistry, state: string, group: string): number;
 /*********
  *
- *  Compile a machine's JSON intermediate representation to a config object.  If
- *  you're using this (probably don't,) you're probably also using
- *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.constructor} to turn the config object into a workable machine.
+ *  Resolves a list target or `start_states` list's members to their
+ *  within-list shares (6.0 list weights).  A plain list (or a weighted list
+ *  whose members carry no inner weight) shares uniformly (`1/n`); a
+ *  weighted list normalizes its inner weights (`w_i / Σw`).  Pure.
+ *
+ *  @param list A plain name array (`['b', 'c']`) or a parsed
+ *              {@link JssmWeightedList} node.
+ *
+ *  @returns One entry per member, in list order, with shares summing to 1.
+ *
+ *  @throws {JssmError} When a weighted list mixes weighted and unweighted
+ *                       members (every member must carry a weight, or none
+ *                       may), when its inner weights sum to zero (no member
+ *                       could ever be chosen), or when any inner weight is
+ *                       negative.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  list_shares(['b', 'c']);
+ *  // [ { name: 'b', share: 0.5 }, { name: 'c', share: 0.5 } ]
+ *
+ *  list_shares({ key: 'weighted_list', members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }] });
+ *  // [ { name: 'b', share: 0.2 }, { name: 'c', share: 0.8 } ]
+ *  ```
+ *
+ */
+declare function list_shares(list: Array<string> | JssmWeightedList): Array<{
+    name: string;
+    share: number;
+}>;
+/*********
+ *
+ *  Compile a machine's JSON intermediate representation to a config object.  If
+ *  you're using this (probably don't,) you're probably also using
+ *  {@link parse} to get the IR, and {@link create} (or, through `jssm/compat`,
+ *  the `Machine` constructor) to turn the config object into a workable machine.
+ *
+ *  ```typescript
+ *  import { parse, compile, create } from 'jssm';
  *
  *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -291,7 +323,7 @@ declare function membership_distance(registry: JssmGroupRegistry, state: string,
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *
@@ -373,4 +405,4 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  *
  */
 declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType, mDT>;
-export { compile, make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse, nth_matching_loc };
+export { compile, list_shares, make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse, nth_matching_loc };

@@ -222,6 +222,9 @@ Usage:
 
 Built-in subcommands (resolved via PATH):
   render                 Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+  codegen                Generate executable host source (native:typescript, native:javascript)
+  import                 Convert SCXML, mermaid, JSON, and more into FSL
+  export                 Convert FSL into JSON, mermaid, and other interchange formats
   export-system-prompt   Write the FSL system prompt for an LLM to stdout or a file
 
 Discovery:

@@ -636,7 +636,7 @@ describe('Integer literals in Stripe / Cycle transition targets', () => {
 
   });
 
-  test('`-0` rejects as a cycle; bare `0` parses as a Label', () => {
+  test('`-0` rejects as a cycle; bare `0` is rejected as a bareword (#754)', () => {
 
      // Documented in `notes/fsl-grammar-reference.md` §6 (ArrowTarget
      // → Cycle bullet, "only `+0` is valid (no `-0`), and `0` alone is
@@ -646,11 +646,11 @@ describe('Integer literals in Stripe / Cycle transition targets', () => {
 
      expect(() => jssm.parse(`a -> -0;`)).toThrow();
 
-     // Bare `0` parses as a Label (since `0` is a valid Atom first-char),
-     // not as a Cycle — `a -> 0;` doesn't throw, it just doesn't produce
-     // a Cycle node.
-     const tree = jssm.parse(`a -> 0;`) as Array<{ se: { to: unknown } }>;
-     expect(typeof tree[0].se.to).toBe('string');
+     // #754: a bare `0` is no longer a legal bareword (leading digit), so
+     // `a -> 0;` is rejected with the quoting hint rather than parsing as a
+     // Label.  The Cycle rule is unaffected: `-0` still rejects for its own
+     // reason.
+     expect(() => jssm.parse(`a -> 0;`)).toThrow(/quote/);
 
   });
 

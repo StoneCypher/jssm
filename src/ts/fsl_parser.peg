@@ -10,6 +10,27 @@
 
 
 
+// #754 review round 1 (perf): the generated per-character predicates for
+// AtomFirstLetter/AtomLetter used to build a fresh regex literal on every
+// character tested. A pegjs initializer — this block — is emitted inside the
+// generated `parse()` function (pegjs has no true module-level output slot),
+// so it runs once per `parse()` call rather than once per character: still a
+// large win (one compile per document instead of one per bareword code
+// point), just not the "compiled once, ever" a module-level constant would
+// be. `FAST_ATOM_RE` in fixparser.cjs's `inline_fast_atom` has the identical
+// per-call scope for the same reason. This is plain JS (no type
+// annotations), so it doesn't need a "Reminder" workaround of its own for
+// PegJS Online.
+// This pair is hand-copied in three other places — keep all four in sync:
+// src/ts/jssm_constants.ts's BAREWORD_FIRST_RE/BAREWORD_REST_RE, this
+// grammar's own fast path (src/buildjs/fixparser.cjs's FAST_ATOM_RE), and
+// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
+// guard for all of them.
+{
+  const BAREWORD_FIRST = /^[\p{L}\p{Nl}_]$/u;
+  const BAREWORD_REST  = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}_]$/u;
+}
+
 
 
 Document
@@ -272,15 +293,51 @@ WS "whitespace"
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
+// #754: a bareword is a Unicode identifier — first character a letter,
+// letter-number, or underscore; continuation adds marks, decimal digits and
+// connector punctuation (the UAX #31 shape).  pegjs 0.10 has no \p{} classes,
+// so we match one code point (a surrogate pair or one BMP unit) and test it
+// with a u-flag regex in a semantic predicate.  Symbols, punctuation, and a
+// leading digit must be written as quoted strings.
+
+AtomCodePoint
+  = hi:[\uD800-\uDBFF] lo:[\uDC00-\uDFFF] { return hi + lo; }
+  / ch:[^\uD800-\uDFFF]                    { return ch; }
+
 AtomFirstLetter
-  = [0-9a-zA-Z\.\_\!\$\^\*\!\?\,\x80-\uFFFF]
+  = ch:AtomCodePoint &{ return BAREWORD_FIRST.test(ch); } { return ch; }
 
 AtomLetter
-  = [0-9a-zA-Z\.\+\_\^\(\)\*\&\$\#\@\!\?\,\x80-\uFFFF]
+  = ch:AtomCodePoint &{ return BAREWORD_REST.test(ch); } { return ch; }
 
+// A character that 5.x allowed inside a bareword and 6.0 does not.  Matched
+// only to produce a targeted error: "-" is excluded here because "a->b" is an
+// arrow, so the dash case is handled by BarewordDashTail below.
+BarewordBadChar
+  = [.+&#@$^*!?,]
+
+BarewordDashTail
+  = "-" &[^>\-|=~<] { return "-"; }
+
+// #754 (final review): badtail wraps the bad character AND the rest of the
+// token as ONE optional unit, `[bad, rest]`, rather than two separate
+// optional labels — capturing `rest` only ever runs once a bad character has
+// already matched. Two independent optionals would make `rest`'s
+// `[^ \t\r\n;]*` class try to match even when `bad` did not (`bad` is
+// undefined but zero-width, `rest` is a separate greedy match), silently
+// swallowing whatever legitimate grammar follows — e.g. "a->b" would have
+// `rest` eat "->b" as if it were part of the atom, corrupting the parse
+// position for a name that was never actually invalid.
 Atom "atom"
-  = firstletter:AtomFirstLetter text:AtomLetter* {
-      return firstletter + ((text || []).join(''));
+  = firstletter:AtomFirstLetter text:AtomLetter*
+    badtail:(bad:(BarewordBadChar / BarewordDashTail) rest:$([^ \t\r\n;]*) { return [bad, rest]; })? {
+      const name = firstletter + ((text || []).join(''));
+      if (badtail) {
+        const [bad, rest] = badtail;
+        const full = name + bad + rest;
+        error(`The bareword "${full}" contains "${bad}", which is not allowed in an unquoted name; quote it ("${full}") or rename it (${name}_${rest})`);
+      }
+      return name;
     }
 
 Label "label"
@@ -740,6 +797,29 @@ ArrowAfter
 LabelList
   = "[" WS? names:(Label WS?)* "]" { return names.map(i => i[0]); }
 
+// A list member with an optional trailing weight, `name 20%`.  Used only by
+// WeightedLabelList; every other list position stays weightless.
+WeightedLabelMember
+  = name:Label WS? weight:(w:NonNegNumber "%" { return w; })? {
+      return weight === null ? { name } : { name, weight };
+    }
+
+// A bracketed list whose members may carry weights, `[b 20% c 80%]`.  Used
+// only by ArrowTarget and ConfigStartNodes (see the design note in
+// LabelList's callers); every other list position keeps the weightless
+// LabelList rule, so a weight there stays a parse error.  When NO member
+// carries a weight the result is the same plain array LabelList produces,
+// so every existing weightless-list consumer sees a byte-identical AST;
+// when any member does, a tagged `weighted_list` node is returned instead.
+WeightedLabelList
+  = "[" WS? members:(WeightedLabelMember WS?)* "]" {
+      const ms = members.map(i => i[0]);
+      if (ms.every(m => m.weight === undefined)) { return ms.map(m => m.name); }
+      const node: any = { key: 'weighted_list', members: ms };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 LabelOrLabelList
   = LabelList
   / Label
@@ -808,12 +888,48 @@ Cycle
       return node;
     }
 
+// #754: a non-ASCII code point that isn't a valid identifier start (an emoji,
+// arrow, star, or other symbol/punctuation someone typed as a bareword).
+// Reserved ASCII punctuation is deliberately excluded here — those code
+// points already have dedicated grammar meaning (arrows, decorations,
+// quotes) via other rules/alternatives, so this only ever fires once every
+// other ArrowTarget alternative — including the digit rule below — has
+// already failed at the same position, i.e. the input is otherwise
+// unparseable as a target here.
+ArrowTargetBadSymbol
+  = ch:AtomCodePoint &{ return ch.codePointAt(0) > 0x7F; } rest:AtomLetter* {
+      const bad = ch + ((rest || []).join(''));
+      error(`The bareword "${bad}" starts with "${ch}", which is not allowed to start an unquoted name; quote it ("${bad}")`);
+    }
+
+// #754 review round 1: 5.x accepted a leading ASCII symbol/punctuation
+// character in a bareword (".foo", "-foo", "?x"); the new AtomFirstLetter
+// class rejects it outright, so without this alternative that input falls
+// through every other ArrowTarget alternative into pegjs's generic
+// expectation-list error, losing the migration message. This is tried last,
+// after everything above (including Stripe/Cycle, which must keep first
+// claim on a leading "-"/"+" for cycle/stripe targets like "-1" or "+|2") —
+// it only fires once every other interpretation of this position has
+// already failed, so it never shadows a legitimate arrow decoration or
+// stripe/cycle target. `AtomLetter+` (one or more, not `*`) keeps a bare
+// structural character with nothing bareword-shaped after it (rare, and
+// already someone else's error) out of scope.
+ArrowTargetBadFirstChar
+  = bad:$([.+&#@$^*!?,\-] AtomLetter+) {
+      error(`The bareword "${bad}" contains "${bad[0]}", which is not allowed in an unquoted name; quote it ("${bad}")`);
+    }
+
 ArrowTarget
   = Stripe
   / Cycle
-  / LabelList
+  / WeightedLabelList
   / GroupRef
   / Label
+  / bad:$([0-9] AtomLetter*) {
+      error(`The bareword "${bad}" starts with a digit, which is not allowed in an unquoted name; quote it ("${bad}")`);
+    }
+  / ArrowTargetBadSymbol
+  / ArrowTargetBadFirstChar
 
 
 
@@ -1058,7 +1174,7 @@ ConfigGraphLayout
     }
 
 ConfigStartNodes
-  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? {
+  = WS? "start_states"    WS? ":" WS? value:WeightedLabelList  WS? ";" WS? {
       const node: any = { key: "start_states", value: value };
       if (options.locations) { node.loc = location(); }
       return node;
@@ -1471,13 +1587,18 @@ SdStateUrl "url"
     }
 
 
+// #754 review round 1: name:Atom -> name:Label. MachineProperty (the
+// top-level `property NAME;` declaration this name must match) already
+// takes a Label, so a property name containing a #754-illegal character
+// (e.g. "a.b") was only ever nameable with a quoted string at the top level
+// — this per-state override had no way to write the matching quoted name.
 SdStateProperty "state property"
-  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
+  = WS? "property" WS? ":" WS? name:Label WS value:PropertyVal               WS? ";" WS? {
       const node: any = { key: 'state_property', name, value };
       if (options.locations) { node.loc = location(); }
       return node;
     }
-  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
+  / WS? "property" WS? ":" WS? name:Label WS value:PropertyVal WS 'required' WS? ";" WS? {
       const node: any = { key: 'state_property', name, value, required: true };
       if (options.locations) { node.loc = location(); }
       return node;
@@ -1624,6 +1745,98 @@ MachineProperty
 
 
 
+MachineVal
+  = WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "default" WS dval:ValVal WS "required" WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, default_value: dval, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "required" WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "default" WS dval:ValVal WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, default_value: dval };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+ValType
+  = ValTypeInt
+  / ValTypeBoolean
+  / ValTypeString
+  / ValTypeEnum
+
+ValTypeBoolean = "boolean" { return { kind: 'boolean' }; }
+ValTypeString  = "string"  { return { kind: 'string' }; }
+
+ValTypeInt
+  = "int" range:ValIntRange? {
+      return range === null ? { kind: 'int' } : { kind: 'int', lo: range.lo, hi: range.hi };
+    }
+
+ValIntRange
+  = WS lo:ValSignedInt WS? ".." WS? hi:ValSignedInt { return { lo, hi }; }
+
+ValSignedInt
+  = chars:$("-"? [0-9]+) { return parseInt(chars, 10); }
+
+ValTypeEnum
+  = "enum" WS? "(" WS? first:ValEnumMember rest:(WS? "," WS? m:ValEnumMember { return m; })* WS? ")" {
+      return { kind: 'enum', members: [first, ...rest] };
+    }
+
+// An enum member uses the same first-character/continuation classes as
+// Atom, and the same helpful "quote it" error for a stray symbol — but,
+// unlike Atom, never treats a trailing comma as that stray symbol: the
+// comma is the enum list's own separator (see ValTypeEnum above), so it
+// must simply end the member, the way the pre-#754 rule excluded it by
+// hand from its character class.
+ValEnumBadChar
+  = [.+&#@$^*!?]
+
+// #754 (final review): badtail is one optional [bad, rest] unit, same
+// reasoning as Atom's — see the comment there.
+ValEnumMember "enum member"
+  = firstletter:AtomFirstLetter text:AtomLetter*
+    badtail:(bad:(ValEnumBadChar / BarewordDashTail) rest:$([^ \t\r\n;]*) { return [bad, rest]; })? {
+      const name = firstletter + ((text || []).join(''));
+      if (badtail) {
+        const [bad, rest] = badtail;
+        const full = name + bad + rest;
+        error(`The bareword "${full}" contains "${bad}", which is not allowed in an unquoted name; quote it ("${full}") or rename it (${name}_${rest})`);
+      }
+      return name;
+    }
+  // #754 review round 1: the "quote it" advice above is only true if a
+  // quoted enum member can actually parse. Without this alternative,
+  // enum(a.b, c)'s error tells the user to write "a.b" — which still fails,
+  // because this rule had no String option to accept it.
+  / String
+  / bad:$([0-9] AtomLetter*) {
+      // jssm#759: a numeric-looking enum member used to reach the compiler,
+      // which rejected it there (its default parses as a number and never
+      // matches the string member). #754's identifier-first-character rule
+      // makes that unreachable — a digit can't start ValEnumMember either —
+      // so the same condition is caught here, at the same point a stray
+      // symbol is, with the same "quote it" guidance.
+      error(`The bareword "${bad}" must not begin with a digit, which is not allowed in an unquoted enum member; quote it ("${bad}")`);
+    }
+
+ValVal
+  = String
+  / Boolean
+  / neg:"-"? num:JsNumericLiteral { return neg ? -num : num; }
+  / Atom
+
+
+
 RegularArrangeDeclaration
   = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? {
       const node: any = { key: 'arrange_declaration', value };
@@ -1670,14 +1883,40 @@ ArrangeDeclaration "arrange declaration"
 
 
 
+// #754 (final review): only ArrangeDeclaration is promoted above Exp — not
+// every keyword alternative. The hazard is narrow: Atom's trailing-bad-char
+// case ends in a hard `error()` call (the #754 "quote it" messages), and a
+// thrown error aborts parsing outright rather than backtracking to the next
+// Term alternative. That only matters when a keyword's own literal spelling
+// could be *partially* re-matched as a valid bareword prefix immediately
+// followed by a character Atom treats as illegal trailing punctuation — and
+// of every keyword this grammar recognizes ("state", "arrange-start",
+// "arrange-end", "oarrange", "farrange", "&", "on", a machine-attribute/
+// property/val keyword, a config keyword), only the arrange family has that
+// shape: "arrange-start" begins with the bareword-valid prefix "arrange"
+// immediately followed by the dash BarewordDashTail rejects, no whitespace
+// in between. Every other keyword either requires mandatory whitespace right
+// after its literal spelling (so a following non-whitespace character, like
+// a would-be arrow, can't be walked into by Atom while trying to complete
+// that keyword — "on-x" fails HookDeclaration's required WS before Atom is
+// ever in play) or starts with a character ("&") Atom can't match as a
+// bareword prefix at all. So ArrangeDeclaration alone needs to run before
+// Exp gets a chance to hard-error on its prefix; every other Term
+// alternative can stay behind Exp, which keeps the common case (an ordinary
+// transition) from paying for the keyword alternatives it doesn't need
+// (measured ~2.3x slower when Exp ran last unconditionally; this narrower
+// reorder measured ~1.04x over 232 src/machines files plus keyword-bareword
+// probes, with zero behavioral difference from the all-keywords-first
+// ordering).
 Term
   = HookDeclaration
+  / ArrangeDeclaration
   / Exp
   / StateDeclaration
-  / ArrangeDeclaration
   / NamedList
   / MachineAttribute
   / MachineProperty
+  / MachineVal
   / Config
 
 TermList

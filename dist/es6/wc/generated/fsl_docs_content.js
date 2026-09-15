@@ -221,7 +221,7 @@ export const DOCS_PAGES = [
             "transition",
             "API"
         ],
-        "body": "\n# API: the Machine and its factories\n\nIn JavaScript, the quickest way to build a machine is the `sm` template tag. It compiles an FSL string into a live `Machine` you can drive with `.transition()`.\n\n```js\nimport { sm } from 'jssm';\n\nconst traffic = sm`Red 'go' -> Green 'go' -> Yellow 'go' -> Red;`;\ntraffic.state;                 // 'Red'\ntraffic.transition('go');      // true; now in 'Green'\n```\n\nThe machine this compiles from is just ordinary FSL:\n\n```fsl {teaches: api-machine, run: true}\nRed 'go' -> Green 'go' -> Yellow 'go' -> Red;\n```\n\n`sm` is the terse path; `from(...)` and `compile(...)` give you the same `Machine` with more control over options, and `deserialize` rebuilds one from saved state.\n"
+        "body": "\n# API: the Machine and its factories\n\nIn JavaScript, the quickest way to build a machine is the `sm` template tag. It compiles an FSL string into a live machine you drive with functions that take the machine first: `state(m)`, `transition(m, to)`, `act(m, action)`.\n\n```js\nimport { sm, state, act } from 'jssm';\n\nconst traffic = sm`Red 'go' -> Green 'go' -> Yellow 'go' -> Red;`;\nstate(traffic);                // 'Red'\nact(traffic, 'go');            // true; now in 'Green'\n```\n\nThe machine this compiles from is just ordinary FSL:\n\n```fsl {teaches: api-machine, run: true}\nRed 'go' -> Green 'go' -> Yellow 'go' -> Red;\n```\n\n`sm` is the terse path; `from(...)` and `create(compile(...))` give you the same machine with more control over options, and `deserialize` rebuilds one from saved state.\n\nComing from 5.x?  `import { Machine, sm } from 'jssm/compat'` is the class API, unchanged: `traffic.state()`, `traffic.act('go')`.  See `MIGRATING-5-to-6.md`.\n"
     },
     {
         "id": "tut-api-utilities",
@@ -637,7 +637,7 @@ export const DOCS_PAGES = [
             "quote",
             "action"
         ],
-        "body": "\n# Labels and quoting\n\nState names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a simple identifier — `Red`, `idle_2`. Anything with spaces or punctuation must be quoted, and the two quote styles mean different things:\n\n- **Single quotes** mark **action labels** — `'insert coin'`.\n- **Double quotes** mark **string literals** — used for attributes like `machine_name`.\n\n```fsl {teaches: labels-quoting, run: true}\nmachine_name : \"Vending Machine\";\nIdle 'insert coin' -> Paid;\nPaid 'refund' -> Idle;\n```\n\nThe quote styles are not interchangeable: single = action, double = string.\n"
+        "body": "\n# Labels and quoting\n\nState names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a Unicode identifier: it starts with a letter or underscore (in any script) and continues with letters, digits, underscores, or combining marks — `Red`, `idle_2`. Everything else — spaces, punctuation, symbols, a leading digit — must be quoted: `\"in-progress\"`, `\"node.start\"`, `\"1st\"`, `\"😀\"`. The two quote styles mean different things:\n\n- **Single quotes** mark **action labels** — `'insert coin'`.\n- **Double quotes** mark **string literals** — used for attributes like `machine_name`.\n\n```fsl {teaches: labels-quoting, run: true}\nmachine_name : \"Vending Machine\";\nIdle 'insert coin' -> Paid;\nPaid 'refund' -> Idle;\n```\n\nThe quote styles are not interchangeable: single = action, double = string.\n"
     },
     {
         "id": "tut-line-styles",
@@ -1084,7 +1084,7 @@ export const DOCS_PAGES = [
             "custom element",
             "diagram"
         ],
-        "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The legacy `jssm-viz` tag still works but is deprecated — prefer `fsl-viz`.)\n"
+        "body": "\n# Web component: &lt;fsl-viz&gt;\n\n`<fsl-viz>` renders a machine as a diagram with zero JavaScript — set its `fsl` attribute and it draws.\n\n```html\n<script type=\"module\" src=\"https://unpkg.com/jssm/dist/cdn/viz.js\"></script>\n\n<fsl-viz fsl=\"Red 'go' -> Green 'go' -> Red;\"></fsl-viz>\n```\n\nWhatever FSL you give it renders, styling and all:\n\n```fsl {teaches: wc-viz, run: true}\nstate Go : { color: ForestGreen; };\nStop 'go' -> Go;\n```\n\n(The `<jssm-viz>` tag was removed in 6.0 — use `<fsl-viz>`.)\n"
     },
     {
         "id": "tut-weighted-arrows",
@@ -1103,7 +1103,7 @@ export const DOCS_PAGES = [
             "percent",
             "random"
         ],
-        "body": "\n# Weighted / probabilistic arrows\n\nA transition can carry a **probability** with `N%`. When several transitions share a source, the weights bias a random walk over the machine.\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle -> 70% Win;\nIdle -> 30% Lose;\n```\n\nProbabilities power FSL's stochastic tooling — random walks, sampling, and Monte-Carlo-style exploration of a machine's reachable states.\n"
+        "body": "\n# Weighted / probabilistic arrows\n\nA transition can carry a **probability** with `N%`. When several transitions share a source, the weights bias a random walk over the machine.\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle -> 70% Win;\nIdle -> 30% Lose;\n```\n\nProbabilities power FSL's stochastic tooling — random walks, sampling, and Monte-Carlo-style exploration of a machine's reachable states.\n\n## Lists\n\nA probabilistic transition can target a list.  The list keeps the transition's weight as a *group* weight, and the members share it — uniformly, or by their own inner weights:\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle 50% -> [WinA WinB];\n```\n\n`WinA` and `WinB` each get 25% of `Idle`'s total weight, splitting the 50% evenly between them — not a 25% draw frequency on their own; with no other sibling edge from `Idle` here, they're still drawn 50/50 against each other. Give members their own weights to split unevenly instead:\n\n```fsl {teaches: weighted-arrows, run: true}\nIdle 50% -> [WinA 20% WinB 80%];\n```\n\n`WinA` gets 10% and `WinB` gets 40% — the 20/80 split of the outer 50%. (In 5.x, every member of a targeted list received the *full* outer weight instead of sharing it, so both examples above would have given each member 50%.)\n"
     }
 ];
 export const DOCS_FEATURES = [

@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -22,7 +22,9 @@ const config_list_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
+
+  if (bareword_ok(cp)) {
 
     for (const form of list_forms) {
 
@@ -33,7 +35,33 @@ const config_list_test = (idx: number): boolean => {
       try {
         ast = parse(src);
       } catch {
-        throw new Error(`Broke on ${idx} "${cp}" for ${form.key}`);
+        throw new Error(`Bareword broke on ${idx} "${cp}" for ${form.key}`);
+      }
+
+      const node = ast.find((t: any) => t.key === form.key);
+
+      expect( node?.value?.includes(cp) ).toBe(true);
+
+    }
+
+  } else {
+
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(list_forms[0].src.split('X').join(cp))).toThrow();
+
+    const q = quoted(cp);
+
+    for (const form of list_forms) {
+
+      const src = form.src.split('X').join(q);
+
+      let ast;
+
+      try {
+        ast = parse(src);
+      } catch {
+        throw new Error(`Quoted form broke on ${idx} ${q} for ${form.key}`);
       }
 
       const node = ast.find((t: any) => t.key === form.key);
@@ -54,4 +82,32 @@ const config_list_test = (idx: number): boolean => {
 
 describe('Characters in config state lists', () => {
   test_range_with(3, config_list_test);
+});
+
+
+
+// `start_states` also accepts a WeightedLabelList (6.0): a percent weight
+// per member.  This needs a full `sm`/Machine construction per case, which
+// is far too expensive to run inside the full-range sweep above (+164s for
+// one machine build per code point) — one representative code point per
+// major script covers the codec/quoting paths the sweep already exercises
+// at the parse level, without re-paying that cost per code point.  Quoted
+// unconditionally: the #754 charset worktree's `bareword_ok`/`quoted` driver
+// helpers haven't landed in this worktree, so there is no bareword-legality
+// check to consult.
+describe('Weighted start_states with representative non-ASCII state names', () => {
+
+  const representative_code_points = [
+    'é',    // Latin-1 Supplement
+    'ж',    // Cyrillic
+    '字',    // CJK Unified Ideographs
+    '𝛼',    // Mathematical Alphanumeric Symbols (supplementary plane, surrogate pair)
+    'नम'    // Devanagari
+  ];
+
+  it.each(representative_code_points)('start_state_weights resolves a quoted non-ASCII state name %s', (cp) => {
+    const m = sm`"${cp}" -> other; start_states: ["${cp}" 60% other 40%];`;
+    expect( m.start_state_weights().get(cp) ).toBeCloseTo(0.6, 5);
+  });
+
 });

@@ -1,7 +1,7 @@
 
  
 
-import * as jssm from '../jssm';
+import * as jssm from '../compat';
 
 /** Code-unit string comparator, reproducing Array#sort's default ordering explicitly. */
 const code_unit_compare = (a: string, b: string): number => (a < b ? -1 : (a > b ? 1 : 0));

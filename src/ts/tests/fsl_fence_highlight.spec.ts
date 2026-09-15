@@ -21,14 +21,19 @@ describe('highlight_fsl_runs', () => {
     expect(runs.some(r => r.classes.includes('fsl-tok-'))).toBe(true);
   });
 
-  it('keeps the full state name on every fragment of a digit-leading name split by the stream tokenizer', () => {
+  it('does not mark a digit-leading bareword as a state — it is a rejected (#754) parse error', () => {
     const runs = highlight_fsl_runs('123abc -> b;');
-    // The CM6 stream tokenizer splits '123abc' into a `number` token ('123')
-    // and a `variableName` token ('abc'); both fragments must carry the
-    // full, AST-resolved state name rather than their own fragment text.
+    // The CM6 stream tokenizer still splits '123abc' into a `number` token
+    // ('123') and a `variableName` token ('abc'), but since 6.0 (#754) a
+    // digit-leading bareword no longer parses, so `fslSemanticSpans` returns
+    // no spans for this source and neither fragment gets the semantic state
+    // class or an AST-resolved `state` value.
     const fragments = runs.filter(r => r.text === '123' || r.text === 'abc');
     expect(fragments).toHaveLength(2);
-    for (const r of fragments) { expect(r.state).toBe('123abc'); }
+    for (const r of fragments) {
+      expect(r.state).toBeUndefined();
+      expect(r.classes).not.toContain('fsl-sem-state');
+    }
   });
 
 });

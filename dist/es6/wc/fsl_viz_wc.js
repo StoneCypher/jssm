@@ -11,7 +11,7 @@ import { fsl_to_svg_string, machine_to_svg_string, slug_for } from '../jssm_viz.
 import { closest_wc } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 /**
- * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Normalize an arbitrary thrown value into a {@link FslVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
  * strings, etc.) and always produces a string `message`.
  *
@@ -50,14 +50,14 @@ export function normalize_viz_error(e) {
  *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *   2. **Nested** (inside a `<fsl-instance>` ancestor,
  *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
- * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
- * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
+ * @cssproperty [--fsl-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--fsl-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 export class FslViz extends LitElement {
@@ -69,7 +69,7 @@ export class FslViz extends LitElement {
         this.engine = undefined;
         this._svg = '';
         /**
-         * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+         * Parent `<fsl-instance>` host reference, set in
          * `connectedCallback` when a parent is found.  When non-null the viz is
          * in nested mode and renders the parent's machine instead of its own
          * `fsl` attribute.
@@ -111,7 +111,7 @@ export class FslViz extends LitElement {
     }
     /**
      * Web Components lifecycle hook.  Walks up to find a parent
-     * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+     * `<fsl-instance>` ancestor via `closest_wc`; if
      * found, switches into nested mode and subscribes to the parent machine's
      * `transition` events.  Otherwise leaves standalone behavior intact.
      *
@@ -409,10 +409,10 @@ export class FslViz extends LitElement {
 FslViz.styles = css `
     :host {
       display: block;
-      min-height: var(--jssm-viz-min-height, 100px);
+      min-height: var(--fsl-viz-min-height, 100px);
       /* #1934: embedder sizing seam — cap the control via the custom property
          (or plain external max-height on the host) without shadow surgery. */
-      max-height: var(--jssm-viz-max-height, none);
+      max-height: var(--fsl-viz-max-height, none);
     }
     .container {
       width: 100%;

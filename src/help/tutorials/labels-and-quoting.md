@@ -10,7 +10,7 @@ indexTerms: [label, string, atom, quote, action]
 
 # Labels and quoting
 
-State names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a simple identifier — `Red`, `idle_2`. Anything with spaces or punctuation must be quoted, and the two quote styles mean different things:
+State names and action names are **labels**. A bare label (an *atom*) needs no quotes when it is a Unicode identifier: it starts with a letter or underscore (in any script) and continues with letters, digits, underscores, or combining marks — `Red`, `idle_2`. Everything else — spaces, punctuation, symbols, a leading digit — must be quoted: `"in-progress"`, `"node.start"`, `"1st"`, `"😀"`. The two quote styles mean different things:
 
 - **Single quotes** mark **action labels** — `'insert coin'`.
 - **Double quotes** mark **string literals** — used for attributes like `machine_name`.

@@ -1,7 +1,7 @@
 
  
 
-import * as jssm from '../jssm';
+import * as jssm from '../compat';
 
 const sm = jssm.sm;
 

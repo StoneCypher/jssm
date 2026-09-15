@@ -211,6 +211,38 @@ type JssmPropertyDefinition = {
     property?: string;
     state?: string;
 };
+/*********
+ *
+ *  The declared type of a machine `val` (extended-state variable): the scalar
+ *  type core — `boolean`, `string`, unbounded or bounded `int lo..hi`, and
+ *  `enum(...)`.  Carried from the grammar to the runtime, where
+ *  `validate_val_value` enforces it at construction and on every write.
+ *
+ */
+type JssmValType = {
+    kind: 'boolean';
+} | {
+    kind: 'string';
+} | {
+    kind: 'int';
+    lo?: number;
+    hi?: number;
+} | {
+    kind: 'enum';
+    members: string[];
+};
+/*********
+ *
+ *  A machine `val` declaration: a named, typed, validated, mutable
+ *  extended-state variable (the mutable sibling of a `property`).
+ *
+ */
+type JssmValDefinition = {
+    name: string;
+    val_type: JssmValType;
+    default_value?: any;
+    required?: boolean;
+};
 type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 /**
@@ -218,8 +250,10 @@ type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataT
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
- *  `probability` for stochastic models, and an `after_time` for timed
- *  transitions.
+ *  `probability` for stochastic models, a `share` recording this edge's
+ *  fraction of the list side's default weight (6.0 list weights; set only
+ *  when the transition itself declared no `probability`), and an
+ *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
  *  @template DataType  - The machine's data payload type (`mDT`).
  */
@@ -232,6 +266,7 @@ type JssmTransition<StateType, DataType> = {
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
     probability?: number;
+    share?: number;
     kind: JssmArrowKind;
     forced_only: boolean;
     main_path: boolean;
@@ -554,12 +589,28 @@ type JssmGenericConfig<StateType, DataType> = {
     config_allows_override?: JssmAllowsOverride;
     dot_preamble?: string;
     start_states: Array<StateType>;
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0 list weights), e.g. `start_states: [idle 90% booting 10%];`.
+     *  One entry per name in {@link JssmGenericConfig.start_states}, shares
+     *  normalized to sum to 1.  Absent when `start_states` carried no inner
+     *  weights.  Consumed by `Machine.start_state_weights()` /
+     *  `Machine.sample_start_state()`.
+     */
+    start_state_weights?: Array<{
+        name: StateType;
+        share: number;
+    }>;
     end_states?: Array<StateType>;
     failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
     state_declaration?: object[];
     property_definition?: JssmPropertyDefinition[];
+    val_definition?: JssmValDefinition[];
+    vals?: {
+        [name: string]: any;
+    };
     state_property?: JssmPropertyDefinition[];
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
@@ -1238,26 +1289,25 @@ declare class Interner {
     get size(): number;
 }
 
-/**
- *  The published semantic version of the jssm package this build was cut from.
- *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
- *  Useful for runtime diagnostics and for embedding in serialized machine
- *  snapshots so that deserializers can detect version-skew.
+/*******
+ *
+ *  The events family: subscribing to, and dispatching, the machine's typed
+ *  observation events (`transition`, `entry`, `exit`, `rejection`, `timeout`,
+ *  `error`, ...).  Every function takes the machine as its first argument and
+ *  works on the machine's `_event_handlers` table directly; the `Machine`
+ *  class methods of the same names are one-line delegates onto these.
+ *
+ *  `on`, `once`, and `off` are the public surface (re-exported by the `jssm`
+ *  barrel).  `fire`, `fire_one`, and `has_subscribers` are the dispatch side,
+ *  exported for the other families (the transition commit, the timers) but
+ *  not part of the barrel.
+ *
  */
-declare const version: string;
-/**
- *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
- *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
- *  with the same `version` string during development, and for diagnostic logs.
- */
-declare const build_time: number;
-
-type StateType = string;
 
 /**
  *  Internal record holding a single registered event subscription: the
- *  handler, its optional filter, and a flag for `once` semantics.  Not
- *  exported.
+ *  handler, its optional filter, and a flag for `once` semantics.  Exported
+ *  only so the machine's `_event_handlers` field can name its element type.
  *  @internal
  */
 type JssmEventEntry<mDT, Ev extends JssmEventName> = {
@@ -1265,8 +1315,30 @@ type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
 };
+
+type StateType = string;
+
+/*******
+ *
+ *  Core finite state machine class.  Holds the full graph of states and
+ *  transitions, the current state, hooks, data, properties, and all runtime
+ *  behavior.  Typically created via the {@link sm} tagged template literal
+ *  rather than constructed directly.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *
+ *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
+ *  light.state();       // 'Red'
+ *  light.action('next'); // true
+ *  light.state();       // 'Green'
+ *  ```
+ *
+ *  @typeParam mDT The machine data type — the type of the value stored in
+ *  `.data()`.  Defaults to `undefined` when no data is used.
+ *
+ */
 declare class Machine<mDT> {
-    #private;
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
     _edges: Array<JssmTransition<StateType, mDT>>;
@@ -1283,6 +1355,7 @@ declare class Machine<mDT> {
     _edge_id_by_action_pair: Map<number, number>;
     _edge_to_ids: Array<number>;
     _start_states: Set<StateType>;
+    _start_state_weights: Map<StateType, number>;
     _end_states: Set<StateType>;
     _failed_outputs: Set<StateType>;
     _machine_author?: Array<string>;
@@ -1364,6 +1437,10 @@ declare class Machine<mDT> {
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
     _state_property_first_state: Map<string, StateType>;
+    _val_keys: Set<string>;
+    _val_types: Map<string, JssmValType>;
+    _val_values: Map<string, any>;
+    _required_vals: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -1395,745 +1472,436 @@ declare class Machine<mDT> {
     _committing_transition: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, start_state_weights, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
+     *  Delegates to the create family's {@link new_state}, which carries the
+     *  full contract.
+     *
+     *  @see new_state
      *
      *  @internal
      *
      */
     _new_state(state_config: JssmGenericState): StateType;
-    /*********
-     *
-     *  Get the current state of a machine.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *  console.log( lswitch.state() );             // 'on'
-     *
-     *  lswitch.transition('off');
-     *  console.log( lswitch.state() );             // 'off'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The current state name.
-     *
+    /**
+     *  Get the current state of a machine.  Delegates to the query family's
+     *  {@link state}, which carries the full contract and example.
+     *  @see state
      */
     state(): StateType;
-    /*********
-     *
-     *  Get the label for a given state, if any; return `undefined` otherwise.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-     *  console.log( lswitch.label_for('a') );              // 'Foo!'
-     *  console.log( lswitch.label_for('b') );              // undefined
-     *  ```
-     *
-     *  See also {@link display_text}.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to get the label for.
-     *
-     *  @returns The label string, or `undefined` if no label is set.
-     *
+    /**
+     *  Get the label for a given state, if any.  Delegates to the query
+     *  family's {@link label_for}, which carries the full contract and example.
+     *  @see label_for
      */
     label_for(state: StateType): string;
-    /*********
-     *
-     *  Get whatever the node should show as text.
-     *
-     *  Currently, this means to get the label for a given state, if any;
-     *  otherwise to return the node's name.  However, this definition is expected
-     *  to grow with time, and it is currently considered ill-advised to manually
-     *  parse this text.
-     *
-     *  See also {@link label_for}.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-     *  console.log( lswitch.display_text('a') );              // 'Foo!'
-     *  console.log( lswitch.display_text('b') );              // 'b'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to get display text for.
-     *
-     *  @returns The label if one exists, otherwise the state's name.
-     *
+    /**
+     *  Get whatever the node should show as text.  Delegates to the query
+     *  family's {@link display_text}, which carries the full contract and
+     *  example.
+     *  @see display_text
      */
     display_text(state: StateType): string;
-    /*********
-     *
-     *  Get the current data of a machine.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( lswitch.data() );              // 1
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns A deep clone of the machine's current data value.
-     *
+    /**
+     *  Get the current data of a machine, as a deep clone.  Delegates to the
+     *  data family's {@link data}, which carries the full contract and example.
+     *  @see data
      */
     data(): mDT;
-    /*********
-     *
-     *  Replace the machine's data in place, without a transition.  This is the
-     *  practical way to assign any value — including `undefined`, `null`, or
-     *  `false` — outside a hook's complex return, closing the gap where an
-     *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
-     *  a `data-change` event with cause `'set_data'` when the value actually
-     *  changes; unlike {@link override} it requires no `allows_override`
-     *  config, because it never moves the state.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( lswitch.data() );              // 1
-     *
-     *  lswitch.set_data(2);
-     *  console.log( lswitch.data() );              // 2
-     *
-     *  lswitch.set_data(undefined);
-     *  console.log( lswitch.data() );              // undefined
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param newData The value to install as the machine's data.
-     *
+    /**
+     *  Replace the machine's data in place, without a transition.  Delegates
+     *  to the data family's {@link set_data}, which carries the full contract
+     *  and example.
      *  @returns The machine, for chaining.
-     *
-     *  @see Machine.data
-     *  @see override
-     *
+     *  @see set_data
      */
     set_data(newData: mDT): Machine<mDT>;
     /**
-     *  The machine's current data by REFERENCE — no clone.  The public
-     *  {@link Machine.data} contract is a deep clone per call (a mutation
-     *  boundary for external consumers, and deliberately untouched); that clone
-     *  is `structuredClone` of the whole data value, which same-package
-     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
-     *  read one dotted path or serialize per transition — should not pay on
-     *  every event.  Callers MUST NOT mutate the returned value or store it
-     *  beyond the current tick; anything crossing a trust boundary must use
-     *  {@link Machine.data} instead.
-     *
-     *  ```typescript
-     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
-     *  m._data_ref().a.b;   // 1, zero-copy
-     *  ```
+     *  The machine's current data by REFERENCE — no clone.  Delegates to the
+     *  data family's {@link data_ref}, which carries the full contract; kept
+     *  on the class because the same-package panels (`fsl_bind_wc`) and tests
+     *  reach it by this name.
      *  @returns The live data value; treat as read-only.
-     *  @see Machine.data
+     *  @see data_ref
      *  @internal
      */
     _data_ref(): mDT;
-    /*********
-     *
-     *  Get the current value of a given property name.  Checks the current
-     *  state's properties first, then falls back to the global default.
-     *  Returns `undefined` if neither exists.  For a throwing variant, see
-     *  {@link strict_prop}.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; a -> b;
-     *               state b: { property color "blue"; };`;
-     *
-     *  m.prop('color');  // 'grey'  (default, because state is 'a')
-     *  m.go('b');
-     *  m.prop('color');  // 'blue'  (state 'b' overrides the default)
-     *  m.prop('size');   // undefined (no such property)
-     *  ```
-     *
-     *  @param name The relevant property name to look up.
-     *
-     *  @returns The value behind the prop name, or `undefined` if not defined.
-     *
+    /**
+     *  Get the current value of a given property name, or `undefined`.
+     *  Delegates to the data family's {@link prop}, which carries the full
+     *  contract and example.
+     *  @see prop
      */
     prop(name: string): any;
-    /*********
-     *
-     *  Get the current value of a given property name.  If missing on the state
-     *  and without a global default, throws a {@link JssmError}, unlike
-     *  {@link prop}, which would return `undefined` instead.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; a -> b;`;
-     *
-     *  m.strict_prop('color');  // 'grey'
-     *  m.strict_prop('size');   // throws JssmError
-     *  ```
-     *
-     *  @param name The relevant property name to look up.
-     *
-     *  @returns The value behind the prop name.
-     *
+    /**
+     *  Get the current value of a given property name, throwing when it is
+     *  missing.  Delegates to the data family's {@link strict_prop}, which
+     *  carries the full contract and example.
      *  @throws {JssmError} If the property is not defined on the current state
      *  and has no default.
-     *
+     *  @see strict_prop
      */
     strict_prop(name: string): any;
-    /*********
-     *
-     *  Get the current value of every prop, as an object.  If no current definition
-     *  exists for a prop — that is, if the prop was defined without a default and
-     *  the current state also doesn't define the prop — then that prop will be listed
-     *  in the returned object with a value of `undefined`.
-     *
-     *  ```typescript
-     *  const traffic_light = sm`
-     *
-     *    property can_go     default true;
-     *    property hesitate   default true;
-     *    property stop_first default false;
-     *
-     *    Off -> Red => Green => Yellow => Red;
-     *    [Red Yellow Green] ~> [Off FlashingRed];
-     *    FlashingRed -> Red;
-     *
-     *    state Red:         { property: stop_first true;  property: can_go false; };
-     *    state Off:         { property: stop_first true;  };
-     *    state FlashingRed: { property: stop_first true;  };
-     *    state Green:       { property: hesitate   false; };
-     *
-     *  `;
-     *
-     *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
-     *
-     *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
-     *
-     *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
-     *  ```
-     *
-     *  @returns An object mapping every known property name to its current value
-     *  (or `undefined` if the property has no default and the current state
-     *  doesn't define it).
-     *
+    /**
+     *  Get the current value of every prop, as an object.  Delegates to the
+     *  data family's {@link props}, which carries the full contract and
+     *  example.
+     *  @see props
      */
     props(): object;
-    /*********
-     *
-     *  Check whether a given string is a known property's name.
-     *
-     *  ```typescript
-     *  const example = sm`property foo default 1; a->b;`;
-     *
-     *  example.known_prop('foo');  // true
-     *  example.known_prop('bar');  // false
-     *  ```
-     *
-     *  @param prop_name The relevant property name to look up
-     *
+    /**
+     *  Check whether a given string is a known property's name.  Delegates to
+     *  the data family's {@link known_prop}.
+     *  @see known_prop
      */
     known_prop(prop_name: string): boolean;
-    /*********
-     *
-     *  List all known property names.  If you'd also like values, use
-     *  {@link props} instead.  The order of the properties is not defined, and
-     *  the properties generally will not be sorted.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
-     *
-     *  m.known_props();  // ['color', 'size']
-     *  ```
-     *
-     *  @returns An array of all property name strings defined on this machine.
-     *
+    /**
+     *  List all known property names.  Delegates to the data family's
+     *  {@link known_props}.
+     *  @see known_props
      */
     known_props(): string[];
-    /********
-     *
-     *  Check whether a given state is a valid start state (either because it was
-     *  explicitly named as such, or because it was the first mentioned state.)
-     *
-     *  ```typescript
-     *  import { sm, is_start_state } from 'jssm';
-     *
-     *  const example = sm`a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // false
-     *
-     *  const example = sm`start_states: [a b]; a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check
-     *
+    /**
+     *  Read the current value of a declared machine `val`.  Delegates to the
+     *  data family's {@link val}, which carries the full contract and example.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *  @see val
+     */
+    val(name: string): any;
+    /**
+     *  Set the value of a declared machine `val`, validating it against the
+     *  val's declared type.  Delegates to the data family's {@link set_val},
+     *  which carries the full contract and example.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *  @see set_val
+     */
+    set_val(name: string, value: any): void;
+    /**
+     *  Return a plain object mapping every declared val name to its current
+     *  value.  Delegates to the data family's {@link vals}.
+     *  @see vals
+     */
+    vals(): object;
+    /**
+     *  Check whether a string is the name of a declared `val`.  Delegates to
+     *  the data family's {@link known_val}.
+     *  @see known_val
+     */
+    known_val(name: string): boolean;
+    /**
+     *  List every declared `val` name, in declaration order.  Delegates to the
+     *  data family's {@link known_vals}.
+     *  @see known_vals
+     */
+    known_vals(): string[];
+    /**
+     *  Return the declared type descriptor of a `val`.  Delegates to the data
+     *  family's {@link val_type}.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *  @see val_type
+     */
+    val_type(name: string): JssmValType;
+    /**
+     *  Check whether a given state is a valid start state.  Delegates to the
+     *  query family's {@link is_start_state}, which carries the full contract
+     *  and example.
+     *  @see is_start_state
      */
     is_start_state(whichState: StateType): boolean;
-    /********
-     *
-     *  Check whether a given state is a valid start state (either because it was
-     *  explicitly named as such, or because it was the first mentioned state.)
-     *
-     *  ```typescript
-     *  import { sm, is_end_state } from 'jssm';
-     *
-     *  const example = sm`a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // false
-     *  console.log( final_test.is_start_state('b') );   // true
-     *
-     *  const example = sm`end_states: [a b]; a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check
-     *
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0).  Delegates to the stochastic family's
+     *  {@link start_state_weights}, which carries the full contract and
+     *  example.
+     *  @see start_state_weights
+     */
+    start_state_weights(): Map<StateType, number>;
+    /**
+     *  Draws a start state from the weighted start distribution using the
+     *  machine's RNG.  Delegates to the stochastic family's
+     *  {@link sample_start_state}, which carries the full contract and
+     *  example.
+     *  @see sample_start_state
+     */
+    sample_start_state(): StateType;
+    /**
+     *  Check whether a given state is a declared end state.  Delegates to the
+     *  query family's {@link is_end_state}, which carries the full contract
+     *  and example.
+     *  @see is_end_state
      */
     is_end_state(whichState: StateType): boolean;
-    /********
-     *
+    /**
      *  Get the set of states declared as failure outputs for this machine.
-     *  Returns an array of state labels, or an empty array when none were
-     *  declared.  A state in this list means the machine is in a failure
-     *  condition when it occupies that state.
-     *
-     *  @see {@link is_failed_output} to test a single state
-     *  @see {@link is_failed} to test the current state
-     *
+     *  Delegates to the query family's {@link failed_outputs}.
+     *  @see failed_outputs
      */
     failed_outputs(): Array<StateType>;
-    /********
-     *
-     *  Check whether a given state is declared as a failure output.
-     *
-     *  @param whichState The name of the state to check
-     *
-     *  @see {@link failed_outputs} for the full failure-output set
-     *  @see {@link is_failed} to test the current state
-     *
+    /**
+     *  Check whether a given state is declared as a failure output.  Delegates
+     *  to the query family's {@link is_failed_output}.
+     *  @see is_failed_output
      */
     is_failed_output(whichState: StateType): boolean;
-    /********
-     *
-     *  Check whether the machine is currently in a failure state — that is,
-     *  whether its current state is one of the declared `failed_outputs`.
-     *
-     *  @see {@link failed_outputs} for the full failure-output set
-     *  @see {@link is_failed_output} to test an arbitrary state
-     *
+    /**
+     *  Check whether the machine is currently in a failure state.  Delegates
+     *  to the query family's {@link is_failed}.
+     *  @see is_failed
      */
     is_failed(): boolean;
-    /********
-     *
+    /**
      *  Check whether a given state is final (either has no exits or is marked
-     *  `complete`.)
-     *
-     *  ```typescript
-     *  import { sm, state_is_final } from 'jssm';
-     *
-     *  const final_test = sm`first -> second;`;
-     *
-     *  console.log( final_test.state_is_final('first') );   // false
-     *  console.log( final_test.state_is_final('second') );  // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check for finality
-     *
+     *  `complete`.)  Delegates to the query family's {@link state_is_final},
+     *  which carries the full contract and example.
+     *  @see state_is_final
      */
     state_is_final(whichState: StateType): boolean;
-    /********
-     *
-     *  Check whether the current state is final (either has no exits or is marked
-     *  `complete`.)
-     *
-     *  ```typescript
-     *  import { sm, is_final } from 'jssm';
-     *
-     *  const final_test = sm`first -> second;`;
-     *
-     *  console.log( final_test.is_final() );   // false
-     *  state.transition('second');
-     *  console.log( final_test.is_final() );   // true
-     *  ```
-     *
+    /**
+     *  Check whether the current state is final.  Delegates to the query
+     *  family's {@link is_final}, which carries the full contract and example.
+     *  @see is_final
      */
     is_final(): boolean;
-    /********
-     *
-     *  Serialize the current machine, including all defining state but not the
-     *  machine string, to a structure.  This means you will need the machine
-     *  string to recreate (to not waste repeated space;) if you want the machine
-     *  string embedded, call `serialize_with_string` instead.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param comment An optional comment string to embed in the serialized
-     *  output for identification or debugging.
-     *
-     *  @returns A {@link JssmSerialization} object containing the machine's
-     *  current state, data, and timestamp.
-     *
+    /**
+     *  Serialize the current machine to a structure.  Delegates to the create
+     *  family's {@link serialize}, which carries the full contract.
+     *  @see serialize
      */
     serialize(comment?: string): JssmSerialization<mDT>;
     /**
-     * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
-     *  FSL `graph_layout` directive.
-     *  @returns The layout string, or the default if not set.
+     *  The RFC 8785 canonical-config identity of the current configuration.
+     *  Delegates to the query family's {@link canonical}, which carries the
+     *  full contract and example.
+     *  @returns The canonical config string.
+     *  @see canonical
+     */
+    canonical(): string;
+    /**
+     * Get the graph layout direction.  Delegates to the style family's
+     *  {@link graph_layout}.
+     *  @see graph_layout
      */
     graph_layout(): string;
     /**
-     * Get the Graphviz DOT preamble string, injected before the graph body
-     *  during visualization.  Set via the FSL `dot_preamble` directive.
-     *  @returns The preamble string.
+     * Get the Graphviz DOT preamble string.  Delegates to the style family's
+     *  {@link dot_preamble}.
+     *  @see dot_preamble
      */
     dot_preamble(): string;
     /**
-     * Get the consolidated `transition: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
-     *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
-     *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
-     *  every edge inherits it.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
-     *  // [ { key: 'color', value: '#0000ffff' } ]
-     *  ```
-     *  @returns The transition-config item list, or `undefined` if the machine
-     *  declared no `transition: {}` block.
-     *  @see default_graph_config
+     * Get the consolidated `transition: {}` default-config block.  Delegates
+     *  to the style family's {@link default_transition_config}, which carries
+     *  the full contract and example.
+     *  @see default_transition_config
      */
     default_transition_config(): JssmTransitionConfig | undefined;
     /**
-     * Get the consolidated `graph: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
-     *  compiler folds the deprecated top-level graph keywords
-     *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
-     *  `flow`, `dot_preamble`) into this list first, then lets an explicit
-     *  `graph: {}` block win on key conflict.  The viz layer projects the
-     *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
-     *  `background-color` → `bgcolor`).
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
-     *  // [ { key: 'background-color', value: '#ffffffff' } ]
-     *  ```
-     *  @returns The graph-config item list, or `undefined` if the machine has no
-     *  graph config (no `graph: {}` block and no deprecated graph keyword).
-     *  @see default_transition_config
+     * Get the consolidated `graph: {}` default-config block.  Delegates to
+     *  the style family's {@link default_graph_config}, which carries the full
+     *  contract and example.
+     *  @see default_graph_config
      */
     default_graph_config(): JssmGraphConfig | undefined;
     /**
-     * Get the machine's author list.  Set via the FSL `machine_author` directive.
-     *  @returns An array of author name strings.
+     * Get the machine's author list.  Delegates to the query family's
+     *  {@link machine_author}.
+     *  @see machine_author
      */
     machine_author(): Array<string>;
     /**
-     * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
-     *  @returns The comment string.
+     * Get the machine's comment string.  Delegates to the query family's
+     *  {@link machine_comment}.
+     *  @see machine_comment
      */
     machine_comment(): string;
     /**
-     * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
-     *  @returns An array of contributor name strings.
+     * Get the machine's contributor list.  Delegates to the query family's
+     *  {@link machine_contributor}.
+     *  @see machine_contributor
      */
     machine_contributor(): Array<string>;
     /**
-     * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
-     *  @returns The definition string.
+     * Get the machine's definition string.  Delegates to the query family's
+     *  {@link machine_definition}.
+     *  @see machine_definition
      */
     machine_definition(): string;
     /**
-     * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
-     *  `machine_language` directive, which accepts a language name or code, or a
-     *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
-     *  values resolve to `undefined`.
-     *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
-     *           supplied value did not resolve to a known language.
+     * Get the machine's natural language as an ISO 639-1 code.  Delegates to
+     *  the query family's {@link machine_language}, which carries the full
+     *  contract.
+     *  @see machine_language
      */
     machine_language(): string;
     /**
-     * Get the machine's license string.  Set via the FSL `machine_license` directive.
-     *  @returns The license string.
+     * Get the machine's license string.  Delegates to the query family's
+     *  {@link machine_license}.
+     *  @see machine_license
      */
     machine_license(): string;
     /**
-     * Get the machine's name.  Set via the FSL `machine_name` directive.
-     *  @returns The machine name string.
+     * Get the machine's name.  Delegates to the query family's
+     *  {@link machine_name}.
+     *  @see machine_name
      */
     machine_name(): string;
     /**
      * The editor/panel defaults declared in the FSL `editor: {}` block, or
-     *  `undefined` when none was given.  Read by the all-widgets web control
-     *  (fsl#1334) — `panels` drives `request` panel mode.
-     *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
-     *  @example
-     *    const m = sm`editor: { panels: [history]; }; a -> b;`;
-     *    m.editor_config();  // => { panels: ['history'] }
+     *  `undefined`.  Delegates to the query family's {@link editor_config},
+     *  which carries the full contract and example.
+     *  @see editor_config
      */
     editor_config(): JssmEditorConfig | undefined;
     /**
-     * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
-     *  Returns `undefined` when not present.
-     *  @returns The npm package name string, or `undefined`.
-     *  @see machine_name
+     * Get the npm package name associated with the machine, or `undefined`.
+     *  Delegates to the query family's {@link npm_name}.
+     *  @see npm_name
      */
     npm_name(): string;
     /**
-     * Get the render-size hint for the machine's visualization.  Set via the
-     *  FSL `default_size` directive.  Returns `undefined` when not present.
-     *
-     *  The three FSL forms each produce a different subset of fields:
-     *
-     *  - `default_size: 800;`       → `{ width: 800 }`
-     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
-     *  - `default_size: height 600;` → `{ height: 600 }`
-     *
-     *  This is a hint, not a hard constraint.  Renderers may ignore it.
-     *  @returns The size-hint object, or `undefined` if not set.
-     *  @see npm_name
+     * Get the render-size hint for the machine's visualization, or
+     *  `undefined`.  Delegates to the query family's {@link default_size},
+     *  which carries the full contract.
+     *  @see default_size
      */
     default_size(): JssmDefaultSize | undefined;
     /**
-     * Get the machine's declared version, parsed.  Set via the FSL
-     *  `machine_version` directive, which takes a semver triple; the parser
-     *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
-     *  exact source text in `full`.  Returns `undefined` when the directive
-     *  was not given.
-     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-     *  @example
-     *    const m = sm`machine_version: 1.2.3; a -> b;`;
-     *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
-     *  @see fsl_version
+     * Get the machine's declared version, parsed, or `undefined`.  Delegates
+     *  to the query family's {@link machine_version}, which carries the full
+     *  contract and example.
+     *  @see machine_version
      */
     machine_version(): JssmParsedSemver | undefined;
     /**
      * Get the raw state declaration objects as parsed from the FSL source.
-     *  @returns An array of raw state declaration objects.
+     *  Delegates to the query family's {@link raw_state_declarations}.
+     *  @see raw_state_declarations
      */
     raw_state_declarations(): Array<object>;
     /**
-     * Get the processed state declaration for a specific state.
-     *  @param which - The state to look up.
-     *  @returns The {@link JssmStateDeclaration} for the given state.
+     * Get the processed state declaration for a specific state.  Delegates to
+     *  the query family's {@link state_declaration}.
+     *  @see state_declaration
      */
     state_declaration(which: StateType): JssmStateDeclaration;
     /**
-     * Get all processed state declarations as a Map.
-     *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
+     * Get all processed state declarations as a Map.  Delegates to the query
+     *  family's {@link state_declarations}.
+     *  @see state_declarations
      */
     state_declarations(): Map<StateType, JssmStateDeclaration>;
     /**
-     * Get the FSL language version this machine declares, parsed.  Set via
-     *  the FSL `fsl_version` directive, which takes a semver triple; the
-     *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
-     *  the exact source text in `full`.  Returns `undefined` when the
-     *  directive was not given.
-     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-     *  @example
-     *    const m = sm`fsl_version: 1.0.0; a -> b;`;
-     *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
-     *  @see machine_version
+     * Get the FSL language version this machine declares, parsed, or
+     *  `undefined`.  Delegates to the query family's {@link fsl_version},
+     *  which carries the full contract and example.
+     *  @see fsl_version
      */
     fsl_version(): JssmParsedSemver | undefined;
     /**
      * Get the complete internal state of the machine as a serializable
-     *  structure.  Includes actions, edges, edge map, named transitions,
-     *  reverse actions, current state, and states map.
-     *  @returns A {@link JssmMachineInternalState} snapshot.
+     *  structure.  Delegates to the query family's {@link machine_state}.
+     *  @see machine_state
      */
     machine_state(): JssmMachineInternalState<mDT>;
-    /*********
-     *
-     *  List all the states known by the machine.  Please note that the order of
-     *  these states is not guaranteed.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *  console.log( lswitch.states() );             // ['on', 'off']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns An array of all state names in the machine.
-     *
+    /**
+     *  List all the states known by the machine.  Delegates to the query
+     *  family's {@link states}, which carries the full contract and example.
+     *  @see states
      */
     states(): Array<StateType>;
     /**
-     * Get the internal state descriptor for a given state name.
-     *  @param whichState - The state to look up.
-     *  @returns The {@link JssmGenericState} descriptor.
+     * Get the internal state descriptor for a given state name.  Delegates to
+     *  the query family's {@link state_for}.
      *  @throws {JssmError} If the state does not exist.
+     *  @see state_for
      */
     state_for(whichState: StateType): JssmGenericState;
-    /*********
-     *
-     *  Check whether the machine knows a given state.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *
-     *  console.log( lswitch.has_state('off') );     // true
-     *  console.log( lswitch.has_state('dance') );   // false
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state to be checked for existence.
-     *
-     *  @returns `true` if the state exists, `false` otherwise.
-     *
+    /**
+     *  Check whether the machine knows a given state.  Delegates to the query
+     *  family's {@link has_state}, which carries the full contract and example.
+     *  @see has_state
      */
     has_state(whichState: StateType): boolean;
-    /*********
-     *
-     *  Lists all edges of a machine.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
-     *
-     *  lswitch.list_edges();
-     *  [
-     *    {
-     *      from: 'on',
-     *      to: 'off',
-     *      kind: 'main',
-     *      forced_only: false,
-     *      main_path: true,
-     *      action: 'toggle'
-     *    },
-     *    {
-     *      from: 'off',
-     *      to: 'on',
-     *      kind: 'main',
-     *      forced_only: false,
-     *      main_path: true,
-     *      action: 'toggle'
-     *    }
-     *  ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns An array of all {@link JssmTransition} edge objects.
-     *
+    /**
+     *  Lists all edges of a machine.  Delegates to the query family's
+     *  {@link list_edges}, which carries the full contract and example.
+     *  @see list_edges
      */
     list_edges(): Array<JssmTransition<StateType, mDT>>;
     /**
-     * Get the map of named transitions (transitions with explicit names).
-     *  @returns A `Map` from transition name to edge index.
+     * Get the map of named transitions.  Delegates to the query family's
+     *  {@link list_named_transitions}.
+     *  @see list_named_transitions
      */
     list_named_transitions(): Map<StateType, number>;
     /**
      * List all distinct action names defined anywhere in the machine.
-     *  @returns An array of action name strings.
+     *  Delegates to the query family's {@link list_actions}.
+     *  @see list_actions
      */
     list_actions(): Array<StateType>;
     /**
-     * Whether any actions are defined on this machine.
-     *  @returns `true` if the machine has at least one action.
+     * Whether any actions are defined on this machine.  Delegates to the
+     *  query family's {@link uses_actions}.
+     *  @see uses_actions
      */
     get uses_actions(): boolean;
     /**
-     * Whether any forced (`~>`) transitions exist in this machine.
-     *  @returns `true` if at least one forced transition is defined.
+     * Whether any forced (`~>`) transitions exist in this machine.  Delegates
+     *  to the query family's {@link uses_forced_transitions}.
+     *  @see uses_forced_transitions
      */
     get uses_forced_transitions(): boolean;
-    /*********
-     *
-     *  Check if the code that built the machine allows overriding state and data.
-     *
-     *  @returns The override permission from the FSL source code.
-     *
+    /**
+     *  Check if the code that built the machine allows overriding state and
+     *  data.  Delegates to the query family's {@link code_allows_override}.
+     *  @see code_allows_override
      */
     get code_allows_override(): JssmAllowsOverride;
-    /*********
-     *
+    /**
      *  Check if the machine config allows overriding state and data.
-     *
-     *  @returns The override permission from the runtime config.
-     *
+     *  Delegates to the query family's {@link config_allows_override}.
+     *  @see config_allows_override
      */
     get config_allows_override(): JssmAllowsOverride;
-    /*********
-     *
-     *  Check if a machine allows overriding state and data.  Resolves the
-     *  combined effect of code and config permissions — config may not be
-     *  less strict than code.
-     *
-     *  @returns The effective override permission.
-     *
+    /**
+     *  Check if a machine allows overriding state and data, resolving code
+     *  and config.  Delegates to the query family's {@link allows_override},
+     *  which carries the full contract.
+     *  @see allows_override
      */
     get allows_override(): JssmAllowsOverride;
-    /*********
-     *
-     *  Return the effective island policy for this machine.  `true` means
-     *  disconnected components are allowed (the default), `false` requires a
-     *  single connected component, and `'with_start'` allows islands only when
-     *  every component contains at least one start state.
-     *
-     *  @returns The island policy stored in the machine.
-     *
+    /**
+     *  Return the effective island policy for this machine.  Delegates to the
+     *  query family's {@link allow_islands}, which carries the full contract.
+     *  @see allow_islands
      */
     get allow_islands(): JssmAllowIslands;
     /**
-     * List all available theme names.
-     *  @returns An array of theme name strings.
+     * List all available theme names.  Delegates to the style family's
+     *  {@link all_themes}.
+     *  @see all_themes
      */
     all_themes(): FslTheme[];
     /**
-     * List the character ranges accepted by the FSL grammar in any but the
-     *  first position of a state name (atom).  Each entry is an inclusive
-     *  `{from, to}` range of single Unicode characters.
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     * List the ASCII character ranges accepted in any but the first position
+     *  of a state name.  Delegates to the query family's
+     *  {@link all_state_name_chars}, which carries the full contract and
+     *  example.
+     *  @see all_state_name_chars
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
         to: string;
     }>;
     /**
-     * List the character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom).  Narrower than
-     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     * List the ASCII character ranges accepted in the first position of a
+     *  state name.  Delegates to the query family's
+     *  {@link all_state_name_first_chars}, which carries the full contract
+     *  and example.
+     *  @see all_state_name_first_chars
      */
     all_state_name_first_chars(): ReadonlyArray<{
         from: string;
@@ -2141,962 +1909,483 @@ declare class Machine<mDT> {
     }>;
     /**
      * List the character ranges accepted inside a single-quoted FSL action
-     *  label without escaping.  Space is allowed; the apostrophe `'` is
-     *  explicitly excluded since it terminates the label.
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     *  label.  Delegates to the query family's {@link all_action_label_chars},
+     *  which carries the full contract and example.
+     *  @see all_action_label_chars
      */
     all_action_label_chars(): ReadonlyArray<{
         from: string;
         to: string;
     }>;
     /**
-     * Get the active theme(s) for this machine.  Always stored as an array
-     *  internally; the union return type exists for setter compatibility.
-     *  @returns The current theme or array of themes.
+     * Get the active theme(s) for this machine.  Delegates to the style
+     *  family's {@link themes}.
+     *  @see themes
      */
     get themes(): FslTheme | FslTheme[];
     /**
-     * Set the active theme(s).  Accepts a single theme name or an array.
-     *  Also drops every memoized static state config, so styles resolved
-     *  before the change re-resolve under the new theme stack.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.style_for('b');                 // resolved under the default theme
-     *  m.themes = 'ocean';
-     *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
-     *  ```
-     *
-     *  @param to - A theme name or array of theme names to apply.
-     *
-     *  @see resolve_state_config
+     * Set the active theme(s).  Delegates to the style family's
+     *  {@link set_themes}, which carries the full contract and example
+     *  (including the config-cache invalidation).
+     *  @see set_themes
      */
     set themes(to: FslTheme | FslTheme[]);
     /**
-     * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
-     *  Set via the FSL `flow` directive.
-     *  @returns The current flow direction.
+     * Get the flow direction for graph layout.  Delegates to the style
+     *  family's {@link flow}.
+     *  @see flow
      */
     flow(): FslDirection;
     /**
      * Look up a transition's edge index by source and target state names.
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns The edge index in the edges array, or `undefined` if no
-     *  such transition exists.
+     *  Delegates to the query family's {@link get_transition_by_state_names}.
+     *  @see get_transition_by_state_names
      */
     get_transition_by_state_names(from: StateType, to: StateType): number;
     /**
      * Look up the full transition object for a given source→target pair.
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
+     *  Delegates to the query family's {@link lookup_transition_for}.
+     *  @see lookup_transition_for
      */
     lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT>;
-    /********
-     *
-     *  List all transitions attached to the current state, sorted by entrance and
-     *  exit.  The order of each sublist is not defined.  A node could appear in
-     *  both lists.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose transitions to have listed
-     *
+    /**
+     *  List all transitions attached to a state, sorted by entrance and exit.
+     *  Delegates to the query family's {@link list_transitions}, which carries
+     *  the full contract and example.
+     *  @see list_transitions
      */
     list_transitions(whichState?: StateType): JssmTransitionList;
-    /********
-     *
-     *  List all entrances attached to the current state.  Please note that the
-     *  order of the list is not defined.  This list includes both unforced and
-     *  forced entrances; if this isn't desired, consider
-     *  `list_unforced_entrances` or `list_forced_entrances` as
-     *  appropriate.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_entrances();      // [ 'yellow', 'off' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose entrances to have listed
-     *
+    /**
+     *  List all entrances attached to a state.  Delegates to the query
+     *  family's {@link list_entrances}, which carries the full contract and
+     *  example.
+     *  @see list_entrances
      */
     list_entrances(whichState?: StateType): Array<StateType>;
-    /********
-     *
-     *  List all exits attached to the current state.  Please note that the order
-     *  of the list is not defined.  This list includes both unforced and forced
-     *  exits; if this isn't desired, consider `list_unforced_exits` or
-     *  `list_forced_exits` as appropriate.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_exits();          // [ 'green', 'off' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose exits to have listed
-     *
+    /**
+     *  List all exits attached to a state.  Delegates to the query family's
+     *  {@link list_exits}, which carries the full contract and example.
+     *  @see list_exits
      */
     list_exits(whichState?: StateType): Array<StateType>;
     /**
      * Get the transitions available from a state for use by the probabilistic
-     *  walk system.
-     *
-     *  If any exit declares a `probability`, only those probability-bearing
-     *  exits are returned, so that non-probability peers cannot dilute the
-     *  declared distribution.  If no exit declares a `probability`, every
-     *  legal (non-forced) exit is returned, which `weighted_rand_select`
-     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
-     *  since they cannot be taken by an ordinary `transition()` call.
-     *
-     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
-     *  every exit unconditionally — including forced-only exits and exits
-     *  with no `probability`, which distorted the weighted distribution.
-     *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state,
-     *  filtered as described above.  May be empty.
+     *  walk system.  Delegates to the stochastic family's
+     *  {@link probable_exits_for}, which carries the full contract.
      *  @throws {JssmError} If the state does not exist.
+     *  @see probable_exits_for
      */
     probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
     /**
-     * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
-     *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
-     *  selectable weight is zero, because weighted selection over an all-zero
-     *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
-     *  probabilities count as weight 1, matching {@link weighted_rand_select}.
-     *  An empty pool is not this guard's concern (terminality is handled by the
-     *  callers) and passes through untouched.
-     *
-     *  ```typescript
-     *  const m = sm`a 0% -> b; a 0% -> c;`;
-     *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
-     *  ```
-     *  @param whichState - The state the pool exits from, named in the error.
-     *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
-     *  @throws {JssmError} If the pool is non-empty and every candidate edge
-     *  has probability 0 — including the case where explicit `0%` edges
-     *  excluded their unweighted sibling edges from the candidate pool.
-     *  @see probable_exits_for
-     */
-    private _assert_selectable_exit_pool;
-    /**
      * Take a single random transition from the current state, weighted by
-     *  edge probabilities.
-     *  @returns `true` if a transition was taken, `false` otherwise.
-     *  @throws {JssmError} If the candidate exit pool is non-empty but its
-     *  total weight is zero — every candidate declares `0%` — per
-     *  StoneCypher/fsl#1248.
+     *  edge probabilities.  Delegates to the stochastic family's
+     *  {@link probabilistic_transition}, which carries the full contract.
+     *  @see probabilistic_transition
      */
     probabilistic_transition(): boolean;
     /**
-     * Take `n` consecutive probabilistic transitions and return the sequence
-     *  of states visited (before each transition).
-     *  @param n - Number of steps to walk.
-     *  @returns An array of state names visited during the walk.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+     * Take `n` consecutive probabilistic transitions and return the states
+     *  visited.  Delegates to the stochastic family's
+     *  {@link probabilistic_walk}, which carries the full contract.
+     *  @see probabilistic_walk
      */
     probabilistic_walk(n: number): Array<StateType>;
     /**
-     * Take `n` probabilistic steps and return a histograph of how many times
-     *  each state was visited.
-     *  @param n - Number of steps to walk.
-     *  @returns A `Map` from state name to visit count.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+     * Take `n` probabilistic steps and return a histograph of the visits.
+     *  Delegates to the stochastic family's {@link probabilistic_histo_walk},
+     *  which carries the full contract.
+     *  @see probabilistic_histo_walk
      */
     probabilistic_histo_walk(n: number): Map<StateType, number>;
     /**
-     * One non-destructive weighted-random walk over the graph from `start`.
-     *
-     *  Reads the graph and advances the PRNG only — it never calls
-     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
-     *  state, and touches no `data`.  A state with no probabilistic exits
-     *  (a terminal, or a forced-only `~>` state) ends the walk.
-     *
-     *  Terminality is checked before the first transition and after every
-     *  transition.  A terminal start therefore completes with length zero even
-     *  when `max_steps` is zero, and a terminal reached on the final permitted
-     *  transition is completed rather than step-capped.
-     *
-     *  @param start - State to begin the walk from.
-     *  @param max_steps - Maximum transitions before the walk is step-capped.
-     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
-     *    results.  The graph is immutable after construction, so a state's
-     *    probable exits never change; sharing one memo across a generator's
-     *    runs collapses runs×steps re-derivations (two array allocations and an
-     *    exit rescan per step) to one per distinct state.  The memo only reuses
-     *    the derived arrays — RNG draw order is untouched, so seeded walks
-     *    reproduce exactly.
-     *  @returns The {@link JssmStochasticRun} for this walk.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight — see
-     *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
-     */
-    private _stochastic_one_walk;
-    /**
-     * Lazily yield one {@link JssmStochasticRun} at a time.
-     *
-     *  In `montecarlo` mode (default) yields `runs` independent walks from the
-     *  current state, each ending at a terminal or after `max_steps`.  In
-     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
-     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
-     *  fsl-stochastic panel drives it across animation frames.  A walk already
-     *  at a terminal is reported as terminated with length zero, including when
-     *  `max_steps` is zero.
-     *
-     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
-     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
-     *  prior seed afterward — a direct caller's machine is left reseeded.
-     *  @param opts - {@link JssmStochasticOptions}.
-     *  @yields One {@link JssmStochasticRun} per completed walk.
-     *  @returns A generator of per-run results.
-     *  @example
-     *  const m = sm`a 'go' -> b 'go' -> c;`;
-     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+     * Lazily yield one {@link JssmStochasticRun} at a time.  Delegates to the
+     *  stochastic family's {@link stochastic_runs} generator, which carries
+     *  the full contract and example; `yield*` forwards every yielded run and
+     *  the generator's completion unchanged.
+     *  @see stochastic_runs
      */
     stochastic_runs(opts?: JssmStochasticOptions): Generator<JssmStochasticRun>;
     /**
      * Run many weighted-random walks and return aggregate statistics.
-     *
-     *  Honors `%` transition probabilities (via the existing probabilistic
-     *  machinery).  Non-destructive: the machine's current state and
-     *  {@link Machine.rng_seed} are restored before returning, so calling this
-     *  never perturbs the live machine.  `montecarlo` mode (default) reports
-     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
-     *  mode runs one long walk and omits those fields.
-     *
-     *  Monte-Carlo runs count as `terminal_reached` when they start at a
-     *  terminal or reach one on the final permitted transition.  Terminal
-     *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
-     *
-     *  Timing (`after`) decorations and data-guard conditions are not modeled
-     *  by this sampler; it walks the probabilistic graph topology.
-     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
-     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
-     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
-     *  @returns A {@link JssmStochasticSummary}.
-     *  @see Machine.stochastic_runs
-     *  @see Machine.probabilistic_walk
-     *  @see Machine.editor_config
-     *  @example
-     *  const m = sm`a 'go' -> b 'go' -> c;`;
-     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
-     *  s.terminal_reached;  // => 100
+     *  Delegates to the stochastic family's {@link stochastic_summary}, which
+     *  carries the full contract and example.
+     *  @see stochastic_summary
      */
     stochastic_summary(opts?: JssmStochasticOptions): JssmStochasticSummary;
-    /********
-     *
-     *  List all actions available from this state.  Please note that the order of
-     *  the actions is not guaranteed.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-     *  `;
-     *
-     *  console.log( machine.state() );    // logs 'red'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *
-     *  machine.action('next');            // true
-     *  console.log( machine.state() );    // logs 'green'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *
-     *  machine.action('shutdown');        // true
-     *  console.log( machine.state() );    // logs 'off'
-     *  console.log( machine.actions() );  // logs ['start']
-     *
-     *  machine.action('start');           // true
-     *  console.log( machine.state() );    // logs 'red'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose actions to list.  Defaults to the
-     *  current state.
-     *
-     *  @returns An array of action names available from the given state.
-     *
+    /**
+     *  List all actions available from a state.  Delegates to the query
+     *  family's {@link actions}, which carries the full contract and example.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see actions
      */
     actions(whichState?: StateType): Array<StateType>;
-    /********
-     *
-     *  List all states that have a specific action attached.  Please note that
-     *  the order of the states is not guaranteed.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-     *  `;
-     *
-     *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
-     *  console.log( machine.list_states_having_action('start') );   // ['off']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The action to be checked for associated states
-     *
+    /**
+     *  List all states that have a specific action attached.  Delegates to
+     *  the query family's {@link list_states_having_action}, which carries the
+     *  full contract and example.
+     *  @throws {JssmError} If no state has the action.
+     *  @see list_states_having_action
      */
     list_states_having_action(whichState: StateType): Array<StateType>;
     /**
-     * List all action names available as exits from a given state.
-     *
-     *  Returns the empty array (does not throw) when `whichState` exists but has
-     *  no action-named exits — including terminal states, states whose only
-     *  exits are plain `->` transitions, and states in machines that use no
-     *  actions at all.  Only nonexistent states cause a throw.
-     *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of action name strings, possibly empty.
+     * List all action names available as exits from a given state.  Delegates
+     *  to the query family's {@link list_exit_actions}, which carries the full
+     *  contract and example.
      *  @throws {JssmError} If the state does not exist.
-     *  @example
-     *    const m = sm`a 'go' -> b; b -> c;`;
-     *    m.list_exit_actions('a');  // => ['go']
-     *    m.list_exit_actions('b');  // => []
-     *    m.list_exit_actions('c');  // => []
-     *    expect(() => m.list_exit_actions('z')).toThrow();
+     *  @see list_exit_actions
      */
     list_exit_actions(whichState?: StateType): Array<StateType>;
     /**
-     * List all action exits from a state with their probabilities.
-     *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of `{ action, probability }` objects.
+     * List all action exits from a state with their probabilities and shares.
+     *  Delegates to the query family's {@link probable_action_exits}, which
+     *  carries the full contract.
      *  @throws {JssmError} If the state does not exist.
+     *  @see probable_action_exits
      */
     probable_action_exits(whichState?: StateType): Array<any>;
     /**
-     * Check whether a state has no incoming transitions (unreachable after start).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state has zero entrances.
+     * Check whether a state has no incoming transitions.  Delegates to the
+     *  query family's {@link is_unenterable}.
      *  @throws {JssmError} If the state does not exist.
+     *  @see is_unenterable
      */
     is_unenterable(whichState: StateType): boolean;
     /**
-     * Check whether any state in the machine is unenterable.
-     *  @returns `true` if at least one state has no incoming transitions.
+     * Check whether any state in the machine is unenterable.  Delegates to
+     *  the query family's {@link has_unenterables}.
+     *  @see has_unenterables
      */
     has_unenterables(): boolean;
     /**
-     * Check whether the current state is terminal (has no exits).
-     *  @returns `true` if the current state has zero exits.
+     * Check whether the current state is terminal (has no exits).  Delegates
+     *  to the query family's {@link is_terminal}.
+     *  @see is_terminal
      */
     is_terminal(): boolean;
     /**
-     * Check whether a specific state is terminal (has no exits).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state has zero exits.
+     * Check whether a specific state is terminal (has no exits).  Delegates
+     *  to the query family's {@link state_is_terminal}.
      *  @throws {JssmError} If the state does not exist.
+     *  @see state_is_terminal
      */
     state_is_terminal(whichState: StateType): boolean;
     /**
-     * Check whether any state in the machine is terminal.
-     *  @returns `true` if at least one state has no exits.
+     * Check whether any state in the machine is terminal.  Delegates to the
+     *  query family's {@link has_terminals}.
+     *  @see has_terminals
      */
     has_terminals(): boolean;
-    /********
-     *
+    /**
      *  Reports whether the machine's CURRENT state is a transitive member of a
-     *  named group.  Membership is deep: a state counts as in `groupName` if it
-     *  belongs to that group directly, or via any nested (`&child`) or spread
-     *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
-     *  members, so this returns `false` rather than throwing.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working;`;
-     *  m.isIn('busy');     // false — current state is 'idle'
-     *  m.action('go');
-     *  m.isIn('busy');     // true  — current state is now 'working'
-     *  m.isIn('nonesuch'); // false — undeclared group has no members
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group to test the current state against.
-     *
-     *  @returns `true` if the current state is a transitive member of `groupName`.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
+     *  named group.  Delegates to the groups family's {@link isIn}, which
+     *  carries the full contract and example.
+     *  @see isIn
      */
     isIn(groupName: string): boolean;
-    /********
-     *
-     *  Lists every group that transitively contains a given state.  Membership is
-     *  deep — direct, nested, and spread sub-group containment all count — and the
-     *  result is the precomputed inverse-index entry for the state, so the lookup
-     *  is constant-time.  A state that belongs to no group (or a state name that
-     *  appears in no group) yields an empty `Set`.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
-     *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
-     *  m.groupsOf('b');     // Set { 'outer' }
-     *  m.groupsOf('z');     // Set {}                    — not in any group
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state whose containing groups are wanted.
-     *
-     *  @returns A `Set` of every group name transitively containing `state`;
-     *  empty when `state` belongs to no group.
-     *
-     *  @see isIn
-     *  @see groups
-     *
+    /**
+     *  Lists every group that transitively contains a given state.  Delegates
+     *  to the groups family's {@link groupsOf}, which carries the full
+     *  contract and example.
+     *  @see groupsOf
      */
     groupsOf(state: StateType): Set<string>;
-    /********
-     *
-     *  Lists all declared group names, in source declaration order.  The order
-     *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
-     *  is the same order used to break depth-specificity ties in the config
-     *  cascade.  Machines that declare no groups return an empty array.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
-     *  m.groups();  // [ 'first', 'second' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The declared group names, in declaration order.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
+    /**
+     *  Lists all declared group names, in source declaration order.  Delegates
+     *  to the groups family's {@link groups}, which carries the full contract
+     *  and example.
+     *  @see groups
      */
     groups(): string[];
-    /********
-     *
-     *  Lists every state that is a transitive member of a named group — the
-     *  flattened membership of the group, descending through nested and spread
-     *  sub-groups, in member-declaration order.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
-     *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
-     *  m.statesIn('inner');  // [ 'a', 'b' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group whose transitive member states are wanted.
-     *
-     *  @returns The transitive member states of `groupName`, in declaration order.
-     *
+    /**
+     *  Lists every state that is a transitive member of a named group.
+     *  Delegates to the groups family's {@link statesIn}, which carries the
+     *  full contract and example.
      *  @throws {JssmError} If `groupName` is not a declared group.
-     *
-     *  @see groups
-     *  @see groupsOf
-     *
+     *  @see statesIn
      */
     statesIn(groupName: string): Array<StateType>;
     /**
-     * Check whether the current state is complete (every exit has an action).
-     *  @returns `true` if the current state is complete.
+     * Check whether the current state is complete.  Delegates to the query
+     *  family's {@link is_complete}.
+     *  @see is_complete
      */
     is_complete(): boolean;
     /**
-     * Check whether a specific state is complete (every exit has an action).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state is complete.
+     * Check whether a specific state is complete.  Delegates to the query
+     *  family's {@link state_is_complete}.
      *  @throws {JssmError} If the state does not exist.
+     *  @see state_is_complete
      */
     state_is_complete(whichState: StateType): boolean;
     /**
-     * Check whether any state in the machine is complete.
-     *  @returns `true` if at least one state is complete.
+     * Check whether any state in the machine is complete.  Delegates to the
+     *  query family's {@link has_completes}.
+     *  @see has_completes
      */
     has_completes(): boolean;
     /**
-     *  Subscribe to a typed observation event.  Hooks (`set_hook` and friends)
-     *  intercept and may cancel a transition; events fire alongside the same
-     *  state-machine moments but cannot influence the outcome.  This is the
-     *  surface most users actually want for "tell me when state changes".
-     *
-     *  Handlers run synchronously, in registration order.  A throwing handler
-     *  does not block subsequent handlers — its exception is caught and
-     *  re-emitted as an `error` event whose detail names the original event
-     *  and the offending handler.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *
-     *  m.on('transition', e => console.log(`${e.from} -> ${e.to}`));
-     *  m.on('entry', { state: 'b' }, e => console.log(`entered ${e.state}`));
-     *
-     *  const off = m.on('transition', () => {});
-     *  off();  // unsubscribe
-     *  ```
-     *  @template Ev      The event name (drives the detail type).
-     *  @param name        The event name to subscribe to.
-     *  @param handler     The handler invoked on each matching delivery.  The
-     *                     three-argument `(name, filter, handler)` form inserts a
-     *                     filter object before the handler (see the example above).
-     *  @returns A function that unsubscribes when called.
-     *  @see Machine.off
-     *  @see Machine.once
+     *  Subscribe to a typed observation event.  Delegates to the events
+     *  family's {@link on}, which carries the full contract and examples.
+     *  @see on
      */
     on<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
     on<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
     /**
      *  Subscribe to a typed observation event for one matching delivery, then
-     *  auto-remove.  Accepts the same `(name, handler)` and `(name, filter,
-     *  handler)` shapes as {@link Machine.on}.
-     *
-     *  ```typescript
-     *  m.once('terminal', e => console.log(`done at ${e.state}`));
-     *  ```
-     *  @template Ev      The event name.
-     *  @param name        The event name.
-     *  @param handler     The handler invoked on the first matching delivery.  The
-     *                     three-argument `(name, filter, handler)` form inserts a
-     *                     filter object before the handler (same shapes as `on`).
-     *  @returns A function that unsubscribes early if called before the
-     *           handler has fired.
-     *  @see Machine.on
-     *  @see Machine.off
+     *  auto-remove.  Delegates to the events family's {@link once}.
+     *  @see once
      */
     once<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
     once<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
     /**
-     *  Remove a previously-registered event handler.  Match is by reference —
-     *  the same function value passed to {@link Machine.on} or
-     *  {@link Machine.once}.  Returns `true` if a subscription was found and
-     *  removed, `false` otherwise.
-     *
-     *  ```typescript
-     *  const fn = (e: any) => console.log(e);
-     *  m.on('transition', fn);
-     *  m.off('transition', fn);  // true
-     *  m.off('transition', fn);  // false
-     *  ```
-     *  @param name    The event name.
-     *  @param handler The handler reference to remove.
-     *  @returns `true` if removed, `false` if no match was registered.
+     *  Remove a previously-registered event handler.  Delegates to the events
+     *  family's {@link off}.
+     *  @see off
      */
     off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
     /**
-     *  Invoke a single event-handler entry, respecting its filter, once-removal
-     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
-     *  {@link _fire} can share identical behavior between the size-1 fast-path
-     *  and the general snapshotted loop.
-     *  @param entry  - The subscriber descriptor to invoke.
-     *  @param set    - The live Set that owns `entry`; needed for once-removal.
-     *  @param name   - The event name being dispatched (used in error re-fires).
-     *  @param detail - The event payload forwarded to the handler.
+     *  Invoke a single event-handler entry.  Delegates to the events family's
+     *  {@link fire_one}.
      *  @internal
      */
     _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     /**
-     *  Dispatch an event to every registered subscriber in registration
-     *  order.  Filters are checked first; non-matching handlers are skipped
-     *  without invoking the handler.  Exceptions thrown by a handler are
-     *  caught and re-emitted as an `error` event so subsequent handlers
-     *  still run.
-     *
-     *  Re-entry into the `error` event itself is guarded — if an `error`
-     *  handler throws, the new exception is swallowed rather than rebroadcast
-     *  to avoid an infinite loop.
-     *
-     *  When exactly one subscriber is registered the common case avoids the
-     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
-     *  local first — equivalent to a 1-element snapshot but allocation-free.
-     *  The general path still snapshots for re-entrancy safety.
-     *  @internal
-     */
-    /**
-     *  Whether at least one live subscriber is registered for `name`.  Used by
-     *  the transition-commit observation block to skip building a detail
-     *  literal that {@link Machine._fire} would immediately discard — a panel
-     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
-     *  previously paid for the exit/entry/data-change detail allocations on
-     *  every transition.  Read at fire time, so a listener installed by a
-     *  pre-hook is still seen (#671).
-     *  @param name The event name to probe.
-     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
-     *  least one handler.
-     *
-     *  ```typescript
-     *  machine.on('transition', () => {});
-     *  machine._has_subscribers('transition');  // true
-     *  machine._has_subscribers('exit');        // false
-     *  ```
-     *  @see Machine._fire
+     *  Whether at least one live subscriber is registered for `name`.
+     *  Delegates to the events family's {@link has_subscribers}.
      *  @internal
      */
     _has_subscribers(name: JssmEventName): boolean;
+    /**
+     *  Dispatch an event to every registered subscriber.  Delegates to the
+     *  events family's {@link fire}.
+     *  @internal
+     */
     _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
+    /**
+     *  Low-level hook registration.  Delegates to the hooks family's
+     *  {@link set_hook}, which carries the full contract, the descriptor
+     *  validation, and the examples.
+     *  @throws JssmError if the descriptor is mis-shaped.
+     *  @see set_hook
+     */
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
-     *  Remove a previously-registered hook described by a
-     *  {@link HookDescription}.  Match is by `kind` + identifying keys
-     *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
-     *  hook per slot in the registry, so the description uniquely identifies
-     *  which one to clear.  Fires a `hook-removal` event for inspector tools.
-     *
-     *  This is the symmetric counterpart of {@link Machine.set_hook} for the
-     *  event-bridging use case (#638).  Reasoning about hooks via observation
-     *  events requires being able to observe their disappearance too.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  const fn = () => true;
-     *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
-     *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
-     *  ```
-     *  @param HookDesc - A hook descriptor identifying the hook to remove.
+     *  Remove a previously-registered hook.  Delegates to the hooks family's
+     *  {@link remove_hook}.
      *  @returns `true` if a hook was removed, `false` otherwise.
+     *  @see remove_hook
      */
     remove_hook(HookDesc: HookDescription<mDT>): boolean;
     /**
-     * Register a pre-transition hook on a specific edge.  Fires before
-     *  transitioning from `from` to `to`.  If the handler returns `false`, the
-     *  transition is blocked.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook('a', 'b', () => console.log('a->b'));
-     *  ```
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param handler - Callback invoked before the transition.
+     *  Register a pre-transition hook on a specific edge.  Delegates to the
+     *  hooks family's {@link hook}.
      *  @returns `this` for chaining.
+     *  @see hook
      */
     hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on a specific action-labeled edge.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param action  - The action label that triggers this hook.
-     *  @param handler - Callback invoked before the transition.
+     *  Register a pre-transition hook on a specific action-labeled edge.
+     *  Delegates to the hooks family's {@link hook_action}.
      *  @returns `this` for chaining.
+     *  @see hook_action
      */
     hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any edge triggered by a specific action.
-     *  @param action  - The action name to hook.
-     *  @param handler - Callback invoked before any transition with this action.
+     *  Register a pre-transition hook on any edge triggered by a specific
+     *  action.  Delegates to the hooks family's {@link hook_global_action}.
      *  @returns `this` for chaining.
+     *  @see hook_global_action
      */
     hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any action-driven transition.
-     *  @param handler - Callback invoked before any action transition.
+     *  Register a pre-transition hook on any action-driven transition.
+     *  Delegates to the hooks family's {@link hook_any_action}.
      *  @returns `this` for chaining.
+     *  @see hook_any_action
      */
     hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any standard (`->`) transition.
-     *  @param handler - Callback invoked before any legal transition.
+     *  Register a pre-transition hook on any standard (`->`) transition.
+     *  Delegates to the hooks family's {@link hook_standard_transition}.
      *  @returns `this` for chaining.
+     *  @see hook_standard_transition
      */
     hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any main-path (`=>`) transition.
-     *  @param handler - Callback invoked before any main transition.
+     *  Register a pre-transition hook on any main-path (`=>`) transition.
+     *  Delegates to the hooks family's {@link hook_main_transition}.
      *  @returns `this` for chaining.
+     *  @see hook_main_transition
      */
     hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any forced (`~>`) transition.
-     *  @param handler - Callback invoked before any forced transition.
+     *  Register a pre-transition hook on any forced (`~>`) transition.
+     *  Delegates to the hooks family's {@link hook_forced_transition}.
      *  @returns `this` for chaining.
+     *  @see hook_forced_transition
      */
     hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook on any transition regardless of kind.
-     *  @param handler - Callback invoked before every transition.
+     *  Register a pre-transition hook on any transition regardless of kind.
+     *  Delegates to the hooks family's {@link hook_any_transition}.
      *  @returns `this` for chaining.
+     *  @see hook_any_transition
      */
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a hook that fires when entering a specific state.
-     *  @param to      - The state being entered.
-     *  @param handler - Callback invoked on entry.
+     *  Register a hook that fires when entering a specific state.  Delegates
+     *  to the hooks family's {@link hook_entry}.
      *  @returns `this` for chaining.
+     *  @see hook_entry
      */
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a hook that fires when leaving a specific state.
-     *  @param from    - The state being exited.
-     *  @param handler - Callback invoked on exit.
+     *  Register a hook that fires when leaving a specific state.  Delegates to
+     *  the hooks family's {@link hook_exit}.
      *  @returns `this` for chaining.
+     *  @see hook_exit
      */
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a hook that fires when a state's `after` timer elapses — the
-     *  delay-over companion to `a after 5s -> b;` style time transitions.  It
-     *  does NOT fire when the state is entered or left by ordinary dispatch;
-     *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
-     *  5.143.28 also spuriously fired it on entering the state, the jssm side
-     *  of StoneCypher/fsl#1327.)
-     *  @param from    - The state whose `after` timer is being watched.
-     *  @param handler - Callback invoked when the timer fires, just before the
-     *                   timed transition is taken; informational — its outcome
-     *                   cannot reject the transition.
+     *  Register a hook that fires when a state's `after` timer elapses.
+     *  Delegates to the hooks family's {@link hook_after}, which carries the
+     *  full contract and example.
      *  @returns `this` for chaining.
-     *  @example
-     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
-     *    let calls = 0;
-     *    m.hook_after('a', () => { calls += 1; });
-     *    m.go('c');
-     *    m.go('a');
-     *    // ordinary dispatch never fires it; only the timer elapsing does:
-     *    calls;  // => 0
-     *    m.clear_state_timeout();
-     *  @see hook_entry
-     *  @see hook_exit
-     *  @see set_state_timeout
+     *  @see hook_after
      */
     hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a hook that fires when ANY state's `after` timer elapses — the
-     *  whole-machine companion to {@link hook_after}, mirroring how
-     *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
-     *  state also has a specific {@link hook_after}, the specific hook fires
-     *  first and this one fires second; a specific after hook firing always
-     *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
-     *  `hook_after` it is informational — its outcome cannot reject the timed
-     *  transition — and it does NOT fire on ordinary dispatch.
-     *  @param handler - Callback invoked whenever any `after` timer fires, just
-     *                   before the timed transition is taken.
+     *  Register a hook that fires when ANY state's `after` timer elapses.
+     *  Delegates to the hooks family's {@link hook_after_any}, which carries
+     *  the full contract and example.
      *  @returns `this` for chaining.
-     *  @example
-     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
-     *    let calls = 0;
-     *    m.hook_after_any(() => { calls += 1; });
-     *    m.go('c');
-     *    m.go('a');
-     *    // ordinary dispatch never fires it; only a timer elapsing does:
-     *    calls;  // => 0
-     *    m.clear_state_timeout();
-     *  @see hook_after
-     *  @see hook_any_transition
-     *  @see set_state_timeout
+     *  @see hook_after_any
      */
     hook_after_any(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on a specific edge.  Fires after the transition
-     *  from `from` to `to` has completed.  Cannot block the transition.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param handler - Callback invoked after the transition.
+     *  Post-transition hook on a specific edge.  Delegates to the hooks
+     *  family's {@link post_hook}.
      *  @returns `this` for chaining.
+     *  @see post_hook
      */
     post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on a specific action-labeled edge.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param action  - The action label.
-     *  @param handler - Callback invoked after the transition.
+     *  Post-transition hook on a specific action-labeled edge.  Delegates to
+     *  the hooks family's {@link post_hook_action}.
      *  @returns `this` for chaining.
+     *  @see post_hook_action
      */
     post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any edge triggered by a specific action.
-     *  @param action  - The action name.
-     *  @param handler - Callback invoked after any transition with this action.
+     *  Post-transition hook on any edge triggered by a specific action.
+     *  Delegates to the hooks family's {@link post_hook_global_action}.
      *  @returns `this` for chaining.
+     *  @see post_hook_global_action
      */
     post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any action-driven transition.
-     *  @param handler - Callback invoked after any action transition.
+     *  Post-transition hook on any action-driven transition.  Delegates to
+     *  the hooks family's {@link post_hook_any_action}.
      *  @returns `this` for chaining.
+     *  @see post_hook_any_action
      */
     post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any standard (`->`) transition.
-     *  @param handler - Callback invoked after any legal transition.
+     *  Post-transition hook on any standard (`->`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_standard_transition}.
      *  @returns `this` for chaining.
+     *  @see post_hook_standard_transition
      */
     post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any main-path (`=>`) transition.
-     *  @param handler - Callback invoked after any main transition.
+     *  Post-transition hook on any main-path (`=>`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_main_transition}.
      *  @returns `this` for chaining.
+     *  @see post_hook_main_transition
      */
     post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any forced (`~>`) transition.
-     *  @param handler - Callback invoked after any forced transition.
+     *  Post-transition hook on any forced (`~>`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_forced_transition}.
      *  @returns `this` for chaining.
+     *  @see post_hook_forced_transition
      */
     post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook on any transition regardless of kind.
-     *  @param handler - Callback invoked after every transition.
+     *  Post-transition hook on any transition regardless of kind.  Delegates
+     *  to the hooks family's {@link post_hook_any_transition}.
      *  @returns `this` for chaining.
+     *  @see post_hook_any_transition
      */
     post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook that fires after entering a specific state.
-     *  @param to      - The state that was entered.
-     *  @param handler - Callback invoked after entry.
+     *  Post-transition hook that fires after entering a specific state.
+     *  Delegates to the hooks family's {@link post_hook_entry}.
      *  @returns `this` for chaining.
+     *  @see post_hook_entry
      */
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Post-transition hook that fires after leaving a specific state.
-     *  @param from    - The state that was exited.
-     *  @param handler - Callback invoked after exit.
+     *  Post-transition hook that fires after leaving a specific state.
+     *  Delegates to the hooks family's {@link post_hook_exit}.
      *  @returns `this` for chaining.
+     *  @see post_hook_exit
      */
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook that fires **before** all other pre-hooks
-     *  on every transition.  If the handler returns `false`, the transition is
-     *  blocked.  The handler receives an {@link EverythingHookContext} whose
-     *  `hook_name` is `'pre everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_pre_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *    return true;
-     *  });
-     *  ```
-     *  @param handler - Callback invoked before all other pre-hooks.
+     *  Register a pre-transition hook that fires before all other pre-hooks.
+     *  Delegates to the hooks family's {@link hook_pre_everything}.
      *  @returns `this` for chaining.
+     *  @see hook_pre_everything
      */
     hook_pre_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a pre-transition hook that fires **after** all other pre-hooks
-     *  on every transition.  If the handler returns `false`, the transition is
-     *  blocked.  The handler receives an {@link EverythingHookContext} whose
-     *  `hook_name` is `'everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *    return true;
-     *  });
-     *  ```
-     *  @param handler - Callback invoked after all other pre-hooks.
+     *  Register a pre-transition hook that fires after all other pre-hooks.
+     *  Delegates to the hooks family's {@link hook_everything}.
      *  @returns `this` for chaining.
+     *  @see hook_everything
      */
     hook_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a post-transition hook that fires **after** all other
-     *  post-hooks on every transition.  Cannot block the transition.  The
-     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
-     *  `'post everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_post_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *  });
-     *  ```
-     *  @param handler - Callback invoked after all other post-hooks.
+     *  Register a post-transition hook that fires after all other post-hooks.
+     *  Delegates to the hooks family's {@link hook_post_everything}.
      *  @returns `this` for chaining.
+     *  @see hook_post_everything
      */
     hook_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
     /**
-     * Register a post-transition hook that fires **before** all other
-     *  post-hooks on every transition.  Cannot block the transition.  The
-     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
-     *  `'pre post everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_pre_post_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *  });
-     *  ```
-     *  @param handler - Callback invoked before all other post-hooks.
+     *  Register a post-transition hook that fires before all other post-hooks.
+     *  Delegates to the hooks family's {@link hook_pre_post_everything}.
      *  @returns `this` for chaining.
+     *  @see hook_pre_post_everything
      */
     hook_pre_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
     /**
-     * Get the current RNG seed used for probabilistic transitions.
-     *  @returns The numeric seed value.
+     * Get the current RNG seed used for probabilistic transitions.  Delegates
+     *  to the stochastic family's {@link rng_seed}.
+     *  @see rng_seed
      */
     get rng_seed(): number;
     /**
-     * Set the RNG seed.  Pass `undefined` to reseed from the current time.
-     *  Resets the internal PRNG so subsequent probabilistic operations use the
-     *  new seed.
-     *  @param to - The seed value, or `undefined` for time-based seeding.
+     * Set the RNG seed.  Delegates to the stochastic family's
+     *  {@link set_rng_seed}, which carries the full contract.
+     *  @see set_rng_seed
      */
     set rng_seed(to: number | undefined);
     /**
      * Get all edges between two states (there can be multiple with
-     *  different actions).
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns An array of matching {@link JssmTransition} objects.
+     *  different actions).  Delegates to the query family's
+     *  {@link edges_between}, which carries the full contract.
+     *  @see edges_between
      */
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     /*********
      *
      *  Replace the current state — and, when a data argument is provided, the
-     *  data — with no regard to the graph.
-     *
-     *  The data argument is arity-detected: omitting it preserves the current
-     *  data, while explicitly passing `undefined` really sets the data to
-     *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
-     *  argument silently cleared the data.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`a -> b -> c;`;
-     *  console.log( machine.state() );    // 'a'
-     *
-     *  machine.go('b');
-     *  machine.go('c');
-     *  console.log( machine.state() );    // 'c'
-     *
-     *  machine.override('a');
-     *  console.log( machine.state() );    // 'a'
-     *  ```
+     *  data — with no regard to the graph.  The class form of the transition
+     *  family's {@link override}, which carries the full contract and example.
+     *  The data argument is arity-detected (StoneCypher/fsl#1264), so the
+     *  delegate forwards it only when it was given.
      *
      *  @param newState The state to teleport to; must exist in the graph.
      *
@@ -3106,233 +2395,65 @@ declare class Machine<mDT> {
      *  @throws {JssmError} If the machine's config does not set
      *  `allows_override: true`, or if `newState` does not exist.
      *
-     *  @see set_data
+     *  @see override
      *
      */
     override(newState: StateType, newData?: mDT): void;
-    /*********
-     *
+    /**
      *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
-     *  Extracted from the per-call closures inside {@link transition_impl} so
-     *  that it is allocated once at class-definition time rather than on every
-     *  hooked transition.
-     *
-     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
-     *  @param fromState  State the machine was in when the transition was
-     *    attempted; used as the `from` field of the rejection event.
-     *  @param newState   State that would have been entered had the hook
-     *    passed; used as the `to` field of the rejection event.
-     *  @param fromAction Action name when the transition was initiated by an
-     *    action call; `undefined` for plain state transitions.
-     *  @param oldData    Machine data at the moment the transition was
-     *    attempted, before any hook mutations.
-     *  @param newData    The `next_data` value passed to the transition call.
-     *  @param wasForced  Whether the transition was attempted via
-     *    `force_transition`.
-     *
-     *  @see transition_impl
-     *  @see _fire
-     *
+     *  Delegates to the transition family's {@link fire_hook_rejection}.
      *  @internal
-     *
      */
     _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
-    /*********
-     *
-     *  Fire the FSL boundary-hook actions for a single, already-committed state
-     *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
-     *  means "when the machine crosses INTO group `g`, dispatch machine action
-     *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
-     *  that fires those parked hooks.
-     *
-     *  Crossing semantics (statechart convention — exits before enters):
-     *
-     *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
-     *     the old and new states, from `_state_to_groups`.
-     *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
-     *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
-     *     actually changed).
-     *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
-     *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
-     *     changed).
-     *  4. A group present in BOTH sets is a transition *within* that group and
-     *     fires neither of its boundary hooks.  `prev_state === next_state` fires
-     *     nothing at all.
-     *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
-     *     from the current state, `action` is a safe no-op (returns `false`) — an
-     *     inapplicable boundary action never throws.
-     *  6. Multi-membership and nesting both fan out naturally: a state in groups
-     *     A and B fires both; crossing an inner and an outer boundary fires both
-     *     levels.
-     *
-     *  Because firing an action can drive a further transition (which crosses
-     *  more boundaries, which fires more actions), this is a bounded
-     *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
-     *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
-     *  rather than overflowing the stack or hanging.  The limit defaults to 100
-     *  and is configurable via the `boundary_depth_limit` constructor option.
-     *
-     *  @param prev_state The state the machine was in before this commit.
-     *  @param next_state The state the machine is in now (already committed).
-     *
-     *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
-     *    (a probable infinite loop).
-     *
-     *  @see action
-     *  @see transition_impl
-     *
+    /**
+     *  Fire the FSL boundary-hook actions for an already-committed state
+     *  change.  Delegates to the transition family's {@link fire_boundary_actions}.
      *  @internal
-     *
      */
     _fire_boundary_actions(prev_state: StateType, next_state: StateType): void;
-    /*********
-     *
-     *  Shared transition core used by {@link transition}, {@link force_transition},
-     *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
-     *  everything, any-action, after, any-transition, exit, named, basic,
-     *  edge-type, entry, everything), commits the new state if nothing
-     *  rejected, and returns whether the transition succeeded.
-     *
-     *  Not meant for external use.  Call one of the public wrappers instead:
-     *  - `transition` for an ordinary legal transition
-     *  - `force_transition` to bypass the legality check
-     *  - `action` to dispatch by action name rather than target state
-     *
-     *  @remarks
-     *  Known sharp edges, carried over from the original `// TODO` comments:
-     *  - The forced-ness behavior needs to be cleaned up a lot here.
-     *  - The callbacks are not fully correct across the forced / action / plain
-     *    cases and should be revisited.
-     *  - When multiple edges exist between two states with different `kind`
-     *    values, only the first edge's kind is used to pick the edge-type hook.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted.
-     *
-     *  @param newStateOrAction The target state name (for a plain or forced
-     *  transition) or the action name (when `wasAction` is true).
-     *
-     *  @param newData Optional replacement machine data to install alongside
-     *  the transition.  Hooks may further override this via complex results.
-     *
-     *  @param wasForced `true` if the caller invoked `force_transition`, in
-     *  which case legality is checked against `valid_force_transition` rather
-     *  than `valid_transition`.
-     *
-     *  @param wasAction `true` if the caller invoked `action`, in which case
-     *  `newStateOrAction` is an action name and the target state is looked up
-     *  via the current action edge.
-     *
-     *  @param dataProvided `true` when the caller explicitly supplied a data
-     *  argument — even an explicitly-`undefined` one, which commits `undefined`
-     *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
-     *  is preserved.  The public wrappers derive this from call arity; the
-     *  default reproduces the old `!== undefined` inference for any direct
-     *  callers.
-     *
-     *  @returns `true` if the transition was valid and every hook passed;
-     *  `false` if the transition was invalid or any hook rejected.
-     *
-     *  @throws {JssmError} If called reentrantly from inside a hook that is still
-     *  running in the enclosing transition's pre-commit pipeline — a hook that
-     *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
-     *  and then the outer one would silently discard the inner result, so the
-     *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
-     *  (from a post-hook or the boundary-action cascade) is permitted.
-     *
+    /**
+     *  Shared transition core.  Delegates to the transition family's
+     *  {@link transition_impl}, which carries the full contract.  The public
+     *  movers on this class (`transition`, `go`, `force_transition`, `act`,
+     *  `action`, `do`) call the family function directly rather than this
+     *  delegate, so the class path is no deeper than it was in 5.x.
      *  @internal
-     *
      */
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean, dataProvided?: boolean): boolean;
     /**
-     * If the current state has an `after` timeout configured, schedule it.
-     *  Called internally after each transition.
+     *  If the current state has an `after` timeout configured, schedule it.
+     *  Delegates to the timers family's {@link auto_set_state_timeout}.
+     *  @see auto_set_state_timeout
      */
     auto_set_state_timeout(): void;
-    /*********
-     *
-     *  Get a truncated history of the recent states and data of the machine.
-     *  Turned off by default; configure with `.from('...', {data: 5})` by length,
-     *  or set `.history_length` at runtime.
-     *
-     *  History *does not contain the current state*.  If you want that, call
-     *  `.history_inclusive` instead.
-     *
-     *  ```typescript
-     *  const foo = jssm.from(
-     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-     *    { history: 3 }
-     *  );
-     *
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *
-     *  foo.history;  // [ ['b',undefined], ['c',undefined], ['d',undefined] ]
-     *  ```
-     *
-     *  Notice that the machine's current state, `e`, is not in the returned list.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     */
-    get history(): [string, mDT][];
-    /*********
-     *
+    /**
      *  Get a truncated history of the recent states and data of the machine,
-     *  including the current state.  Turned off by default; configure with
-     *  `.from('...', {data: 5})` by length, or set `.history_length` at runtime.
-     *
-     *  History inclusive contains the current state.  If you only want past
-     *  states, call `.history` instead.
-     *
-     *  The list returned will be one longer than the history buffer kept, as the
-     *  history buffer kept gets the current state added to it to produce this
-     *  list.
-     *
-     *  ```typescript
-     *  const foo = jssm.from(
-     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-     *    { history: 3 }
-     *  );
-     *
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *
-     *  foo.history_inclusive;  // [ ['b',undefined], ['c',undefined], ['d',undefined], ['e',undefined] ]
-     *  ```
-     *
-     *  Notice that the machine's current state, `e`, is in the returned list.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
+     *  without the current state.  Delegates to the history family's
+     *  {@link history}, which carries the full contract and examples.
+     *  @see history
      */
-    get history_inclusive(): [string, mDT][];
-    /*********
-     *
-     *  Find out how long a history this machine is keeping.  Defaults to zero.
-     *  Settable directly.
-     *
-     *  ```typescript
-     *  const foo = jssm.from("a -> b;");
-     *  foo.history_length;                                  // 0
-     *
-     *  const bar = jssm.from("a -> b;", { history: 3 });
-     *  foo.history_length;                                  // 3
-     *  foo.history_length = 5;
-     *  foo.history_length;                                  // 5
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
+    get history(): Array<[StateType, mDT]>;
+    /**
+     *  Get a truncated history of the recent states and data of the machine,
+     *  including the current state.  Delegates to the history family's
+     *  {@link history_inclusive}.
+     *  @see history_inclusive
+     */
+    get history_inclusive(): Array<[StateType, mDT]>;
+    /**
+     *  Find out how long a history this machine is keeping.  Delegates to the
+     *  history family's {@link history_length}; the setter delegates to
+     *  {@link set_history_length}.
+     *  @see history_length
+     *  @see set_history_length
      */
     get history_length(): number;
     set history_length(to: number);
     /********
      *
-     *  Instruct the machine to complete an action.  Synonym for {@link do}.
+     *  Instruct the machine to complete an action.  Synonym for {@link act}
+     *  (and for the deprecated {@link do}); the class form of the transition
+     *  family's {@link act}, which carries the full contract and example.
      *
      *  ```typescript
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -3346,416 +2467,178 @@ declare class Machine<mDT> {
      *
      *  @param actionName The action to engage
      *
-     *  @param newData The data change to insert during the action
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
      *
      *  @returns `true` if the action was valid and the transition occurred,
      *  `false` otherwise.
+     *
+     *  @see act
      *
      */
     action(actionName: StateType, newData?: mDT): boolean;
     /********
      *
-     *  Get the standard style for a single state.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
+     *  Instruct the machine to complete an action.  The class form of the
+     *  transition family's {@link act}, which carries the full contract and
+     *  example; {@link action} is its synonym and {@link do} its deprecated
+     *  synonym.  New in 6.0 so the deprecation advice on `do()` holds on both
+     *  entries.
      *
      *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.standard_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; state: { shape: circle; };`;
-     *  console.log(light.standard_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for standard states.
-     *
-     */
-    get standard_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Get the hooked state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  The hooked style is only applied to nodes which have a named hook in the
-     *  graph.  Open hooks set through the external API aren't graphed, because
-     *  that would be literally every node.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.hooked_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
-     *  console.log(light.hooked_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for hooked states.
-     *
-     */
-    get hooked_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Get the start state style.  ***Does not*** include composition from an
-     *  applied theme, or things from the underlying base stylesheet; only the
-     *  modifications applied by this machine.
-     *
-     *  Start states are defined by the directive `start_states`, or in absentia,
-     *  are the first mentioned state.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.start_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; start_state: { shape: circle; };`;
-     *  console.log(light.start_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for start states.
-     *
-     */
-    get start_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Get the end state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  End states are defined in the directive `end_states`, and are distinct
-     *  from terminal states.  End states are voluntary successful endpoints for a
-     *  process.  Terminal states are states that cannot be exited.  By example,
-     *  most error states are terminal states, but not end states.  Also, since
-     *  some end states can be exited and are determined by hooks, such as
-     *  recursive or iterative nodes, there is such a thing as an end state that
-     *  is not a terminal state.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.standard_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; end_state: { shape: circle; };`;
-     *  console.log(light.standard_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for end states.
-     *
-     */
-    get end_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Get the terminal state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  Terminal state styles are automatically determined by the machine.  Any
-     *  state without a valid exit transition is terminal.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.terminal_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
-     *  console.log(light.terminal_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for terminal states.
-     *
-     */
-    get terminal_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Get the style for the active state.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.active_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; active_state: { shape: circle; };`;
-     *  console.log(light.active_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for the active state.
-     *
-     */
-    get active_state_style(): JssmStateConfig;
-    /********
-     *
-     *  Generate the uniform observational-hook registry — every currently
-     *  registered hook projected onto a normalized `(kind, target, phase)` row
-     *  (megaspec §12, → #1357).  The registry is *generated* on demand by
-     *  walking the concrete per-kind storage tables rather than maintained as a
-     *  second copy, so it can never drift from the tables {@link Machine.set_hook}
-     *  actually dispatches into.  It is the single source of truth behind the
-     *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
-     *  and the `hooked_state` viz styling.
-     *
-     *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
-     *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
-     *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
-     *  transition-class, and `everything` observers become `{ scope: 'global' }`.
-     *
-     *  ```typescript
-     *  const m = sm`a 'go' -> b;`;
-     *  m.hook_entry('b', () => true);
-     *  m.hook_registry();
-     *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
-     *  ```
-     *
-     *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
-     *  table-walk order (pre-phase tables first, then post-phase).
-     *
-     */
-    hook_registry(): HookRegistryEntry[];
-    /********
-     *
-     *  Does a single registry entry reference the state `state`?  An entry
-     *  references a state when it is a `'state'`-scoped hook on that state, or an
-     *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
-     *  `'global'`-scoped entries reference no particular state.  This is the
-     *  predicate behind both per-state introspection and the `hooked_state`
-     *  styling layer.
-     *
-     *  @param entry The registry entry to test.
-     *  @param state The state name to test membership of.
-     *  @returns `true` when the entry observes that state.
-     *
-     */
-    private static _entry_touches_state;
-    /********
-     *
-     *  Does a single registry entry match a `{ from, to, action? }` edge query?
-     *  Only `'edge'`-scoped entries can match.  When the query omits `action`
-     *  the entry's action (if any) is ignored; when the query supplies `action`
-     *  it must match exactly.
-     *
-     *  @param entry The registry entry to test.
-     *  @param from  The edge origin to match.
-     *  @param to    The edge destination to match.
-     *  @param action Optional named action to match exactly.
-     *  @returns `true` when the entry observes that edge.
-     *
-     */
-    private static _entry_matches_edge;
-    /********
-     *
-     *  Does a single registry entry match an action name?  Both `'action'`-scoped
-     *  hooks (global-action hooks) and named-edge hooks carrying that action
-     *  count as matches.
-     *
-     *  @param entry  The registry entry to test.
-     *  @param action The action name to match.
-     *  @returns `true` when the entry observes that action.
-     *
-     */
-    private static _entry_matches_action;
-    /********
-     *
-     *  Does a single registry entry match a named state group?  Only
-     *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
-     *  are matched by group name only — they deliberately do not propagate to
-     *  member states, so a member-state query never returns them.
-     *
-     *  @param entry The registry entry to test.
-     *  @param group The group name to match.
-     *  @returns `true` when the entry observes that group's boundary.
-     *
-     */
-    private static _entry_matches_group;
-    /********
-     *
-     *  Return every registry entry observing the given target (megaspec §12).
-     *  The `query` selects the target shape:
-     *
-     *  - a bare **state name** matches entry/exit/after hooks on that state, its
-     *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
-     *  - a `{ from, to, action? }` **edge** matches edge hooks on that
-     *    transition (optionally narrowed to the named action),
-     *  - a `{ action }` **action** matches global-action and named-edge hooks
-     *    carrying that action,
-     *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
-     *    are matched by name only and do not propagate to member states).
-     *
-     *  ```typescript
-     *  const m = sm`a 'go' -> b;`;
-     *  m.hook_entry('b', () => true);
-     *  m.hooks_on('b').length;             // 1
-     *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
-     *  ```
-     *
-     *  @param query The {@link HookQuery} naming the target to inspect.
-     *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
-     *
-     */
-    hooks_on(query: HookQuery): HookRegistryEntry[];
-    /********
-     *
-     *  Is at least one observational hook bound to the given target (megaspec
-     *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
-     *  optional `phase` narrows the test to pre- or post-transition hooks only;
-     *  omitted, either phase satisfies it.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.has_hook('b');                 // false
-     *  m.hook_entry('b', () => true);
-     *  m.has_hook('b');                 // true
-     *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
-     *  ```
-     *
-     *  @param query The {@link HookQuery} naming the target to inspect.
-     *  @param phase Optional {@link HookPhase} to restrict the test to.
-     *  @returns `true` when a matching hook exists.
-     *
-     */
-    has_hook(query: HookQuery, phase?: HookPhase): boolean;
-    /********
-     *
-     *  Does the given state carry any observational hook — i.e. should it receive
-     *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
-     *  bound to the state, any edge hook touches it, or the state has its own
-     *  boundary hook.  Group-boundary hooks do *not* count here — they are
-     *  matched by group only and never propagate to member states.  Powers the
-     *  `hooked` styling layer in {@link Machine.resolve_state_config}; replaces
-     *  the long-stubbed `has_hooks` placeholder (megaspec §12).
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.state_has_hooks('a');          // false
-     *  m.hook_exit('a', () => true);
-     *  m.state_has_hooks('a');          // true
-     *  ```
-     *
-     *  @param state The state to test.
-     *  @returns `true` when the state is observed by at least one hook.
-     *
-     */
-    state_has_hooks(state: StateType): boolean;
-    /********
-     *
-     *  Resolves the full unified style/config cascade for a state — the runtime
-     *  successor to the ad-hoc layer merge {@link style_for} used to perform.
-     *
-     *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
-     *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-     *  per-state config.  The cache is keyed by state; those tiers do not depend
-     *  on which state is current, so it survives transitions, but the mutable
-     *  cascade inputs each clear it when they change — hook registration and
-     *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
-     *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
-     *  per-kind theme layers).
-     *
-     *  For the machine's CURRENTLY-occupied state the result is recomputed each
-     *  call (never cached) and additionally carries the dynamic `active_state`
-     *  layers: the active-state THEME layers fold in just below the per-state
-     *  config (tier 3-active), and the user `active_state : { … }` overlay folds
-     *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses `merge_state_config`, so a key set at a lower tier is
-     *  overridden — never rejected — by a higher one.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
-     *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to compute the composite config for.
-     *
-     *  @returns The fully composited {@link JssmStateConfig} for the state,
-     *  including the active overlay when the state is current.
-     *
-     *  @see style_for
-     *
-     */
-    resolve_state_config(state: StateType): JssmStateConfig;
-    /********
-     *
-     *  Gets the composite style for a specific node — the public viz entry point,
-     *  now a thin wrapper over the unified config cascade in
-     *  {@link resolve_state_config}.
-     *
-     *  The order of composition runs least-specific to most-specific: theme
-     *  defaults, then the `default_state_config` root, then per-kind defaults
-     *  (terminal, start, end), then depth-ordered group metadata (inner groups
-     *  winning over outer), then the per-state config, and finally — for the
-     *  current state only — the active overlay.  Last wins at every tier.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to compute the composite style for.
-     *
-     *  @returns The fully composited {@link JssmStateConfig} for the given state.
-     *
-     *  @see resolve_state_config
-     *
-     */
-    style_for(state: StateType): JssmStateConfig;
-    /********
-     *
-     *  Instruct the machine to complete an action.  Synonym for {@link action}.
-     *
-     *  ```typescript
-     *  const light = sm`
-     *    off 'start' -> red;
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off;
-     *  `;
-     *
-     *  light.state();       // 'off'
-     *  light.do('start');   // true
-     *  light.state();       // 'red'
-     *  light.do('next');    // true
-     *  light.state();       // 'green'
-     *  light.do('next');    // true
-     *  light.state();       // 'yellow'
-     *  light.do('dance');   // !! false - no such action
-     *  light.state();       // 'yellow'
-     *  light.do('start');   // !! false - yellow does not have the action start
-     *  light.state();       // 'yellow'
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.act('next');           // true
+     *  light.state();               // 'green'
+     *  light.act('dance');          // false - no such action
+     *  light.state();               // 'green'
      *  ```
      *
      *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param actionName The action to engage
      *
-     *  @param newData The data change to insert during the action
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
      *
      *  @returns `true` if the action was valid and the transition occurred,
      *  `false` otherwise.
+     *
+     *  @see act
+     *
+     */
+    act(actionName: StateType, newData?: mDT): boolean;
+    /**
+     *  Get the standard style for a single state.  Delegates to the style
+     *  family's {@link standard_state_style}, which carries the full contract
+     *  and example.
+     *  @see standard_state_style
+     */
+    get standard_state_style(): JssmStateConfig;
+    /**
+     *  Get the hooked state style.  Delegates to the style family's
+     *  {@link hooked_state_style}, which carries the full contract and
+     *  example.
+     *  @see hooked_state_style
+     */
+    get hooked_state_style(): JssmStateConfig;
+    /**
+     *  Get the start state style.  Delegates to the style family's
+     *  {@link start_state_style}, which carries the full contract and example.
+     *  @see start_state_style
+     */
+    get start_state_style(): JssmStateConfig;
+    /**
+     *  Get the end state style.  Delegates to the style family's
+     *  {@link end_state_style}, which carries the full contract and example.
+     *  @see end_state_style
+     */
+    get end_state_style(): JssmStateConfig;
+    /**
+     *  Get the terminal state style.  Delegates to the style family's
+     *  {@link terminal_state_style}, which carries the full contract and
+     *  example.
+     *  @see terminal_state_style
+     */
+    get terminal_state_style(): JssmStateConfig;
+    /**
+     *  Get the style for the active state.  Delegates to the style family's
+     *  {@link active_state_style}, which carries the full contract and
+     *  example.
+     *  @see active_state_style
+     */
+    get active_state_style(): JssmStateConfig;
+    /**
+     *  Generate the uniform observational-hook registry.  Delegates to the
+     *  hooks family's {@link hook_registry}, which carries the full contract
+     *  and examples.
+     *  @returns Every registered hook as a {@link HookRegistryEntry}.
+     *  @see hook_registry
+     */
+    hook_registry(): HookRegistryEntry[];
+    /**
+     *  Return every registry entry observing the given target.  Delegates to
+     *  the hooks family's {@link hooks_on}.
+     *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+     *  @see hooks_on
+     */
+    hooks_on(query: HookQuery): HookRegistryEntry[];
+    /**
+     *  Is at least one observational hook bound to the given target?
+     *  Delegates to the hooks family's {@link has_hook}.
+     *  @returns `true` when a matching hook exists.
+     *  @see has_hook
+     */
+    has_hook(query: HookQuery, phase?: HookPhase): boolean;
+    /**
+     *  Does the given state carry any observational hook?  Delegates to the
+     *  hooks family's {@link state_has_hooks}.
+     *  @returns `true` when the state is observed by at least one hook.
+     *  @see state_has_hooks
+     */
+    state_has_hooks(state: StateType): boolean;
+    /**
+     *  Resolves the full unified style/config cascade for a state.  Delegates
+     *  to the style family's {@link resolve_state_config}, which carries the
+     *  full contract and example.
+     *  @see resolve_state_config
+     */
+    resolve_state_config(state: StateType): JssmStateConfig;
+    /**
+     *  Gets the composite style for a specific node — the public viz entry
+     *  point.  Delegates to the style family's {@link style_for}, which
+     *  carries the full contract.
+     *  @see style_for
+     */
+    style_for(state: StateType): JssmStateConfig;
+    /********
+     *
+     *  Instruct the machine to complete an action.  Synonym for {@link action}
+     *  and {@link act}; the class form of the transition family's {@link act},
+     *  which carries the full contract and example.  Prefer `act()` — `do` is a
+     *  JavaScript reserved word, so it has no function form and is deprecated
+     *  here.
+     *
+     *  ```typescript
+     *  import { sm } from 'jssm/compat';
+     *
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
+     *
+     *  light.state();        // 'off'
+     *  light.act('start');   // true  - the preferred spelling
+     *  light.state();        // 'red'
+     *  light.do('next');     // true  - still works, but deprecated
+     *  light.state();        // 'green'
+     *  light.act('dance');   // !! false - no such action
+     *  light.state();        // 'green'
+     *  ```
+     *
+     *  @deprecated Use act() or action(); do is a JavaScript reserved word and has no function form. Removal is tracked as StoneCypher/fsl#1992.
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param actionName The action to engage
+     *
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
+     *  @see act
      *
      */
     do(actionName: StateType, newData?: mDT): boolean;
     /********
      *
-     *  Instruct the machine to complete a transition.  Synonym for {@link go}.
+     *  Instruct the machine to complete a transition.  Synonym for {@link go};
+     *  the class form of the transition family's {@link transition}, which
+     *  carries the full contract and example.
      *
      *  ```typescript
      *  const light = sm`
@@ -3767,27 +2650,27 @@ declare class Machine<mDT> {
      *  light.state();       // 'off'
      *  light.go('red');     // true
      *  light.state();       // 'red'
-     *  light.go('green');   // true
-     *  light.state();       // 'green'
      *  light.go('blue');    // !! false - no such state
-     *  light.state();       // 'green'
-     *  light.go('red');     // !! false - green may not go directly to red, only to yellow
-     *  light.state();       // 'green'
+     *  light.state();       // 'red'
      *  ```
      *
      *  @typeParam mDT The type of the machine data member; usually omitted
      *
      *  @param newState The state to switch to
      *
-     *  @param newData The data change to insert during the transition
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
      *
      *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+     *
+     *  @see transition
      *
      */
     transition(newState: StateType, newData?: mDT): boolean;
     /********
      *
-     *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
+     *  Instruct the machine to complete a transition.  Synonym for {@link transition};
+     *  the class form of the transition family's {@link go}.
      *
      *  ```typescript
      *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -3801,16 +2684,21 @@ declare class Machine<mDT> {
      *
      *  @param newState The state to switch to
      *
-     *  @param newData The data change to insert during the transition
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
      *
      *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+     *
+     *  @see go
      *
      */
     go(newState: StateType, newData?: mDT): boolean;
     /********
      *
      *  Instruct the machine to complete a forced transition (which will reject if
-     *  called with a normal {@link transition} call.)
+     *  called with a normal {@link transition} call.)  The class form of the
+     *  transition family's {@link force_transition}, which carries the full
+     *  contract and example.
      *
      *  ```typescript
      *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -3826,93 +2714,107 @@ declare class Machine<mDT> {
      *
      *  @param newState The state to switch to
      *
-     *  @param newData The data change to insert during the transition
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
      *
      *  @returns `true` if a transition (forced or otherwise) existed and occurred,
      *  `false` otherwise.
      *
+     *  @see force_transition
+     *
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
     /**
-     * Get the edge index for an action from the current state.
-     *  Interned dispatch: resolves via the numeric (action, from) index —
-     *  unknown action names miss without throwing.
-     *  @param action - The action name.
-     *  @returns The edge index, or `undefined` if the action is not available.
+     * Get the edge index for an action from the current state.  Delegates to
+     *  the query family's {@link current_action_for}, which carries the full
+     *  contract.
+     *  @see current_action_for
      */
     current_action_for(action: StateType): number;
     /**
      * Get the full transition object for an action from the current state.
-     *  @param action - The action name.
-     *  @returns The {@link JssmTransition} object.
+     *  Delegates to the query family's {@link current_action_edge_for}.
      *  @throws {JssmError} If the action is not available from the current state.
+     *  @see current_action_edge_for
      */
     current_action_edge_for(action: StateType): JssmTransition<StateType, mDT>;
     /**
-     * Check whether an action is available from the current state.
+     * Check whether an action is available from the current state.  Delegates
+     *  to the transition family's {@link valid_action}.
      *  @param action   - The action name to check.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if the action can be taken.
+     *  @see valid_action
      */
     valid_action(action: StateType, _newData?: mDT): boolean;
     /**
      * Check whether a transition to a given state is legal (non-forced) from
-     *  the current state.
+     *  the current state.  Delegates to the transition family's
+     *  {@link valid_transition}.
      *  @param newState - The target state.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if the transition is legal.
+     *  @see valid_transition
      */
     valid_transition(newState: StateType, _newData?: mDT): boolean;
     /**
      * Check whether a forced transition to a given state exists from the
-     *  current state.
+     *  current state.  Delegates to the transition family's
+     *  {@link valid_force_transition}.
      *  @param newState - The target state.
      *  @param _newData - Reserved for future data validation.
      *  @returns `true` if a forced (or any) transition exists.
+     *  @see valid_force_transition
      */
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
     /**
-     * Get the instance name of this machine, if one was assigned at creation.
-     *  @returns The instance name string, or `undefined`.
+     * Get the instance name of this machine.  Delegates to the create family's
+     *  {@link instance_name}.
+     *  @see instance_name
      */
     instance_name(): string | undefined;
     /**
-     * Get the creation date of this machine as a `Date` object.
-     *  @returns A `Date` representing when the machine was created.
+     * Get the creation date of this machine as a `Date` object.  Delegates to
+     *  the create family's {@link creation_date}.
+     *  @see creation_date
      */
     get creation_date(): Date;
     /**
-     * Get the creation timestamp (milliseconds since epoch).
-     *  @returns The timestamp as a number.
+     * Get the creation timestamp (milliseconds since epoch).  Delegates to the
+     *  create family's {@link creation_timestamp}.
+     *  @see creation_timestamp
      */
     get creation_timestamp(): number;
     /**
-     * Get the timestamp when construction began (before parsing).
-     *  @returns The start-of-construction timestamp as a number.
+     * Get the timestamp when construction began (before parsing).  Delegates
+     *  to the create family's {@link create_start_time}.
+     *  @see create_start_time
      */
     get create_start_time(): number;
     /**
-     * Schedule an automatic transition to `next_state` after `after_time`
-     *  milliseconds.  Only one timeout may be active at a time.
-     *  @param next_state - The state to transition to when the timer fires.
-     *  @param after_time - Delay in milliseconds.
-     *  @throws {JssmError} If a timeout is already pending.
+     *  Schedule an automatic transition to `next_state` after `after_time`
+     *  milliseconds.  Delegates to the timers family's
+     *  {@link set_state_timeout}, which carries the full contract.
+     *  @throws JssmError If a timeout is already pending.
+     *  @see set_state_timeout
      */
     set_state_timeout(next_state: StateType, after_time: number): void;
     /**
-      Cancel any pending state timeout.  Safe to call when no timeout is active.
+     *  Cancel any pending state timeout.  Delegates to the timers family's
+     *  {@link clear_state_timeout}.
+     *  @see clear_state_timeout
      */
     clear_state_timeout(): void;
     /**
-     * Get the configured `after` timeout for a given state, if any.
-     *  @param which_state - The state to look up.
-     *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
-     *  is configured for that state.
+     *  Get the configured `after` timeout for a given state, if any.
+     *  Delegates to the timers family's {@link state_timeout_for}.
+     *  @see state_timeout_for
      */
     state_timeout_for(which_state: StateType): [StateType, number] | undefined;
     /**
-     * Get the configured `after` timeout for the current state, if any.
-     *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
+     *  Get the pending state timeout, if any.  Delegates to the timers
+     *  family's {@link current_state_timeout}.
+     *  @see current_state_timeout
      */
     current_state_timeout(): [StateType, number] | undefined;
     /**
@@ -3923,7 +2825,29 @@ declare class Machine<mDT> {
      *  @returns A new {@link Machine} instance.
      */
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
+
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
+declare const version: string;
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
+declare const build_time: number;
 
 /**
  *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
@@ -4079,7 +3003,6 @@ declare function undoublequote(txt: string): string;
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.

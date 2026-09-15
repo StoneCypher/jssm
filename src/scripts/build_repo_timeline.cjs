@@ -1,0 +1,350 @@
+/**
+ *  build_repo_timeline — emit the curated ecosystem-repo timeline dataset that
+ *  seeds the fsl#1965 alluvial / Sankey addendum (repos flowing in and out of
+ *  the monorepo over time).
+ *
+ *  The CURATED layer — which repos belong, their maintainer-assigned category,
+ *  the maintainer's asides, and the supersession graph ("obsoleted by") — is
+ *  embedded here as the source of truth. Category labels are kept VERBATIM and
+ *  separate from any derived colour, so they drive palette management downstream
+ *  (the same principle the size archaeology follows: raw truth in the data,
+ *  interpretation in the renderer). Live repo metadata (visibility, archived,
+ *  description) is fetched from GitHub via `gh` at run time and joined in.
+ *
+ *  Usage:
+ *    node src/scripts/build_repo_timeline.cjs --out <dir> [--owner <login>]
+ *
+ *    --out <dir>     Directory the dataset file (repos.json) is written to (required).
+ *    --owner <login> GitHub account to read metadata from (default StoneCypher).
+ *
+ *  @see collect_package_sizes.cjs — the size archaeology this sits beside on perf_results.
+ */
+
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+
+const DEFAULT_OWNER = 'StoneCypher';
+
+// Curated categorisation, verbatim labels, in the maintainer's listed order.
+// An entry is "name" or "name || aside".
+const CATEGORIES = [
+  ['replaced by newer work', [
+    'sublime-fsl', 'sublime-jssm', 'jssm_mini_demo', 'jssm-mcp',
+  ]],
+  ['proof of concept, needs to be updated', [
+    'alpha-highlightjs-fsl', 'fsl-pegjs',
+  ]],
+  ['wanted but hasn’t taken off', [
+    'typedoc-plugin-fsl',
+    'require_jssm || should be require_fsl',
+    'jssm-viz-action || should be fsl-viz-action and maybe should be an application instead, haven’t thought it through',
+    'fsl_gen_docpage', 'fslbook', 'fsllang.com', 'fsl.tools', 'jssm-tutorial-scratch',
+  ]],
+  ['wanted but never took off, obsoleted by new work', [
+    'fsl-code', 'fsl-lezer', 'fsl-lezer-demo', 'fslc', 'fsled', 'fsli', 'fslp', 'fsllint',
+  ]],
+  ['wanted, replacement is in jssm as newer work, needs to take over the old repo', [
+    'fsl-spec',
+  ]],
+  ['current', [
+    'jssm', 'vscode-fsl', 'fsl-mcp', 'codemirror-lang-fsl', 'fsl-textmate',
+    'highlightjs/highlightjs-fsl || upstream home of the highlight.js grammar; lives under the highlightjs org, not StoneCypher',
+  ]],
+  ['remaindered because interned into main', [
+    'jssm-viz', 'jssm-viz-cli', 'jssm-viz-demo',
+  ]],
+  ['wanted, never took off, new work waiting on org transfer', [
+    'fsl',
+  ]],
+];
+
+// Supersession graph: repo -> [successor repo, optional aspect]. These are the
+// alluvial's flow edges; note how many resolve to jssm (the consolidation inflow).
+const OBSOLETION = {
+  'alpha-highlightjs-fsl': ['highlightjs/highlightjs-fsl', 'grammar upstreamed'],
+  'fsl-code':       ['vscode-fsl'],
+  'fsl-lezer':      ['codemirror-lang-fsl'],
+  'fsl-lezer-demo': ['codemirror-lang-fsl'],
+  'fslc':           ['jssm', 'cli work'],
+  'fsli':           ['jssm', 'cli work'],
+  'fslp':           ['jssm', 'cli work'],
+  'fsllint':        ['jssm', 'cli work'],
+  'fsled':          ['jssm', 'cli work'],
+  'sublime-fsl':    ['fsl-textmate'],
+  'sublime-jssm':   ['fsl-textmate'],
+  'jssm_mini_demo': ['jssm', 'lit tags'],
+
+  //  Never built: one commit on 2026-03-07, three files, 2 KB, pushed one
+  //  second after creation. A name reservation that the `jssm-*` -> `fsl-*`
+  //  rename made moot before anything was written. Deprecated and archived
+  //  2026-07-29; without this edge it read as orphaned work rather than as a
+  //  resolved renaming.
+  'jssm-mcp':       ['fsl-mcp', 'renamed before any work landed'],
+};
+
+
+// Non-npm shipping channels: repo -> the channel it actually reaches users
+// through. npm is deliberately ABSENT here, because it is derived rather than
+// declared -- the chart already knows which repos are npm streams, and listing
+// them again would let the two sources disagree.
+//
+// This exists because the diagram previously drew "ships somewhere that isn't
+// npm" and "never shipped at all" identically, as bare lifespan rails. A VS
+// Code extension with thousands of installs looked exactly like an abandoned
+// experiment. Absence from this map now means genuinely unshipped, which is a
+// claim worth being able to make.
+//
+// Verified 2026-07-27 against each repo's own manifest, GitHub's pages API,
+// and the live sites -- not inferred from names.
+// A `url` is the receipt: it is what makes the claim checkable by someone who
+// did not do the checking. Entries without one are asserted from repo evidence
+// and should be treated as weaker.
+const SHIPS = {
+  // editor and CI marketplaces
+  'sublime-fsl':     { channel: 'sublime-package-control',
+                       url: 'https://packagecontrol.io/packages/FSL%20-%20Finite%20State%20Language' },
+  'sublime-jssm':    { channel: 'sublime-package-control' },
+  'jssm-viz-action': { channel: 'github-actions-marketplace' },  // consumed by `uses:`, never installed
+
+  // consumed straight from git, by editors that read the grammar
+  'fsl-textmate':    { channel: 'git' },
+
+  // prose and normative text
+  'fsl':             { channel: 'spec' },   // also an npm name and a Pages site; the spec is the product
+  'fsl-spec':        { channel: 'spec' },
+  'fslbook':         { channel: 'book' },
+
+  // the site IS the deliverable
+  'fsl.tools':            { channel: 'website', url: 'https://fsl.tools/' },   // verified live; Pages from master/docs
+  'fsllang.com':          { channel: 'website' },   // website-basis by intent; NO Pages, never served
+  'jssm_mini_demo':       { channel: 'website' },   // the hosted demo is the deliverable
+  'jssm-tutorial-scratch':{ channel: 'website' },   // Pages from master/, though the repo calls itself scratch
+  'fsl-lezer-demo':       { channel: 'website' },   // demo that never went up; no Pages
+
+  //  DELIBERATELY ABSENT: vscode-fsl.
+  //
+  //  Its manifest looks shipped -- publisher StoneCypher, `vsce package`,
+  //  galleryBanner, engines.vscode -- and an earlier pass classified it
+  //  `vscode-marketplace` on exactly that evidence. That evidence proves
+  //  INTENT TO PACKAGE, not publication. Checked 2026-07-27:
+  //    marketplace.visualstudio.com/items?itemName=StoneCypher.vscode-fsl  404
+  //    open-vsx.org/api/StoneCypher/vscode-fsl                            404
+  //    GitHub releases 0.1.0 .. 0.3.2 (Jul 2026) carry NO .vsix assets
+  //  So there is no installable artifact anywhere: a user cannot get it
+  //  without building from source. Add an entry the day it publishes.
+};
+
+
+/**
+ *  Parse CLI flags.
+ *
+ *  @param argv - `process.argv.slice(2)`.
+ *  @returns `{ outDir, owner }`.
+ *  @throws {Error} On an unknown flag or a missing `--out`.
+ */
+function parseArgs(argv) {
+  const opts = { outDir: null, owner: DEFAULT_OWNER };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if      (a === '--out')   { opts.outDir = argv[++i]; }
+    else if (a === '--owner') { opts.owner  = argv[++i]; }
+    else { throw new Error(`unknown flag: ${a}`); }
+  }
+  if (!opts.outDir) { throw new Error('--out <dir> is required'); }
+  return opts;
+}
+
+
+/**
+ *  Fetch every repo's metadata for an owner via `gh`, as a Map keyed by name.
+ *
+ *  `created`/`lastPush` are the repo's lifespan, which is what the Sankey draws
+ *  a non-npm repo's rail across. `created` is repo-creation, not first-commit:
+ *  for a repo whose history was imported from elsewhere the rail therefore
+ *  starts when the work arrived on GitHub, not when it began. Every repo in
+ *  this dataset was started on GitHub, so the two coincide; the distinction is
+ *  recorded because a future import would silently break that assumption.
+ *  `lastPush` is the last push, which for an archived repo is its freeze point.
+ *
+ *  @param owner - GitHub account login.
+ *  @returns Map(name -> { visibility, archived, fork, description, created, lastPush }).
+ *  @throws {Error} If `gh` is unavailable or the call fails.
+ */
+function fetchRepoMeta(owner) {
+  const out = execFileSync('gh', [
+    'repo', 'list', owner, '--limit', '2000',
+    '--json', 'name,description,isPrivate,isArchived,isFork,createdAt,pushedAt',
+  ], { encoding: 'utf8', windowsHide: true });
+  const meta = new Map();
+  for (const r of JSON.parse(out)) {
+    meta.set(r.name, {
+      visibility:  r.isPrivate ? 'private' : 'public',
+      archived:    !!r.isArchived,
+      fork:        !!r.isFork,
+      description: r.description || null,
+      created:     r.createdAt || null,
+      lastPush:    r.pushedAt  || null,
+    });
+  }
+  for (const [name, m] of fetchForeignMeta()) { meta.set(name, m); }
+  return meta;
+}
+
+
+/**
+ *  Fetch the repos that live under a DIFFERENT owner, one call each.
+ *
+ *  An entry written `owner/name` in {@link CATEGORIES} is not returned by
+ *  `gh repo list <ourOwner>`, so it is looked up individually and keyed by its
+ *  full `owner/name`. This is how work that got adopted upstream -- a grammar
+ *  merged into the highlight.js org, say -- stays visible in the timeline
+ *  instead of silently dropping out of the ecosystem's story.
+ *
+ *  @returns Map(`owner/name` -> the same shape {@link fetchRepoMeta} produces).
+ *  @throws {Error} If `gh` is unavailable or a named repo cannot be read.
+ *
+ *  @example
+ *  fetchForeignMeta().get('highlightjs/highlightjs-fsl').visibility   // => 'public'
+ */
+function fetchForeignMeta() {
+  const full = [];
+  for (const [, entries] of CATEGORIES) {
+    for (const entry of entries) {
+      const name = entry.split(' || ')[0];
+      if (name.includes('/')) { full.push(name); }
+    }
+  }
+  const meta = new Map();
+  for (const name of full) {
+    const out = execFileSync('gh', [
+      'repo', 'view', name,
+      '--json', 'description,isPrivate,isArchived,isFork,createdAt,pushedAt',
+    ], { encoding: 'utf8', windowsHide: true });
+    const r = JSON.parse(out);
+    meta.set(name, {
+      visibility:  r.isPrivate ? 'private' : 'public',
+      archived:    !!r.isArchived,
+      fork:        !!r.isFork,
+      description: r.description || null,
+      created:     r.createdAt || null,
+      lastPush:    r.pushedAt  || null,
+    });
+  }
+  return meta;
+}
+
+
+/**
+ *  Assemble the dataset object from the curated tables joined with live metadata.
+ *
+ *  @param meta - Map from {@link fetchRepoMeta}.
+ *  @returns The dataset `{ note, categoryOrder, repos }`.
+ *  @throws {Error} On a repo listed under two categories or a dangling supersession target.
+ */
+function buildDataset(meta) {
+  const repos = [], seen = new Set(), categoryOrder = [];
+  for (const [category, entries] of CATEGORIES) {
+    categoryOrder.push(category);
+    for (const entry of entries) {
+      const [name, note] = entry.split(' || ');
+      if (seen.has(name)) { throw new Error(`duplicate repo across categories: ${name}`); }
+      seen.add(name);
+      const m = meta.get(name);
+      if (!m) { console.warn(`WARN: ${name} not found under this owner (typo, renamed, or transferred?)`); }
+      const ob = OBSOLETION[name];
+      repos.push({
+        name,
+        category,
+        note: note || null,
+        ships:   SHIPS[name] ? SHIPS[name].channel : null,
+        shipsAt: (SHIPS[name] && SHIPS[name].url) || null,
+        obsoletedBy: ob ? ob[0] : null,
+        obsoletedByWhat: ob && ob[1] ? ob[1] : null,
+        visibility:  m ? m.visibility : null,
+        archived:    m ? m.archived : null,
+        description: m ? m.description : null,
+        created:     m ? m.created : null,
+        lastPush:    m ? m.lastPush : null,
+      });
+    }
+  }
+  const names = new Set(repos.map(r => r.name));
+  for (const r of repos) {
+    if (r.obsoletedBy && !names.has(r.obsoletedBy)) { throw new Error(`obsoletedBy target not in dataset: ${r.name} -> ${r.obsoletedBy}`); }
+  }
+
+  //  A SHIPS entry for a repo nobody curates is a claim about something the
+  //  diagram will never draw -- almost always a rename or a typo, and silent
+  //  otherwise, since the field is only ever read by name.
+  for (const name of Object.keys(SHIPS)) {
+    if (!names.has(name)) { throw new Error(`SHIPS names a repo not in CATEGORIES: ${name}`); }
+  }
+  return {
+    note: 'Curated ecosystem-repo timeline seed for the fsl#1965 alluvial/Sankey addendum. `category` is verbatim from the maintainer and kept separate from any derived colour so it drives palette management downstream. `note` preserves maintainer asides; `obsoletedBy` is the supersession edge (several resolve to jssm — the monorepo consolidation inflow). `created`/`lastPush` give each repo a lifespan, which is what the Sankey draws a non-npm repo\'s zero-mass rail across; `created` is repo-creation rather than first-commit, so an imported history would start its rail late. Regenerated by src/scripts/build_repo_timeline.cjs.',
+    categoryOrder,
+    repos,
+  };
+}
+
+
+/**
+ *  Audit the curated list against what the owner actually has, so a repo cannot
+ *  sit outside the diagram unnoticed.
+ *
+ *  Two directions, both silent before this existed. A curated name that no
+ *  longer resolves — renamed, transferred, deleted — is warned per-entry inside
+ *  {@link buildDataset}, but never summarised. The other direction is the one
+ *  that actually bites: a real repo nobody ever enrolled simply never appears,
+ *  and the diagram looks complete while missing it.
+ *
+ *  @param curated - Repo names the diagram draws.
+ *  @param ownerRepos - Every repo name found under the owner account.
+ *  @returns `{ missing, unenrolled }`. Cross-owner entries (written
+ *           `owner/name`) are excluded from `missing`: they are fetched
+ *           separately and are not expected in this owner's listing.
+ *           `unenrolled` is filtered to names containing `fsl` or `jssm`,
+ *           because the account holds many unrelated projects and an unfiltered
+ *           list is noise nobody reads — a relevant repo named neither is the
+ *           known blind spot.
+ *
+ *  @example
+ *  auditEnrollment(['jssm', 'highlightjs/highlightjs-fsl'], ['jssm', 'fsl.tools', 'unrelated']);
+ *  // => { missing: [], unenrolled: ['fsl.tools'] }
+ *
+ *  @see buildDataset
+ */
+function auditEnrollment(curated, ownerRepos) {
+  const cur = new Set(curated);
+  const own = new Set(ownerRepos);
+
+  return {
+    missing    : curated.filter(n => !n.includes('/') && !own.has(n)),
+    unenrolled : ownerRepos.filter(n => !cur.has(n) && /fsl|jssm/i.test(n)),
+  };
+}
+
+
+/** Entry point. */
+function main() {
+  const opts = parseArgs(process.argv.slice(2));
+  const meta = fetchRepoMeta(opts.owner);
+  const dataset = buildDataset(meta);
+  fs.mkdirSync(opts.outDir, { recursive: true });
+  fs.writeFileSync(path.join(opts.outDir, 'repos.json'), JSON.stringify(dataset, null, 2) + '\n');
+  console.log(`${dataset.repos.length} repos across ${dataset.categoryOrder.length} categories -> ${path.join(opts.outDir, 'repos.json')}`);
+
+  const audit = auditEnrollment(dataset.repos.map(r => r.name), [...meta.keys()]);
+  console.log(`reconcile: ${dataset.repos.length} curated, ${audit.missing.length} unresolved, ${audit.unenrolled.length} unenrolled`);
+  if (audit.missing.length)    { console.warn(`  curated but not found under ${opts.owner}: ${audit.missing.join(', ')}`); }
+  if (audit.unenrolled.length) { console.warn(`  UNENROLLED fsl/jssm repos — real, but not in the diagram: ${audit.unenrolled.join(', ')}`); }
+}
+
+if (require.main === module) {
+  try { main(); }
+  catch (e) { console.error(`build_repo_timeline failed: ${e.message}`); process.exit(1); }
+}
+
+module.exports = { parseArgs, buildDataset, auditEnrollment, CATEGORIES, OBSOLETION, SHIPS };

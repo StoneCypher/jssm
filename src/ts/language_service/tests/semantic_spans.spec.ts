@@ -33,11 +33,9 @@ describe('fslSemanticSpans', () => {
     expect(doc.slice(quoted!.from, quoted!.to)).toBe('"b c"');
   });
 
-  it('carries the full digit-leading name as value even though the stream tokenizer would split it', () => {
+  it('produces no spans for a digit-leading bareword — it is a rejected (#754) parse error, not a state', () => {
     const doc = '123abc -> b;';
-    const digitLed = fslSemanticSpans(doc).find(s => s.kind === 'state' && doc.slice(s.from, s.to) === '123abc');
-    expect(digitLed).toBeDefined();
-    expect(digitLed!.value).toBe('123abc');
+    expect(fslSemanticSpans(doc)).toEqual([]);
   });
 
   it('marks shape enum values', () => {

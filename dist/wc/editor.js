@@ -162,25 +162,24 @@ const fslTokens = css `
 `;
 
 /**
- * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
- * web-component naming convention.  Centralizes the "match either prefix"
- * rule so it lives in exactly one place.
+ * Shared helpers for the `fsl-*` web-component tag convention.  The `jssm-*`
+ * synonym prefix was removed in 6.0; every registration and lookup now
+ * matches exactly one spelling, so the rule lives in one place.
  */
 /**
- * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
- * (case-insensitive).
- * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` (case-insensitive).
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`).
  * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
- * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ * @returns `true` when `tag_name` is `fsl-<suffix>`.
+ * The retired jssm- prefix (e.g. what was jssm-viz) never matches — 6.0
+ * dropped that spelling entirely.
  * @example
- * wc_suffix_matches('FSL-VIZ', 'viz');   // true
- * wc_suffix_matches('jssm-viz', 'viz');  // true
- * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('FSL-VIZ', 'viz');    // true
  * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
  */
 /**
  * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
- * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
+ * `fsl-<suffix>`, or `null` if none exists.
  * @param el     - The element to start the search from.
  * @param suffix - The suffix to match (e.g. `"instance"`).
  * @returns The closest matching ancestor element, or `null`.
@@ -190,7 +189,7 @@ const fslTokens = css `
  * @see wc_suffix_matches
  */
 function closest_wc(el, suffix) {
-    return el.closest(`fsl-${suffix}, jssm-${suffix}`);
+    return el.closest(`fsl-${suffix}`);
 }
 
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {

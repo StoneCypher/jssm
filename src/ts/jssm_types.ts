@@ -377,6 +377,37 @@ type JssmPropertyDefinition = {
 };
 
 
+/*********
+ *
+ *  The declared type of a machine `val` (extended-state variable): the scalar
+ *  type core — `boolean`, `string`, unbounded or bounded `int lo..hi`, and
+ *  `enum(...)`.  Carried from the grammar to the runtime, where
+ *  `validate_val_value` enforces it at construction and on every write.
+ *
+ */
+
+type JssmValType =
+  | { kind: 'boolean' }
+  | { kind: 'string' }
+  | { kind: 'int', lo?: number, hi?: number }
+  | { kind: 'enum', members: string[] };
+
+
+/*********
+ *
+ *  A machine `val` declaration: a named, typed, validated, mutable
+ *  extended-state variable (the mutable sibling of a `property`).
+ *
+ */
+
+type JssmValDefinition = {
+  name           : string,
+  val_type       : JssmValType,
+  default_value? : any,
+  required?      : boolean
+};
+
+
 
 
 
@@ -396,8 +427,10 @@ type JssmTransitionPermitterMaybeArray<DataType> =
  *  both the topology (`from` / `to`), the FSL semantics (`kind`,
  *  `forced_only`, `main_path`), and any optional metadata such as a
  *  per-edge `name`, an action label, a guard `check`, a transition
- *  `probability` for stochastic models, and an `after_time` for timed
- *  transitions.
+ *  `probability` for stochastic models, a `share` recording this edge's
+ *  fraction of the list side's default weight (6.0 list weights; set only
+ *  when the transition itself declared no `probability`), and an
+ *  `after_time` for timed transitions.
  *  @template StateType - The state-name type (usually `string`).
  *  @template DataType  - The machine's data payload type (`mDT`).
  */
@@ -411,6 +444,7 @@ type JssmTransition<StateType, DataType> = {
   action      ? : StateType,
   check       ? : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
   probability ? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
+  share       ? : number,                                       // within-list share of an unweighted transition's default weight (6.0 list weights); multiplies probability in the picker
   kind          : JssmArrowKind,
   forced_only   : boolean,
   main_path     : boolean
@@ -877,6 +911,17 @@ type JssmGenericConfig<StateType, DataType> = {
   dot_preamble?                  : string,
 
   start_states                   : Array<StateType>,
+
+  /**
+   *  The initial distribution declared by a weighted `start_states` list
+   *  (6.0 list weights), e.g. `start_states: [idle 90% booting 10%];`.
+   *  One entry per name in {@link JssmGenericConfig.start_states}, shares
+   *  normalized to sum to 1.  Absent when `start_states` carried no inner
+   *  weights.  Consumed by `Machine.start_state_weights()` /
+   *  `Machine.sample_start_state()`.
+   */
+  start_state_weights?           : Array<{ name: StateType, share: number }>,
+
   end_states?                    : Array<StateType>,
   failed_outputs?                : Array<StateType>,
 
@@ -885,6 +930,8 @@ type JssmGenericConfig<StateType, DataType> = {
 
   state_declaration?             : object[],
   property_definition?           : JssmPropertyDefinition[],
+  val_definition?                : JssmValDefinition[],
+  vals?                          : { [name: string]: any },
   state_property?                : JssmPropertyDefinition[]
 
   arrange_declaration?           : Array<Array<StateType>>,
@@ -974,6 +1021,40 @@ type JssmGenericConfig<StateType, DataType> = {
 
 
 /**
+ *  One member of a {@link JssmWeightedList}, `name` with an optional
+ *  percent weight. This shape only appears inside a `weighted_list` node,
+ *  which the parser produces only once at least one sibling member carries
+ *  a weight — so a member here with no `weight` is a *mix* of weighted and
+ *  unweighted siblings, which the compiler rejects rather than defaulting.
+ *  @see JssmWeightedList
+ */
+type JssmWeightedListMember = {
+  name     : string,
+  weight ? : number,
+};
+
+/**
+ *  A list target or start-state list carrying per-member weights, as the
+ *  parser emits it for `a 50% -> [b 20% c 80%]` or
+ *  `start_states: [x 90% y 10%];`. Produced only when at least one member
+ *  of the source list carries a weight; a list with no weights parses to a
+ *  plain `Array<string>` instead, so every existing weightless-list
+ *  consumer sees a byte-identical AST.
+ *  @see JssmWeightedListMember
+ *  ```ts
+ *  const to: Array<string> | JssmWeightedList = {
+ *    key: 'weighted_list',
+ *    members: [{ name: 'b', weight: 20 }, { name: 'c', weight: 80 }],
+ *  };
+ *  ```
+ */
+type JssmWeightedList = {
+  key      : 'weighted_list',
+  members  : Array<JssmWeightedListMember>,
+  loc    ? : FslSourceLocation,
+};
+
+/**
  *  Internal compiler intermediate: a single aggregated rule produced while
  *  folding a parse tree into a machine configuration.  Not intended for
  *  end-user code.
@@ -1049,6 +1130,7 @@ type JssmCompileSeStart<StateType, DataType> = {
   state?         : string,
   default_value? : any,     // for properties
   required?      : boolean, // for properties
+  val_type?      : JssmValType, // for vals
 
   loc            ? : FslSourceLocation,
   from_loc       ? : FslSourceLocation,
@@ -1790,6 +1872,9 @@ export {
     JssmCompileSeStart,
     JssmCompileRule,
 
+  JssmWeightedListMember,
+    JssmWeightedList,
+
   JssmPermitted,
     JssmPermittedOpt,
     JssmResult,
@@ -1816,6 +1901,8 @@ export {
   JssmHistory,
   JssmSerialization,
   JssmPropertyDefinition,
+  JssmValType,
+  JssmValDefinition,
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmDefaultSize,

@@ -1,7 +1,7 @@
 
 import { sm, compile, parse } from '../jssm';
 
-import { test_range_with, atom_skips } from './unicode.uspec-driver';
+import { test_range_with, atom_skips, bareword_ok, quoted } from './unicode.uspec-driver';
 
 
 
@@ -17,21 +17,37 @@ const group_name_test = (idx: number): boolean => {
 
   const cp = String.fromCodePoint(idx);
 
-  if (!(atom_skips.includes(cp))) {
+  if (atom_skips.includes(cp)) { return true; }
 
-    let ast;
+  let ast;
+
+  if (bareword_ok(cp)) {
 
     try {
       ast = parse(`&${cp}: [a b]; a -> b;`);
     } catch {
-      throw new Error(`Broke on ${idx} "${cp}"`);
+      throw new Error(`Bareword broke on ${idx} "${cp}"`);
     }
 
-    const decl = ast.find((t: any) => t.key === 'named_list');
+  } else {
 
-    expect( decl?.name ).toBe(cp);
+    // not an identifier character: the bareword form must be rejected, and
+    // the quoted form must work everywhere the bareword used to
+    expect(() => parse(`&${cp}: [a b]; a -> b;`)).toThrow();
+
+    const q = quoted(cp);
+
+    try {
+      ast = parse(`&${q}: [a b]; a -> b;`);
+    } catch {
+      throw new Error(`Quoted form broke on ${idx} ${q}`);
+    }
 
   }
+
+  const decl = ast.find((t: any) => t.key === 'named_list');
+
+  expect( decl?.name ).toBe(cp);
 
   return true;
 

@@ -1,6 +1,6 @@
 
 import * as fc   from 'fast-check';
-import * as jssm from '../jssm';
+import * as jssm from '../compat';
 
 import { chain_plan_arb, ring_plan_arb } from './stoch_helpers';
 import type { MachinePlan }              from './stoch_helpers';

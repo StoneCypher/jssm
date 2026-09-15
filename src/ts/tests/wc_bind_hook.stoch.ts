@@ -176,7 +176,7 @@ describe('set_on_element', () => {
 
 describe('install_bindings', () => {
 
-  test('inline data-jssm-bind paints immediately and repaints per transition; unsubscribe freezes it', () => {
+  test('inline data-fsl-bind paints immediately and repaints per transition; unsubscribe freezes it', () => {
 
     fc.assert(
       fc.property(
@@ -187,7 +187,7 @@ describe('install_bindings', () => {
 
           const host = document.createElement('div');
           const span = document.createElement('span');
-          span.dataset.jssmBind = 'state';
+          span.dataset.fslBind = 'state';
           host.append(span);
 
           const unsubs = install_bindings(host, machine);
@@ -234,13 +234,13 @@ describe('install_bindings', () => {
           expect(target.textContent).toBe('ia');
 
           const broken = document.createElement('div');
-          const tag = document.createElement('jssm-bind');
+          const tag = document.createElement('fsl-bind');
           tag.setAttribute('source', 'state');
           broken.append(tag);
           expect(() => install_bindings(broken, machine)).toThrow(/selector/);
 
           const broken2 = document.createElement('div');
-          const tag2 = document.createElement('jssm-bind');
+          const tag2 = document.createElement('fsl-bind');
           tag2.setAttribute('selector', 'p');
           broken2.append(tag2);
           expect(() => install_bindings(broken2, machine)).toThrow(/source/);
@@ -297,7 +297,7 @@ describe('hook element parsing and wrapping', () => {
           const handler  = () => true;
           registry.set('myhook', handler);
 
-          const el = document.createElement('jssm-hook');
+          const el = document.createElement('fsl-hook');
           el.setAttribute('handler', 'myhook');
           el.setAttribute('from', from);
           el.setAttribute('to', to);
@@ -330,12 +330,12 @@ describe('hook element parsing and wrapping', () => {
 
   test('mutual exclusion: both forms or neither form throw', () => {
 
-    const both = document.createElement('jssm-hook');
+    const both = document.createElement('fsl-hook');
     both.setAttribute('handler', 'x');
     both.textContent = 'return true';
     expect(() => parse_hook_element(both, 'stoch')).toThrow(/not both/);
 
-    const neither = document.createElement('jssm-hook');
+    const neither = document.createElement('fsl-hook');
     expect(() => parse_hook_element(neither, 'stoch')).toThrow(/must specify/);
 
   });

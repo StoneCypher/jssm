@@ -172,64 +172,75 @@ const named_colors = [
  */
 
 /**
- *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
- *  legal in any but the first position of an FSL state name (atom).
- *
- *  Includes ASCII digits/letters and the symbols
- *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
- *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *  Inclusive ASCII character ranges accepted in any but the first position of
+ *  an FSL bareword (state / property / val / enum-member name): digits,
+ *  letters, and underscore.  Non-ASCII characters are classified by
+ *  {@link is_state_name_char}, which is the complete rule; this table exists
+ *  for tooling that wants the ASCII portion as ranges.
  *  @example
  *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
+ *  state_name_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ *  @see is_state_name_char
  */
-// keep in sync with src/ts/fsl_parser.peg:267
+// keep in sync with AtomLetter in src/ts/fsl_parser.peg (#754)
 const state_name_chars: ReadonlyArray<{ from: string, to: string }> = Object.freeze([
-  { from: '0',      to: '9'      },
-  { from: 'a',      to: 'z'      },
-  { from: 'A',      to: 'Z'      },
-  { from: '.',      to: '.'      },
-  { from: '+',      to: '+'      },
-  { from: '_',      to: '_'      },
-  { from: '^',      to: '^'      },
-  { from: '(',      to: '('      },
-  { from: ')',      to: ')'      },
-  { from: '*',      to: '*'      },
-  { from: '&',      to: '&'      },
-  { from: '$',      to: '$'      },
-  { from: '#',      to: '#'      },
-  { from: '@',      to: '@'      },
-  { from: '!',      to: '!'      },
-  { from: '?',      to: '?'      },
-  { from: ',',      to: ','      },
-  { from: '\u{80}', to: '\u{FFFF}' },
+  { from: '0', to: '9' },
+  { from: 'a', to: 'z' },
+  { from: 'A', to: 'Z' },
+  { from: '_', to: '_' },
 ]);
 
 /**
- *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
- *  characters legal in the first position of an FSL state name (atom).
- *
- *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
- *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
- *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *  Inclusive ASCII character ranges accepted in the first position of an FSL
+ *  bareword: letters and underscore (never a digit).  Non-ASCII characters
+ *  are classified by {@link is_state_name_first_char}.
  *  @example
  *  import { state_name_first_chars } from 'jssm';
- *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ *  state_name_first_chars.some(r => '7' >= r.from && '7' <= r.to);  // => false
+ *  @see is_state_name_first_char
  */
-// keep in sync with src/ts/fsl_parser.peg:264
+// keep in sync with AtomFirstLetter in src/ts/fsl_parser.peg (#754)
 const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Object.freeze([
-  { from: '0',      to: '9'      },
-  { from: 'a',      to: 'z'      },
-  { from: 'A',      to: 'Z'      },
-  { from: '.',      to: '.'      },
-  { from: '_',      to: '_'      },
-  { from: '!',      to: '!'      },
-  { from: '$',      to: '$'      },
-  { from: '^',      to: '^'      },
-  { from: '*',      to: '*'      },
-  { from: '?',      to: '?'      },
-  { from: ',',      to: ','      },
-  { from: '\u{80}', to: '\u{FFFF}' },
+  { from: 'a', to: 'z' },
+  { from: 'A', to: 'Z' },
+  { from: '_', to: '_' },
 ]);
+
+// #754: this pair is hand-copied in three other places — keep all four in
+// sync: src/ts/fsl_parser.peg's BAREWORD_FIRST/BAREWORD_REST initializer
+// constants, src/buildjs/fixparser.cjs's FAST_ATOM_RE, and
+// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
+// guard for all of them.
+const BAREWORD_FIRST_RE: RegExp = /^[\p{L}\p{Nl}_]$/u;
+// note: no trailing `_` here — \p{Pc} (Connector_Punctuation) already
+// includes U+005F LOW LINE, so an explicit `_` would just duplicate it
+const BAREWORD_REST_RE : RegExp = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}]$/u;
+
+/**
+ *  Whether one code point may begin an FSL bareword (#754): a Unicode letter,
+ *  a letter-number, or underscore.  Mirrors the grammar's `AtomFirstLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_first_char } from 'jssm';
+ *  is_state_name_first_char('é');  // => true
+ *  is_state_name_first_char('7');  // => false
+ *  @see is_state_name_char
+ */
+const is_state_name_first_char = (ch: string): boolean => BAREWORD_FIRST_RE.test(ch);
+
+/**
+ *  Whether one code point may continue an FSL bareword (#754): anything
+ *  {@link is_state_name_first_char} accepts, plus combining marks, decimal
+ *  digits, and connector punctuation.  Mirrors the grammar's `AtomLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_char } from 'jssm';
+ *  is_state_name_char('7');  // => true
+ *  is_state_name_char('.');  // => false
+ *  @see is_state_name_first_char
+ */
+const is_state_name_char = (ch: string): boolean => BAREWORD_REST_RE.test(ch);
 
 /**
  *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
@@ -264,5 +275,8 @@ export {
   state_name_chars,
   state_name_first_chars,
   action_label_chars,
+
+  is_state_name_first_char,
+  is_state_name_char,
 
 };

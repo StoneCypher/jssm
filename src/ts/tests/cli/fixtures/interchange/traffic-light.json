@@ -1,0 +1,15 @@
+{
+  "format": "fsl-interchange",
+  "version": 1,
+  "states": ["Off", "Red", "Green", "Yellow"],
+  "edges": [
+    { "from": "Off", "to": "Red", "kind": "legal", "action": "Start" },
+    { "from": "Red", "to": "Green", "kind": "main", "action": "Proceed" },
+    { "from": "Green", "to": "Yellow", "kind": "main", "action": "Proceed" },
+    { "from": "Yellow", "to": "Red", "kind": "main", "action": "Proceed" },
+    { "from": "Red", "to": "Off", "kind": "forced", "action": "Shut down" },
+    { "from": "Yellow", "to": "Off", "kind": "forced", "action": "Shut down" },
+    { "from": "Green", "to": "Off", "kind": "forced", "action": "Shut down" }
+  ],
+  "start_states": ["Off"]
+}

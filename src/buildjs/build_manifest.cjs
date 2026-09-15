@@ -51,7 +51,7 @@ const ROOT = join(__dirname, '..', '..');
 
 /** Root-level type-declaration artifacts (published, deterministic). */
 const ROOT_DECLS = [
-  'jssm.es5.d.cts', 'jssm.es6.d.ts',
+  'jssm.es5.d.cts', 'jssm.es6.d.ts', 'jssm.compat.d.ts',
   'jssm_viz.es5.d.cts', 'jssm_viz.es6.d.ts',
   'jssm.cli.d.cts', 'jssm.cli.d.ts',
   'jssm.fence.d.ts',

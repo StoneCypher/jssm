@@ -199,9 +199,21 @@ function buildGrammar() {
     { name: 'constant.language.fsl', match: '\\b(?:true|false|null|undefined)\\b' },
 
     // group spread + reference
+    //
+    // #754 (final review): the name half used to be the 5.x atom char set
+    // ([0-9A-Za-z._!$^*?] first, plus +()&$#@!^- continuation) -- a group
+    // reference's name is a bareword (fsl_parser.peg's Atom/Label), so it
+    // follows the same Unicode identifier classes as #754 gave every other
+    // bareword: first \p{L}/\p{Nl}/_, continuation adds \p{Mn}/\p{Mc}/
+    // \p{Nd}/\p{Pc}. Oniguruma (the regex engine TextMate/VSCode grammars
+    // run under) supports \p{...} property escapes natively, no `u` flag
+    // needed -- unlike a native JS RegExp, where the class needs that flag
+    // to mean anything; see fsl_tmlanguage.spec.ts's "every pattern regex
+    // compiles" check, which only proves this string doesn't throw as a
+    // (flagless) JS RegExp, not that it behaves the way Oniguruma runs it.
     { name: 'keyword.operator.spread.fsl', match: '\\.\\.\\.(?=\\s*&)' },
     {
-      match: '(&)\\s*([0-9A-Za-z._!$^*?][0-9A-Za-z._+()*&$#@!?^-]*)',
+      match: '(&)\\s*([\\p{L}\\p{Nl}_][\\p{L}\\p{Nl}\\p{Mn}\\p{Mc}\\p{Nd}\\p{Pc}_]*)',
       captures: {
         '1': { name: 'punctuation.definition.group.fsl' },
         '2': { name: 'variable.other.group.fsl' },

@@ -1,5 +1,4 @@
 import { LitElement, TemplateResult, PropertyValues } from 'lit';
-import type { Machine } from '../jssm.js';
 /**
  * Styling options for {@link FslViz.highlightTrace}.
  * color      Stroke/fill colour applied to the highlighted nodes
@@ -16,29 +15,17 @@ export interface HighlightOptions {
     fadeOthers?: boolean;
 }
 /**
- * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
- * creating a hard import cycle from the viz module into the instance module.
- *
- * `<fsl-instance>` exposes its underlying machine via a `machine` getter
- * that returns the raw {@link Machine} instance.  Treating that shape as a
- * duck-typed interface here keeps the viz file standalone-compilable and
- * lets tests stub a host without instantiating the real element.
- */
-export interface JssmInstanceHost extends HTMLElement {
-    readonly machine: Machine<unknown>;
-}
-/**
  * Shape of the `viz-error` `CustomEvent.detail` payload.  `message` is
  * always a string; `location` is whatever the renderer attached to the
  * thrown error (typically a parser-supplied source position), or
  * `undefined` if no such field was present.
  */
-export interface JssmVizErrorDetail {
+export interface FslVizErrorDetail {
     message: string;
     location?: unknown;
 }
 /**
- * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Normalize an arbitrary thrown value into a {@link FslVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
  * strings, etc.) and always produces a string `message`.
  *
@@ -56,7 +43,7 @@ export interface JssmVizErrorDetail {
  * @returns A `{ message, location }` object suitable for use as the
  * `detail` of a `viz-error` `CustomEvent`.
  */
-export declare function normalize_viz_error(e: unknown): JssmVizErrorDetail;
+export declare function normalize_viz_error(e: unknown): FslVizErrorDetail;
 /**
  * Web component that renders a jssm machine as inline SVG.
  *
@@ -65,14 +52,14 @@ export declare function normalize_viz_error(e: unknown): JssmVizErrorDetail;
  *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *   2. **Nested** (inside a `<fsl-instance>` ancestor,
  *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
  * @element fsl-viz
- * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
- * @cssproperty [--jssm-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
+ * @cssproperty [--fsl-viz-min-height=100px] - Minimum height of the rendered SVG container.
+ * @cssproperty [--fsl-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
 export declare class FslViz extends LitElement {
@@ -83,7 +70,7 @@ export declare class FslViz extends LitElement {
     engine: string | undefined;
     private _svg;
     /**
-     * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+     * Parent `<fsl-instance>` host reference, set in
      * `connectedCallback` when a parent is found.  When non-null the viz is
      * in nested mode and renders the parent's machine instead of its own
      * `fsl` attribute.
@@ -111,7 +98,7 @@ export declare class FslViz extends LitElement {
     protected willUpdate(changed: PropertyValues<this>): void;
     /**
      * Web Components lifecycle hook.  Walks up to find a parent
-     * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+     * `<fsl-instance>` ancestor via `closest_wc`; if
      * found, switches into nested mode and subscribes to the parent machine's
      * `transition` events.  Otherwise leaves standalone behavior intact.
      *
@@ -211,6 +198,5 @@ export declare class FslViz extends LitElement {
 declare global {
     interface HTMLElementTagNameMap {
         'fsl-viz': FslViz;
-        'jssm-viz': FslViz;
     }
 }

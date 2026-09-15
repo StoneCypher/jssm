@@ -41,7 +41,11 @@ declare const array_box_if_string: (n: any) => any;
  *  Selects a single item from a weighted array of objects using cumulative
  *  probability.  Each object in the array should have a numeric property
  *  indicating its relative weight (defaults to `'probability'`).  Objects
- *  missing the property are treated as weight 1.
+ *  missing the property are treated as weight 1.  On the default
+ *  `'probability'` key only, an option's `share` (6.0 list weights) multiplies
+ *  its weight — `(probability ?? 1) × (share ?? 1)`; custom keys ignore
+ *  `share` entirely, so the generic weighted-selection API is unchanged for
+ *  callers who pass their own property name.
  *
  *  ```typescript
  *  const opts = [
@@ -50,6 +54,15 @@ declare const array_box_if_string: (n: any) => any;
  *  ];
  *
  *  weighted_rand_select(opts);  // most often { value: 'common', ... }
+ *
+ *  // default key: probability × share
+ *  const list_opts = [
+ *    { to: 'b', share: 0.2 },  // no declared probability -> weight 1 × 0.2
+ *    { to: 'c', share: 0.8 },  // weight 1 × 0.8
+ *    { to: 'd' }               // weight 1 × 1
+ *  ];
+ *
+ *  weighted_rand_select(list_opts);  // d most often (weights 0.2 : 0.8 : 1)
  *  ```
  *
  *  @param options              - Non-empty array of objects to choose from.

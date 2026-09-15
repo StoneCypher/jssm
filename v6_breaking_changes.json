@@ -1,0 +1,67 @@
+{
+  "note": "Changes that break compatibility with the published 5.x line for documents migrating to v6. Changes that only affect v6's own in-progress spec (the language is still being defined) are deliberately NOT tracked here — this file is strictly the 5 -> 6 migration surface. Status vocabulary: 'accepted' means the change is decided but not yet implemented on the v6 line; 'landed' means it is implemented there.",
+  "from_major": 5,
+  "to_major": 6,
+  "changes": [
+    {
+      "id": "atom-charset-restriction",
+      "title": "Bareword names restricted to identifier-like characters",
+      "status": "landed",
+      "decided": true,
+      "issue": "StoneCypher/jssm#754",
+      "decision": "Accepted 2026-06-14: the break is unavoidable and is accepted rather than engineered around. Decided charset (refined 2026-09-08: letters mean Unicode letters): first character \\p{L}, \\p{Nl} or _; continuation adds \\p{Mn}, \\p{Mc}, \\p{Nd}, \\p{Pc}. Every other character (',', '(', ')', '.', '+', '&', '#', '@', '$', '^', '*', '!', '?', dash, colon, and a leading digit) requires a quoted-string name. Dash and dot are excluded deliberately: dash collides with the arrow operators and numeric sign, and dot is reserved for member access in the expression language.",
+      "summary": "Unquoted state / val / property names (the grammar's Atom rule, plus the enum-member rule) are restricted to identifier-like names. 5.x accepted symbol-bearing barewords and leading-digit barewords; v6 requires those to be quoted strings.",
+      "breaks": "Any 5.x document whose unquoted state / transition / property / enum-member name contains a character outside the Unicode identifier classes, or begins with a digit. First character must be \\p{L} (a Unicode letter), \\p{Nl} (a letter-number), or '_'; continuation characters may additionally be \\p{Mn}/\\p{Mc} (combining marks), \\p{Nd} (decimal digits), or \\p{Pc} (connector punctuation) -- so a digit is valid only after the first character, never as it.",
+      "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress).",
+      "implementation": "Landed 2026-09 on the v6 line, fix wave complete: AtomCodePoint + predicate-based AtomFirstLetter/AtomLetter in fsl_parser.peg (BAREWORD_FIRST/BAREWORD_REST, hoisted into a pegjs initializer), each raising a targeted \"quote it\" rejection naming the offending character and the full token. ValEnumMember is its OWN rule (not 'ValEnumMember = Atom') sharing Atom's first-character/continuation classes but with a comma-free bad-char set -- the comma is the enum list's own separator -- plus its own digit-leading catch. Two additive changes ride along: ValEnumMember gained a String alternative (a quoted enum member now parses, so the \"quote it\" advice a rejected bareword member gets is actually true), and SdStateProperty's per-state `property: NAME value;` binds NAME to a Label (bareword or quoted string) instead of a bare Atom, matching the top-level `property NAME;` declaration it must name-match. is_state_name_first_char/is_state_name_char predicates (jssm_constants.ts) exported for consumers; unicode suite classified per code point (18 uspec suites, 320/320)."
+    },
+    {
+      "id": "bare-functions-default-api",
+      "title": "Default jssm import is bare functions, not the Machine class",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-17 (megaspec §27): the v6 public JS API is bare functions over an opaque machine value, individually importable for tree-shakeability (serves the long-standing #1167 ask). The entire 5.x Machine class is preserved unmodified as an opt-in compatibility layer at the 'jssm/compat' subpath, mechanically delegating to the bare functions (single source of truth; proven by running the 5.x test suite against it verbatim). The default 'jssm' entry resolves to the bare functions. Refined 2026-09-13 (bare-functions design, decisions 1-6): the machine value IS a Machine instance in 6.0 (decision 3), so instanceof and method calls keep working on it; the action-firing function is act with action as an alias and nothing named do (decision 5); sibling packages and the web components stay on the class API through jssm/compat for 6.0 (decision 4).",
+      "summary": "v6 moves the default 'jssm' import from the Machine class to bare functions (sm / from / create / transition / go / act / state / hook / ...), each taking the machine as its first argument. A module that imports only functions and is handed a machine sheds the class; a bundle that constructs one via sm / from / create still carries it in 6.0, because the value is a Machine instance. The full 5.x class interface remains available, unchanged, from 'jssm/compat'.",
+      "breaks": "Through the default 'jssm' entry, importing Machine as a value is gone: 'import { Machine } from \"jssm\"' now yields a type only, so 'new Machine(...)' and 'instanceof Machine' against that import no longer compile. Method calls on the machines sm / fsl / from / create return still work in 6.0, because the value is a Machine instance (decision 3); a later major may drop the prototype. Machine.do() still works but is deprecated in favor of act() / action(), because 'do' is a reserved word and has no function form (removal tracked as StoneCypher/fsl#1992).",
+      "migration": "Zero-edit escape hatch: change the import specifier to 'jssm/compat' (import { Machine, sm } from 'jssm/compat') and every 5.x spelling, including new Machine(...), keeps working verbatim. Or migrate to the function form: transition(m, x) instead of m.transition(x), history(m) for the getter m.history, set_history_length(m, n) for the setter, act(m, 'name') or action(m, 'name') for m.do('name') / m.action('name'), and create(config) for new Machine(config). MIGRATING-5-to-6.md carries the full method-to-function table.",
+      "implementation": "Landed 2026-09 on the v6 line: the 5.x class moved to src/ts/machine/machine.ts (fields, constructor, one-line delegates, and the factories create / sm / fsl / from / deserialize) and its members were extracted into eleven family files under src/ts/machine/ that export functions taking the machine first: events.ts, history.ts, timers.ts, transition.ts (act, with action as an alias of the same function object), hooks.ts, data.ts, query.ts, stochastic.ts, groups.ts, style.ts, create.ts. src/ts/jssm.ts is the barrel: explicit re-exports of every public function, the factories, and Machine / JssmMachine as types only. src/ts/compat.ts re-exports the barrel plus the Machine value and builds as the ./compat subpath of the main package (dist/jssm.compat.es6.mjs + jssm.compat.d.ts) and of the jssm-commonjs package (dist/compat.cjs + dist/compat.d.cts); the IIFE package bundles the compat entry, since a global has no subpaths. Bundle size (controller ruling 2026-09-13): 6.0 delivers the function API and the per-family module split, so a module that imports functions and is handed a machine sheds the class; a bundle that constructs a machine via sm / from / create still carries the compat class and every family in 6.0, because the value is a Machine instance (decision 3), and the full size win lands when a later major drops the prototype from the default value. Contract checks: bare_functions_surface.spec.ts (every public class member has a function form; every family export reaches the barrel with the same identity), compat_bundle_size.spec.ts (a functions-only consumer bundle contains no Machine class while a factory or compat import does), bare_vs_class.stoch.ts (random programs agree through both surfaces), and the whole 5.x spec suite running against the class unchanged."
+    },
+    {
+      "id": "esm-only-main-package",
+      "title": "Main jssm package ships ESM only; es5/iife relocate to compatibility packages",
+      "status": "accepted",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-07-21: the default jssm package drops to a single ESM ('just-module') build. es5 and iife are NOT dropped -- they relocate to dedicated compatibility packages, and iife additionally serves from the CDN. A wasm build may remain in the main package (undecided; does not block the ESM split). Composes with the shipped monorepo decomposition (core / viz / fence / cli already separate packages) as the orthogonal format axis. Motivated by flensing the fat 5.x monolith (5.163.4 was 10.9M, mostly format redundancy + duplicated type defs es5.d.cts vs es6.d.ts; the old nonmin/map leaks like 5.32.10 / 5.112.3 are already gone). Provisional compat-package names resolve to @fsl/statemachine-js-cjs / -iife under the eventual FSL-org rename (jssm -> @fsl/statemachine-js, alongside @fsl/statemachine-rust / -wasm / -ts; 'statemachine' chosen as an npm relevance-ranking keyword).",
+      "summary": "v6's default jssm install carries only the ESM build; the es5, iife, and cjs formats it used to bundle are removed from the main package and republished as compatibility packages (iife additionally on the CDN).",
+      "breaks": "Consumers that relied on the main jssm package directly providing a CJS/require entry, an iife global build, or an es5 build.",
+      "migration": "Install the matching compatibility package (es5 / iife / cjs), or load iife from the CDN. ESM consumers are unaffected.",
+      "implementation": "Build-config change: emit one module build for the main package; route es5 / iife / cjs to compat-package publishes; wire iife to the CDN. Part of v6 Step 4 (size/format eviction). Not yet landed."
+    },
+    {
+      "id": "probabilistic-list-weights",
+      "title": "A probabilistic transition onto a list shares its weight across the members",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-09-09 (examples A–E reviewed): the group keeps the stated weight and members share it, uniformly or by inner weights; inner weights without an outer probability apply to the default weight.",
+      "summary": "In 6.0, `a 50% -> [b c]` compiles to a->b 25% and a->c 25% (5.x: 50% each). Lists accept inner weights `[b 20% c 80%]`, and `start_states` accepts the same form as an initial distribution. A group-reference target shares the same way, since `resolve_group_refs` rewrites it to the member list before the share-splitting compiler pass runs: `&g : [b c]; a 50% -> &g;` also gives a->b 25% and a->c 25%.",
+      "breaks": "Any 5.x document whose probabilistic transition targets a list (or a group reference) AND has sibling edges from the same state — the list's or group's members now draw less often than before.",
+      "migration": "Multiply the outer probability by the member count to keep 5.x odds (`a 50% -> [b c]` becomes `a 100% -> [b c]`), or write inner weights.",
+      "implementation": "Landed 2026-09 on the v6 line: WeightedLabelList in fsl_parser.peg (ArrowTarget, start_states), list_shares + apply_list_share in the compiler, JssmTransition.share, share-aware weighted_rand_select, start_state_weights()/sample_start_state(), weighted starts in stochastic_runs."
+    },
+    {
+      "id": "wc-jssm-prefix-removed",
+      "title": "Web components drop the jssm- prefix entirely",
+      "status": "landed",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-22 (fsl-* canonical, jssm-* deprecated, removed in v6); scope widened 2026-09-09 to the whole prefix: tags, child config tags, data attributes, CSS custom properties, class aliases, error strings.",
+      "summary": "v6 web components are spelled fsl-* only. The <jssm-viz>, <jssm-instance>, <jssm-bind> synonym tags, the <jssm-on>/<jssm-hook>/<jssm-action> child spellings, the data-jssm-* attributes, the --jssm-viz-* CSS custom properties, and the JssmViz/JssmInstance/JssmBind class aliases are gone.",
+      "breaks": "Any page using a jssm-* tag, a data-jssm-* attribute, a --jssm-viz-* CSS property, or importing a Jssm* class from the web-component bundles. Also breaks: the jssm/wc/instance and jssm/wc/viz exports parse_jssm_on_element, JSSM_ON_EVENT_NAMES, ParsedJssmOn, jssm_handler_registry, JssmInstanceHost, and JssmVizErrorDetail, and the JssmHookProxy/JssmHookUserHandler/JssmHookRegistry/JssmHookInstallSpec backward-compat aliases, are renamed or removed.",
+      "migration": "Rename: <jssm-x> -> <fsl-x>; data-jssm-x -> data-fsl-x; --jssm-viz-x -> --fsl-viz-x; JssmX -> FslX. Identifier renames: parse_jssm_on_element -> parse_fsl_on_element; JSSM_ON_EVENT_NAMES -> FSL_ON_EVENT_NAMES; ParsedJssmOn -> ParsedFslOn; jssm_handler_registry -> fsl_handler_registry; JssmInstanceHost -> FslInstanceHost (now one shared export instead of a per-module duplicate); JssmVizErrorDetail -> FslVizErrorDetail; JssmHookProxy -> FslHookProxy; JssmHookUserHandler -> FslHookUserHandler; JssmHookRegistry -> FslHookRegistry; JssmHookInstallSpec -> FslHookInstallSpec. Also: a leftover jssm-* companion child (e.g. a stray <jssm-hook> or <jssm-on>) is no longer stripped from a host's inline-text FSL source and will corrupt it — remove or rename such children to fsl-*.",
+      "implementation": "Landed 2026-09 on the v6 line: define modules register fsl-* only, wc_tag_helpers matches fsl-* only, instance/bind/hook/viz read fsl-* tags and data-fsl-* attributes, tests assert the retired spellings are not registered."
+    }
+  ]
+}

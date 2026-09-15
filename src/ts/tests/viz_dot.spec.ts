@@ -402,6 +402,27 @@ describe('parallel action edges render as separate labelled edges (#325, #531)',
 
 
 
+describe('a compiled probability is rounded to 6 significant digits for display (6.0 list weights)', () => {
+
+  // A 3-member list share (50 / 3) is an inexact float; the raw value would
+  // otherwise render as 16.666666666666664.
+  test('a share-derived probability renders as 16.6667, not the raw float', () => {
+    const dot = jv.fsl_to_dot(`a 50% -> [b c d];`);
+    expect(dot).toContain('16.6667');
+    expect(dot).not.toContain('16.666666666666664');
+  });
+
+  // An author-written value has far fewer than 6 significant digits, so
+  // rounding is a no-op and the label is unchanged.
+  test('a plain author-written probability still renders as 25', () => {
+    const dot = jv.fsl_to_dot(`a 25% -> b;`);
+    expect(dot).toContain('taillabel="25"');
+  });
+
+});
+
+
+
 describe('state names containing double-quotes produce valid DOT (fsl#474)', () => {
 
   // FSL `"say \"hi\""` parses to the state name  say "hi"  (literal quotes).

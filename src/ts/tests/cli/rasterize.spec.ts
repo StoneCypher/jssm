@@ -3,6 +3,10 @@ import { resolve } from 'node:path';
 import { rasterize, rasterizeRgba } from '../../cli/subcommands/render/rasterize';
 import { svgTarget } from '../../cli/subcommands/render/targets/svg';
 import { bundledFontBytes } from '../../cli/subcommands/render/bundled-font';
+// The fence-owned source modules the two cli paths above re-export from —
+// imported under aliases to pin re-export reference identity below.
+import { rasterize as sourceRasterize, rasterizeRgba as sourceRasterizeRgba } from '../../fsl_rasterize';
+import { bundledFontBytes as sourceBundledFontBytes } from '../../fsl_rasterize_font';
 // Statically imported (rather than dynamic) so module identity matches the
 // rasterize module above — vi.resetModules() in the WASM-init describe
 // below would otherwise produce a different class instance on dynamic
@@ -23,6 +27,17 @@ const pngSize = (buf: Uint8Array): { width: number; height: number } => {
 };
 
 describe('rasterize', () => {
+
+  it('the cli shim paths re-export the SAME functions as their fence-owned sources (reference identity)', () => {
+    // rasterize.ts and bundled-font.ts under cli/subcommands/render/ are
+    // re-export shims over fsl_rasterize.ts / fsl_rasterize_font.ts. If a
+    // shim ever declared its own copy, the two import paths would return
+    // different function objects (and bundledFontBytes would grow a second
+    // decode cache) — pin reference identity through both paths.
+    expect(rasterize).toBe(sourceRasterize);
+    expect(rasterizeRgba).toBe(sourceRasterizeRgba);
+    expect(bundledFontBytes).toBe(sourceBundledFontBytes);
+  });
 
   describe('Node path (resvg-wasm)', () => {
 

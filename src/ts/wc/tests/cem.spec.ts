@@ -30,9 +30,9 @@ describe('custom-elements.json', () => {
     expect(cem).toContain('"viz-error"');
   });
 
-  it('documents the --jssm-viz-min-height CSS property', () => {
+  it('documents the --fsl-viz-min-height CSS property', () => {
     const cem = readFileSync(cem_path, 'utf8');
-    expect(cem).toContain('--jssm-viz-min-height');
+    expect(cem).toContain('--fsl-viz-min-height');
   });
 
   it('declares the fsl-instance canonical tag', () => {

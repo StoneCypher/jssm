@@ -109,3 +109,53 @@ with arrows between them, ending in a semicolon.  A traffic light:
 ```fsl
 Red -> Green -> Yellow -> Red;
 ```
+
+### Names
+
+State names written without quotes are identifiers: they start with a letter
+or underscore and continue with letters, digits, underscores, or combining
+marks, in any script.  Anything else — spaces, punctuation, symbols, a
+leading digit — goes in double quotes:
+
+```fsl
+"in-progress" -> "done (final)";
+état -> 状態 -> "1st";
+```
+
+
+&nbsp;
+
+&nbsp;
+
+## Weighted transitions
+
+A transition can carry a **probability** with `N%`, written before or after
+the arrow.  When several transitions share a source, the weights bias
+`probabilistic_transition()`, `probabilistic_walk()`, and the rest of FSL's
+stochastic tooling.
+
+```fsl
+Idle 50% -> Win;
+Idle 50% -> Lose;
+```
+
+A probabilistic transition can also target a list.  The list keeps the
+transition's weight as a *group* weight, and the members share it —
+uniformly, or by their own inner weights:
+
+```fsl
+Idle 50% -> [WinA WinB];
+```
+
+`WinA` and `WinB` each get 25% of `Idle`'s total weight, splitting the 50%
+evenly — not a 25% draw frequency on their own; with no other sibling edge
+from `Idle` here, they're still drawn 50/50 against each other.  Give
+members their own weights to split unevenly instead:
+
+```fsl
+Idle 50% -> [WinA 20% WinB 80%];
+```
+
+`WinA` gets 10% and `WinB` gets 40% — the 20/80 split of the outer 50%.
+(In 5.x, every member of a targeted list received the *full* outer weight
+instead of sharing it.)
