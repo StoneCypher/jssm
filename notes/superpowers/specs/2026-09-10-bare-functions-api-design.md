@@ -60,7 +60,7 @@ Per decision 3, `create(cfg)` returns a `Machine` instance: the record IS the cl
 
 ### Entry points and packaging
 
-`package.json` exports: `.` → the functions barrel; `./compat` → the class entry. Both carry `types`. `sideEffects: false` stays. A bundle-size spec asserts that a rollup build importing only `{ sm, transition, state }` from `.` is smaller than a build importing `Machine` from `./compat` by a stated margin (measured once the split exists; the spec pins "smaller", not a number, to avoid a golden number).
+`package.json` exports: `.` → the functions barrel; `./compat` → the class entry. Both carry `types`. `sideEffects: false` stays. Bundle size (controller ruling 2026-09-13): 6.0 delivers the function API and the per-family module split, so a module that imports only functions and is handed a machine from elsewhere sheds the `Machine` class; a bundle that constructs a machine via `sm` / `from` / `create` still carries the compat class and every family in 6.0, because the value is a `Machine` instance (decision 3), and the full size win lands when a later major drops the prototype from the default value. The bundle-size spec therefore asserts that a rollup build importing only `{ state, transition }` from `.` contains no `class Machine` (and does contain the transition core), while builds importing `{ sm, state }` from `.` or `{ Machine }` from `./compat` both contain the class; no size comparison between the latter two is asserted.
 
 The `jssm.es6.d.ts` root declaration is regenerated as usual; a second `jssm.compat.d.ts` (or a `dist/compat.d.ts` under the subpath) carries the class types.
 

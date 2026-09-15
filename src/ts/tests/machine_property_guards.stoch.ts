@@ -1,6 +1,6 @@
 
 import * as fc   from 'fast-check';
-import * as jssm from '../jssm';
+import * as jssm from '../compat';
 
 
 

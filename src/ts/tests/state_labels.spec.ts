@@ -1,5 +1,6 @@
 
-import { sm, Machine } from '../jssm';
+import { sm }      from '../jssm';
+import { Machine } from '../compat';
 
 
 

@@ -1,6 +1,7 @@
 import * as fc from 'fast-check';
 import { describe, it, expect } from 'vitest';
-import { Machine, make } from '../jssm';
+import { make }    from '../jssm';
+import { Machine } from '../compat';
 import { replay } from '../fsl_replay';
 import { parse_tape, serialize_tape } from '../fsl_stimulus_tape';
 import type { Stimulus } from '../fsl_stimulus_tape';

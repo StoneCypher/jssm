@@ -24563,18 +24563,19 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
  *
  *  Parses the intermediate representation of a compiled string down to a
  *  machine configuration object.  If you're using this (probably don't,) you're
- *  probably also using {@link compile} and {@link Machine.constructor}.
+ *  probably also using {@link compile} and {@link create} (or, through
+ *  `jssm/compat`, the `Machine` constructor).
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  import { parse, compile, create } from 'jssm';
  *
- *  const intermediate = wrap_parse('a -> b;', {});
+ *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
  *
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *
@@ -25566,11 +25567,11 @@ function fold_graph_config(aliases, explicit_block) {
  *
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
- *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.constructor} to turn the config object into a workable machine.
+ *  {@link parse} to get the IR, and {@link create} (or, through `jssm/compat`,
+ *  the `Machine` constructor) to turn the config object into a workable machine.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  import { parse, compile, create } from 'jssm';
  *
  *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -25578,7 +25579,7 @@ function fold_graph_config(aliases, explicit_block) {
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *
@@ -25903,6 +25904,623 @@ function make(plan) {
 }
 
 /**
+ * String interning support for the jssm machine internals.
+ *
+ * State and action names are interned to dense integer ids at machine
+ * construction so that per-transition dispatch can use numeric map keys
+ * (integer hashing) instead of repeated string-keyed lookups.  Internal
+ * machinery only — deliberately not re-exported from the `jssm` public
+ * surface, so the public API is unchanged.
+ * @internal
+ */
+/**
+ * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
+ * order; lookups are O(1) both directions.  Grows monotonically — there is
+ * no removal, matching machine semantics (states and actions are fixed
+ * after construction; late interning only happens for never-matching
+ * lookups such as hook registrations naming unknown states).
+ * @example
+ *   const i = new Interner();
+ *   i.intern('red');     // 0
+ *   i.intern('green');   // 1
+ *   i.intern('red');     // 0  (idempotent)
+ *   i.id_of('green');    // 1
+ *   i.name_of(0);        // 'red'
+ * @see pair_key
+ */
+class Interner {
+    constructor() {
+        this.ids = new Map();
+        this.names = [];
+    }
+    /**
+     * Return the id for `name`, assigning the next dense id if the name has
+     * not been seen before.
+     * @param name - The string to intern.
+     * @returns The (possibly newly assigned) integer id.
+     * @example
+     *   interner.intern('red');  // 0 on first call, 0 on every later call
+     */
+    intern(name) {
+        const existing = this.ids.get(name);
+        if (existing !== undefined) {
+            return existing;
+        }
+        const id = this.names.length;
+        this.ids.set(name, id);
+        this.names.push(name);
+        return id;
+    }
+    /**
+     * Return the id for `name` without interning, or `undefined` when the
+     * name has never been interned.  This is the hot-path probe for
+     * user-supplied names.
+     * @param name - The string to look up.
+     * @example
+     *   interner.id_of('mauve');  // undefined — never interned
+     */
+    id_of(name) {
+        return this.ids.get(name);
+    }
+    /**
+     * Return the name for `id`, or `undefined` for an id never assigned.
+     * @param id - The integer id to invert.
+     * @example
+     *   interner.name_of(0);  // 'red'
+     */
+    name_of(id) {
+        return this.names[id];
+    }
+    /** The count of distinct interned names. */
+    get size() {
+        return this.names.length;
+    }
+}
+/**
+ * Szudzik pairing: packs two non-negative integers into one unique number,
+ * order-sensitively, with no dependence on a fixed table size — so interners
+ * may keep growing without invalidating existing keys.  Values stay exact
+ * for ids below 2^26 (the result is bounded by roughly max(a,b)^2), far
+ * beyond any real machine's state count.
+ *
+ * NaN deliberately propagates: probing with an unknown name's id
+ * (`id_of(...) ?? NaN`) yields a NaN key, which can never match a stored
+ * key, so the lookup misses — exactly the behavior of the string-keyed maps
+ * it replaces.  Do NOT use a negative sentinel instead: Szudzik is only
+ * injective over the naturals, and a negative input can collide with a real
+ * stored key (e.g. szudzik(-1, 2) === szudzik(1, 1) === 3), which would make
+ * lookups from an unknown state falsely succeed.
+ * @param a - First non-negative integer (or NaN as a deliberate miss).
+ * @param b - Second non-negative integer (or NaN as a deliberate miss).
+ * @returns A number unique to the ordered pair `(a, b)` over the naturals.
+ * @example
+ *   pair_key(2, 5);  // 27
+ *   pair_key(5, 2);  // 32 — order-sensitive
+ * @see Interner
+ */
+function pair_key(a, b) {
+    return (a >= b)
+        ? (a * a) + a + b
+        : (b * b) + a;
+}
+/**
+ * Inverse of {@link pair_key}: recovers the ordered pair `(a, b)` that was
+ * packed into a Szudzik key.  Exact for any key produced by `pair_key` over
+ * non-negative integer inputs, so `un_pair_key(pair_key(a, b))` round-trips
+ * to `[a, b]`.  Used to walk interned, pair-keyed maps (e.g. the hook tables)
+ * back to their original `(from_id, to_id)` ids for {@link Interner.name_of}.
+ *
+ * Behavior is only defined for keys `pair_key` actually emits; a NaN key (the
+ * unknown-name sentinel) yields `[NaN, NaN]`, never a spurious real pair.
+ * @param z - A key produced by `pair_key`.
+ * @returns The ordered pair `[a, b]` such that `pair_key(a, b) === z`.
+ * @example
+ *   un_pair_key(27);  // [2, 5]
+ *   un_pair_key(32);  // [5, 2] — order preserved
+ * @see pair_key
+ */
+function un_pair_key(z) {
+    const s = Math.floor(Math.sqrt(z));
+    const l = z - (s * s);
+    return (l < s) ? [l, s] : [s, l - s];
+}
+
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
+const NegInfinity = -Infinity, PosInfinity = Infinity, Epsilon = Number.EPSILON, Pi = Math.PI, E = Math.E, Root2 = Math.SQRT2, RootHalf = Math.SQRT1_2, Ln2 = Math.LN2, Ln10 = Math.LN10, Log2E = Math.LOG2E, Log10E = Math.LOG10E, MaxSafeInt = Number.MAX_SAFE_INTEGER, MinSafeInt = Number.MIN_SAFE_INTEGER, MaxPosNum = Number.MAX_VALUE, MinPosNum = Number.MIN_VALUE, 
+// written as the exact double each historic longer literal
+// already rounded to — same bits at runtime
+Phi = 1.618033988749895, EulerC = 0.5772156649015329;
+/*******
+ *
+ *  Complete list of node shapes supported by Graphviz.  Used by jssm-viz to
+ *  validate and render state shapes in FSL `state ... : { shape: ... }` blocks.
+ *
+ *  `shapes` is an alias for `gviz_shapes`.
+ *
+ */
+const gviz_shapes$1 = [
+    "box3d",
+    "polygon",
+    "ellipse",
+    "oval",
+    "circle",
+    "point",
+    "egg",
+    "triangle",
+    "plaintext",
+    "plain",
+    "diamond",
+    "trapezium",
+    "parallelogram",
+    "house",
+    "pentagon",
+    "hexagon",
+    "septagon",
+    "octagon",
+    "doublecircle",
+    "doubleoctagon",
+    "tripleoctagon",
+    "invtriangle",
+    "invtrapezium",
+    "invhouse",
+    "Mdiamond",
+    "Msquare",
+    "Mcircle",
+    "rectangle",
+    "rect",
+    "square",
+    "star",
+    "none",
+    "underline",
+    "cylinder",
+    "note",
+    "tab",
+    "folder",
+    "box",
+    "component",
+    "promoter",
+    "cds",
+    "terminator",
+    "utr",
+    "primersite",
+    "restrictionsite",
+    "fivepoverhang",
+    "threepoverhang",
+    "noverhang",
+    "assembly",
+    "signature",
+    "insulator",
+    "ribosite",
+    "rnastab",
+    "proteasesite",
+    "proteinstab",
+    "rpromoter",
+    "rarrow",
+    "larrow",
+    "lpromoter",
+    "record"
+];
+/**
+ *  Public alias for {@link gviz_shapes}.  The list of node shapes supported
+ *  by Graphviz that jssm-viz accepts in FSL `state ... : { shape: ... }`
+ *  declarations.
+ */
+const shapes$1 = gviz_shapes$1;
+/*******
+ *
+ *  List of CSS/SVG named colors accepted by jssm-viz for state styling
+ *  properties like `background-color` and `text-color`.  Case-insensitive
+ *  matching is done at parse time; the canonical casing here follows the
+ *  CSS specification.
+ *
+ */
+const named_colors$1 = [
+    "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige",
+    "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown",
+    "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral",
+    "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan",
+    "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki",
+    "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed",
+    "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray",
+    "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue",
+    "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen",
+    "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey",
+    "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory",
+    "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon",
+    "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray",
+    "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen",
+    "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue",
+    "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon",
+    "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple",
+    "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise",
+    "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin",
+    "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed",
+    "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed",
+    "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple",
+    "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown",
+    "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue",
+    "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal",
+    "Thistle", "Tomato", "Transparent", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
+    "Yellow", "YellowGreen"
+];
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive ASCII character ranges accepted in any but the first position of
+ *  an FSL bareword (state / property / val / enum-member name): digits,
+ *  letters, and underscore.  Non-ASCII characters are classified by
+ *  {@link is_state_name_char}, which is the complete rule; this table exists
+ *  for tooling that wants the ASCII portion as ranges.
+ *  @example
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
+ *  state_name_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ *  @see is_state_name_char
+ */
+// keep in sync with AtomLetter in src/ts/fsl_parser.peg (#754)
+const state_name_chars$2 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '_', to: '_' },
+]);
+/**
+ *  Inclusive ASCII character ranges accepted in the first position of an FSL
+ *  bareword: letters and underscore (never a digit).  Non-ASCII characters
+ *  are classified by {@link is_state_name_first_char}.
+ *  @example
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '7' >= r.from && '7' <= r.to);  // => false
+ *  @see is_state_name_first_char
+ */
+// keep in sync with AtomFirstLetter in src/ts/fsl_parser.peg (#754)
+const state_name_first_chars$2 = Object.freeze([
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '_', to: '_' },
+]);
+// #754: this pair is hand-copied in three other places — keep all four in
+// sync: src/ts/fsl_parser.peg's BAREWORD_FIRST/BAREWORD_REST initializer
+// constants, src/buildjs/fixparser.cjs's FAST_ATOM_RE, and
+// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
+// guard for all of them.
+const BAREWORD_FIRST_RE = /^[\p{L}\p{Nl}_]$/u;
+// note: no trailing `_` here — \p{Pc} (Connector_Punctuation) already
+// includes U+005F LOW LINE, so an explicit `_` would just duplicate it
+const BAREWORD_REST_RE = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}]$/u;
+/**
+ *  Whether one code point may begin an FSL bareword (#754): a Unicode letter,
+ *  a letter-number, or underscore.  Mirrors the grammar's `AtomFirstLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_first_char } from 'jssm';
+ *  is_state_name_first_char('é');  // => true
+ *  is_state_name_first_char('7');  // => false
+ *  @see is_state_name_char
+ */
+const is_state_name_first_char$1 = (ch) => BAREWORD_FIRST_RE.test(ch);
+/**
+ *  Whether one code point may continue an FSL bareword (#754): anything
+ *  {@link is_state_name_first_char} accepts, plus combining marks, decimal
+ *  digits, and connector punctuation.  Mirrors the grammar's `AtomLetter`.
+ *  @param ch - Exactly one code point (a surrogate pair counts as one).
+ *  @example
+ *  import { is_state_name_char } from 'jssm';
+ *  is_state_name_char('7');  // => true
+ *  is_state_name_char('.');  // => false
+ *  @see is_state_name_first_char
+ */
+const is_state_name_char$1 = (ch) => BAREWORD_REST_RE.test(ch);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *  @example
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$2 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\u{FFFF}' },
+]);
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    E: E,
+    Epsilon: Epsilon,
+    EulerC: EulerC,
+    Ln10: Ln10,
+    Ln2: Ln2,
+    Log10E: Log10E,
+    Log2E: Log2E,
+    MaxPosNum: MaxPosNum,
+    MaxSafeInt: MaxSafeInt,
+    MinPosNum: MinPosNum,
+    MinSafeInt: MinSafeInt,
+    NegInfinity: NegInfinity,
+    Phi: Phi,
+    Pi: Pi,
+    PosInfinity: PosInfinity,
+    Root2: Root2,
+    RootHalf: RootHalf,
+    action_label_chars: action_label_chars$2,
+    gviz_shapes: gviz_shapes$1,
+    is_state_name_char: is_state_name_char$1,
+    is_state_name_first_char: is_state_name_first_char$1,
+    named_colors: named_colors$1,
+    shapes: shapes$1,
+    state_name_chars: state_name_chars$2,
+    state_name_first_chars: state_name_first_chars$2
+});
+
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
+const version = "6.0.0-alpha.18";
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
+const build_time = 1789345558412;
+
+/*******
+ *
+ *  The events family: subscribing to, and dispatching, the machine's typed
+ *  observation events (`transition`, `entry`, `exit`, `rejection`, `timeout`,
+ *  `error`, ...).  Every function takes the machine as its first argument and
+ *  works on the machine's `_event_handlers` table directly; the `Machine`
+ *  class methods of the same names are one-line delegates onto these.
+ *
+ *  `on`, `once`, and `off` are the public surface (re-exported by the `jssm`
+ *  barrel).  `fire`, `fire_one`, and `has_subscribers` are the dispatch side,
+ *  exported for the other families (the transition commit, the timers) but
+ *  not part of the barrel.
+ *
+ */
+function on(m, name, filterOrFn, maybeFn) {
+    return subscribe(m, name, filterOrFn, maybeFn, false);
+}
+function once(m, name, filterOrFn, maybeFn) {
+    return subscribe(m, name, filterOrFn, maybeFn, true);
+}
+/**
+ *  Remove a previously-registered event handler.  Match is by reference —
+ *  the same function value passed to {@link on} or {@link once}.  Returns
+ *  `true` if a subscription was found and removed, `false` otherwise.
+ *
+ *  @example
+ *  import { sm, on, off } from 'jssm';
+ *
+ *  const m  = sm`a -> b;`;
+ *  const fn = () => {};
+ *
+ *  on(m, 'transition', fn);
+ *  off(m, 'transition', fn);  // => true
+ *  off(m, 'transition', fn);  // => false
+ *
+ *  @param m       The machine the handler was registered on.
+ *  @param name    The event name.
+ *  @param handler The handler reference to remove.
+ *  @returns `true` if removed, `false` if no match was registered.
+ */
+function off(m, name, handler) {
+    const set = m._event_handlers.get(name);
+    if (set === undefined) {
+        return false;
+    }
+    for (const entry of set) {
+        if (entry.handler === handler) {
+            unsubscribe_entry(m, set, entry);
+            return true;
+        }
+    }
+    return false;
+}
+/**
+ *  Remove one event-subscription entry from its set and keep the machine's
+ *  `_event_listener_count` in sync.  The count is decremented only when the
+ *  entry was actually present, so calling a stale unsubscribe closure (or
+ *  removing an already-fired `once` entry) is idempotent and cannot drive
+ *  the count negative.
+ *  @param m     The machine that owns the set.
+ *  @param set   The per-event-name subscription set.
+ *  @param entry The entry to remove.
+ *  @internal
+ */
+function unsubscribe_entry(m, set, entry) {
+    if (set.delete(entry)) {
+        m._event_listener_count--;
+    }
+}
+/**
+ *  Shared registration core used by {@link on} and {@link once}.  Normalizes
+ *  the optional filter argument and installs the entry into the per-event
+ *  subscription set.
+ *  @internal
+ */
+function subscribe(m, name, filterOrFn, maybeFn, once) {
+    let filter;
+    let handler;
+    if (typeof filterOrFn === 'function') {
+        filter = undefined;
+        handler = filterOrFn;
+    }
+    else {
+        filter = filterOrFn;
+        handler = maybeFn;
+    }
+    if (typeof handler !== 'function') {
+        throw new JssmError(m, `event handler for "${name}" must be a function`);
+    }
+    let set = m._event_handlers.get(name);
+    if (set === undefined) {
+        set = new Set();
+        m._event_handlers.set(name, set);
+    }
+    const entry = { handler, filter, once };
+    set.add(entry);
+    m._event_listener_count++;
+    return () => { unsubscribe_entry(m, set, entry); };
+}
+/**
+ *  Invoke a single event-handler entry, respecting its filter, once-removal
+ *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+ *  {@link fire} can share identical behavior between the size-1 fast-path
+ *  and the general snapshotted loop.
+ *  @param m      - The machine dispatching the event.
+ *  @param entry  - The subscriber descriptor to invoke.
+ *  @param set    - The live Set that owns `entry`; needed for once-removal.
+ *  @param name   - The event name being dispatched (used in error re-fires).
+ *  @param detail - The event payload forwarded to the handler.
+ *  @internal
+ */
+// PERF: the class keeps `_fire_one`, `_fire`, and `_has_subscribers` as
+// underscore-convention delegates, NOT `#`-private methods: they sit on the
+// per-transition hot path and a `#`-private method cannot be inlined the way
+// its `_` twin can (brand check).  Do not re-privatize.  StoneCypher/fsl#1959
+function fire_one(m, entry, set, name, detail) {
+    // filter check
+    if (entry.filter !== undefined) {
+        for (const [k, v] of Object.entries(entry.filter)) {
+            if (v !== detail[k]) {
+                return;
+            }
+        }
+    }
+    // once removal happens BEFORE invocation so a throwing handler still
+    // gets removed and so re-entrant `on` calls during the handler see
+    // the post-removal state.
+    if (entry.once) {
+        unsubscribe_entry(m, set, entry);
+    }
+    try {
+        entry.handler(detail);
+    }
+    catch (error) {
+        if (name === 'error' || m._firing_error) {
+            // surface to stderr as a last resort but never recurse;
+            // `console` is in the JS standard library and present in every
+            // supported runtime, so guarding it would just add an untestable
+            // branch.  See #638.
+            console.error(error);
+        }
+        else {
+            m._firing_error = true;
+            try {
+                fire(m, 'error', {
+                    error: error,
+                    source_event: name,
+                    source_detail: detail,
+                    handler: entry.handler
+                });
+            }
+            finally {
+                m._firing_error = false;
+            }
+        }
+    }
+}
+/**
+ *  Whether at least one live subscriber is registered for `name`.  Used by
+ *  the transition-commit observation block to skip building a detail
+ *  literal that {@link fire} would immediately discard — a panel listening
+ *  only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel) previously
+ *  paid for the exit/entry/data-change detail allocations on every
+ *  transition.  Read at fire time, so a listener installed by a pre-hook is
+ *  still seen (#671).
+ *  @param m    The machine to probe.
+ *  @param name The event name to probe.
+ *  @returns `true` when a subsequent `fire(m, name, ...)` would reach at
+ *  least one handler.
+ *
+ *  Not a doctest: `has_subscribers` is module-only and cannot be imported from `'jssm'`.
+ *  ```typescript
+ *  import { sm, on } from 'jssm';
+ *  import { has_subscribers } from './events';   // same-package import; not on the barrel
+ *
+ *  const machine = sm`a -> b;`;
+ *  on(machine, 'transition', () => {});
+ *  has_subscribers(machine, 'transition');  // => true
+ *  has_subscribers(machine, 'exit');        // => false
+ *  ```
+ *  @see fire
+ *  @internal
+ */
+function has_subscribers(m, name) {
+    const set = m._event_handlers.get(name);
+    return (set !== undefined) && (set.size > 0);
+}
+/**
+ *  Dispatch an event to every registered subscriber in registration
+ *  order.  Filters are checked first; non-matching handlers are skipped
+ *  without invoking the handler.  Exceptions thrown by a handler are
+ *  caught and re-emitted as an `error` event so subsequent handlers
+ *  still run.
+ *
+ *  Re-entry into the `error` event itself is guarded — if an `error`
+ *  handler throws, the new exception is swallowed rather than rebroadcast
+ *  to avoid an infinite loop.
+ *
+ *  When exactly one subscriber is registered the common case avoids the
+ *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+ *  local first — equivalent to a 1-element snapshot but allocation-free.
+ *  The general path still snapshots for re-entrancy safety.
+ *  @param m      The machine dispatching the event.
+ *  @param name   The event name.
+ *  @param detail The event payload handed to each handler.
+ *  @internal
+ */
+function fire(m, name, detail) {
+    const set = m._event_handlers.get(name);
+    if (set === undefined || set.size === 0) {
+        return;
+    }
+    // Fast-path: single subscriber — capture entry before invoking so that
+    // even if the handler mutates `set` (via off/once auto-removal) we hold a
+    // stable reference.  Behaviorally identical to a 1-element snapshot.
+    if (set.size === 1) {
+        const only = set.values().next().value;
+        fire_one(m, only, set, name, detail);
+        return;
+    }
+    // General path: snapshot so handlers can `off()` mid-loop without
+    // disturbing iteration.
+    const entries = [...set];
+    for (const entry of entries) {
+        fire_one(m, entry, set, name, detail);
+    }
+}
+
+/**
  * Canonical (RFC 8785 / JCS) serialization — the byte-stable string that makes
  * hashing a config or tape well-defined. Locale-independent by construction:
  * object keys are sorted by UTF-16 code unit, never via locale-aware APIs.
@@ -25962,6 +26580,5116 @@ function canonicalize(value) {
  */
 function canonical_config(state, data) {
     return canonicalize({ v: CANONICAL_FORMAT_VERSION, state, data });
+}
+
+/*******
+ *
+ *  The query family: everything that reads the machine without moving it —
+ *  the current state, labels, the start / end / failed / final / terminal /
+ *  complete predicates, the machine attribute accessors (`machine_*`,
+ *  `editor_config`, `npm_name`, `default_size`, `fsl_version`, the state
+ *  declarations, `machine_state`), the state and edge lists, the override
+ *  and island policies, the grammar character tables, and the edge lookups
+ *  (`get_transition_by_state_names`, `lookup_transition_for`, `edges_between`,
+ *  `current_action_for`, `current_action_edge_for`).  Every function takes
+ *  the machine as its first argument and reads its fields directly; the
+ *  `Machine` class methods and getters of the same names are one-line
+ *  delegates onto these.
+ *
+ *  Every export here is public and re-exported by the `jssm` barrel.
+ *
+ */
+const { state_name_chars: state_name_chars$1, state_name_first_chars: state_name_first_chars$1, action_label_chars: action_label_chars$1 } = constants;
+/*********
+ *
+ *  Get the current state of a machine.
+ *
+ *  @example
+ *  import { from, transition, state } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;');
+ *  state(lswitch);             // => 'on'
+ *
+ *  transition(lswitch, 'off');
+ *  state(lswitch);             // => 'off'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The current state name.
+ *
+ */
+function state(m) {
+    return m._state;
+}
+/*********
+ *
+ *  Get the label for a given state, if any; return `undefined` otherwise.
+ *
+ *  See also {@link display_text}.
+ *
+ *  @example
+ *  import { from, label_for } from 'jssm';
+ *
+ *  const lswitch = from('a -> b; state a: { label: "Foo!"; };');
+ *  label_for(lswitch, 'a');              // => 'Foo!'
+ *  label_for(lswitch, 'b');              // => undefined
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m     The machine to read.
+ *  @param state The state to get the label for.
+ *
+ *  @returns The label string, or `undefined` if no label is set.
+ *
+ */
+function label_for(m, state) {
+    return m._state_labels.get(state);
+}
+/*********
+ *
+ *  Get whatever the node should show as text.
+ *
+ *  Currently, this means to get the label for a given state, if any;
+ *  otherwise to return the node's name.  However, this definition is expected
+ *  to grow with time, and it is currently considered ill-advised to manually
+ *  parse this text.
+ *
+ *  See also {@link label_for}.
+ *
+ *  @example
+ *  import { from, display_text } from 'jssm';
+ *
+ *  const lswitch = from('a -> b; state a: { label: "Foo!"; };');
+ *  display_text(lswitch, 'a');              // => 'Foo!'
+ *  display_text(lswitch, 'b');              // => 'b'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m     The machine to read.
+ *  @param state The state to get display text for.
+ *
+ *  @returns The label if one exists, otherwise the state's name.
+ *
+ */
+function display_text(m, state) {
+    var _a;
+    return (_a = m._state_labels.get(state)) !== null && _a !== void 0 ? _a : state;
+}
+/********
+ *
+ *  Check whether a given state is a valid start state (either because it was
+ *  explicitly named as such, or because it was the first mentioned state.)
+ *
+ *  @example
+ *  import { sm, is_start_state } from 'jssm';
+ *
+ *  const example = sm`a -> b;`;
+ *
+ *  is_start_state(example, 'a');   // => true
+ *  is_start_state(example, 'b');   // => false
+ *
+ *  const example2 = sm`start_states: [a b]; a -> b;`;
+ *
+ *  is_start_state(example2, 'a');   // => true
+ *  is_start_state(example2, 'b');   // => true
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The name of the state to check
+ *
+ *  @returns Whether the state is a start state.
+ *
+ */
+function is_start_state(m, whichState) {
+    return m._start_states.has(whichState);
+}
+/********
+ *
+ *  Check whether a given state is a declared end state.
+ *
+ *  @example
+ *  import { sm, is_end_state } from 'jssm';
+ *
+ *  const example = sm`a -> b;`;
+ *
+ *  is_end_state(example, 'a');   // => false
+ *  is_end_state(example, 'b');   // => false
+ *
+ *  const example2 = sm`end_states: [a b]; a -> b;`;
+ *
+ *  is_end_state(example2, 'a');   // => true
+ *  is_end_state(example2, 'b');   // => true
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The name of the state to check
+ *
+ *  @returns Whether the state is a declared end state.
+ *
+ */
+function is_end_state(m, whichState) {
+    return m._end_states.has(whichState);
+}
+/********
+ *
+ *  Get the set of states declared as failure outputs for this machine.
+ *  Returns an array of state labels, or an empty array when none were
+ *  declared.  A state in this list means the machine is in a failure
+ *  condition when it occupies that state.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The declared failure-output state names, as a fresh array.
+ *
+ *  @see {@link is_failed_output} to test a single state
+ *  @see {@link is_failed} to test the current state
+ *
+ */
+function failed_outputs(m) {
+    return [...m._failed_outputs];
+}
+/********
+ *
+ *  Check whether a given state is declared as a failure output.
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The name of the state to check
+ *
+ *  @returns Whether the state is a declared failure output.
+ *
+ *  @see {@link failed_outputs} for the full failure-output set
+ *  @see {@link is_failed} to test the current state
+ *
+ */
+function is_failed_output(m, whichState) {
+    return m._failed_outputs.has(whichState);
+}
+/********
+ *
+ *  Check whether the machine is currently in a failure state — that is,
+ *  whether its current state is one of the declared `failed_outputs`.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns Whether the current state is a declared failure output.
+ *
+ *  @see {@link failed_outputs} for the full failure-output set
+ *  @see {@link is_failed_output} to test an arbitrary state
+ *
+ */
+function is_failed(m) {
+    return m._failed_outputs.has(m._state);
+}
+/********
+ *
+ *  Check whether a given state is final (either has no exits or is marked
+ *  `complete`.)
+ *
+ *  @example
+ *  import { sm, state_is_final } from 'jssm';
+ *
+ *  const final_test = sm`first -> second;`;
+ *
+ *  state_is_final(final_test, 'first');   // => false
+ *  state_is_final(final_test, 'second');  // => true
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The name of the state to check for finality
+ *
+ *  @returns Whether the state is terminal or complete.
+ *
+ */
+function state_is_final(m, whichState) {
+    return ((state_is_terminal(m, whichState)) || (state_is_complete(m, whichState)));
+}
+/********
+ *
+ *  Check whether the current state is final (either has no exits or is marked
+ *  `complete`.)
+ *
+ *  @example
+ *  import { sm, transition, is_final } from 'jssm';
+ *
+ *  const final_test = sm`first -> second;`;
+ *
+ *  is_final(final_test);   // => false
+ *  transition(final_test, 'second');
+ *  is_final(final_test);   // => true
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns Whether the current state is terminal or complete.
+ *
+ */
+function is_final(m) {
+    //  return ((!this.is_changing()) && this.state_is_final(this.state()));
+    return state_is_final(m, state(m));
+}
+/**
+ *  The RFC 8785 canonical-config identity of the current configuration
+ *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+ *  hashing.  Excludes envelope fields (timestamp/comment/history).
+ *  @param m The machine to read.
+ *  @returns The canonical config string.
+ *  @example
+ *    import { sm, canonical } from 'jssm';
+ *    canonical(sm`a -> b;`).includes('"state":"a"');  // => true
+ */
+function canonical(m) {
+    return canonical_config(m._state, m._data);
+}
+/**
+ * Get the machine's author list.  Set via the FSL `machine_author` directive.
+ *  @param m The machine to read.
+ *  @returns An array of author name strings.
+ */
+function machine_author(m) {
+    return m._machine_author;
+}
+/**
+ * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
+ *  @param m The machine to read.
+ *  @returns The comment string.
+ */
+function machine_comment(m) {
+    return m._machine_comment;
+}
+/**
+ * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
+ *  @param m The machine to read.
+ *  @returns An array of contributor name strings.
+ */
+function machine_contributor(m) {
+    return m._machine_contributor;
+}
+/**
+ * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
+ *  @param m The machine to read.
+ *  @returns The definition string.
+ */
+function machine_definition(m) {
+    return m._machine_definition;
+}
+/**
+ * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
+ *  `machine_language` directive, which accepts a language name or code, or a
+ *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
+ *  values resolve to `undefined`.
+ *  @param m The machine to read.
+ *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
+ *           supplied value did not resolve to a known language.
+ */
+function machine_language(m) {
+    return m._machine_language;
+}
+/**
+ * Get the machine's license string.  Set via the FSL `machine_license` directive.
+ *  @param m The machine to read.
+ *  @returns The license string.
+ */
+function machine_license(m) {
+    return m._machine_license;
+}
+/**
+ * Get the machine's name.  Set via the FSL `machine_name` directive.
+ *  @param m The machine to read.
+ *  @returns The machine name string.
+ */
+function machine_name(m) {
+    return m._machine_name;
+}
+/**
+ * The editor/panel defaults declared in the FSL `editor: {}` block, or
+ *  `undefined` when none was given.  Read by the all-widgets web control
+ *  (fsl#1334) — `panels` drives `request` panel mode.
+ *  @param m The machine to read.
+ *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+ *  @example
+ *    import { sm, editor_config } from 'jssm';
+ *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+ *    editor_config(m);  // => { panels: ['history'] }
+ */
+function editor_config(m) {
+    return m._editor_config;
+}
+/**
+ * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+ *  Returns `undefined` when not present.
+ *  @param m The machine to read.
+ *  @returns The npm package name string, or `undefined`.
+ *  @see machine_name
+ */
+function npm_name(m) {
+    return m._npm_name;
+}
+/**
+ * Get the render-size hint for the machine's visualization.  Set via the
+ *  FSL `default_size` directive.  Returns `undefined` when not present.
+ *
+ *  The three FSL forms each produce a different subset of fields:
+ *
+ *  - `default_size: 800;`       → `{ width: 800 }`
+ *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+ *  - `default_size: height 600;` → `{ height: 600 }`
+ *
+ *  This is a hint, not a hard constraint.  Renderers may ignore it.
+ *  @param m The machine to read.
+ *  @returns The size-hint object, or `undefined` if not set.
+ *  @see npm_name
+ */
+function default_size(m) {
+    return m._default_size;
+}
+/**
+ * Get the machine's declared version, parsed.  Set via the FSL
+ *  `machine_version` directive, which takes a semver triple; the parser
+ *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
+ *  exact source text in `full`.  Returns `undefined` when the directive
+ *  was not given.
+ *  @param m The machine to read.
+ *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+ *  @example
+ *    import { sm, machine_version } from 'jssm';
+ *    const m = sm`machine_version: 1.2.3; a -> b;`;
+ *    machine_version(m);  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
+ *  @see fsl_version
+ */
+function machine_version(m) {
+    return m._machine_version;
+}
+/**
+ * Get the raw state declaration objects as parsed from the FSL source.
+ *  @param m The machine to read.
+ *  @returns An array of raw state declaration objects.
+ */
+function raw_state_declarations(m) {
+    return m._raw_state_declaration;
+}
+/**
+ * Get the processed state declaration for a specific state.
+ *  @param m     The machine to read.
+ *  @param which The state to look up.
+ *  @returns The {@link JssmStateDeclaration} for the given state.
+ */
+function state_declaration(m, which) {
+    return m._state_declarations.get(which);
+}
+/**
+ * Get all processed state declarations as a Map.
+ *  @param m The machine to read.
+ *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
+ */
+function state_declarations(m) {
+    return m._state_declarations;
+}
+/**
+ * Get the FSL language version this machine declares, parsed.  Set via
+ *  the FSL `fsl_version` directive, which takes a semver triple; the
+ *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
+ *  the exact source text in `full`.  Returns `undefined` when the
+ *  directive was not given.
+ *  @param m The machine to read.
+ *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
+ *  @example
+ *    import { sm, fsl_version } from 'jssm';
+ *    const m = sm`fsl_version: 1.0.0; a -> b;`;
+ *    fsl_version(m);  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
+ *  @see machine_version
+ */
+function fsl_version(m) {
+    return m._fsl_version;
+}
+/**
+ * Get the complete internal state of the machine as a serializable
+ *  structure.  Includes actions, edges, edge map, named transitions,
+ *  reverse actions, current state, and states map.
+ *  @param m The machine to read.
+ *  @returns A {@link JssmMachineInternalState} snapshot.
+ */
+function machine_state(m) {
+    return {
+        internal_state_impl_version: 1,
+        actions: m._actions,
+        edge_map: m._edge_map,
+        edges: m._edges,
+        named_transitions: m._named_transitions,
+        reverse_actions: m._reverse_actions,
+        // reverse_action_targets : m._reverse_action_targets,
+        state: m._state,
+        states: m._states
+    };
+}
+/*********
+ *
+ *  List all the states known by the machine.  Please note that the order of
+ *  these states is not guaranteed.
+ *
+ *  @example
+ *  import { from, states } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;');
+ *  states(lswitch).sort();             // => ['off', 'on']
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns An array of all state names in the machine.
+ *
+ */
+function states(m) {
+    return [...m._states.keys()];
+}
+/**
+ * Get the internal state descriptor for a given state name.
+ *  @param m          The machine to read.
+ *  @param whichState The state to look up.
+ *  @returns The {@link JssmGenericState} descriptor.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function state_for(m, whichState) {
+    const state = m._states.get(whichState);
+    if (state) {
+        return state;
+    }
+    throw new JssmError(m, 'No such state', { requested_state: whichState });
+}
+/*********
+ *
+ *  Check whether the machine knows a given state.
+ *
+ *  @example
+ *  import { from, has_state } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;');
+ *
+ *  has_state(lswitch, 'off');     // => true
+ *  has_state(lswitch, 'dance');   // => false
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The state to be checked for existence.
+ *
+ *  @returns `true` if the state exists, `false` otherwise.
+ *
+ */
+function has_state(m, whichState) {
+    return m._states.has(whichState);
+}
+/*********
+ *
+ *  Lists all edges of a machine.  Each edge is a {@link JssmTransition}
+ *  record such as `{ from: 'on', to: 'off', kind: 'main', forced_only: false,
+ *  main_path: true, action: 'toggle' }`.
+ *
+ *  @example
+ *  import { sm, list_edges } from 'jssm';
+ *
+ *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+ *
+ *  list_edges(lswitch).length;                                      // => 2
+ *  list_edges(lswitch).map(e => [e.from, e.to, e.kind, e.action]);  // => [ ['on', 'off', 'main', 'toggle'], ['off', 'on', 'main', 'toggle'] ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns An array of all {@link JssmTransition} edge objects.
+ *
+ */
+function list_edges(m) {
+    return m._edges;
+}
+/**
+ * Get the map of named transitions (transitions with explicit names).
+ *  @param m The machine to read.
+ *  @returns A `Map` from transition name to edge index.
+ */
+function list_named_transitions(m) {
+    return m._named_transitions;
+}
+/**
+ * List all distinct action names defined anywhere in the machine.
+ *  @param m The machine to read.
+ *  @returns An array of action name strings.
+ */
+function list_actions(m) {
+    return [...m._actions.keys()];
+}
+/**
+ * Whether any actions are defined on this machine.
+ *  @param m The machine to read.
+ *  @returns `true` if the machine has at least one action.
+ */
+function uses_actions(m) {
+    // Map.size answers emptiness without materializing the key list
+    return m._actions.size > 0;
+}
+/**
+ * Whether any forced (`~>`) transitions exist in this machine.
+ *  @param m The machine to read.
+ *  @returns `true` if at least one forced transition is defined.
+ */
+function uses_forced_transitions(m) {
+    return m._has_forced_transitions;
+}
+/*********
+ *
+ *  Check if the code that built the machine allows overriding state and data.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The override permission from the FSL source code.
+ *
+ */
+function code_allows_override(m) {
+    return m._code_allows_override;
+}
+/*********
+ *
+ *  Check if the machine config allows overriding state and data.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The override permission from the runtime config.
+ *
+ */
+function config_allows_override(m) {
+    return m._config_allows_override;
+}
+/*********
+ *
+ *  Check if a machine allows overriding state and data.  Resolves the
+ *  combined effect of code and config permissions — config may not be
+ *  less strict than code.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The effective override permission.
+ *
+ */
+function allows_override(m) {
+    // tri-state throughout: undefined is a legal, distinct value for both
+    // fields — literal comparisons are semantics, not style
+    // code false?  config true, throw.  config false, false.  config undefined, false.
+    if (m._code_allows_override === false) {
+        /* istanbul ignore next */
+        if (m._config_allows_override === true) {
+            /* istanbul ignore next */
+            throw new JssmError(m, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
+        }
+        return false;
+    }
+    // code true?  config true, true.  config false, false.  config undefined, true.
+    if (m._code_allows_override === true) {
+        return m._config_allows_override !== false;
+    }
+    // code must be undefined.  config false, false.  config true, true.  config undefined, false.
+    return m._config_allows_override === true;
+}
+/*********
+ *
+ *  Return the effective island policy for this machine.  `true` means
+ *  disconnected components are allowed (the default), `false` requires a
+ *  single connected component, and `'with_start'` allows islands only when
+ *  every component contains at least one start state.
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The island policy stored in the machine.
+ *
+ */
+function allow_islands(m) {
+    return m._allow_islands;
+}
+/**
+ * List the ASCII character ranges accepted by the FSL grammar in any but
+ *  the first position of a state name (atom): digits, letters, and
+ *  underscore.  Each entry is an inclusive `{from, to}` range of single
+ *  Unicode characters.  Non-ASCII characters are classified by
+ *  {@link is_state_name_char}, the complete rule (#754).
+ *  @param m The machine to read; the table is the grammar's, the same for every machine.
+ *  @returns An array of `{from, to}` inclusive character ranges.
+ *  @example
+ *  import { sm, all_state_name_chars } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  all_state_name_chars(m).some(r => '_' >= r.from && '_' <= r.to);  // => true
+ *  all_state_name_chars(m).some(r => '+' >= r.from && '+' <= r.to);  // => false
+ */
+function all_state_name_chars(m) {
+    return state_name_chars$1;
+}
+/**
+ * List the ASCII character ranges accepted by the FSL grammar in the first
+ *  position of a state name (atom): letters and underscore (never a
+ *  digit).  Non-ASCII characters are classified by
+ *  {@link is_state_name_first_char}, the complete rule (#754).
+ *  @param m The machine to read; the table is the grammar's, the same for every machine.
+ *  @returns An array of `{from, to}` inclusive character ranges.
+ *  @example
+ *  import { sm, all_state_name_first_chars } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  all_state_name_first_chars(m).some(r => '_' >= r.from && '_' <= r.to);  // => true
+ *  all_state_name_first_chars(m).some(r => '+' >= r.from && '+' <= r.to);  // => false
+ */
+function all_state_name_first_chars(m) {
+    return state_name_first_chars$1;
+}
+/**
+ * List the character ranges accepted inside a single-quoted FSL action
+ *  label without escaping.  Space is allowed; the apostrophe `'` is
+ *  explicitly excluded since it terminates the label.
+ *  @param m The machine to read; the table is the grammar's, the same for every machine.
+ *  @returns An array of `{from, to}` inclusive character ranges.
+ *  @example
+ *  import { sm, all_action_label_chars } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  all_action_label_chars(m).some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  all_action_label_chars(m).some(r => "'" >= r.from && "'" <= r.to);   // => false
+ */
+function all_action_label_chars(m) {
+    return action_label_chars$1;
+}
+/**
+ * Look up a transition's edge index by source and target state names.
+ *  @param m    The machine to read.
+ *  @param from Source state name.
+ *  @param to   Target state name.
+ *  @returns The edge index in the edges array, or `undefined` if no
+ *  such transition exists.
+ */
+function get_transition_by_state_names(m, from, to) {
+    const emg = m._edge_map.get(from);
+    return emg ? emg.get(to) : undefined;
+}
+/**
+ * Look up the full transition object for a given source→target pair.
+ *  @param m    The machine to read.
+ *  @param from Source state name.
+ *  @param to   Target state name.
+ *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
+ */
+function lookup_transition_for(m, from, to) {
+    const id = get_transition_by_state_names(m, from, to);
+    return ((id === undefined) || (id === null)) ? undefined : m._edges[id];
+}
+/********
+ *
+ *  List all transitions attached to the current state, sorted by entrance and
+ *  exit.  The order of each sublist is not defined.  A node could appear in
+ *  both lists.
+ *
+ *  @example
+ *  import { sm, state, list_transitions } from 'jssm';
+ *
+ *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+ *
+ *  state(light);               // => 'red'
+ *  list_transitions(light);    // => { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The state whose transitions to have listed; defaults to the current state.
+ *
+ *  @returns The entrances and exits of the state.
+ *
+ */
+function list_transitions(m, whichState = state(m)) {
+    return { entrances: list_entrances(m, whichState), exits: list_exits(m, whichState) };
+}
+/********
+ *
+ *  List all entrances attached to the current state.  Please note that the
+ *  order of the list is not defined.  This list includes both unforced and
+ *  forced entrances; if this isn't desired, consider
+ *  `list_unforced_entrances` or `list_forced_entrances` as
+ *  appropriate.
+ *
+ *  @example
+ *  import { sm, state, list_entrances } from 'jssm';
+ *
+ *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+ *
+ *  state(light);               // => 'red'
+ *  list_entrances(light);      // => [ 'yellow', 'off' ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The state whose entrances to have listed; defaults to the current state.
+ *
+ *  @returns The names of the states with an edge into `whichState`.
+ *
+ */
+function list_entrances(m, whichState = state(m)) {
+    var _a, _b;
+    const guaranteed = ((_a = m._states.get(whichState)) !== null && _a !== void 0 ? _a : { from: undefined });
+    return (_b = guaranteed.from) !== null && _b !== void 0 ? _b : [];
+}
+/********
+ *
+ *  List all exits attached to the current state.  Please note that the order
+ *  of the list is not defined.  This list includes both unforced and forced
+ *  exits; if this isn't desired, consider `list_unforced_exits` or
+ *  `list_forced_exits` as appropriate.
+ *
+ *  @example
+ *  import { sm, state, list_exits } from 'jssm';
+ *
+ *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+ *
+ *  state(light);               // => 'red'
+ *  list_exits(light);          // => [ 'green', 'off' ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The state whose exits to have listed; defaults to the current state.
+ *
+ *  @returns The names of the states with an edge out of `whichState`.
+ *
+ */
+function list_exits(m, whichState = state(m)) {
+    var _a, _b;
+    const guaranteed = ((_a = m._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
+    return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
+}
+/********
+ *
+ *  List all actions available from this state.  Please note that the order of
+ *  the actions is not guaranteed.
+ *
+ *  @example
+ *  import { sm, act, state, actions } from 'jssm';
+ *
+ *  const machine = sm`
+ *    red 'next' -> green 'next' -> yellow 'next' -> red;
+ *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+ *  `;
+ *
+ *  state(machine);             // => 'red'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
+ *
+ *  act(machine, 'next');       // => true
+ *  state(machine);             // => 'green'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
+ *
+ *  act(machine, 'shutdown');   // => true
+ *  state(machine);             // => 'off'
+ *  actions(machine);           // => ['start']
+ *
+ *  act(machine, 'start');      // => true
+ *  state(machine);             // => 'red'
+ *  actions(machine).sort();    // => ['next', 'shutdown']
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The state whose actions to list.  Defaults to the
+ *  current state.
+ *
+ *  @returns An array of action names available from the given state.
+ *
+ *  @throws {JssmError} If the state does not exist.
+ *
+ */
+function actions(m, whichState = state(m)) {
+    const wstate = m._reverse_actions.get(whichState);
+    if (wstate) {
+        return [...wstate.keys()];
+    }
+    if (has_state(m, whichState)) {
+        return [];
+    }
+    throw new JssmError(m, `No such state ${JSON.stringify(whichState)}`);
+}
+/********
+ *
+ *  List all states that have a specific action attached.  Please note that
+ *  the order of the states is not guaranteed.
+ *
+ *  @example
+ *  import { sm, list_states_having_action } from 'jssm';
+ *
+ *  const machine = sm`
+ *    red 'next' -> green 'next' -> yellow 'next' -> red;
+ *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+ *  `;
+ *
+ *  list_states_having_action(machine, 'next').sort();    // => ['green', 'red', 'yellow']
+ *  list_states_having_action(machine, 'start');          // => ['off']
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m          The machine to read.
+ *  @param whichState The action to be checked for associated states
+ *
+ *  @returns The names of the states the action exits from.
+ *
+ *  @throws {JssmError} If no state has the action.
+ *
+ */
+function list_states_having_action(m, whichState) {
+    const wstate = m._actions.get(whichState);
+    if (wstate) {
+        return [...wstate.keys()];
+    }
+    throw new JssmError(m, `No such state ${JSON.stringify(whichState)}`);
+}
+// comeback
+/*
+  list_entrance_actions(whichState: mNT = this.state() ) : Array<mNT> {
+    return [... (this._reverse_action_targets.get(whichState) || new Map()).values()] // wasteful
+           .map( (edgeId:any) => (this._edges[edgeId] : any)) // whargarbl burn out any
+           .filter( (o:any) => o.to === whichState)
+           .map( filtered => filtered.from );
+  }
+*/
+/**
+ * List all action names available as exits from a given state.
+ *
+ *  Returns the empty array (does not throw) when `whichState` exists but has
+ *  no action-named exits — including terminal states, states whose only
+ *  exits are plain `->` transitions, and states in machines that use no
+ *  actions at all.  Only nonexistent states cause a throw.
+ *  @param m          The machine to read.
+ *  @param whichState The state to inspect.  Defaults to the current state.
+ *  @returns An array of action name strings, possibly empty.
+ *  @throws {JssmError} If the state does not exist.
+ *  @example
+ *    import { sm, list_exit_actions } from 'jssm';
+ *    const m = sm`a 'go' -> b; b -> c;`;
+ *    list_exit_actions(m, 'a');  // => ['go']
+ *    list_exit_actions(m, 'b');  // => []
+ *    list_exit_actions(m, 'c');  // => []
+ *    expect(() => list_exit_actions(m, 'z')).toThrow();
+ */
+function list_exit_actions(m, whichState = state(m)) {
+    const ra_base = m._reverse_actions.get(whichState);
+    if (!(ra_base)) {
+        if (has_state(m, whichState)) {
+            return [];
+        }
+        throw new JssmError(m, `No such state ${JSON.stringify(whichState)}`);
+    }
+    // `_reverse_actions` is keyed by edge.from (see its population), so every
+    // action stored under whichState belongs to whichState by construction — no
+    // from-filter is needed, and the keys are exactly the exit actions.
+    return [...ra_base.keys()];
+}
+/**
+ * List all action exits from a state with their probabilities and shares.
+ *  @param m          The machine to read.
+ *  @param whichState The state to inspect.  Defaults to the current state.
+ *  @returns An array of `{ action, probability, share }` objects — `share`
+ *           is the edge's within-list share (6.0 list weights), present
+ *           only for an edge that landed on a list side with no declared
+ *           `probability`; `undefined` otherwise, same as the edge itself.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function probable_action_exits(m, whichState = state(m)) {
+    const ra_base = m._reverse_actions.get(whichState);
+    if (!(ra_base)) {
+        if (has_state(m, whichState)) {
+            return [];
+        }
+        throw new JssmError(m, `No such state ${JSON.stringify(whichState)}`);
+    }
+    const exits = []; // TODO FIXME no any
+    // `_reverse_actions` is keyed by edge.from, so every entry belongs to
+    // whichState by construction; no from-filter is needed.
+    ra_base.forEach((edgeId, action) => {
+        exits.push({
+            action,
+            probability: m._edges[edgeId].probability,
+            share: m._edges[edgeId].share
+        });
+    });
+    return exits;
+}
+/**
+ * Check whether a state has no incoming transitions (unreachable after start).
+ *  @param m          The machine to read.
+ *  @param whichState The state to check.
+ *  @returns `true` if the state has zero entrances.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function is_unenterable(m, whichState) {
+    if (!(has_state(m, whichState))) {
+        throw new JssmError(m, `No such state ${whichState}`);
+    }
+    return list_entrances(m, whichState).length === 0;
+}
+/**
+ * Check whether any state in the machine is unenterable.
+ *  @param m The machine to read.
+ *  @returns `true` if at least one state has no incoming transitions.
+ */
+function has_unenterables(m) {
+    return states(m).some((x) => is_unenterable(m, x));
+}
+/**
+ * Check whether the current state is terminal (has no exits).
+ *  @param m The machine to read.
+ *  @returns `true` if the current state has zero exits.
+ */
+function is_terminal(m) {
+    return state_is_terminal(m, state(m));
+}
+/**
+ * Check whether a specific state is terminal (has no exits).
+ *  @param m          The machine to read.
+ *  @param whichState The state to check.
+ *  @returns `true` if the state has zero exits.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function state_is_terminal(m, whichState) {
+    if (!(has_state(m, whichState))) {
+        throw new JssmError(m, `No such state ${whichState}`);
+    }
+    return list_exits(m, whichState).length === 0;
+}
+/**
+ * Check whether any state in the machine is terminal.
+ *  @param m The machine to read.
+ *  @returns `true` if at least one state has no exits.
+ */
+function has_terminals(m) {
+    return states(m).some((x) => state_is_terminal(m, x));
+}
+/**
+ * Check whether the current state is complete (every exit has an action).
+ *  @param m The machine to read.
+ *  @returns `true` if the current state is complete.
+ */
+function is_complete(m) {
+    return state_is_complete(m, state(m));
+}
+/**
+ * Check whether a specific state is complete (every exit has an action).
+ *  @param m          The machine to read.
+ *  @param whichState The state to check.
+ *  @returns `true` if the state is complete.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function state_is_complete(m, whichState) {
+    const wstate = m._states.get(whichState);
+    if (wstate) {
+        return wstate.complete;
+    }
+    throw new JssmError(m, `No such state ${JSON.stringify(whichState)}`);
+}
+/**
+ * Check whether any state in the machine is complete.
+ *  @param m The machine to read.
+ *  @returns `true` if at least one state is complete.
+ */
+function has_completes(m) {
+    return states(m).some((x) => state_is_complete(m, x));
+}
+/**
+ * Get all edges between two states (there can be multiple with
+ *  different actions).
+ *  @param m    The machine to read.
+ *  @param from Source state name.
+ *  @param to   Target state name.
+ *  @returns An array of matching {@link JssmTransition} objects.
+ */
+function edges_between(m, from, to) {
+    var _a;
+    // Filter only this state's outbound edges instead of the full _edges array.
+    // For machines with E total edges and average out-degree d, this is O(d)
+    // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
+    // covers from-states that have no outgoing edges (terminal states) and
+    // states that don't exist at all, both of which return [] without iterating.
+    //
+    // The match itself compares interned numeric state ids against the packed
+    // _edge_to_ids array rather than dereferencing each edge object for a
+    // string compare: non-matching edges never touch an edge object, which is
+    // most of the cost on dense shapes (heavier edge objects degrade a deref
+    // loop — the 5.142/5.143 regression mechanism).  Every state named by any
+    // edge is interned at construction, so an unknown `to` provably has no
+    // edges and returns [] immediately.
+    const to_id = m._state_interner.id_of(to);
+    if (to_id === undefined) {
+        return [];
+    }
+    const outbound = (_a = m._outbound_edge_ids.get(from)) !== null && _a !== void 0 ? _a : [];
+    const result = [];
+    for (const edgeId of outbound) {
+        if (m._edge_to_ids[edgeId] === to_id) {
+            result.push(m._edges[edgeId]);
+        }
+    }
+    return result;
+}
+/**
+ * Get the edge index for an action from the current state.
+ *  Interned dispatch: resolves via the numeric (action, from) index —
+ *  unknown action names miss without throwing.
+ *  @param m      The machine to read.
+ *  @param action The action name.
+ *  @returns The edge index, or `undefined` if the action is not available.
+ */
+function current_action_for(m, action) {
+    const action_id = m._action_interner.id_of(action);
+    return (action_id === undefined)
+        ? undefined
+        : m._edge_id_by_action_pair.get(pair_key(action_id, m._state_id));
+}
+/**
+ * Get the full transition object for an action from the current state.
+ *  @param m      The machine to read.
+ *  @param action The action name.
+ *  @returns The {@link JssmTransition} object.
+ *  @throws {JssmError} If the action is not available from the current state.
+ */
+function current_action_edge_for(m, action) {
+    const idx = current_action_for(m, action);
+    if ((idx === undefined) || (idx === null)) {
+        throw new JssmError(m, `No such action ${JSON.stringify(action)}`);
+    }
+    return m._edges[idx];
+}
+
+/*******
+ *
+ *  The data family: the machine's free-form data value, its declared
+ *  `property` table, and its typed `val` table.  Every function takes the
+ *  machine as its first argument and reads the machine's `_data`,
+ *  `_state_properties` / `_default_properties` / `_property_keys`, and
+ *  `_val_*` fields directly; the `Machine` class methods of the same names
+ *  are one-line delegates onto these.
+ *
+ *  `data`, `set_data`, `prop`, `strict_prop`, `props`, `known_prop`,
+ *  `known_props`, `val`, `set_val`, `vals`, `known_val`, `known_vals`, and
+ *  `val_type` are the public surface, re-exported by the `jssm` barrel.
+ *  `data_ref` (the zero-copy read the class exposes as `_data_ref`) and
+ *  `validate_val_value` (which the constructor runs over the initial vals)
+ *  are exported for the class and the same-package panels only, and are not
+ *  part of the barrel.
+ *
+ */
+/*********
+ *
+ *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
+ *  a {@link JssmError} on a type or range violation.  Used both at construction
+ *  (initial values) and on every `set_val` write.
+ *
+ *  @param name    The val's declared name, for the error message.
+ *  @param vtype   The val's declared type descriptor.
+ *  @param value   The candidate value.
+ *  @param machine The machine the error should be attributed to.
+ *
+ *  @throws {JssmError} If `value` is not of the declared kind, or an `int`
+ *  outside its declared `lo..hi` range, or a string outside an `enum`'s members.
+ *
+ */
+function validate_val_value(name, vtype, value, machine) {
+    switch (vtype.kind) {
+        case 'boolean': {
+            if (typeof value !== 'boolean') {
+                throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        case 'string': {
+            if (typeof value !== 'string') {
+                throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        case 'int': {
+            // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
+            if (!Number.isInteger(value)) {
+                throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
+            }
+            if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < vtype.lo) {
+                throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${vtype.lo}`);
+            }
+            if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > vtype.hi) {
+                throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${vtype.hi}`);
+            }
+            break;
+        }
+        case 'enum': {
+            if (!vtype.members.includes(value)) {
+                throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
+            }
+            break;
+        }
+        // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
+        // only ever emits four kinds of, so this default is unreachable at runtime;
+        // the `never` assignment turns an unhandled future kind into a compile error.
+        /* v8 ignore start */
+        default: {
+            const _exhaustive = vtype;
+            throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
+        }
+        /* v8 ignore stop */
+    }
+}
+/*********
+ *
+ *  Get the current data of a machine.
+ *
+ *  @example
+ *  import { from, data } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;', {data: 1});
+ *  data(lswitch);              // => 1
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose data to read.
+ *
+ *  @returns A deep clone of the machine's current data value.
+ *
+ */
+function data(m) {
+    return structuredClone(m._data);
+}
+/*********
+ *
+ *  Replace the machine's data in place, without a transition.  This is the
+ *  practical way to assign any value — including `undefined`, `null`, or
+ *  `false` — outside a hook's complex return, closing the gap where an
+ *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
+ *  a `data-change` event with cause `'set_data'` when the value actually
+ *  changes; unlike {@link override} it requires no `allows_override`
+ *  config, because it never moves the state.
+ *
+ *  @example
+ *  import { from, data, set_data } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;', {data: 1});
+ *  data(lswitch);              // => 1
+ *
+ *  set_data(lswitch, 2);
+ *  data(lswitch);              // => 2
+ *
+ *  set_data(lswitch, undefined);
+ *  data(lswitch);              // => undefined
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m       The machine whose data to replace.
+ *  @param newData The value to install as the machine's data.
+ *
+ *  @returns The machine, for chaining.
+ *
+ *  @see data
+ *  @see override
+ *
+ */
+function set_data(m, newData) {
+    const oldData = m._data;
+    m._data = newData;
+    if (oldData !== newData) {
+        fire(m, 'data-change', {
+            from: m._state,
+            to: m._state,
+            old_data: oldData,
+            new_data: newData,
+            cause: 'set_data'
+        });
+    }
+    return m;
+}
+/**
+ *  The machine's current data by REFERENCE — no clone.  The public
+ *  {@link data} contract is a deep clone per call (a mutation boundary for
+ *  external consumers, and deliberately untouched); that clone is
+ *  `structuredClone` of the whole data value, which same-package read-only
+ *  consumers — the fsl-bind and fsl-data-inspector panels, which read one
+ *  dotted path or serialize per transition — should not pay on every event.
+ *  Callers MUST NOT mutate the returned value or store it beyond the current
+ *  tick; anything crossing a trust boundary must use {@link data} instead.
+ *  The class exposes this as `_data_ref()`; it is not part of the barrel.
+ *
+ *  Not a doctest: `data_ref` is module-only and cannot be imported from `'jssm'`.
+ *  ```typescript
+ *  import { from } from 'jssm';
+ *  import { data_ref } from './machine/data.js';   // same-package import; not on the barrel
+ *
+ *  const m = from('on <=> off;', { data: { a: { b: 1 } } });
+ *  data_ref(m).a.b;   // 1, zero-copy
+ *  ```
+ *  @param m The machine whose data to read.
+ *  @returns The live data value; treat as read-only.
+ *  @see data
+ *  @internal
+ */
+function data_ref(m) {
+    return m._data;
+}
+/*********
+ *
+ *  Get the current value of a given property name.  Checks the current
+ *  state's properties first, then falls back to the global default.
+ *  Returns `undefined` if neither exists.  For a throwing variant, see
+ *  {@link strict_prop}.
+ *
+ *  @example
+ *  import { sm, go, prop } from 'jssm';
+ *
+ *  const m = sm`property color default "grey"; a -> b;
+ *               state b: { property: color "blue"; };`;
+ *
+ *  // the default, because the state is 'a':
+ *  prop(m, 'color');  // => 'grey'
+ *  go(m, 'b');
+ *  // state 'b' overrides the default:
+ *  prop(m, 'color');  // => 'blue'
+ *  // no such property:
+ *  prop(m, 'size');   // => undefined
+ *
+ *  @param m    The machine to read the property from.
+ *  @param name The relevant property name to look up.
+ *
+ *  @returns The value behind the prop name, or `undefined` if not defined.
+ *
+ */
+function prop(m, name) {
+    const bound_name = name_bind_prop_and_state(name, state(m));
+    if (m._state_properties.has(bound_name)) {
+        return m._state_properties.get(bound_name);
+    }
+    return m._default_properties.has(name) ? m._default_properties.get(name) : undefined;
+}
+/*********
+ *
+ *  Get the current value of a given property name.  If missing on the state
+ *  and without a global default, throws a {@link JssmError}, unlike
+ *  {@link prop}, which would return `undefined` instead.
+ *
+ *  @example
+ *  import { sm, strict_prop } from 'jssm';
+ *
+ *  const m = sm`property color default "grey"; a -> b;`;
+ *
+ *  strict_prop(m, 'color');  // => 'grey'
+ *  // an undeclared property throws a JssmError:
+ *  expect(() => strict_prop(m, 'size')).toThrow();
+ *
+ *  @param m    The machine to read the property from.
+ *  @param name The relevant property name to look up.
+ *
+ *  @returns The value behind the prop name.
+ *
+ *  @throws {JssmError} If the property is not defined on the current state
+ *  and has no default.
+ *
+ */
+function strict_prop(m, name) {
+    const bound_name = name_bind_prop_and_state(name, state(m));
+    if (m._state_properties.has(bound_name)) {
+        return m._state_properties.get(bound_name);
+    }
+    if (m._default_properties.has(name)) {
+        return m._default_properties.get(name);
+    }
+    throw new JssmError(m, `Strictly requested a prop '${name}' which doesn't exist on current state '${state(m)}' and has no default`);
+}
+/*********
+ *
+ *  Get the current value of every prop, as an object.  If no current definition
+ *  exists for a prop — that is, if the prop was defined without a default and
+ *  the current state also doesn't define the prop — then that prop will be listed
+ *  in the returned object with a value of `undefined`.
+ *
+ *  @example
+ *  import { sm, go, state, props } from 'jssm';
+ *
+ *  const traffic_light = sm`
+ *
+ *    property can_go     default true;
+ *    property hesitate   default true;
+ *    property stop_first default false;
+ *
+ *    Off -> Red => Green => Yellow => Red;
+ *    [Red Yellow Green] ~> [Off FlashingRed];
+ *    FlashingRed -> Red;
+ *
+ *    state Red:         { property: stop_first true;  property: can_go false; };
+ *    state Off:         { property: stop_first true;  };
+ *    state FlashingRed: { property: stop_first true;  };
+ *    state Green:       { property: hesitate   false; };
+ *
+ *  `;
+ *
+ *  state(traffic_light);  // => 'Off'
+ *  props(traffic_light);  // => { can_go: true,  hesitate: true,  stop_first: true  }
+ *
+ *  go(traffic_light, 'Red');
+ *  props(traffic_light);  // => { can_go: false, hesitate: true,  stop_first: true  }
+ *
+ *  go(traffic_light, 'Green');
+ *  props(traffic_light);  // => { can_go: true,  hesitate: false, stop_first: false }
+ *
+ *  @param m The machine to read the properties from.
+ *
+ *  @returns An object mapping every known property name to its current value
+ *  (or `undefined` if the property has no default and the current state
+ *  doesn't define it).
+ *
+ */
+function props(m) {
+    const ret = {};
+    for (const p of known_props(m))
+        ret[p] = prop(m, p);
+    return ret;
+}
+// TODO: sparse_props — like props() but omits undefined entries
+// sparse_props(name: string): object { }
+// TODO: strict_props — like props() but throws on any undefined entry
+// strict_props(name: string): object { }
+/*********
+ *
+ *  Check whether a given string is a known property's name.
+ *
+ *  @example
+ *  import { sm, known_prop } from 'jssm';
+ *
+ *  const example = sm`property foo default 1; a->b;`;
+ *
+ *  known_prop(example, 'foo');  // => true
+ *  known_prop(example, 'bar');  // => false
+ *
+ *  @param m         The machine to inspect.
+ *  @param prop_name The relevant property name to look up
+ *
+ *  @returns Whether the name is a declared property.
+ *
+ */
+function known_prop(m, prop_name) {
+    return m._property_keys.has(prop_name);
+}
+/*********
+ *
+ *  List all known property names.  If you'd also like values, use
+ *  {@link props} instead.  The order of the properties is not defined, and
+ *  the properties generally will not be sorted.
+ *
+ *  @example
+ *  import { sm, known_props } from 'jssm';
+ *
+ *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
+ *
+ *  known_props(m).sort();  // => ['color', 'size']
+ *
+ *  @param m The machine to inspect.
+ *
+ *  @returns An array of all property name strings defined on this machine.
+ *
+ */
+function known_props(m) {
+    return [...m._property_keys];
+}
+/*********
+ *
+ *  Read the current value of a declared machine `val`.
+ *
+ *  @example
+ *  import { sm, val } from 'jssm';
+ *
+ *  const m = sm`val ok : boolean default true; a -> b;`;
+ *
+ *  val(m, 'ok');   // => true
+ *
+ *  @param m    The machine to read the val from.
+ *  @param name The declared val name to read.
+ *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+ *  @throws {JssmError} If `name` is not a declared val.
+ *
+ */
+function val(m, name) {
+    if (!m._val_keys.has(name)) {
+        throw new JssmError(m, `No such val "${name}"`);
+    }
+    return m._val_values.get(name);
+}
+/*********
+ *
+ *  Set the value of a declared machine `val`, validating it against the val's
+ *  declared type.  This is the runtime mutation surface; source-level `assign`
+ *  arrives in a later phase.
+ *
+ *  @example
+ *  import { sm, val, set_val } from 'jssm';
+ *
+ *  const m = sm`val n : int default 0; a -> b;`;
+ *
+ *  set_val(m, 'n', 5);
+ *  val(m, 'n');   // => 5
+ *
+ *  @param m     The machine to write the val on.
+ *  @param name  The declared val name to write.
+ *  @param value The new value; must satisfy the val's declared type.
+ *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+ *
+ */
+function set_val(m, name, value) {
+    if (!m._val_keys.has(name)) {
+        throw new JssmError(m, `No such val "${name}"`);
+    }
+    validate_val_value(name, m._val_types.get(name), value, m);
+    m._val_values.set(name, value);
+}
+/*********
+ *
+ *  Return a plain object mapping every declared val name to its current value.
+ *
+ *  @example
+ *  import { sm, vals } from 'jssm';
+ *
+ *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+ *
+ *  vals(m);   // => { a: 1, b: false }
+ *
+ *  @param m The machine to read the vals from.
+ *
+ *  @returns An object of every declared val name to its current value.
+ *
+ */
+function vals(m) {
+    const result = {};
+    m._val_keys.forEach(name => { result[name] = m._val_values.get(name); });
+    return result;
+}
+/*********
+ *
+ *  Check whether a string is the name of a declared `val`.
+ *
+ *  @example
+ *  import { sm, known_val } from 'jssm';
+ *
+ *  const m = sm`val a : int default 1; x -> y;`;
+ *
+ *  known_val(m, 'a');   // => true
+ *  known_val(m, 'z');   // => false
+ *
+ *  @param m    The machine to inspect.
+ *  @param name The candidate val name.
+ *  @returns Whether the name is a declared val.
+ *
+ */
+function known_val(m, name) {
+    return m._val_keys.has(name);
+}
+/*********
+ *
+ *  List every declared `val` name, in declaration order.
+ *
+ *  @example
+ *  import { sm, known_vals } from 'jssm';
+ *
+ *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+ *
+ *  known_vals(m);   // => ['a', 'b']
+ *
+ *  @param m The machine to inspect.
+ *
+ *  @returns The declared val names in declaration order.
+ *
+ */
+function known_vals(m) {
+    return [...m._val_keys];
+}
+/*********
+ *
+ *  Return the declared type descriptor of a `val`.
+ *
+ *  @example
+ *  import { sm, val_type } from 'jssm';
+ *
+ *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+ *
+ *  val_type(m, 'n');   // => { kind: 'int', lo: 0, hi: 3 }
+ *
+ *  @param m    The machine to inspect.
+ *  @param name The declared val name.
+ *  @returns The val's declared type descriptor.
+ *  @throws {JssmError} If `name` is not a declared val.
+ *
+ */
+function val_type(m, name) {
+    if (!m._val_keys.has(name)) {
+        throw new JssmError(m, `No such val "${name}"`);
+    }
+    return m._val_types.get(name);
+}
+
+/*******
+ *
+ *  The history family: reading and resizing the machine's ring buffer of
+ *  recent `[state, data]` pairs.  Every function takes the machine as its
+ *  first argument and reads the machine's `_history` / `_history_length`
+ *  fields directly; the `Machine` class getters and setter of the same names
+ *  are one-line delegates onto these.
+ *
+ */
+/*********
+ *
+ *  Get a truncated history of the recent states and data of the machine.
+ *  Turned off by default; configure with `from('...', {history: 5})` by
+ *  length, or call `set_history_length` at runtime.
+ *
+ *  History *does not contain the current state*.  If you want that, call
+ *  `history_inclusive` instead.
+ *
+ *  Notice that in the example the machine's current state, `e`, is not in
+ *  the returned list.
+ *
+ *  @example
+ *  import { from, act, history } from 'jssm';
+ *
+ *  const foo = from(
+ *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+ *    { history: 3 }
+ *  );
+ *
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *
+ *  history(foo);  // => [ ['b', undefined], ['c', undefined], ['d', undefined] ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose history to read.
+ *
+ *  @returns The retained `[state, data]` pairs, oldest first, as a fresh array.
+ *
+ *  @see history_inclusive
+ *  @see set_history_length
+ *
+ */
+function history(m) {
+    return m._history.toArray();
+}
+/*********
+ *
+ *  Get a truncated history of the recent states and data of the machine,
+ *  including the current state.  Turned off by default; configure with
+ *  `from('...', {history: 5})` by length, or call `set_history_length` at
+ *  runtime.
+ *
+ *  History inclusive contains the current state.  If you only want past
+ *  states, call `history` instead.
+ *
+ *  The list returned will be one longer than the history buffer kept, as the
+ *  history buffer kept gets the current state added to it to produce this
+ *  list.
+ *
+ *  Notice that in the example the machine's current state, `e`, is in the
+ *  returned list.
+ *
+ *  @example
+ *  import { from, act, history_inclusive } from 'jssm';
+ *
+ *  const foo = from(
+ *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+ *    { history: 3 }
+ *  );
+ *
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *
+ *  history_inclusive(foo);  // => [ ['b', undefined], ['c', undefined], ['d', undefined], ['e', undefined] ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose history to read.
+ *
+ *  @returns The retained `[state, data]` pairs followed by the current
+ *  `[state, data]`, oldest first, as a fresh array.
+ *
+ *  @see history
+ *
+ */
+function history_inclusive(m) {
+    const ret = m._history.toArray();
+    ret.push([state(m), data(m)]);
+    return ret;
+}
+/*********
+ *
+ *  Find out how long a history this machine is keeping.  Defaults to zero.
+ *  Change it with `set_history_length`.
+ *
+ *  @example
+ *  import { from, history_length, set_history_length } from 'jssm';
+ *
+ *  const foo = from("a -> b;");
+ *  history_length(foo);                                 // => 0
+ *
+ *  const bar = from("a -> b;", { history: 3 });
+ *  history_length(bar);                                 // => 3
+ *  set_history_length(bar, 5);
+ *  history_length(bar);                                 // => 5
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to inspect.
+ *
+ *  @returns The number of past `[state, data]` pairs the machine retains.
+ *
+ *  @see set_history_length
+ *
+ */
+function history_length(m) {
+    return m._history_length;
+}
+/*********
+ *
+ *  Set how long a history this machine keeps, resizing the buffer in place.
+ *  Growing keeps every retained entry; shrinking drops the oldest entries so
+ *  the most recent `to` survive; zero turns history off and empties it.
+ *  Takes effect for every later transition.
+ *
+ *  @example
+ *  import { from, act, history, set_history_length } from 'jssm';
+ *
+ *  const foo = from("a 'next' <-> 'next' b;");
+ *  act(foo, 'next');
+ *
+ *  set_history_length(foo, 3);
+ *  act(foo, 'next');
+ *  act(foo, 'next');
+ *  history(foo);              // => [ ['b', undefined], ['a', undefined] ]
+ *
+ *  set_history_length(foo, 1);
+ *  history(foo);              // => [ ['a', undefined] ]
+ *
+ *  set_history_length(foo, 0);
+ *  history(foo);              // => []
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m  The machine to resize the history of.
+ *  @param to The number of past `[state, data]` pairs to retain, zero or more.
+ *
+ *  @see history_length
+ *  @see history
+ *
+ */
+function set_history_length(m, to) {
+    m._history_length = to;
+    m._history.resize(to, true);
+}
+
+/*******
+ *
+ *  The hooks family: registering, removing, and introspecting the machine's
+ *  transition hooks, plus the step helpers the transition commit path uses
+ *  to run them.  Every function takes the machine as its first argument and
+ *  reads the machine's hook tables and `_has_*` fast-path flags directly; the
+ *  `Machine` class methods of the same names are one-line delegates onto
+ *  these.
+ *
+ *  `set_hook`, `remove_hook`, the 26 `hook_*` / `post_hook_*` wrappers, and
+ *  the registry accessors (`hook_registry`, `hooks_on`, `has_hook`,
+ *  `state_has_hooks`) are the public surface, re-exported by the `jssm`
+ *  barrel together with the `is_hook_*` predicates and the two
+ *  `abstract_*_hook_step` adapters.  `update_hook_fields`, `HOOK_PASSED`,
+ *  `HOOK_REJECTED`, `hook_required_fields`, and `hook_spatial_fields` are
+ *  exported for the other families (the transition commit path) and are not
+ *  part of the barrel.
+ *
+ */
+// The spatial fields (besides `handler`, which every hook needs) that each
+// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
+// to validate a HookDescription so a mis-shaped one is rejected rather than
+// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
+// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
+// `Record` over the kind union so the table is exhaustive at compile time:
+// adding a hook kind without listing its fields is a build error.
+const hook_required_fields = {
+    'hook': ['from', 'to'],
+    'named': ['from', 'to', 'action'],
+    'global action': ['action'],
+    'any action': [],
+    'standard transition': [],
+    'main transition': [],
+    'forced transition': [],
+    'any transition': [],
+    'entry': ['to'],
+    'exit': ['from'],
+    'after': ['from'],
+    'after any': [],
+    'post hook': ['from', 'to'],
+    'post named': ['from', 'to', 'action'],
+    'post global action': ['action'],
+    'post any action': [],
+    'post standard transition': [],
+    'post main transition': [],
+    'post forced transition': [],
+    'post any transition': [],
+    'post entry': ['to'],
+    'post exit': ['from'],
+    'pre everything': [],
+    'everything': [],
+    'pre post everything': [],
+    'post everything': [],
+};
+// The spatial fields a hook descriptor can carry, checked against the per-kind
+// requirements above.
+const hook_spatial_fields = ['from', 'to', 'action'];
+/**
+ *  Validate a {@link HookDescription} before registration.  Every hook needs
+ *  a `handler` function, and each kind's identifying spatial fields
+ *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+ *  kind — present when required, absent otherwise.  This turns a mis-shaped
+ *  descriptor into a thrown error instead of a silently dead hook keyed on
+ *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+ *  @param m        - The machine the descriptor is about to be registered on.
+ *  @param HookDesc - The descriptor about to be registered.
+ *  @throws JssmError if the kind is unknown, the handler is not a function, a
+ *          required field is missing, or an inapplicable field is present.
+ *  @example
+ *    import { sm, set_hook } from 'jssm';
+ *    const m = sm`a -> b;`;
+ *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+ *    expect(() => set_hook(m, { kind: 'exit', to: 'a', handler: () => true })).toThrow();
+ */
+function validate_hook_description(m, HookDesc) {
+    const required = hook_required_fields[HookDesc.kind];
+    if (required === undefined) {
+        throw new JssmError(m, `unknown hook kind ${JSON.stringify(HookDesc.kind)}`);
+    }
+    if (typeof HookDesc.handler !== 'function') {
+        throw new JssmError(m, `${HookDesc.kind} hook requires a handler function`);
+    }
+    for (const field of hook_spatial_fields) {
+        const needed = required.includes(field);
+        const value = HookDesc[field];
+        // a required spatial field must be a usable key: a non-empty string.
+        // presence alone isn't enough — `action: false` or `from: ''` would
+        // register a hook nothing can ever fire (fsl#653, fsl#659)
+        if (needed && ((typeof value !== 'string') || (value === ''))) {
+            throw new JssmError(m, `${HookDesc.kind} hook requires '${field}' to be a non-empty string`);
+        }
+        if (!needed && (value !== undefined)) {
+            throw new JssmError(m, `${HookDesc.kind} hook does not take '${field}'`);
+        }
+    }
+}
+/**
+ * Low-level hook registration.  Installs a handler described by a
+ *  {@link HookDescription} into the appropriate internal map.  Prefer the
+ *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
+ *  calling this directly.
+ *
+ *  @example
+ *  import { sm, set_hook, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  set_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: () => false });
+ *  // the hook vetoed it:
+ *  transition(m, 'b');   // => false
+ *
+ *  @param m        - The machine to register the hook on.
+ *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
+ *  @throws JssmError if the descriptor is mis-shaped (unknown kind, missing
+ *          handler, missing or extraneous spatial field).
+ *  @see remove_hook
+ */
+function set_hook(m, HookDesc) {
+    validate_hook_description(m, HookDesc);
+    switch (HookDesc.kind) {
+        case 'hook': {
+            // Numeric pair key (#729).  intern() rather than id_of(): a hook may
+            // name a state the machine doesn't have — it gets an id no live state
+            // can match, so it registers silently and never fires, as before.
+            m._hooks.set(pair_key(m._state_interner.intern(HookDesc.from), m._state_interner.intern(HookDesc.to)), HookDesc.handler);
+            m._has_hooks = true;
+            m._has_basic_hooks = true;
+            break;
+        }
+        case 'named': {
+            // Numeric pair key, then action id; the per-pair action map stays a
+            // map because the action interner may keep growing (#729).
+            const pk = pair_key(m._state_interner.intern(HookDesc.from), m._state_interner.intern(HookDesc.to));
+            let inner = m._named_hooks.get(pk);
+            if (inner === undefined) {
+                inner = new Map();
+                m._named_hooks.set(pk, inner);
+            }
+            inner.set(m._action_interner.intern(HookDesc.action), HookDesc.handler);
+            m._has_hooks = true;
+            m._has_named_hooks = true;
+            break;
+        }
+        case 'global action': {
+            m._global_action_hooks.set(m._action_interner.intern(HookDesc.action), HookDesc.handler);
+            m._has_hooks = true;
+            m._has_global_action_hooks = true;
+            break;
+        }
+        case 'any action': {
+            m._any_action_hook = HookDesc.handler;
+            m._has_hooks = true;
+            break;
+        }
+        case 'standard transition': {
+            m._standard_transition_hook = HookDesc.handler;
+            m._has_transition_hooks = true;
+            m._has_hooks = true;
+            break;
+        }
+        case 'main transition': {
+            m._main_transition_hook = HookDesc.handler;
+            m._has_transition_hooks = true;
+            m._has_hooks = true;
+            break;
+        }
+        case 'forced transition': {
+            m._forced_transition_hook = HookDesc.handler;
+            m._has_transition_hooks = true;
+            m._has_hooks = true;
+            break;
+        }
+        case 'any transition': {
+            m._any_transition_hook = HookDesc.handler;
+            m._has_hooks = true;
+            break;
+        }
+        case 'entry': {
+            m._entry_hooks.set(m._state_interner.intern(HookDesc.to), HookDesc.handler);
+            m._has_hooks = true;
+            m._has_entry_hooks = true;
+            break;
+        }
+        case 'exit': {
+            m._exit_hooks.set(m._state_interner.intern(HookDesc.from), HookDesc.handler);
+            m._has_hooks = true;
+            m._has_exit_hooks = true;
+            break;
+        }
+        case 'after': {
+            m._after_hooks.set(HookDesc.from, HookDesc.handler);
+            m._has_hooks = true;
+            m._has_after_hooks = true;
+            break;
+        }
+        case 'after any': {
+            m._after_any_hook = HookDesc.handler;
+            m._has_hooks = true;
+            m._has_after_hooks = true;
+            break;
+        }
+        case 'post hook': {
+            // Numeric pair key; same rationale as 'hook' (#729).
+            m._post_hooks.set(pair_key(m._state_interner.intern(HookDesc.from), m._state_interner.intern(HookDesc.to)), HookDesc.handler);
+            m._has_post_hooks = true;
+            m._has_post_basic_hooks = true;
+            break;
+        }
+        case 'post named': {
+            // Numeric pair key, then action id; same rationale as 'named' (#729).
+            const pk = pair_key(m._state_interner.intern(HookDesc.from), m._state_interner.intern(HookDesc.to));
+            let inner = m._post_named_hooks.get(pk);
+            if (inner === undefined) {
+                inner = new Map();
+                m._post_named_hooks.set(pk, inner);
+            }
+            inner.set(m._action_interner.intern(HookDesc.action), HookDesc.handler);
+            m._has_post_hooks = true;
+            m._has_post_named_hooks = true;
+            break;
+        }
+        case 'post global action': {
+            m._post_global_action_hooks.set(m._action_interner.intern(HookDesc.action), HookDesc.handler);
+            m._has_post_hooks = true;
+            m._has_post_global_action_hooks = true;
+            break;
+        }
+        case 'post any action': {
+            m._post_any_action_hook = HookDesc.handler;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post standard transition': {
+            m._post_standard_transition_hook = HookDesc.handler;
+            m._has_post_transition_hooks = true;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post main transition': {
+            m._post_main_transition_hook = HookDesc.handler;
+            m._has_post_transition_hooks = true;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post forced transition': {
+            m._post_forced_transition_hook = HookDesc.handler;
+            m._has_post_transition_hooks = true;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post any transition': {
+            m._post_any_transition_hook = HookDesc.handler;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post entry': {
+            m._post_entry_hooks.set(m._state_interner.intern(HookDesc.to), HookDesc.handler);
+            m._has_post_entry_hooks = true;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post exit': {
+            m._post_exit_hooks.set(m._state_interner.intern(HookDesc.from), HookDesc.handler);
+            m._has_post_exit_hooks = true;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'pre everything': {
+            m._pre_everything_hook = HookDesc.handler;
+            m._has_hooks = true;
+            break;
+        }
+        case 'everything': {
+            m._everything_hook = HookDesc.handler;
+            m._has_hooks = true;
+            break;
+        }
+        case 'pre post everything': {
+            m._pre_post_everything_hook = HookDesc.handler;
+            m._has_post_hooks = true;
+            break;
+        }
+        case 'post everything': {
+            m._post_everything_hook = HookDesc.handler;
+            m._has_post_hooks = true;
+            break;
+        }
+        // No default: `validate_hook_description` above rejects any unknown kind
+        // before we reach here, so the switch is exhaustive over the known kinds.
+    }
+    // The hooked-state styling layer (tier 2.5 of resolve_state_config) depends
+    // on which states carry hooks, so registering a hook can change the composed
+    // style of a state.  The static config cache assumes tiers 1–5 are fixed
+    // after construction; invalidate it so styling stays correct when a hook is
+    // added after a style has already been computed and memoized.
+    m._static_state_config_cache.clear();
+    // fire the registration event for inspector tools (#638)
+    fire(m, 'hook-registration', { description: HookDesc });
+}
+/**
+ *  Remove a previously-registered hook described by a
+ *  {@link HookDescription}.  Match is by `kind` + identifying keys
+ *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
+ *  hook per slot in the registry, so the description uniquely identifies
+ *  which one to clear.  Fires a `hook-removal` event for inspector tools.
+ *
+ *  This is the symmetric counterpart of {@link set_hook} for the
+ *  event-bridging use case (#638).  Reasoning about hooks via observation
+ *  events requires being able to observe their disappearance too.
+ *
+ *  @example
+ *  import { sm, set_hook, remove_hook } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  const fn = () => true;
+ *  set_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });
+ *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // => true
+ *  remove_hook(m, { kind: 'hook', from: 'a', to: 'b', handler: fn });   // => false
+ *
+ *  @param m        - The machine to remove the hook from.
+ *  @param HookDesc - A hook descriptor identifying the hook to remove.
+ *  @returns `true` if a hook was removed, `false` otherwise.
+ *  @throws JssmError if the descriptor's kind is unknown.
+ *  @see set_hook
+ */
+function remove_hook(m, HookDesc) {
+    let removed = false;
+    switch (HookDesc.kind) {
+        case 'hook': {
+            // id_of, not intern: removal of an unknown name reports false and
+            // must not grow the interner tables (#729).
+            const fid = m._state_interner.id_of(HookDesc.from), tid = m._state_interner.id_of(HookDesc.to);
+            removed = (fid !== undefined) && (tid !== undefined) && m._hooks.delete(pair_key(fid, tid));
+            break;
+        }
+        case 'named': {
+            const fid = m._state_interner.id_of(HookDesc.from), tid = m._state_interner.id_of(HookDesc.to), aid = m._action_interner.id_of(HookDesc.action);
+            const inner = ((fid === undefined) || (tid === undefined)) ? undefined : m._named_hooks.get(pair_key(fid, tid));
+            removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
+            break;
+        }
+        case 'global action': {
+            const aid = m._action_interner.id_of(HookDesc.action);
+            removed = (aid !== undefined) && m._global_action_hooks.delete(aid);
+            break;
+        }
+        case 'any action': {
+            if (m._any_action_hook !== undefined) {
+                m._any_action_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'standard transition': {
+            if (m._standard_transition_hook !== undefined) {
+                m._standard_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'main transition': {
+            if (m._main_transition_hook !== undefined) {
+                m._main_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'forced transition': {
+            if (m._forced_transition_hook !== undefined) {
+                m._forced_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'any transition': {
+            if (m._any_transition_hook !== undefined) {
+                m._any_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'entry': {
+            const tid = m._state_interner.id_of(HookDesc.to);
+            removed = (tid !== undefined) && m._entry_hooks.delete(tid);
+            break;
+        }
+        case 'exit': {
+            const fid = m._state_interner.id_of(HookDesc.from);
+            removed = (fid !== undefined) && m._exit_hooks.delete(fid);
+            break;
+        }
+        case 'after': {
+            removed = m._after_hooks.delete(HookDesc.from);
+            break;
+        }
+        case 'after any': {
+            if (m._after_any_hook !== undefined) {
+                m._after_any_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post hook': {
+            const fid = m._state_interner.id_of(HookDesc.from), tid = m._state_interner.id_of(HookDesc.to);
+            removed = (fid !== undefined) && (tid !== undefined) && m._post_hooks.delete(pair_key(fid, tid));
+            break;
+        }
+        case 'post named': {
+            const fid = m._state_interner.id_of(HookDesc.from), tid = m._state_interner.id_of(HookDesc.to), aid = m._action_interner.id_of(HookDesc.action);
+            const inner = ((fid === undefined) || (tid === undefined)) ? undefined : m._post_named_hooks.get(pair_key(fid, tid));
+            removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
+            break;
+        }
+        case 'post global action': {
+            const aid = m._action_interner.id_of(HookDesc.action);
+            removed = (aid !== undefined) && m._post_global_action_hooks.delete(aid);
+            break;
+        }
+        case 'post any action': {
+            if (m._post_any_action_hook !== undefined) {
+                m._post_any_action_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post standard transition': {
+            if (m._post_standard_transition_hook !== undefined) {
+                m._post_standard_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post main transition': {
+            if (m._post_main_transition_hook !== undefined) {
+                m._post_main_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post forced transition': {
+            if (m._post_forced_transition_hook !== undefined) {
+                m._post_forced_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post any transition': {
+            if (m._post_any_transition_hook !== undefined) {
+                m._post_any_transition_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post entry': {
+            const tid = m._state_interner.id_of(HookDesc.to);
+            removed = (tid !== undefined) && m._post_entry_hooks.delete(tid);
+            break;
+        }
+        case 'post exit': {
+            const fid = m._state_interner.id_of(HookDesc.from);
+            removed = (fid !== undefined) && m._post_exit_hooks.delete(fid);
+            break;
+        }
+        case 'pre everything': {
+            if (m._pre_everything_hook !== undefined) {
+                m._pre_everything_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'everything': {
+            if (m._everything_hook !== undefined) {
+                m._everything_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'pre post everything': {
+            if (m._pre_post_everything_hook !== undefined) {
+                m._pre_post_everything_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        case 'post everything': {
+            if (m._post_everything_hook !== undefined) {
+                m._post_everything_hook = undefined;
+                removed = true;
+            }
+            break;
+        }
+        default: {
+            throw new JssmError(m, `Unknown hook type ${HookDesc.kind}, should be impossible`);
+        }
+    }
+    if (removed) {
+        // set_hook only ever turns the _has_* fast-path flags ON; they summarize
+        // whole families, not counts, so a removal can't simply turn one off.
+        // Rederive them all now, or a stale flag keeps the fast path doing work
+        // whose last hook is gone -- most visibly _has_transition_hooks, which
+        // would otherwise keep resolving trans_type and leaking it into every
+        // hook context after the last transition-kind hook was removed.  #1954
+        recompute_hook_flags(m);
+        // See set_hook: the hooked-state styling layer depends on which states
+        // carry hooks, so removing one can change a state's composed style.
+        m._static_state_config_cache.clear();
+        fire(m, 'hook-removal', { description: HookDesc });
+    }
+    return removed;
+}
+/**
+ *  Rederive every `_has_*` fast-path flag from the underlying hook stores.
+ *
+ *  Called after a successful {@link remove_hook}.  `set_hook` turns the flags
+ *  on as hooks arrive, but because each flag summarizes a whole family rather
+ *  than counting it, a removal cannot know whether it cleared the last hook of
+ *  that family without re-checking.  Recomputing here fixes the `trans_type`
+ *  context leak (a `_has_transition_hooks` that never went back to `false`)
+ *  and drops the standing per-transition fast-path overhead once a family's
+ *  last hook is gone.
+ *
+ *  Cheap and cold: it runs only on removal.  Every check is an O(1) `size` or
+ *  definedness test except the two nested maps, which scan their (small)
+ *  inner maps.  The flags are combined with `.includes(true)` over boolean
+ *  arrays rather than `||` chains so the function carries no branches of its
+ *  own.
+ *  @param m - The machine whose flags are rederived.
+ *  @internal
+ */
+function recompute_hook_flags(m) {
+    const nested_has = (table) => [...table.values()].some(inner => inner.size > 0);
+    // pre-hook family flags
+    m._has_basic_hooks = m._hooks.size > 0;
+    m._has_named_hooks = nested_has(m._named_hooks);
+    m._has_entry_hooks = m._entry_hooks.size > 0;
+    m._has_exit_hooks = m._exit_hooks.size > 0;
+    m._has_after_hooks = [m._after_hooks.size > 0, m._after_any_hook !== undefined].includes(true);
+    m._has_global_action_hooks = m._global_action_hooks.size > 0;
+    m._has_transition_hooks = [
+        m._standard_transition_hook !== undefined,
+        m._main_transition_hook !== undefined,
+        m._forced_transition_hook !== undefined,
+    ].includes(true);
+    m._has_hooks = [
+        m._has_basic_hooks,
+        m._has_named_hooks,
+        m._has_entry_hooks,
+        m._has_exit_hooks,
+        m._has_after_hooks,
+        m._has_global_action_hooks,
+        m._has_transition_hooks,
+        m._any_action_hook !== undefined,
+        m._any_transition_hook !== undefined,
+        m._pre_everything_hook !== undefined,
+        m._everything_hook !== undefined,
+    ].includes(true);
+    // post-hook family flags (mirror of the above)
+    m._has_post_basic_hooks = m._post_hooks.size > 0;
+    m._has_post_named_hooks = nested_has(m._post_named_hooks);
+    m._has_post_entry_hooks = m._post_entry_hooks.size > 0;
+    m._has_post_exit_hooks = m._post_exit_hooks.size > 0;
+    m._has_post_global_action_hooks = m._post_global_action_hooks.size > 0;
+    m._has_post_transition_hooks = [
+        m._post_standard_transition_hook !== undefined,
+        m._post_main_transition_hook !== undefined,
+        m._post_forced_transition_hook !== undefined,
+    ].includes(true);
+    m._has_post_hooks = [
+        m._has_post_basic_hooks,
+        m._has_post_named_hooks,
+        m._has_post_entry_hooks,
+        m._has_post_exit_hooks,
+        m._has_post_global_action_hooks,
+        m._has_post_transition_hooks,
+        m._post_any_action_hook !== undefined,
+        m._post_any_transition_hook !== undefined,
+        m._pre_post_everything_hook !== undefined,
+        m._post_everything_hook !== undefined,
+    ].includes(true);
+}
+/**
+ * Register a pre-transition hook on a specific edge.  Fires before
+ *  transitioning from `from` to `to`.  If the handler returns `false`, the
+ *  transition is blocked.
+ *
+ *  @example
+ *  import { sm, hook, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  const seen: string[] = [];
+ *  hook(m, 'a', 'b', () => { seen.push('a->b'); });
+ *  transition(m, 'b');   // => true
+ *  seen;                 // => ['a->b']
+ *
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - Source state name.
+ *  @param to      - Target state name.
+ *  @param handler - Callback invoked before the transition.
+ *  @returns The machine, for chaining.
+ *  @see set_hook
+ *  @see post_hook
+ */
+function hook(m, from, to, handler) {
+    set_hook(m, { kind: 'hook', from, to, handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on a specific action-labeled edge.
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - Source state name.
+ *  @param to      - Target state name.
+ *  @param action  - The action label that triggers this hook.
+ *  @param handler - Callback invoked before the transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_action(m, from, to, action, handler) {
+    set_hook(m, { kind: 'named', from, to, action, handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any edge triggered by a specific action.
+ *  @param m       - The machine to register the hook on.
+ *  @param action  - The action name to hook.
+ *  @param handler - Callback invoked before any transition with this action.
+ *  @returns The machine, for chaining.
+ */
+function hook_global_action(m, action, handler) {
+    set_hook(m, { kind: 'global action', action, handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any action-driven transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before any action transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_any_action(m, handler) {
+    set_hook(m, { kind: 'any action', handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any standard (`->`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before any legal transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_standard_transition(m, handler) {
+    set_hook(m, { kind: 'standard transition', handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any main-path (`=>`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before any main transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_main_transition(m, handler) {
+    set_hook(m, { kind: 'main transition', handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any forced (`~>`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before any forced transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_forced_transition(m, handler) {
+    set_hook(m, { kind: 'forced transition', handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook on any transition regardless of kind.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before every transition.
+ *  @returns The machine, for chaining.
+ */
+function hook_any_transition(m, handler) {
+    set_hook(m, { kind: 'any transition', handler });
+    return m;
+}
+/**
+ * Register a hook that fires when entering a specific state.
+ *  @param m       - The machine to register the hook on.
+ *  @param to      - The state being entered.
+ *  @param handler - Callback invoked on entry.
+ *  @returns The machine, for chaining.
+ */
+function hook_entry(m, to, handler) {
+    set_hook(m, { kind: 'entry', to, handler });
+    return m;
+}
+/**
+ * Register a hook that fires when leaving a specific state.
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - The state being exited.
+ *  @param handler - Callback invoked on exit.
+ *  @returns The machine, for chaining.
+ */
+function hook_exit(m, from, handler) {
+    set_hook(m, { kind: 'exit', from, handler });
+    return m;
+}
+/**
+ * Register a hook that fires when a state's `after` timer elapses — the
+ *  delay-over companion to `a after 5s -> b;` style time transitions.  It
+ *  does NOT fire when the state is entered or left by ordinary dispatch;
+ *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
+ *  5.143.28 also spuriously fired it on entering the state, the jssm side
+ *  of StoneCypher/fsl#1327.)
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - The state whose `after` timer is being watched.
+ *  @param handler - Callback invoked when the timer fires, just before the
+ *                   timed transition is taken; informational — its outcome
+ *                   cannot reject the transition.
+ *  @returns The machine, for chaining.
+ *  @example
+ *    import { sm, hook_after, go, clear_state_timeout } from 'jssm';
+ *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+ *    let calls = 0;
+ *    hook_after(m, 'a', () => { calls += 1; });
+ *    go(m, 'c');
+ *    go(m, 'a');
+ *    // ordinary dispatch never fires it; only the timer elapsing does:
+ *    calls;  // => 0
+ *    clear_state_timeout(m);
+ *  @see hook_entry
+ *  @see hook_exit
+ *  @see set_state_timeout
+ */
+function hook_after(m, from, handler) {
+    set_hook(m, { kind: 'after', from, handler });
+    return m;
+}
+/**
+ * Register a hook that fires when ANY state's `after` timer elapses — the
+ *  whole-machine companion to {@link hook_after}, mirroring how
+ *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
+ *  state also has a specific {@link hook_after}, the specific hook fires
+ *  first and this one fires second; a specific after hook firing always
+ *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
+ *  `hook_after` it is informational — its outcome cannot reject the timed
+ *  transition — and it does NOT fire on ordinary dispatch.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked whenever any `after` timer fires, just
+ *                   before the timed transition is taken.
+ *  @returns The machine, for chaining.
+ *  @example
+ *    import { sm, hook_after_any, go, clear_state_timeout } from 'jssm';
+ *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+ *    let calls = 0;
+ *    hook_after_any(m, () => { calls += 1; });
+ *    go(m, 'c');
+ *    go(m, 'a');
+ *    // ordinary dispatch never fires it; only a timer elapsing does:
+ *    calls;  // => 0
+ *    clear_state_timeout(m);
+ *  @see hook_after
+ *  @see hook_any_transition
+ *  @see set_state_timeout
+ */
+function hook_after_any(m, handler) {
+    set_hook(m, { kind: 'after any', handler });
+    return m;
+}
+/**
+ * Post-transition hook on a specific edge.  Fires after the transition
+ *  from `from` to `to` has completed.  Cannot block the transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - Source state name.
+ *  @param to      - Target state name.
+ *  @param handler - Callback invoked after the transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook(m, from, to, handler) {
+    set_hook(m, { kind: 'post hook', from, to, handler });
+    return m;
+}
+/**
+ * Post-transition hook on a specific action-labeled edge.
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - Source state name.
+ *  @param to      - Target state name.
+ *  @param action  - The action label.
+ *  @param handler - Callback invoked after the transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_action(m, from, to, action, handler) {
+    set_hook(m, { kind: 'post named', from, to, action, handler });
+    return m;
+}
+/**
+ * Post-transition hook on any edge triggered by a specific action.
+ *  @param m       - The machine to register the hook on.
+ *  @param action  - The action name.
+ *  @param handler - Callback invoked after any transition with this action.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_global_action(m, action, handler) {
+    set_hook(m, { kind: 'post global action', action, handler });
+    return m;
+}
+/**
+ * Post-transition hook on any action-driven transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after any action transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_any_action(m, handler) {
+    set_hook(m, { kind: 'post any action', handler });
+    return m;
+}
+/**
+ * Post-transition hook on any standard (`->`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after any legal transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_standard_transition(m, handler) {
+    set_hook(m, { kind: 'post standard transition', handler });
+    return m;
+}
+/**
+ * Post-transition hook on any main-path (`=>`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after any main transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_main_transition(m, handler) {
+    set_hook(m, { kind: 'post main transition', handler });
+    return m;
+}
+/**
+ * Post-transition hook on any forced (`~>`) transition.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after any forced transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_forced_transition(m, handler) {
+    set_hook(m, { kind: 'post forced transition', handler });
+    return m;
+}
+/**
+ * Post-transition hook on any transition regardless of kind.
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after every transition.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_any_transition(m, handler) {
+    set_hook(m, { kind: 'post any transition', handler });
+    return m;
+}
+/**
+ * Post-transition hook that fires after entering a specific state.
+ *  @param m       - The machine to register the hook on.
+ *  @param to      - The state that was entered.
+ *  @param handler - Callback invoked after entry.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_entry(m, to, handler) {
+    set_hook(m, { kind: 'post entry', to, handler });
+    return m;
+}
+/**
+ * Post-transition hook that fires after leaving a specific state.
+ *  @param m       - The machine to register the hook on.
+ *  @param from    - The state that was exited.
+ *  @param handler - Callback invoked after exit.
+ *  @returns The machine, for chaining.
+ */
+function post_hook_exit(m, from, handler) {
+    set_hook(m, { kind: 'post exit', from, handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook that fires **before** all other pre-hooks
+ *  on every transition.  If the handler returns `false`, the transition is
+ *  blocked.  The handler receives an {@link EverythingHookContext} whose
+ *  `hook_name` is `'pre everything'`.
+ *
+ *  @example
+ *  import { sm, hook_pre_everything, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
+ *  hook_pre_everything(m, ({ hook_name }) => {
+ *    fired.push(hook_name);
+ *    return true;
+ *  });
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['pre everything']
+ *
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before all other pre-hooks.
+ *  @returns The machine, for chaining.
+ */
+function hook_pre_everything(m, handler) {
+    set_hook(m, { kind: 'pre everything', handler });
+    return m;
+}
+/**
+ * Register a pre-transition hook that fires **after** all other pre-hooks
+ *  on every transition.  If the handler returns `false`, the transition is
+ *  blocked.  The handler receives an {@link EverythingHookContext} whose
+ *  `hook_name` is `'everything'`.
+ *
+ *  @example
+ *  import { sm, hook_everything, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
+ *  hook_everything(m, ({ hook_name }) => {
+ *    fired.push(hook_name);
+ *    return true;
+ *  });
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['everything']
+ *
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after all other pre-hooks.
+ *  @returns The machine, for chaining.
+ */
+function hook_everything(m, handler) {
+    set_hook(m, { kind: 'everything', handler });
+    return m;
+}
+/**
+ * Register a post-transition hook that fires **after** all other
+ *  post-hooks on every transition.  Cannot block the transition.  The
+ *  handler receives an {@link EverythingHookContext} whose `hook_name` is
+ *  `'post everything'`.
+ *
+ *  @example
+ *  import { sm, hook_post_everything, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
+ *  hook_post_everything(m, ({ hook_name }) => {
+ *    fired.push(hook_name);
+ *  });
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['post everything']
+ *
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked after all other post-hooks.
+ *  @returns The machine, for chaining.
+ */
+function hook_post_everything(m, handler) {
+    set_hook(m, { kind: 'post everything', handler });
+    return m;
+}
+/**
+ * Register a post-transition hook that fires **before** all other
+ *  post-hooks on every transition.  Cannot block the transition.  The
+ *  handler receives an {@link EverythingHookContext} whose `hook_name` is
+ *  `'pre post everything'`.
+ *
+ *  @example
+ *  import { sm, hook_pre_post_everything, transition } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  const fired: string[] = [];
+ *  hook_pre_post_everything(m, ({ hook_name }) => {
+ *    fired.push(hook_name);
+ *  });
+ *  transition(m, 'b');   // => true
+ *  fired;                // => ['pre post everything']
+ *
+ *  @param m       - The machine to register the hook on.
+ *  @param handler - Callback invoked before all other post-hooks.
+ *  @returns The machine, for chaining.
+ */
+function hook_pre_post_everything(m, handler) {
+    set_hook(m, { kind: 'pre post everything', handler });
+    return m;
+}
+/********
+ *
+ *  Generate the uniform observational-hook registry — every currently
+ *  registered hook projected onto a normalized `(kind, target, phase)` row
+ *  (megaspec §12, → #1357).  The registry is *generated* on demand by
+ *  walking the concrete per-kind storage tables rather than maintained as a
+ *  second copy, so it can never drift from the tables {@link set_hook}
+ *  actually dispatches into.  It is the single source of truth behind the
+ *  introspection accessors ({@link has_hook}, {@link hooks_on})
+ *  and the `hooked_state` viz styling.
+ *
+ *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
+ *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
+ *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
+ *  transition-class, and `everything` observers become `{ scope: 'global' }`.
+ *
+ *  @example
+ *  import { sm, hook_entry, hook_registry } from 'jssm';
+ *
+ *  const m = sm`a 'go' -> b;`;
+ *  hook_entry(m, 'b', () => true);
+ *  hook_registry(m);   // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
+ *
+ *  @param m The machine to inspect.
+ *
+ *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
+ *  table-walk order (pre-phase tables first, then post-phase).
+ *
+ */
+function hook_registry(m) {
+    const entries = [];
+    // The hot-path hook tables are keyed by interned integer ids (states and
+    // actions) and, for edges, by `pair_key(from_id, to_id)`.  Decode each key
+    // back to its original name so the registry speaks states/actions, never
+    // ids.  The lone exception is `_after_hooks`, deliberately string-keyed.
+    const state_name = (id) => m._state_interner.name_of(id);
+    const action_name = (id) => m._action_interner.name_of(id);
+    // edge tables: pair_key(from_id, to_id) -> handler
+    const push_edges = (table, kind, phase) => {
+        table.forEach((_handler, pk) => {
+            const [fid, tid] = un_pair_key(pk);
+            entries.push({ kind, phase, target: { scope: 'edge', from: state_name(fid), to: state_name(tid) } });
+        });
+    };
+    // named-edge tables: pair_key(from_id, to_id) -> action_id -> handler
+    const push_named = (table, kind, phase) => {
+        table.forEach((byAction, pk) => {
+            const [fid, tid] = un_pair_key(pk);
+            const from = state_name(fid), to = state_name(tid);
+            byAction.forEach((_handler, aid) => {
+                entries.push({ kind, phase, target: { scope: 'edge', from, to, action: action_name(aid) } });
+            });
+        });
+    };
+    // entry/exit tables: interned state_id -> handler
+    const push_states = (table, kind, phase) => {
+        table.forEach((_handler, sid) => {
+            entries.push({ kind, phase, target: { scope: 'state', state: state_name(sid) } });
+        });
+    };
+    // the `after` table is the lone string-keyed exception: state name -> handler
+    const push_states_by_name = (table, kind, phase) => {
+        table.forEach((_handler, state) => {
+            entries.push({ kind, phase, target: { scope: 'state', state: state } });
+        });
+    };
+    // global-action tables: interned action_id -> handler
+    const push_actions = (table, kind, phase) => {
+        table.forEach((_handler, aid) => {
+            entries.push({ kind, phase, target: { scope: 'action', action: action_name(aid) } });
+        });
+    };
+    const push_global = (handler, kind, phase) => {
+        if (handler !== undefined) {
+            entries.push({ kind, phase, target: { scope: 'global' } });
+        }
+    };
+    // FSL boundary hooks: subject name -> { onEnter?, onExit? }, fired post-
+    // commit.  Each present direction becomes its own row, all phase 'post'.
+    const push_boundary = (table, enterKind, exitKind, target_of) => {
+        table.forEach((bh, subject) => {
+            if (bh.onEnter !== undefined) {
+                entries.push({ kind: enterKind, phase: 'post', target: target_of(subject) });
+            }
+            if (bh.onExit !== undefined) {
+                entries.push({ kind: exitKind, phase: 'post', target: target_of(subject) });
+            }
+        });
+    };
+    // pre-phase, edge- and state-keyed tables
+    push_edges(m._hooks, 'hook', 'pre');
+    push_named(m._named_hooks, 'named', 'pre');
+    push_states(m._entry_hooks, 'entry', 'pre');
+    push_states(m._exit_hooks, 'exit', 'pre');
+    push_states_by_name(m._after_hooks, 'after', 'pre');
+    push_actions(m._global_action_hooks, 'global action', 'pre');
+    // pre-phase, global singletons
+    push_global(m._any_action_hook, 'any action', 'pre');
+    push_global(m._standard_transition_hook, 'standard transition', 'pre');
+    push_global(m._main_transition_hook, 'main transition', 'pre');
+    push_global(m._forced_transition_hook, 'forced transition', 'pre');
+    push_global(m._any_transition_hook, 'any transition', 'pre');
+    push_global(m._after_any_hook, 'after any', 'pre');
+    push_global(m._pre_everything_hook, 'pre everything', 'pre');
+    push_global(m._everything_hook, 'everything', 'pre');
+    // post-phase, edge- and state-keyed tables
+    push_edges(m._post_hooks, 'post hook', 'post');
+    push_named(m._post_named_hooks, 'post named', 'post');
+    push_states(m._post_entry_hooks, 'post entry', 'post');
+    push_states(m._post_exit_hooks, 'post exit', 'post');
+    push_actions(m._post_global_action_hooks, 'post global action', 'post');
+    // post-phase, global singletons
+    push_global(m._post_any_action_hook, 'post any action', 'post');
+    push_global(m._post_standard_transition_hook, 'post standard transition', 'post');
+    push_global(m._post_main_transition_hook, 'post main transition', 'post');
+    push_global(m._post_forced_transition_hook, 'post forced transition', 'post');
+    push_global(m._post_any_transition_hook, 'post any transition', 'post');
+    push_global(m._pre_post_everything_hook, 'pre post everything', 'post');
+    push_global(m._post_everything_hook, 'post everything', 'post');
+    // FSL boundary hooks (post-commit): group and plain-state subjects
+    push_boundary(m._group_hooks, 'group enter', 'group exit', (group) => ({ scope: 'group', group }));
+    push_boundary(m._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state }));
+    return entries;
+}
+/********
+ *
+ *  Does a single registry entry reference the state `state`?  An entry
+ *  references a state when it is a `'state'`-scoped hook on that state, or an
+ *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
+ *  `'global'`-scoped entries reference no particular state.  This is the
+ *  predicate behind both per-state introspection and the `hooked_state`
+ *  styling layer.
+ *
+ *  @param entry The registry entry to test.
+ *  @param state The state name to test membership of.
+ *  @returns `true` when the entry observes that state.
+ *
+ */
+function entry_touches_state(entry, state) {
+    const t = entry.target;
+    if (t.scope === 'state') {
+        return t.state === state;
+    }
+    if (t.scope === 'edge') {
+        return t.from === state || t.to === state;
+    }
+    return false;
+}
+/********
+ *
+ *  Does a single registry entry match a `{ from, to, action? }` edge query?
+ *  Only `'edge'`-scoped entries can match.  When the query omits `action`
+ *  the entry's action (if any) is ignored; when the query supplies `action`
+ *  it must match exactly.
+ *
+ *  @param entry The registry entry to test.
+ *  @param from  The edge origin to match.
+ *  @param to    The edge destination to match.
+ *  @param action Optional named action to match exactly.
+ *  @returns `true` when the entry observes that edge.
+ *
+ */
+function entry_matches_edge(entry, from, to, action) {
+    const t = entry.target;
+    if (t.scope !== 'edge') {
+        return false;
+    }
+    if (t.from !== from || t.to !== to) {
+        return false;
+    }
+    if (action !== undefined) {
+        return t.action === action;
+    }
+    return true;
+}
+/********
+ *
+ *  Does a single registry entry match an action name?  Both `'action'`-scoped
+ *  hooks (global-action hooks) and named-edge hooks carrying that action
+ *  count as matches.
+ *
+ *  @param entry  The registry entry to test.
+ *  @param action The action name to match.
+ *  @returns `true` when the entry observes that action.
+ *
+ */
+function entry_matches_action(entry, action) {
+    const t = entry.target;
+    if (t.scope === 'action') {
+        return t.action === action;
+    }
+    if (t.scope === 'edge') {
+        return t.action === action;
+    }
+    return false;
+}
+/********
+ *
+ *  Does a single registry entry match a named state group?  Only
+ *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
+ *  are matched by group name only — they deliberately do not propagate to
+ *  member states, so a member-state query never returns them.
+ *
+ *  @param entry The registry entry to test.
+ *  @param group The group name to match.
+ *  @returns `true` when the entry observes that group's boundary.
+ *
+ */
+function entry_matches_group(entry, group) {
+    const t = entry.target;
+    if (t.scope === 'group') {
+        return t.group === group;
+    }
+    return false;
+}
+/********
+ *
+ *  Return every registry entry observing the given target (megaspec §12).
+ *  The `query` selects the target shape:
+ *
+ *  - a bare **state name** matches entry/exit/after hooks on that state, its
+ *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
+ *  - a `{ from, to, action? }` **edge** matches edge hooks on that
+ *    transition (optionally narrowed to the named action),
+ *  - a `{ action }` **action** matches global-action and named-edge hooks
+ *    carrying that action,
+ *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
+ *    are matched by name only and do not propagate to member states).
+ *
+ *  @example
+ *  import { sm, hook_entry, hooks_on } from 'jssm';
+ *
+ *  const m = sm`a 'go' -> b;`;
+ *  hook_entry(m, 'b', () => true);
+ *  hooks_on(m, 'b').length;             // => 1
+ *  // no edge hook is registered:
+ *  hooks_on(m, { from: 'a', to: 'b' }); // => []
+ *
+ *  @param m     The machine to inspect.
+ *  @param query The {@link HookQuery} naming the target to inspect.
+ *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+ *
+ */
+function hooks_on(m, query) {
+    const registry = hook_registry(m);
+    if (typeof query === 'string') {
+        return registry.filter(e => entry_touches_state(e, query));
+    }
+    // An edge query is distinguished by carrying `from` (it may *also* carry
+    // `action`, which narrows the edge — so this must be tested before the
+    // action-only case, whose discriminator `action` an edge query can share).
+    if ('from' in query) {
+        return registry.filter(e => entry_matches_edge(e, query.from, query.to, query.action));
+    }
+    if ('group' in query) {
+        return registry.filter(e => entry_matches_group(e, query.group));
+    }
+    return registry.filter(e => entry_matches_action(e, query.action));
+}
+/********
+ *
+ *  Is at least one observational hook bound to the given target (megaspec
+ *  §12)?  The `query` is read exactly as in {@link hooks_on}.  An
+ *  optional `phase` narrows the test to pre- or post-transition hooks only;
+ *  omitted, either phase satisfies it.
+ *
+ *  @example
+ *  import { sm, hook_entry, has_hook } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  has_hook(m, 'b');                 // => false
+ *  hook_entry(m, 'b', () => true);
+ *  has_hook(m, 'b');                 // => true
+ *  // the entry hook is pre-phase:
+ *  has_hook(m, 'b', 'post');         // => false
+ *
+ *  @param m     The machine to inspect.
+ *  @param query The {@link HookQuery} naming the target to inspect.
+ *  @param phase Optional {@link HookPhase} to restrict the test to.
+ *  @returns `true` when a matching hook exists.
+ *
+ */
+function has_hook(m, query, phase) {
+    const matches = hooks_on(m, query);
+    if (phase === undefined) {
+        return matches.length > 0;
+    }
+    return matches.some(e => e.phase === phase);
+}
+/********
+ *
+ *  Does the given state carry any observational hook — i.e. should it receive
+ *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
+ *  bound to the state, any edge hook touches it, or the state has its own
+ *  boundary hook.  Group-boundary hooks do *not* count here — they are
+ *  matched by group only and never propagate to member states.  Powers the
+ *  `hooked` styling layer in `resolve_state_config`; replaces
+ *  the long-stubbed `has_hooks` placeholder (megaspec §12).
+ *
+ *  @example
+ *  import { sm, hook_exit, state_has_hooks } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  state_has_hooks(m, 'a');          // => false
+ *  hook_exit(m, 'a', () => true);
+ *  state_has_hooks(m, 'a');          // => true
+ *
+ *  @param m     The machine to inspect.
+ *  @param state The state to test.
+ *  @returns `true` when the state is observed by at least one hook.
+ *
+ */
+function state_has_hooks(m, state) {
+    // Boundary hooks are a separate mechanism that sets neither _has_hooks nor
+    // _has_post_hooks, so the fast-out must also consult the boundary tables —
+    // otherwise a state whose only hook is a boundary hook reports unhooked.
+    if (!m._has_hooks
+        && !m._has_post_hooks
+        && (m._state_hooks.size === 0)
+        && (m._group_hooks.size === 0)) {
+        return false;
+    }
+    return hook_registry(m).some(e => entry_touches_state(e, state));
+}
+/**
+ *
+ *  Type guard that narrows an unknown value to a {@link HookComplexResult}.
+ *
+ *  A hook complex result is an object with at minimum a boolean `pass` field,
+ *  and may optionally also carry replacement `data` / `next_data` fields that
+ *  the machine should adopt if the hook passes.  This helper is used by the
+ *  hook-dispatch machinery to tell "hook returned a complex object" from
+ *  "hook returned a bare boolean / null / undefined".
+ *
+ *  @example
+ *  import { is_hook_complex_result } from 'jssm';
+ *
+ *  is_hook_complex_result({ pass: true });                 // => true
+ *  is_hook_complex_result({ pass: false, data: { x: 1 }}); // => true
+ *  is_hook_complex_result(true);                           // => false
+ *  is_hook_complex_result(null);                           // => false
+ *  is_hook_complex_result({ other: 'thing' });             // => false
+ *
+ *  @template mDT The type of the machine data member; usually omitted.
+ *  @param hr The value to test.
+ *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
+ *  `false` otherwise.  When `true`, TypeScript narrows `hr` to
+ *  `HookComplexResult<mDT>`.
+ */
+function is_hook_complex_result(hr) {
+    return hr !== null && typeof hr === 'object' && typeof hr.pass === 'boolean';
+}
+/**
+ *
+ *  Apply any data-field updates from a hook's complex result into `hook_args`,
+ *  and return whether data actually changed.
+ *
+ *  This is the hoisted, allocation-free replacement for the `update_fields`
+ *  inner function that used to be re-created on every hooked transition inside
+ *  `transition_impl`.  By moving it to module scope the function
+ *  object is allocated once at module load time.
+ *
+ *  When the result does not carry a `data` property (the common case —
+ *  most hooks return `true` or `undefined`) the function returns `false`
+ *  immediately without touching `hook_args`.
+ *
+ *  Not a doctest: `update_hook_fields` is module-only and cannot be imported from `'jssm'`.
+ *  ```typescript
+ *  const args = { data: 'old', next_data: undefined, ... };
+ *  const changed = update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
+ *  // changed === true, args.data === 'new'
+ *  ```
+ *  @param hook_args  The shared hook-argument object for the current
+ *    transition.  Mutated in-place when the result carries `data`.
+ *  @param res        The normalised complex result returned by
+ *    {@link abstract_hook_step} or {@link abstract_everything_hook_step}.
+ *  @returns `true` if `res` contained a `data` property (i.e. the hook
+ *    mutated the machine's data); `false` otherwise.
+ *  @see abstract_hook_step
+ *  @internal
+ */
+function update_hook_fields(hook_args, res) {
+    // HOOK_PASSED is the shared frozen outcome for "no hook installed" and for
+    // hooks returning true/undefined — the overwhelming majority of the up-to-
+    // ~10 steps per hooked transition.  It can never carry `data`/`state` (frozen,
+    // built without them), so one pointer compare replaces the hasOwnProperty
+    // reflection call for the common case.
+    if (res === HOOK_PASSED) {
+        return false;
+    }
+    // a complex result's `state` redirects the transition's destination; carry it
+    // on hook_args.to (the destination field), which transition_impl applies at
+    // commit (last writer wins).  An explicit `state: undefined` is not a
+    // redirect.  StoneCypher/fsl#1947
+    if (Object.prototype.hasOwnProperty.call(res, 'state') && res.state !== undefined) {
+        hook_args.to = res.state;
+    }
+    // Two channels (StoneCypher/fsl#1948): `data` overrides the value observed by
+    // later hooks in this chain AND is the default committed value; `next_data`
+    // overrides only the committed value.  So `data` sets both, then an explicit
+    // `next_data` overrides the commit channel.  transition_impl commits
+    // hook_args.next_data.  hasOwnProperty (not truthiness) so a falsy override
+    // (false/null/0/''/undefined) still commits (fsl#1264/#935).
+    let changed = false;
+    if (Object.prototype.hasOwnProperty.call(res, 'data')) {
+        hook_args.data = res.data;
+        hook_args.next_data = res.data;
+        changed = true;
+    }
+    if (Object.prototype.hasOwnProperty.call(res, 'next_data')) {
+        hook_args.next_data = res.next_data;
+        changed = true;
+    }
+    return changed;
+}
+/**
+ *
+ *  Normalize any legal hook return value to a single "did it reject?" boolean.
+ *
+ *  Hooks in jssm may return any of the following to indicate success:
+ *  `true`, `undefined`, or a complex result whose `pass` field is `true`.
+ *  They may return any of the following to indicate rejection:
+ *  `false`, or a complex result whose `pass` field is `false`.  This helper
+ *  collapses all of those shapes into one boolean so callers don't have to
+ *  re-implement the matrix.
+ *
+ *  @example
+ *  import { is_hook_rejection } from 'jssm';
+ *
+ *  // passes:
+ *  is_hook_rejection(true);            // => false
+ *  is_hook_rejection(undefined);       // => false
+ *  is_hook_rejection({ pass: true });  // => false
+ *  // rejections:
+ *  is_hook_rejection(false);           // => true
+ *  is_hook_rejection({ pass: false }); // => true
+ *
+ *  @template mDT The type of the machine data member; usually omitted.
+ *  @param hr A hook result of any legal shape.
+ *  @returns `true` if the hook rejected the transition; `false` if it passed.
+ *  @throws {TypeError} If `hr` is not a recognized hook result shape (for
+ *  example, a number or a plain object without a `pass` field).
+ */
+function is_hook_rejection(hr) {
+    if (hr === true) {
+        return false;
+    }
+    if (hr === undefined) {
+        return false;
+    }
+    if (hr === false) {
+        return true;
+    }
+    if (is_hook_complex_result(hr)) {
+        return (!(hr.pass));
+    }
+    throw new TypeError('unknown hook rejection type result');
+}
+/**
+ *
+ *  Shared, frozen outcomes for the simple hook results.  The transition
+ *  cascade runs up to ~10 hook steps per transition, and the overwhelmingly
+ *  common results — no hook installed, or a hook returning `undefined` /
+ *  `true` / `false` — previously allocated a fresh one-field object each
+ *  time, just to have `.pass` read once and be discarded.  Callers only read
+ *  `pass` and probe for an own `data` property ({@link update_hook_fields}),
+ *  so a shared instance is observationally identical; freezing turns that
+ *  read-only contract from incidental into enforced.  Complex results (hooks
+ *  returning `{ pass, data, ... }`) still pass through untouched.  #705
+ *  update_hook_fields additionally identity-checks HOOK_PASSED to skip its
+ *  own-property probe on the common no-op outcome.
+ *  @see abstract_hook_step
+ *  @see abstract_everything_hook_step
+ *  @internal
+ */
+const HOOK_PASSED = Object.freeze({ pass: true });
+const HOOK_REJECTED = Object.freeze({ pass: false });
+/**
+ *
+ *  Invoke an optional transition/action hook and normalize its return value
+ *  into a {@link HookComplexResult}.
+ *
+ *  This is the central adapter the transition pipeline uses to run every
+ *  non-"everything" hook kind (basic, named, entry, exit, after, action, etc).
+ *  It accepts `undefined` for the hook slot because most hooks are not set on
+ *  most machines; when no hook is installed the step is a no-op pass.
+ *
+ *  The valid return shapes from a hook and their normalized meanings are:
+ *  - `undefined` → `{ pass: true }`
+ *  - `true`      → `{ pass: true }`
+ *  - `false`     → `{ pass: false }`
+ *  - `null`      → `{ pass: false }`
+ *  - a complex result object → returned as-is
+ *
+ *  Anything else is a programmer error and throws.
+ *  @template mDT The type of the machine data member; usually omitted.
+ *  @param maybe_hook The hook handler to call, or `undefined` for the
+ *  "no hook installed" case.
+ *  @param hook_args The context object passed to the hook.  Includes the
+ *  current and proposed state, current and proposed data, action name, and
+ *  transition kind.
+ *  @returns A {@link HookComplexResult} describing whether the hook passed
+ *  and, optionally, any data replacements it requested.
+ *  @throws {TypeError} If the hook returns a value that is not one of the
+ *  legal shapes listed above.
+ *  @internal
+ */
+function abstract_hook_step(maybe_hook, hook_args) {
+    if (maybe_hook === undefined) {
+        return HOOK_PASSED;
+    }
+    const result = maybe_hook(hook_args);
+    if (result === undefined) {
+        return HOOK_PASSED;
+    }
+    if (result === true) {
+        return HOOK_PASSED;
+    }
+    if (result === false) {
+        return HOOK_REJECTED;
+    }
+    if (result === null) {
+        return HOOK_REJECTED;
+    }
+    if (is_hook_complex_result(result)) {
+        return result;
+    }
+    throw new TypeError(`Unknown hook result type ${String(result)}`);
+}
+/**
+ *
+ *  Invoke an optional "everything" hook and normalize its return value into
+ *  a {@link HookComplexResult}.
+ *
+ *  Mechanically identical to {@link abstract_hook_step}, but typed for the
+ *  everything-hook family (`pre_everything_hook` and `everything_hook`),
+ *  whose context object carries an extra `hook_name` field identifying which
+ *  bracket of the pipeline is firing.  Separated from `abstract_hook_step`
+ *  so TypeScript can enforce that the hook handler and the context object
+ *  agree on shape.
+ *
+ *  The valid return shapes and their meanings are the same as for
+ *  `abstract_hook_step`:
+ *  - `undefined` or `true` → `{ pass: true }`
+ *  - `false` or `null`     → `{ pass: false }`
+ *  - a complex result      → returned as-is
+ *  @template mDT The type of the machine data member; usually omitted.
+ *  @param maybe_hook The everything-hook handler, or `undefined` when none
+ *  is installed.
+ *  @param hook_args The everything-hook context object.  Differs from a
+ *  normal hook context in that it also includes `hook_name`.
+ *  @returns A {@link HookComplexResult} describing whether the hook passed
+ *  and any data replacements it requested.
+ *  @throws {TypeError} If the hook returns a value outside the legal shapes.
+ *  @internal
+ */
+function abstract_everything_hook_step(maybe_hook, hook_args) {
+    if (maybe_hook === undefined) {
+        return HOOK_PASSED;
+    }
+    const result = maybe_hook(hook_args);
+    if (result === undefined) {
+        return HOOK_PASSED;
+    }
+    if (result === true) {
+        return HOOK_PASSED;
+    }
+    if (result === false) {
+        return HOOK_REJECTED;
+    }
+    if (result === null) {
+        return HOOK_REJECTED;
+    }
+    if (is_hook_complex_result(result)) {
+        return result;
+    }
+    throw new TypeError(`Unknown hook result type ${String(result)}`);
+}
+
+/*******
+ *
+ *  The transition family: everything that moves the machine.  `transition_impl`
+ *  is the single commit path (validation, the hook pipeline, the commit, the
+ *  observation events, the boundary actions, the `after` timer), and every
+ *  public mover — `transition` / `go`, `force_transition`, `act` / `action`,
+ *  and the graph-ignoring `override` — is a one-liner over it.  Every function
+ *  takes the machine as its first argument and reads its fields directly; the
+ *  `Machine` class methods of the same names are one-line delegates onto these
+ *  (the class movers call `transition_impl` directly so the class path gains
+ *  no frame).
+ *
+ *  The class's `do()` has no function form because `do` is a reserved word:
+ *  `act` is the function and `action` is an alias of the same function object
+ *  (bare-functions design, decision 5; `Machine.do()` is deprecated, its
+ *  removal is StoneCypher/fsl#1992).
+ *
+ *  `transition_impl`, `fire_hook_rejection`, and `fire_boundary_actions` are
+ *  exported for the class delegates and the other families (hooks, groups),
+ *  not for the barrel.
+ *
+ */
+// Shared empty group set for states that belong to no group (see
+// fire_boundary_actions); one instance so the hot path never allocates it.
+const empty_string_set = new Set();
+/*********
+ *
+ *  Shared transition core used by {@link transition}, {@link force_transition},
+ *  and {@link act}.  Runs validation, fires the full hook pipeline (pre-
+ *  everything, any-action, after, any-transition, exit, named, basic,
+ *  edge-type, entry, everything), commits the new state if nothing
+ *  rejected, and returns whether the transition succeeded.
+ *
+ *  Not meant for external use.  Call one of the public wrappers instead:
+ *  - `transition` for an ordinary legal transition
+ *  - `force_transition` to bypass the legality check
+ *  - `act` (alias `action`) to dispatch by action name rather than target state
+ *
+ *  @remarks
+ *  Known sharp edges, carried over from the original `// TODO` comments:
+ *  - The forced-ness behavior needs to be cleaned up a lot here.
+ *  - The callbacks are not fully correct across the forced / action / plain
+ *    cases and should be revisited.
+ *  - When multiple edges exist between two states with different `kind`
+ *    values, only the first edge's kind is used to pick the edge-type hook.
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted.
+ *
+ *  @param m The machine to move.
+ *
+ *  @param newStateOrAction The target state name (for a plain or forced
+ *  transition) or the action name (when `wasAction` is true).
+ *
+ *  @param newData Optional replacement machine data to install alongside
+ *  the transition.  Hooks may further override this via complex results.
+ *
+ *  @param wasForced `true` if the caller invoked `force_transition`, in
+ *  which case legality is checked against `valid_force_transition` rather
+ *  than `valid_transition`.
+ *
+ *  @param wasAction `true` if the caller invoked `action`, in which case
+ *  `newStateOrAction` is an action name and the target state is looked up
+ *  via the current action edge.
+ *
+ *  @param dataProvided `true` when the caller explicitly supplied a data
+ *  argument — even an explicitly-`undefined` one, which commits `undefined`
+ *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
+ *  is preserved.  The public wrappers derive this from call arity; the
+ *  default reproduces the old `!== undefined` inference for any direct
+ *  callers.
+ *
+ *  @returns `true` if the transition was valid and every hook passed;
+ *  `false` if the transition was invalid or any hook rejected.
+ *
+ *  @throws {JssmError} If called reentrantly from inside a hook that is still
+ *  running in the enclosing transition's pre-commit pipeline — a hook that
+ *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
+ *  and then the outer one would silently discard the inner result, so the
+ *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
+ *  (from a post-hook or the boundary-action cascade) is permitted.
+ *
+ *  @internal
+ *
+ */
+function transition_impl(m, newStateOrAction, newData, wasForced, wasAction, dataProvided = newData !== undefined) {
+    // Reject reentry from inside the pre-commit hook pipeline.  Without this, a
+    // hook that itself transitions the machine would commit an inner transition
+    // that this outer, not-yet-committed frame then silently overwrites.  Post-
+    // commit reentry (post-hooks, the boundary-action cascade) is fine: the flag
+    // is already cleared by then.  StoneCypher/fsl#1953
+    if (m._committing_transition) {
+        throw new JssmError(m, 'cannot start a transition from within a transition hook: the enclosing transition has not committed yet, so the inner result would be silently discarded');
+    }
+    let valid = false, 
+    // deliberately `string`, not `JssmArrowKind`, though only arrow kinds are
+    // ever assigned: declaring this local as the 4-member union makes tsc's
+    // control-flow analysis narrow it across the whole of this (very large)
+    // function, which overflows the checker's stack under `npm run make`.
+    // The union is recovered at the hook boundary below -- see hook_args_obj.
+    trans_type, newState, newStateId = NaN, actionId = NaN, fromAction;
+    if (wasForced) {
+        // numeric inline of valid_force_transition: any existing edge
+        // qualifies, forced or not.  one string probe (the user's target name)
+        // plus one numeric probe, replacing two string probes.
+        const to_id = m._state_interner.id_of(newStateOrAction);
+        const edgeId = (to_id === undefined) ? undefined : m._edge_id_by_pair.get(pair_key(m._state_id, to_id));
+        if (edgeId !== undefined) {
+            valid = true;
+            trans_type = 'forced';
+            newState = newStateOrAction;
+            newStateId = to_id;
+        }
+    }
+    else if (wasAction) {
+        // single numeric resolution: the old path looked the action up twice,
+        // once inside valid_action and again inside current_action_edge_for.
+        // aid is captured for the numeric hook probes below (#729).
+        const aid = m._action_interner.id_of(newStateOrAction);
+        const edgeId = (aid === undefined) ? undefined : m._edge_id_by_action_pair.get(pair_key(aid, m._state_id));
+        if (edgeId !== undefined) {
+            const edge = m._edges[edgeId];
+            valid = true;
+            trans_type = edge.kind;
+            newState = edge.to;
+            newStateId = m._edge_to_ids[edgeId];
+            fromAction = newStateOrAction;
+            actionId = aid;
+        }
+    }
+    else {
+        // numeric inline of valid_transition: the edge must exist and must not
+        // be forced_only (truthiness, matching the old refusal exactly)
+        const to_id = m._state_interner.id_of(newStateOrAction);
+        const edgeId = (to_id === undefined) ? undefined : m._edge_id_by_pair.get(pair_key(m._state_id, to_id));
+        if ((edgeId !== undefined) && (!(m._edges[edgeId].forced_only))) {
+            if (m._has_transition_hooks || m._has_post_transition_hooks) {
+                // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
+                // both first-declared-wins for parallel (from, to) pairs (see the
+                // constructor around _edge_map / _edge_id_by_pair), and
+                // _outbound_edge_ids fills in declaration order — so the old
+                // first-match outbound scan always resolved to this same edgeId.
+                // Direct read replaces the O(out-degree) object-deref scan; the
+                // first-declared-kind semantics are pinned by the parallel-edge
+                // transition-kind hook spec.  #735
+                trans_type = m._edges[edgeId].kind;
+            }
+            valid = true;
+            newState = newStateOrAction;
+            newStateId = to_id;
+        }
+    }
+    // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
+    // blocks below.  Skip building it for hook-free machines (every
+    // chain/dense/hub/messy benchmark shape) so the hot path stops allocating
+    // a 7-field object it never reads.  The NonNullable cast keeps the type
+    // unchanged for all downstream uses without introducing an impossible
+    // (uncoverable) branch; the value is only dereferenced under the guards
+    // that imply it was built.  #670
+    // NOTE (#735): the { ...hook_args, hook_name } spreads at the four
+    // everything-hook sites are contractual, not waste — handlers may capture
+    // their context, and each captured context must durably carry its own
+    // hook_name (pinned by the simultaneous-everything-hook specs).  A shared
+    // mutated object cannot satisfy that; do not "optimize" the spreads away.
+    const hook_args_obj = (m._has_hooks || m._has_post_hooks)
+        ? {
+            data: m._data,
+            action: fromAction,
+            from: m._state,
+            to: newState,
+            next_data: newData,
+            forced: wasForced,
+            // sound: the only values ever assigned to trans_type are an edge's
+            // `kind` and the literal 'forced'.  The local is typed `string` only
+            // to keep tsc's flow analysis off it (see its declaration above).
+            trans_type: trans_type
+        }
+        : undefined;
+    const hook_args = hook_args_obj;
+    // 'action' event fires when an action is attempted, regardless of whether
+    // it ultimately succeeds — matches the issue spec for observation events.
+    // Gated on live listener count so we skip the detail-object allocation
+    // when nothing is subscribed.  Gate is read at fire time, so a listener
+    // registered inside a pre-hook still receives the event.  #671
+    if (wasAction && m._event_listener_count !== 0) {
+        fire(m, 'action', {
+            action: newStateOrAction,
+            from: m._state,
+            to: newState,
+            data: m._data,
+            next_data: newData
+        });
+    }
+    // Captured pre-transition source state so 'data-change' detail and similar
+    // events can name where we came from.  fromStateId mirrors it for the
+    // numeric post-hook probes: by the time they run, _state_id is already
+    // the destination (#729).
+    const fromState = m._state;
+    const fromStateId = m._state_id;
+    const oldData = m._data;
+    if (valid) {
+        if (m._has_hooks) {
+            // Open the pre-commit window: from here until the commit below, any
+            // reentrant transition_impl call (a hook transitioning the machine)
+            // throws instead of being silently reverted.  The `finally` below closes
+            // it on every exit path; _fire_hook_rejection additionally clears it
+            // before firing the rejection event so a rejection listener may itself
+            // transition.  The pipeline body is intentionally left at its original
+            // indentation to keep this fix's diff focused.  #1953
+            m._committing_transition = true;
+            try {
+                let data_changed = false;
+                // 0. pre everything hook (fires before all other pre-hooks)
+                if (m._pre_everything_hook !== undefined) {
+                    const outcome = abstract_everything_hook_step(m._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                if (wasAction) {
+                    // 1a. any action hook
+                    const outcome = abstract_hook_step(m._any_action_hook, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'any action', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                    // 1b. global specific action hook
+                    const outcome2 = abstract_hook_step(m._global_action_hooks.get(actionId), hook_args);
+                    if (!outcome2.pass) {
+                        fire_hook_rejection(m, 'global action', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome2)) {
+                        data_changed = true;
+                    }
+                }
+                // 2. (removed) After hooks do NOT fire on dispatch.  They are the
+                // `after`-timer's companion (fsl#698: "delay over!") and fire only from
+                // the state-timeout path.  Through v5.143.28 a probe here keyed on
+                // newStateOrAction spuriously fired them on entering the hooked state —
+                // or on a same-named action — making one timer elapse read as two
+                // handler calls (StoneCypher/fsl#1327).
+                // 3. any transition hook
+                if (m._any_transition_hook !== undefined) {
+                    const outcome = abstract_hook_step(m._any_transition_hook, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'any transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // 4. exit hook
+                if (m._has_exit_hooks) {
+                    const outcome = abstract_hook_step(m._exit_hooks.get(m._state_id), hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'exit', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // shared by steps 5 and 6: pre-commit, m._state_id is still the
+                // from-state, so both probes key on the same pair; compute it once
+                const pre_pair_id = pair_key(m._state_id, newStateId);
+                // 5. named transition / action hook
+                if (m._has_named_hooks && wasAction) {
+                    // Numeric pair probe, then the action id captured at dispatch (#729).
+                    const byPair = m._named_hooks.get(pre_pair_id);
+                    const nh = byPair === undefined ? undefined : byPair.get(actionId);
+                    const outcome = abstract_hook_step(nh, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'named', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // 6. regular hook
+                if (m._has_basic_hooks) {
+                    // Numeric pair probe (#729); one integer hash replaces two string maps.
+                    const h = m._hooks.get(pre_pair_id);
+                    const outcome = abstract_hook_step(h, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'hook', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // 7. edge type hook
+                // 7a. standard transition hook
+                if (trans_type === 'legal') {
+                    const outcome = abstract_hook_step(m._standard_transition_hook, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                    // 7b. main type hook
+                }
+                else if (trans_type === 'main') {
+                    const outcome = abstract_hook_step(m._main_transition_hook, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'main transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                    // 7c. forced transition hook
+                }
+                else if (trans_type === 'forced') {
+                    const outcome = abstract_hook_step(m._forced_transition_hook, hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // 8. entry hook
+                if (m._has_entry_hooks) {
+                    const outcome = abstract_hook_step(m._entry_hooks.get(newStateId), hook_args);
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'entry', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // 9. everything hook (fires after all other pre-hooks)
+                if (m._everything_hook !== undefined) {
+                    const outcome = abstract_everything_hook_step(m._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
+                    if (!outcome.pass) {
+                        fire_hook_rejection(m, 'everything', fromState, newState, fromAction, oldData, newData, wasForced);
+                        return false;
+                    }
+                    if (update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
+                }
+                // all hooks passed!  let's now establish the result
+                // a hook may have redirected the destination via a complex result's
+                // `state` (carried on hook_args.to).  Apply it now, validating it names
+                // a real state.  Pre-transition hooks (including entry/exit) fired for
+                // the original edge; the committed state and the post-hooks, observation
+                // events, and after-timer all reflect the override.  Last writer wins.
+                // StoneCypher/fsl#1947
+                if (hook_args.to !== newState) {
+                    const override_id = m._state_interner.id_of(hook_args.to);
+                    if (override_id === undefined) {
+                        throw new JssmError(m, `A hook overrode the transition destination to '${hook_args.to}', which is not a state in this machine`);
+                    }
+                    newState = hook_args.to;
+                    newStateId = override_id;
+                }
+                if (m._history_length) {
+                    m._history.shove([m._state, m._data]);
+                }
+                m._state = newState;
+                m._state_id = newStateId;
+                if (data_changed) {
+                    m._data = hook_args.next_data;
+                }
+                else if (dataProvided) {
+                    m._data = newData;
+                }
+                // success fallthrough to posthooks; intentionally no return here
+                // look for "posthooks begin here"
+            }
+            finally {
+                // Close the pre-commit window on EVERY exit from the pipeline: normal
+                // fallthrough after commit, a hook veto's `return false`, the
+                // destination-override throw, or a user hook throwing.  Post-hooks and
+                // the boundary-action cascade run after this and may re-enter the
+                // machine coherently from the committed state.  #1953
+                m._committing_transition = false;
+            }
+            // or without hooks
+        }
+        else {
+            if (m._history_length) {
+                m._history.shove([m._state, m._data]);
+            }
+            m._state = newState;
+            m._state_id = newStateId;
+            // provision is detected by caller arity, so an explicit `undefined`
+            // commits while an omitted argument preserves (StoneCypher/fsl#1264)
+            if (dataProvided) {
+                m._data = newData;
+            }
+            // success fallthrough to posthooks; intentionally no return here
+            // look for "posthooks begin here"
+        }
+        // not valid
+    }
+    else {
+        // Gated on live listener count so we skip the detail-object allocation
+        // when nothing is subscribed.  A listener still receives the event
+        // because the gate is read at fire time.  #671
+        if (m._event_listener_count !== 0) {
+            fire(m, 'rejection', {
+                from: fromState,
+                to: newStateOrAction, // we never resolved a real target
+                action: fromAction,
+                data: oldData,
+                next_data: newData,
+                reason: 'invalid',
+                forced: wasForced
+            });
+        }
+        return false;
+    }
+    // posthooks begin here
+    if (m._has_post_hooks) {
+        // 0. pre post everything hook (fires before all other post-hooks)
+        if (m._pre_post_everything_hook !== undefined) {
+            m._pre_post_everything_hook(Object.assign(Object.assign({}, hook_args), { hook_name: 'pre post everything' }));
+        }
+        if (wasAction) {
+            // 1. any action posthook
+            if (m._post_any_action_hook !== undefined) {
+                m._post_any_action_hook(hook_args);
+            }
+            // 2. global specific action hook
+            const pgah = m._post_global_action_hooks.get(actionId);
+            if (pgah !== undefined) {
+                pgah(hook_args);
+            }
+        }
+        // 3. any transition hook
+        if (m._post_any_transition_hook !== undefined) {
+            m._post_any_transition_hook(hook_args);
+        }
+        // 4. exit hook
+        if (m._has_post_exit_hooks) {
+            const peh = m._post_exit_hooks.get(fromStateId);
+            if (peh !== undefined) {
+                peh(hook_args);
+            }
+        }
+        // shared by steps 5 and 6: post-commit m._state_id has moved on, so
+        // the from-side of the pair comes from the captured fromStateId;
+        // compute it once
+        const post_pair_id = pair_key(fromStateId, newStateId);
+        // 5. named transition / action hook
+        if (m._has_post_named_hooks && wasAction) {
+            // Numeric pair probe, then the action id captured at dispatch (#729).
+            const byPair = m._post_named_hooks.get(post_pair_id);
+            const pnh = byPair === undefined ? undefined : byPair.get(actionId);
+            if (pnh !== undefined) {
+                pnh(hook_args);
+            }
+        }
+        // 6. regular hook
+        if (m._has_post_basic_hooks) {
+            // Numeric pair probe (#729).
+            const hook = m._post_hooks.get(post_pair_id);
+            if (hook !== undefined) {
+                hook(hook_args);
+            }
+        }
+        // 7. edge type hook
+        // 7a. standard transition hook
+        if (trans_type === 'legal' && m._post_standard_transition_hook !== undefined) {
+            m._post_standard_transition_hook(hook_args);
+        }
+        // 7b. main type hook
+        if (trans_type === 'main' && m._post_main_transition_hook !== undefined) {
+            m._post_main_transition_hook(hook_args);
+        }
+        // 7c. forced transition hook
+        if (trans_type === 'forced' && m._post_forced_transition_hook !== undefined) {
+            m._post_forced_transition_hook(hook_args);
+        }
+        // 8. entry hook
+        if (m._has_post_entry_hooks) {
+            const hook = m._post_entry_hooks.get(newStateId);
+            if (hook !== undefined) {
+                hook(hook_args);
+            }
+        }
+        // 9. post everything hook (fires after all other post-hooks)
+        if (m._post_everything_hook !== undefined) {
+            m._post_everything_hook(Object.assign(Object.assign({}, hook_args), { hook_name: 'post everything' }));
+        }
+    }
+    // Observation events (#638) fire after the state is committed.  Each call
+    // builds a detail literal at the call site, so guard the whole block on a
+    // live subscription count: with zero listeners (the common hot-path case,
+    // and every benchmark shape) we skip all of these allocations entirely.
+    // Read after pre-hooks, so a listener a pre-hook installed is still seen.
+    // ('action' above and 'rejection' on the invalid path are intentionally
+    // NOT under this gate — they fire regardless, and `_fire` itself no-ops
+    // cheaply when that specific event has no subscribers.)  #670
+    if (m._event_listener_count !== 0) {
+        const newData_after = m._data;
+        // per-name gates: each detail literal below is only built when that
+        // specific event has a live subscriber — a single-purpose panel
+        // listening only to 'transition' previously paid for the exit/entry/
+        // data-change/terminal/complete allocations _fire then discarded.
+        // Gates read at fire time, like the outer count, preserving #671.
+        if (has_subscribers(m, 'exit')) {
+            fire(m, 'exit', {
+                state: fromState,
+                to: newState,
+                action: fromAction,
+                data: newData_after
+            });
+        }
+        if (has_subscribers(m, 'transition')) {
+            fire(m, 'transition', {
+                from: fromState,
+                to: newState,
+                action: fromAction,
+                data: newData_after,
+                next_data: newData,
+                trans_type,
+                forced: wasForced
+            });
+        }
+        if (has_subscribers(m, 'entry')) {
+            fire(m, 'entry', {
+                state: newState,
+                from: fromState,
+                action: fromAction,
+                data: newData_after
+            });
+        }
+        if ((oldData !== newData_after) && has_subscribers(m, 'data-change')) {
+            fire(m, 'data-change', {
+                from: fromState,
+                to: newState,
+                action: fromAction,
+                old_data: oldData,
+                new_data: newData_after,
+                cause: 'transition'
+            });
+        }
+        // one state-record fetch answers both checks; newState is known-valid
+        // here, and the public state_is_terminal / state_is_complete pair would
+        // each redo has_state plus its own map walk.  Same predicates:
+        // terminal = no exits, complete = the constructor-set flag.  #735
+        const new_state_rec = m._states.get(newState);
+        if ((new_state_rec.to.length === 0) && has_subscribers(m, 'terminal')) {
+            fire(m, 'terminal', { state: newState, data: newData_after });
+        }
+        if (new_state_rec.complete && has_subscribers(m, 'complete')) {
+            fire(m, 'complete', { state: newState, data: newData_after });
+        }
+    }
+    // FSL boundary-hook actions (`on enter/exit &g do 'X'`) fire after the
+    // state is committed and after the observation events, matching the
+    // statechart "exits before enters" convention.  Cascades are depth-bounded
+    // inside the helper.
+    fire_boundary_actions(m, fromState, newState);
+    // Clear the departed state's `after` timer and re-establish the new state's,
+    // now that the transition has actually committed.  This clear runs only on a
+    // successful commit -- a hook that VETOES the transition returns above, so
+    // the machine stays put and its pending `after` timer is preserved
+    // (StoneCypher/fsl#1945).  It still runs for hook-free machines, so a manual
+    // transition away cannot leave a ghost timer to fire a stray go() later
+    // (the fsl#1327 guarantee).  The clear must precede the arm because
+    // set_state_timeout throws if a timer is already pending.
+    clear_state_timeout(m);
+    auto_set_state_timeout(m);
+    return true;
+}
+/********
+ *
+ *  Instruct the machine to complete a transition.  Synonym for {@link go}.
+ *
+ *  @example
+ *  import { sm, transition, state } from 'jssm';
+ *
+ *  const light = sm`
+ *    off 'start' -> red;
+ *    red 'next' -> green 'next' -> yellow 'next' -> red;
+ *    [red yellow green] 'shutdown' ~> off;
+ *  `;
+ *
+ *  state(light);                 // => 'off'
+ *  transition(light, 'red');     // => true
+ *  state(light);                 // => 'red'
+ *  transition(light, 'green');   // => true
+ *  state(light);                 // => 'green'
+ *  // no such state, so the transition is refused and the machine stays put:
+ *  transition(light, 'blue');    // => false
+ *  state(light);                 // => 'green'
+ *  // green may not go directly to red, only to yellow:
+ *  transition(light, 'red');     // => false
+ *  state(light);                 // => 'green'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to move
+ *
+ *  @param newState The state to switch to
+ *
+ *  @param newData The data change to insert during the transition.  Omit to
+ *  keep the current data; an explicit `undefined` clears it
+ *  (StoneCypher/fsl#1264).
+ *
+ *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+ *
+ *  @see go
+ *  @see force_transition
+ *  @see act
+ *
+ */
+function transition(m, newState, newData) {
+    // arity, not undefined-comparison: with the machine in slot 0 the data
+    // argument is the third, so an explicit `undefined` is a real data
+    // assignment and an omitted one preserves (StoneCypher/fsl#1264)
+    return transition_impl(m, newState, newData, false, false, arguments.length >= 3);
+}
+/********
+ *
+ *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
+ *
+ *  @example
+ *  import { sm, go, state } from 'jssm';
+ *
+ *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+ *
+ *  state(light);          // => 'red'
+ *  go(light, 'green');    // => true
+ *  state(light);          // => 'green'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to move
+ *
+ *  @param newState The state to switch to
+ *
+ *  @param newData The data change to insert during the transition.  Omit to
+ *  keep the current data; an explicit `undefined` clears it
+ *  (StoneCypher/fsl#1264).
+ *
+ *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+ *
+ *  @see transition
+ *
+ */
+function go(m, newState, newData) {
+    return transition_impl(m, newState, newData, false, false, arguments.length >= 3);
+}
+/********
+ *
+ *  Instruct the machine to complete a forced transition (which will reject if
+ *  called with a normal {@link transition} call.)  Any existing edge
+ *  qualifies, forced-only or not; a target with no edge from the current
+ *  state is refused.
+ *
+ *  @example
+ *  import { sm, transition, force_transition, state } from 'jssm';
+ *
+ *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+ *
+ *  state(light);                        // => 'red'
+ *  transition(light, 'off');            // => false
+ *  state(light);                        // => 'red'
+ *  force_transition(light, 'off');      // => true
+ *  state(light);                        // => 'off'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to move
+ *
+ *  @param newState The state to switch to
+ *
+ *  @param newData The data change to insert during the transition.  Omit to
+ *  keep the current data; an explicit `undefined` clears it
+ *  (StoneCypher/fsl#1264).
+ *
+ *  @returns `true` if a transition (forced or otherwise) existed and occurred,
+ *  `false` otherwise.
+ *
+ *  @see transition
+ *  @see valid_force_transition
+ *
+ */
+function force_transition(m, newState, newData) {
+    return transition_impl(m, newState, newData, true, false, arguments.length >= 3);
+}
+/********
+ *
+ *  Instruct the machine to complete an action.  Also exported as `action`,
+ *  the same function object, so `import { action }` and `import { act }` are
+ *  interchangeable.  This is the function form of the 5.x class methods
+ *  `action()` and `do()`; `do` itself has no function form because it is a
+ *  JavaScript reserved word, and `Machine.do()` is deprecated in its favor
+ *  (removal tracked as StoneCypher/fsl#1992).
+ *
+ *  @example
+ *  import { sm, act, state } from 'jssm';
+ *
+ *  const light = sm`
+ *    off 'start' -> red;
+ *    red 'next' -> green 'next' -> yellow 'next' -> red;
+ *    [red yellow green] 'shutdown' ~> off;
+ *  `;
+ *
+ *  state(light);           // => 'off'
+ *  act(light, 'start');    // => true
+ *  state(light);           // => 'red'
+ *  act(light, 'next');     // => true
+ *  state(light);           // => 'green'
+ *  act(light, 'next');     // => true
+ *  state(light);           // => 'yellow'
+ *  // no such action anywhere in the machine:
+ *  act(light, 'dance');    // => false
+ *  state(light);           // => 'yellow'
+ *  // yellow does not have the action 'start':
+ *  act(light, 'start');    // => false
+ *  state(light);           // => 'yellow'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to move
+ *
+ *  @param actionName The action to engage
+ *
+ *  @param newData The data change to insert during the action.  Omit to keep
+ *  the current data; an explicit `undefined` clears it (StoneCypher/fsl#1264).
+ *
+ *  @returns `true` if the action was valid and the transition occurred,
+ *  `false` otherwise.
+ *
+ *  @see transition
+ *  @see valid_action
+ *
+ */
+function act(m, actionName, newData) {
+    // arity, not undefined-comparison: an explicit `undefined` is a real
+    // data assignment (StoneCypher/fsl#1264); the data argument is the third
+    return transition_impl(m, actionName, newData, false, true, arguments.length >= 3);
+}
+/*********
+ *
+ *  Replace the current state — and, when a data argument is provided, the
+ *  data — with no regard to the graph.
+ *
+ *  The data argument is arity-detected: omitting it preserves the current
+ *  data, while explicitly passing `undefined` really sets the data to
+ *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
+ *  argument silently cleared the data.
+ *
+ *  @example
+ *  import { sm, go, override, state } from 'jssm';
+ *
+ *  const machine = sm`allows_override: true; a -> b -> c;`;
+ *  state(machine);    // => 'a'
+ *
+ *  go(machine, 'b');
+ *  go(machine, 'c');
+ *  state(machine);    // => 'c'
+ *
+ *  override(machine, 'a');
+ *  state(machine);    // => 'a'
+ *
+ *  @param m The machine to teleport; must have `allows_override` on.
+ *
+ *  @param newState The state to teleport to; must exist in the graph.
+ *
+ *  @param newData Replacement data.  Omit to keep the current data; pass
+ *  `undefined` explicitly to clear it.
+ *
+ *  @throws {JssmError} If the machine's config does not set
+ *  `allows_override: true`, or if `newState` does not exist.
+ *
+ *  @see set_data
+ *
+ */
+function override(m, newState, newData) {
+    // arity, not undefined-comparison: an omitted argument preserves the
+    // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
+    const dataProvided = arguments.length >= 3;
+    if (allows_override(m)) {
+        if (m._states.has(newState)) {
+            const fromState = m._state;
+            const oldData = m._data;
+            m._state = newState;
+            m._state_id = m._state_interner.intern(newState);
+            if (dataProvided) {
+                m._data = newData;
+            }
+            fire(m, 'override', {
+                from: fromState,
+                to: newState,
+                old_data: oldData,
+                new_data: m._data
+            });
+            if (dataProvided && (oldData !== newData)) {
+                fire(m, 'data-change', {
+                    from: fromState,
+                    to: newState,
+                    old_data: oldData,
+                    new_data: newData,
+                    cause: 'override'
+                });
+            }
+            // An override is still a real state change that may cross group/state
+            // boundaries, so its boundary-hook actions fire too (depth-bounded).
+            fire_boundary_actions(m, fromState, newState);
+        }
+        else {
+            throw new JssmError(m, `Cannot override state to "${newState}", a state that does not exist`);
+        }
+    }
+    else {
+        throw new JssmError(m, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+    }
+}
+/**
+ * Check whether an action is available from the current state.
+ *
+ *  @example
+ *  import { sm, act, valid_action } from 'jssm';
+ *
+ *  const m = sm`a 'next' -> b 'back' -> a;`;
+ *  valid_action(m, 'next');   // => true
+ *  // b has 'back'; a does not:
+ *  valid_action(m, 'back');   // => false
+ *  act(m, 'next');
+ *  valid_action(m, 'back');   // => true
+ *
+ *  @param m        - The machine to inspect; it does not move.
+ *  @param action   - The action name to check.
+ *  @param _newData - Reserved for future data validation.
+ *  @returns `true` if the action can be taken.
+ *  @see act
+ */
+function valid_action(m, action, _newData) {
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    return current_action_for(m, action) !== undefined;
+}
+/**
+ * Check whether a transition to a given state is legal (non-forced) from
+ *  the current state.
+ *
+ *  @example
+ *  import { sm, valid_transition } from 'jssm';
+ *
+ *  const m = sm`a -> b; a ~> c;`;
+ *  valid_transition(m, 'b');   // => true
+ *  // a forced-only edge:
+ *  valid_transition(m, 'c');   // => false
+ *  // no such state:
+ *  valid_transition(m, 'd');   // => false
+ *
+ *  @param m        - The machine to inspect; it does not move.
+ *  @param newState - The target state.
+ *  @param _newData - Reserved for future data validation.
+ *  @returns `true` if the transition is legal.
+ *  @see transition
+ */
+function valid_transition(m, newState, _newData) {
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    const transition_for = lookup_transition_for(m, state(m), newState);
+    if (!(transition_for)) {
+        return false;
+    }
+    if (transition_for.forced_only) {
+        return false;
+    }
+    return true;
+}
+/**
+ * Check whether a forced transition to a given state exists from the
+ *  current state.
+ *
+ *  @example
+ *  import { sm, valid_force_transition } from 'jssm';
+ *
+ *  const m = sm`a -> b; a ~> c; d -> e;`;
+ *  valid_force_transition(m, 'b');   // => true
+ *  valid_force_transition(m, 'c');   // => true
+ *  // no edge from a to e:
+ *  valid_force_transition(m, 'e');   // => false
+ *
+ *  @param m        - The machine to inspect; it does not move.
+ *  @param newState - The target state.
+ *  @param _newData - Reserved for future data validation.
+ *  @returns `true` if a forced (or any) transition exists.
+ *  @see force_transition
+ */
+function valid_force_transition(m, newState, _newData) {
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    return (lookup_transition_for(m, state(m), newState) !== undefined);
+}
+/*********
+ *
+ *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+ *  Extracted from the per-call closures inside {@link transition_impl} so
+ *  that it is allocated once at module-load time rather than on every
+ *  hooked transition.
+ *
+ *  @param m          The machine whose transition was vetoed.
+ *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+ *  @param fromState  State the machine was in when the transition was
+ *    attempted; used as the `from` field of the rejection event.
+ *  @param newState   State that would have been entered had the hook
+ *    passed; used as the `to` field of the rejection event.
+ *  @param fromAction Action name when the transition was initiated by an
+ *    action call; `undefined` for plain state transitions.
+ *  @param oldData    Machine data at the moment the transition was
+ *    attempted, before any hook mutations.
+ *  @param newData    The `next_data` value passed to the transition call.
+ *  @param wasForced  Whether the transition was attempted via
+ *    `force_transition`.
+ *
+ *  @see transition_impl
+ *  @see fire
+ *
+ *  @internal
+ *
+ */
+function fire_hook_rejection(m, hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+    // Every hook veto in transition_impl's pre-commit pipeline exits through
+    // here, so this is the single close point for the reentrancy guard on the
+    // rejection path: clear it before firing the event so a `rejection` listener
+    // may itself transition (the outer transition is abandoned, not reverted).
+    // #1953
+    m._committing_transition = false;
+    fire(m, 'rejection', {
+        from: fromState,
+        to: newState,
+        action: fromAction,
+        data: oldData,
+        next_data: newData,
+        reason: 'hook',
+        hook_name,
+        forced: wasForced
+    });
+}
+/*********
+ *
+ *  Fire the FSL boundary-hook actions for a single, already-committed state
+ *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
+ *  means "when the machine crosses INTO group `g`, dispatch machine action
+ *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
+ *  that fires those parked hooks.
+ *
+ *  Crossing semantics (statechart convention — exits before enters):
+ *
+ *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
+ *     the old and new states, from `_state_to_groups`.
+ *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
+ *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
+ *     actually changed).
+ *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
+ *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
+ *     changed).
+ *  4. A group present in BOTH sets is a transition *within* that group and
+ *     fires neither of its boundary hooks.  `prev_state === next_state` fires
+ *     nothing at all.
+ *  5. "Fire its action" is `act(m, label)`.  If that action is not valid
+ *     from the current state, `action` is a safe no-op (returns `false`) — an
+ *     inapplicable boundary action never throws.
+ *  6. Multi-membership and nesting both fan out naturally: a state in groups
+ *     A and B fires both; crossing an inner and an outer boundary fires both
+ *     levels.
+ *
+ *  Because firing an action can drive a further transition (which crosses
+ *  more boundaries, which fires more actions), this is a bounded
+ *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
+ *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
+ *  rather than overflowing the stack or hanging.  The limit defaults to 100
+ *  and is configurable via the `boundary_depth_limit` constructor option.
+ *
+ *  @param m          The machine that just committed the state change.
+ *  @param prev_state The state the machine was in before this commit.
+ *  @param next_state The state the machine is in now (already committed).
+ *
+ *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
+ *    (a probable infinite loop).
+ *
+ *  @see act
+ *  @see transition_impl
+ *
+ *  @internal
+ *
+ */
+function fire_boundary_actions(m, prev_state, next_state) {
+    var _a, _b, _c, _d, _e, _f;
+    // Nothing crosses a boundary when the state name is unchanged.
+    if (prev_state === next_state) {
+        return;
+    }
+    // Skip entirely for machines that declared no boundary hooks at all — the
+    // overwhelming common case, and it keeps the hot transition path free of
+    // set arithmetic.
+    if (m._group_hooks.size === 0 && m._state_hooks.size === 0) {
+        return;
+    }
+    if (m._boundary_depth >= m._boundary_depth_limit) {
+        throw new JssmError(m, `boundary-hook action cascade exceeded depth limit (${m._boundary_depth_limit}) `
+            + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
+            + `(possible infinite loop)`);
+    }
+    const prev_groups = (_a = m._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : empty_string_set;
+    const next_groups = (_b = m._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : empty_string_set;
+    // The labels to dispatch, gathered before any firing so that re-entrant
+    // transitions caused by an early action cannot perturb which boundaries the
+    // *current* crossing fires.  Exits precede enters (statechart convention).
+    const labels = [];
+    // Exits: groups left (in prev but not next), then the plain prev state.
+    for (const group of prev_groups) {
+        if (next_groups.has(group)) {
+            continue;
+        }
+        const label = (_c = m._group_hooks.get(group)) === null || _c === void 0 ? void 0 : _c.onExit;
+        if (label !== undefined) {
+            labels.push(label);
+        }
+    }
+    const prev_state_exit = (_d = m._state_hooks.get(prev_state)) === null || _d === void 0 ? void 0 : _d.onExit;
+    if (prev_state_exit !== undefined) {
+        labels.push(prev_state_exit);
+    }
+    // Enters: groups entered (in next but not prev), then the plain next state.
+    for (const group of next_groups) {
+        if (prev_groups.has(group)) {
+            continue;
+        }
+        const label = (_e = m._group_hooks.get(group)) === null || _e === void 0 ? void 0 : _e.onEnter;
+        if (label !== undefined) {
+            labels.push(label);
+        }
+    }
+    const next_state_enter = (_f = m._state_hooks.get(next_state)) === null || _f === void 0 ? void 0 : _f.onEnter;
+    if (next_state_enter !== undefined) {
+        labels.push(next_state_enter);
+    }
+    if (labels.length === 0) {
+        return;
+    }
+    // Each dispatched action re-enters transition_impl, which (on success) calls
+    // back here for the boundary it just crossed.  The depth counter brackets
+    // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
+    m._boundary_depth += 1;
+    try {
+        for (const label of labels) {
+            act(m, label); // safe no-op (returns false) if inapplicable here
+        }
+    }
+    finally {
+        m._boundary_depth -= 1;
+    }
+}
+
+/*******
+ *
+ *  The timers family: the machine's single pending state timeout, which
+ *  backs the FSL `after` clause (`a after 5s -> b;`) and can also be armed
+ *  by hand.  Every function takes the machine as its first argument and
+ *  reads the machine's `_timeout_*` / `_after_mapping` fields directly; the
+ *  `Machine` class methods of the same names are one-line delegates onto
+ *  these.
+ *
+ *  The three `DEFAULT_*_SOURCE` singletons are the machine constructor's
+ *  fallbacks for the injectable `time_source` / `timeout_source` /
+ *  `clear_timeout_source` config; they are exported for `machine.ts` and are
+ *  not part of the barrel.
+ *
+ */
+/**
+ *  Default time / timeout sources, hoisted to module scope so machines that
+ *  don't override them (nearly all) share three singletons instead of
+ *  allocating three fresh closures per construction.
+ *  @internal
+ */
+const DEFAULT_TIME_SOURCE = () => Date.now();
+const DEFAULT_TIMEOUT_SOURCE = (f, a) => {
+    const handle = setTimeout(f, a);
+    // In Node, setTimeout returns a Timeout with .unref(), so a pending `after`
+    // timer does NOT by itself keep the process alive -- an abandoned machine can
+    // be collected and the process can exit instead of hanging until the timer
+    // fires go() on it.  The browser returns a plain number with no such method.
+    // A consumer who wants the timer to hold the loop open can supply their own
+    // timeout_source.  StoneCypher/fsl#1952
+    const maybe_unref = handle;
+    // The no-unref path is the browser's numeric handle; it can't be reached in
+    // the node-only coverage environment, so the false branch is ignored here.
+    /* v8 ignore next */
+    if (typeof maybe_unref.unref === 'function') {
+        maybe_unref.unref();
+    }
+    return handle;
+};
+const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
+/**
+ *  Schedule an automatic transition to `next_state` after `after_time`
+ *  milliseconds.  Only one timeout may be active at a time.
+ *
+ *  @example
+ *  import { sm, set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  set_state_timeout(m, 'b', 1000);
+ *  current_state_timeout(m);  // => ['b', 1000]
+ *  clear_state_timeout(m);
+ *
+ *  @param m          - The machine to arm.
+ *  @param next_state - The state to transition to when the timer fires.
+ *  @param after_time - Delay in milliseconds.
+ *  @throws JssmError If a timeout is already pending.
+ *  @see clear_state_timeout
+ *  @see current_state_timeout
+ */
+function set_state_timeout(m, next_state, after_time) {
+    if (m._timeout_handle !== undefined) {
+        throw new JssmError(m, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${m._timeout_target}:${m._timeout_target_time}`);
+    }
+    m._timeout_handle = m._timeout_source(
+    // it seems like istanbul can't see this line being followed, even though it is, actively
+    // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
+    // we'll mark it no-check so that our coverage numbers aren't wrecked
+    /* istanbul ignore next */
+    /* v8 ignore next 10 */
+    () => {
+        const from_state = m._state;
+        clear_state_timeout(m);
+        if (m._has_after_hooks) {
+            const ah = m._after_hooks.get(from_state);
+            if (ah !== undefined) {
+                ah({ data: m._data, next_data: m._data });
+            }
+            // a specific after hook firing implies the any-after hook fires too,
+            // afterward; and it also fires alone (StoneCypher/fsl#1299)
+            if (m._after_any_hook !== undefined) {
+                m._after_any_hook({ data: m._data, next_data: m._data });
+            }
+        }
+        fire(m, 'timeout', { from: from_state, to: next_state, after_time });
+        go(m, next_state);
+    }, after_time);
+    m._timeout_target = next_state;
+    m._timeout_target_time = after_time;
+}
+/**
+ *  Cancel any pending state timeout.  Safe to call when no timeout is active.
+ *
+ *  @example
+ *  import { sm, set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
+ *
+ *  const m = sm`a -> b;`;
+ *  set_state_timeout(m, 'b', 1000);
+ *  clear_state_timeout(m);
+ *  current_state_timeout(m);  // => undefined
+ *
+ *  @param m - The machine to disarm.
+ *  @see set_state_timeout
+ */
+function clear_state_timeout(m) {
+    if (m._timeout_handle === undefined) {
+        return; // calling with no timeout is a no-op, means it can be called glad-handedly
+    }
+    m._clear_timeout_source(m._timeout_handle);
+    m._timeout_handle = undefined;
+    m._timeout_target = undefined;
+    m._timeout_target_time = undefined;
+}
+/**
+ *  Get the configured `after` timeout for a given state, if any.
+ *
+ *  @example
+ *  import { sm, state_timeout_for, clear_state_timeout } from 'jssm';
+ *
+ *  const m = sm`a after 5s -> b; b -> c;`;
+ *  state_timeout_for(m, 'a');  // => ['b', 5000]
+ *  state_timeout_for(m, 'b');  // => undefined
+ *  clear_state_timeout(m);
+ *
+ *  @param m           - The machine to inspect.
+ *  @param which_state - The state to look up.
+ *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
+ *  is configured for that state.
+ *  @see current_state_timeout
+ */
+function state_timeout_for(m, which_state) {
+    return m._after_mapping.get(which_state);
+}
+/**
+ *  Get the pending state timeout, if any: the target of the timer that is
+ *  currently armed, whether it came from an FSL `after` clause or from
+ *  `set_state_timeout`.
+ *
+ *  @example
+ *  import { sm, current_state_timeout, clear_state_timeout } from 'jssm';
+ *
+ *  const m = sm`a after 5s -> b;`;
+ *  current_state_timeout(m);  // => ['b', 5000]
+ *  clear_state_timeout(m);
+ *  current_state_timeout(m);  // => undefined
+ *
+ *  @param m - The machine to inspect.
+ *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
+ *  @see state_timeout_for
+ */
+function current_state_timeout(m) {
+    return (m._timeout_target === undefined)
+        ? undefined
+        : [m._timeout_target, m._timeout_target_time];
+}
+/**
+ *  If the current state has an `after` timeout configured, schedule it.
+ *  Called internally after each transition.
+ *
+ *  @example
+ *  import { sm, auto_set_state_timeout, current_state_timeout, clear_state_timeout } from 'jssm';
+ *
+ *  const m = sm`a after 5s -> b;`;
+ *  clear_state_timeout(m);
+ *  current_state_timeout(m);  // => undefined
+ *  auto_set_state_timeout(m);
+ *  current_state_timeout(m);  // => ['b', 5000]
+ *  clear_state_timeout(m);
+ *
+ *  @param m - The machine to arm.
+ *  @throws JssmError If a timeout is already pending and the current state
+ *  has an `after` mapping (see `set_state_timeout`).
+ *  @see set_state_timeout
+ */
+function auto_set_state_timeout(m) {
+    // called on every successful transition-commit.  Machines with no `after`
+    // clauses at all (the overwhelmingly common case) previously still paid a
+    // string hash + map probe here per transition; one integer size read
+    // short-circuits that.
+    if (m._after_mapping.size === 0) {
+        return;
+    }
+    const after_res = m._after_mapping.get(m._state);
+    if (after_res !== undefined) {
+        const [next_state, after_time] = after_res;
+        set_state_timeout(m, next_state, after_time);
+    }
+}
+
+/*******
+ *
+ *  The stochastic family: everything that draws on the machine's seeded
+ *  PRNG — the weighted start-state distribution (`start_state_weights`,
+ *  `sample_start_state`), the probabilistic exit pool (`probable_exits_for`),
+ *  the destructive random steps (`probabilistic_transition`,
+ *  `probabilistic_walk`, `probabilistic_histo_walk`), the non-destructive
+ *  Monte-Carlo engine (`stochastic_runs`, `stochastic_summary`), and the seed
+ *  accessors (`rng_seed`, `set_rng_seed`).  Every function takes the machine
+ *  as its first argument and reads its fields directly; the `Machine` class
+ *  methods, getter, and setter of the same names are one-line delegates onto
+ *  these.
+ *
+ *  Every export here is public and re-exported by the `jssm` barrel,
+ *  including the two `STOCHASTIC_DEFAULT_*` constants.  The former private
+ *  methods `_assert_selectable_exit_pool` and `_stochastic_one_walk` are
+ *  module-private functions here.
+ *
+ */
+/** Default number of independent Monte-Carlo runs when none is declared. */
+const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
+/**
+ *  The initial distribution declared by a weighted `start_states` list
+ *  (6.0), normalized to sum 1.  Empty when the machine's start states are
+ *  unweighted.
+ *  @param m The machine to read.
+ *  @returns A map from start state to its share of the distribution.
+ *  @example
+ *  import { sm, start_state_weights } from 'jssm';
+ *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+ *  start_state_weights(m).get('idle');  // => 0.9
+ *  @see sample_start_state
+ */
+function start_state_weights(m) {
+    return new Map(m._start_state_weights);
+}
+/**
+ *  Draws a start state from {@link start_state_weights} using the
+ *  machine's RNG; on an unweighted machine returns the first declared
+ *  start state.  Does not change the machine's state.
+ *  @param m The machine whose RNG and start distribution are used.
+ *  @returns The sampled start state.
+ *  @example
+ *  import { sm, sample_start_state } from 'jssm';
+ *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
+ *  ['idle', 'booting'].includes(sample_start_state(m));  // => true
+ *  @see start_state_weights
+ */
+function sample_start_state(m) {
+    if (m._start_state_weights.size === 0) {
+        return m._start_states.values().next().value;
+    }
+    const opts = [...m._start_state_weights].map(([name, probability]) => ({ name, probability }));
+    return weighted_rand_select(opts, undefined, m._rng).name;
+}
+/**
+ * Get the transitions available from a state for use by the probabilistic
+ *  walk system.
+ *
+ *  If any exit declares a `probability`, only those probability-bearing
+ *  exits are returned, so that non-probability peers cannot dilute the
+ *  declared distribution.  If no exit declares a `probability`, every
+ *  legal (non-forced) exit is returned, which `weighted_rand_select`
+ *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+ *  since they cannot be taken by an ordinary `transition()` call.
+ *
+ *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+ *  every exit unconditionally — including forced-only exits and exits
+ *  with no `probability`, which distorted the weighted distribution.
+ *
+ *  Share-only edges (an unweighted transition onto a weighted list; 6.0
+ *  list weights) carry no declared `probability` and so never evict their
+ *  siblings from the pool; their `share` is applied later, by the picker.
+ *  @param m The machine to inspect.
+ *  @param whichState - The state to inspect.
+ *  @returns An array of {@link JssmTransition} edges exiting the state,
+ *  filtered as described above.  May be empty.
+ *  @throws {JssmError} If the state does not exist.
+ */
+function probable_exits_for(m, whichState) {
+    const wstate = m._states.get(whichState);
+    if (!(wstate)) {
+        throw new JssmError(m, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
+    }
+    // single pass over the state's exits, replacing the old map -> filter ->
+    // filter -> filter chain and its three intermediate arrays; selection and
+    // ordering semantics are unchanged
+    const legal_exits = [], probability_bearing = [];
+    // hoisted: every exit shares whichState, so probe _edge_map for the
+    // from-side once instead of re-hashing the same key per exit inside
+    // lookup_transition_for.  wstate.to is non-empty only when at least one
+    // outbound edge exists, and every outbound edge creates the from-side
+    // mapping at construction — so emg is defined whenever the loop runs.
+    const emg = m._edge_map.get(whichState);
+    for (const ws of wstate.to) {
+        // wstate.to is built from the same edge set _edge_map indexes, so the
+        // per-target get cannot miss; the guard mirrors the old defensive
+        // .filter(Boolean) and is equally unreachable.
+        const edge = m._edges[emg.get(ws)];
+        /* v8 ignore next */
+        if (!edge) {
+            continue;
+        }
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        if (edge.forced_only) {
+            continue;
+        }
+        legal_exits.push(edge);
+        // if any legal exit declares a probability, only those are returned, so
+        // that probability-bearing edges are not diluted by their peers
+        if (edge.probability !== undefined) {
+            probability_bearing.push(edge);
+        }
+    }
+    return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
+}
+/**
+ * Guard for the random-selection paths ({@link probabilistic_transition},
+ *  {@link stochastic_runs}): rejects a candidate pool whose total
+ *  selectable weight is zero, because weighted selection over an all-zero
+ *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
+ *  probabilities count as weight 1, matching {@link weighted_rand_select}.
+ *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
+ *  share-only edge (6.0 list weights) still contributes its fractional
+ *  weight to the total rather than being treated as 1.
+ *  An empty pool is not this guard's concern (terminality is handled by the
+ *  callers) and passes through untouched.
+ *
+ *  Not a doctest: `assert_selectable_exit_pool` is module-private; the guard is reached through `probabilistic_transition`.
+ *  ```typescript
+ *  import { sm, probabilistic_transition } from 'jssm';
+ *
+ *  const m = sm`a 0% -> b; a 0% -> c;`;
+ *  probabilistic_transition(m);  // throws JssmError — every exit is 0%
+ *  ```
+ *  @param m The machine the pool belongs to, named in the error.
+ *  @param whichState - The state the pool exits from, named in the error.
+ *  @param exits - The candidate pool, as built by {@link probable_exits_for}.
+ *  @throws {JssmError} If the pool is non-empty and every candidate edge
+ *  has probability 0 — including the case where explicit `0%` edges
+ *  excluded their unweighted sibling edges from the candidate pool.
+ *  @see probable_exits_for
+ *  @internal
+ */
+function assert_selectable_exit_pool(m, whichState, exits) {
+    if (exits.length === 0) {
+        return;
+    }
+    let total = 0;
+    for (const e of exits) {
+        total += ((e.probability === undefined) ? 1 : e.probability) * ((e.share === undefined) ? 1 : e.share);
+    }
+    if (total > 0) {
+        return;
+    }
+    throw new JssmError(m, `Cannot randomly select an exit from state ${JSON.stringify(whichState)}: every candidate edge has probability 0%.  Note that an explicit 0% edge excludes unweighted sibling edges from the candidate pool (StoneCypher/fsl#1248)`);
+}
+/**
+ * Take a single random transition from the current state, weighted by
+ *  edge probabilities.
+ *  @param m The machine to move.
+ *  @returns `true` if a transition was taken, `false` otherwise.
+ *  @throws {JssmError} If the candidate exit pool is non-empty but its
+ *  total weight is zero — every candidate declares `0%` — per
+ *  StoneCypher/fsl#1248.
+ */
+function probabilistic_transition(m) {
+    const exits = probable_exits_for(m, state(m));
+    assert_selectable_exit_pool(m, state(m), exits);
+    const selected = weighted_rand_select(exits, undefined, m._rng);
+    return transition(m, selected.to);
+}
+/**
+ * Take `n` consecutive probabilistic transitions and return the sequence
+ *  of states visited (before each transition).
+ *  @param m The machine to move.
+ *  @param n - Number of steps to walk.
+ *  @returns An array of state names visited during the walk.
+ *  @throws {JssmError} If a visited state's candidate exit pool is
+ *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+ */
+function probabilistic_walk(m, n) {
+    return [...seq(n)
+            .map(() => {
+            const state_was = state(m);
+            probabilistic_transition(m);
+            return state_was;
+        }), state(m)];
+}
+/**
+ * Take `n` probabilistic steps and return a histograph of how many times
+ *  each state was visited.
+ *  @param m The machine to move.
+ *  @param n - Number of steps to walk.
+ *  @returns A `Map` from state name to visit count.
+ *  @throws {JssmError} If a visited state's candidate exit pool is
+ *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
+ */
+function probabilistic_histo_walk(m, n) {
+    return histograph(probabilistic_walk(m, n));
+}
+/**
+ * One non-destructive weighted-random walk over the graph from `start`.
+ *
+ *  Reads the graph and advances the PRNG only — it never calls
+ *  {@link transition}, so it fires no hooks, mutates no machine
+ *  state, and touches no `data`.  A state with no probabilistic exits
+ *  (a terminal, or a forced-only `~>` state) ends the walk.
+ *
+ *  Terminality is checked before the first transition and after every
+ *  transition.  A terminal start therefore completes with length zero even
+ *  when `max_steps` is zero, and a terminal reached on the final permitted
+ *  transition is completed rather than step-capped.
+ *  @param m The machine whose graph and RNG are read.
+ *  @param start - State to begin the walk from.
+ *  @param max_steps - Maximum transitions before the walk is step-capped.
+ *  @param exit_memo - Per-run-set cache of {@link probable_exits_for}
+ *    results.  The graph is immutable after construction, so a state's
+ *    probable exits never change; sharing one memo across a generator's
+ *    runs collapses runs×steps re-derivations (two array allocations and an
+ *    exit rescan per step) to one per distinct state.  The memo only reuses
+ *    the derived arrays — RNG draw order is untouched, so seeded walks
+ *    reproduce exactly.
+ *  @returns The {@link JssmStochasticRun} for this walk.
+ *  @throws {JssmError} If a visited state's candidate exit pool is
+ *  non-empty but all-zero-weight — see
+ *  {@link assert_selectable_exit_pool} (StoneCypher/fsl#1248).
+ *  @internal
+ */
+function stochastic_one_walk(m, start, max_steps, exit_memo) {
+    const states = [start];
+    const edges = [];
+    let cur = start;
+    let exits = exit_memo.get(cur);
+    if (exits === undefined) {
+        exits = probable_exits_for(m, cur);
+        assert_selectable_exit_pool(m, cur, exits);
+        exit_memo.set(cur, exits);
+    }
+    let terminated = exits.length === 0;
+    for (let step = 0; step < max_steps && !terminated; step++) {
+        const selected = weighted_rand_select(exits, undefined, m._rng);
+        edges.push(`${cur}→${selected.to}`);
+        cur = selected.to;
+        states.push(cur);
+        exits = exit_memo.get(cur);
+        if (exits === undefined) {
+            exits = probable_exits_for(m, cur);
+            assert_selectable_exit_pool(m, cur, exits);
+            exit_memo.set(cur, exits);
+        }
+        terminated = exits.length === 0;
+    }
+    return { states, edges, length: states.length - 1, terminated };
+}
+/**
+ * Lazily yield one {@link JssmStochasticRun} at a time.
+ *
+ *  In `montecarlo` mode (default) yields `runs` independent walks from the
+ *  current state, each ending at a terminal or after `max_steps`.  In
+ *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+ *  is the lazy engine behind {@link stochastic_summary}; the
+ *  fsl-stochastic panel drives it across animation frames.  A walk already
+ *  at a terminal is reported as terminated with length zero, including when
+ *  `max_steps` is zero.
+ *
+ *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+ *  {@link stochastic_summary}, the generator does NOT restore the
+ *  prior seed afterward — a direct caller's machine is left reseeded.
+ *  When the machine declares weighted `start_states` (6.0), each run's
+ *  start is drawn independently via {@link sample_start_state}
+ *  instead of always starting from the machine's current state.
+ *  @param m The machine whose graph and RNG are read.
+ *  @param opts - {@link JssmStochasticOptions}.
+ *  @yields One {@link JssmStochasticRun} per completed walk.
+ *  @returns A generator of per-run results.
+ *  @example
+ *  import { sm, stochastic_runs } from 'jssm';
+ *  const m = sm`a 'go' -> b 'go' -> c;`;
+ *  [...stochastic_runs(m, { runs: 2, seed: 1 })].length;  // => 2
+ */
+function* stochastic_runs(m, opts = {}) {
+    var _a, _b, _c, _d, _e;
+    if (opts.seed !== undefined) {
+        set_rng_seed(m, opts.seed);
+    }
+    const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
+    const max_steps = (_b = opts.max_steps) !== null && _b !== void 0 ? _b : STOCHASTIC_DEFAULT_MAX_STEPS;
+    const runs = (mode === 'steady_state')
+        ? 1
+        : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = editor_config(m)) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
+    const weighted_start = m._start_state_weights.size > 0;
+    const fixed_start = state(m);
+    // one probable-exits memo for the whole run set; see stochastic_one_walk
+    const exit_memo = new Map();
+    for (let i = 0; i < runs; i++) {
+        yield stochastic_one_walk(m, weighted_start ? sample_start_state(m) : fixed_start, max_steps, exit_memo);
+    }
+}
+/**
+ * Run many weighted-random walks and return aggregate statistics.
+ *
+ *  Honors `%` transition probabilities (via the existing probabilistic
+ *  machinery).  Non-destructive: the machine's current state and
+ *  {@link rng_seed} are restored before returning, so calling this
+ *  never perturbs the live machine.  `montecarlo` mode (default) reports
+ *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+ *  mode runs one long walk and omits those fields.
+ *
+ *  Monte-Carlo runs count as `terminal_reached` when they start at a
+ *  terminal or reach one on the final permitted transition.  Terminal
+ *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
+ *
+ *  Timing (`after`) decorations and data-guard conditions are not modeled
+ *  by this sampler; it walks the probabilistic graph topology.  When the
+ *  machine declares weighted `start_states` (6.0), each run starts from an
+ *  independently sampled start state (see {@link stochastic_runs}).
+ *  @param m The machine whose graph and RNG are read.
+ *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+ *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+ *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+ *  @returns A {@link JssmStochasticSummary}.
+ *  @see stochastic_runs
+ *  @see probabilistic_walk
+ *  @see editor_config
+ *  @example
+ *  import { sm, stochastic_summary } from 'jssm';
+ *  const m = sm`a 'go' -> b 'go' -> c;`;
+ *  const s = stochastic_summary(m, { runs: 100, seed: 1 });
+ *  s.terminal_reached;  // => 100
+ */
+function stochastic_summary(m, opts = {}) {
+    var _a, _b, _c;
+    const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
+    const saved_seed = m._rng_seed;
+    if (opts.seed !== undefined) {
+        set_rng_seed(m, opts.seed);
+    }
+    const effective_seed = m._rng_seed;
+    const state_visits = new Map();
+    const edge_traversals = new Map();
+    const path_lengths = [];
+    let terminal_reached = 0, capped = 0, runs = 0;
+    try {
+        const run_stream = stochastic_runs(m, Object.assign(Object.assign({}, opts), { mode }));
+        for (const run of run_stream) {
+            runs += 1;
+            for (const s of run.states) {
+                state_visits.set(s, ((_b = state_visits.get(s)) !== null && _b !== void 0 ? _b : 0) + 1);
+            }
+            for (const e of run.edges) {
+                edge_traversals.set(e, ((_c = edge_traversals.get(e)) !== null && _c !== void 0 ? _c : 0) + 1);
+            }
+            if (mode === 'montecarlo') {
+                if (run.terminated) {
+                    terminal_reached += 1;
+                    path_lengths.push(run.length);
+                }
+                else {
+                    capped += 1;
+                }
+            }
+        }
+    }
+    finally {
+        // restore the PRNG so the call is non-destructive even when the loop throws
+        set_rng_seed(m, saved_seed);
+    }
+    const total_visits = [...state_visits.values()].reduce((a, b) => a + b, 0);
+    const state_visit_fraction = new Map();
+    for (const [s, c] of state_visits) {
+        state_visit_fraction.set(s, c / total_visits);
+    }
+    const summary = {
+        mode, runs, seed: effective_seed,
+        state_visits, state_visit_fraction, edge_traversals,
+    };
+    if (mode === 'montecarlo') {
+        summary.path_lengths = path_lengths;
+        summary.terminal_reached = terminal_reached;
+        summary.capped = capped;
+    }
+    return summary;
+}
+/**
+ * Get the current RNG seed used for probabilistic transitions.
+ *  @param m The machine to read.
+ *  @returns The numeric seed value.
+ */
+function rng_seed(m) {
+    return m._rng_seed;
+}
+/**
+ * Set the RNG seed.  Pass `undefined` to reseed from the current time.
+ *  Resets the internal PRNG so subsequent probabilistic operations use the
+ *  new seed.
+ *  @param m The machine to reseed.
+ *  @param to - The seed value, or `undefined` for time-based seeding.
+ */
+function set_rng_seed(m, to) {
+    m._rng_seed = to === undefined ? Date.now() : to;
+    m._rng = gen_splitmix32(m._rng_seed);
+}
+
+/*******
+ *
+ *  The groups family: the overlapping-state-group membership queries —
+ *  `isIn`, `groupsOf`, `groups`, `statesIn` — over the tables the compiler
+ *  carries into the machine (`_group_registry`, `_group_order`,
+ *  `_state_to_groups`).  Every function takes the machine as its first
+ *  argument and reads its fields directly; the `Machine` class methods of the
+ *  same names are one-line delegates onto these.
+ *
+ *  `groups_by_depth` (formerly the class's `#groups_by_depth`) is exported
+ *  for the style family's config cascade and is not part of the barrel.
+ *
+ */
+/********
+ *
+ *  Reports whether the machine's CURRENT state is a transitive member of a
+ *  named group.  Membership is deep: a state counts as in `groupName` if it
+ *  belongs to that group directly, or via any nested (`&child`) or spread
+ *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
+ *  members, so this returns `false` rather than throwing.
+ *
+ *  @example
+ *  import { sm, act, isIn } from 'jssm';
+ *
+ *  const m = sm`&busy : [working]; idle 'go' -> working;`;
+ *  // the current state is 'idle':
+ *  isIn(m, 'busy');     // => false
+ *  act(m, 'go');
+ *  // the current state is now 'working':
+ *  isIn(m, 'busy');     // => true
+ *  // an undeclared group has no members:
+ *  isIn(m, 'nonesuch'); // => false
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose current state is tested.
+ *
+ *  @param groupName The group to test the current state against.
+ *
+ *  @returns `true` if the current state is a transitive member of `groupName`.
+ *
+ *  @see groupsOf
+ *  @see statesIn
+ *
+ */
+function isIn(m, groupName) {
+    return groupsOf(m, state(m)).has(groupName);
+}
+/********
+ *
+ *  Lists every group that transitively contains a given state.  Membership is
+ *  deep — direct, nested, and spread sub-group containment all count — and the
+ *  result is the precomputed inverse-index entry for the state, so the lookup
+ *  is constant-time.  A state that belongs to no group (or a state name that
+ *  appears in no group) yields an empty `Set`.
+ *
+ *  @example
+ *  import { sm, groupsOf } from 'jssm';
+ *
+ *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
+ *  // deep: a is in &outer through &inner
+ *  groupsOf(m, 'a');     // => new Set(['inner', 'outer'])
+ *  groupsOf(m, 'b');     // => new Set(['outer'])
+ *  // z is in no group
+ *  groupsOf(m, 'z');     // => new Set()
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose group index is read.
+ *
+ *  @param state The state whose containing groups are wanted.
+ *
+ *  @returns A `Set` of every group name transitively containing `state`;
+ *  empty when `state` belongs to no group.
+ *
+ *  @see isIn
+ *  @see groups
+ *
+ */
+function groupsOf(m, state) {
+    return new Set(m._state_to_groups.get(state));
+}
+/********
+ *
+ *  Lists all declared group names, in source declaration order.  The order
+ *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
+ *  is the same order used to break depth-specificity ties in the config
+ *  cascade.  Machines that declare no groups return an empty array.
+ *
+ *  @example
+ *  import { sm, groups } from 'jssm';
+ *
+ *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
+ *  groups(m);  // => [ 'first', 'second' ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose declared groups are listed.
+ *
+ *  @returns The declared group names, in declaration order.
+ *
+ *  @see groupsOf
+ *  @see statesIn
+ *
+ */
+function groups(m) {
+    return [...m._group_order];
+}
+/********
+ *
+ *  Lists every state that is a transitive member of a named group — the
+ *  flattened membership of the group, descending through nested and spread
+ *  sub-groups, in member-declaration order.
+ *
+ *  @example
+ *  import { sm, statesIn } from 'jssm';
+ *
+ *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
+ *  statesIn(m, 'outer');  // => [ 'a', 'b', 'c' ]
+ *  statesIn(m, 'inner');  // => [ 'a', 'b' ]
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose group registry is read.
+ *
+ *  @param groupName The group whose transitive member states are wanted.
+ *
+ *  @returns The transitive member states of `groupName`, in declaration order.
+ *
+ *  @throws {JssmError} If `groupName` is not a declared group.
+ *
+ *  @see groups
+ *  @see groupsOf
+ *
+ */
+function statesIn(m, groupName) {
+    if (!(m._group_registry.has(groupName))) {
+        throw new JssmError(m, `No such group ${JSON.stringify(groupName)}`);
+    }
+    return transitive_members(m._group_registry, groupName, new Map());
+}
+/********
+ *
+ *  Orders the groups a state belongs to by nesting depth for the config
+ *  cascade — outermost first, innermost last — so that, folded in order,
+ *  the innermost (nearest / smallest {@link membership_distance}) group's
+ *  metadata wins.  Equal-distance groups are ordered by group declaration
+ *  order, so a later-declared group of the same depth wins the tie.
+ *
+ *  Concretely: groups are sorted by descending membership distance (largest
+ *  distance applied first / wins least), and for equal distances by
+ *  ascending declaration index (later index applied last / wins most).
+ *
+ *  Exported for the style family's `compose_state_config`; not part of the
+ *  `jssm` barrel.
+ *
+ *  @param m The machine whose group registry and declaration order are read.
+ *
+ *  @param state The state whose containing groups are being ordered.
+ *
+ *  @returns The containing group names, ordered for outer→inner folding
+ *  (the last entry wins).
+ *
+ *  @internal
+ *
+ */
+function groups_by_depth(m, state) {
+    const containing = [...groupsOf(m, state)];
+    if (containing.length < 2) {
+        return containing;
+    }
+    return containing.sort((ga, gb) => {
+        const da = membership_distance(m._group_registry, state, ga), db = membership_distance(m._group_registry, state, gb);
+        // Larger distance (more "outer") sorts earlier so it is applied first and
+        // overridden by nearer groups.
+        if (da !== db) {
+            return db - da;
+        }
+        // Equal depth: earlier-declared group sorts earlier (applied first), so
+        // the later-declared group of the same depth wins the tie.
+        return m._group_order.indexOf(ga) - m._group_order.indexOf(gb);
+    });
 }
 
 const base_state_style$5 = {
@@ -26309,380 +32037,3517 @@ const base_theme = {
  */
 const theme_mapping = new Map([['default', default_theme], ['modern', modern_theme], ['ocean', ocean_theme], ['plain', plain_theme], ['bold', bold_theme]]);
 
-/**
- * String interning support for the jssm machine internals.
+/*******
  *
- * State and action names are interned to dense integer ids at machine
- * construction so that per-transition dispatch can use numeric map keys
- * (integer hashing) instead of repeated string-keyed lookups.  Internal
- * machinery only — deliberately not re-exported from the `jssm` public
- * surface, so the public API is unchanged.
- * @internal
+ *  The style family: everything the viz layer reads to draw a machine — the
+ *  graph-level settings (`graph_layout`, `dot_preamble`, `flow`,
+ *  `default_transition_config`, `default_graph_config`), the theme stack
+ *  (`all_themes`, `themes`, `set_themes`), the six per-kind style blocks
+ *  (`standard_state_style`, `hooked_state_style`, `start_state_style`,
+ *  `end_state_style`, `terminal_state_style`, `active_state_style`), and the
+ *  unified config cascade (`resolve_state_config`, `style_for`).  Every
+ *  function takes the machine as its first argument and reads its fields
+ *  directly; the `Machine` class methods, getters, and the `themes` setter
+ *  of the same names are one-line delegates onto these.
+ *
+ *  The construction-time helpers `transfer_state_properties` and
+ *  `state_style_condense` live here too (the constructor imports them) and
+ *  are public through the barrel, as they were before the split.  The former
+ *  `#resolved_themes`, `#individual_state_config`, `#compose_state_config`
+ *  methods and the `apply_state_style_key` / `merge_state_config` helpers
+ *  are module-private.
+ *
  */
-/**
- * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
- * order; lookups are O(1) both directions.  Grows monotonically — there is
- * no removal, matching machine semantics (states and actions are fixed
- * after construction; late interning only happens for never-matching
- * lookups such as hook registrations naming unknown states).
- * @example
- *   const i = new Interner();
- *   i.intern('red');     // 0
- *   i.intern('green');   // 1
- *   i.intern('red');     // 0  (idempotent)
- *   i.id_of('green');    // 1
- *   i.name_of(0);        // 'red'
- * @see pair_key
+/*********
+ *
+ *  An internal method meant to take a series of declarations and fold them into
+ *  a single multi-faceted declaration, in the process of building a state.  Not
+ *  generally meant for external use.
+ *
+ *  @internal
+ *
  */
-class Interner {
-    constructor() {
-        this.ids = new Map();
-        this.names = [];
-    }
-    /**
-     * Return the id for `name`, assigning the next dense id if the name has
-     * not been seen before.
-     * @param name - The string to intern.
-     * @returns The (possibly newly assigned) integer id.
-     * @example
-     *   interner.intern('red');  // 0 on first call, 0 on every later call
-     */
-    intern(name) {
-        const existing = this.ids.get(name);
-        if (existing !== undefined) {
-            return existing;
+function transfer_state_properties(state_decl) {
+    state_decl.declarations.map((d) => {
+        switch (d.key) {
+            case 'shape': {
+                state_decl.shape = d.value;
+                break;
+            }
+            case 'color': {
+                state_decl.color = d.value;
+                break;
+            }
+            case 'corners': {
+                state_decl.corners = d.value;
+                break;
+            }
+            case 'line-style': {
+                state_decl.lineStyle = d.value;
+                break;
+            }
+            case 'text-color': {
+                state_decl.textColor = d.value;
+                break;
+            }
+            case 'background-color': {
+                state_decl.backgroundColor = d.value;
+                break;
+            }
+            case 'state-label': {
+                state_decl.stateLabel = d.value;
+                break;
+            }
+            case 'border-color': {
+                state_decl.borderColor = d.value;
+                break;
+            }
+            case 'image': {
+                state_decl.image = d.value;
+                break;
+            }
+            case 'url': {
+                state_decl.url = d.value;
+                break;
+            }
+            case 'state_property': {
+                state_decl.property = { name: d.name, value: d.value };
+                break;
+            }
+            default: {
+                throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
+            }
         }
-        const id = this.names.length;
-        this.ids.set(name, id);
-        this.names.push(name);
-        return id;
-    }
-    /**
-     * Return the id for `name` without interning, or `undefined` when the
-     * name has never been interned.  This is the hot-path probe for
-     * user-supplied names.
-     * @param name - The string to look up.
-     * @example
-     *   interner.id_of('mauve');  // undefined — never interned
-     */
-    id_of(name) {
-        return this.ids.get(name);
-    }
-    /**
-     * Return the name for `id`, or `undefined` for an id never assigned.
-     * @param id - The integer id to invert.
-     * @example
-     *   interner.name_of(0);  // 'red'
-     */
-    name_of(id) {
-        return this.names[id];
-    }
-    /** The count of distinct interned names. */
-    get size() {
-        return this.names.length;
+    });
+    return state_decl;
+}
+/**
+ *
+ *  Applies one parsed state-style key/value pair onto a condensing
+ *  {@link JssmStateConfig}, remapping the kebab-case FSL key to its camelCase
+ *  field and rejecting redefinition.  Exists as the switch body of
+ *  {@link state_style_condense}, one call per list element.
+ *
+ *  Not a doctest: `apply_state_style_key` is module-private and cannot be imported from `'jssm'`.
+ *  ```typescript
+ *  const cfg = {};
+ *  apply_state_style_key(cfg, { key: 'color', value: 'red' });  // cfg.color === 'red'
+ *  ```
+ *  @throws {JssmError} If the key was already set, or is not a recognized
+ *  style name.
+ *  @see state_style_condense
+ *  @internal
+ */
+function apply_state_style_key(state_style, key, machine) {
+    switch (key.key) {
+        case 'shape': {
+            if (state_style.shape !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
+            }
+            state_style.shape = key.value;
+            return;
+        }
+        case 'color': {
+            if (state_style.color !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
+            }
+            state_style.color = key.value;
+            return;
+        }
+        case 'text-color': {
+            if (state_style.textColor !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
+            }
+            state_style.textColor = key.value;
+            return;
+        }
+        case 'corners': {
+            if (state_style.corners !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
+            }
+            state_style.corners = key.value;
+            return;
+        }
+        case 'line-style': {
+            if (state_style.lineStyle !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
+            }
+            state_style.lineStyle = key.value;
+            return;
+        }
+        case 'background-color': {
+            if (state_style.backgroundColor !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
+            }
+            state_style.backgroundColor = key.value;
+            return;
+        }
+        case 'state-label': {
+            if (state_style.stateLabel !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
+            }
+            state_style.stateLabel = key.value;
+            return;
+        }
+        case 'border-color': {
+            if (state_style.borderColor !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
+            }
+            state_style.borderColor = key.value;
+            return;
+        }
+        case 'url': {
+            if (state_style.url !== undefined) {
+                throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
+            }
+            state_style.url = key.value;
+            return;
+        }
+        default: {
+            // TODO do that <never> trick to assert this list is complete
+            throw new JssmError(machine, `unknown state style key in condense: ${key.key}`);
+        }
     }
 }
 /**
- * Szudzik pairing: packs two non-negative integers into one unique number,
- * order-sensitively, with no dependence on a fixed table size — so interners
- * may keep growing without invalidating existing keys.  Values stay exact
- * for ids below 2^26 (the result is bounded by roughly max(a,b)^2), far
- * beyond any real machine's state count.
  *
- * NaN deliberately propagates: probing with an unknown name's id
- * (`id_of(...) ?? NaN`) yields a NaN key, which can never match a stored
- * key, so the lookup misses — exactly the behavior of the string-keyed maps
- * it replaces.  Do NOT use a negative sentinel instead: Szudzik is only
- * injective over the naturals, and a negative input can collide with a real
- * stored key (e.g. szudzik(-1, 2) === szudzik(1, 1) === 3), which would make
- * lookups from an unknown state falsely succeed.
- * @param a - First non-negative integer (or NaN as a deliberate miss).
- * @param b - Second non-negative integer (or NaN as a deliberate miss).
- * @returns A number unique to the ordered pair `(a, b)` over the naturals.
- * @example
- *   pair_key(2, 5);  // 27
- *   pair_key(5, 2);  // 32 — order-sensitive
- * @see Interner
+ *  Collapse a list of individual state-style key/value pairs into a single
+ *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
+ *  camelCase field names the runtime uses.
+ *
+ *  The parser emits state styling as a flat array like
+ *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
+ *  because that is the most natural shape for the grammar to produce.  This
+ *  helper runs once per style bucket during `Machine` construction to turn
+ *  those arrays into the compact `{ color, lineStyle, ... }` objects the
+ *  graph-rendering code expects.
+ *
+ *  @example
+ *  import { state_style_condense } from 'jssm';
+ *
+ *  const condensed = state_style_condense([
+ *    { key: 'color',      value: 'red' },
+ *    { key: 'shape',      value: 'oval' },
+ *    { key: 'line-style', value: 'dashed' }
+ *  ]);
+ *  condensed;                         // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
+ *
+ *  state_style_condense(undefined);   // => {}
+ *
+ *  @param jssk The list of style keys to condense.  `undefined` is accepted
+ *  and yields an empty config.
+ *  @param machine Optional `Machine` reference, used only so that any
+ *  {@link JssmError} thrown can point at the offending machine in its
+ *  diagnostic message.
+ *  @returns A `JssmStateConfig` object containing every key from `jssk`
+ *  remapped into its camelCase field.
+ *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
+ *  element is not an object, if the same key appears more than once, or if a
+ *  key is not one of the recognized style names.
+ *  @internal
  */
-function pair_key(a, b) {
-    return (a >= b)
-        ? (a * a) + a + b
-        : (b * b) + a;
+function state_style_condense(jssk, machine) {
+    const state_style = {};
+    if (Array.isArray(jssk)) {
+        for (const [i, key] of jssk.entries()) {
+            if (typeof key !== 'object') {
+                throw new JssmError(machine, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
+            }
+            apply_state_style_key(state_style, key, machine);
+        }
+    }
+    else if (jssk === undefined) ;
+    else {
+        throw new JssmError(machine, 'state_style_condense received a non-array');
+    }
+    return state_style;
+}
+/*********
+ *
+ *  Shallow-merges one {@link JssmStateConfig} style tier over another, with
+ *  later-wins, undefined-skipping semantics — the across-tier folding primitive
+ *  for the unified config cascade in {@link resolve_state_config}.
+ *
+ *  Every defined key in `over` replaces the corresponding key in the result;
+ *  keys whose `over` value is `undefined` leave the `base` value untouched.
+ *  Unlike {@link state_style_condense} — which throws when a key is redefined
+ *  *within a single declaration block* — this NEVER throws on a key collision,
+ *  because the cascade deliberately layers more-specific tiers (group, per-state,
+ *  active) over less-specific ones (theme, kind defaults) and the later tier is
+ *  meant to win.  Neither input is mutated; a fresh object is returned.
+ *
+ *  Not a doctest: `merge_state_config` is module-private and cannot be imported from `'jssm'`.
+ *  ```typescript
+ *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
+ *  // => { color: 'blue', shape: 'box' }
+ *
+ *  merge_state_config({ color: 'red' }, { color: undefined, shape: 'oval' });
+ *  // => { color: 'red', shape: 'oval' }  (undefined `over` keys are ignored)
+ *  ```
+ *
+ *  @param base The lower-precedence style tier (the accumulator so far).
+ *  @param over The higher-precedence style tier; its defined keys win.
+ *
+ *  @returns A new {@link JssmStateConfig} with `over`'s defined keys layered
+ *  over `base`.
+ *
+ *  @internal
+ *
+ */
+function merge_state_config(base, over) {
+    const merged = Object.assign({}, base);
+    for (const [key, value] of Object.entries(over)) {
+        if (value !== undefined) {
+            merged[key] = value;
+        }
+    }
+    return merged;
 }
 /**
- * Inverse of {@link pair_key}: recovers the ordered pair `(a, b)` that was
- * packed into a Szudzik key.  Exact for any key produced by `pair_key` over
- * non-negative integer inputs, so `un_pair_key(pair_key(a, b))` round-trips
- * to `[a, b]`.  Used to walk interned, pair-keyed maps (e.g. the hook tables)
- * back to their original `(from_id, to_id)` ids for {@link Interner.name_of}.
- *
- * Behavior is only defined for keys `pair_key` actually emits; a NaN key (the
- * unknown-name sentinel) yields `[NaN, NaN]`, never a spurious real pair.
- * @param z - A key produced by `pair_key`.
- * @returns The ordered pair `[a, b]` such that `pair_key(a, b) === z`.
- * @example
- *   un_pair_key(27);  // [2, 5]
- *   un_pair_key(32);  // [5, 2] — order preserved
- * @see pair_key
+ * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
+ *  FSL `graph_layout` directive.
+ *  @param m The machine to read.
+ *  @returns The layout string, or the default if not set.
  */
-function un_pair_key(z) {
-    const s = Math.floor(Math.sqrt(z));
-    const l = z - (s * s);
-    return (l < s) ? [l, s] : [s, l - s];
+function graph_layout(m) {
+    return m._graph_layout;
+}
+/**
+ * Get the Graphviz DOT preamble string, injected before the graph body
+ *  during visualization.  Set via the FSL `dot_preamble` directive.
+ *  @param m The machine to read.
+ *  @returns The preamble string.
+ */
+function dot_preamble(m) {
+    return m._dot_preamble;
+}
+/**
+ * Get the consolidated `transition: {}` default-config block: the ordered,
+ *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
+ *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
+ *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
+ *  every edge inherits it.
+ *
+ *  @example
+ *  import { sm, default_transition_config } from 'jssm';
+ *  default_transition_config(sm`a -> b; transition: { color: blue; };`);   // => [ { key: 'color', value: '#0000ffff' } ]
+ *
+ *  @param m The machine to read.
+ *  @returns The transition-config item list, or `undefined` if the machine
+ *  declared no `transition: {}` block.
+ *  @see default_graph_config
+ */
+function default_transition_config(m) {
+    return m._default_transition_config;
+}
+/**
+ * Get the consolidated `graph: {}` default-config block: the ordered,
+ *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
+ *  compiler folds the deprecated top-level graph keywords
+ *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
+ *  `flow`, `dot_preamble`) into this list first, then lets an explicit
+ *  `graph: {}` block win on key conflict.  The viz layer projects the
+ *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
+ *  `background-color` → `bgcolor`).
+ *
+ *  @example
+ *  import { sm, default_graph_config } from 'jssm';
+ *  default_graph_config(sm`a -> b; graph: { background-color: #ffffff; };`);   // => [ { key: 'background-color', value: '#ffffffff' } ]
+ *
+ *  @param m The machine to read.
+ *  @returns The graph-config item list, or `undefined` if the machine has no
+ *  graph config (no `graph: {}` block and no deprecated graph keyword).
+ *  @see default_transition_config
+ */
+function default_graph_config(m) {
+    return m._default_graph_config;
+}
+/**
+ * List all available theme names.
+ *  @param m The machine asked; the table is the library's, the same for every machine.
+ *  @returns An array of theme name strings.
+ */
+function all_themes(m) {
+    return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
+}
+/**
+ * Get the active theme(s) for this machine.  Always stored as an array
+ *  internally; the union return type exists for setter compatibility.
+ *  @param m The machine to read.
+ *  @returns The current theme or array of themes.
+ */
+function themes(m) {
+    return m._themes; // constructor sets this to "default" otherwise
+}
+/**
+ * Set the active theme(s).  Accepts a single theme name or an array.
+ *  Also drops every memoized static state config, so styles resolved
+ *  before the change re-resolve under the new theme stack.
+ *
+ *  @example
+ *  import { sm, style_for, set_themes, themes } from 'jssm';
+ *
+ *  const m = sm`a -> b -> c;`;
+ *  // b is a plain state; resolved (and memoized) under the default theme:
+ *  style_for(m, 'b').backgroundColor;   // => 'white'
+ *  set_themes(m, 'ocean');
+ *  themes(m);                           // => ['ocean']
+ *  // ocean's plain-state color, not the stale default:
+ *  style_for(m, 'b').backgroundColor;   // => 'cadetblue1'
+ *
+ *  @param m The machine to re-theme.
+ *  @param to - A theme name or array of theme names to apply.
+ *  @see resolve_state_config
+ */
+function set_themes(m, to) {
+    m._themes = typeof to === 'string' ? [to] : to;
+    // Themes feed tier 1 (and the per-kind/hooked theme layers) of
+    // resolve_state_config's cascade, whose static resolution is memoized
+    // per state.  Invalidate the memo so a theme assigned after a style has
+    // been computed is not shadowed by the old theme's cached resolution —
+    // the same rule set_hook / remove_hook apply for the hooked layer.
+    m._static_state_config_cache.clear();
+}
+/**
+ * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
+ *  Set via the FSL `flow` directive.
+ *  @param m The machine to read.
+ *  @returns The current flow direction.
+ */
+function flow(m) {
+    return m._flow;
+}
+/********
+ *
+ *  Get the standard style for a single state.  ***Does not*** include
+ *  composition from an applied theme, or things from the underlying base
+ *  stylesheet; only the modifications applied by this machine.
+ *
+ *  @example
+ *  import { sm, standard_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  standard_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; state: { shape: circle; };`;
+ *  standard_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for standard states.
+ *
+ */
+function standard_state_style(m) {
+    return m._state_style;
+}
+/********
+ *
+ *  Get the hooked state style.  ***Does not*** include
+ *  composition from an applied theme, or things from the underlying base
+ *  stylesheet; only the modifications applied by this machine.
+ *
+ *  The hooked style is only applied to nodes which have a named hook in the
+ *  graph.  Open hooks set through the external API aren't graphed, because
+ *  that would be literally every node.
+ *
+ *  @example
+ *  import { sm, hooked_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  hooked_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; hooked_state: { shape: circle; };`;
+ *  hooked_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for hooked states.
+ *
+ */
+function hooked_state_style(m) {
+    return m._hooked_state_style;
+}
+/********
+ *
+ *  Get the start state style.  ***Does not*** include composition from an
+ *  applied theme, or things from the underlying base stylesheet; only the
+ *  modifications applied by this machine.
+ *
+ *  Start states are defined by the directive `start_states`, or in absentia,
+ *  are the first mentioned state.
+ *
+ *  @example
+ *  import { sm, start_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  start_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; start_state: { shape: circle; };`;
+ *  start_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for start states.
+ *
+ */
+function start_state_style(m) {
+    return m._start_state_style;
+}
+/********
+ *
+ *  Get the end state style.  ***Does not*** include
+ *  composition from an applied theme, or things from the underlying base
+ *  stylesheet; only the modifications applied by this machine.
+ *
+ *  End states are defined in the directive `end_states`, and are distinct
+ *  from terminal states.  End states are voluntary successful endpoints for a
+ *  process.  Terminal states are states that cannot be exited.  By example,
+ *  most error states are terminal states, but not end states.  Also, since
+ *  some end states can be exited and are determined by hooks, such as
+ *  recursive or iterative nodes, there is such a thing as an end state that
+ *  is not a terminal state.
+ *
+ *  @example
+ *  import { sm, end_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  end_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; end_state: { shape: circle; };`;
+ *  end_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for end states.
+ *
+ */
+function end_state_style(m) {
+    return m._end_state_style;
+}
+/********
+ *
+ *  Get the terminal state style.  ***Does not*** include
+ *  composition from an applied theme, or things from the underlying base
+ *  stylesheet; only the modifications applied by this machine.
+ *
+ *  Terminal state styles are automatically determined by the machine.  Any
+ *  state without a valid exit transition is terminal.
+ *
+ *  @example
+ *  import { sm, terminal_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  terminal_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; terminal_state: { shape: circle; };`;
+ *  terminal_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for terminal states.
+ *
+ */
+function terminal_state_style(m) {
+    return m._terminal_state_style;
+}
+/********
+ *
+ *  Get the style for the active state.  ***Does not*** include
+ *  composition from an applied theme, or things from the underlying base
+ *  stylesheet; only the modifications applied by this machine.
+ *
+ *  @example
+ *  import { sm, active_state_style } from 'jssm';
+ *
+ *  const plain = sm`a -> b;`;
+ *  active_state_style(plain);    // => {}
+ *
+ *  const styled = sm`a -> b; active_state: { shape: circle; };`;
+ *  active_state_style(styled);   // => { shape: 'circle' }
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to read.
+ *
+ *  @returns The {@link JssmStateConfig} for the active state.
+ *
+ */
+function active_state_style(m) {
+    return m._active_state_style;
+}
+/********
+ *
+ *  Returns the list of resolved theme implementations for this machine, in
+ *  the order they should layer (outer/base-most first).  Each declared theme
+ *  name is mapped through {@link theme_mapping}; unknown names are skipped.
+ *
+ *  The list is reversed relative to declaration order to match the historical
+ *  layering of {@link style_for}: a later-declared theme layers under an
+ *  earlier-declared one.
+ *
+ *  @param m The machine whose theme names are resolved.
+ *
+ *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
+ *
+ *  @internal
+ *
+ */
+function resolved_themes(m) {
+    const themes = [];
+    for (const th of m._themes) {
+        const theme_impl = theme_mapping.get(th);
+        if (theme_impl !== undefined) {
+            themes.push(theme_impl);
+        }
+    }
+    return themes.reverse();
+}
+/********
+ *
+ *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
+ *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
+ *  "`state foo : { … }`" contribution of the config cascade.  A state with no
+ *  declaration yields an all-`undefined` config (which contributes nothing
+ *  once folded with `merge_state_config`).
+ *
+ *  @param m The machine whose state declarations are read.
+ *
+ *  @param state The state whose per-state declared style is wanted.
+ *
+ *  @returns The per-state style config (fields may be `undefined`).
+ *
+ *  @internal
+ *
+ */
+function individual_state_config(m, state) {
+    const decl = m._state_declarations.get(state);
+    return {
+        color: decl === null || decl === void 0 ? void 0 : decl.color,
+        textColor: decl === null || decl === void 0 ? void 0 : decl.textColor,
+        borderColor: decl === null || decl === void 0 ? void 0 : decl.borderColor,
+        backgroundColor: decl === null || decl === void 0 ? void 0 : decl.backgroundColor,
+        lineStyle: decl === null || decl === void 0 ? void 0 : decl.lineStyle,
+        corners: decl === null || decl === void 0 ? void 0 : decl.corners,
+        shape: decl === null || decl === void 0 ? void 0 : decl.shape,
+        image: decl === null || decl === void 0 ? void 0 : decl.image,
+        url: decl === null || decl === void 0 ? void 0 : decl.url
+    };
+}
+/********
+ *
+ *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
+ *  — when `active` is set — the active-state THEME layers, which historically
+ *  sit just below the per-state config so that a `state foo : { … }` block
+ *  still overrides a theme's `active` styling.  The user `active_state : { … }`
+ *  overlay (tier 6) is NOT applied here; it is layered on top by
+ *  {@link resolve_state_config} so it wins over per-state config.
+ *
+ *  Tiers, folded least-specific → most-specific with `merge_state_config`
+ *  (later wins, never throwing on a cross-tier key collision):
+ *
+ *    1. theme defaults — `base_theme.state`, then each selected theme's
+ *       `.state` block.
+ *    2. `default_state_config` (the implicit `state : { … }` root over every
+ *       state).
+ *    3. static per-kind defaults selected by structural kind — terminal,
+ *       then start, then end — each contributing its `base_theme.<kind>`,
+ *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
+ *       When `active`, the active-state theme layers (`base_theme.active` and
+ *       each selected theme's `.active`) are folded here too.
+ *    4. group metadata, depth-ordered outer→inner (see {@link groups_by_depth}),
+ *       each group's RAW `{ declarations }` already condensed at construction.
+ *    5. the per-state `state foo : { … }` config.
+ *
+ *  @param m      The machine whose cascade inputs are read.
+ *  @param state  The state to resolve config for.
+ *  @param active Whether to include the active-state theme layers (true only
+ *                for the machine's currently-occupied state).
+ *
+ *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
+ *
+ *  @internal
+ *
+ */
+function compose_state_config(m, state, active) {
+    const themes = resolved_themes(m);
+    let acc = {};
+    // tier 1 — theme defaults (base, then selected themes)
+    acc = merge_state_config(acc, base_theme.state);
+    for (const theme of themes) {
+        if (theme.state) {
+            acc = merge_state_config(acc, theme.state);
+        }
+    }
+    // tier 2 — default_state_config (implicit root over all states)
+    acc = merge_state_config(acc, m._state_style);
+    // tier 2.5 — hooked-state styling, applied when the state carries any
+    // observational or boundary hook.  Sits above the root default and below
+    // the per-kind/group/per-state tiers, preserving the historical layer
+    // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
+    if (state_has_hooks(m, state)) {
+        acc = merge_state_config(acc, base_theme.hooked);
+        for (const theme of themes) {
+            if (theme.hooked) {
+                acc = merge_state_config(acc, theme.hooked);
+            }
+        }
+        acc = merge_state_config(acc, m._hooked_state_style);
+    }
+    // tier 3 — static per-kind defaults, selected by structural kind
+    if (state_is_terminal(m, state)) {
+        acc = merge_state_config(acc, base_theme.terminal);
+        for (const theme of themes) {
+            if (theme.terminal) {
+                acc = merge_state_config(acc, theme.terminal);
+            }
+        }
+        acc = merge_state_config(acc, m._terminal_state_style);
+    }
+    if (is_start_state(m, state)) {
+        acc = merge_state_config(acc, base_theme.start);
+        for (const theme of themes) {
+            if (theme.start) {
+                acc = merge_state_config(acc, theme.start);
+            }
+        }
+        acc = merge_state_config(acc, m._start_state_style);
+    }
+    if (is_end_state(m, state)) {
+        acc = merge_state_config(acc, base_theme.end);
+        for (const theme of themes) {
+            if (theme.end) {
+                acc = merge_state_config(acc, theme.end);
+            }
+        }
+        acc = merge_state_config(acc, m._end_state_style);
+    }
+    // tier 3 (active kind) — active-state THEME layers, below per-state so a
+    // per-state block still wins (preserving the historical layer order).
+    if (active) {
+        acc = merge_state_config(acc, base_theme.active);
+        for (const theme of themes) {
+            if (theme.active) {
+                acc = merge_state_config(acc, theme.active);
+            }
+        }
+    }
+    // tier 4 — group metadata, outer→inner (inner / nearest group wins)
+    for (const group_name of groups_by_depth(m, state)) {
+        const group_cfg = m._group_metadata.get(group_name);
+        if (group_cfg !== undefined) {
+            acc = merge_state_config(acc, group_cfg);
+        }
+    }
+    // tier 5 — per-state `state foo : { … }`
+    acc = merge_state_config(acc, individual_state_config(m, state));
+    return acc;
+}
+/********
+ *
+ *  Resolves the full unified style/config cascade for a state — the runtime
+ *  successor to the ad-hoc layer merge {@link style_for} used to perform.
+ *
+ *  For any state OTHER than the current one, this returns the memoized static
+ *  resolution (tiers 1–5; see `compose_state_config`) — theme →
+ *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
+ *  per-state config.  The cache is keyed by state; those tiers do not depend
+ *  on which state is current, so it survives transitions, but the mutable
+ *  cascade inputs each clear it when they change — hook registration and
+ *  removal ({@link set_hook}, {@link remove_hook}; the hooked layer) and
+ *  theme assignment ({@link set_themes}; tier 1 and the per-kind theme
+ *  layers).
+ *
+ *  For the machine's CURRENTLY-occupied state the result is recomputed each
+ *  call (never cached) and additionally carries the dynamic `active_state`
+ *  layers: the active-state THEME layers fold in just below the per-state
+ *  config (tier 3-active), and the user `active_state : { … }` overlay folds
+ *  in LAST (tier 6), on top of everything, so it wins over per-state config.
+ *  Every fold uses `merge_state_config`, so a key set at a lower tier is
+ *  overridden — never rejected — by a higher one.
+ *
+ *  @example
+ *  import { sm, resolve_state_config } from 'jssm';
+ *
+ *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
+ *  // from group &busy:
+ *  resolve_state_config(m, 'working').color;  // => '#ffa500ff'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose cascade is resolved.
+ *
+ *  @param state The state to compute the composite config for.
+ *
+ *  @returns The fully composited {@link JssmStateConfig} for the state,
+ *  including the active overlay when the state is current.
+ *
+ *  @see style_for
+ *
+ */
+function resolve_state_config(m, state) {
+    // The current state carries the dynamic active layers and is recomputed
+    // each call so the overlay tracks transitions; it is never memoized.
+    // (`m._state` is the body of the query family's `state(m)`, read inline
+    // because the parameter keeps its 5.x name and would shadow the function.)
+    if (m._state === state) {
+        const acc = compose_state_config(m, state, true);
+        // tier 6 — user active_state overlay, on top of per-state config.
+        return merge_state_config(acc, m._active_state_style);
+    }
+    // Non-current states: tiers 1–5 only, memoized.
+    const cached = m._static_state_config_cache.get(state);
+    if (cached !== undefined) {
+        return cached;
+    }
+    const resolved = compose_state_config(m, state, false);
+    m._static_state_config_cache.set(state, resolved);
+    return resolved;
+}
+/********
+ *
+ *  Gets the composite style for a specific node — the public viz entry point,
+ *  now a thin wrapper over the unified config cascade in
+ *  {@link resolve_state_config}.
+ *
+ *  The order of composition runs least-specific to most-specific: theme
+ *  defaults, then the `default_state_config` root, then per-kind defaults
+ *  (terminal, start, end), then depth-ordered group metadata (inner groups
+ *  winning over outer), then the per-state config, and finally — for the
+ *  current state only — the active overlay.  Last wins at every tier.
+ *
+ *  @example
+ *  import { sm, style_for, resolve_state_config } from 'jssm';
+ *
+ *  const m = sm`a -> b; state b : { shape: circle; };`;
+ *  style_for(m, 'b').shape;   // => 'circle'
+ *  style_for(m, 'b');         // => resolve_state_config(m, 'b')
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine whose cascade is resolved.
+ *
+ *  @param state The state to compute the composite style for.
+ *
+ *  @returns The fully composited {@link JssmStateConfig} for the given state.
+ *
+ *  @see resolve_state_config
+ *
+ */
+function style_for(m, state) {
+    return resolve_state_config(m, state);
 }
 
 /*******
  *
- *  Convenience aliases for common mathematical and numeric constants from
- *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
- *  can reference them without importing `Math` directly.
+ *  The create family: the construction-adjacent members — `serialize`, the
+ *  identity accessors (`instance_name`, `creation_date`,
+ *  `creation_timestamp`, `create_start_time`), and the two helpers the
+ *  constructor itself calls: `new_state` (formerly the class's `_new_state`)
+ *  and `find_connected_components` (the `allow_islands` check).  Every
+ *  function takes the machine as its first argument, except
+ *  `find_connected_components`, which is a pure graph function over the
+ *  state map and edge list.  The `Machine` class methods and getters of the
+ *  same names are one-line delegates onto these.
  *
- *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
- *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
- *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
- *
- */
-const NegInfinity = -Infinity, PosInfinity = Infinity, Epsilon = Number.EPSILON, Pi = Math.PI, E = Math.E, Root2 = Math.SQRT2, RootHalf = Math.SQRT1_2, Ln2 = Math.LN2, Ln10 = Math.LN10, Log2E = Math.LOG2E, Log10E = Math.LOG10E, MaxSafeInt = Number.MAX_SAFE_INTEGER, MinSafeInt = Number.MIN_SAFE_INTEGER, MaxPosNum = Number.MAX_VALUE, MinPosNum = Number.MIN_VALUE, 
-// written as the exact double each historic longer literal
-// already rounded to — same bits at runtime
-Phi = 1.618033988749895, EulerC = 0.5772156649015329;
-/*******
- *
- *  Complete list of node shapes supported by Graphviz.  Used by jssm-viz to
- *  validate and render state shapes in FSL `state ... : { shape: ... }` blocks.
- *
- *  `shapes` is an alias for `gviz_shapes`.
+ *  `serialize`, `instance_name`, `creation_date`, `creation_timestamp`, and
+ *  `create_start_time` are public through the `jssm` barrel.  `new_state`
+ *  and `find_connected_components` are exported for the constructor (the
+ *  class keeps a `_new_state` delegate) and are not part of the barrel.
+ *  The factories themselves — `create`, `sm`, `fsl`, `from`, `deserialize` —
+ *  stay beside the class in `machine.ts` because they need the constructor
+ *  as a value.
  *
  */
-const gviz_shapes$1 = [
-    "box3d",
-    "polygon",
-    "ellipse",
-    "oval",
-    "circle",
-    "point",
-    "egg",
-    "triangle",
-    "plaintext",
-    "plain",
-    "diamond",
-    "trapezium",
-    "parallelogram",
-    "house",
-    "pentagon",
-    "hexagon",
-    "septagon",
-    "octagon",
-    "doublecircle",
-    "doubleoctagon",
-    "tripleoctagon",
-    "invtriangle",
-    "invtrapezium",
-    "invhouse",
-    "Mdiamond",
-    "Msquare",
-    "Mcircle",
-    "rectangle",
-    "rect",
-    "square",
-    "star",
-    "none",
-    "underline",
-    "cylinder",
-    "note",
-    "tab",
-    "folder",
-    "box",
-    "component",
-    "promoter",
-    "cds",
-    "terminator",
-    "utr",
-    "primersite",
-    "restrictionsite",
-    "fivepoverhang",
-    "threepoverhang",
-    "noverhang",
-    "assembly",
-    "signature",
-    "insulator",
-    "ribosite",
-    "rnastab",
-    "proteasesite",
-    "proteinstab",
-    "rpromoter",
-    "rarrow",
-    "larrow",
-    "lpromoter",
-    "record"
-];
-/**
- *  Public alias for {@link gviz_shapes}.  The list of node shapes supported
- *  by Graphviz that jssm-viz accepts in FSL `state ... : { shape: ... }`
- *  declarations.
- */
-const shapes$1 = gviz_shapes$1;
-/*******
+/*********
  *
- *  List of CSS/SVG named colors accepted by jssm-viz for state styling
- *  properties like `background-color` and `text-color`.  Case-insensitive
- *  matching is done at parse time; the canonical casing here follows the
- *  CSS specification.
+ *  Partition a state graph into its connected components using an undirected
+ *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
+ *  that island membership is topology-based rather than flow-based.
+ *
+ *  Used at construction time to enforce the `allow_islands` constraint.
+ *
+ *  @param states  The machine's state map (keys are state names).
+ *  @param edges   The machine's edge list; only `from` and `to` are used.
+ *  @returns       An array of components, each component an array of state names.
  *
  */
-const named_colors$1 = [
-    "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige",
-    "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown",
-    "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral",
-    "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan",
-    "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki",
-    "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed",
-    "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray",
-    "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue",
-    "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen",
-    "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey",
-    "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory",
-    "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon",
-    "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray",
-    "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen",
-    "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue",
-    "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon",
-    "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple",
-    "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise",
-    "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin",
-    "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed",
-    "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed",
-    "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple",
-    "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown",
-    "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue",
-    "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal",
-    "Thistle", "Tomato", "Transparent", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
-    "Yellow", "YellowGreen"
-];
-/*******
+function find_connected_components(states, edges) {
+    // Build undirected adjacency list
+    const adj = new Map();
+    for (const name of states.keys()) {
+        adj.set(name, new Set());
+    }
+    for (const edge of edges) {
+        adj.get(edge.from).add(edge.to);
+        adj.get(edge.to).add(edge.from);
+    }
+    const visited = new Set();
+    const result = [];
+    for (const start of states.keys()) {
+        if (visited.has(start)) {
+            continue;
+        }
+        // BFS to collect this component
+        const component = [];
+        const queue = [start];
+        visited.add(start);
+        const enqueue_unvisited = (neighbor) => {
+            if (visited.has(neighbor)) {
+                return;
+            }
+            visited.add(neighbor);
+            queue.push(neighbor);
+        };
+        // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
+        // worst case; reading by cursor keeps it O(V + E)
+        let head = 0;
+        while (head < queue.length) {
+            const node = queue[head++];
+            component.push(node);
+            for (const neighbor of adj.get(node)) {
+                enqueue_unvisited(neighbor);
+            }
+        }
+        result.push(component);
+    }
+    return result;
+}
+/********
  *
- *  Character ranges accepted by the FSL grammar for identifier and label
- *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
- *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *  Internal method for fabricating states.  Not meant for external use.
  *
- *  These are intended for tooling, validators, and editors that need to know
- *  which characters are legal in a given FSL token position without re-parsing
- *  the PEG grammar.
+ *  @param m The machine to add the state to.
+ *  @param state_config The state record to install; its `name` must be new.
+ *  @returns The name of the state just added.
+ *  @throws {JssmError} If a state of that name already exists.
+ *
+ *  @internal
  *
  */
-/**
- *  Inclusive ASCII character ranges accepted in any but the first position of
- *  an FSL bareword (state / property / val / enum-member name): digits,
- *  letters, and underscore.  Non-ASCII characters are classified by
- *  {@link is_state_name_char}, which is the complete rule; this table exists
- *  for tooling that wants the ASCII portion as ranges.
+function new_state(m, state_config) {
+    if (m._states.has(state_config.name)) {
+        throw new JssmError(m, `state ${JSON.stringify(state_config.name)} already exists`);
+    }
+    m._states.set(state_config.name, state_config);
+    m._state_interner.intern(state_config.name);
+    return state_config.name;
+}
+/********
+ *
+ *  Serialize the current machine, including all defining state but not the
+ *  machine string, to a structure.  This means you will need the machine
+ *  string to recreate (to not waste repeated space;) if you want the machine
+ *  string embedded, call `serialize_with_string` instead.
+ *
  *  @example
- *  import { state_name_chars } from 'jssm';
- *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
- *  state_name_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
- *  @see is_state_name_char
- */
-// keep in sync with AtomLetter in src/ts/fsl_parser.peg (#754)
-const state_name_chars$1 = Object.freeze([
-    { from: '0', to: '9' },
-    { from: 'a', to: 'z' },
-    { from: 'A', to: 'Z' },
-    { from: '_', to: '_' },
-]);
-/**
- *  Inclusive ASCII character ranges accepted in the first position of an FSL
- *  bareword: letters and underscore (never a digit).  Non-ASCII characters
- *  are classified by {@link is_state_name_first_char}.
- *  @example
- *  import { state_name_first_chars } from 'jssm';
- *  state_name_first_chars.some(r => '7' >= r.from && '7' <= r.to);  // => false
- *  @see is_state_name_first_char
- */
-// keep in sync with AtomFirstLetter in src/ts/fsl_parser.peg (#754)
-const state_name_first_chars$1 = Object.freeze([
-    { from: 'a', to: 'z' },
-    { from: 'A', to: 'Z' },
-    { from: '_', to: '_' },
-]);
-// #754: this pair is hand-copied in three other places — keep all four in
-// sync: src/ts/fsl_parser.peg's BAREWORD_FIRST/BAREWORD_REST initializer
-// constants, src/buildjs/fixparser.cjs's FAST_ATOM_RE, and
-// src/ts/tests/bareword_charset.stoch.ts's FIRST/REST, which is the drift
-// guard for all of them.
-const BAREWORD_FIRST_RE = /^[\p{L}\p{Nl}_]$/u;
-// note: no trailing `_` here — \p{Pc} (Connector_Punctuation) already
-// includes U+005F LOW LINE, so an explicit `_` would just duplicate it
-const BAREWORD_REST_RE = /^[\p{L}\p{Nl}\p{Mn}\p{Mc}\p{Nd}\p{Pc}]$/u;
-/**
- *  Whether one code point may begin an FSL bareword (#754): a Unicode letter,
- *  a letter-number, or underscore.  Mirrors the grammar's `AtomFirstLetter`.
- *  @param ch - Exactly one code point (a surrogate pair counts as one).
- *  @example
- *  import { is_state_name_first_char } from 'jssm';
- *  is_state_name_first_char('é');  // => true
- *  is_state_name_first_char('7');  // => false
- *  @see is_state_name_char
- */
-const is_state_name_first_char$1 = (ch) => BAREWORD_FIRST_RE.test(ch);
-/**
- *  Whether one code point may continue an FSL bareword (#754): anything
- *  {@link is_state_name_first_char} accepts, plus combining marks, decimal
- *  digits, and connector punctuation.  Mirrors the grammar's `AtomLetter`.
- *  @param ch - Exactly one code point (a surrogate pair counts as one).
- *  @example
- *  import { is_state_name_char } from 'jssm';
- *  is_state_name_char('7');  // => true
- *  is_state_name_char('.');  // => false
- *  @see is_state_name_first_char
- */
-const is_state_name_char$1 = (ch) => BAREWORD_REST_RE.test(ch);
-/**
- *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
- *  characters legal inside a single-quoted action label without escaping.
- *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
- *  excluded since it terminates the label.
+ *  import { from, serialize, deserialize, transition, state, data } from 'jssm';
  *
- *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
- *  @example
- *  import { action_label_chars } from 'jssm';
- *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
- *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
+ *  const m = from('a -> b;', { data: 7 });
+ *  transition(m, 'b');
+ *
+ *  const ser = serialize(m, 'checkpoint');
+ *  ser.state;    // => 'b'
+ *  ser.data;     // => 7
+ *  ser.comment;  // => 'checkpoint'
+ *
+ *  const restored = deserialize('a -> b;', ser);
+ *  state(restored);  // => 'b'
+ *  data(restored);   // => 7
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param m The machine to serialize.
+ *
+ *  @param comment An optional comment string to embed in the serialized
+ *  output for identification or debugging.
+ *
+ *  @returns A {@link JssmSerialization} object containing the machine's
+ *  current state, data, and timestamp.
+ *
  */
-// keep in sync with src/ts/fsl_parser.peg:240
-const action_label_chars$1 = Object.freeze([
-    { from: ' ', to: '&' },
-    { from: '(', to: '[' },
-    { from: ']', to: '\u{FFFF}' },
-]);
+function serialize(m, comment) {
+    return {
+        comment,
+        state: m._state,
+        data: m._data,
+        jssm_version: version,
+        history: m._history.toArray(),
+        history_capacity: m._history.capacity,
+        timestamp: m._time_source(),
+    };
+}
+/**
+ * Get the instance name of this machine, if one was assigned at creation.
+ *  @param m The machine to read.
+ *  @returns The instance name string, or `undefined`.
+ *  @example
+ *  import { from, instance_name } from 'jssm';
+ *  instance_name(from('a -> b;'));                                   // => undefined
+ *  instance_name(from('a -> b;', { instance_name: 'lamp' }));        // => 'lamp'
+ */
+function instance_name(m) {
+    return m._instance_name;
+}
+/**
+ * Get the creation date of this machine as a `Date` object.
+ *  @param m The machine to read.
+ *  @returns A `Date` representing when the machine was created.
+ *  @example
+ *  import { sm, creation_date, creation_timestamp } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  creation_date(m) instanceof Date;                          // => true
+ *  creation_date(m).getTime() === creation_timestamp(m);      // => true
+ */
+function creation_date(m) {
+    return new Date(Math.floor(creation_timestamp(m)));
+}
+/**
+ * Get the creation timestamp (milliseconds since epoch).
+ *  @param m The machine to read.
+ *  @returns The timestamp as a number.
+ */
+function creation_timestamp(m) {
+    return m._created;
+}
+/**
+ * Get the timestamp when construction began (before parsing).
+ *  @param m The machine to read.
+ *  @returns The start-of-construction timestamp as a number.
+ *  @example
+ *  import { sm, create_start_time, creation_timestamp } from 'jssm';
+ *  const m = sm`a -> b;`;
+ *  // construction starts before it finishes:
+ *  create_start_time(m) <= creation_timestamp(m);   // => true
+ */
+function create_start_time(m) {
+    return m._create_started;
+}
 
-var constants = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    E: E,
-    Epsilon: Epsilon,
-    EulerC: EulerC,
-    Ln10: Ln10,
-    Ln2: Ln2,
-    Log10E: Log10E,
-    Log2E: Log2E,
-    MaxPosNum: MaxPosNum,
-    MaxSafeInt: MaxSafeInt,
-    MinPosNum: MinPosNum,
-    MinSafeInt: MinSafeInt,
-    NegInfinity: NegInfinity,
-    Phi: Phi,
-    Pi: Pi,
-    PosInfinity: PosInfinity,
-    Root2: Root2,
-    RootHalf: RootHalf,
-    action_label_chars: action_label_chars$1,
-    gviz_shapes: gviz_shapes$1,
-    is_state_name_char: is_state_name_char$1,
-    is_state_name_first_char: is_state_name_first_char$1,
-    named_colors: named_colors$1,
-    shapes: shapes$1,
-    state_name_chars: state_name_chars$1,
-    state_name_first_chars: state_name_first_chars$1
-});
+// whargarbl lots of these return arrays could/should be sets
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_state_name_first_char, is_state_name_char } = constants;
+/*******
+ *
+ *  Core finite state machine class.  Holds the full graph of states and
+ *  transitions, the current state, hooks, data, properties, and all runtime
+ *  behavior.  Typically created via the {@link sm} tagged template literal
+ *  rather than constructed directly.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *
+ *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
+ *  light.state();       // 'Red'
+ *  light.action('next'); // true
+ *  light.state();       // 'Green'
+ *  ```
+ *
+ *  @typeParam mDT The machine data type — the type of the value stored in
+ *  `.data()`.  Defaults to `undefined` when no data is used.
+ *
+ */
+class Machine {
+    // whargarbl this badly needs to be broken up, monolith master
+    constructor({ start_states, start_state_weights, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+        this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
+        this._create_started = this._time_source();
+        this._instance_name = instance_name;
+        this._states = new Map();
+        this._state_declarations = new Map();
+        this._edges = [];
+        this._edge_map = new Map();
+        this._outbound_edge_ids = new Map();
+        this._named_transitions = new Map();
+        this._actions = new Map();
+        this._reverse_actions = new Map();
+        this._reverse_action_targets = new Map(); // todo
+        this._state_interner = new Interner();
+        this._action_interner = new Interner();
+        this._state_id = NaN;
+        this._edge_id_by_pair = new Map();
+        this._edge_id_by_action_pair = new Map();
+        this._edge_to_ids = [];
+        this._start_states = new Set(start_states);
+        // Skip the intermediate array `.map()` builds for the common unweighted
+        // case (construct() is benchmarked) — an unweighted machine gets a
+        // freshly-allocated empty Map directly, not `new Map([].map(...))`.
+        this._start_state_weights = start_state_weights === undefined
+            ? new Map()
+            : new Map(start_state_weights.map(s => [s.name, s.share]));
+        this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
+        this._failed_outputs = new Set(failed_outputs);
+        this._machine_author = array_box_if_string(machine_author);
+        this._machine_comment = machine_comment;
+        this._machine_contributor = array_box_if_string(machine_contributor);
+        this._machine_definition = machine_definition;
+        this._machine_language = machine_language;
+        this._machine_license = machine_license;
+        this._machine_name = machine_name;
+        this._machine_version = machine_version;
+        this._npm_name = npm_name;
+        this._default_size = default_size;
+        this._raw_state_declaration = state_declaration || [];
+        this._fsl_version = fsl_version;
+        this._arrange_declaration = arrange_declaration;
+        this._arrange_start_declaration = arrange_start_declaration;
+        this._arrange_end_declaration = arrange_end_declaration;
+        this._oarrange_declaration = oarrange_declaration;
+        this._farrange_declaration = farrange_declaration;
+        this._dot_preamble = dot_preamble;
+        this._themes = theme;
+        this._flow = flow;
+        this._graph_layout = graph_layout;
+        this._has_hooks = false;
+        this._has_basic_hooks = false;
+        this._has_named_hooks = false;
+        this._has_entry_hooks = false;
+        this._has_exit_hooks = false;
+        this._has_after_hooks = false;
+        this._has_global_action_hooks = false;
+        this._has_transition_hooks = false;
+        // no need for a boolean for single hooks, just test for undefinedness
+        this._has_forced_transitions = false;
+        this._hooks = new Map();
+        this._named_hooks = new Map();
+        this._entry_hooks = new Map();
+        this._exit_hooks = new Map();
+        this._after_hooks = new Map();
+        this._after_any_hook = undefined;
+        this._global_action_hooks = new Map();
+        this._any_action_hook = undefined;
+        this._standard_transition_hook = undefined;
+        this._main_transition_hook = undefined;
+        this._forced_transition_hook = undefined;
+        this._any_transition_hook = undefined;
+        this._has_post_hooks = false;
+        this._has_post_basic_hooks = false;
+        this._has_post_named_hooks = false;
+        this._has_post_entry_hooks = false;
+        this._has_post_exit_hooks = false;
+        this._has_post_global_action_hooks = false;
+        this._has_post_transition_hooks = false;
+        // no need for a boolean for single hooks, just test for undefinedness
+        this._code_allows_override = allows_override;
+        this._config_allows_override = config_allows_override;
+        this._allow_islands = allow_islands !== null && allow_islands !== void 0 ? allow_islands : true;
+        this._editor_config = editor_config;
+        // tri-state: undefined is a legal, distinct value here — do not truthy-collapse
+        if ((allows_override === false) && (config_allows_override === true)) {
+            throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+        }
+        this._post_hooks = new Map();
+        this._post_named_hooks = new Map();
+        this._post_entry_hooks = new Map();
+        this._post_exit_hooks = new Map();
+        this._post_global_action_hooks = new Map();
+        this._post_any_action_hook = undefined;
+        this._post_standard_transition_hook = undefined;
+        this._post_main_transition_hook = undefined;
+        this._post_forced_transition_hook = undefined;
+        this._post_any_transition_hook = undefined;
+        this._pre_everything_hook = undefined;
+        this._everything_hook = undefined;
+        this._pre_post_everything_hook = undefined;
+        this._post_everything_hook = undefined;
+        this._data = data;
+        this._property_keys = new Set();
+        this._default_properties = new Map();
+        this._state_properties = new Map();
+        this._required_properties = new Set();
+        this._state_property_first_state = new Map();
+        this._val_keys = new Set();
+        this._val_types = new Map();
+        this._val_values = new Map();
+        this._required_vals = new Set();
+        this._state_style = state_style_condense(default_state_config, this);
+        this._active_state_style = state_style_condense(default_active_state_config, this);
+        this._hooked_state_style = state_style_condense(default_hooked_state_config, this);
+        this._terminal_state_style = state_style_condense(default_terminal_state_config, this);
+        this._start_state_style = state_style_condense(default_start_state_config, this);
+        this._end_state_style = state_style_condense(default_end_state_config, this);
+        // Consolidated `transition: {}` and `graph: {}` default-config blocks,
+        // stored verbatim so the viz layer can project them onto Graphviz `edge [ … ]`
+        // defaults and graph-scope attributes respectively.  Both are kept as the
+        // compiler's de-duplicated `{ key, value }[]` lists (last-wins already
+        // applied, so iterating in order yields the winning value per key).
+        this._default_transition_config = default_transition_config;
+        this._default_graph_config = default_graph_config;
+        // Overlapping-state-group tables.  The registry/hooks are stored as-is; the
+        // raw per-group `{ declarations }` blocks are condensed once into style
+        // configs here (a single declaration block, so the intra-block redefine
+        // guard in `state_style_condense` still applies), while depth-ordered
+        // merging across groups happens later in `resolve_state_config`.
+        this._group_registry = group_registry !== null && group_registry !== void 0 ? group_registry : new Map();
+        this._group_hooks = group_hooks !== null && group_hooks !== void 0 ? group_hooks : new Map();
+        this._state_hooks = state_hooks !== null && state_hooks !== void 0 ? state_hooks : new Map();
+        this._group_metadata = new Map();
+        if (group_metadata) { // group-free machines skip a throwaway Map allocation
+            group_metadata.forEach((raw, group_name) => 
+            // `raw.declarations` is the parser's raw style-item list — structurally
+            // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+            // JssmStateConfig — so it condenses through the same path as the
+            // `default_*_state_config` blocks (intra-block redefine still throws).
+            this._group_metadata.set(group_name, state_style_condense(raw.declarations, this)));
+        }
+        this._group_order = [...this._group_registry.keys()];
+        // Deep/transitive inverse index: for each declared group, flatten its
+        // transitive member states (reusing the compiler's `transitive_members`)
+        // and record that group against every one of them.  A `memo` shared across
+        // groups memoizes overlapping sub-group resolution.
+        this._state_to_groups = new Map();
+        {
+            const memo = new Map();
+            for (const group_name of this._group_order) {
+                for (const member of transitive_members(this._group_registry, group_name, memo)) {
+                    let bucket = this._state_to_groups.get(member);
+                    if (bucket === undefined) {
+                        bucket = new Set();
+                        this._state_to_groups.set(member, bucket);
+                    }
+                    bucket.add(group_name);
+                }
+            }
+        }
+        this._static_state_config_cache = new Map();
+        this._history_length = history || 0;
+        this._history = new circular_buffer(this._history_length);
+        this._state_labels = new Map();
+        this._rng_seed = rng_seed !== null && rng_seed !== void 0 ? rng_seed : Date.now();
+        this._rng = gen_splitmix32(this._rng_seed);
+        this._timeout_source = timeout_source !== null && timeout_source !== void 0 ? timeout_source : DEFAULT_TIMEOUT_SOURCE;
+        this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : DEFAULT_CLEAR_TIMEOUT_SOURCE;
+        this._timeout_handle = undefined;
+        this._timeout_target = undefined;
+        this._timeout_target_time = undefined;
+        this._after_mapping = new Map();
+        this._event_handlers = new Map();
+        this._event_listener_count = 0;
+        this._firing_error = false;
+        this._committing_transition = false;
+        // Boundary-hook action cascade guard.  Limit defaults to 100 but is
+        // configurable via the `boundary_depth_limit` constructor option so tests
+        // can tighten the cap and deep pipelines can raise it.
+        this._boundary_depth = 0;
+        this._boundary_depth_limit = boundary_depth_limit !== null && boundary_depth_limit !== void 0 ? boundary_depth_limit : 100;
+        // consolidate the state declarations
+        if (state_declaration) {
+            for (const state_decl of state_declaration) {
+                if (this._state_declarations.has(state_decl.state)) { // no repeats
+                    throw new JssmError(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+                }
+                this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
+            }
+        }
+        // walk the decls for labels; aggregate them when found
+        for (const [key, decl] of this._state_declarations) {
+            const labelled = decl.declarations.filter(d => d.key === 'state-label');
+            if (labelled.length > 1) {
+                throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
+            }
+            if (labelled.length === 1) {
+                this._state_labels.set(key, labelled[0].value);
+            }
+        }
+        // Duplicate-edge guard for the construction loop below, keyed
+        // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
+        // (from, to) pair: an action's name for an actioned edge, or '' for the one
+        // permitted plain action-less edge.  Multiple edges between the same pair
+        // are allowed when they carry distinct actions (#325; the self-loop case is
+        // #531), since they dispatch unambiguously through `action(name)`.  A
+        // probability-bearing action-less edge is exempt from the guard entirely,
+        // so a weighted fan-out may name the same target more than once.  The
+        // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
+        // scan (which made construction O(V*E) on dense graphs).  #673
+        const seen_edges = new Map();
+        // complete.includes was an O(|complete|) array scan per newly-created
+        // state — O(V·C) overall; one Set turns it into O(V)
+        const complete_set = new Set(complete);
+        // walk the transitions.  single-lookup cursor fetches: each endpoint was
+        // previously a get followed by a has on the same key (four hashes per
+        // edge); the undefined check on the get's result carries the same
+        // information.  #706
+        for (const tr of transitions) {
+            if (tr.from === undefined) {
+                throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`);
+            }
+            if (tr.to === undefined) {
+                throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`);
+            }
+            // get the cursors.  what a mess
+            let cursor_from = this._states.get(tr.from);
+            if (cursor_from === undefined) {
+                cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
+                new_state(this, cursor_from);
+            }
+            let cursor_to = this._states.get(tr.to);
+            if (cursor_to === undefined) {
+                cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
+                new_state(this, cursor_to);
+            }
+            // record (from -> to) adjacency once per distinct target, even when
+            // several edges connect the pair, so the `to`/`from` arrays stay sets of
+            // state names.  #673
+            let to_slots = seen_edges.get(tr.from);
+            if (to_slots === undefined) {
+                to_slots = new Map();
+                seen_edges.set(tr.from, to_slots);
+            }
+            let slots = to_slots.get(tr.to);
+            if (slots === undefined) {
+                slots = new Set();
+                to_slots.set(tr.to, slots);
+                cursor_from.to.push(tr.to);
+                cursor_to.from.push(tr.from);
+            }
+            // duplicate-edge guard.  A probability- or share-bearing action-less
+            // edge is exempt (a weighted fan-out may repeat a target — including a
+            // list-target fan-out whose members carry only `share`, 6.0 list
+            // weights, with no declared `probability`); every other edge claims a
+            // slot — its action name, or '' for the one plain action-less edge —
+            // and a repeated slot throws.  Distinct actions between the same pair
+            // coexist (#325/#531).
+            const edge_exempt = (!tr.action) && ((tr.probability !== undefined) || (tr.share !== undefined));
+            if (!edge_exempt) {
+                const slot = tr.action || '';
+                if (slots.has(slot)) {
+                    throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
+                        + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
+                }
+                slots.add(slot);
+            }
+            // add the edge; note its id
+            this._edges.push(tr);
+            const thisEdgeId = this._edges.length - 1;
+            if (tr.forced_only) {
+                this._has_forced_transitions = true;
+            }
+            // guard against repeating a transition name
+            if (tr.name) {
+                if (this._named_transitions.has(tr.name)) {
+                    throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
+                }
+                this._named_transitions.set(tr.name, thisEdgeId);
+            }
+            // set up the after mapping, if any
+            if (tr.after_time) {
+                this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
+            }
+            // set up the mapping, so that edges can be looked up by endpoint pairs
+            let from_mapping = this._edge_map.get(tr.from);
+            if (from_mapping === undefined) {
+                from_mapping = new Map();
+                this._edge_map.set(tr.from, from_mapping);
+            }
+            // first-declared wins: when several edges share a (from, to) pair (parallel
+            // action edges, #325), lookup_transition_for resolves to the first one
+            // declared, so it agrees with edges_between(...)[0].
+            if (!from_mapping.has(tr.to)) {
+                from_mapping.set(tr.to, thisEdgeId);
+            }
+            // numeric mirror of the (from, to) endpoint mapping.  intern() rather
+            // than id_of(): idempotent, and returns number (not number|undefined)
+            // since both endpoints were just created above if missing.
+            const from_id = this._state_interner.intern(tr.from);
+            const to_id = this._state_interner.intern(tr.to);
+            // first-declared wins (see _edge_map above): the transition fast-path that
+            // reads this index resolves parallel (from, to) pairs to the first edge.
+            const pair = pair_key(from_id, to_id);
+            if (!this._edge_id_by_pair.has(pair)) {
+                this._edge_id_by_pair.set(pair, thisEdgeId);
+            }
+            this._edge_to_ids[thisEdgeId] = to_id;
+            // outbound adjacency: every edge originating at tr.from, regardless of action/target.
+            // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
+            // is fine for lookup_transition_for but loses information for edges_between when several
+            // edges share endpoints across distinct actions.  This index preserves every edge id and
+            // lets edges_between scan only one state's exits, not all of _edges.
+            let outbound = this._outbound_edge_ids.get(tr.from);
+            if (!outbound) {
+                outbound = [];
+                this._outbound_edge_ids.set(tr.from, outbound);
+            }
+            outbound.push(thisEdgeId);
+            // set up the action mapping, so that actions can be looked up by origin
+            if (tr.action) {
+                // forward mapping first by action name
+                let actionMap = this._actions.get(tr.action);
+                if (!(actionMap)) {
+                    actionMap = new Map();
+                    this._actions.set(tr.action, actionMap);
+                }
+                if (actionMap.has(tr.from)) {
+                    throw new JssmError(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
+                }
+                actionMap.set(tr.from, thisEdgeId);
+                // reverse mapping first by state origin name
+                let rActionMap = this._reverse_actions.get(tr.from);
+                if (!(rActionMap)) {
+                    rActionMap = new Map();
+                    this._reverse_actions.set(tr.from, rActionMap);
+                }
+                // no need to test for reverse mapping pre-presence;
+                // forward mapping already covers collisions
+                rActionMap.set(tr.action, thisEdgeId);
+                // numeric mirror of the (action, from) dispatch mapping
+                const action_id = this._action_interner.intern(tr.action);
+                this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
+                // reverse mapping first by state target name
+                if (!(this._reverse_action_targets.has(tr.to))) {
+                    this._reverse_action_targets.set(tr.to, new Map());
+                }
+                /* todo comeback
+                   fundamental problem is roActionMap needs to be a multimap
+                        const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
+                        if (roActionMap) {
+                          if (roActionMap.has(tr.action)) {
+                            throw new JssmError(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
+                          } else {
+                            roActionMap.set(tr.action, thisEdgeId);
+                          }
+                        } else {
+                          throw new JssmError(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
+                        }
+                */
+            }
+        }
+        if (Array.isArray(property_definition)) {
+            for (const pr of property_definition) {
+                this._property_keys.add(pr.name);
+                if (Object.prototype.hasOwnProperty.call(pr, 'default_value')) {
+                    this._default_properties.set(pr.name, pr.default_value);
+                }
+                if (Object.prototype.hasOwnProperty.call(pr, 'required') && (pr.required === true)) {
+                    this._required_properties.add(pr.name);
+                }
+            }
+        }
+        if (Array.isArray(val_definition)) {
+            for (const vd of val_definition) {
+                this._val_keys.add(vd.name);
+                this._val_types.set(vd.name, vd.val_type);
+                if (Object.prototype.hasOwnProperty.call(vd, 'required') && (vd.required === true)) {
+                    if (Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+                        throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
+                    }
+                    this._required_vals.add(vd.name);
+                }
+            }
+            const supplied = (vals && (typeof vals === 'object')) ? vals : {};
+            for (const name of Object.keys(supplied)) {
+                if (!this._val_keys.has(name)) {
+                    throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
+                }
+            }
+            this._val_keys.forEach(name => {
+                const vtype = this._val_types.get(name);
+                let value;
+                if (Object.prototype.hasOwnProperty.call(supplied, name)) {
+                    value = supplied[name];
+                }
+                else {
+                    const vd = val_definition.find(d => d.name === name);
+                    if (vd && Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
+                        value = vd.default_value;
+                    }
+                    else if (this._required_vals.has(name)) {
+                        throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
+                    }
+                    else {
+                        // vals are non-null by default (megaspec §4.4): a val that is
+                        // neither supplied, defaulted, nor required has no value of its
+                        // declared type, so it is a construction error rather than undefined.
+                        throw new JssmError(this, `The val "${name}" has no value: give it a default, declare it required, or supply it at construction (vals are non-null by default)`);
+                    }
+                }
+                validate_val_value(name, vtype, value, this);
+                this._val_values.set(name, value);
+            });
+        }
+        if (Array.isArray(state_property)) {
+            for (const sp of state_property) {
+                this._state_properties.set(sp.name, sp.default_value);
+                // Record the unserialized (property, state) pair for post-build
+                // validation.  The compiler writes both fields; a hand-built config
+                // that carries only the serialized name pays one JSON.parse here,
+                // which is what every binding used to pay at validation time (#734).
+                let j_property = sp.property, j_state = sp.state;
+                if ((j_property === undefined) || (j_state === undefined)) {
+                    const inside = JSON.parse(sp.name);
+                    j_property = inside[0];
+                    j_state = inside[1];
+                }
+                if (!(this._state_property_first_state.has(j_property))) {
+                    this._state_property_first_state.set(j_property, j_state);
+                }
+            }
+        }
+        // set initial state either from the specified or the start state list.  validate admission behavior.
+        if (initial_state) {
+            if (!(this._states.has(initial_state))) {
+                throw new JssmError(this, `requested start state ${initial_state} does not exist`);
+            }
+            if ((!(start_states_no_enforce)) && (!(start_states.includes(initial_state)))) {
+                throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
+            }
+            this._state = initial_state;
+        }
+        else {
+            this._state = start_states[0];
+        }
+        this._state_id = this._state_interner.intern(this._state);
+        // done building, do checks
+        // assert all props are valid
+        // provenance pairs were recorded at insertion — first state per property,
+        // in first-binding order — replacing the old JSON.parse of every
+        // serialized key; the error fires for the same binding it always did,
+        // because the first property in first-binding order whose name is
+        // undeclared owns the earliest undeclared binding.
+        this._state_property_first_state.forEach((j_state, j_property) => {
+            if (!(this.known_prop(j_property))) {
+                throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
+            }
+        });
+        // assert all required properties are serviced
+        // states() allocates a fresh array per call, so take it once rather than
+        // once per required property
+        const all_states_for_props = this.states();
+        this._required_properties.forEach(dp_key => {
+            if (this._default_properties.has(dp_key)) {
+                throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
+            }
+            for (const s of all_states_for_props) {
+                const bound_name = name_bind_prop_and_state(dp_key, s);
+                if (!(this._state_properties.has(bound_name))) {
+                    throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
+                }
+            }
+        });
+        // assert chosen starting state is valid
+        if (!(this.has_state(this.state()))) {
+            throw new JssmError(this, `Current start state "${this.state()}" does not exist`);
+        }
+        // assert all starting states are valid
+        for (const [ssi, ss] of start_states.entries()) {
+            if (!(this.has_state(ss))) {
+                throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
+            }
+        }
+        // assert chosen starting state is valid
+        if (start_states.length !== this._start_states.size) {
+            throw new JssmError(this, `Start states cannot be repeated`);
+        }
+        // assert connectivity constraints imposed by allow_islands
+        if (this._allow_islands !== true) {
+            const components = find_connected_components(this._states, this._edges);
+            if (this._allow_islands === false) {
+                if (components.length > 1) {
+                    throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
+                }
+            }
+            else {
+                // 'with_start': every component must contain at least one start state
+                for (const component of components) {
+                    const has_start = component.some(s => this._start_states.has(s));
+                    if (!has_start) {
+                        throw new JssmError(this, `allow_islands is 'with_start' but a connected component has no start state: [${[...component].join(', ')}]`);
+                    }
+                }
+            }
+        }
+        this._created = this._time_source();
+        this.auto_set_state_timeout();
+        for (const declaration of [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration]) {
+            for (const arrange_pair of declaration) {
+                for (const possibleState of arrange_pair) {
+                    if (!(this._states.has(possibleState))) {
+                        throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
+                    }
+                }
+            }
+        }
+    }
+    /********
+     *
+     *  Internal method for fabricating states.  Not meant for external use.
+     *  Delegates to the create family's {@link new_state}, which carries the
+     *  full contract.
+     *
+     *  @see new_state
+     *
+     *  @internal
+     *
+     */
+    _new_state(state_config) {
+        return new_state(this, state_config);
+    }
+    /**
+     *  Get the current state of a machine.  Delegates to the query family's
+     *  {@link state}, which carries the full contract and example.
+     *  @see state
+     */
+    state() {
+        return state(this);
+    }
+    /**
+     *  Get the label for a given state, if any.  Delegates to the query
+     *  family's {@link label_for}, which carries the full contract and example.
+     *  @see label_for
+     */
+    label_for(state) {
+        return label_for(this, state);
+    }
+    /**
+     *  Get whatever the node should show as text.  Delegates to the query
+     *  family's {@link display_text}, which carries the full contract and
+     *  example.
+     *  @see display_text
+     */
+    display_text(state) {
+        return display_text(this, state);
+    }
+    /**
+     *  Get the current data of a machine, as a deep clone.  Delegates to the
+     *  data family's {@link data}, which carries the full contract and example.
+     *  @see data
+     */
+    data() {
+        return data(this);
+    }
+    /**
+     *  Replace the machine's data in place, without a transition.  Delegates
+     *  to the data family's {@link set_data}, which carries the full contract
+     *  and example.
+     *  @returns The machine, for chaining.
+     *  @see set_data
+     */
+    set_data(newData) {
+        return set_data(this, newData);
+    }
+    /**
+     *  The machine's current data by REFERENCE — no clone.  Delegates to the
+     *  data family's {@link data_ref}, which carries the full contract; kept
+     *  on the class because the same-package panels (`fsl_bind_wc`) and tests
+     *  reach it by this name.
+     *  @returns The live data value; treat as read-only.
+     *  @see data_ref
+     *  @internal
+     */
+    _data_ref() {
+        return data_ref(this);
+    }
+    /**
+     *  Get the current value of a given property name, or `undefined`.
+     *  Delegates to the data family's {@link prop}, which carries the full
+     *  contract and example.
+     *  @see prop
+     */
+    prop(name) {
+        return prop(this, name);
+    }
+    /**
+     *  Get the current value of a given property name, throwing when it is
+     *  missing.  Delegates to the data family's {@link strict_prop}, which
+     *  carries the full contract and example.
+     *  @throws {JssmError} If the property is not defined on the current state
+     *  and has no default.
+     *  @see strict_prop
+     */
+    strict_prop(name) {
+        return strict_prop(this, name);
+    }
+    /**
+     *  Get the current value of every prop, as an object.  Delegates to the
+     *  data family's {@link props}, which carries the full contract and
+     *  example.
+     *  @see props
+     */
+    props() {
+        return props(this);
+    }
+    /**
+     *  Check whether a given string is a known property's name.  Delegates to
+     *  the data family's {@link known_prop}.
+     *  @see known_prop
+     */
+    known_prop(prop_name) {
+        return known_prop(this, prop_name);
+    }
+    /**
+     *  List all known property names.  Delegates to the data family's
+     *  {@link known_props}.
+     *  @see known_props
+     */
+    known_props() {
+        return known_props(this);
+    }
+    /**
+     *  Read the current value of a declared machine `val`.  Delegates to the
+     *  data family's {@link val}, which carries the full contract and example.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *  @see val
+     */
+    val(name) {
+        return val(this, name);
+    }
+    /**
+     *  Set the value of a declared machine `val`, validating it against the
+     *  val's declared type.  Delegates to the data family's {@link set_val},
+     *  which carries the full contract and example.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *  @see set_val
+     */
+    set_val(name, value) {
+        set_val(this, name, value);
+    }
+    /**
+     *  Return a plain object mapping every declared val name to its current
+     *  value.  Delegates to the data family's {@link vals}.
+     *  @see vals
+     */
+    vals() {
+        return vals(this);
+    }
+    /**
+     *  Check whether a string is the name of a declared `val`.  Delegates to
+     *  the data family's {@link known_val}.
+     *  @see known_val
+     */
+    known_val(name) {
+        return known_val(this, name);
+    }
+    /**
+     *  List every declared `val` name, in declaration order.  Delegates to the
+     *  data family's {@link known_vals}.
+     *  @see known_vals
+     */
+    known_vals() {
+        return known_vals(this);
+    }
+    /**
+     *  Return the declared type descriptor of a `val`.  Delegates to the data
+     *  family's {@link val_type}.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *  @see val_type
+     */
+    val_type(name) {
+        return val_type(this, name);
+    }
+    /**
+     *  Check whether a given state is a valid start state.  Delegates to the
+     *  query family's {@link is_start_state}, which carries the full contract
+     *  and example.
+     *  @see is_start_state
+     */
+    is_start_state(whichState) {
+        return is_start_state(this, whichState);
+    }
+    /**
+     *  The initial distribution declared by a weighted `start_states` list
+     *  (6.0).  Delegates to the stochastic family's
+     *  {@link start_state_weights}, which carries the full contract and
+     *  example.
+     *  @see start_state_weights
+     */
+    start_state_weights() {
+        return start_state_weights(this);
+    }
+    /**
+     *  Draws a start state from the weighted start distribution using the
+     *  machine's RNG.  Delegates to the stochastic family's
+     *  {@link sample_start_state}, which carries the full contract and
+     *  example.
+     *  @see sample_start_state
+     */
+    sample_start_state() {
+        return sample_start_state(this);
+    }
+    /**
+     *  Check whether a given state is a declared end state.  Delegates to the
+     *  query family's {@link is_end_state}, which carries the full contract
+     *  and example.
+     *  @see is_end_state
+     */
+    is_end_state(whichState) {
+        return is_end_state(this, whichState);
+    }
+    /**
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Delegates to the query family's {@link failed_outputs}.
+     *  @see failed_outputs
+     */
+    failed_outputs() {
+        return failed_outputs(this);
+    }
+    /**
+     *  Check whether a given state is declared as a failure output.  Delegates
+     *  to the query family's {@link is_failed_output}.
+     *  @see is_failed_output
+     */
+    is_failed_output(whichState) {
+        return is_failed_output(this, whichState);
+    }
+    /**
+     *  Check whether the machine is currently in a failure state.  Delegates
+     *  to the query family's {@link is_failed}.
+     *  @see is_failed
+     */
+    is_failed() {
+        return is_failed(this);
+    }
+    /**
+     *  Check whether a given state is final (either has no exits or is marked
+     *  `complete`.)  Delegates to the query family's {@link state_is_final},
+     *  which carries the full contract and example.
+     *  @see state_is_final
+     */
+    state_is_final(whichState) {
+        return state_is_final(this, whichState);
+    }
+    /**
+     *  Check whether the current state is final.  Delegates to the query
+     *  family's {@link is_final}, which carries the full contract and example.
+     *  @see is_final
+     */
+    is_final() {
+        return is_final(this);
+    }
+    /**
+     *  Serialize the current machine to a structure.  Delegates to the create
+     *  family's {@link serialize}, which carries the full contract.
+     *  @see serialize
+     */
+    serialize(comment) {
+        return serialize(this, comment);
+    }
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration.
+     *  Delegates to the query family's {@link canonical}, which carries the
+     *  full contract and example.
+     *  @returns The canonical config string.
+     *  @see canonical
+     */
+    canonical() {
+        return canonical(this);
+    }
+    /**
+     * Get the graph layout direction.  Delegates to the style family's
+     *  {@link graph_layout}.
+     *  @see graph_layout
+     */
+    graph_layout() {
+        return graph_layout(this);
+    }
+    /**
+     * Get the Graphviz DOT preamble string.  Delegates to the style family's
+     *  {@link dot_preamble}.
+     *  @see dot_preamble
+     */
+    dot_preamble() {
+        return dot_preamble(this);
+    }
+    /**
+     * Get the consolidated `transition: {}` default-config block.  Delegates
+     *  to the style family's {@link default_transition_config}, which carries
+     *  the full contract and example.
+     *  @see default_transition_config
+     */
+    default_transition_config() {
+        return default_transition_config(this);
+    }
+    /**
+     * Get the consolidated `graph: {}` default-config block.  Delegates to
+     *  the style family's {@link default_graph_config}, which carries the full
+     *  contract and example.
+     *  @see default_graph_config
+     */
+    default_graph_config() {
+        return default_graph_config(this);
+    }
+    /**
+     * Get the machine's author list.  Delegates to the query family's
+     *  {@link machine_author}.
+     *  @see machine_author
+     */
+    machine_author() {
+        return machine_author(this);
+    }
+    /**
+     * Get the machine's comment string.  Delegates to the query family's
+     *  {@link machine_comment}.
+     *  @see machine_comment
+     */
+    machine_comment() {
+        return machine_comment(this);
+    }
+    /**
+     * Get the machine's contributor list.  Delegates to the query family's
+     *  {@link machine_contributor}.
+     *  @see machine_contributor
+     */
+    machine_contributor() {
+        return machine_contributor(this);
+    }
+    /**
+     * Get the machine's definition string.  Delegates to the query family's
+     *  {@link machine_definition}.
+     *  @see machine_definition
+     */
+    machine_definition() {
+        return machine_definition(this);
+    }
+    /**
+     * Get the machine's natural language as an ISO 639-1 code.  Delegates to
+     *  the query family's {@link machine_language}, which carries the full
+     *  contract.
+     *  @see machine_language
+     */
+    machine_language() {
+        return machine_language(this);
+    }
+    /**
+     * Get the machine's license string.  Delegates to the query family's
+     *  {@link machine_license}.
+     *  @see machine_license
+     */
+    machine_license() {
+        return machine_license(this);
+    }
+    /**
+     * Get the machine's name.  Delegates to the query family's
+     *  {@link machine_name}.
+     *  @see machine_name
+     */
+    machine_name() {
+        return machine_name(this);
+    }
+    /**
+     * The editor/panel defaults declared in the FSL `editor: {}` block, or
+     *  `undefined`.  Delegates to the query family's {@link editor_config},
+     *  which carries the full contract and example.
+     *  @see editor_config
+     */
+    editor_config() {
+        return editor_config(this);
+    }
+    /**
+     * Get the npm package name associated with the machine, or `undefined`.
+     *  Delegates to the query family's {@link npm_name}.
+     *  @see npm_name
+     */
+    npm_name() {
+        return npm_name(this);
+    }
+    /**
+     * Get the render-size hint for the machine's visualization, or
+     *  `undefined`.  Delegates to the query family's {@link default_size},
+     *  which carries the full contract.
+     *  @see default_size
+     */
+    default_size() {
+        return default_size(this);
+    }
+    /**
+     * Get the machine's declared version, parsed, or `undefined`.  Delegates
+     *  to the query family's {@link machine_version}, which carries the full
+     *  contract and example.
+     *  @see machine_version
+     */
+    machine_version() {
+        return machine_version(this);
+    }
+    /**
+     * Get the raw state declaration objects as parsed from the FSL source.
+     *  Delegates to the query family's {@link raw_state_declarations}.
+     *  @see raw_state_declarations
+     */
+    raw_state_declarations() {
+        return raw_state_declarations(this);
+    }
+    /**
+     * Get the processed state declaration for a specific state.  Delegates to
+     *  the query family's {@link state_declaration}.
+     *  @see state_declaration
+     */
+    state_declaration(which) {
+        return state_declaration(this, which);
+    }
+    /**
+     * Get all processed state declarations as a Map.  Delegates to the query
+     *  family's {@link state_declarations}.
+     *  @see state_declarations
+     */
+    state_declarations() {
+        return state_declarations(this);
+    }
+    /**
+     * Get the FSL language version this machine declares, parsed, or
+     *  `undefined`.  Delegates to the query family's {@link fsl_version},
+     *  which carries the full contract and example.
+     *  @see fsl_version
+     */
+    fsl_version() {
+        return fsl_version(this);
+    }
+    /**
+     * Get the complete internal state of the machine as a serializable
+     *  structure.  Delegates to the query family's {@link machine_state}.
+     *  @see machine_state
+     */
+    machine_state() {
+        return machine_state(this);
+    }
+    /**
+     *  List all the states known by the machine.  Delegates to the query
+     *  family's {@link states}, which carries the full contract and example.
+     *  @see states
+     */
+    states() {
+        return states(this);
+    }
+    /**
+     * Get the internal state descriptor for a given state name.  Delegates to
+     *  the query family's {@link state_for}.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see state_for
+     */
+    state_for(whichState) {
+        return state_for(this, whichState);
+    }
+    /**
+     *  Check whether the machine knows a given state.  Delegates to the query
+     *  family's {@link has_state}, which carries the full contract and example.
+     *  @see has_state
+     */
+    has_state(whichState) {
+        return has_state(this, whichState);
+    }
+    /**
+     *  Lists all edges of a machine.  Delegates to the query family's
+     *  {@link list_edges}, which carries the full contract and example.
+     *  @see list_edges
+     */
+    list_edges() {
+        return list_edges(this);
+    }
+    /**
+     * Get the map of named transitions.  Delegates to the query family's
+     *  {@link list_named_transitions}.
+     *  @see list_named_transitions
+     */
+    list_named_transitions() {
+        return list_named_transitions(this);
+    }
+    /**
+     * List all distinct action names defined anywhere in the machine.
+     *  Delegates to the query family's {@link list_actions}.
+     *  @see list_actions
+     */
+    list_actions() {
+        return list_actions(this);
+    }
+    /**
+     * Whether any actions are defined on this machine.  Delegates to the
+     *  query family's {@link uses_actions}.
+     *  @see uses_actions
+     */
+    get uses_actions() {
+        return uses_actions(this);
+    }
+    /**
+     * Whether any forced (`~>`) transitions exist in this machine.  Delegates
+     *  to the query family's {@link uses_forced_transitions}.
+     *  @see uses_forced_transitions
+     */
+    get uses_forced_transitions() {
+        return uses_forced_transitions(this);
+    }
+    /**
+     *  Check if the code that built the machine allows overriding state and
+     *  data.  Delegates to the query family's {@link code_allows_override}.
+     *  @see code_allows_override
+     */
+    get code_allows_override() {
+        return code_allows_override(this);
+    }
+    /**
+     *  Check if the machine config allows overriding state and data.
+     *  Delegates to the query family's {@link config_allows_override}.
+     *  @see config_allows_override
+     */
+    get config_allows_override() {
+        return config_allows_override(this);
+    }
+    /**
+     *  Check if a machine allows overriding state and data, resolving code
+     *  and config.  Delegates to the query family's {@link allows_override},
+     *  which carries the full contract.
+     *  @see allows_override
+     */
+    get allows_override() {
+        return allows_override(this);
+    }
+    /**
+     *  Return the effective island policy for this machine.  Delegates to the
+     *  query family's {@link allow_islands}, which carries the full contract.
+     *  @see allow_islands
+     */
+    get allow_islands() {
+        return allow_islands(this);
+    }
+    /**
+     * List all available theme names.  Delegates to the style family's
+     *  {@link all_themes}.
+     *  @see all_themes
+     */
+    all_themes() {
+        return all_themes();
+    }
+    /**
+     * List the ASCII character ranges accepted in any but the first position
+     *  of a state name.  Delegates to the query family's
+     *  {@link all_state_name_chars}, which carries the full contract and
+     *  example.
+     *  @see all_state_name_chars
+     */
+    all_state_name_chars() {
+        return all_state_name_chars();
+    }
+    /**
+     * List the ASCII character ranges accepted in the first position of a
+     *  state name.  Delegates to the query family's
+     *  {@link all_state_name_first_chars}, which carries the full contract
+     *  and example.
+     *  @see all_state_name_first_chars
+     */
+    all_state_name_first_chars() {
+        return all_state_name_first_chars();
+    }
+    /**
+     * List the character ranges accepted inside a single-quoted FSL action
+     *  label.  Delegates to the query family's {@link all_action_label_chars},
+     *  which carries the full contract and example.
+     *  @see all_action_label_chars
+     */
+    all_action_label_chars() {
+        return all_action_label_chars();
+    }
+    /**
+     * Get the active theme(s) for this machine.  Delegates to the style
+     *  family's {@link themes}.
+     *  @see themes
+     */
+    get themes() {
+        return themes(this);
+    }
+    /**
+     * Set the active theme(s).  Delegates to the style family's
+     *  {@link set_themes}, which carries the full contract and example
+     *  (including the config-cache invalidation).
+     *  @see set_themes
+     */
+    set themes(to) {
+        set_themes(this, to);
+    }
+    /**
+     * Get the flow direction for graph layout.  Delegates to the style
+     *  family's {@link flow}.
+     *  @see flow
+     */
+    flow() {
+        return flow(this);
+    }
+    /**
+     * Look up a transition's edge index by source and target state names.
+     *  Delegates to the query family's {@link get_transition_by_state_names}.
+     *  @see get_transition_by_state_names
+     */
+    get_transition_by_state_names(from, to) {
+        return get_transition_by_state_names(this, from, to);
+    }
+    /**
+     * Look up the full transition object for a given source→target pair.
+     *  Delegates to the query family's {@link lookup_transition_for}.
+     *  @see lookup_transition_for
+     */
+    lookup_transition_for(from, to) {
+        return lookup_transition_for(this, from, to);
+    }
+    /**
+     *  List all transitions attached to a state, sorted by entrance and exit.
+     *  Delegates to the query family's {@link list_transitions}, which carries
+     *  the full contract and example.
+     *  @see list_transitions
+     */
+    list_transitions(whichState = this.state()) {
+        return list_transitions(this, whichState);
+    }
+    /**
+     *  List all entrances attached to a state.  Delegates to the query
+     *  family's {@link list_entrances}, which carries the full contract and
+     *  example.
+     *  @see list_entrances
+     */
+    list_entrances(whichState = this.state()) {
+        return list_entrances(this, whichState);
+    }
+    /**
+     *  List all exits attached to a state.  Delegates to the query family's
+     *  {@link list_exits}, which carries the full contract and example.
+     *  @see list_exits
+     */
+    list_exits(whichState = this.state()) {
+        return list_exits(this, whichState);
+    }
+    /**
+     * Get the transitions available from a state for use by the probabilistic
+     *  walk system.  Delegates to the stochastic family's
+     *  {@link probable_exits_for}, which carries the full contract.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see probable_exits_for
+     */
+    probable_exits_for(whichState) {
+        return probable_exits_for(this, whichState);
+    }
+    /**
+     * Take a single random transition from the current state, weighted by
+     *  edge probabilities.  Delegates to the stochastic family's
+     *  {@link probabilistic_transition}, which carries the full contract.
+     *  @see probabilistic_transition
+     */
+    probabilistic_transition() {
+        return probabilistic_transition(this);
+    }
+    /**
+     * Take `n` consecutive probabilistic transitions and return the states
+     *  visited.  Delegates to the stochastic family's
+     *  {@link probabilistic_walk}, which carries the full contract.
+     *  @see probabilistic_walk
+     */
+    probabilistic_walk(n) {
+        return probabilistic_walk(this, n);
+    }
+    /**
+     * Take `n` probabilistic steps and return a histograph of the visits.
+     *  Delegates to the stochastic family's {@link probabilistic_histo_walk},
+     *  which carries the full contract.
+     *  @see probabilistic_histo_walk
+     */
+    probabilistic_histo_walk(n) {
+        return probabilistic_histo_walk(this, n);
+    }
+    /**
+     * Lazily yield one {@link JssmStochasticRun} at a time.  Delegates to the
+     *  stochastic family's {@link stochastic_runs} generator, which carries
+     *  the full contract and example; `yield*` forwards every yielded run and
+     *  the generator's completion unchanged.
+     *  @see stochastic_runs
+     */
+    *stochastic_runs(opts = {}) {
+        yield* stochastic_runs(this, opts);
+    }
+    /**
+     * Run many weighted-random walks and return aggregate statistics.
+     *  Delegates to the stochastic family's {@link stochastic_summary}, which
+     *  carries the full contract and example.
+     *  @see stochastic_summary
+     */
+    stochastic_summary(opts = {}) {
+        return stochastic_summary(this, opts);
+    }
+    /**
+     *  List all actions available from a state.  Delegates to the query
+     *  family's {@link actions}, which carries the full contract and example.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see actions
+     */
+    actions(whichState = this.state()) {
+        return actions(this, whichState);
+    }
+    /**
+     *  List all states that have a specific action attached.  Delegates to
+     *  the query family's {@link list_states_having_action}, which carries the
+     *  full contract and example.
+     *  @throws {JssmError} If no state has the action.
+     *  @see list_states_having_action
+     */
+    list_states_having_action(whichState) {
+        return list_states_having_action(this, whichState);
+    }
+    /**
+     * List all action names available as exits from a given state.  Delegates
+     *  to the query family's {@link list_exit_actions}, which carries the full
+     *  contract and example.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see list_exit_actions
+     */
+    list_exit_actions(whichState = this.state()) {
+        return list_exit_actions(this, whichState);
+    }
+    /**
+     * List all action exits from a state with their probabilities and shares.
+     *  Delegates to the query family's {@link probable_action_exits}, which
+     *  carries the full contract.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see probable_action_exits
+     */
+    probable_action_exits(whichState = this.state()) {
+        return probable_action_exits(this, whichState);
+    }
+    /**
+     * Check whether a state has no incoming transitions.  Delegates to the
+     *  query family's {@link is_unenterable}.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see is_unenterable
+     */
+    is_unenterable(whichState) {
+        return is_unenterable(this, whichState);
+    }
+    /**
+     * Check whether any state in the machine is unenterable.  Delegates to
+     *  the query family's {@link has_unenterables}.
+     *  @see has_unenterables
+     */
+    has_unenterables() {
+        return has_unenterables(this);
+    }
+    /**
+     * Check whether the current state is terminal (has no exits).  Delegates
+     *  to the query family's {@link is_terminal}.
+     *  @see is_terminal
+     */
+    is_terminal() {
+        return is_terminal(this);
+    }
+    /**
+     * Check whether a specific state is terminal (has no exits).  Delegates
+     *  to the query family's {@link state_is_terminal}.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see state_is_terminal
+     */
+    state_is_terminal(whichState) {
+        return state_is_terminal(this, whichState);
+    }
+    /**
+     * Check whether any state in the machine is terminal.  Delegates to the
+     *  query family's {@link has_terminals}.
+     *  @see has_terminals
+     */
+    has_terminals() {
+        return has_terminals(this);
+    }
+    /**
+     *  Reports whether the machine's CURRENT state is a transitive member of a
+     *  named group.  Delegates to the groups family's {@link isIn}, which
+     *  carries the full contract and example.
+     *  @see isIn
+     */
+    isIn(groupName) {
+        return isIn(this, groupName);
+    }
+    /**
+     *  Lists every group that transitively contains a given state.  Delegates
+     *  to the groups family's {@link groupsOf}, which carries the full
+     *  contract and example.
+     *  @see groupsOf
+     */
+    groupsOf(state) {
+        return groupsOf(this, state);
+    }
+    /**
+     *  Lists all declared group names, in source declaration order.  Delegates
+     *  to the groups family's {@link groups}, which carries the full contract
+     *  and example.
+     *  @see groups
+     */
+    groups() {
+        return groups(this);
+    }
+    /**
+     *  Lists every state that is a transitive member of a named group.
+     *  Delegates to the groups family's {@link statesIn}, which carries the
+     *  full contract and example.
+     *  @throws {JssmError} If `groupName` is not a declared group.
+     *  @see statesIn
+     */
+    statesIn(groupName) {
+        return statesIn(this, groupName);
+    }
+    /**
+     * Check whether the current state is complete.  Delegates to the query
+     *  family's {@link is_complete}.
+     *  @see is_complete
+     */
+    is_complete() {
+        return is_complete(this);
+    }
+    /**
+     * Check whether a specific state is complete.  Delegates to the query
+     *  family's {@link state_is_complete}.
+     *  @throws {JssmError} If the state does not exist.
+     *  @see state_is_complete
+     */
+    state_is_complete(whichState) {
+        return state_is_complete(this, whichState);
+    }
+    /**
+     * Check whether any state in the machine is complete.  Delegates to the
+     *  query family's {@link has_completes}.
+     *  @see has_completes
+     */
+    has_completes() {
+        return has_completes(this);
+    }
+    on(name, filterOrFn, maybeFn) {
+        // the family exports only the two documented shapes; split here so the
+        // union-typed implementation parameter never widens the public signature
+        return (typeof filterOrFn === 'function')
+            ? on(this, name, filterOrFn)
+            : on(this, name, filterOrFn, maybeFn);
+    }
+    once(name, filterOrFn, maybeFn) {
+        return (typeof filterOrFn === 'function')
+            ? once(this, name, filterOrFn)
+            : once(this, name, filterOrFn, maybeFn);
+    }
+    /**
+     *  Remove a previously-registered event handler.  Delegates to the events
+     *  family's {@link off}.
+     *  @see off
+     */
+    off(name, handler) {
+        return off(this, name, handler);
+    }
+    /**
+     *  Invoke a single event-handler entry.  Delegates to the events family's
+     *  {@link fire_one}.
+     *  @internal
+     */
+    // PERF: this and the sibling dispatch methods (_fire, _fire_boundary_actions,
+    // _fire_hook_rejection, _has_subscribers) are intentionally underscore-
+    // convention, NOT `#`-private.  They are called on the per-transition hot
+    // path (_fire_boundary_actions runs on every transition), and a `#`-private
+    // method cannot be inlined the way its `_` twin can (brand check), so
+    // privatizing them in 5.162.8 cost ~20-25% on transition/action dispatch.
+    // Do not re-privatize.  StoneCypher/fsl#1959
+    _fire_one(entry, set, name, detail) {
+        fire_one(this, entry, set, name, detail);
+    }
+    /**
+     *  Whether at least one live subscriber is registered for `name`.
+     *  Delegates to the events family's {@link has_subscribers}.
+     *  @internal
+     */
+    _has_subscribers(name) {
+        return has_subscribers(this, name);
+    }
+    /**
+     *  Dispatch an event to every registered subscriber.  Delegates to the
+     *  events family's {@link fire}.
+     *  @internal
+     */
+    _fire(name, detail) {
+        fire(this, name, detail);
+    }
+    /**
+     *  Low-level hook registration.  Delegates to the hooks family's
+     *  {@link set_hook}, which carries the full contract, the descriptor
+     *  validation, and the examples.
+     *  @throws JssmError if the descriptor is mis-shaped.
+     *  @see set_hook
+     */
+    set_hook(HookDesc) {
+        set_hook(this, HookDesc);
+    }
+    /**
+     *  Remove a previously-registered hook.  Delegates to the hooks family's
+     *  {@link remove_hook}.
+     *  @returns `true` if a hook was removed, `false` otherwise.
+     *  @see remove_hook
+     */
+    remove_hook(HookDesc) {
+        return remove_hook(this, HookDesc);
+    }
+    /**
+     *  Register a pre-transition hook on a specific edge.  Delegates to the
+     *  hooks family's {@link hook}.
+     *  @returns `this` for chaining.
+     *  @see hook
+     */
+    hook(from, to, handler) {
+        return hook(this, from, to, handler);
+    }
+    /**
+     *  Register a pre-transition hook on a specific action-labeled edge.
+     *  Delegates to the hooks family's {@link hook_action}.
+     *  @returns `this` for chaining.
+     *  @see hook_action
+     */
+    hook_action(from, to, action, handler) {
+        return hook_action(this, from, to, action, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any edge triggered by a specific
+     *  action.  Delegates to the hooks family's {@link hook_global_action}.
+     *  @returns `this` for chaining.
+     *  @see hook_global_action
+     */
+    hook_global_action(action, handler) {
+        return hook_global_action(this, action, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any action-driven transition.
+     *  Delegates to the hooks family's {@link hook_any_action}.
+     *  @returns `this` for chaining.
+     *  @see hook_any_action
+     */
+    hook_any_action(handler) {
+        return hook_any_action(this, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any standard (`->`) transition.
+     *  Delegates to the hooks family's {@link hook_standard_transition}.
+     *  @returns `this` for chaining.
+     *  @see hook_standard_transition
+     */
+    hook_standard_transition(handler) {
+        return hook_standard_transition(this, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any main-path (`=>`) transition.
+     *  Delegates to the hooks family's {@link hook_main_transition}.
+     *  @returns `this` for chaining.
+     *  @see hook_main_transition
+     */
+    hook_main_transition(handler) {
+        return hook_main_transition(this, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any forced (`~>`) transition.
+     *  Delegates to the hooks family's {@link hook_forced_transition}.
+     *  @returns `this` for chaining.
+     *  @see hook_forced_transition
+     */
+    hook_forced_transition(handler) {
+        return hook_forced_transition(this, handler);
+    }
+    /**
+     *  Register a pre-transition hook on any transition regardless of kind.
+     *  Delegates to the hooks family's {@link hook_any_transition}.
+     *  @returns `this` for chaining.
+     *  @see hook_any_transition
+     */
+    hook_any_transition(handler) {
+        return hook_any_transition(this, handler);
+    }
+    /**
+     *  Register a hook that fires when entering a specific state.  Delegates
+     *  to the hooks family's {@link hook_entry}.
+     *  @returns `this` for chaining.
+     *  @see hook_entry
+     */
+    hook_entry(to, handler) {
+        return hook_entry(this, to, handler);
+    }
+    /**
+     *  Register a hook that fires when leaving a specific state.  Delegates to
+     *  the hooks family's {@link hook_exit}.
+     *  @returns `this` for chaining.
+     *  @see hook_exit
+     */
+    hook_exit(from, handler) {
+        return hook_exit(this, from, handler);
+    }
+    /**
+     *  Register a hook that fires when a state's `after` timer elapses.
+     *  Delegates to the hooks family's {@link hook_after}, which carries the
+     *  full contract and example.
+     *  @returns `this` for chaining.
+     *  @see hook_after
+     */
+    hook_after(from, handler) {
+        return hook_after(this, from, handler);
+    }
+    /**
+     *  Register a hook that fires when ANY state's `after` timer elapses.
+     *  Delegates to the hooks family's {@link hook_after_any}, which carries
+     *  the full contract and example.
+     *  @returns `this` for chaining.
+     *  @see hook_after_any
+     */
+    hook_after_any(handler) {
+        return hook_after_any(this, handler);
+    }
+    /**
+     *  Post-transition hook on a specific edge.  Delegates to the hooks
+     *  family's {@link post_hook}.
+     *  @returns `this` for chaining.
+     *  @see post_hook
+     */
+    post_hook(from, to, handler) {
+        return post_hook(this, from, to, handler);
+    }
+    /**
+     *  Post-transition hook on a specific action-labeled edge.  Delegates to
+     *  the hooks family's {@link post_hook_action}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_action
+     */
+    post_hook_action(from, to, action, handler) {
+        return post_hook_action(this, from, to, action, handler);
+    }
+    /**
+     *  Post-transition hook on any edge triggered by a specific action.
+     *  Delegates to the hooks family's {@link post_hook_global_action}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_global_action
+     */
+    post_hook_global_action(action, handler) {
+        return post_hook_global_action(this, action, handler);
+    }
+    /**
+     *  Post-transition hook on any action-driven transition.  Delegates to
+     *  the hooks family's {@link post_hook_any_action}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_any_action
+     */
+    post_hook_any_action(handler) {
+        return post_hook_any_action(this, handler);
+    }
+    /**
+     *  Post-transition hook on any standard (`->`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_standard_transition}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_standard_transition
+     */
+    post_hook_standard_transition(handler) {
+        return post_hook_standard_transition(this, handler);
+    }
+    /**
+     *  Post-transition hook on any main-path (`=>`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_main_transition}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_main_transition
+     */
+    post_hook_main_transition(handler) {
+        return post_hook_main_transition(this, handler);
+    }
+    /**
+     *  Post-transition hook on any forced (`~>`) transition.  Delegates to
+     *  the hooks family's {@link post_hook_forced_transition}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_forced_transition
+     */
+    post_hook_forced_transition(handler) {
+        return post_hook_forced_transition(this, handler);
+    }
+    /**
+     *  Post-transition hook on any transition regardless of kind.  Delegates
+     *  to the hooks family's {@link post_hook_any_transition}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_any_transition
+     */
+    post_hook_any_transition(handler) {
+        return post_hook_any_transition(this, handler);
+    }
+    /**
+     *  Post-transition hook that fires after entering a specific state.
+     *  Delegates to the hooks family's {@link post_hook_entry}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_entry
+     */
+    post_hook_entry(to, handler) {
+        return post_hook_entry(this, to, handler);
+    }
+    /**
+     *  Post-transition hook that fires after leaving a specific state.
+     *  Delegates to the hooks family's {@link post_hook_exit}.
+     *  @returns `this` for chaining.
+     *  @see post_hook_exit
+     */
+    post_hook_exit(from, handler) {
+        return post_hook_exit(this, from, handler);
+    }
+    /**
+     *  Register a pre-transition hook that fires before all other pre-hooks.
+     *  Delegates to the hooks family's {@link hook_pre_everything}.
+     *  @returns `this` for chaining.
+     *  @see hook_pre_everything
+     */
+    hook_pre_everything(handler) {
+        return hook_pre_everything(this, handler);
+    }
+    /**
+     *  Register a pre-transition hook that fires after all other pre-hooks.
+     *  Delegates to the hooks family's {@link hook_everything}.
+     *  @returns `this` for chaining.
+     *  @see hook_everything
+     */
+    hook_everything(handler) {
+        return hook_everything(this, handler);
+    }
+    /**
+     *  Register a post-transition hook that fires after all other post-hooks.
+     *  Delegates to the hooks family's {@link hook_post_everything}.
+     *  @returns `this` for chaining.
+     *  @see hook_post_everything
+     */
+    hook_post_everything(handler) {
+        return hook_post_everything(this, handler);
+    }
+    /**
+     *  Register a post-transition hook that fires before all other post-hooks.
+     *  Delegates to the hooks family's {@link hook_pre_post_everything}.
+     *  @returns `this` for chaining.
+     *  @see hook_pre_post_everything
+     */
+    hook_pre_post_everything(handler) {
+        return hook_pre_post_everything(this, handler);
+    }
+    /**
+     * Get the current RNG seed used for probabilistic transitions.  Delegates
+     *  to the stochastic family's {@link rng_seed}.
+     *  @see rng_seed
+     */
+    get rng_seed() {
+        return rng_seed(this);
+    }
+    /**
+     * Set the RNG seed.  Delegates to the stochastic family's
+     *  {@link set_rng_seed}, which carries the full contract.
+     *  @see set_rng_seed
+     */
+    set rng_seed(to) {
+        set_rng_seed(this, to);
+    }
+    // remove_hook(HookDesc: HookDescription) {
+    //   throw new JssmError(this, 'TODO: Should remove hook here');
+    // }
+    /**
+     * Get all edges between two states (there can be multiple with
+     *  different actions).  Delegates to the query family's
+     *  {@link edges_between}, which carries the full contract.
+     *  @see edges_between
+     */
+    edges_between(from, to) {
+        return edges_between(this, from, to);
+    }
+    /*********
+     *
+     *  Replace the current state — and, when a data argument is provided, the
+     *  data — with no regard to the graph.  The class form of the transition
+     *  family's {@link override}, which carries the full contract and example.
+     *  The data argument is arity-detected (StoneCypher/fsl#1264), so the
+     *  delegate forwards it only when it was given.
+     *
+     *  @param newState The state to teleport to; must exist in the graph.
+     *
+     *  @param newData Replacement data.  Omit to keep the current data; pass
+     *  `undefined` explicitly to clear it.
+     *
+     *  @throws {JssmError} If the machine's config does not set
+     *  `allows_override: true`, or if `newState` does not exist.
+     *
+     *  @see override
+     *
+     */
+    override(newState, newData) {
+        if (arguments.length >= 2) {
+            override(this, newState, newData);
+        }
+        else {
+            override(this, newState);
+        }
+    }
+    /**
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Delegates to the transition family's {@link fire_hook_rejection}.
+     *  @internal
+     */
+    _fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+        fire_hook_rejection(this, hook_name, fromState, newState, fromAction, oldData, newData, wasForced);
+    }
+    /**
+     *  Fire the FSL boundary-hook actions for an already-committed state
+     *  change.  Delegates to the transition family's {@link fire_boundary_actions}.
+     *  @internal
+     */
+    _fire_boundary_actions(prev_state, next_state) {
+        fire_boundary_actions(this, prev_state, next_state);
+    }
+    /**
+     *  Shared transition core.  Delegates to the transition family's
+     *  {@link transition_impl}, which carries the full contract.  The public
+     *  movers on this class (`transition`, `go`, `force_transition`, `act`,
+     *  `action`, `do`) call the family function directly rather than this
+     *  delegate, so the class path is no deeper than it was in 5.x.
+     *  @internal
+     */
+    transition_impl(newStateOrAction, newData, wasForced, wasAction, dataProvided = newData !== undefined) {
+        return transition_impl(this, newStateOrAction, newData, wasForced, wasAction, dataProvided);
+    }
+    /**
+     *  If the current state has an `after` timeout configured, schedule it.
+     *  Delegates to the timers family's {@link auto_set_state_timeout}.
+     *  @see auto_set_state_timeout
+     */
+    auto_set_state_timeout() {
+        auto_set_state_timeout(this);
+    }
+    /**
+     *  Get a truncated history of the recent states and data of the machine,
+     *  without the current state.  Delegates to the history family's
+     *  {@link history}, which carries the full contract and examples.
+     *  @see history
+     */
+    get history() {
+        return history(this);
+    }
+    /**
+     *  Get a truncated history of the recent states and data of the machine,
+     *  including the current state.  Delegates to the history family's
+     *  {@link history_inclusive}.
+     *  @see history_inclusive
+     */
+    get history_inclusive() {
+        return history_inclusive(this);
+    }
+    /**
+     *  Find out how long a history this machine is keeping.  Delegates to the
+     *  history family's {@link history_length}; the setter delegates to
+     *  {@link set_history_length}.
+     *  @see history_length
+     *  @see set_history_length
+     */
+    get history_length() {
+        return history_length(this);
+    }
+    set history_length(to) {
+        set_history_length(this, to);
+    }
+    /********
+     *
+     *  Instruct the machine to complete an action.  Synonym for {@link act}
+     *  (and for the deprecated {@link do}); the class form of the transition
+     *  family's {@link act}, which carries the full contract and example.
+     *
+     *  ```typescript
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.action('next');        // true
+     *  light.state();               // 'green'
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param actionName The action to engage
+     *
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
+     *  @see act
+     *
+     */
+    action(actionName, newData) {
+        // arity, not undefined-comparison: an explicit `undefined` is a real
+        // data assignment (StoneCypher/fsl#1264)
+        return transition_impl(this, actionName, newData, false, true, arguments.length >= 2);
+    }
+    /********
+     *
+     *  Instruct the machine to complete an action.  The class form of the
+     *  transition family's {@link act}, which carries the full contract and
+     *  example; {@link action} is its synonym and {@link do} its deprecated
+     *  synonym.  New in 6.0 so the deprecation advice on `do()` holds on both
+     *  entries.
+     *
+     *  ```typescript
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.act('next');           // true
+     *  light.state();               // 'green'
+     *  light.act('dance');          // false - no such action
+     *  light.state();               // 'green'
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param actionName The action to engage
+     *
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
+     *  @see act
+     *
+     */
+    act(actionName, newData) {
+        return transition_impl(this, actionName, newData, false, true, arguments.length >= 2);
+    }
+    /**
+     *  Get the standard style for a single state.  Delegates to the style
+     *  family's {@link standard_state_style}, which carries the full contract
+     *  and example.
+     *  @see standard_state_style
+     */
+    get standard_state_style() {
+        return standard_state_style(this);
+    }
+    /**
+     *  Get the hooked state style.  Delegates to the style family's
+     *  {@link hooked_state_style}, which carries the full contract and
+     *  example.
+     *  @see hooked_state_style
+     */
+    get hooked_state_style() {
+        return hooked_state_style(this);
+    }
+    /**
+     *  Get the start state style.  Delegates to the style family's
+     *  {@link start_state_style}, which carries the full contract and example.
+     *  @see start_state_style
+     */
+    get start_state_style() {
+        return start_state_style(this);
+    }
+    /**
+     *  Get the end state style.  Delegates to the style family's
+     *  {@link end_state_style}, which carries the full contract and example.
+     *  @see end_state_style
+     */
+    get end_state_style() {
+        return end_state_style(this);
+    }
+    /**
+     *  Get the terminal state style.  Delegates to the style family's
+     *  {@link terminal_state_style}, which carries the full contract and
+     *  example.
+     *  @see terminal_state_style
+     */
+    get terminal_state_style() {
+        return terminal_state_style(this);
+    }
+    /**
+     *  Get the style for the active state.  Delegates to the style family's
+     *  {@link active_state_style}, which carries the full contract and
+     *  example.
+     *  @see active_state_style
+     */
+    get active_state_style() {
+        return active_state_style(this);
+    }
+    /**
+     *  Generate the uniform observational-hook registry.  Delegates to the
+     *  hooks family's {@link hook_registry}, which carries the full contract
+     *  and examples.
+     *  @returns Every registered hook as a {@link HookRegistryEntry}.
+     *  @see hook_registry
+     */
+    hook_registry() {
+        return hook_registry(this);
+    }
+    /**
+     *  Return every registry entry observing the given target.  Delegates to
+     *  the hooks family's {@link hooks_on}.
+     *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+     *  @see hooks_on
+     */
+    hooks_on(query) {
+        return hooks_on(this, query);
+    }
+    /**
+     *  Is at least one observational hook bound to the given target?
+     *  Delegates to the hooks family's {@link has_hook}.
+     *  @returns `true` when a matching hook exists.
+     *  @see has_hook
+     */
+    has_hook(query, phase) {
+        return has_hook(this, query, phase);
+    }
+    /**
+     *  Does the given state carry any observational hook?  Delegates to the
+     *  hooks family's {@link state_has_hooks}.
+     *  @returns `true` when the state is observed by at least one hook.
+     *  @see state_has_hooks
+     */
+    state_has_hooks(state) {
+        return state_has_hooks(this, state);
+    }
+    /**
+     *  Resolves the full unified style/config cascade for a state.  Delegates
+     *  to the style family's {@link resolve_state_config}, which carries the
+     *  full contract and example.
+     *  @see resolve_state_config
+     */
+    resolve_state_config(state) {
+        return resolve_state_config(this, state);
+    }
+    /**
+     *  Gets the composite style for a specific node — the public viz entry
+     *  point.  Delegates to the style family's {@link style_for}, which
+     *  carries the full contract.
+     *  @see style_for
+     */
+    style_for(state) {
+        return style_for(this, state);
+    }
+    /********
+     *
+     *  Instruct the machine to complete an action.  Synonym for {@link action}
+     *  and {@link act}; the class form of the transition family's {@link act},
+     *  which carries the full contract and example.  Prefer `act()` — `do` is a
+     *  JavaScript reserved word, so it has no function form and is deprecated
+     *  here.
+     *
+     *  ```typescript
+     *  import { sm } from 'jssm/compat';
+     *
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
+     *
+     *  light.state();        // 'off'
+     *  light.act('start');   // true  - the preferred spelling
+     *  light.state();        // 'red'
+     *  light.do('next');     // true  - still works, but deprecated
+     *  light.state();        // 'green'
+     *  light.act('dance');   // !! false - no such action
+     *  light.state();        // 'green'
+     *  ```
+     *
+     *  @deprecated Use act() or action(); do is a JavaScript reserved word and has no function form. Removal is tracked as StoneCypher/fsl#1992.
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param actionName The action to engage
+     *
+     *  @param newData The data change to insert during the action; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
+     *  @see act
+     *
+     */
+    do(actionName, newData) {
+        return transition_impl(this, actionName, newData, false, true, arguments.length >= 2);
+    }
+    /********
+     *
+     *  Instruct the machine to complete a transition.  Synonym for {@link go};
+     *  the class form of the transition family's {@link transition}, which
+     *  carries the full contract and example.
+     *
+     *  ```typescript
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
+     *
+     *  light.state();       // 'off'
+     *  light.go('red');     // true
+     *  light.state();       // 'red'
+     *  light.go('blue');    // !! false - no such state
+     *  light.state();       // 'red'
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newState The state to switch to
+     *
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+     *
+     *  @see transition
+     *
+     */
+    transition(newState, newData) {
+        return transition_impl(this, newState, newData, false, false, arguments.length >= 2);
+    }
+    /********
+     *
+     *  Instruct the machine to complete a transition.  Synonym for {@link transition};
+     *  the class form of the transition family's {@link go}.
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();       // 'red'
+     *  light.go('green');   // true
+     *  light.state();       // 'green'
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newState The state to switch to
+     *
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+     *
+     *  @see go
+     *
+     */
+    go(newState, newData) {
+        return transition_impl(this, newState, newData, false, false, arguments.length >= 2);
+    }
+    /********
+     *
+     *  Instruct the machine to complete a forced transition (which will reject if
+     *  called with a normal {@link transition} call.)  The class form of the
+     *  transition family's {@link force_transition}, which carries the full
+     *  contract and example.
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();                     // 'red'
+     *  light.transition('off');           // false
+     *  light.state();                     // 'red'
+     *  light.force_transition('off');     // true
+     *  light.state();                     // 'off'
+     *  ```
+     *
+     *  @typeParam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newState The state to switch to
+     *
+     *  @param newData The data change to insert during the transition; omit to
+     *  keep the current data (StoneCypher/fsl#1264)
+     *
+     *  @returns `true` if a transition (forced or otherwise) existed and occurred,
+     *  `false` otherwise.
+     *
+     *  @see force_transition
+     *
+     */
+    force_transition(newState, newData) {
+        return transition_impl(this, newState, newData, true, false, arguments.length >= 2);
+    }
+    /**
+     * Get the edge index for an action from the current state.  Delegates to
+     *  the query family's {@link current_action_for}, which carries the full
+     *  contract.
+     *  @see current_action_for
+     */
+    current_action_for(action) {
+        return current_action_for(this, action);
+    }
+    /**
+     * Get the full transition object for an action from the current state.
+     *  Delegates to the query family's {@link current_action_edge_for}.
+     *  @throws {JssmError} If the action is not available from the current state.
+     *  @see current_action_edge_for
+     */
+    current_action_edge_for(action) {
+        return current_action_edge_for(this, action);
+    }
+    /**
+     * Check whether an action is available from the current state.  Delegates
+     *  to the transition family's {@link valid_action}.
+     *  @param action   - The action name to check.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if the action can be taken.
+     *  @see valid_action
+     */
+    valid_action(action, _newData) {
+        return valid_action(this, action);
+    }
+    /**
+     * Check whether a transition to a given state is legal (non-forced) from
+     *  the current state.  Delegates to the transition family's
+     *  {@link valid_transition}.
+     *  @param newState - The target state.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if the transition is legal.
+     *  @see valid_transition
+     */
+    valid_transition(newState, _newData) {
+        return valid_transition(this, newState);
+    }
+    /**
+     * Check whether a forced transition to a given state exists from the
+     *  current state.  Delegates to the transition family's
+     *  {@link valid_force_transition}.
+     *  @param newState - The target state.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if a forced (or any) transition exists.
+     *  @see valid_force_transition
+     */
+    valid_force_transition(newState, _newData) {
+        return valid_force_transition(this, newState);
+    }
+    /**
+     * Get the instance name of this machine.  Delegates to the create family's
+     *  {@link instance_name}.
+     *  @see instance_name
+     */
+    instance_name() {
+        return instance_name(this);
+    }
+    /**
+     * Get the creation date of this machine as a `Date` object.  Delegates to
+     *  the create family's {@link creation_date}.
+     *  @see creation_date
+     */
+    get creation_date() {
+        return creation_date(this);
+    }
+    /**
+     * Get the creation timestamp (milliseconds since epoch).  Delegates to the
+     *  create family's {@link creation_timestamp}.
+     *  @see creation_timestamp
+     */
+    get creation_timestamp() {
+        return creation_timestamp(this);
+    }
+    /**
+     * Get the timestamp when construction began (before parsing).  Delegates
+     *  to the create family's {@link create_start_time}.
+     *  @see create_start_time
+     */
+    get create_start_time() {
+        return create_start_time(this);
+    }
+    /**
+     *  Schedule an automatic transition to `next_state` after `after_time`
+     *  milliseconds.  Delegates to the timers family's
+     *  {@link set_state_timeout}, which carries the full contract.
+     *  @throws JssmError If a timeout is already pending.
+     *  @see set_state_timeout
+     */
+    set_state_timeout(next_state, after_time) {
+        set_state_timeout(this, next_state, after_time);
+    }
+    /**
+     *  Cancel any pending state timeout.  Delegates to the timers family's
+     *  {@link clear_state_timeout}.
+     *  @see clear_state_timeout
+     */
+    clear_state_timeout() {
+        clear_state_timeout(this);
+    }
+    /**
+     *  Get the configured `after` timeout for a given state, if any.
+     *  Delegates to the timers family's {@link state_timeout_for}.
+     *  @see state_timeout_for
+     */
+    state_timeout_for(which_state) {
+        return state_timeout_for(this, which_state);
+    }
+    /**
+     *  Get the pending state timeout, if any.  Delegates to the timers
+     *  family's {@link current_state_timeout}.
+     *  @see current_state_timeout
+     */
+    current_state_timeout() {
+        return current_state_timeout(this);
+    }
+    /**
+     * Convenience method to create a new machine from a tagged template literal.
+     *  Equivalent to calling the top-level `sm` function.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    sm(template_strings, ...remainder /* , arguments */) {
+        return sm(template_strings, ...remainder);
+    }
+    /**
+     * Convenience method to create a new machine from a tagged template literal;
+     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
+    fsl(template_strings, ...remainder /* , arguments */) {
+        return sm(template_strings, ...remainder);
+    }
+}
+/*******
+ *
+ *  Constructs a machine from a configuration object.  This is the function
+ *  form of `new Machine(config)`: the value it returns is the machine record
+ *  every other function in this package takes as its first argument.  In
+ *  6.0 that record is also a `Machine` instance, so `instanceof Machine`
+ *  holds and the 5.x methods remain reachable through `jssm/compat`.
+ *
+ *  @example
+ *  import { create, state, transition } from 'jssm';
+ *
+ *  const m = create({
+ *    start_states : ['a'],
+ *    transitions  : [ { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false } ],
+ *  });
+ *
+ *  state(m);             // => 'a'
+ *  transition(m, 'b');   // => true
+ *  state(m);             // => 'b'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param config The machine configuration; the same shape `compile` produces from FSL.
+ *
+ *  @returns The new machine at its start state.
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+function create(config) {
+    return new Machine(config);
+}
+/*********
+ *
+ *  Create a state machine from a template string.  This is one of the two main
+ *  paths for working with JSSM, alongside {@link from}.
+ *
+ *  Use this function when you want to work directly and conveniently with a
+ *  constant template expression.  Use `from` when you want to pull from
+ *  dynamic strings.
+ *
+ *  @example
+ *  import { sm, state, transition } from 'jssm';
+ *
+ *  const lswitch = sm`on <=> off;`;
+ *  state(lswitch);              // => 'on'
+ *  transition(lswitch, 'off');  // => true
+ *  state(lswitch);              // => 'off'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ */
+function sm(template_strings, ...remainder /* , arguments */) {
+    // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
+    // this includes when a and c are empty strings
+    // therefore template_strings will always have one more el than template_args
+    // therefore map the smaller container and toss the last one on on the way out
+    return new Machine(make(template_strings.reduce(
+    // in general avoiding `arguments` is smart.  however with the template
+    // string notation, as designed, it's not really worth the hassle
+    (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
+    )));
+}
+/*********
+ *
+ *  Create a state machine from a template string; an exact alias of {@link sm}.
+ *
+ *  Prefer this spelling in JavaScript and TypeScript sources that will be
+ *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
+ *  matching the tag name, and `sm` is two generic letters that collide with
+ *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
+ *  names the language unambiguously, so a highlighter can key on it without
+ *  risking false positives on unrelated code.
+ *
+ *  Identical to {@link sm} in every respect: same parameters, same return, same
+ *  errors.  Neither is deprecated.
+ *
+ *  @example
+ *  import { fsl, state } from 'jssm';
+ *
+ *  const lswitch = fsl`on <=> off;`;
+ *  state(lswitch);  // => 'on'
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
+ *  @see sm
+ *  @see from
+ *
+ */
+function fsl(template_strings, ...remainder /* , arguments */) {
+    return sm(template_strings, ...remainder);
+}
+/*********
+ *
+ *  Create a state machine from an implementation string.  This is one of the
+ *  two main paths for working with JSSM, alongside {@link sm}.
+ *
+ *  Use this function when you want to conveniently pull a state machine from
+ *  a string dynamically.  Use the template tag `sm` when you just want to
+ *  work with a template expression.
+ *
+ *  @example
+ *  import { from, state, data } from 'jssm';
+ *
+ *  const lswitch = from('on <=> off;', { data: 1 });
+ *  state(lswitch);  // => 'on'
+ *  data(lswitch);   // => 1
+ *
+ *  @typeParam mDT The type of the machine data member; usually omitted
+ *
+ *  @param MachineAsString The FSL code to evaluate
+ *
+ *  @param ExtraConstructorFields Extra non-code configuration to pass at creation time
+ *
+ */
+function from(MachineAsString, ExtraConstructorFields) {
+    const to_decorate = make(MachineAsString);
+    if (ExtraConstructorFields !== undefined) {
+        for (const [key, value] of Object.entries(ExtraConstructorFields)) {
+            if (key === 'allows_override') {
+                to_decorate['config_allows_override'] = ExtraConstructorFields.allows_override;
+            }
+            else {
+                to_decorate[key] = value;
+            }
+        }
+    }
+    return new Machine(to_decorate);
+}
+/**
+ * Compares two semantic version strings, including prerelease versions.
+ *
+ * The numeric (`major.minor.patch`) parts compare numerically, with missing
+ * segments treated as zero.  Prerelease parts (everything after the first
+ * `-`) follow semver precedence: a version *with* a prerelease precedes the
+ * same version *without* one; prerelease identifiers compare dot-by-dot,
+ * numeric identifiers numerically and below alphanumeric ones, alphanumeric
+ * identifiers in ASCII order, and a shorter identifier set precedes a longer
+ * one that it prefixes.
+ * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
+ * @param {string} v2 - Second version string (e.g., "5.103.1")
+ * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
+ */
+function compareVersions(v1, v2) {
+    var _a, _b;
+    const hyphen1 = v1.indexOf('-'), hyphen2 = v2.indexOf('-');
+    const main1 = (hyphen1 === -1) ? v1 : v1.slice(0, hyphen1), main2 = (hyphen2 === -1) ? v2 : v2.slice(0, hyphen2), pre1 = (hyphen1 === -1) ? undefined : v1.slice(hyphen1 + 1), pre2 = (hyphen2 === -1) ? undefined : v2.slice(hyphen2 + 1);
+    const parts1 = main1.split('.').map(Number);
+    const parts2 = main2.split('.').map(Number);
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const num1 = (_a = parts1[i]) !== null && _a !== void 0 ? _a : 0;
+        const num2 = (_b = parts2[i]) !== null && _b !== void 0 ? _b : 0;
+        if (num1 !== num2) {
+            return num1 - num2;
+        }
+    }
+    // numeric parts equal; a version with a prerelease precedes one without
+    if (pre1 === undefined && pre2 === undefined) {
+        return 0;
+    }
+    if (pre1 === undefined) {
+        return 1;
+    }
+    if (pre2 === undefined) {
+        return -1;
+    }
+    // both have prereleases: compare dot-separated identifiers per semver
+    const ids1 = pre1.split('.'), ids2 = pre2.split('.');
+    for (let i = 0; i < Math.max(ids1.length, ids2.length); i++) {
+        const id1 = ids1[i];
+        if (id1 === undefined) {
+            return -1;
+        } // shorter identifier set precedes
+        const id2 = ids2[i];
+        if (id2 === undefined) {
+            return 1;
+        }
+        const n1 = /^\d+$/.test(id1) ? Number(id1) : undefined, n2 = /^\d+$/.test(id2) ? Number(id2) : undefined;
+        if (n1 !== undefined && n2 !== undefined) {
+            if (n1 !== n2) {
+                return n1 - n2;
+            }
+        }
+        else if (n1 !== undefined) {
+            return -1;
+        } // numeric below alphanumeric
+        else if (n2 !== undefined) {
+            return 1;
+        }
+        else if (id1 !== id2) {
+            return (id1 < id2) ? -1 : 1;
+        }
+    }
+    return 0;
+}
+/**
+ * Deserializes a previously serialized machine state.
+ *
+ * This function recreates a machine from a serialization object, restoring its
+ * state, data, and history. For security and compatibility reasons, it will
+ * refuse to deserialize data from future versions of the library.
+ * @template mDT - The type of the machine data member
+ * @param {string} machine_string - The FSL string defining the machine structure
+ * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
+ * @returns {Machine<mDT>} - The restored machine instance
+ * @throws {Error} If the serialization is from a future version
+ * @example
+ * import { from, deserialize, serialize, state, transition } from 'jssm';
+ * const machine    = from("a -> b;");
+ * transition(machine, 'b');
+ * const serialized = serialize(machine);
+ * const restored   = deserialize("a -> b;", serialized);
+ * state(restored);  // => 'b'
+ */
+function deserialize(machine_string, ser) {
+    var _a;
+    // Refuse to deserialize data from future versions
+    if (compareVersions(ser.jssm_version, version) > 0) {
+        throw new Error(`Cannot deserialize from future version ${ser.jssm_version} ` +
+            `(current version is ${version}). Please upgrade jssm to deserialize this data.`);
+    }
+    const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
+    machine._state = ser.state;
+    machine._state_id = (_a = machine._state_interner.id_of(ser.state)) !== null && _a !== void 0 ? _a : NaN;
+    // `from()` armed the *initial* state's `after` timer; the restored state may
+    // differ, so that timer is both a ghost (it targets the wrong state) and a
+    // gap (the restored state's own `after` was never armed).  Clear it and arm
+    // the restored state's timer instead.  clear must precede arm because
+    // set_state_timeout throws if a timer is already pending.  StoneCypher/fsl#1946
+    machine.clear_state_timeout();
+    machine.auto_set_state_timeout();
+    for (const history_item of ser.history)
+        machine._history.push(history_item);
+    return machine;
+}
 
 /**
  * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
@@ -26697,10 +35562,12 @@ var constants = /*#__PURE__*/Object.freeze({
  * Some validity checks (e.g. a `required` property that no state defines) live
  * in the {@link Machine} constructor, a stage past `compile`. We therefore also
  * construct the machine so the editor surfaces those construction-time errors
- * instead of calling such a machine valid. The `Machine` import closes a cycle
- * (`jssm` re-exports this module), but it is only referenced at call time inside
- * {@link fslDiagnostics}, never during module initialization, so the cycle is
- * benign.
+ * instead of calling such a machine valid. The `Machine` class is imported from
+ * `machine/machine.js` directly because the default `jssm` entry exports
+ * `Machine` as a type only since 6.0 (intra-core code never routes through
+ * `jssm/compat`). This is a diamond, not a cycle: both this module and the
+ * `jssm` barrel depend on `machine/machine.js`, and nothing under `machine/`
+ * imports `language_service/`.
  */
 /** A clamped range from a parser/compiler location, or the whole document. */
 function range_from(loc, text) {
@@ -26935,20 +35802,6 @@ function fslSemanticSpans(text) {
     collect(tree, text, out);
     return out;
 }
-
-/**
- *  The published semantic version of the jssm package this build was cut from.
- *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
- *  Useful for runtime diagnostics and for embedding in serialized machine
- *  snapshots so that deserializers can detect version-skew.
- */
-const version = "6.0.0-alpha.17";
-/**
- *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
- *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
- *  with the same `version` string during development, and for diagnostic logs.
- */
-const build_time = 1789041402797;
 
 /**
  *  The FSL Markdown fence convention parser — pure, host-agnostic logic that
@@ -27271,6323 +36124,220 @@ function replay(source, tape) {
     };
 }
 
-// whargarbl lots of these return arrays could/should be sets
-var __classPrivateFieldGet = (undefined && undefined.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _Machine_instances, _Machine_unsubscribe_entry, _Machine_subscribe, _Machine_validate_hook_description, _Machine_recompute_hook_flags, _Machine_resolved_themes, _Machine_individual_state_config, _Machine_groups_by_depth, _Machine_compose_state_config;
-const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_state_name_first_char, is_state_name_char } = constants;
-const empty_string_set = new Set();
-// The spatial fields (besides `handler`, which every hook needs) that each
-// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
-// to validate a HookDescription so a mis-shaped one is rejected rather than
-// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
-// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
-// `Record` over the kind union so the table is exhaustive at compile time:
-// adding a hook kind without listing its fields is a build error.
-const hook_required_fields = {
-    'hook': ['from', 'to'],
-    'named': ['from', 'to', 'action'],
-    'global action': ['action'],
-    'any action': [],
-    'standard transition': [],
-    'main transition': [],
-    'forced transition': [],
-    'any transition': [],
-    'entry': ['to'],
-    'exit': ['from'],
-    'after': ['from'],
-    'after any': [],
-    'post hook': ['from', 'to'],
-    'post named': ['from', 'to', 'action'],
-    'post global action': ['action'],
-    'post any action': [],
-    'post standard transition': [],
-    'post main transition': [],
-    'post forced transition': [],
-    'post any transition': [],
-    'post entry': ['to'],
-    'post exit': ['from'],
-    'pre everything': [],
-    'everything': [],
-    'pre post everything': [],
-    'post everything': [],
-};
-// The spatial fields a hook descriptor can carry, checked against the per-kind
-// requirements above.
-const hook_spatial_fields = ['from', 'to', 'action'];
-/*********
- *
- *  An internal method meant to take a series of declarations and fold them into
- *  a single multi-faceted declaration, in the process of building a state.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
-/*********
- *
- *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
- *  a {@link JssmError} on a type or range violation.  Used both at construction
- *  (initial values) and on every `set_val` write.
- *
- */
-function validate_val_value(name, vtype, value, machine) {
-    switch (vtype.kind) {
-        case 'boolean': {
-            if (typeof value !== 'boolean') {
-                throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
-            }
-            break;
-        }
-        case 'string': {
-            if (typeof value !== 'string') {
-                throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
-            }
-            break;
-        }
-        case 'int': {
-            // eslint-disable-next-line unicorn/prefer-number-is-safe-integer -- an `int` val is user data, not a count; isSafeInteger would reject legal integers >= 2^53, a public-contract change
-            if (!Number.isInteger(value)) {
-                throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
-            }
-            if (Object.prototype.hasOwnProperty.call(vtype, 'lo') && value < vtype.lo) {
-                throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${vtype.lo}`);
-            }
-            if (Object.prototype.hasOwnProperty.call(vtype, 'hi') && value > vtype.hi) {
-                throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${vtype.hi}`);
-            }
-            break;
-        }
-        case 'enum': {
-            if (!vtype.members.includes(value)) {
-                throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
-            }
-            break;
-        }
-        // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
-        // only ever emits four kinds of, so this default is unreachable at runtime;
-        // the `never` assignment turns an unhandled future kind into a compile error.
-        /* v8 ignore start */
-        default: {
-            const _exhaustive = vtype;
-            throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
-        }
-        /* v8 ignore stop */
-    }
-}
-function transfer_state_properties(state_decl) {
-    state_decl.declarations.map((d) => {
-        switch (d.key) {
-            case 'shape': {
-                state_decl.shape = d.value;
-                break;
-            }
-            case 'color': {
-                state_decl.color = d.value;
-                break;
-            }
-            case 'corners': {
-                state_decl.corners = d.value;
-                break;
-            }
-            case 'line-style': {
-                state_decl.lineStyle = d.value;
-                break;
-            }
-            case 'text-color': {
-                state_decl.textColor = d.value;
-                break;
-            }
-            case 'background-color': {
-                state_decl.backgroundColor = d.value;
-                break;
-            }
-            case 'state-label': {
-                state_decl.stateLabel = d.value;
-                break;
-            }
-            case 'border-color': {
-                state_decl.borderColor = d.value;
-                break;
-            }
-            case 'image': {
-                state_decl.image = d.value;
-                break;
-            }
-            case 'url': {
-                state_decl.url = d.value;
-                break;
-            }
-            case 'state_property': {
-                state_decl.property = { name: d.name, value: d.value };
-                break;
-            }
-            default: {
-                throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
-            }
-        }
-    });
-    return state_decl;
-}
-/**
- *
- *  Collapse a list of individual state-style key/value pairs into a single
- *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
- *  camelCase field names the runtime uses.
- *
- *  The parser emits state styling as a flat array like
- *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
- *  because that is the most natural shape for the grammar to produce.  This
- *  helper runs once per style bucket during `Machine` construction to turn
- *  those arrays into the compact `{ color, lineStyle, ... }` objects the
- *  graph-rendering code expects.
- *
- *  ```typescript
- *  state_style_condense([
- *    { key: 'color',      value: 'red' },
- *    { key: 'shape',      value: 'oval' },
- *    { key: 'line-style', value: 'dashed' }
- *  ]);
- *  // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
- *
- *  state_style_condense(undefined);
- *  // => {}
- *  ```
- *  @param jssk The list of style keys to condense.  `undefined` is accepted
- *  and yields an empty config.
- *  @param machine Optional `Machine` reference, used only so that any
- *  {@link JssmError} thrown can point at the offending machine in its
- *  diagnostic message.
- *  @returns A `JssmStateConfig` object containing every key from `jssk`
- *  remapped into its camelCase field.
- *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
- *  element is not an object, if the same key appears more than once, or if a
- *  key is not one of the recognized style names.
- *  @internal
- */
-/**
- *
- *  Applies one parsed state-style key/value pair onto a condensing
- *  {@link JssmStateConfig}, remapping the kebab-case FSL key to its camelCase
- *  field and rejecting redefinition.  Exists as the switch body of
- *  {@link state_style_condense}, one call per list element.
- *
- *  ```typescript
- *  const cfg = {};
- *  apply_state_style_key(cfg, { key: 'color', value: 'red' });  // cfg.color === 'red'
- *  ```
- *  @throws {JssmError} If the key was already set, or is not a recognized
- *  style name.
- *  @see state_style_condense
- *  @internal
- */
-function apply_state_style_key(state_style, key, machine) {
-    switch (key.key) {
-        case 'shape': {
-            if (state_style.shape !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
-            }
-            state_style.shape = key.value;
-            return;
-        }
-        case 'color': {
-            if (state_style.color !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
-            }
-            state_style.color = key.value;
-            return;
-        }
-        case 'text-color': {
-            if (state_style.textColor !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
-            }
-            state_style.textColor = key.value;
-            return;
-        }
-        case 'corners': {
-            if (state_style.corners !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
-            }
-            state_style.corners = key.value;
-            return;
-        }
-        case 'line-style': {
-            if (state_style.lineStyle !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
-            }
-            state_style.lineStyle = key.value;
-            return;
-        }
-        case 'background-color': {
-            if (state_style.backgroundColor !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
-            }
-            state_style.backgroundColor = key.value;
-            return;
-        }
-        case 'state-label': {
-            if (state_style.stateLabel !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
-            }
-            state_style.stateLabel = key.value;
-            return;
-        }
-        case 'border-color': {
-            if (state_style.borderColor !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
-            }
-            state_style.borderColor = key.value;
-            return;
-        }
-        case 'url': {
-            if (state_style.url !== undefined) {
-                throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
-            }
-            state_style.url = key.value;
-            return;
-        }
-        default: {
-            // TODO do that <never> trick to assert this list is complete
-            throw new JssmError(machine, `unknown state style key in condense: ${key.key}`);
-        }
-    }
-}
-function state_style_condense(jssk, machine) {
-    const state_style = {};
-    if (Array.isArray(jssk)) {
-        for (const [i, key] of jssk.entries()) {
-            if (typeof key !== 'object') {
-                throw new JssmError(machine, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
-            }
-            apply_state_style_key(state_style, key, machine);
-        }
-    }
-    else if (jssk === undefined) ;
-    else {
-        throw new JssmError(machine, 'state_style_condense received a non-array');
-    }
-    return state_style;
-}
-/*********
- *
- *  Shallow-merges one {@link JssmStateConfig} style tier over another, with
- *  later-wins, undefined-skipping semantics — the across-tier folding primitive
- *  for the unified config cascade in {@link Machine.resolve_state_config}.
- *
- *  Every defined key in `over` replaces the corresponding key in the result;
- *  keys whose `over` value is `undefined` leave the `base` value untouched.
- *  Unlike {@link state_style_condense} — which throws when a key is redefined
- *  *within a single declaration block* — this NEVER throws on a key collision,
- *  because the cascade deliberately layers more-specific tiers (group, per-state,
- *  active) over less-specific ones (theme, kind defaults) and the later tier is
- *  meant to win.  Neither input is mutated; a fresh object is returned.
- *
- *  ```typescript
- *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
- *  // => { color: 'blue', shape: 'box' }
- *
- *  merge_state_config({ color: 'red' }, { color: undefined, shape: 'oval' });
- *  // => { color: 'red', shape: 'oval' }  (undefined `over` keys are ignored)
- *  ```
- *
- *  @param base The lower-precedence style tier (the accumulator so far).
- *  @param over The higher-precedence style tier; its defined keys win.
- *
- *  @returns A new {@link JssmStateConfig} with `over`'s defined keys layered
- *  over `base`.
- *
- *  @internal
- *
- */
-function merge_state_config(base, over) {
-    const merged = Object.assign({}, base);
-    for (const [key, value] of Object.entries(over)) {
-        if (value !== undefined) {
-            merged[key] = value;
-        }
-    }
-    return merged;
-}
-/*******
- *
- *  Core finite state machine class.  Holds the full graph of states and
- *  transitions, the current state, hooks, data, properties, and all runtime
- *  behavior.  Typically created via the {@link sm} tagged template literal
- *  rather than constructed directly.
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
- *  light.state();       // 'Red'
- *  light.action('next'); // true
- *  light.state();       // 'Green'
- *  ```
- *
- *  @typeParam mDT The machine data type — the type of the value stored in
- *  `.data()`.  Defaults to `undefined` when no data is used.
- *
- */
-/*********
- *
- *  Partition a state graph into its connected components using an undirected
- *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
- *  that island membership is topology-based rather than flow-based.
- *
- *  Used at construction time to enforce the `allow_islands` constraint.
- *
- *  @param states  The machine's state map (keys are state names).
- *  @param edges   The machine's edge list; only `from` and `to` are used.
- *  @returns       An array of components, each component an array of state names.
- *
- */
-function find_connected_components(states, edges) {
-    // Build undirected adjacency list
-    const adj = new Map();
-    for (const name of states.keys()) {
-        adj.set(name, new Set());
-    }
-    for (const edge of edges) {
-        adj.get(edge.from).add(edge.to);
-        adj.get(edge.to).add(edge.from);
-    }
-    const visited = new Set();
-    const result = [];
-    for (const start of states.keys()) {
-        if (visited.has(start)) {
-            continue;
-        }
-        // BFS to collect this component
-        const component = [];
-        const queue = [start];
-        visited.add(start);
-        const enqueue_unvisited = (neighbor) => {
-            if (visited.has(neighbor)) {
-                return;
-            }
-            visited.add(neighbor);
-            queue.push(neighbor);
-        };
-        // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
-        // worst case; reading by cursor keeps it O(V + E)
-        let head = 0;
-        while (head < queue.length) {
-            const node = queue[head++];
-            component.push(node);
-            for (const neighbor of adj.get(node)) {
-                enqueue_unvisited(neighbor);
-            }
-        }
-        result.push(component);
-    }
-    return result;
-}
-/** Default number of independent Monte-Carlo runs when none is declared. */
-const STOCHASTIC_DEFAULT_RUNS = 1000;
-/** Default per-run step cap (montecarlo) / walk length (steady_state). */
-const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
-/**
- *  Default time / timeout sources, hoisted to module scope so machines that
- *  don't override them (nearly all) share three singletons instead of
- *  allocating three fresh closures per construction.
- *  @internal
- */
-const DEFAULT_TIME_SOURCE = () => Date.now();
-const DEFAULT_TIMEOUT_SOURCE = (f, a) => {
-    const handle = setTimeout(f, a);
-    // In Node, setTimeout returns a Timeout with .unref(), so a pending `after`
-    // timer does NOT by itself keep the process alive -- an abandoned machine can
-    // be collected and the process can exit instead of hanging until the timer
-    // fires go() on it.  The browser returns a plain number with no such method.
-    // A consumer who wants the timer to hold the loop open can supply their own
-    // timeout_source.  StoneCypher/fsl#1952
-    const maybe_unref = handle;
-    // The no-unref path is the browser's numeric handle; it can't be reached in
-    // the node-only coverage environment, so the false branch is ignored here.
-    /* v8 ignore next */
-    if (typeof maybe_unref.unref === 'function') {
-        maybe_unref.unref();
-    }
-    return handle;
-};
-const DEFAULT_CLEAR_TIMEOUT_SOURCE = (h) => clearTimeout(h);
-class Machine {
-    // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, start_state_weights, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
-        _Machine_instances.add(this);
-        this._time_source = time_source !== null && time_source !== void 0 ? time_source : DEFAULT_TIME_SOURCE;
-        this._create_started = this._time_source();
-        this._instance_name = instance_name;
-        this._states = new Map();
-        this._state_declarations = new Map();
-        this._edges = [];
-        this._edge_map = new Map();
-        this._outbound_edge_ids = new Map();
-        this._named_transitions = new Map();
-        this._actions = new Map();
-        this._reverse_actions = new Map();
-        this._reverse_action_targets = new Map(); // todo
-        this._state_interner = new Interner();
-        this._action_interner = new Interner();
-        this._state_id = NaN;
-        this._edge_id_by_pair = new Map();
-        this._edge_id_by_action_pair = new Map();
-        this._edge_to_ids = [];
-        this._start_states = new Set(start_states);
-        // Skip the intermediate array `.map()` builds for the common unweighted
-        // case (construct() is benchmarked) — an unweighted machine gets a
-        // freshly-allocated empty Map directly, not `new Map([].map(...))`.
-        this._start_state_weights = start_state_weights === undefined
-            ? new Map()
-            : new Map(start_state_weights.map(s => [s.name, s.share]));
-        this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
-        this._failed_outputs = new Set(failed_outputs);
-        this._machine_author = array_box_if_string(machine_author);
-        this._machine_comment = machine_comment;
-        this._machine_contributor = array_box_if_string(machine_contributor);
-        this._machine_definition = machine_definition;
-        this._machine_language = machine_language;
-        this._machine_license = machine_license;
-        this._machine_name = machine_name;
-        this._machine_version = machine_version;
-        this._npm_name = npm_name;
-        this._default_size = default_size;
-        this._raw_state_declaration = state_declaration || [];
-        this._fsl_version = fsl_version;
-        this._arrange_declaration = arrange_declaration;
-        this._arrange_start_declaration = arrange_start_declaration;
-        this._arrange_end_declaration = arrange_end_declaration;
-        this._oarrange_declaration = oarrange_declaration;
-        this._farrange_declaration = farrange_declaration;
-        this._dot_preamble = dot_preamble;
-        this._themes = theme;
-        this._flow = flow;
-        this._graph_layout = graph_layout;
-        this._has_hooks = false;
-        this._has_basic_hooks = false;
-        this._has_named_hooks = false;
-        this._has_entry_hooks = false;
-        this._has_exit_hooks = false;
-        this._has_after_hooks = false;
-        this._has_global_action_hooks = false;
-        this._has_transition_hooks = false;
-        // no need for a boolean for single hooks, just test for undefinedness
-        this._has_forced_transitions = false;
-        this._hooks = new Map();
-        this._named_hooks = new Map();
-        this._entry_hooks = new Map();
-        this._exit_hooks = new Map();
-        this._after_hooks = new Map();
-        this._after_any_hook = undefined;
-        this._global_action_hooks = new Map();
-        this._any_action_hook = undefined;
-        this._standard_transition_hook = undefined;
-        this._main_transition_hook = undefined;
-        this._forced_transition_hook = undefined;
-        this._any_transition_hook = undefined;
-        this._has_post_hooks = false;
-        this._has_post_basic_hooks = false;
-        this._has_post_named_hooks = false;
-        this._has_post_entry_hooks = false;
-        this._has_post_exit_hooks = false;
-        this._has_post_global_action_hooks = false;
-        this._has_post_transition_hooks = false;
-        // no need for a boolean for single hooks, just test for undefinedness
-        this._code_allows_override = allows_override;
-        this._config_allows_override = config_allows_override;
-        this._allow_islands = allow_islands !== null && allow_islands !== void 0 ? allow_islands : true;
-        this._editor_config = editor_config;
-        // tri-state: undefined is a legal, distinct value here — do not truthy-collapse
-        if ((allows_override === false) && (config_allows_override === true)) {
-            throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
-        }
-        this._post_hooks = new Map();
-        this._post_named_hooks = new Map();
-        this._post_entry_hooks = new Map();
-        this._post_exit_hooks = new Map();
-        this._post_global_action_hooks = new Map();
-        this._post_any_action_hook = undefined;
-        this._post_standard_transition_hook = undefined;
-        this._post_main_transition_hook = undefined;
-        this._post_forced_transition_hook = undefined;
-        this._post_any_transition_hook = undefined;
-        this._pre_everything_hook = undefined;
-        this._everything_hook = undefined;
-        this._pre_post_everything_hook = undefined;
-        this._post_everything_hook = undefined;
-        this._data = data;
-        this._property_keys = new Set();
-        this._default_properties = new Map();
-        this._state_properties = new Map();
-        this._required_properties = new Set();
-        this._state_property_first_state = new Map();
-        this._val_keys = new Set();
-        this._val_types = new Map();
-        this._val_values = new Map();
-        this._required_vals = new Set();
-        this._state_style = state_style_condense(default_state_config, this);
-        this._active_state_style = state_style_condense(default_active_state_config, this);
-        this._hooked_state_style = state_style_condense(default_hooked_state_config, this);
-        this._terminal_state_style = state_style_condense(default_terminal_state_config, this);
-        this._start_state_style = state_style_condense(default_start_state_config, this);
-        this._end_state_style = state_style_condense(default_end_state_config, this);
-        // Consolidated `transition: {}` and `graph: {}` default-config blocks,
-        // stored verbatim so the viz layer can project them onto Graphviz `edge [ … ]`
-        // defaults and graph-scope attributes respectively.  Both are kept as the
-        // compiler's de-duplicated `{ key, value }[]` lists (last-wins already
-        // applied, so iterating in order yields the winning value per key).
-        this._default_transition_config = default_transition_config;
-        this._default_graph_config = default_graph_config;
-        // Overlapping-state-group tables.  The registry/hooks are stored as-is; the
-        // raw per-group `{ declarations }` blocks are condensed once into style
-        // configs here (a single declaration block, so the intra-block redefine
-        // guard in `state_style_condense` still applies), while depth-ordered
-        // merging across groups happens later in `resolve_state_config`.
-        this._group_registry = group_registry !== null && group_registry !== void 0 ? group_registry : new Map();
-        this._group_hooks = group_hooks !== null && group_hooks !== void 0 ? group_hooks : new Map();
-        this._state_hooks = state_hooks !== null && state_hooks !== void 0 ? state_hooks : new Map();
-        this._group_metadata = new Map();
-        if (group_metadata) { // group-free machines skip a throwaway Map allocation
-            group_metadata.forEach((raw, group_name) => 
-            // `raw.declarations` is the parser's raw style-item list — structurally
-            // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
-            // JssmStateConfig — so it condenses through the same path as the
-            // `default_*_state_config` blocks (intra-block redefine still throws).
-            this._group_metadata.set(group_name, state_style_condense(raw.declarations, this)));
-        }
-        this._group_order = [...this._group_registry.keys()];
-        // Deep/transitive inverse index: for each declared group, flatten its
-        // transitive member states (reusing the compiler's `transitive_members`)
-        // and record that group against every one of them.  A `memo` shared across
-        // groups memoizes overlapping sub-group resolution.
-        this._state_to_groups = new Map();
-        {
-            const memo = new Map();
-            for (const group_name of this._group_order) {
-                for (const member of transitive_members(this._group_registry, group_name, memo)) {
-                    let bucket = this._state_to_groups.get(member);
-                    if (bucket === undefined) {
-                        bucket = new Set();
-                        this._state_to_groups.set(member, bucket);
-                    }
-                    bucket.add(group_name);
-                }
-            }
-        }
-        this._static_state_config_cache = new Map();
-        this._history_length = history || 0;
-        this._history = new circular_buffer(this._history_length);
-        this._state_labels = new Map();
-        this._rng_seed = rng_seed !== null && rng_seed !== void 0 ? rng_seed : Date.now();
-        this._rng = gen_splitmix32(this._rng_seed);
-        this._timeout_source = timeout_source !== null && timeout_source !== void 0 ? timeout_source : DEFAULT_TIMEOUT_SOURCE;
-        this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : DEFAULT_CLEAR_TIMEOUT_SOURCE;
-        this._timeout_handle = undefined;
-        this._timeout_target = undefined;
-        this._timeout_target_time = undefined;
-        this._after_mapping = new Map();
-        this._event_handlers = new Map();
-        this._event_listener_count = 0;
-        this._firing_error = false;
-        this._committing_transition = false;
-        // Boundary-hook action cascade guard.  Limit defaults to 100 but is
-        // configurable via the `boundary_depth_limit` constructor option so tests
-        // can tighten the cap and deep pipelines can raise it.
-        this._boundary_depth = 0;
-        this._boundary_depth_limit = boundary_depth_limit !== null && boundary_depth_limit !== void 0 ? boundary_depth_limit : 100;
-        // consolidate the state declarations
-        if (state_declaration) {
-            for (const state_decl of state_declaration) {
-                if (this._state_declarations.has(state_decl.state)) { // no repeats
-                    throw new JssmError(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
-                }
-                this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
-            }
-        }
-        // walk the decls for labels; aggregate them when found
-        for (const [key, decl] of this._state_declarations) {
-            const labelled = decl.declarations.filter(d => d.key === 'state-label');
-            if (labelled.length > 1) {
-                throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
-            }
-            if (labelled.length === 1) {
-                this._state_labels.set(key, labelled[0].value);
-            }
-        }
-        // Duplicate-edge guard for the construction loop below, keyed
-        // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
-        // (from, to) pair: an action's name for an actioned edge, or '' for the one
-        // permitted plain action-less edge.  Multiple edges between the same pair
-        // are allowed when they carry distinct actions (#325; the self-loop case is
-        // #531), since they dispatch unambiguously through `action(name)`.  A
-        // probability-bearing action-less edge is exempt from the guard entirely,
-        // so a weighted fan-out may name the same target more than once.  The
-        // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
-        // scan (which made construction O(V*E) on dense graphs).  #673
-        const seen_edges = new Map();
-        // complete.includes was an O(|complete|) array scan per newly-created
-        // state — O(V·C) overall; one Set turns it into O(V)
-        const complete_set = new Set(complete);
-        // walk the transitions.  single-lookup cursor fetches: each endpoint was
-        // previously a get followed by a has on the same key (four hashes per
-        // edge); the undefined check on the get's result carries the same
-        // information.  #706
-        for (const tr of transitions) {
-            if (tr.from === undefined) {
-                throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`);
-            }
-            if (tr.to === undefined) {
-                throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`);
-            }
-            // get the cursors.  what a mess
-            let cursor_from = this._states.get(tr.from);
-            if (cursor_from === undefined) {
-                cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
-                this._new_state(cursor_from);
-            }
-            let cursor_to = this._states.get(tr.to);
-            if (cursor_to === undefined) {
-                cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
-                this._new_state(cursor_to);
-            }
-            // record (from -> to) adjacency once per distinct target, even when
-            // several edges connect the pair, so the `to`/`from` arrays stay sets of
-            // state names.  #673
-            let to_slots = seen_edges.get(tr.from);
-            if (to_slots === undefined) {
-                to_slots = new Map();
-                seen_edges.set(tr.from, to_slots);
-            }
-            let slots = to_slots.get(tr.to);
-            if (slots === undefined) {
-                slots = new Set();
-                to_slots.set(tr.to, slots);
-                cursor_from.to.push(tr.to);
-                cursor_to.from.push(tr.from);
-            }
-            // duplicate-edge guard.  A probability- or share-bearing action-less
-            // edge is exempt (a weighted fan-out may repeat a target — including a
-            // list-target fan-out whose members carry only `share`, 6.0 list
-            // weights, with no declared `probability`); every other edge claims a
-            // slot — its action name, or '' for the one plain action-less edge —
-            // and a repeated slot throws.  Distinct actions between the same pair
-            // coexist (#325/#531).
-            const edge_exempt = (!tr.action) && ((tr.probability !== undefined) || (tr.share !== undefined));
-            if (!edge_exempt) {
-                const slot = tr.action || '';
-                if (slots.has(slot)) {
-                    throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
-                        + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
-                }
-                slots.add(slot);
-            }
-            // add the edge; note its id
-            this._edges.push(tr);
-            const thisEdgeId = this._edges.length - 1;
-            if (tr.forced_only) {
-                this._has_forced_transitions = true;
-            }
-            // guard against repeating a transition name
-            if (tr.name) {
-                if (this._named_transitions.has(tr.name)) {
-                    throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
-                }
-                this._named_transitions.set(tr.name, thisEdgeId);
-            }
-            // set up the after mapping, if any
-            if (tr.after_time) {
-                this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
-            }
-            // set up the mapping, so that edges can be looked up by endpoint pairs
-            let from_mapping = this._edge_map.get(tr.from);
-            if (from_mapping === undefined) {
-                from_mapping = new Map();
-                this._edge_map.set(tr.from, from_mapping);
-            }
-            // first-declared wins: when several edges share a (from, to) pair (parallel
-            // action edges, #325), lookup_transition_for resolves to the first one
-            // declared, so it agrees with edges_between(...)[0].
-            if (!from_mapping.has(tr.to)) {
-                from_mapping.set(tr.to, thisEdgeId);
-            }
-            // numeric mirror of the (from, to) endpoint mapping.  intern() rather
-            // than id_of(): idempotent, and returns number (not number|undefined)
-            // since both endpoints were just created above if missing.
-            const from_id = this._state_interner.intern(tr.from);
-            const to_id = this._state_interner.intern(tr.to);
-            // first-declared wins (see _edge_map above): the transition fast-path that
-            // reads this index resolves parallel (from, to) pairs to the first edge.
-            const pair = pair_key(from_id, to_id);
-            if (!this._edge_id_by_pair.has(pair)) {
-                this._edge_id_by_pair.set(pair, thisEdgeId);
-            }
-            this._edge_to_ids[thisEdgeId] = to_id;
-            // outbound adjacency: every edge originating at tr.from, regardless of action/target.
-            // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
-            // is fine for lookup_transition_for but loses information for edges_between when several
-            // edges share endpoints across distinct actions.  This index preserves every edge id and
-            // lets edges_between scan only one state's exits, not all of _edges.
-            let outbound = this._outbound_edge_ids.get(tr.from);
-            if (!outbound) {
-                outbound = [];
-                this._outbound_edge_ids.set(tr.from, outbound);
-            }
-            outbound.push(thisEdgeId);
-            // set up the action mapping, so that actions can be looked up by origin
-            if (tr.action) {
-                // forward mapping first by action name
-                let actionMap = this._actions.get(tr.action);
-                if (!(actionMap)) {
-                    actionMap = new Map();
-                    this._actions.set(tr.action, actionMap);
-                }
-                if (actionMap.has(tr.from)) {
-                    throw new JssmError(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
-                }
-                actionMap.set(tr.from, thisEdgeId);
-                // reverse mapping first by state origin name
-                let rActionMap = this._reverse_actions.get(tr.from);
-                if (!(rActionMap)) {
-                    rActionMap = new Map();
-                    this._reverse_actions.set(tr.from, rActionMap);
-                }
-                // no need to test for reverse mapping pre-presence;
-                // forward mapping already covers collisions
-                rActionMap.set(tr.action, thisEdgeId);
-                // numeric mirror of the (action, from) dispatch mapping
-                const action_id = this._action_interner.intern(tr.action);
-                this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
-                // reverse mapping first by state target name
-                if (!(this._reverse_action_targets.has(tr.to))) {
-                    this._reverse_action_targets.set(tr.to, new Map());
-                }
-                /* todo comeback
-                   fundamental problem is roActionMap needs to be a multimap
-                        const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
-                        if (roActionMap) {
-                          if (roActionMap.has(tr.action)) {
-                            throw new JssmError(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
-                          } else {
-                            roActionMap.set(tr.action, thisEdgeId);
-                          }
-                        } else {
-                          throw new JssmError(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
-                        }
-                */
-            }
-        }
-        if (Array.isArray(property_definition)) {
-            for (const pr of property_definition) {
-                this._property_keys.add(pr.name);
-                if (Object.prototype.hasOwnProperty.call(pr, 'default_value')) {
-                    this._default_properties.set(pr.name, pr.default_value);
-                }
-                if (Object.prototype.hasOwnProperty.call(pr, 'required') && (pr.required === true)) {
-                    this._required_properties.add(pr.name);
-                }
-            }
-        }
-        if (Array.isArray(val_definition)) {
-            for (const vd of val_definition) {
-                this._val_keys.add(vd.name);
-                this._val_types.set(vd.name, vd.val_type);
-                if (Object.prototype.hasOwnProperty.call(vd, 'required') && (vd.required === true)) {
-                    if (Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
-                        throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
-                    }
-                    this._required_vals.add(vd.name);
-                }
-            }
-            const supplied = (vals && (typeof vals === 'object')) ? vals : {};
-            for (const name of Object.keys(supplied)) {
-                if (!this._val_keys.has(name)) {
-                    throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
-                }
-            }
-            this._val_keys.forEach(name => {
-                const vtype = this._val_types.get(name);
-                let value;
-                if (Object.prototype.hasOwnProperty.call(supplied, name)) {
-                    value = supplied[name];
-                }
-                else {
-                    const vd = val_definition.find(d => d.name === name);
-                    if (vd && Object.prototype.hasOwnProperty.call(vd, 'default_value')) {
-                        value = vd.default_value;
-                    }
-                    else if (this._required_vals.has(name)) {
-                        throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
-                    }
-                    else {
-                        // vals are non-null by default (megaspec §4.4): a val that is
-                        // neither supplied, defaulted, nor required has no value of its
-                        // declared type, so it is a construction error rather than undefined.
-                        throw new JssmError(this, `The val "${name}" has no value: give it a default, declare it required, or supply it at construction (vals are non-null by default)`);
-                    }
-                }
-                validate_val_value(name, vtype, value, this);
-                this._val_values.set(name, value);
-            });
-        }
-        if (Array.isArray(state_property)) {
-            for (const sp of state_property) {
-                this._state_properties.set(sp.name, sp.default_value);
-                // Record the unserialized (property, state) pair for post-build
-                // validation.  The compiler writes both fields; a hand-built config
-                // that carries only the serialized name pays one JSON.parse here,
-                // which is what every binding used to pay at validation time (#734).
-                let j_property = sp.property, j_state = sp.state;
-                if ((j_property === undefined) || (j_state === undefined)) {
-                    const inside = JSON.parse(sp.name);
-                    j_property = inside[0];
-                    j_state = inside[1];
-                }
-                if (!(this._state_property_first_state.has(j_property))) {
-                    this._state_property_first_state.set(j_property, j_state);
-                }
-            }
-        }
-        // set initial state either from the specified or the start state list.  validate admission behavior.
-        if (initial_state) {
-            if (!(this._states.has(initial_state))) {
-                throw new JssmError(this, `requested start state ${initial_state} does not exist`);
-            }
-            if ((!(start_states_no_enforce)) && (!(start_states.includes(initial_state)))) {
-                throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
-            }
-            this._state = initial_state;
-        }
-        else {
-            this._state = start_states[0];
-        }
-        this._state_id = this._state_interner.intern(this._state);
-        // done building, do checks
-        // assert all props are valid
-        // provenance pairs were recorded at insertion — first state per property,
-        // in first-binding order — replacing the old JSON.parse of every
-        // serialized key; the error fires for the same binding it always did,
-        // because the first property in first-binding order whose name is
-        // undeclared owns the earliest undeclared binding.
-        this._state_property_first_state.forEach((j_state, j_property) => {
-            if (!(this.known_prop(j_property))) {
-                throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
-            }
-        });
-        // assert all required properties are serviced
-        // states() allocates a fresh array per call, so take it once rather than
-        // once per required property
-        const all_states_for_props = this.states();
-        this._required_properties.forEach(dp_key => {
-            if (this._default_properties.has(dp_key)) {
-                throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
-            }
-            for (const s of all_states_for_props) {
-                const bound_name = name_bind_prop_and_state(dp_key, s);
-                if (!(this._state_properties.has(bound_name))) {
-                    throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
-                }
-            }
-        });
-        // assert chosen starting state is valid
-        if (!(this.has_state(this.state()))) {
-            throw new JssmError(this, `Current start state "${this.state()}" does not exist`);
-        }
-        // assert all starting states are valid
-        for (const [ssi, ss] of start_states.entries()) {
-            if (!(this.has_state(ss))) {
-                throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
-            }
-        }
-        // assert chosen starting state is valid
-        if (start_states.length !== this._start_states.size) {
-            throw new JssmError(this, `Start states cannot be repeated`);
-        }
-        // assert connectivity constraints imposed by allow_islands
-        if (this._allow_islands !== true) {
-            const components = find_connected_components(this._states, this._edges);
-            if (this._allow_islands === false) {
-                if (components.length > 1) {
-                    throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
-                }
-            }
-            else {
-                // 'with_start': every component must contain at least one start state
-                for (const component of components) {
-                    const has_start = component.some(s => this._start_states.has(s));
-                    if (!has_start) {
-                        throw new JssmError(this, `allow_islands is 'with_start' but a connected component has no start state: [${[...component].join(', ')}]`);
-                    }
-                }
-            }
-        }
-        this._created = this._time_source();
-        this.auto_set_state_timeout();
-        for (const declaration of [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration]) {
-            for (const arrange_pair of declaration) {
-                for (const possibleState of arrange_pair) {
-                    if (!(this._states.has(possibleState))) {
-                        throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
-                    }
-                }
-            }
-        }
-    }
-    /********
-     *
-     *  Internal method for fabricating states.  Not meant for external use.
-     *
-     *  @internal
-     *
-     */
-    _new_state(state_config) {
-        if (this._states.has(state_config.name)) {
-            throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
-        }
-        this._states.set(state_config.name, state_config);
-        this._state_interner.intern(state_config.name);
-        return state_config.name;
-    }
-    /*********
-     *
-     *  Get the current state of a machine.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *  console.log( lswitch.state() );             // 'on'
-     *
-     *  lswitch.transition('off');
-     *  console.log( lswitch.state() );             // 'off'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The current state name.
-     *
-     */
-    state() {
-        return this._state;
-    }
-    /*********
-     *
-     *  Get the label for a given state, if any; return `undefined` otherwise.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-     *  console.log( lswitch.label_for('a') );              // 'Foo!'
-     *  console.log( lswitch.label_for('b') );              // undefined
-     *  ```
-     *
-     *  See also {@link display_text}.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to get the label for.
-     *
-     *  @returns The label string, or `undefined` if no label is set.
-     *
-     */
-    label_for(state) {
-        return this._state_labels.get(state);
-    }
-    /*********
-     *
-     *  Get whatever the node should show as text.
-     *
-     *  Currently, this means to get the label for a given state, if any;
-     *  otherwise to return the node's name.  However, this definition is expected
-     *  to grow with time, and it is currently considered ill-advised to manually
-     *  parse this text.
-     *
-     *  See also {@link label_for}.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-     *  console.log( lswitch.display_text('a') );              // 'Foo!'
-     *  console.log( lswitch.display_text('b') );              // 'b'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to get display text for.
-     *
-     *  @returns The label if one exists, otherwise the state's name.
-     *
-     */
-    display_text(state) {
-        var _a;
-        return (_a = this._state_labels.get(state)) !== null && _a !== void 0 ? _a : state;
-    }
-    /*********
-     *
-     *  Get the current data of a machine.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( lswitch.data() );              // 1
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns A deep clone of the machine's current data value.
-     *
-     */
-    data() {
-        return structuredClone(this._data);
-    }
-    /*********
-     *
-     *  Replace the machine's data in place, without a transition.  This is the
-     *  practical way to assign any value — including `undefined`, `null`, or
-     *  `false` — outside a hook's complex return, closing the gap where an
-     *  `undefined` assignment had no direct API (StoneCypher/fsl#1264).  Fires
-     *  a `data-change` event with cause `'set_data'` when the value actually
-     *  changes; unlike {@link override} it requires no `allows_override`
-     *  config, because it never moves the state.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( lswitch.data() );              // 1
-     *
-     *  lswitch.set_data(2);
-     *  console.log( lswitch.data() );              // 2
-     *
-     *  lswitch.set_data(undefined);
-     *  console.log( lswitch.data() );              // undefined
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param newData The value to install as the machine's data.
-     *
-     *  @returns The machine, for chaining.
-     *
-     *  @see Machine.data
-     *  @see override
-     *
-     */
-    set_data(newData) {
-        const oldData = this._data;
-        this._data = newData;
-        if (oldData !== newData) {
-            this._fire('data-change', {
-                from: this._state,
-                to: this._state,
-                old_data: oldData,
-                new_data: newData,
-                cause: 'set_data'
-            });
-        }
-        return this;
-    }
-    /**
-     *  The machine's current data by REFERENCE — no clone.  The public
-     *  {@link Machine.data} contract is a deep clone per call (a mutation
-     *  boundary for external consumers, and deliberately untouched); that clone
-     *  is `structuredClone` of the whole data value, which same-package
-     *  read-only consumers — the fsl-bind and fsl-data-inspector panels, which
-     *  read one dotted path or serialize per transition — should not pay on
-     *  every event.  Callers MUST NOT mutate the returned value or store it
-     *  beyond the current tick; anything crossing a trust boundary must use
-     *  {@link Machine.data} instead.
-     *
-     *  ```typescript
-     *  const m = jssm.from('on <=> off;', { data: { a: { b: 1 } } });
-     *  m._data_ref().a.b;   // 1, zero-copy
-     *  ```
-     *  @returns The live data value; treat as read-only.
-     *  @see Machine.data
-     *  @internal
-     */
-    _data_ref() {
-        return this._data;
-    }
-    /*********
-     *
-     *  Get the current value of a given property name.  Checks the current
-     *  state's properties first, then falls back to the global default.
-     *  Returns `undefined` if neither exists.  For a throwing variant, see
-     *  {@link strict_prop}.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; a -> b;
-     *               state b: { property color "blue"; };`;
-     *
-     *  m.prop('color');  // 'grey'  (default, because state is 'a')
-     *  m.go('b');
-     *  m.prop('color');  // 'blue'  (state 'b' overrides the default)
-     *  m.prop('size');   // undefined (no such property)
-     *  ```
-     *
-     *  @param name The relevant property name to look up.
-     *
-     *  @returns The value behind the prop name, or `undefined` if not defined.
-     *
-     */
-    prop(name) {
-        const bound_name = name_bind_prop_and_state(name, this.state());
-        if (this._state_properties.has(bound_name)) {
-            return this._state_properties.get(bound_name);
-        }
-        return this._default_properties.has(name) ? this._default_properties.get(name) : undefined;
-    }
-    /*********
-     *
-     *  Get the current value of a given property name.  If missing on the state
-     *  and without a global default, throws a {@link JssmError}, unlike
-     *  {@link prop}, which would return `undefined` instead.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; a -> b;`;
-     *
-     *  m.strict_prop('color');  // 'grey'
-     *  m.strict_prop('size');   // throws JssmError
-     *  ```
-     *
-     *  @param name The relevant property name to look up.
-     *
-     *  @returns The value behind the prop name.
-     *
-     *  @throws {JssmError} If the property is not defined on the current state
-     *  and has no default.
-     *
-     */
-    strict_prop(name) {
-        const bound_name = name_bind_prop_and_state(name, this.state());
-        if (this._state_properties.has(bound_name)) {
-            return this._state_properties.get(bound_name);
-        }
-        if (this._default_properties.has(name)) {
-            return this._default_properties.get(name);
-        }
-        throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
-    }
-    /*********
-     *
-     *  Get the current value of every prop, as an object.  If no current definition
-     *  exists for a prop — that is, if the prop was defined without a default and
-     *  the current state also doesn't define the prop — then that prop will be listed
-     *  in the returned object with a value of `undefined`.
-     *
-     *  ```typescript
-     *  const traffic_light = sm`
-     *
-     *    property can_go     default true;
-     *    property hesitate   default true;
-     *    property stop_first default false;
-     *
-     *    Off -> Red => Green => Yellow => Red;
-     *    [Red Yellow Green] ~> [Off FlashingRed];
-     *    FlashingRed -> Red;
-     *
-     *    state Red:         { property: stop_first true;  property: can_go false; };
-     *    state Off:         { property: stop_first true;  };
-     *    state FlashingRed: { property: stop_first true;  };
-     *    state Green:       { property: hesitate   false; };
-     *
-     *  `;
-     *
-     *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
-     *
-     *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
-     *
-     *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
-     *  ```
-     *
-     *  @returns An object mapping every known property name to its current value
-     *  (or `undefined` if the property has no default and the current state
-     *  doesn't define it).
-     *
-     */
-    props() {
-        const ret = {};
-        for (const p of this.known_props())
-            ret[p] = this.prop(p);
-        return ret;
-    }
-    // TODO: sparse_props — like props() but omits undefined entries
-    // sparse_props(name: string): object { }
-    // TODO: strict_props — like props() but throws on any undefined entry
-    // strict_props(name: string): object { }
-    /*********
-     *
-     *  Check whether a given string is a known property's name.
-     *
-     *  ```typescript
-     *  const example = sm`property foo default 1; a->b;`;
-     *
-     *  example.known_prop('foo');  // true
-     *  example.known_prop('bar');  // false
-     *  ```
-     *
-     *  @param prop_name The relevant property name to look up
-     *
-     */
-    known_prop(prop_name) {
-        return this._property_keys.has(prop_name);
-    }
-    /*********
-     *
-     *  List all known property names.  If you'd also like values, use
-     *  {@link props} instead.  The order of the properties is not defined, and
-     *  the properties generally will not be sorted.
-     *
-     *  ```typescript
-     *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
-     *
-     *  m.known_props();  // ['color', 'size']
-     *  ```
-     *
-     *  @returns An array of all property name strings defined on this machine.
-     *
-     */
-    known_props() {
-        return [...this._property_keys];
-    }
-    /*********
-     *
-     *  Read the current value of a declared machine `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val ok : boolean default true; a -> b;`;
-     *
-     *  m.val('ok');   // true
-     *  ```
-     *
-     *  @param name The declared val name to read.
-     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
-     *  @throws {JssmError} If `name` is not a declared val.
-     *
-     */
-    val(name) {
-        if (!this._val_keys.has(name)) {
-            throw new JssmError(this, `No such val "${name}"`);
-        }
-        return this._val_values.get(name);
-    }
-    /*********
-     *
-     *  Set the value of a declared machine `val`, validating it against the val's
-     *  declared type.  This is the runtime mutation surface; source-level `assign`
-     *  arrives in a later phase.
-     *
-     *  ```typescript
-     *  const m = sm`val n : int default 0; a -> b;`;
-     *
-     *  m.set_val('n', 5);
-     *  m.val('n');   // 5
-     *  ```
-     *
-     *  @param name  The declared val name to write.
-     *  @param value The new value; must satisfy the val's declared type.
-     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
-     *
-     */
-    set_val(name, value) {
-        if (!this._val_keys.has(name)) {
-            throw new JssmError(this, `No such val "${name}"`);
-        }
-        validate_val_value(name, this._val_types.get(name), value, this);
-        this._val_values.set(name, value);
-    }
-    /*********
-     *
-     *  Return a plain object mapping every declared val name to its current value.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
-     *
-     *  m.vals();   // { a: 1, b: false }
-     *  ```
-     *
-     *  @returns An object of every declared val name to its current value.
-     *
-     */
-    vals() {
-        const result = {};
-        this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
-        return result;
-    }
-    /*********
-     *
-     *  Check whether a string is the name of a declared `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; x -> y;`;
-     *
-     *  m.known_val('a');   // true
-     *  m.known_val('z');   // false
-     *  ```
-     *
-     *  @param name The candidate val name.
-     *  @returns Whether the name is a declared val.
-     *
-     */
-    known_val(name) {
-        return this._val_keys.has(name);
-    }
-    /*********
-     *
-     *  List every declared `val` name, in declaration order.
-     *
-     *  ```typescript
-     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
-     *
-     *  m.known_vals();   // ['a', 'b']
-     *  ```
-     *
-     *  @returns The declared val names in declaration order.
-     *
-     */
-    known_vals() {
-        return [...this._val_keys];
-    }
-    /*********
-     *
-     *  Return the declared type descriptor of a `val`.
-     *
-     *  ```typescript
-     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
-     *
-     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
-     *  ```
-     *
-     *  @param name The declared val name.
-     *  @returns The val's declared type descriptor.
-     *  @throws {JssmError} If `name` is not a declared val.
-     *
-     */
-    val_type(name) {
-        if (!this._val_keys.has(name)) {
-            throw new JssmError(this, `No such val "${name}"`);
-        }
-        return this._val_types.get(name);
-    }
-    /********
-     *
-     *  Check whether a given state is a valid start state (either because it was
-     *  explicitly named as such, or because it was the first mentioned state.)
-     *
-     *  ```typescript
-     *  import { sm, is_start_state } from 'jssm';
-     *
-     *  const example = sm`a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // false
-     *
-     *  const example = sm`start_states: [a b]; a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check
-     *
-     */
-    is_start_state(whichState) {
-        return this._start_states.has(whichState);
-    }
-    /**
-     *  The initial distribution declared by a weighted `start_states` list
-     *  (6.0), normalized to sum 1.  Empty when the machine's start states are
-     *  unweighted.
-     *  @returns A map from start state to its share of the distribution.
-     *  @example
-     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
-     *  m.start_state_weights().get('idle');  // => 0.9
-     *  @see Machine.sample_start_state
-     */
-    start_state_weights() {
-        return new Map(this._start_state_weights);
-    }
-    /**
-     *  Draws a start state from {@link Machine.start_state_weights} using the
-     *  machine's RNG; on an unweighted machine returns the first declared
-     *  start state.  Does not change the machine's state.
-     *  @returns The sampled start state.
-     *  @example
-     *  const m = sm`start_states: [idle 90% booting 10%]; idle -> booting;`;
-     *  ['idle', 'booting'].includes(m.sample_start_state());  // => true
-     *  @see Machine.start_state_weights
-     */
-    sample_start_state() {
-        if (this._start_state_weights.size === 0) {
-            return this._start_states.values().next().value;
-        }
-        const opts = [...this._start_state_weights].map(([name, probability]) => ({ name, probability }));
-        return weighted_rand_select(opts, undefined, this._rng).name;
-    }
-    /********
-     *
-     *  Check whether a given state is a valid start state (either because it was
-     *  explicitly named as such, or because it was the first mentioned state.)
-     *
-     *  ```typescript
-     *  import { sm, is_end_state } from 'jssm';
-     *
-     *  const example = sm`a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // false
-     *  console.log( final_test.is_start_state('b') );   // true
-     *
-     *  const example = sm`end_states: [a b]; a -> b;`;
-     *
-     *  console.log( final_test.is_start_state('a') );   // true
-     *  console.log( final_test.is_start_state('b') );   // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check
-     *
-     */
-    is_end_state(whichState) {
-        return this._end_states.has(whichState);
-    }
-    /********
-     *
-     *  Get the set of states declared as failure outputs for this machine.
-     *  Returns an array of state labels, or an empty array when none were
-     *  declared.  A state in this list means the machine is in a failure
-     *  condition when it occupies that state.
-     *
-     *  @see {@link is_failed_output} to test a single state
-     *  @see {@link is_failed} to test the current state
-     *
-     */
-    failed_outputs() {
-        return [...this._failed_outputs];
-    }
-    /********
-     *
-     *  Check whether a given state is declared as a failure output.
-     *
-     *  @param whichState The name of the state to check
-     *
-     *  @see {@link failed_outputs} for the full failure-output set
-     *  @see {@link is_failed} to test the current state
-     *
-     */
-    is_failed_output(whichState) {
-        return this._failed_outputs.has(whichState);
-    }
-    /********
-     *
-     *  Check whether the machine is currently in a failure state — that is,
-     *  whether its current state is one of the declared `failed_outputs`.
-     *
-     *  @see {@link failed_outputs} for the full failure-output set
-     *  @see {@link is_failed_output} to test an arbitrary state
-     *
-     */
-    is_failed() {
-        return this._failed_outputs.has(this._state);
-    }
-    /********
-     *
-     *  Check whether a given state is final (either has no exits or is marked
-     *  `complete`.)
-     *
-     *  ```typescript
-     *  import { sm, state_is_final } from 'jssm';
-     *
-     *  const final_test = sm`first -> second;`;
-     *
-     *  console.log( final_test.state_is_final('first') );   // false
-     *  console.log( final_test.state_is_final('second') );  // true
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The name of the state to check for finality
-     *
-     */
-    state_is_final(whichState) {
-        return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
-    }
-    /********
-     *
-     *  Check whether the current state is final (either has no exits or is marked
-     *  `complete`.)
-     *
-     *  ```typescript
-     *  import { sm, is_final } from 'jssm';
-     *
-     *  const final_test = sm`first -> second;`;
-     *
-     *  console.log( final_test.is_final() );   // false
-     *  state.transition('second');
-     *  console.log( final_test.is_final() );   // true
-     *  ```
-     *
-     */
-    is_final() {
-        //  return ((!this.is_changing()) && this.state_is_final(this.state()));
-        return this.state_is_final(this.state());
-    }
-    /********
-     *
-     *  Serialize the current machine, including all defining state but not the
-     *  machine string, to a structure.  This means you will need the machine
-     *  string to recreate (to not waste repeated space;) if you want the machine
-     *  string embedded, call `serialize_with_string` instead.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param comment An optional comment string to embed in the serialized
-     *  output for identification or debugging.
-     *
-     *  @returns A {@link JssmSerialization} object containing the machine's
-     *  current state, data, and timestamp.
-     *
-     */
-    serialize(comment) {
-        return {
-            comment,
-            state: this._state,
-            data: this._data,
-            jssm_version: version,
-            history: this._history.toArray(),
-            history_capacity: this._history.capacity,
-            timestamp: this._time_source(),
-        };
-    }
-    /**
-     *  The RFC 8785 canonical-config identity of the current configuration
-     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
-     *  hashing.  Excludes envelope fields (timestamp/comment/history).
-     *  @returns The canonical config string.
-     *  @example
-     *    import { sm } from 'jssm';
-     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
-     */
-    canonical() {
-        return canonical_config(this._state, this._data);
-    }
-    /**
-     * Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
-     *  FSL `graph_layout` directive.
-     *  @returns The layout string, or the default if not set.
-     */
-    graph_layout() {
-        return this._graph_layout;
-    }
-    /**
-     * Get the Graphviz DOT preamble string, injected before the graph body
-     *  during visualization.  Set via the FSL `dot_preamble` directive.
-     *  @returns The preamble string.
-     */
-    dot_preamble() {
-        return this._dot_preamble;
-    }
-    /**
-     * Get the consolidated `transition: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
-     *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
-     *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
-     *  every edge inherits it.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
-     *  // [ { key: 'color', value: '#0000ffff' } ]
-     *  ```
-     *  @returns The transition-config item list, or `undefined` if the machine
-     *  declared no `transition: {}` block.
-     *  @see default_graph_config
-     */
-    default_transition_config() {
-        return this._default_transition_config;
-    }
-    /**
-     * Get the consolidated `graph: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
-     *  compiler folds the deprecated top-level graph keywords
-     *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
-     *  `flow`, `dot_preamble`) into this list first, then lets an explicit
-     *  `graph: {}` block win on key conflict.  The viz layer projects the
-     *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
-     *  `background-color` → `bgcolor`).
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
-     *  // [ { key: 'background-color', value: '#ffffffff' } ]
-     *  ```
-     *  @returns The graph-config item list, or `undefined` if the machine has no
-     *  graph config (no `graph: {}` block and no deprecated graph keyword).
-     *  @see default_transition_config
-     */
-    default_graph_config() {
-        return this._default_graph_config;
-    }
-    /**
-     * Get the machine's author list.  Set via the FSL `machine_author` directive.
-     *  @returns An array of author name strings.
-     */
-    machine_author() {
-        return this._machine_author;
-    }
-    /**
-     * Get the machine's comment string.  Set via the FSL `machine_comment` directive.
-     *  @returns The comment string.
-     */
-    machine_comment() {
-        return this._machine_comment;
-    }
-    /**
-     * Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
-     *  @returns An array of contributor name strings.
-     */
-    machine_contributor() {
-        return this._machine_contributor;
-    }
-    /**
-     * Get the machine's definition string.  Set via the FSL `machine_definition` directive.
-     *  @returns The definition string.
-     */
-    machine_definition() {
-        return this._machine_definition;
-    }
-    /**
-     * Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
-     *  `machine_language` directive, which accepts a language name or code, or a
-     *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
-     *  values resolve to `undefined`.
-     *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
-     *           supplied value did not resolve to a known language.
-     */
-    machine_language() {
-        return this._machine_language;
-    }
-    /**
-     * Get the machine's license string.  Set via the FSL `machine_license` directive.
-     *  @returns The license string.
-     */
-    machine_license() {
-        return this._machine_license;
-    }
-    /**
-     * Get the machine's name.  Set via the FSL `machine_name` directive.
-     *  @returns The machine name string.
-     */
-    machine_name() {
-        return this._machine_name;
-    }
-    /**
-     * The editor/panel defaults declared in the FSL `editor: {}` block, or
-     *  `undefined` when none was given.  Read by the all-widgets web control
-     *  (fsl#1334) — `panels` drives `request` panel mode.
-     *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
-     *  @example
-     *    const m = sm`editor: { panels: [history]; }; a -> b;`;
-     *    m.editor_config();  // => { panels: ['history'] }
-     */
-    editor_config() {
-        return this._editor_config;
-    }
-    /**
-     * Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
-     *  Returns `undefined` when not present.
-     *  @returns The npm package name string, or `undefined`.
-     *  @see machine_name
-     */
-    npm_name() {
-        return this._npm_name;
-    }
-    /**
-     * Get the render-size hint for the machine's visualization.  Set via the
-     *  FSL `default_size` directive.  Returns `undefined` when not present.
-     *
-     *  The three FSL forms each produce a different subset of fields:
-     *
-     *  - `default_size: 800;`       → `{ width: 800 }`
-     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
-     *  - `default_size: height 600;` → `{ height: 600 }`
-     *
-     *  This is a hint, not a hard constraint.  Renderers may ignore it.
-     *  @returns The size-hint object, or `undefined` if not set.
-     *  @see npm_name
-     */
-    default_size() {
-        return this._default_size;
-    }
-    /**
-     * Get the machine's declared version, parsed.  Set via the FSL
-     *  `machine_version` directive, which takes a semver triple; the parser
-     *  breaks it into numeric `major`/`minor`/`patch` fields and keeps the
-     *  exact source text in `full`.  Returns `undefined` when the directive
-     *  was not given.
-     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-     *  @example
-     *    const m = sm`machine_version: 1.2.3; a -> b;`;
-     *    m.machine_version();  // => { major: 1, minor: 2, patch: 3, full: '1.2.3' }
-     *  @see fsl_version
-     */
-    machine_version() {
-        return this._machine_version;
-    }
-    /**
-     * Get the raw state declaration objects as parsed from the FSL source.
-     *  @returns An array of raw state declaration objects.
-     */
-    raw_state_declarations() {
-        return this._raw_state_declaration;
-    }
-    /**
-     * Get the processed state declaration for a specific state.
-     *  @param which - The state to look up.
-     *  @returns The {@link JssmStateDeclaration} for the given state.
-     */
-    state_declaration(which) {
-        return this._state_declarations.get(which);
-    }
-    /**
-     * Get all processed state declarations as a Map.
-     *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
-     */
-    state_declarations() {
-        return this._state_declarations;
-    }
-    /**
-     * Get the FSL language version this machine declares, parsed.  Set via
-     *  the FSL `fsl_version` directive, which takes a semver triple; the
-     *  parser breaks it into numeric `major`/`minor`/`patch` fields and keeps
-     *  the exact source text in `full`.  Returns `undefined` when the
-     *  directive was not given.
-     *  @returns The parsed {@link JssmParsedSemver}, or `undefined` if unset.
-     *  @example
-     *    const m = sm`fsl_version: 1.0.0; a -> b;`;
-     *    m.fsl_version();  // => { major: 1, minor: 0, patch: 0, full: '1.0.0' }
-     *  @see machine_version
-     */
-    fsl_version() {
-        return this._fsl_version;
-    }
-    /**
-     * Get the complete internal state of the machine as a serializable
-     *  structure.  Includes actions, edges, edge map, named transitions,
-     *  reverse actions, current state, and states map.
-     *  @returns A {@link JssmMachineInternalState} snapshot.
-     */
-    machine_state() {
-        return {
-            internal_state_impl_version: 1,
-            actions: this._actions,
-            edge_map: this._edge_map,
-            edges: this._edges,
-            named_transitions: this._named_transitions,
-            reverse_actions: this._reverse_actions,
-            // reverse_action_targets : this._reverse_action_targets,
-            state: this._state,
-            states: this._states
-        };
-    }
-    /*********
-     *
-     *  List all the states known by the machine.  Please note that the order of
-     *  these states is not guaranteed.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *  console.log( lswitch.states() );             // ['on', 'off']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns An array of all state names in the machine.
-     *
-     */
-    states() {
-        return [...this._states.keys()];
-    }
-    /**
-     * Get the internal state descriptor for a given state name.
-     *  @param whichState - The state to look up.
-     *  @returns The {@link JssmGenericState} descriptor.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    state_for(whichState) {
-        const state = this._states.get(whichState);
-        if (state) {
-            return state;
-        }
-        throw new JssmError(this, 'No such state', { requested_state: whichState });
-    }
-    /*********
-     *
-     *  Check whether the machine knows a given state.
-     *
-     *  ```typescript
-     *  import * as jssm from 'jssm';
-     *
-     *  const lswitch = jssm.from('on <=> off;');
-     *
-     *  console.log( lswitch.has_state('off') );     // true
-     *  console.log( lswitch.has_state('dance') );   // false
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state to be checked for existence.
-     *
-     *  @returns `true` if the state exists, `false` otherwise.
-     *
-     */
-    has_state(whichState) {
-        return this._states.has(whichState);
-    }
-    /*********
-     *
-     *  Lists all edges of a machine.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
-     *
-     *  lswitch.list_edges();
-     *  [
-     *    {
-     *      from: 'on',
-     *      to: 'off',
-     *      kind: 'main',
-     *      forced_only: false,
-     *      main_path: true,
-     *      action: 'toggle'
-     *    },
-     *    {
-     *      from: 'off',
-     *      to: 'on',
-     *      kind: 'main',
-     *      forced_only: false,
-     *      main_path: true,
-     *      action: 'toggle'
-     *    }
-     *  ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns An array of all {@link JssmTransition} edge objects.
-     *
-     */
-    list_edges() {
-        return this._edges;
-    }
-    /**
-     * Get the map of named transitions (transitions with explicit names).
-     *  @returns A `Map` from transition name to edge index.
-     */
-    list_named_transitions() {
-        return this._named_transitions;
-    }
-    /**
-     * List all distinct action names defined anywhere in the machine.
-     *  @returns An array of action name strings.
-     */
-    list_actions() {
-        return [...this._actions.keys()];
-    }
-    /**
-     * Whether any actions are defined on this machine.
-     *  @returns `true` if the machine has at least one action.
-     */
-    get uses_actions() {
-        // Map.size answers emptiness without materializing the key list
-        return this._actions.size > 0;
-    }
-    /**
-     * Whether any forced (`~>`) transitions exist in this machine.
-     *  @returns `true` if at least one forced transition is defined.
-     */
-    get uses_forced_transitions() {
-        return this._has_forced_transitions;
-    }
-    /*********
-     *
-     *  Check if the code that built the machine allows overriding state and data.
-     *
-     *  @returns The override permission from the FSL source code.
-     *
-     */
-    get code_allows_override() {
-        return this._code_allows_override;
-    }
-    /*********
-     *
-     *  Check if the machine config allows overriding state and data.
-     *
-     *  @returns The override permission from the runtime config.
-     *
-     */
-    get config_allows_override() {
-        return this._config_allows_override;
-    }
-    /*********
-     *
-     *  Check if a machine allows overriding state and data.  Resolves the
-     *  combined effect of code and config permissions — config may not be
-     *  less strict than code.
-     *
-     *  @returns The effective override permission.
-     *
-     */
-    get allows_override() {
-        // tri-state throughout: undefined is a legal, distinct value for both
-        // fields — literal comparisons are semantics, not style
-        // code false?  config true, throw.  config false, false.  config undefined, false.
-        if (this._code_allows_override === false) {
-            /* istanbul ignore next */
-            if (this._config_allows_override === true) {
-                /* istanbul ignore next */
-                throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
-            }
-            return false;
-        }
-        // code true?  config true, true.  config false, false.  config undefined, true.
-        if (this._code_allows_override === true) {
-            return this._config_allows_override !== false;
-        }
-        // code must be undefined.  config false, false.  config true, true.  config undefined, false.
-        return this._config_allows_override === true;
-    }
-    /*********
-     *
-     *  Return the effective island policy for this machine.  `true` means
-     *  disconnected components are allowed (the default), `false` requires a
-     *  single connected component, and `'with_start'` allows islands only when
-     *  every component contains at least one start state.
-     *
-     *  @returns The island policy stored in the machine.
-     *
-     */
-    get allow_islands() {
-        return this._allow_islands;
-    }
-    /**
-     * List all available theme names.
-     *  @returns An array of theme name strings.
-     */
-    all_themes() {
-        return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
-    }
-    /**
-     * List the ASCII character ranges accepted by the FSL grammar in any but
-     *  the first position of a state name (atom): digits, letters, and
-     *  underscore.  Each entry is an inclusive `{from, to}` range of single
-     *  Unicode characters.  Non-ASCII characters are classified by
-     *  {@link is_state_name_char}, the complete rule (#754).
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
-     */
-    all_state_name_chars() {
-        return state_name_chars;
-    }
-    /**
-     * List the ASCII character ranges accepted by the FSL grammar in the first
-     *  position of a state name (atom): letters and underscore (never a
-     *  digit).  Non-ASCII characters are classified by
-     *  {@link is_state_name_first_char}, the complete rule (#754).
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '_' >= r.from && '_' <= r.to);  // => true
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
-     */
-    all_state_name_first_chars() {
-        return state_name_first_chars;
-    }
-    /**
-     * List the character ranges accepted inside a single-quoted FSL action
-     *  label without escaping.  Space is allowed; the apostrophe `'` is
-     *  explicitly excluded since it terminates the label.
-     *  @returns An array of `{from, to}` inclusive character ranges.
-     *  @example
-     *  import { sm } from 'jssm';
-     *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
-     */
-    all_action_label_chars() {
-        return action_label_chars;
-    }
-    /**
-     * Get the active theme(s) for this machine.  Always stored as an array
-     *  internally; the union return type exists for setter compatibility.
-     *  @returns The current theme or array of themes.
-     */
-    get themes() {
-        return this._themes; // constructor sets this to "default" otherwise
-    }
-    /**
-     * Set the active theme(s).  Accepts a single theme name or an array.
-     *  Also drops every memoized static state config, so styles resolved
-     *  before the change re-resolve under the new theme stack.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.style_for('b');                 // resolved under the default theme
-     *  m.themes = 'ocean';
-     *  m.style_for('b').backgroundColor; // 'cadetblue1' — ocean, not a stale default
-     *  ```
-     *  @param to - A theme name or array of theme names to apply.
-     *  @see resolve_state_config
-     */
-    set themes(to) {
-        this._themes = typeof to === 'string' ? [to] : to;
-        // Themes feed tier 1 (and the per-kind/hooked theme layers) of
-        // resolve_state_config's cascade, whose static resolution is memoized
-        // per state.  Invalidate the memo so a theme assigned after a style has
-        // been computed is not shadowed by the old theme's cached resolution —
-        // the same rule set_hook / remove_hook apply for the hooked layer.
-        this._static_state_config_cache.clear();
-    }
-    /**
-     * Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
-     *  Set via the FSL `flow` directive.
-     *  @returns The current flow direction.
-     */
-    flow() {
-        return this._flow;
-    }
-    /**
-     * Look up a transition's edge index by source and target state names.
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns The edge index in the edges array, or `undefined` if no
-     *  such transition exists.
-     */
-    get_transition_by_state_names(from, to) {
-        const emg = this._edge_map.get(from);
-        return emg ? emg.get(to) : undefined;
-    }
-    /**
-     * Look up the full transition object for a given source→target pair.
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
-     */
-    lookup_transition_for(from, to) {
-        const id = this.get_transition_by_state_names(from, to);
-        return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
-    }
-    /********
-     *
-     *  List all transitions attached to the current state, sorted by entrance and
-     *  exit.  The order of each sublist is not defined.  A node could appear in
-     *  both lists.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose transitions to have listed
-     *
-     */
-    list_transitions(whichState = this.state()) {
-        return { entrances: this.list_entrances(whichState), exits: this.list_exits(whichState) };
-    }
-    /********
-     *
-     *  List all entrances attached to the current state.  Please note that the
-     *  order of the list is not defined.  This list includes both unforced and
-     *  forced entrances; if this isn't desired, consider
-     *  `list_unforced_entrances` or `list_forced_entrances` as
-     *  appropriate.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_entrances();      // [ 'yellow', 'off' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose entrances to have listed
-     *
-     */
-    list_entrances(whichState = this.state()) {
-        var _a, _b;
-        const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { from: undefined });
-        return (_b = guaranteed.from) !== null && _b !== void 0 ? _b : [];
-    }
-    /********
-     *
-     *  List all exits attached to the current state.  Please note that the order
-     *  of the list is not defined.  This list includes both unforced and forced
-     *  exits; if this isn't desired, consider `list_unforced_exits` or
-     *  `list_forced_exits` as appropriate.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.list_exits();          // [ 'green', 'off' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose exits to have listed
-     *
-     */
-    list_exits(whichState = this.state()) {
-        var _a, _b;
-        const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
-        return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
-    }
-    /**
-     * Get the transitions available from a state for use by the probabilistic
-     *  walk system.
-     *
-     *  If any exit declares a `probability`, only those probability-bearing
-     *  exits are returned, so that non-probability peers cannot dilute the
-     *  declared distribution.  If no exit declares a `probability`, every
-     *  legal (non-forced) exit is returned, which `weighted_rand_select`
-     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
-     *  since they cannot be taken by an ordinary `transition()` call.
-     *
-     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
-     *  every exit unconditionally — including forced-only exits and exits
-     *  with no `probability`, which distorted the weighted distribution.
-     *
-     *  Share-only edges (an unweighted transition onto a weighted list; 6.0
-     *  list weights) carry no declared `probability` and so never evict their
-     *  siblings from the pool; their `share` is applied later, by the picker.
-     *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state,
-     *  filtered as described above.  May be empty.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    probable_exits_for(whichState) {
-        const wstate = this._states.get(whichState);
-        if (!(wstate)) {
-            throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
-        }
-        // single pass over the state's exits, replacing the old map -> filter ->
-        // filter -> filter chain and its three intermediate arrays; selection and
-        // ordering semantics are unchanged
-        const legal_exits = [], probability_bearing = [];
-        // hoisted: every exit shares whichState, so probe _edge_map for the
-        // from-side once instead of re-hashing the same key per exit inside
-        // lookup_transition_for.  wstate.to is non-empty only when at least one
-        // outbound edge exists, and every outbound edge creates the from-side
-        // mapping at construction — so emg is defined whenever the loop runs.
-        const emg = this._edge_map.get(whichState);
-        for (const ws of wstate.to) {
-            // wstate.to is built from the same edge set _edge_map indexes, so the
-            // per-target get cannot miss; the guard mirrors the old defensive
-            // .filter(Boolean) and is equally unreachable.
-            const edge = this._edges[emg.get(ws)];
-            /* v8 ignore next */
-            if (!edge) {
-                continue;
-            }
-            // forced-only exits cannot be reached by transition(), so they are
-            // never legal probabilistic outcomes
-            if (edge.forced_only) {
-                continue;
-            }
-            legal_exits.push(edge);
-            // if any legal exit declares a probability, only those are returned, so
-            // that probability-bearing edges are not diluted by their peers
-            if (edge.probability !== undefined) {
-                probability_bearing.push(edge);
-            }
-        }
-        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
-    }
-    /**
-     * Guard for the random-selection paths ({@link Machine.probabilistic_transition},
-     *  {@link Machine.stochastic_runs}): rejects a candidate pool whose total
-     *  selectable weight is zero, because weighted selection over an all-zero
-     *  pool has no meaningful answer (StoneCypher/fsl#1248).  Undeclared
-     *  probabilities count as weight 1, matching {@link weighted_rand_select}.
-     *  Each edge's weight is `(probability ?? 1) × (share ?? 1)`, so a
-     *  share-only edge (6.0 list weights) still contributes its fractional
-     *  weight to the total rather than being treated as 1.
-     *  An empty pool is not this guard's concern (terminality is handled by the
-     *  callers) and passes through untouched.
-     *
-     *  ```typescript
-     *  const m = sm`a 0% -> b; a 0% -> c;`;
-     *  m.probabilistic_transition();  // throws JssmError — every exit is 0%
-     *  ```
-     *  @param whichState - The state the pool exits from, named in the error.
-     *  @param exits - The candidate pool, as built by {@link Machine.probable_exits_for}.
-     *  @throws {JssmError} If the pool is non-empty and every candidate edge
-     *  has probability 0 — including the case where explicit `0%` edges
-     *  excluded their unweighted sibling edges from the candidate pool.
-     *  @see probable_exits_for
-     */
-    _assert_selectable_exit_pool(whichState, exits) {
-        if (exits.length === 0) {
-            return;
-        }
-        let total = 0;
-        for (const e of exits) {
-            total += ((e.probability === undefined) ? 1 : e.probability) * ((e.share === undefined) ? 1 : e.share);
-        }
-        if (total > 0) {
-            return;
-        }
-        throw new JssmError(this, `Cannot randomly select an exit from state ${JSON.stringify(whichState)}: every candidate edge has probability 0%.  Note that an explicit 0% edge excludes unweighted sibling edges from the candidate pool (StoneCypher/fsl#1248)`);
-    }
-    /**
-     * Take a single random transition from the current state, weighted by
-     *  edge probabilities.
-     *  @returns `true` if a transition was taken, `false` otherwise.
-     *  @throws {JssmError} If the candidate exit pool is non-empty but its
-     *  total weight is zero — every candidate declares `0%` — per
-     *  StoneCypher/fsl#1248.
-     */
-    probabilistic_transition() {
-        const exits = this.probable_exits_for(this.state());
-        this._assert_selectable_exit_pool(this.state(), exits);
-        const selected = weighted_rand_select(exits, undefined, this._rng);
-        return this.transition(selected.to);
-    }
-    /**
-     * Take `n` consecutive probabilistic transitions and return the sequence
-     *  of states visited (before each transition).
-     *  @param n - Number of steps to walk.
-     *  @returns An array of state names visited during the walk.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
-     */
-    probabilistic_walk(n) {
-        return [...seq(n)
-                .map(() => {
-                const state_was = this.state();
-                this.probabilistic_transition();
-                return state_was;
-            }), this.state()];
-    }
-    /**
-     * Take `n` probabilistic steps and return a histograph of how many times
-     *  each state was visited.
-     *  @param n - Number of steps to walk.
-     *  @returns A `Map` from state name to visit count.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight (StoneCypher/fsl#1248).
-     */
-    probabilistic_histo_walk(n) {
-        return histograph(this.probabilistic_walk(n));
-    }
-    /**
-     * One non-destructive weighted-random walk over the graph from `start`.
-     *
-     *  Reads the graph and advances the PRNG only — it never calls
-     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
-     *  state, and touches no `data`.  A state with no probabilistic exits
-     *  (a terminal, or a forced-only `~>` state) ends the walk.
-     *
-     *  Terminality is checked before the first transition and after every
-     *  transition.  A terminal start therefore completes with length zero even
-     *  when `max_steps` is zero, and a terminal reached on the final permitted
-     *  transition is completed rather than step-capped.
-     *  @param start - State to begin the walk from.
-     *  @param max_steps - Maximum transitions before the walk is step-capped.
-     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
-     *    results.  The graph is immutable after construction, so a state's
-     *    probable exits never change; sharing one memo across a generator's
-     *    runs collapses runs×steps re-derivations (two array allocations and an
-     *    exit rescan per step) to one per distinct state.  The memo only reuses
-     *    the derived arrays — RNG draw order is untouched, so seeded walks
-     *    reproduce exactly.
-     *  @returns The {@link JssmStochasticRun} for this walk.
-     *  @throws {JssmError} If a visited state's candidate exit pool is
-     *  non-empty but all-zero-weight — see
-     *  {@link Machine._assert_selectable_exit_pool} (StoneCypher/fsl#1248).
-     */
-    _stochastic_one_walk(start, max_steps, exit_memo) {
-        const states = [start];
-        const edges = [];
-        let cur = start;
-        let exits = exit_memo.get(cur);
-        if (exits === undefined) {
-            exits = this.probable_exits_for(cur);
-            this._assert_selectable_exit_pool(cur, exits);
-            exit_memo.set(cur, exits);
-        }
-        let terminated = exits.length === 0;
-        for (let step = 0; step < max_steps && !terminated; step++) {
-            const selected = weighted_rand_select(exits, undefined, this._rng);
-            edges.push(`${cur}→${selected.to}`);
-            cur = selected.to;
-            states.push(cur);
-            exits = exit_memo.get(cur);
-            if (exits === undefined) {
-                exits = this.probable_exits_for(cur);
-                this._assert_selectable_exit_pool(cur, exits);
-                exit_memo.set(cur, exits);
-            }
-            terminated = exits.length === 0;
-        }
-        return { states, edges, length: states.length - 1, terminated };
-    }
-    /**
-     * Lazily yield one {@link JssmStochasticRun} at a time.
-     *
-     *  In `montecarlo` mode (default) yields `runs` independent walks from the
-     *  current state, each ending at a terminal or after `max_steps`.  In
-     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
-     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
-     *  fsl-stochastic panel drives it across animation frames.  A walk already
-     *  at a terminal is reported as terminated with length zero, including when
-     *  `max_steps` is zero.
-     *
-     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
-     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
-     *  prior seed afterward — a direct caller's machine is left reseeded.
-     *  When the machine declares weighted `start_states` (6.0), each run's
-     *  start is drawn independently via {@link Machine.sample_start_state}
-     *  instead of always starting from the machine's current state.
-     *  @param opts - {@link JssmStochasticOptions}.
-     *  @yields One {@link JssmStochasticRun} per completed walk.
-     *  @returns A generator of per-run results.
-     *  @example
-     *  const m = sm`a 'go' -> b 'go' -> c;`;
-     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
-     */
-    *stochastic_runs(opts = {}) {
-        var _a, _b, _c, _d, _e;
-        if (opts.seed !== undefined) {
-            this.rng_seed = opts.seed;
-        }
-        const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
-        const max_steps = (_b = opts.max_steps) !== null && _b !== void 0 ? _b : STOCHASTIC_DEFAULT_MAX_STEPS;
-        const runs = (mode === 'steady_state')
-            ? 1
-            : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = this.editor_config()) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
-        const weighted_start = this._start_state_weights.size > 0;
-        const fixed_start = this.state();
-        // one probable-exits memo for the whole run set; see _stochastic_one_walk
-        const exit_memo = new Map();
-        for (let i = 0; i < runs; i++) {
-            yield this._stochastic_one_walk(weighted_start ? this.sample_start_state() : fixed_start, max_steps, exit_memo);
-        }
-    }
-    /**
-     * Run many weighted-random walks and return aggregate statistics.
-     *
-     *  Honors `%` transition probabilities (via the existing probabilistic
-     *  machinery).  Non-destructive: the machine's current state and
-     *  {@link Machine.rng_seed} are restored before returning, so calling this
-     *  never perturbs the live machine.  `montecarlo` mode (default) reports
-     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
-     *  mode runs one long walk and omits those fields.
-     *
-     *  Monte-Carlo runs count as `terminal_reached` when they start at a
-     *  terminal or reach one on the final permitted transition.  Terminal
-     *  starts contribute zero to `path_lengths`, even when `max_steps` is zero.
-     *
-     *  Timing (`after`) decorations and data-guard conditions are not modeled
-     *  by this sampler; it walks the probabilistic graph topology.  When the
-     *  machine declares weighted `start_states` (6.0), each run starts from an
-     *  independently sampled start state (see {@link Machine.stochastic_runs}).
-     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
-     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
-     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
-     *  @returns A {@link JssmStochasticSummary}.
-     *  @see Machine.stochastic_runs
-     *  @see Machine.probabilistic_walk
-     *  @see Machine.editor_config
-     *  @example
-     *  const m = sm`a 'go' -> b 'go' -> c;`;
-     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
-     *  s.terminal_reached;  // => 100
-     */
-    stochastic_summary(opts = {}) {
-        var _a, _b, _c;
-        const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
-        const saved_seed = this._rng_seed;
-        if (opts.seed !== undefined) {
-            this.rng_seed = opts.seed;
-        }
-        const effective_seed = this._rng_seed;
-        const state_visits = new Map();
-        const edge_traversals = new Map();
-        const path_lengths = [];
-        let terminal_reached = 0, capped = 0, runs = 0;
-        try {
-            const run_stream = this.stochastic_runs(Object.assign(Object.assign({}, opts), { mode }));
-            for (const run of run_stream) {
-                runs += 1;
-                for (const s of run.states) {
-                    state_visits.set(s, ((_b = state_visits.get(s)) !== null && _b !== void 0 ? _b : 0) + 1);
-                }
-                for (const e of run.edges) {
-                    edge_traversals.set(e, ((_c = edge_traversals.get(e)) !== null && _c !== void 0 ? _c : 0) + 1);
-                }
-                if (mode === 'montecarlo') {
-                    if (run.terminated) {
-                        terminal_reached += 1;
-                        path_lengths.push(run.length);
-                    }
-                    else {
-                        capped += 1;
-                    }
-                }
-            }
-        }
-        finally {
-            // restore the PRNG so the call is non-destructive even when the loop throws
-            this.rng_seed = saved_seed;
-        }
-        const total_visits = [...state_visits.values()].reduce((a, b) => a + b, 0);
-        const state_visit_fraction = new Map();
-        for (const [s, c] of state_visits) {
-            state_visit_fraction.set(s, c / total_visits);
-        }
-        const summary = {
-            mode, runs, seed: effective_seed,
-            state_visits, state_visit_fraction, edge_traversals,
-        };
-        if (mode === 'montecarlo') {
-            summary.path_lengths = path_lengths;
-            summary.terminal_reached = terminal_reached;
-            summary.capped = capped;
-        }
-        return summary;
-    }
-    /********
-     *
-     *  List all actions available from this state.  Please note that the order of
-     *  the actions is not guaranteed.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-     *  `;
-     *
-     *  console.log( machine.state() );    // logs 'red'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *
-     *  machine.action('next');            // true
-     *  console.log( machine.state() );    // logs 'green'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *
-     *  machine.action('shutdown');        // true
-     *  console.log( machine.state() );    // logs 'off'
-     *  console.log( machine.actions() );  // logs ['start']
-     *
-     *  machine.action('start');           // true
-     *  console.log( machine.state() );    // logs 'red'
-     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The state whose actions to list.  Defaults to the
-     *  current state.
-     *
-     *  @returns An array of action names available from the given state.
-     *
-     */
-    actions(whichState = this.state()) {
-        const wstate = this._reverse_actions.get(whichState);
-        if (wstate) {
-            return [...wstate.keys()];
-        }
-        if (this.has_state(whichState)) {
-            return [];
-        }
-        throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-    }
-    /********
-     *
-     *  List all states that have a specific action attached.  Please note that
-     *  the order of the states is not guaranteed.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
-     *  `;
-     *
-     *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
-     *  console.log( machine.list_states_having_action('start') );   // ['off']
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param whichState The action to be checked for associated states
-     *
-     */
-    list_states_having_action(whichState) {
-        const wstate = this._actions.get(whichState);
-        if (wstate) {
-            return [...wstate.keys()];
-        }
-        throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-    }
-    // comeback
-    /*
-      list_entrance_actions(whichState: mNT = this.state() ) : Array<mNT> {
-        return [... (this._reverse_action_targets.get(whichState) || new Map()).values()] // wasteful
-               .map( (edgeId:any) => (this._edges[edgeId] : any)) // whargarbl burn out any
-               .filter( (o:any) => o.to === whichState)
-               .map( filtered => filtered.from );
-      }
-    */
-    /**
-     * List all action names available as exits from a given state.
-     *
-     *  Returns the empty array (does not throw) when `whichState` exists but has
-     *  no action-named exits — including terminal states, states whose only
-     *  exits are plain `->` transitions, and states in machines that use no
-     *  actions at all.  Only nonexistent states cause a throw.
-     *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of action name strings, possibly empty.
-     *  @throws {JssmError} If the state does not exist.
-     *  @example
-     *    const m = sm`a 'go' -> b; b -> c;`;
-     *    m.list_exit_actions('a');  // => ['go']
-     *    m.list_exit_actions('b');  // => []
-     *    m.list_exit_actions('c');  // => []
-     *    expect(() => m.list_exit_actions('z')).toThrow();
-     */
-    list_exit_actions(whichState = this.state()) {
-        const ra_base = this._reverse_actions.get(whichState);
-        if (!(ra_base)) {
-            if (this.has_state(whichState)) {
-                return [];
-            }
-            throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-        }
-        // `_reverse_actions` is keyed by edge.from (see its population), so every
-        // action stored under whichState belongs to whichState by construction — no
-        // from-filter is needed, and the keys are exactly the exit actions.
-        return [...ra_base.keys()];
-    }
-    /**
-     * List all action exits from a state with their probabilities and shares.
-     *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of `{ action, probability, share }` objects — `share`
-     *           is the edge's within-list share (6.0 list weights), present
-     *           only for an edge that landed on a list side with no declared
-     *           `probability`; `undefined` otherwise, same as the edge itself.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    probable_action_exits(whichState = this.state()) {
-        const ra_base = this._reverse_actions.get(whichState);
-        if (!(ra_base)) {
-            if (this.has_state(whichState)) {
-                return [];
-            }
-            throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-        }
-        const exits = []; // TODO FIXME no any
-        // `_reverse_actions` is keyed by edge.from, so every entry belongs to
-        // whichState by construction; no from-filter is needed.
-        ra_base.forEach((edgeId, action) => {
-            exits.push({
-                action,
-                probability: this._edges[edgeId].probability,
-                share: this._edges[edgeId].share
-            });
-        });
-        return exits;
-    }
-    /**
-     * Check whether a state has no incoming transitions (unreachable after start).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state has zero entrances.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    is_unenterable(whichState) {
-        if (!(this.has_state(whichState))) {
-            throw new JssmError(this, `No such state ${whichState}`);
-        }
-        return this.list_entrances(whichState).length === 0;
-    }
-    /**
-     * Check whether any state in the machine is unenterable.
-     *  @returns `true` if at least one state has no incoming transitions.
-     */
-    has_unenterables() {
-        return this.states().some((x) => this.is_unenterable(x));
-    }
-    /**
-     * Check whether the current state is terminal (has no exits).
-     *  @returns `true` if the current state has zero exits.
-     */
-    is_terminal() {
-        return this.state_is_terminal(this.state());
-    }
-    /**
-     * Check whether a specific state is terminal (has no exits).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state has zero exits.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    state_is_terminal(whichState) {
-        if (!(this.has_state(whichState))) {
-            throw new JssmError(this, `No such state ${whichState}`);
-        }
-        return this.list_exits(whichState).length === 0;
-    }
-    /**
-     * Check whether any state in the machine is terminal.
-     *  @returns `true` if at least one state has no exits.
-     */
-    has_terminals() {
-        return this.states().some((x) => this.state_is_terminal(x));
-    }
-    /********
-     *
-     *  Reports whether the machine's CURRENT state is a transitive member of a
-     *  named group.  Membership is deep: a state counts as in `groupName` if it
-     *  belongs to that group directly, or via any nested (`&child`) or spread
-     *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
-     *  members, so this returns `false` rather than throwing.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working;`;
-     *  m.isIn('busy');     // false — current state is 'idle'
-     *  m.action('go');
-     *  m.isIn('busy');     // true  — current state is now 'working'
-     *  m.isIn('nonesuch'); // false — undeclared group has no members
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group to test the current state against.
-     *
-     *  @returns `true` if the current state is a transitive member of `groupName`.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
-     */
-    isIn(groupName) {
-        return this.groupsOf(this.state()).has(groupName);
-    }
-    /********
-     *
-     *  Lists every group that transitively contains a given state.  Membership is
-     *  deep — direct, nested, and spread sub-group containment all count — and the
-     *  result is the precomputed inverse-index entry for the state, so the lookup
-     *  is constant-time.  A state that belongs to no group (or a state name that
-     *  appears in no group) yields an empty `Set`.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
-     *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
-     *  m.groupsOf('b');     // Set { 'outer' }
-     *  m.groupsOf('z');     // Set {}                    — not in any group
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state whose containing groups are wanted.
-     *
-     *  @returns A `Set` of every group name transitively containing `state`;
-     *  empty when `state` belongs to no group.
-     *
-     *  @see isIn
-     *  @see groups
-     *
-     */
-    groupsOf(state) {
-        return new Set(this._state_to_groups.get(state));
-    }
-    /********
-     *
-     *  Lists all declared group names, in source declaration order.  The order
-     *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
-     *  is the same order used to break depth-specificity ties in the config
-     *  cascade.  Machines that declare no groups return an empty array.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
-     *  m.groups();  // [ 'first', 'second' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The declared group names, in declaration order.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
-     */
-    groups() {
-        return [...this._group_order];
-    }
-    /********
-     *
-     *  Lists every state that is a transitive member of a named group — the
-     *  flattened membership of the group, descending through nested and spread
-     *  sub-groups, in member-declaration order.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
-     *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
-     *  m.statesIn('inner');  // [ 'a', 'b' ]
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group whose transitive member states are wanted.
-     *
-     *  @returns The transitive member states of `groupName`, in declaration order.
-     *
-     *  @throws {JssmError} If `groupName` is not a declared group.
-     *
-     *  @see groups
-     *  @see groupsOf
-     *
-     */
-    statesIn(groupName) {
-        if (!(this._group_registry.has(groupName))) {
-            throw new JssmError(this, `No such group ${JSON.stringify(groupName)}`);
-        }
-        return transitive_members(this._group_registry, groupName, new Map());
-    }
-    /**
-     * Check whether the current state is complete (every exit has an action).
-     *  @returns `true` if the current state is complete.
-     */
-    is_complete() {
-        return this.state_is_complete(this.state());
-    }
-    /**
-     * Check whether a specific state is complete (every exit has an action).
-     *  @param whichState - The state to check.
-     *  @returns `true` if the state is complete.
-     *  @throws {JssmError} If the state does not exist.
-     */
-    state_is_complete(whichState) {
-        const wstate = this._states.get(whichState);
-        if (wstate) {
-            return wstate.complete;
-        }
-        throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
-    }
-    /**
-     * Check whether any state in the machine is complete.
-     *  @returns `true` if at least one state is complete.
-     */
-    has_completes() {
-        return this.states().some((x) => this.state_is_complete(x));
-    }
-    on(name, filterOrFn, maybeFn) {
-        return __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_subscribe).call(this, name, filterOrFn, maybeFn, false);
-    }
-    once(name, filterOrFn, maybeFn) {
-        return __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_subscribe).call(this, name, filterOrFn, maybeFn, true);
-    }
-    /**
-     *  Remove a previously-registered event handler.  Match is by reference —
-     *  the same function value passed to {@link Machine.on} or
-     *  {@link Machine.once}.  Returns `true` if a subscription was found and
-     *  removed, `false` otherwise.
-     *
-     *  ```typescript
-     *  const fn = (e: any) => console.log(e);
-     *  m.on('transition', fn);
-     *  m.off('transition', fn);  // true
-     *  m.off('transition', fn);  // false
-     *  ```
-     *  @param name    The event name.
-     *  @param handler The handler reference to remove.
-     *  @returns `true` if removed, `false` if no match was registered.
-     */
-    off(name, handler) {
-        const set = this._event_handlers.get(name);
-        if (set === undefined) {
-            return false;
-        }
-        for (const entry of set) {
-            if (entry.handler === handler) {
-                __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry);
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     *  Invoke a single event-handler entry, respecting its filter, once-removal
-     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
-     *  {@link _fire} can share identical behavior between the size-1 fast-path
-     *  and the general snapshotted loop.
-     *  @param entry  - The subscriber descriptor to invoke.
-     *  @param set    - The live Set that owns `entry`; needed for once-removal.
-     *  @param name   - The event name being dispatched (used in error re-fires).
-     *  @param detail - The event payload forwarded to the handler.
-     *  @internal
-     */
-    // PERF: this and the sibling dispatch methods (_fire, _fire_boundary_actions,
-    // _fire_hook_rejection, _has_subscribers) are intentionally underscore-
-    // convention, NOT `#`-private.  They are called on the per-transition hot
-    // path (_fire_boundary_actions runs on every transition), and a `#`-private
-    // method cannot be inlined the way its `_` twin can (brand check), so
-    // privatizing them in 5.162.8 cost ~20-25% on transition/action dispatch.
-    // Do not re-privatize.  StoneCypher/fsl#1959
-    _fire_one(entry, set, name, detail) {
-        // filter check
-        if (entry.filter !== undefined) {
-            for (const [k, v] of Object.entries(entry.filter)) {
-                if (v !== detail[k]) {
-                    return;
-                }
-            }
-        }
-        // once removal happens BEFORE invocation so a throwing handler still
-        // gets removed and so re-entrant `on` calls during the handler see
-        // the post-removal state.
-        if (entry.once) {
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry);
-        }
-        try {
-            entry.handler(detail);
-        }
-        catch (error) {
-            if (name === 'error' || this._firing_error) {
-                // surface to stderr as a last resort but never recurse;
-                // `console` is in the JS standard library and present in every
-                // supported runtime, so guarding it would just add an untestable
-                // branch.  See #638.
-                console.error(error);
-            }
-            else {
-                this._firing_error = true;
-                try {
-                    this._fire('error', {
-                        error: error,
-                        source_event: name,
-                        source_detail: detail,
-                        handler: entry.handler
-                    });
-                }
-                finally {
-                    this._firing_error = false;
-                }
-            }
-        }
-    }
-    /**
-     *  Dispatch an event to every registered subscriber in registration
-     *  order.  Filters are checked first; non-matching handlers are skipped
-     *  without invoking the handler.  Exceptions thrown by a handler are
-     *  caught and re-emitted as an `error` event so subsequent handlers
-     *  still run.
-     *
-     *  Re-entry into the `error` event itself is guarded — if an `error`
-     *  handler throws, the new exception is swallowed rather than rebroadcast
-     *  to avoid an infinite loop.
-     *
-     *  When exactly one subscriber is registered the common case avoids the
-     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
-     *  local first — equivalent to a 1-element snapshot but allocation-free.
-     *  The general path still snapshots for re-entrancy safety.
-     *  @internal
-     */
-    /**
-     *  Whether at least one live subscriber is registered for `name`.  Used by
-     *  the transition-commit observation block to skip building a detail
-     *  literal that {@link Machine._fire} would immediately discard — a panel
-     *  listening only to `'transition'` (fsl-bind, fsl-viz, fsl-info-panel)
-     *  previously paid for the exit/entry/data-change detail allocations on
-     *  every transition.  Read at fire time, so a listener installed by a
-     *  pre-hook is still seen (#671).
-     *  @param name The event name to probe.
-     *  @returns `true` when a subsequent `_fire(name, ...)` would reach at
-     *  least one handler.
-     *
-     *  ```typescript
-     *  machine.on('transition', () => {});
-     *  machine._has_subscribers('transition');  // true
-     *  machine._has_subscribers('exit');        // false
-     *  ```
-     *  @see Machine._fire
-     *  @internal
-     */
-    _has_subscribers(name) {
-        const set = this._event_handlers.get(name);
-        return (set !== undefined) && (set.size > 0);
-    }
-    _fire(name, detail) {
-        const set = this._event_handlers.get(name);
-        if (set === undefined || set.size === 0) {
-            return;
-        }
-        // Fast-path: single subscriber — capture entry before invoking so that
-        // even if the handler mutates `set` (via off/once auto-removal) we hold a
-        // stable reference.  Behaviorally identical to a 1-element snapshot.
-        if (set.size === 1) {
-            const only = set.values().next().value;
-            this._fire_one(only, set, name, detail);
-            return;
-        }
-        // General path: snapshot so handlers can `off()` mid-loop without
-        // disturbing iteration.
-        const entries = [...set];
-        for (const entry of entries) {
-            this._fire_one(entry, set, name, detail);
-        }
-    }
-    set_hook(HookDesc) {
-        __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_validate_hook_description).call(this, HookDesc);
-        switch (HookDesc.kind) {
-            case 'hook': {
-                // Numeric pair key (#729).  intern() rather than id_of(): a hook may
-                // name a state the machine doesn't have — it gets an id no live state
-                // can match, so it registers silently and never fires, as before.
-                this._hooks.set(pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)), HookDesc.handler);
-                this._has_hooks = true;
-                this._has_basic_hooks = true;
-                break;
-            }
-            case 'named': {
-                // Numeric pair key, then action id; the per-pair action map stays a
-                // map because the action interner may keep growing (#729).
-                const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
-                let inner = this._named_hooks.get(pk);
-                if (inner === undefined) {
-                    inner = new Map();
-                    this._named_hooks.set(pk, inner);
-                }
-                inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
-                this._has_hooks = true;
-                this._has_named_hooks = true;
-                break;
-            }
-            case 'global action': {
-                this._global_action_hooks.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
-                this._has_hooks = true;
-                this._has_global_action_hooks = true;
-                break;
-            }
-            case 'any action': {
-                this._any_action_hook = HookDesc.handler;
-                this._has_hooks = true;
-                break;
-            }
-            case 'standard transition': {
-                this._standard_transition_hook = HookDesc.handler;
-                this._has_transition_hooks = true;
-                this._has_hooks = true;
-                break;
-            }
-            case 'main transition': {
-                this._main_transition_hook = HookDesc.handler;
-                this._has_transition_hooks = true;
-                this._has_hooks = true;
-                break;
-            }
-            case 'forced transition': {
-                this._forced_transition_hook = HookDesc.handler;
-                this._has_transition_hooks = true;
-                this._has_hooks = true;
-                break;
-            }
-            case 'any transition': {
-                this._any_transition_hook = HookDesc.handler;
-                this._has_hooks = true;
-                break;
-            }
-            case 'entry': {
-                this._entry_hooks.set(this._state_interner.intern(HookDesc.to), HookDesc.handler);
-                this._has_hooks = true;
-                this._has_entry_hooks = true;
-                break;
-            }
-            case 'exit': {
-                this._exit_hooks.set(this._state_interner.intern(HookDesc.from), HookDesc.handler);
-                this._has_hooks = true;
-                this._has_exit_hooks = true;
-                break;
-            }
-            case 'after': {
-                this._after_hooks.set(HookDesc.from, HookDesc.handler);
-                this._has_hooks = true;
-                this._has_after_hooks = true;
-                break;
-            }
-            case 'after any': {
-                this._after_any_hook = HookDesc.handler;
-                this._has_hooks = true;
-                this._has_after_hooks = true;
-                break;
-            }
-            case 'post hook': {
-                // Numeric pair key; same rationale as 'hook' (#729).
-                this._post_hooks.set(pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)), HookDesc.handler);
-                this._has_post_hooks = true;
-                this._has_post_basic_hooks = true;
-                break;
-            }
-            case 'post named': {
-                // Numeric pair key, then action id; same rationale as 'named' (#729).
-                const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
-                let inner = this._post_named_hooks.get(pk);
-                if (inner === undefined) {
-                    inner = new Map();
-                    this._post_named_hooks.set(pk, inner);
-                }
-                inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
-                this._has_post_hooks = true;
-                this._has_post_named_hooks = true;
-                break;
-            }
-            case 'post global action': {
-                this._post_global_action_hooks.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
-                this._has_post_hooks = true;
-                this._has_post_global_action_hooks = true;
-                break;
-            }
-            case 'post any action': {
-                this._post_any_action_hook = HookDesc.handler;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post standard transition': {
-                this._post_standard_transition_hook = HookDesc.handler;
-                this._has_post_transition_hooks = true;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post main transition': {
-                this._post_main_transition_hook = HookDesc.handler;
-                this._has_post_transition_hooks = true;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post forced transition': {
-                this._post_forced_transition_hook = HookDesc.handler;
-                this._has_post_transition_hooks = true;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post any transition': {
-                this._post_any_transition_hook = HookDesc.handler;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post entry': {
-                this._post_entry_hooks.set(this._state_interner.intern(HookDesc.to), HookDesc.handler);
-                this._has_post_entry_hooks = true;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post exit': {
-                this._post_exit_hooks.set(this._state_interner.intern(HookDesc.from), HookDesc.handler);
-                this._has_post_exit_hooks = true;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'pre everything': {
-                this._pre_everything_hook = HookDesc.handler;
-                this._has_hooks = true;
-                break;
-            }
-            case 'everything': {
-                this._everything_hook = HookDesc.handler;
-                this._has_hooks = true;
-                break;
-            }
-            case 'pre post everything': {
-                this._pre_post_everything_hook = HookDesc.handler;
-                this._has_post_hooks = true;
-                break;
-            }
-            case 'post everything': {
-                this._post_everything_hook = HookDesc.handler;
-                this._has_post_hooks = true;
-                break;
-            }
-            // No default: `_validate_hook_description` above rejects any unknown kind
-            // before we reach here, so the switch is exhaustive over the known kinds.
-        }
-        // The hooked-state styling layer (tier 2.5 of resolve_state_config) depends
-        // on which states carry hooks, so registering a hook can change the composed
-        // style of a state.  The static config cache assumes tiers 1–5 are fixed
-        // after construction; invalidate it so styling stays correct when a hook is
-        // added after a style has already been computed and memoized.
-        this._static_state_config_cache.clear();
-        // fire the registration event for inspector tools (#638)
-        this._fire('hook-registration', { description: HookDesc });
-    }
-    /**
-     *  Remove a previously-registered hook described by a
-     *  {@link HookDescription}.  Match is by `kind` + identifying keys
-     *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
-     *  hook per slot in the registry, so the description uniquely identifies
-     *  which one to clear.  Fires a `hook-removal` event for inspector tools.
-     *
-     *  This is the symmetric counterpart of {@link Machine.set_hook} for the
-     *  event-bridging use case (#638).  Reasoning about hooks via observation
-     *  events requires being able to observe their disappearance too.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  const fn = () => true;
-     *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
-     *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
-     *  ```
-     *  @param HookDesc - A hook descriptor identifying the hook to remove.
-     *  @returns `true` if a hook was removed, `false` otherwise.
-     */
-    remove_hook(HookDesc) {
-        let removed = false;
-        switch (HookDesc.kind) {
-            case 'hook': {
-                // id_of, not intern: removal of an unknown name reports false and
-                // must not grow the interner tables (#729).
-                const fid = this._state_interner.id_of(HookDesc.from), tid = this._state_interner.id_of(HookDesc.to);
-                removed = (fid !== undefined) && (tid !== undefined) && this._hooks.delete(pair_key(fid, tid));
-                break;
-            }
-            case 'named': {
-                const fid = this._state_interner.id_of(HookDesc.from), tid = this._state_interner.id_of(HookDesc.to), aid = this._action_interner.id_of(HookDesc.action);
-                const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._named_hooks.get(pair_key(fid, tid));
-                removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
-                break;
-            }
-            case 'global action': {
-                const aid = this._action_interner.id_of(HookDesc.action);
-                removed = (aid !== undefined) && this._global_action_hooks.delete(aid);
-                break;
-            }
-            case 'any action': {
-                if (this._any_action_hook !== undefined) {
-                    this._any_action_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'standard transition': {
-                if (this._standard_transition_hook !== undefined) {
-                    this._standard_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'main transition': {
-                if (this._main_transition_hook !== undefined) {
-                    this._main_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'forced transition': {
-                if (this._forced_transition_hook !== undefined) {
-                    this._forced_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'any transition': {
-                if (this._any_transition_hook !== undefined) {
-                    this._any_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'entry': {
-                const tid = this._state_interner.id_of(HookDesc.to);
-                removed = (tid !== undefined) && this._entry_hooks.delete(tid);
-                break;
-            }
-            case 'exit': {
-                const fid = this._state_interner.id_of(HookDesc.from);
-                removed = (fid !== undefined) && this._exit_hooks.delete(fid);
-                break;
-            }
-            case 'after': {
-                removed = this._after_hooks.delete(HookDesc.from);
-                break;
-            }
-            case 'after any': {
-                if (this._after_any_hook !== undefined) {
-                    this._after_any_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post hook': {
-                const fid = this._state_interner.id_of(HookDesc.from), tid = this._state_interner.id_of(HookDesc.to);
-                removed = (fid !== undefined) && (tid !== undefined) && this._post_hooks.delete(pair_key(fid, tid));
-                break;
-            }
-            case 'post named': {
-                const fid = this._state_interner.id_of(HookDesc.from), tid = this._state_interner.id_of(HookDesc.to), aid = this._action_interner.id_of(HookDesc.action);
-                const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._post_named_hooks.get(pair_key(fid, tid));
-                removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
-                break;
-            }
-            case 'post global action': {
-                const aid = this._action_interner.id_of(HookDesc.action);
-                removed = (aid !== undefined) && this._post_global_action_hooks.delete(aid);
-                break;
-            }
-            case 'post any action': {
-                if (this._post_any_action_hook !== undefined) {
-                    this._post_any_action_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post standard transition': {
-                if (this._post_standard_transition_hook !== undefined) {
-                    this._post_standard_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post main transition': {
-                if (this._post_main_transition_hook !== undefined) {
-                    this._post_main_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post forced transition': {
-                if (this._post_forced_transition_hook !== undefined) {
-                    this._post_forced_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post any transition': {
-                if (this._post_any_transition_hook !== undefined) {
-                    this._post_any_transition_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post entry': {
-                const tid = this._state_interner.id_of(HookDesc.to);
-                removed = (tid !== undefined) && this._post_entry_hooks.delete(tid);
-                break;
-            }
-            case 'post exit': {
-                const fid = this._state_interner.id_of(HookDesc.from);
-                removed = (fid !== undefined) && this._post_exit_hooks.delete(fid);
-                break;
-            }
-            case 'pre everything': {
-                if (this._pre_everything_hook !== undefined) {
-                    this._pre_everything_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'everything': {
-                if (this._everything_hook !== undefined) {
-                    this._everything_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'pre post everything': {
-                if (this._pre_post_everything_hook !== undefined) {
-                    this._pre_post_everything_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            case 'post everything': {
-                if (this._post_everything_hook !== undefined) {
-                    this._post_everything_hook = undefined;
-                    removed = true;
-                }
-                break;
-            }
-            default: {
-                throw new JssmError(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
-            }
-        }
-        if (removed) {
-            // set_hook only ever turns the _has_* fast-path flags ON; they summarize
-            // whole families, not counts, so a removal can't simply turn one off.
-            // Rederive them all now, or a stale flag keeps the fast path doing work
-            // whose last hook is gone -- most visibly _has_transition_hooks, which
-            // would otherwise keep resolving trans_type and leaking it into every
-            // hook context after the last transition-kind hook was removed.  #1954
-            __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_recompute_hook_flags).call(this);
-            // See set_hook: the hooked-state styling layer depends on which states
-            // carry hooks, so removing one can change a state's composed style.
-            this._static_state_config_cache.clear();
-            this._fire('hook-removal', { description: HookDesc });
-        }
-        return removed;
-    }
-    /**
-     * Register a pre-transition hook on a specific edge.  Fires before
-     *  transitioning from `from` to `to`.  If the handler returns `false`, the
-     *  transition is blocked.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook('a', 'b', () => console.log('a->b'));
-     *  ```
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param handler - Callback invoked before the transition.
-     *  @returns `this` for chaining.
-     */
-    hook(from, to, handler) {
-        this.set_hook({ kind: 'hook', from, to, handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on a specific action-labeled edge.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param action  - The action label that triggers this hook.
-     *  @param handler - Callback invoked before the transition.
-     *  @returns `this` for chaining.
-     */
-    hook_action(from, to, action, handler) {
-        this.set_hook({ kind: 'named', from, to, action, handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any edge triggered by a specific action.
-     *  @param action  - The action name to hook.
-     *  @param handler - Callback invoked before any transition with this action.
-     *  @returns `this` for chaining.
-     */
-    hook_global_action(action, handler) {
-        this.set_hook({ kind: 'global action', action, handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any action-driven transition.
-     *  @param handler - Callback invoked before any action transition.
-     *  @returns `this` for chaining.
-     */
-    hook_any_action(handler) {
-        this.set_hook({ kind: 'any action', handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any standard (`->`) transition.
-     *  @param handler - Callback invoked before any legal transition.
-     *  @returns `this` for chaining.
-     */
-    hook_standard_transition(handler) {
-        this.set_hook({ kind: 'standard transition', handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any main-path (`=>`) transition.
-     *  @param handler - Callback invoked before any main transition.
-     *  @returns `this` for chaining.
-     */
-    hook_main_transition(handler) {
-        this.set_hook({ kind: 'main transition', handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any forced (`~>`) transition.
-     *  @param handler - Callback invoked before any forced transition.
-     *  @returns `this` for chaining.
-     */
-    hook_forced_transition(handler) {
-        this.set_hook({ kind: 'forced transition', handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook on any transition regardless of kind.
-     *  @param handler - Callback invoked before every transition.
-     *  @returns `this` for chaining.
-     */
-    hook_any_transition(handler) {
-        this.set_hook({ kind: 'any transition', handler });
-        return this;
-    }
-    /**
-     * Register a hook that fires when entering a specific state.
-     *  @param to      - The state being entered.
-     *  @param handler - Callback invoked on entry.
-     *  @returns `this` for chaining.
-     */
-    hook_entry(to, handler) {
-        this.set_hook({ kind: 'entry', to, handler });
-        return this;
-    }
-    /**
-     * Register a hook that fires when leaving a specific state.
-     *  @param from    - The state being exited.
-     *  @param handler - Callback invoked on exit.
-     *  @returns `this` for chaining.
-     */
-    hook_exit(from, handler) {
-        this.set_hook({ kind: 'exit', from, handler });
-        return this;
-    }
-    /**
-     * Register a hook that fires when a state's `after` timer elapses — the
-     *  delay-over companion to `a after 5s -> b;` style time transitions.  It
-     *  does NOT fire when the state is entered or left by ordinary dispatch;
-     *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
-     *  5.143.28 also spuriously fired it on entering the state, the jssm side
-     *  of StoneCypher/fsl#1327.)
-     *  @param from    - The state whose `after` timer is being watched.
-     *  @param handler - Callback invoked when the timer fires, just before the
-     *                   timed transition is taken; informational — its outcome
-     *                   cannot reject the transition.
-     *  @returns `this` for chaining.
-     *  @example
-     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
-     *    let calls = 0;
-     *    m.hook_after('a', () => { calls += 1; });
-     *    m.go('c');
-     *    m.go('a');
-     *    // ordinary dispatch never fires it; only the timer elapsing does:
-     *    calls;  // => 0
-     *    m.clear_state_timeout();
-     *  @see hook_entry
-     *  @see hook_exit
-     *  @see set_state_timeout
-     */
-    hook_after(from, handler) {
-        this.set_hook({ kind: 'after', from, handler });
-        return this;
-    }
-    /**
-     * Register a hook that fires when ANY state's `after` timer elapses — the
-     *  whole-machine companion to {@link hook_after}, mirroring how
-     *  {@link hook_any_transition} companions {@link hook}.  When the elapsing
-     *  state also has a specific {@link hook_after}, the specific hook fires
-     *  first and this one fires second; a specific after hook firing always
-     *  implies the any-after hook fires too (StoneCypher/fsl#1299).  Like
-     *  `hook_after` it is informational — its outcome cannot reject the timed
-     *  transition — and it does NOT fire on ordinary dispatch.
-     *  @param handler - Callback invoked whenever any `after` timer fires, just
-     *                   before the timed transition is taken.
-     *  @returns `this` for chaining.
-     *  @example
-     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
-     *    let calls = 0;
-     *    m.hook_after_any(() => { calls += 1; });
-     *    m.go('c');
-     *    m.go('a');
-     *    // ordinary dispatch never fires it; only a timer elapsing does:
-     *    calls;  // => 0
-     *    m.clear_state_timeout();
-     *  @see hook_after
-     *  @see hook_any_transition
-     *  @see set_state_timeout
-     */
-    hook_after_any(handler) {
-        this.set_hook({ kind: 'after any', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on a specific edge.  Fires after the transition
-     *  from `from` to `to` has completed.  Cannot block the transition.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param handler - Callback invoked after the transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook(from, to, handler) {
-        this.set_hook({ kind: 'post hook', from, to, handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on a specific action-labeled edge.
-     *  @param from    - Source state name.
-     *  @param to      - Target state name.
-     *  @param action  - The action label.
-     *  @param handler - Callback invoked after the transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_action(from, to, action, handler) {
-        this.set_hook({ kind: 'post named', from, to, action, handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any edge triggered by a specific action.
-     *  @param action  - The action name.
-     *  @param handler - Callback invoked after any transition with this action.
-     *  @returns `this` for chaining.
-     */
-    post_hook_global_action(action, handler) {
-        this.set_hook({ kind: 'post global action', action, handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any action-driven transition.
-     *  @param handler - Callback invoked after any action transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_any_action(handler) {
-        this.set_hook({ kind: 'post any action', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any standard (`->`) transition.
-     *  @param handler - Callback invoked after any legal transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_standard_transition(handler) {
-        this.set_hook({ kind: 'post standard transition', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any main-path (`=>`) transition.
-     *  @param handler - Callback invoked after any main transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_main_transition(handler) {
-        this.set_hook({ kind: 'post main transition', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any forced (`~>`) transition.
-     *  @param handler - Callback invoked after any forced transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_forced_transition(handler) {
-        this.set_hook({ kind: 'post forced transition', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook on any transition regardless of kind.
-     *  @param handler - Callback invoked after every transition.
-     *  @returns `this` for chaining.
-     */
-    post_hook_any_transition(handler) {
-        this.set_hook({ kind: 'post any transition', handler });
-        return this;
-    }
-    /**
-     * Post-transition hook that fires after entering a specific state.
-     *  @param to      - The state that was entered.
-     *  @param handler - Callback invoked after entry.
-     *  @returns `this` for chaining.
-     */
-    post_hook_entry(to, handler) {
-        this.set_hook({ kind: 'post entry', to, handler });
-        return this;
-    }
-    /**
-     * Post-transition hook that fires after leaving a specific state.
-     *  @param from    - The state that was exited.
-     *  @param handler - Callback invoked after exit.
-     *  @returns `this` for chaining.
-     */
-    post_hook_exit(from, handler) {
-        this.set_hook({ kind: 'post exit', from, handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook that fires **before** all other pre-hooks
-     *  on every transition.  If the handler returns `false`, the transition is
-     *  blocked.  The handler receives an {@link EverythingHookContext} whose
-     *  `hook_name` is `'pre everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_pre_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *    return true;
-     *  });
-     *  ```
-     *  @param handler - Callback invoked before all other pre-hooks.
-     *  @returns `this` for chaining.
-     */
-    hook_pre_everything(handler) {
-        this.set_hook({ kind: 'pre everything', handler });
-        return this;
-    }
-    /**
-     * Register a pre-transition hook that fires **after** all other pre-hooks
-     *  on every transition.  If the handler returns `false`, the transition is
-     *  blocked.  The handler receives an {@link EverythingHookContext} whose
-     *  `hook_name` is `'everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *    return true;
-     *  });
-     *  ```
-     *  @param handler - Callback invoked after all other pre-hooks.
-     *  @returns `this` for chaining.
-     */
-    hook_everything(handler) {
-        this.set_hook({ kind: 'everything', handler });
-        return this;
-    }
-    /**
-     * Register a post-transition hook that fires **after** all other
-     *  post-hooks on every transition.  Cannot block the transition.  The
-     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
-     *  `'post everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_post_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *  });
-     *  ```
-     *  @param handler - Callback invoked after all other post-hooks.
-     *  @returns `this` for chaining.
-     */
-    hook_post_everything(handler) {
-        this.set_hook({ kind: 'post everything', handler });
-        return this;
-    }
-    /**
-     * Register a post-transition hook that fires **before** all other
-     *  post-hooks on every transition.  Cannot block the transition.  The
-     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
-     *  `'pre post everything'`.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b -> c;`;
-     *  m.hook_pre_post_everything(({ hook_name }) => {
-     *    console.log(`${hook_name} fired`);
-     *  });
-     *  ```
-     *  @param handler - Callback invoked before all other post-hooks.
-     *  @returns `this` for chaining.
-     */
-    hook_pre_post_everything(handler) {
-        this.set_hook({ kind: 'pre post everything', handler });
-        return this;
-    }
-    /**
-     * Get the current RNG seed used for probabilistic transitions.
-     *  @returns The numeric seed value.
-     */
-    get rng_seed() {
-        return this._rng_seed;
-    }
-    /**
-     * Set the RNG seed.  Pass `undefined` to reseed from the current time.
-     *  Resets the internal PRNG so subsequent probabilistic operations use the
-     *  new seed.
-     *  @param to - The seed value, or `undefined` for time-based seeding.
-     */
-    set rng_seed(to) {
-        this._rng_seed = to === undefined ? Date.now() : to;
-        this._rng = gen_splitmix32(this._rng_seed);
-    }
-    // remove_hook(HookDesc: HookDescription) {
-    //   throw new JssmError(this, 'TODO: Should remove hook here');
-    // }
-    /**
-     * Get all edges between two states (there can be multiple with
-     *  different actions).
-     *  @param from - Source state name.
-     *  @param to   - Target state name.
-     *  @returns An array of matching {@link JssmTransition} objects.
-     */
-    edges_between(from, to) {
-        var _a;
-        // Filter only this state's outbound edges instead of the full _edges array.
-        // For machines with E total edges and average out-degree d, this is O(d)
-        // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
-        // covers from-states that have no outgoing edges (terminal states) and
-        // states that don't exist at all, both of which return [] without iterating.
-        //
-        // The match itself compares interned numeric state ids against the packed
-        // _edge_to_ids array rather than dereferencing each edge object for a
-        // string compare: non-matching edges never touch an edge object, which is
-        // most of the cost on dense shapes (heavier edge objects degrade a deref
-        // loop — the 5.142/5.143 regression mechanism).  Every state named by any
-        // edge is interned at construction, so an unknown `to` provably has no
-        // edges and returns [] immediately.
-        const to_id = this._state_interner.id_of(to);
-        if (to_id === undefined) {
-            return [];
-        }
-        const outbound = (_a = this._outbound_edge_ids.get(from)) !== null && _a !== void 0 ? _a : [];
-        const result = [];
-        for (const edgeId of outbound) {
-            if (this._edge_to_ids[edgeId] === to_id) {
-                result.push(this._edges[edgeId]);
-            }
-        }
-        return result;
-    }
-    /*********
-     *
-     *  Replace the current state — and, when a data argument is provided, the
-     *  data — with no regard to the graph.
-     *
-     *  The data argument is arity-detected: omitting it preserves the current
-     *  data, while explicitly passing `undefined` really sets the data to
-     *  `undefined` (StoneCypher/fsl#1264).  Before 5.163 an omitted data
-     *  argument silently cleared the data.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const machine = sm`a -> b -> c;`;
-     *  console.log( machine.state() );    // 'a'
-     *
-     *  machine.go('b');
-     *  machine.go('c');
-     *  console.log( machine.state() );    // 'c'
-     *
-     *  machine.override('a');
-     *  console.log( machine.state() );    // 'a'
-     *  ```
-     *
-     *  @param newState The state to teleport to; must exist in the graph.
-     *
-     *  @param newData Replacement data.  Omit to keep the current data; pass
-     *  `undefined` explicitly to clear it.
-     *
-     *  @throws {JssmError} If the machine's config does not set
-     *  `allows_override: true`, or if `newState` does not exist.
-     *
-     *  @see set_data
-     *
-     */
-    override(newState, newData) {
-        // arity, not undefined-comparison: an omitted argument preserves the
-        // data, an explicit `undefined` clears it (StoneCypher/fsl#1264)
-        const dataProvided = arguments.length >= 2;
-        if (this.allows_override) {
-            if (this._states.has(newState)) {
-                const fromState = this._state;
-                const oldData = this._data;
-                this._state = newState;
-                this._state_id = this._state_interner.intern(newState);
-                if (dataProvided) {
-                    this._data = newData;
-                }
-                this._fire('override', {
-                    from: fromState,
-                    to: newState,
-                    old_data: oldData,
-                    new_data: this._data
-                });
-                if (dataProvided && (oldData !== newData)) {
-                    this._fire('data-change', {
-                        from: fromState,
-                        to: newState,
-                        old_data: oldData,
-                        new_data: newData,
-                        cause: 'override'
-                    });
-                }
-                // An override is still a real state change that may cross group/state
-                // boundaries, so its boundary-hook actions fire too (depth-bounded).
-                this._fire_boundary_actions(fromState, newState);
-            }
-            else {
-                throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
-            }
-        }
-        else {
-            throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
-        }
-    }
-    /*********
-     *
-     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
-     *  Extracted from the per-call closures inside {@link transition_impl} so
-     *  that it is allocated once at class-definition time rather than on every
-     *  hooked transition.
-     *
-     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
-     *  @param fromState  State the machine was in when the transition was
-     *    attempted; used as the `from` field of the rejection event.
-     *  @param newState   State that would have been entered had the hook
-     *    passed; used as the `to` field of the rejection event.
-     *  @param fromAction Action name when the transition was initiated by an
-     *    action call; `undefined` for plain state transitions.
-     *  @param oldData    Machine data at the moment the transition was
-     *    attempted, before any hook mutations.
-     *  @param newData    The `next_data` value passed to the transition call.
-     *  @param wasForced  Whether the transition was attempted via
-     *    `force_transition`.
-     *
-     *  @see transition_impl
-     *  @see _fire
-     *
-     *  @internal
-     *
-     */
-    _fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
-        // Every hook veto in transition_impl's pre-commit pipeline exits through
-        // here, so this is the single close point for the reentrancy guard on the
-        // rejection path: clear it before firing the event so a `rejection` listener
-        // may itself transition (the outer transition is abandoned, not reverted).
-        // #1953
-        this._committing_transition = false;
-        this._fire('rejection', {
-            from: fromState,
-            to: newState,
-            action: fromAction,
-            data: oldData,
-            next_data: newData,
-            reason: 'hook',
-            hook_name,
-            forced: wasForced
-        });
-    }
-    /*********
-     *
-     *  Fire the FSL boundary-hook actions for a single, already-committed state
-     *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
-     *  means "when the machine crosses INTO group `g`, dispatch machine action
-     *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
-     *  that fires those parked hooks.
-     *
-     *  Crossing semantics (statechart convention — exits before enters):
-     *
-     *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
-     *     the old and new states, from `_state_to_groups`.
-     *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
-     *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
-     *     actually changed).
-     *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
-     *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
-     *     changed).
-     *  4. A group present in BOTH sets is a transition *within* that group and
-     *     fires neither of its boundary hooks.  `prev_state === next_state` fires
-     *     nothing at all.
-     *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
-     *     from the current state, `action` is a safe no-op (returns `false`) — an
-     *     inapplicable boundary action never throws.
-     *  6. Multi-membership and nesting both fan out naturally: a state in groups
-     *     A and B fires both; crossing an inner and an outer boundary fires both
-     *     levels.
-     *
-     *  Because firing an action can drive a further transition (which crosses
-     *  more boundaries, which fires more actions), this is a bounded
-     *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
-     *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
-     *  rather than overflowing the stack or hanging.  The limit defaults to 100
-     *  and is configurable via the `boundary_depth_limit` constructor option.
-     *
-     *  @param prev_state The state the machine was in before this commit.
-     *  @param next_state The state the machine is in now (already committed).
-     *
-     *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
-     *    (a probable infinite loop).
-     *
-     *  @see action
-     *  @see transition_impl
-     *
-     *  @internal
-     *
-     */
-    _fire_boundary_actions(prev_state, next_state) {
-        var _a, _b, _c, _d, _e, _f;
-        // Nothing crosses a boundary when the state name is unchanged.
-        if (prev_state === next_state) {
-            return;
-        }
-        // Skip entirely for machines that declared no boundary hooks at all — the
-        // overwhelming common case, and it keeps the hot transition path free of
-        // set arithmetic.
-        if (this._group_hooks.size === 0 && this._state_hooks.size === 0) {
-            return;
-        }
-        if (this._boundary_depth >= this._boundary_depth_limit) {
-            throw new JssmError(this, `boundary-hook action cascade exceeded depth limit (${this._boundary_depth_limit}) `
-                + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
-                + `(possible infinite loop)`);
-        }
-        const prev_groups = (_a = this._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : empty_string_set;
-        const next_groups = (_b = this._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : empty_string_set;
-        // The labels to dispatch, gathered before any firing so that re-entrant
-        // transitions caused by an early action cannot perturb which boundaries the
-        // *current* crossing fires.  Exits precede enters (statechart convention).
-        const labels = [];
-        // Exits: groups left (in prev but not next), then the plain prev state.
-        for (const group of prev_groups) {
-            if (next_groups.has(group)) {
-                continue;
-            }
-            const label = (_c = this._group_hooks.get(group)) === null || _c === void 0 ? void 0 : _c.onExit;
-            if (label !== undefined) {
-                labels.push(label);
-            }
-        }
-        const prev_state_exit = (_d = this._state_hooks.get(prev_state)) === null || _d === void 0 ? void 0 : _d.onExit;
-        if (prev_state_exit !== undefined) {
-            labels.push(prev_state_exit);
-        }
-        // Enters: groups entered (in next but not prev), then the plain next state.
-        for (const group of next_groups) {
-            if (prev_groups.has(group)) {
-                continue;
-            }
-            const label = (_e = this._group_hooks.get(group)) === null || _e === void 0 ? void 0 : _e.onEnter;
-            if (label !== undefined) {
-                labels.push(label);
-            }
-        }
-        const next_state_enter = (_f = this._state_hooks.get(next_state)) === null || _f === void 0 ? void 0 : _f.onEnter;
-        if (next_state_enter !== undefined) {
-            labels.push(next_state_enter);
-        }
-        if (labels.length === 0) {
-            return;
-        }
-        // Each dispatched action re-enters transition_impl, which (on success) calls
-        // back here for the boundary it just crossed.  The depth counter brackets
-        // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
-        this._boundary_depth += 1;
-        try {
-            for (const label of labels) {
-                this.action(label); // safe no-op (returns false) if inapplicable here
-            }
-        }
-        finally {
-            this._boundary_depth -= 1;
-        }
-    }
-    /*********
-     *
-     *  Shared transition core used by {@link transition}, {@link force_transition},
-     *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
-     *  everything, any-action, after, any-transition, exit, named, basic,
-     *  edge-type, entry, everything), commits the new state if nothing
-     *  rejected, and returns whether the transition succeeded.
-     *
-     *  Not meant for external use.  Call one of the public wrappers instead:
-     *  - `transition` for an ordinary legal transition
-     *  - `force_transition` to bypass the legality check
-     *  - `action` to dispatch by action name rather than target state
-     *
-     *  @remarks
-     *  Known sharp edges, carried over from the original `// TODO` comments:
-     *  - The forced-ness behavior needs to be cleaned up a lot here.
-     *  - The callbacks are not fully correct across the forced / action / plain
-     *    cases and should be revisited.
-     *  - When multiple edges exist between two states with different `kind`
-     *    values, only the first edge's kind is used to pick the edge-type hook.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted.
-     *
-     *  @param newStateOrAction The target state name (for a plain or forced
-     *  transition) or the action name (when `wasAction` is true).
-     *
-     *  @param newData Optional replacement machine data to install alongside
-     *  the transition.  Hooks may further override this via complex results.
-     *
-     *  @param wasForced `true` if the caller invoked `force_transition`, in
-     *  which case legality is checked against `valid_force_transition` rather
-     *  than `valid_transition`.
-     *
-     *  @param wasAction `true` if the caller invoked `action`, in which case
-     *  `newStateOrAction` is an action name and the target state is looked up
-     *  via the current action edge.
-     *
-     *  @param dataProvided `true` when the caller explicitly supplied a data
-     *  argument — even an explicitly-`undefined` one, which commits `undefined`
-     *  as the new data (StoneCypher/fsl#1264).  When `false` the current data
-     *  is preserved.  The public wrappers derive this from call arity; the
-     *  default reproduces the old `!== undefined` inference for any direct
-     *  callers.
-     *
-     *  @returns `true` if the transition was valid and every hook passed;
-     *  `false` if the transition was invalid or any hook rejected.
-     *
-     *  @throws {JssmError} If called reentrantly from inside a hook that is still
-     *  running in the enclosing transition's pre-commit pipeline — a hook that
-     *  calls `transition`/`go`/`do`/`action`.  Committing the inner transition
-     *  and then the outer one would silently discard the inner result, so the
-     *  reentry is rejected instead (StoneCypher/fsl#1953).  Post-commit reentry
-     *  (from a post-hook or the boundary-action cascade) is permitted.
-     *
-     *  @internal
-     *
-     */
-    transition_impl(newStateOrAction, newData, wasForced, wasAction, dataProvided = newData !== undefined) {
-        // Reject reentry from inside the pre-commit hook pipeline.  Without this, a
-        // hook that itself transitions the machine would commit an inner transition
-        // that this outer, not-yet-committed frame then silently overwrites.  Post-
-        // commit reentry (post-hooks, the boundary-action cascade) is fine: the flag
-        // is already cleared by then.  StoneCypher/fsl#1953
-        if (this._committing_transition) {
-            throw new JssmError(this, 'cannot start a transition from within a transition hook: the enclosing transition has not committed yet, so the inner result would be silently discarded');
-        }
-        let valid = false, 
-        // deliberately `string`, not `JssmArrowKind`, though only arrow kinds are
-        // ever assigned: declaring this local as the 4-member union makes tsc's
-        // control-flow analysis narrow it across the whole of this (very large)
-        // function, which overflows the checker's stack under `npm run make`.
-        // The union is recovered at the hook boundary below -- see hook_args_obj.
-        trans_type, newState, newStateId = NaN, actionId = NaN, fromAction;
-        if (wasForced) {
-            // numeric inline of valid_force_transition: any existing edge
-            // qualifies, forced or not.  one string probe (the user's target name)
-            // plus one numeric probe, replacing two string probes.
-            const to_id = this._state_interner.id_of(newStateOrAction);
-            const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
-            if (edgeId !== undefined) {
-                valid = true;
-                trans_type = 'forced';
-                newState = newStateOrAction;
-                newStateId = to_id;
-            }
-        }
-        else if (wasAction) {
-            // single numeric resolution: the old path looked the action up twice,
-            // once inside valid_action and again inside current_action_edge_for.
-            // aid is captured for the numeric hook probes below (#729).
-            const aid = this._action_interner.id_of(newStateOrAction);
-            const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
-            if (edgeId !== undefined) {
-                const edge = this._edges[edgeId];
-                valid = true;
-                trans_type = edge.kind;
-                newState = edge.to;
-                newStateId = this._edge_to_ids[edgeId];
-                fromAction = newStateOrAction;
-                actionId = aid;
-            }
-        }
-        else {
-            // numeric inline of valid_transition: the edge must exist and must not
-            // be forced_only (truthiness, matching the old refusal exactly)
-            const to_id = this._state_interner.id_of(newStateOrAction);
-            const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
-            if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
-                if (this._has_transition_hooks || this._has_post_transition_hooks) {
-                    // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
-                    // both first-declared-wins for parallel (from, to) pairs (see the
-                    // constructor around _edge_map / _edge_id_by_pair), and
-                    // _outbound_edge_ids fills in declaration order — so the old
-                    // first-match outbound scan always resolved to this same edgeId.
-                    // Direct read replaces the O(out-degree) object-deref scan; the
-                    // first-declared-kind semantics are pinned by the parallel-edge
-                    // transition-kind hook spec.  #735
-                    trans_type = this._edges[edgeId].kind;
-                }
-                valid = true;
-                newState = newStateOrAction;
-                newStateId = to_id;
-            }
-        }
-        // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
-        // blocks below.  Skip building it for hook-free machines (every
-        // chain/dense/hub/messy benchmark shape) so the hot path stops allocating
-        // a 7-field object it never reads.  The NonNullable cast keeps the type
-        // unchanged for all downstream uses without introducing an impossible
-        // (uncoverable) branch; the value is only dereferenced under the guards
-        // that imply it was built.  #670
-        // NOTE (#735): the { ...hook_args, hook_name } spreads at the four
-        // everything-hook sites are contractual, not waste — handlers may capture
-        // their context, and each captured context must durably carry its own
-        // hook_name (pinned by the simultaneous-everything-hook specs).  A shared
-        // mutated object cannot satisfy that; do not "optimize" the spreads away.
-        const hook_args_obj = (this._has_hooks || this._has_post_hooks)
-            ? {
-                data: this._data,
-                action: fromAction,
-                from: this._state,
-                to: newState,
-                next_data: newData,
-                forced: wasForced,
-                // sound: the only values ever assigned to trans_type are an edge's
-                // `kind` and the literal 'forced'.  The local is typed `string` only
-                // to keep tsc's flow analysis off it (see its declaration above).
-                trans_type: trans_type
-            }
-            : undefined;
-        const hook_args = hook_args_obj;
-        // 'action' event fires when an action is attempted, regardless of whether
-        // it ultimately succeeds — matches the issue spec for observation events.
-        // Gated on live listener count so we skip the detail-object allocation
-        // when nothing is subscribed.  Gate is read at fire time, so a listener
-        // registered inside a pre-hook still receives the event.  #671
-        if (wasAction && this._event_listener_count !== 0) {
-            this._fire('action', {
-                action: newStateOrAction,
-                from: this._state,
-                to: newState,
-                data: this._data,
-                next_data: newData
-            });
-        }
-        // Captured pre-transition source state so 'data-change' detail and similar
-        // events can name where we came from.  fromStateId mirrors it for the
-        // numeric post-hook probes: by the time they run, _state_id is already
-        // the destination (#729).
-        const fromState = this._state;
-        const fromStateId = this._state_id;
-        const oldData = this._data;
-        if (valid) {
-            if (this._has_hooks) {
-                // Open the pre-commit window: from here until the commit below, any
-                // reentrant transition_impl call (a hook transitioning the machine)
-                // throws instead of being silently reverted.  The `finally` below closes
-                // it on every exit path; _fire_hook_rejection additionally clears it
-                // before firing the rejection event so a rejection listener may itself
-                // transition.  The pipeline body is intentionally left at its original
-                // indentation to keep this fix's diff focused.  #1953
-                this._committing_transition = true;
-                try {
-                    let data_changed = false;
-                    // 0. pre everything hook (fires before all other pre-hooks)
-                    if (this._pre_everything_hook !== undefined) {
-                        const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    if (wasAction) {
-                        // 1a. any action hook
-                        const outcome = abstract_hook_step(this._any_action_hook, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                        // 1b. global specific action hook
-                        const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
-                        if (!outcome2.pass) {
-                            this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome2)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 2. (removed) After hooks do NOT fire on dispatch.  They are the
-                    // `after`-timer's companion (fsl#698: "delay over!") and fire only from
-                    // the state-timeout path.  Through v5.143.28 a probe here keyed on
-                    // newStateOrAction spuriously fired them on entering the hooked state —
-                    // or on a same-named action — making one timer elapse read as two
-                    // handler calls (StoneCypher/fsl#1327).
-                    // 3. any transition hook
-                    if (this._any_transition_hook !== undefined) {
-                        const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 4. exit hook
-                    if (this._has_exit_hooks) {
-                        const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // shared by steps 5 and 6: pre-commit, this._state_id is still the
-                    // from-state, so both probes key on the same pair; compute it once
-                    const pre_pair_id = pair_key(this._state_id, newStateId);
-                    // 5. named transition / action hook
-                    if (this._has_named_hooks && wasAction) {
-                        // Numeric pair probe, then the action id captured at dispatch (#729).
-                        const byPair = this._named_hooks.get(pre_pair_id);
-                        const nh = byPair === undefined ? undefined : byPair.get(actionId);
-                        const outcome = abstract_hook_step(nh, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 6. regular hook
-                    if (this._has_basic_hooks) {
-                        // Numeric pair probe (#729); one integer hash replaces two string maps.
-                        const h = this._hooks.get(pre_pair_id);
-                        const outcome = abstract_hook_step(h, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 7. edge type hook
-                    // 7a. standard transition hook
-                    if (trans_type === 'legal') {
-                        const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                        // 7b. main type hook
-                    }
-                    else if (trans_type === 'main') {
-                        const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                        // 7c. forced transition hook
-                    }
-                    else if (trans_type === 'forced') {
-                        const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 8. entry hook
-                    if (this._has_entry_hooks) {
-                        const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // 9. everything hook (fires after all other pre-hooks)
-                    if (this._everything_hook !== undefined) {
-                        const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
-                        if (!outcome.pass) {
-                            this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced);
-                            return false;
-                        }
-                        if (_update_hook_fields(hook_args, outcome)) {
-                            data_changed = true;
-                        }
-                    }
-                    // all hooks passed!  let's now establish the result
-                    // a hook may have redirected the destination via a complex result's
-                    // `state` (carried on hook_args.to).  Apply it now, validating it names
-                    // a real state.  Pre-transition hooks (including entry/exit) fired for
-                    // the original edge; the committed state and the post-hooks, observation
-                    // events, and after-timer all reflect the override.  Last writer wins.
-                    // StoneCypher/fsl#1947
-                    if (hook_args.to !== newState) {
-                        const override_id = this._state_interner.id_of(hook_args.to);
-                        if (override_id === undefined) {
-                            throw new JssmError(this, `A hook overrode the transition destination to '${hook_args.to}', which is not a state in this machine`);
-                        }
-                        newState = hook_args.to;
-                        newStateId = override_id;
-                    }
-                    if (this._history_length) {
-                        this._history.shove([this._state, this._data]);
-                    }
-                    this._state = newState;
-                    this._state_id = newStateId;
-                    if (data_changed) {
-                        this._data = hook_args.next_data;
-                    }
-                    else if (dataProvided) {
-                        this._data = newData;
-                    }
-                    // success fallthrough to posthooks; intentionally no return here
-                    // look for "posthooks begin here"
-                }
-                finally {
-                    // Close the pre-commit window on EVERY exit from the pipeline: normal
-                    // fallthrough after commit, a hook veto's `return false`, the
-                    // destination-override throw, or a user hook throwing.  Post-hooks and
-                    // the boundary-action cascade run after this and may re-enter the
-                    // machine coherently from the committed state.  #1953
-                    this._committing_transition = false;
-                }
-                // or without hooks
-            }
-            else {
-                if (this._history_length) {
-                    this._history.shove([this._state, this._data]);
-                }
-                this._state = newState;
-                this._state_id = newStateId;
-                // provision is detected by caller arity, so an explicit `undefined`
-                // commits while an omitted argument preserves (StoneCypher/fsl#1264)
-                if (dataProvided) {
-                    this._data = newData;
-                }
-                // success fallthrough to posthooks; intentionally no return here
-                // look for "posthooks begin here"
-            }
-            // not valid
-        }
-        else {
-            // Gated on live listener count so we skip the detail-object allocation
-            // when nothing is subscribed.  A listener still receives the event
-            // because the gate is read at fire time.  #671
-            if (this._event_listener_count !== 0) {
-                this._fire('rejection', {
-                    from: fromState,
-                    to: newStateOrAction, // we never resolved a real target
-                    action: fromAction,
-                    data: oldData,
-                    next_data: newData,
-                    reason: 'invalid',
-                    forced: wasForced
-                });
-            }
-            return false;
-        }
-        // posthooks begin here
-        if (this._has_post_hooks) {
-            // 0. pre post everything hook (fires before all other post-hooks)
-            if (this._pre_post_everything_hook !== undefined) {
-                this._pre_post_everything_hook(Object.assign(Object.assign({}, hook_args), { hook_name: 'pre post everything' }));
-            }
-            if (wasAction) {
-                // 1. any action posthook
-                if (this._post_any_action_hook !== undefined) {
-                    this._post_any_action_hook(hook_args);
-                }
-                // 2. global specific action hook
-                const pgah = this._post_global_action_hooks.get(actionId);
-                if (pgah !== undefined) {
-                    pgah(hook_args);
-                }
-            }
-            // 3. any transition hook
-            if (this._post_any_transition_hook !== undefined) {
-                this._post_any_transition_hook(hook_args);
-            }
-            // 4. exit hook
-            if (this._has_post_exit_hooks) {
-                const peh = this._post_exit_hooks.get(fromStateId);
-                if (peh !== undefined) {
-                    peh(hook_args);
-                }
-            }
-            // shared by steps 5 and 6: post-commit this._state_id has moved on, so
-            // the from-side of the pair comes from the captured fromStateId;
-            // compute it once
-            const post_pair_id = pair_key(fromStateId, newStateId);
-            // 5. named transition / action hook
-            if (this._has_post_named_hooks && wasAction) {
-                // Numeric pair probe, then the action id captured at dispatch (#729).
-                const byPair = this._post_named_hooks.get(post_pair_id);
-                const pnh = byPair === undefined ? undefined : byPair.get(actionId);
-                if (pnh !== undefined) {
-                    pnh(hook_args);
-                }
-            }
-            // 6. regular hook
-            if (this._has_post_basic_hooks) {
-                // Numeric pair probe (#729).
-                const hook = this._post_hooks.get(post_pair_id);
-                if (hook !== undefined) {
-                    hook(hook_args);
-                }
-            }
-            // 7. edge type hook
-            // 7a. standard transition hook
-            if (trans_type === 'legal' && this._post_standard_transition_hook !== undefined) {
-                this._post_standard_transition_hook(hook_args);
-            }
-            // 7b. main type hook
-            if (trans_type === 'main' && this._post_main_transition_hook !== undefined) {
-                this._post_main_transition_hook(hook_args);
-            }
-            // 7c. forced transition hook
-            if (trans_type === 'forced' && this._post_forced_transition_hook !== undefined) {
-                this._post_forced_transition_hook(hook_args);
-            }
-            // 8. entry hook
-            if (this._has_post_entry_hooks) {
-                const hook = this._post_entry_hooks.get(newStateId);
-                if (hook !== undefined) {
-                    hook(hook_args);
-                }
-            }
-            // 9. post everything hook (fires after all other post-hooks)
-            if (this._post_everything_hook !== undefined) {
-                this._post_everything_hook(Object.assign(Object.assign({}, hook_args), { hook_name: 'post everything' }));
-            }
-        }
-        // Observation events (#638) fire after the state is committed.  Each call
-        // builds a detail literal at the call site, so guard the whole block on a
-        // live subscription count: with zero listeners (the common hot-path case,
-        // and every benchmark shape) we skip all of these allocations entirely.
-        // Read after pre-hooks, so a listener a pre-hook installed is still seen.
-        // ('action' above and 'rejection' on the invalid path are intentionally
-        // NOT under this gate — they fire regardless, and `_fire` itself no-ops
-        // cheaply when that specific event has no subscribers.)  #670
-        if (this._event_listener_count !== 0) {
-            const newData_after = this._data;
-            // per-name gates: each detail literal below is only built when that
-            // specific event has a live subscriber — a single-purpose panel
-            // listening only to 'transition' previously paid for the exit/entry/
-            // data-change/terminal/complete allocations _fire then discarded.
-            // Gates read at fire time, like the outer count, preserving #671.
-            if (this._has_subscribers('exit')) {
-                this._fire('exit', {
-                    state: fromState,
-                    to: newState,
-                    action: fromAction,
-                    data: newData_after
-                });
-            }
-            if (this._has_subscribers('transition')) {
-                this._fire('transition', {
-                    from: fromState,
-                    to: newState,
-                    action: fromAction,
-                    data: newData_after,
-                    next_data: newData,
-                    trans_type,
-                    forced: wasForced
-                });
-            }
-            if (this._has_subscribers('entry')) {
-                this._fire('entry', {
-                    state: newState,
-                    from: fromState,
-                    action: fromAction,
-                    data: newData_after
-                });
-            }
-            if ((oldData !== newData_after) && this._has_subscribers('data-change')) {
-                this._fire('data-change', {
-                    from: fromState,
-                    to: newState,
-                    action: fromAction,
-                    old_data: oldData,
-                    new_data: newData_after,
-                    cause: 'transition'
-                });
-            }
-            // one state-record fetch answers both checks; newState is known-valid
-            // here, and the public state_is_terminal / state_is_complete pair would
-            // each redo has_state plus its own map walk.  Same predicates:
-            // terminal = no exits, complete = the constructor-set flag.  #735
-            const new_state_rec = this._states.get(newState);
-            if ((new_state_rec.to.length === 0) && this._has_subscribers('terminal')) {
-                this._fire('terminal', { state: newState, data: newData_after });
-            }
-            if (new_state_rec.complete && this._has_subscribers('complete')) {
-                this._fire('complete', { state: newState, data: newData_after });
-            }
-        }
-        // FSL boundary-hook actions (`on enter/exit &g do 'X'`) fire after the
-        // state is committed and after the observation events, matching the
-        // statechart "exits before enters" convention.  Cascades are depth-bounded
-        // inside the helper.
-        this._fire_boundary_actions(fromState, newState);
-        // Clear the departed state's `after` timer and re-establish the new state's,
-        // now that the transition has actually committed.  This clear runs only on a
-        // successful commit -- a hook that VETOES the transition returns above, so
-        // the machine stays put and its pending `after` timer is preserved
-        // (StoneCypher/fsl#1945).  It still runs for hook-free machines, so a manual
-        // transition away cannot leave a ghost timer to fire a stray go() later
-        // (the fsl#1327 guarantee).  The clear must precede the arm because
-        // set_state_timeout throws if a timer is already pending.
-        this.clear_state_timeout();
-        this.auto_set_state_timeout();
-        return true;
-    }
-    /**
-     * If the current state has an `after` timeout configured, schedule it.
-     *  Called internally after each transition.
-     */
-    auto_set_state_timeout() {
-        // called on every successful transition-commit.  Machines with no `after`
-        // clauses at all (the overwhelmingly common case) previously still paid a
-        // string hash + map probe here per transition; one integer size read
-        // short-circuits that.
-        if (this._after_mapping.size === 0) {
-            return;
-        }
-        const after_res = this._after_mapping.get(this._state);
-        if (after_res !== undefined) {
-            const [next_state, after_time] = after_res;
-            this.set_state_timeout(next_state, after_time);
-        }
-    }
-    /*********
-     *
-     *  Get a truncated history of the recent states and data of the machine.
-     *  Turned off by default; configure with `.from('...', {data: 5})` by length,
-     *  or set `.history_length` at runtime.
-     *
-     *  History *does not contain the current state*.  If you want that, call
-     *  `.history_inclusive` instead.
-     *
-     *  ```typescript
-     *  const foo = jssm.from(
-     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-     *    { history: 3 }
-     *  );
-     *
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *
-     *  foo.history;  // [ ['b',undefined], ['c',undefined], ['d',undefined] ]
-     *  ```
-     *
-     *  Notice that the machine's current state, `e`, is not in the returned list.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     */
-    get history() {
-        return this._history.toArray();
-    }
-    /*********
-     *
-     *  Get a truncated history of the recent states and data of the machine,
-     *  including the current state.  Turned off by default; configure with
-     *  `.from('...', {data: 5})` by length, or set `.history_length` at runtime.
-     *
-     *  History inclusive contains the current state.  If you only want past
-     *  states, call `.history` instead.
-     *
-     *  The list returned will be one longer than the history buffer kept, as the
-     *  history buffer kept gets the current state added to it to produce this
-     *  list.
-     *
-     *  ```typescript
-     *  const foo = jssm.from(
-     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
-     *    { history: 3 }
-     *  );
-     *
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *  foo.action('next');
-     *
-     *  foo.history_inclusive;  // [ ['b',undefined], ['c',undefined], ['d',undefined], ['e',undefined] ]
-     *  ```
-     *
-     *  Notice that the machine's current state, `e`, is in the returned list.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     */
-    get history_inclusive() {
-        const ret = this._history.toArray();
-        ret.push([this.state(), this.data()]);
-        return ret;
-    }
-    /*********
-     *
-     *  Find out how long a history this machine is keeping.  Defaults to zero.
-     *  Settable directly.
-     *
-     *  ```typescript
-     *  const foo = jssm.from("a -> b;");
-     *  foo.history_length;                                  // 0
-     *
-     *  const bar = jssm.from("a -> b;", { history: 3 });
-     *  foo.history_length;                                  // 3
-     *  foo.history_length = 5;
-     *  foo.history_length;                                  // 5
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     */
-    get history_length() {
-        return this._history_length;
-    }
-    set history_length(to) {
-        this._history_length = to;
-        this._history.resize(to, true);
-    }
-    /********
-     *
-     *  Instruct the machine to complete an action.  Synonym for {@link do}.
-     *
-     *  ```typescript
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();               // 'red'
-     *  light.action('next');        // true
-     *  light.state();               // 'green'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param actionName The action to engage
-     *
-     *  @param newData The data change to insert during the action
-     *
-     *  @returns `true` if the action was valid and the transition occurred,
-     *  `false` otherwise.
-     *
-     */
-    action(actionName, newData) {
-        // arity, not undefined-comparison: an explicit `undefined` is a real
-        // data assignment (StoneCypher/fsl#1264)
-        return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
-    }
-    /********
-     *
-     *  Get the standard style for a single state.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.standard_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; state: { shape: circle; };`;
-     *  console.log(light.standard_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for standard states.
-     *
-     */
-    get standard_state_style() {
-        return this._state_style;
-    }
-    /********
-     *
-     *  Get the hooked state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  The hooked style is only applied to nodes which have a named hook in the
-     *  graph.  Open hooks set through the external API aren't graphed, because
-     *  that would be literally every node.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.hooked_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
-     *  console.log(light.hooked_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for hooked states.
-     *
-     */
-    get hooked_state_style() {
-        return this._hooked_state_style;
-    }
-    /********
-     *
-     *  Get the start state style.  ***Does not*** include composition from an
-     *  applied theme, or things from the underlying base stylesheet; only the
-     *  modifications applied by this machine.
-     *
-     *  Start states are defined by the directive `start_states`, or in absentia,
-     *  are the first mentioned state.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.start_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; start_state: { shape: circle; };`;
-     *  console.log(light.start_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for start states.
-     *
-     */
-    get start_state_style() {
-        return this._start_state_style;
-    }
-    /********
-     *
-     *  Get the end state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  End states are defined in the directive `end_states`, and are distinct
-     *  from terminal states.  End states are voluntary successful endpoints for a
-     *  process.  Terminal states are states that cannot be exited.  By example,
-     *  most error states are terminal states, but not end states.  Also, since
-     *  some end states can be exited and are determined by hooks, such as
-     *  recursive or iterative nodes, there is such a thing as an end state that
-     *  is not a terminal state.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.standard_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; end_state: { shape: circle; };`;
-     *  console.log(light.standard_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for end states.
-     *
-     */
-    get end_state_style() {
-        return this._end_state_style;
-    }
-    /********
-     *
-     *  Get the terminal state style.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  Terminal state styles are automatically determined by the machine.  Any
-     *  state without a valid exit transition is terminal.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.terminal_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
-     *  console.log(light.terminal_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for terminal states.
-     *
-     */
-    get terminal_state_style() {
-        return this._terminal_state_style;
-    }
-    /********
-     *
-     *  Get the style for the active state.  ***Does not*** include
-     *  composition from an applied theme, or things from the underlying base
-     *  stylesheet; only the modifications applied by this machine.
-     *
-     *  ```typescript
-     *  const light = sm`a -> b;`;
-     *  console.log(light.active_state_style);
-     *  // {}
-     *
-     *  const light = sm`a -> b; active_state: { shape: circle; };`;
-     *  console.log(light.active_state_style);
-     *  // { shape: 'circle' }
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The {@link JssmStateConfig} for the active state.
-     *
-     */
-    get active_state_style() {
-        return this._active_state_style;
-    }
-    /********
-     *
-     *  Generate the uniform observational-hook registry — every currently
-     *  registered hook projected onto a normalized `(kind, target, phase)` row
-     *  (megaspec §12, → #1357).  The registry is *generated* on demand by
-     *  walking the concrete per-kind storage tables rather than maintained as a
-     *  second copy, so it can never drift from the tables {@link Machine.set_hook}
-     *  actually dispatches into.  It is the single source of truth behind the
-     *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
-     *  and the `hooked_state` viz styling.
-     *
-     *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
-     *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
-     *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
-     *  transition-class, and `everything` observers become `{ scope: 'global' }`.
-     *
-     *  ```typescript
-     *  const m = sm`a 'go' -> b;`;
-     *  m.hook_entry('b', () => true);
-     *  m.hook_registry();
-     *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
-     *  ```
-     *
-     *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
-     *  table-walk order (pre-phase tables first, then post-phase).
-     *
-     */
-    hook_registry() {
-        const entries = [];
-        // The hot-path hook tables are keyed by interned integer ids (states and
-        // actions) and, for edges, by `pair_key(from_id, to_id)`.  Decode each key
-        // back to its original name so the registry speaks states/actions, never
-        // ids.  The lone exception is `_after_hooks`, deliberately string-keyed.
-        const state_name = (id) => this._state_interner.name_of(id);
-        const action_name = (id) => this._action_interner.name_of(id);
-        // edge tables: pair_key(from_id, to_id) -> handler
-        const push_edges = (table, kind, phase) => {
-            table.forEach((_handler, pk) => {
-                const [fid, tid] = un_pair_key(pk);
-                entries.push({ kind, phase, target: { scope: 'edge', from: state_name(fid), to: state_name(tid) } });
-            });
-        };
-        // named-edge tables: pair_key(from_id, to_id) -> action_id -> handler
-        const push_named = (table, kind, phase) => {
-            table.forEach((byAction, pk) => {
-                const [fid, tid] = un_pair_key(pk);
-                const from = state_name(fid), to = state_name(tid);
-                byAction.forEach((_handler, aid) => {
-                    entries.push({ kind, phase, target: { scope: 'edge', from, to, action: action_name(aid) } });
-                });
-            });
-        };
-        // entry/exit tables: interned state_id -> handler
-        const push_states = (table, kind, phase) => {
-            table.forEach((_handler, sid) => {
-                entries.push({ kind, phase, target: { scope: 'state', state: state_name(sid) } });
-            });
-        };
-        // the `after` table is the lone string-keyed exception: state name -> handler
-        const push_states_by_name = (table, kind, phase) => {
-            table.forEach((_handler, state) => {
-                entries.push({ kind, phase, target: { scope: 'state', state: state } });
-            });
-        };
-        // global-action tables: interned action_id -> handler
-        const push_actions = (table, kind, phase) => {
-            table.forEach((_handler, aid) => {
-                entries.push({ kind, phase, target: { scope: 'action', action: action_name(aid) } });
-            });
-        };
-        const push_global = (handler, kind, phase) => {
-            if (handler !== undefined) {
-                entries.push({ kind, phase, target: { scope: 'global' } });
-            }
-        };
-        // FSL boundary hooks: subject name -> { onEnter?, onExit? }, fired post-
-        // commit.  Each present direction becomes its own row, all phase 'post'.
-        const push_boundary = (table, enterKind, exitKind, target_of) => {
-            table.forEach((bh, subject) => {
-                if (bh.onEnter !== undefined) {
-                    entries.push({ kind: enterKind, phase: 'post', target: target_of(subject) });
-                }
-                if (bh.onExit !== undefined) {
-                    entries.push({ kind: exitKind, phase: 'post', target: target_of(subject) });
-                }
-            });
-        };
-        // pre-phase, edge- and state-keyed tables
-        push_edges(this._hooks, 'hook', 'pre');
-        push_named(this._named_hooks, 'named', 'pre');
-        push_states(this._entry_hooks, 'entry', 'pre');
-        push_states(this._exit_hooks, 'exit', 'pre');
-        push_states_by_name(this._after_hooks, 'after', 'pre');
-        push_actions(this._global_action_hooks, 'global action', 'pre');
-        // pre-phase, global singletons
-        push_global(this._any_action_hook, 'any action', 'pre');
-        push_global(this._standard_transition_hook, 'standard transition', 'pre');
-        push_global(this._main_transition_hook, 'main transition', 'pre');
-        push_global(this._forced_transition_hook, 'forced transition', 'pre');
-        push_global(this._any_transition_hook, 'any transition', 'pre');
-        push_global(this._after_any_hook, 'after any', 'pre');
-        push_global(this._pre_everything_hook, 'pre everything', 'pre');
-        push_global(this._everything_hook, 'everything', 'pre');
-        // post-phase, edge- and state-keyed tables
-        push_edges(this._post_hooks, 'post hook', 'post');
-        push_named(this._post_named_hooks, 'post named', 'post');
-        push_states(this._post_entry_hooks, 'post entry', 'post');
-        push_states(this._post_exit_hooks, 'post exit', 'post');
-        push_actions(this._post_global_action_hooks, 'post global action', 'post');
-        // post-phase, global singletons
-        push_global(this._post_any_action_hook, 'post any action', 'post');
-        push_global(this._post_standard_transition_hook, 'post standard transition', 'post');
-        push_global(this._post_main_transition_hook, 'post main transition', 'post');
-        push_global(this._post_forced_transition_hook, 'post forced transition', 'post');
-        push_global(this._post_any_transition_hook, 'post any transition', 'post');
-        push_global(this._pre_post_everything_hook, 'pre post everything', 'post');
-        push_global(this._post_everything_hook, 'post everything', 'post');
-        // FSL boundary hooks (post-commit): group and plain-state subjects
-        push_boundary(this._group_hooks, 'group enter', 'group exit', (group) => ({ scope: 'group', group }));
-        push_boundary(this._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state }));
-        return entries;
-    }
-    /********
-     *
-     *  Does a single registry entry reference the state `state`?  An entry
-     *  references a state when it is a `'state'`-scoped hook on that state, or an
-     *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
-     *  `'global'`-scoped entries reference no particular state.  This is the
-     *  predicate behind both per-state introspection and the `hooked_state`
-     *  styling layer.
-     *
-     *  @param entry The registry entry to test.
-     *  @param state The state name to test membership of.
-     *  @returns `true` when the entry observes that state.
-     *
-     */
-    static _entry_touches_state(entry, state) {
-        const t = entry.target;
-        if (t.scope === 'state') {
-            return t.state === state;
-        }
-        if (t.scope === 'edge') {
-            return t.from === state || t.to === state;
-        }
-        return false;
-    }
-    /********
-     *
-     *  Does a single registry entry match a `{ from, to, action? }` edge query?
-     *  Only `'edge'`-scoped entries can match.  When the query omits `action`
-     *  the entry's action (if any) is ignored; when the query supplies `action`
-     *  it must match exactly.
-     *
-     *  @param entry The registry entry to test.
-     *  @param from  The edge origin to match.
-     *  @param to    The edge destination to match.
-     *  @param action Optional named action to match exactly.
-     *  @returns `true` when the entry observes that edge.
-     *
-     */
-    static _entry_matches_edge(entry, from, to, action) {
-        const t = entry.target;
-        if (t.scope !== 'edge') {
-            return false;
-        }
-        if (t.from !== from || t.to !== to) {
-            return false;
-        }
-        if (action !== undefined) {
-            return t.action === action;
-        }
-        return true;
-    }
-    /********
-     *
-     *  Does a single registry entry match an action name?  Both `'action'`-scoped
-     *  hooks (global-action hooks) and named-edge hooks carrying that action
-     *  count as matches.
-     *
-     *  @param entry  The registry entry to test.
-     *  @param action The action name to match.
-     *  @returns `true` when the entry observes that action.
-     *
-     */
-    static _entry_matches_action(entry, action) {
-        const t = entry.target;
-        if (t.scope === 'action') {
-            return t.action === action;
-        }
-        if (t.scope === 'edge') {
-            return t.action === action;
-        }
-        return false;
-    }
-    /********
-     *
-     *  Does a single registry entry match a named state group?  Only
-     *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
-     *  are matched by group name only — they deliberately do not propagate to
-     *  member states, so a member-state query never returns them.
-     *
-     *  @param entry The registry entry to test.
-     *  @param group The group name to match.
-     *  @returns `true` when the entry observes that group's boundary.
-     *
-     */
-    static _entry_matches_group(entry, group) {
-        const t = entry.target;
-        if (t.scope === 'group') {
-            return t.group === group;
-        }
-        return false;
-    }
-    /********
-     *
-     *  Return every registry entry observing the given target (megaspec §12).
-     *  The `query` selects the target shape:
-     *
-     *  - a bare **state name** matches entry/exit/after hooks on that state, its
-     *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
-     *  - a `{ from, to, action? }` **edge** matches edge hooks on that
-     *    transition (optionally narrowed to the named action),
-     *  - a `{ action }` **action** matches global-action and named-edge hooks
-     *    carrying that action,
-     *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
-     *    are matched by name only and do not propagate to member states).
-     *
-     *  ```typescript
-     *  const m = sm`a 'go' -> b;`;
-     *  m.hook_entry('b', () => true);
-     *  m.hooks_on('b').length;             // 1
-     *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
-     *  ```
-     *
-     *  @param query The {@link HookQuery} naming the target to inspect.
-     *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
-     *
-     */
-    hooks_on(query) {
-        const registry = this.hook_registry();
-        if (typeof query === 'string') {
-            return registry.filter(e => Machine._entry_touches_state(e, query));
-        }
-        // An edge query is distinguished by carrying `from` (it may *also* carry
-        // `action`, which narrows the edge — so this must be tested before the
-        // action-only case, whose discriminator `action` an edge query can share).
-        if ('from' in query) {
-            return registry.filter(e => Machine._entry_matches_edge(e, query.from, query.to, query.action));
-        }
-        if ('group' in query) {
-            return registry.filter(e => Machine._entry_matches_group(e, query.group));
-        }
-        return registry.filter(e => Machine._entry_matches_action(e, query.action));
-    }
-    /********
-     *
-     *  Is at least one observational hook bound to the given target (megaspec
-     *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
-     *  optional `phase` narrows the test to pre- or post-transition hooks only;
-     *  omitted, either phase satisfies it.
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.has_hook('b');                 // false
-     *  m.hook_entry('b', () => true);
-     *  m.has_hook('b');                 // true
-     *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
-     *  ```
-     *
-     *  @param query The {@link HookQuery} naming the target to inspect.
-     *  @param phase Optional {@link HookPhase} to restrict the test to.
-     *  @returns `true` when a matching hook exists.
-     *
-     */
-    has_hook(query, phase) {
-        const matches = this.hooks_on(query);
-        if (phase === undefined) {
-            return matches.length > 0;
-        }
-        return matches.some(e => e.phase === phase);
-    }
-    /********
-     *
-     *  Does the given state carry any observational hook — i.e. should it receive
-     *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
-     *  bound to the state, any edge hook touches it, or the state has its own
-     *  boundary hook.  Group-boundary hooks do *not* count here — they are
-     *  matched by group only and never propagate to member states.  Powers the
-     *  `hooked` styling layer in {@link Machine.resolve_state_config}; replaces
-     *  the long-stubbed `has_hooks` placeholder (megaspec §12).
-     *
-     *  ```typescript
-     *  const m = sm`a -> b;`;
-     *  m.state_has_hooks('a');          // false
-     *  m.hook_exit('a', () => true);
-     *  m.state_has_hooks('a');          // true
-     *  ```
-     *
-     *  @param state The state to test.
-     *  @returns `true` when the state is observed by at least one hook.
-     *
-     */
-    state_has_hooks(state) {
-        // Boundary hooks are a separate mechanism that sets neither _has_hooks nor
-        // _has_post_hooks, so the fast-out must also consult the boundary tables —
-        // otherwise a state whose only hook is a boundary hook reports unhooked.
-        if (!this._has_hooks
-            && !this._has_post_hooks
-            && (this._state_hooks.size === 0)
-            && (this._group_hooks.size === 0)) {
-            return false;
-        }
-        return this.hook_registry().some(e => Machine._entry_touches_state(e, state));
-    }
-    /********
-     *
-     *  Resolves the full unified style/config cascade for a state — the runtime
-     *  successor to the ad-hoc layer merge {@link style_for} used to perform.
-     *
-     *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see `_compose_state_config`) — theme →
-     *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-     *  per-state config.  The cache is keyed by state; those tiers do not depend
-     *  on which state is current, so it survives transitions, but the mutable
-     *  cascade inputs each clear it when they change — hook registration and
-     *  removal ({@link Machine.set_hook}, {@link Machine.remove_hook}; the
-     *  hooked layer) and theme assignment (the `themes` setter; tier 1 and the
-     *  per-kind theme layers).
-     *
-     *  For the machine's CURRENTLY-occupied state the result is recomputed each
-     *  call (never cached) and additionally carries the dynamic `active_state`
-     *  layers: the active-state THEME layers fold in just below the per-state
-     *  config (tier 3-active), and the user `active_state : { … }` overlay folds
-     *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses `merge_state_config`, so a key set at a lower tier is
-     *  overridden — never rejected — by a higher one.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
-     *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to compute the composite config for.
-     *
-     *  @returns The fully composited {@link JssmStateConfig} for the state,
-     *  including the active overlay when the state is current.
-     *
-     *  @see style_for
-     *
-     */
-    resolve_state_config(state) {
-        // The current state carries the dynamic active layers and is recomputed
-        // each call so the overlay tracks transitions; it is never memoized.
-        if (this.state() === state) {
-            const acc = __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_compose_state_config).call(this, state, true);
-            // tier 6 — user active_state overlay, on top of per-state config.
-            return merge_state_config(acc, this._active_state_style);
-        }
-        // Non-current states: tiers 1–5 only, memoized.
-        const cached = this._static_state_config_cache.get(state);
-        if (cached !== undefined) {
-            return cached;
-        }
-        const resolved = __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_compose_state_config).call(this, state, false);
-        this._static_state_config_cache.set(state, resolved);
-        return resolved;
-    }
-    /********
-     *
-     *  Gets the composite style for a specific node — the public viz entry point,
-     *  now a thin wrapper over the unified config cascade in
-     *  {@link resolve_state_config}.
-     *
-     *  The order of composition runs least-specific to most-specific: theme
-     *  defaults, then the `default_state_config` root, then per-kind defaults
-     *  (terminal, start, end), then depth-ordered group metadata (inner groups
-     *  winning over outer), then the per-state config, and finally — for the
-     *  current state only — the active overlay.  Last wins at every tier.
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to compute the composite style for.
-     *
-     *  @returns The fully composited {@link JssmStateConfig} for the given state.
-     *
-     *  @see resolve_state_config
-     *
-     */
-    style_for(state) {
-        return this.resolve_state_config(state);
-    }
-    /********
-     *
-     *  Instruct the machine to complete an action.  Synonym for {@link action}.
-     *
-     *  ```typescript
-     *  const light = sm`
-     *    off 'start' -> red;
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off;
-     *  `;
-     *
-     *  light.state();       // 'off'
-     *  light.do('start');   // true
-     *  light.state();       // 'red'
-     *  light.do('next');    // true
-     *  light.state();       // 'green'
-     *  light.do('next');    // true
-     *  light.state();       // 'yellow'
-     *  light.do('dance');   // !! false - no such action
-     *  light.state();       // 'yellow'
-     *  light.do('start');   // !! false - yellow does not have the action start
-     *  light.state();       // 'yellow'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param actionName The action to engage
-     *
-     *  @param newData The data change to insert during the action
-     *
-     *  @returns `true` if the action was valid and the transition occurred,
-     *  `false` otherwise.
-     *
-     */
-    do(actionName, newData) {
-        return this.transition_impl(actionName, newData, false, true, arguments.length >= 2);
-    }
-    /********
-     *
-     *  Instruct the machine to complete a transition.  Synonym for {@link go}.
-     *
-     *  ```typescript
-     *  const light = sm`
-     *    off 'start' -> red;
-     *    red 'next' -> green 'next' -> yellow 'next' -> red;
-     *    [red yellow green] 'shutdown' ~> off;
-     *  `;
-     *
-     *  light.state();       // 'off'
-     *  light.go('red');     // true
-     *  light.state();       // 'red'
-     *  light.go('green');   // true
-     *  light.state();       // 'green'
-     *  light.go('blue');    // !! false - no such state
-     *  light.state();       // 'green'
-     *  light.go('red');     // !! false - green may not go directly to red, only to yellow
-     *  light.state();       // 'green'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param newState The state to switch to
-     *
-     *  @param newData The data change to insert during the transition
-     *
-     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
-     *
-     */
-    transition(newState, newData) {
-        return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
-    }
-    /********
-     *
-     *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
-     *
-     *  ```typescript
-     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();       // 'red'
-     *  light.go('green');   // true
-     *  light.state();       // 'green'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param newState The state to switch to
-     *
-     *  @param newData The data change to insert during the transition
-     *
-     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
-     *
-     */
-    go(newState, newData) {
-        return this.transition_impl(newState, newData, false, false, arguments.length >= 2);
-    }
-    /********
-     *
-     *  Instruct the machine to complete a forced transition (which will reject if
-     *  called with a normal {@link transition} call.)
-     *
-     *  ```typescript
-     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
-     *
-     *  light.state();                     // 'red'
-     *  light.transition('off');           // false
-     *  light.state();                     // 'red'
-     *  light.force_transition('off');     // true
-     *  light.state();                     // 'off'
-     *  ```
-     *
-     *  @typeParam mDT The type of the machine data member; usually omitted
-     *
-     *  @param newState The state to switch to
-     *
-     *  @param newData The data change to insert during the transition
-     *
-     *  @returns `true` if a transition (forced or otherwise) existed and occurred,
-     *  `false` otherwise.
-     *
-     */
-    force_transition(newState, newData) {
-        return this.transition_impl(newState, newData, true, false, arguments.length >= 2);
-    }
-    /**
-     * Get the edge index for an action from the current state.
-     *  Interned dispatch: resolves via the numeric (action, from) index —
-     *  unknown action names miss without throwing.
-     *  @param action - The action name.
-     *  @returns The edge index, or `undefined` if the action is not available.
-     */
-    current_action_for(action) {
-        const action_id = this._action_interner.id_of(action);
-        return (action_id === undefined)
-            ? undefined
-            : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
-    }
-    /**
-     * Get the full transition object for an action from the current state.
-     *  @param action - The action name.
-     *  @returns The {@link JssmTransition} object.
-     *  @throws {JssmError} If the action is not available from the current state.
-     */
-    current_action_edge_for(action) {
-        const idx = this.current_action_for(action);
-        if ((idx === undefined) || (idx === null)) {
-            throw new JssmError(this, `No such action ${JSON.stringify(action)}`);
-        }
-        return this._edges[idx];
-    }
-    /**
-     * Check whether an action is available from the current state.
-     *  @param action   - The action name to check.
-     *  @param _newData - Reserved for future data validation.
-     *  @returns `true` if the action can be taken.
-     */
-    valid_action(action, _newData) {
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
-        return this.current_action_for(action) !== undefined;
-    }
-    /**
-     * Check whether a transition to a given state is legal (non-forced) from
-     *  the current state.
-     *  @param newState - The target state.
-     *  @param _newData - Reserved for future data validation.
-     *  @returns `true` if the transition is legal.
-     */
-    valid_transition(newState, _newData) {
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
-        const transition_for = this.lookup_transition_for(this.state(), newState);
-        if (!(transition_for)) {
-            return false;
-        }
-        if (transition_for.forced_only) {
-            return false;
-        }
-        return true;
-    }
-    /**
-     * Check whether a forced transition to a given state exists from the
-     *  current state.
-     *  @param newState - The target state.
-     *  @param _newData - Reserved for future data validation.
-     *  @returns `true` if a forced (or any) transition exists.
-     */
-    valid_force_transition(newState, _newData) {
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
-        return (this.lookup_transition_for(this.state(), newState) !== undefined);
-    }
-    /**
-     * Get the instance name of this machine, if one was assigned at creation.
-     *  @returns The instance name string, or `undefined`.
-     */
-    instance_name() {
-        return this._instance_name;
-    }
-    /**
-     * Get the creation date of this machine as a `Date` object.
-     *  @returns A `Date` representing when the machine was created.
-     */
-    get creation_date() {
-        return new Date(Math.floor(this.creation_timestamp));
-    }
-    /**
-     * Get the creation timestamp (milliseconds since epoch).
-     *  @returns The timestamp as a number.
-     */
-    get creation_timestamp() {
-        return this._created;
-    }
-    /**
-     * Get the timestamp when construction began (before parsing).
-     *  @returns The start-of-construction timestamp as a number.
-     */
-    get create_start_time() {
-        return this._create_started;
-    }
-    /**
-     * Schedule an automatic transition to `next_state` after `after_time`
-     *  milliseconds.  Only one timeout may be active at a time.
-     *  @param next_state - The state to transition to when the timer fires.
-     *  @param after_time - Delay in milliseconds.
-     *  @throws {JssmError} If a timeout is already pending.
-     */
-    set_state_timeout(next_state, after_time) {
-        if (this._timeout_handle !== undefined) {
-            throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
-        }
-        this._timeout_handle = this._timeout_source(
-        // it seems like istanbul can't see this line being followed, even though it is, actively
-        // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
-        // we'll mark it no-check so that our coverage numbers aren't wrecked
-        /* istanbul ignore next */
-        /* v8 ignore next 10 */
-        () => {
-            const from_state = this.state();
-            this.clear_state_timeout();
-            if (this._has_after_hooks) {
-                const ah = this._after_hooks.get(from_state);
-                if (ah !== undefined) {
-                    ah({ data: this._data, next_data: this._data });
-                }
-                // a specific after hook firing implies the any-after hook fires too,
-                // afterward; and it also fires alone (StoneCypher/fsl#1299)
-                if (this._after_any_hook !== undefined) {
-                    this._after_any_hook({ data: this._data, next_data: this._data });
-                }
-            }
-            this._fire('timeout', { from: from_state, to: next_state, after_time });
-            this.go(next_state);
-        }, after_time);
-        this._timeout_target = next_state;
-        this._timeout_target_time = after_time;
-    }
-    /**
-      Cancel any pending state timeout.  Safe to call when no timeout is active.
-     */
-    clear_state_timeout() {
-        if (this._timeout_handle === undefined) {
-            return; // calling with no timeout is a no-op, means it can be called glad-handedly
-        }
-        this._clear_timeout_source(this._timeout_handle);
-        this._timeout_handle = undefined;
-        this._timeout_target = undefined;
-        this._timeout_target_time = undefined;
-    }
-    /**
-     * Get the configured `after` timeout for a given state, if any.
-     *  @param which_state - The state to look up.
-     *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
-     *  is configured for that state.
-     */
-    state_timeout_for(which_state) {
-        return this._after_mapping.get(which_state);
-    }
-    /**
-     * Get the configured `after` timeout for the current state, if any.
-     *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
-     */
-    current_state_timeout() {
-        return (this._timeout_target === undefined)
-            ? undefined
-            : [this._timeout_target, this._timeout_target_time];
-    }
-    /**
-     * Convenience method to create a new machine from a tagged template literal.
-     *  Equivalent to calling the top-level `sm` function.
-     *  @param template_strings - The template string array.
-     *  @param remainder        - Interpolated values.
-     *  @returns A new {@link Machine} instance.
-     */
-    sm(template_strings, ...remainder /* , arguments */) {
-        return sm(template_strings, ...remainder);
-    }
-    /**
-     * Convenience method to create a new machine from a tagged template literal;
-     *  an exact alias of {@link Machine.sm}, matching the top-level {@link fsl}.
-     *  @param template_strings - The template string array.
-     *  @param remainder        - Interpolated values.
-     *  @returns A new {@link Machine} instance.
-     */
-    fsl(template_strings, ...remainder /* , arguments */) {
-        return sm(template_strings, ...remainder);
-    }
-}
-_Machine_instances = new WeakSet(), _Machine_unsubscribe_entry = function _Machine_unsubscribe_entry(set, entry) {
-    if (set.delete(entry)) {
-        this._event_listener_count--;
-    }
-}, _Machine_subscribe = function _Machine_subscribe(name, filterOrFn, maybeFn, once) {
-    let filter;
-    let handler;
-    if (typeof filterOrFn === 'function') {
-        filter = undefined;
-        handler = filterOrFn;
-    }
-    else {
-        filter = filterOrFn;
-        handler = maybeFn;
-    }
-    if (typeof handler !== 'function') {
-        throw new JssmError(this, `event handler for "${name}" must be a function`);
-    }
-    let set = this._event_handlers.get(name);
-    if (set === undefined) {
-        set = new Set();
-        this._event_handlers.set(name, set);
-    }
-    const entry = { handler, filter, once };
-    set.add(entry);
-    this._event_listener_count++;
-    return () => { __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_unsubscribe_entry).call(this, set, entry); };
-}, _Machine_validate_hook_description = function _Machine_validate_hook_description(HookDesc) {
-    const required = hook_required_fields[HookDesc.kind];
-    if (required === undefined) {
-        throw new JssmError(this, `unknown hook kind ${JSON.stringify(HookDesc.kind)}`);
-    }
-    if (typeof HookDesc.handler !== 'function') {
-        throw new JssmError(this, `${HookDesc.kind} hook requires a handler function`);
-    }
-    for (const field of hook_spatial_fields) {
-        const needed = required.includes(field);
-        const value = HookDesc[field];
-        // a required spatial field must be a usable key: a non-empty string.
-        // presence alone isn't enough — `action: false` or `from: ''` would
-        // register a hook nothing can ever fire (fsl#653, fsl#659)
-        if (needed && ((typeof value !== 'string') || (value === ''))) {
-            throw new JssmError(this, `${HookDesc.kind} hook requires '${field}' to be a non-empty string`);
-        }
-        if (!needed && (value !== undefined)) {
-            throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
-        }
-    }
-}, _Machine_recompute_hook_flags = function _Machine_recompute_hook_flags() {
-    const nested_has = (m) => [...m.values()].some(inner => inner.size > 0);
-    // pre-hook family flags
-    this._has_basic_hooks = this._hooks.size > 0;
-    this._has_named_hooks = nested_has(this._named_hooks);
-    this._has_entry_hooks = this._entry_hooks.size > 0;
-    this._has_exit_hooks = this._exit_hooks.size > 0;
-    this._has_after_hooks = [this._after_hooks.size > 0, this._after_any_hook !== undefined].includes(true);
-    this._has_global_action_hooks = this._global_action_hooks.size > 0;
-    this._has_transition_hooks = [
-        this._standard_transition_hook !== undefined,
-        this._main_transition_hook !== undefined,
-        this._forced_transition_hook !== undefined,
-    ].includes(true);
-    this._has_hooks = [
-        this._has_basic_hooks,
-        this._has_named_hooks,
-        this._has_entry_hooks,
-        this._has_exit_hooks,
-        this._has_after_hooks,
-        this._has_global_action_hooks,
-        this._has_transition_hooks,
-        this._any_action_hook !== undefined,
-        this._any_transition_hook !== undefined,
-        this._pre_everything_hook !== undefined,
-        this._everything_hook !== undefined,
-    ].includes(true);
-    // post-hook family flags (mirror of the above)
-    this._has_post_basic_hooks = this._post_hooks.size > 0;
-    this._has_post_named_hooks = nested_has(this._post_named_hooks);
-    this._has_post_entry_hooks = this._post_entry_hooks.size > 0;
-    this._has_post_exit_hooks = this._post_exit_hooks.size > 0;
-    this._has_post_global_action_hooks = this._post_global_action_hooks.size > 0;
-    this._has_post_transition_hooks = [
-        this._post_standard_transition_hook !== undefined,
-        this._post_main_transition_hook !== undefined,
-        this._post_forced_transition_hook !== undefined,
-    ].includes(true);
-    this._has_post_hooks = [
-        this._has_post_basic_hooks,
-        this._has_post_named_hooks,
-        this._has_post_entry_hooks,
-        this._has_post_exit_hooks,
-        this._has_post_global_action_hooks,
-        this._has_post_transition_hooks,
-        this._post_any_action_hook !== undefined,
-        this._post_any_transition_hook !== undefined,
-        this._pre_post_everything_hook !== undefined,
-        this._post_everything_hook !== undefined,
-    ].includes(true);
-}, _Machine_resolved_themes = function _Machine_resolved_themes() {
-    const themes = [];
-    for (const th of this._themes) {
-        const theme_impl = theme_mapping.get(th);
-        if (theme_impl !== undefined) {
-            themes.push(theme_impl);
-        }
-    }
-    return themes.reverse();
-}, _Machine_individual_state_config = function _Machine_individual_state_config(state) {
-    const decl = this._state_declarations.get(state);
-    return {
-        color: decl === null || decl === void 0 ? void 0 : decl.color,
-        textColor: decl === null || decl === void 0 ? void 0 : decl.textColor,
-        borderColor: decl === null || decl === void 0 ? void 0 : decl.borderColor,
-        backgroundColor: decl === null || decl === void 0 ? void 0 : decl.backgroundColor,
-        lineStyle: decl === null || decl === void 0 ? void 0 : decl.lineStyle,
-        corners: decl === null || decl === void 0 ? void 0 : decl.corners,
-        shape: decl === null || decl === void 0 ? void 0 : decl.shape,
-        image: decl === null || decl === void 0 ? void 0 : decl.image,
-        url: decl === null || decl === void 0 ? void 0 : decl.url
-    };
-}, _Machine_groups_by_depth = function _Machine_groups_by_depth(state) {
-    const containing = [...this.groupsOf(state)];
-    if (containing.length < 2) {
-        return containing;
-    }
-    return containing.sort((ga, gb) => {
-        const da = membership_distance(this._group_registry, state, ga), db = membership_distance(this._group_registry, state, gb);
-        // Larger distance (more "outer") sorts earlier so it is applied first and
-        // overridden by nearer groups.
-        if (da !== db) {
-            return db - da;
-        }
-        // Equal depth: earlier-declared group sorts earlier (applied first), so
-        // the later-declared group of the same depth wins the tie.
-        return this._group_order.indexOf(ga) - this._group_order.indexOf(gb);
-    });
-}, _Machine_compose_state_config = function _Machine_compose_state_config(state, active) {
-    const themes = __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_resolved_themes).call(this);
-    let acc = {};
-    // tier 1 — theme defaults (base, then selected themes)
-    acc = merge_state_config(acc, base_theme.state);
-    for (const theme of themes) {
-        if (theme.state) {
-            acc = merge_state_config(acc, theme.state);
-        }
-    }
-    // tier 2 — default_state_config (implicit root over all states)
-    acc = merge_state_config(acc, this._state_style);
-    // tier 2.5 — hooked-state styling, applied when the state carries any
-    // observational or boundary hook.  Sits above the root default and below
-    // the per-kind/group/per-state tiers, preserving the historical layer
-    // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
-    if (this.state_has_hooks(state)) {
-        acc = merge_state_config(acc, base_theme.hooked);
-        for (const theme of themes) {
-            if (theme.hooked) {
-                acc = merge_state_config(acc, theme.hooked);
-            }
-        }
-        acc = merge_state_config(acc, this._hooked_state_style);
-    }
-    // tier 3 — static per-kind defaults, selected by structural kind
-    if (this.state_is_terminal(state)) {
-        acc = merge_state_config(acc, base_theme.terminal);
-        for (const theme of themes) {
-            if (theme.terminal) {
-                acc = merge_state_config(acc, theme.terminal);
-            }
-        }
-        acc = merge_state_config(acc, this._terminal_state_style);
-    }
-    if (this.is_start_state(state)) {
-        acc = merge_state_config(acc, base_theme.start);
-        for (const theme of themes) {
-            if (theme.start) {
-                acc = merge_state_config(acc, theme.start);
-            }
-        }
-        acc = merge_state_config(acc, this._start_state_style);
-    }
-    if (this.is_end_state(state)) {
-        acc = merge_state_config(acc, base_theme.end);
-        for (const theme of themes) {
-            if (theme.end) {
-                acc = merge_state_config(acc, theme.end);
-            }
-        }
-        acc = merge_state_config(acc, this._end_state_style);
-    }
-    // tier 3 (active kind) — active-state THEME layers, below per-state so a
-    // per-state block still wins (preserving the historical layer order).
-    if (active) {
-        acc = merge_state_config(acc, base_theme.active);
-        for (const theme of themes) {
-            if (theme.active) {
-                acc = merge_state_config(acc, theme.active);
-            }
-        }
-    }
-    // tier 4 — group metadata, outer→inner (inner / nearest group wins)
-    for (const group_name of __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_groups_by_depth).call(this, state)) {
-        const group_cfg = this._group_metadata.get(group_name);
-        if (group_cfg !== undefined) {
-            acc = merge_state_config(acc, group_cfg);
-        }
-    }
-    // tier 5 — per-state `state foo : { … }`
-    acc = merge_state_config(acc, __classPrivateFieldGet(this, _Machine_instances, "m", _Machine_individual_state_config).call(this, state));
-    return acc;
-};
-/*********
- *
- *  Create a state machine from a template string.  This is one of the two main
- *  paths for working with JSSM, alongside {@link from}.
- *
- *  Use this method when you want to work directly and conveniently with a
- *  constant template expression.  Use `.from` when you want to pull from
- *  dynamic strings.
- *
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const lswitch = jssm.from('on <=> off;');
- *  ```
- *
- *  @typeParam mDT The type of the machine data member; usually omitted
- *
- *  @param template_strings The assembled code
- *
- *  @param remainder The mechanic for template argument insertion
- *
- */
-function sm(template_strings, ...remainder /* , arguments */) {
-    // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
-    // this includes when a and c are empty strings
-    // therefore template_strings will always have one more el than template_args
-    // therefore map the smaller container and toss the last one on on the way out
-    return new Machine(make(template_strings.reduce(
-    // in general avoiding `arguments` is smart.  however with the template
-    // string notation, as designed, it's not really worth the hassle
-    (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
-    )));
-}
-/*********
- *
- *  Create a state machine from a template string; an exact alias of {@link sm}.
- *
- *  Prefer this spelling in JavaScript and TypeScript sources that will be
- *  syntax-highlighted.  Highlighters dispatch a tagged template to a grammar by
- *  matching the tag name, and `sm` is two generic letters that collide with
- *  ordinary identifiers — `small`, `session manager`, a local variable.  `fsl`
- *  names the language unambiguously, so a highlighter can key on it without
- *  risking false positives on unrelated code.
- *
- *  Identical to {@link sm} in every respect: same parameters, same return, same
- *  errors.  Neither is deprecated.
- *
- *  ```typescript
- *  import { fsl } from 'jssm';
- *
- *  const lswitch = fsl`on <=> off;`;
- *  lswitch.state();  // => 'on'
- *  ```
- *
- *  @typeParam mDT The type of the machine data member; usually omitted
- *
- *  @param template_strings The assembled code
- *
- *  @param remainder The mechanic for template argument insertion
- *
- *  @see sm
- *  @see from
- *
- */
-function fsl(template_strings, ...remainder /* , arguments */) {
-    return sm(template_strings, ...remainder);
-}
-/*********
- *
- *  Create a state machine from an implementation string.  This is one of the
- *  two main paths for working with JSSM, alongside {@link sm}.
- *
- *  Use this method when you want to conveniently pull a state machine from a
- *  string dynamically.  Use operator `sm` when you just want to work with a
- *  template expression.
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const lswitch = jssm.from('on <=> off;');
- *  ```
- *
- *  @typeParam mDT The type of the machine data member; usually omitted
- *
- *  @param MachineAsString The FSL code to evaluate
- *
- *  @param ExtraConstructorFields Extra non-code configuration to pass at creation time
- *
- */
-function from(MachineAsString, ExtraConstructorFields) {
-    const to_decorate = make(MachineAsString);
-    if (ExtraConstructorFields !== undefined) {
-        for (const [key, value] of Object.entries(ExtraConstructorFields)) {
-            if (key === 'allows_override') {
-                to_decorate['config_allows_override'] = ExtraConstructorFields.allows_override;
-            }
-            else {
-                to_decorate[key] = value;
-            }
-        }
-    }
-    return new Machine(to_decorate);
-}
-/**
- *
- *  Type guard that narrows an unknown value to a {@link HookComplexResult}.
- *
- *  A hook complex result is an object with at minimum a boolean `pass` field,
- *  and may optionally also carry replacement `data` / `next_data` fields that
- *  the machine should adopt if the hook passes.  This helper is used by the
- *  hook-dispatch machinery to tell "hook returned a complex object" from
- *  "hook returned a bare boolean / null / undefined".
- *
- *  ```typescript
- *  is_hook_complex_result({ pass: true });                 // true
- *  is_hook_complex_result({ pass: false, data: { x: 1 }}); // true
- *  is_hook_complex_result(true);                           // false
- *  is_hook_complex_result(null);                           // false
- *  is_hook_complex_result({ other: 'thing' });             // false
- *  ```
- *  @template mDT The type of the machine data member; usually omitted.
- *  @param hr The value to test.
- *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
- *  `false` otherwise.  When `true`, TypeScript narrows `hr` to
- *  `HookComplexResult<mDT>`.
- */
-function is_hook_complex_result(hr) {
-    return hr !== null && typeof hr === 'object' && typeof hr.pass === 'boolean';
-}
-/**
- *
- *  Apply any data-field updates from a hook's complex result into `hook_args`,
- *  and return whether data actually changed.
- *
- *  This is the hoisted, allocation-free replacement for the `update_fields`
- *  inner function that used to be re-created on every hooked transition inside
- *  {@link Machine.transition_impl}.  By moving it to module scope the function
- *  object is allocated once at module load time.
- *
- *  When the result does not carry a `data` property (the common case —
- *  most hooks return `true` or `undefined`) the function returns `false`
- *  immediately without touching `hook_args`.
- *
- *  ```typescript
- *  const args = { data: 'old', next_data: undefined, ... };
- *  const changed = _update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
- *  // changed === true, args.data === 'new'
- *  ```
- *  @param hook_args  The shared hook-argument object for the current
- *    transition.  Mutated in-place when the result carries `data`.
- *  @param res        The normalised complex result returned by
- *    {@link abstract_hook_step} or {@link abstract_everything_hook_step}.
- *  @returns `true` if `res` contained a `data` property (i.e. the hook
- *    mutated the machine's data); `false` otherwise.
- *  @see Machine.transition_impl
- *  @see abstract_hook_step
- */
-function _update_hook_fields(hook_args, res) {
-    // HOOK_PASSED is the shared frozen outcome for "no hook installed" and for
-    // hooks returning true/undefined — the overwhelming majority of the up-to-
-    // ~10 steps per hooked transition.  It can never carry `data`/`state` (frozen,
-    // built without them), so one pointer compare replaces the hasOwnProperty
-    // reflection call for the common case.
-    if (res === HOOK_PASSED) {
-        return false;
-    }
-    // a complex result's `state` redirects the transition's destination; carry it
-    // on hook_args.to (the destination field), which transition_impl applies at
-    // commit (last writer wins).  An explicit `state: undefined` is not a
-    // redirect.  StoneCypher/fsl#1947
-    if (Object.prototype.hasOwnProperty.call(res, 'state') && res.state !== undefined) {
-        hook_args.to = res.state;
-    }
-    // Two channels (StoneCypher/fsl#1948): `data` overrides the value observed by
-    // later hooks in this chain AND is the default committed value; `next_data`
-    // overrides only the committed value.  So `data` sets both, then an explicit
-    // `next_data` overrides the commit channel.  transition_impl commits
-    // hook_args.next_data.  hasOwnProperty (not truthiness) so a falsy override
-    // (false/null/0/''/undefined) still commits (fsl#1264/#935).
-    let changed = false;
-    if (Object.prototype.hasOwnProperty.call(res, 'data')) {
-        hook_args.data = res.data;
-        hook_args.next_data = res.data;
-        changed = true;
-    }
-    if (Object.prototype.hasOwnProperty.call(res, 'next_data')) {
-        hook_args.next_data = res.next_data;
-        changed = true;
-    }
-    return changed;
-}
-/**
- *
- *  Normalize any legal hook return value to a single "did it reject?" boolean.
- *
- *  Hooks in jssm may return any of the following to indicate success:
- *  `true`, `undefined`, or a complex result whose `pass` field is `true`.
- *  They may return any of the following to indicate rejection:
- *  `false`, or a complex result whose `pass` field is `false`.  This helper
- *  collapses all of those shapes into one boolean so callers don't have to
- *  re-implement the matrix.
- *
- *  ```typescript
- *  is_hook_rejection(true);            // false (pass)
- *  is_hook_rejection(undefined);       // false (pass)
- *  is_hook_rejection(false);           // true  (reject)
- *  is_hook_rejection({ pass: true });  // false (pass)
- *  is_hook_rejection({ pass: false }); // true  (reject)
- *  ```
- *  @template mDT The type of the machine data member; usually omitted.
- *  @param hr A hook result of any legal shape.
- *  @returns `true` if the hook rejected the transition; `false` if it passed.
- *  @throws {TypeError} If `hr` is not a recognized hook result shape (for
- *  example, a number or a plain object without a `pass` field).
- */
-function is_hook_rejection(hr) {
-    if (hr === true) {
-        return false;
-    }
-    if (hr === undefined) {
-        return false;
-    }
-    if (hr === false) {
-        return true;
-    }
-    if (is_hook_complex_result(hr)) {
-        return (!(hr.pass));
-    }
-    throw new TypeError('unknown hook rejection type result');
-}
-/**
- *
- *  Shared, frozen outcomes for the simple hook results.  The transition
- *  cascade runs up to ~10 hook steps per transition, and the overwhelmingly
- *  common results — no hook installed, or a hook returning `undefined` /
- *  `true` / `false` — previously allocated a fresh one-field object each
- *  time, just to have `.pass` read once and be discarded.  Callers only read
- *  `pass` and probe for an own `data` property ({@link _update_hook_fields}),
- *  so a shared instance is observationally identical; freezing turns that
- *  read-only contract from incidental into enforced.  Complex results (hooks
- *  returning `{ pass, data, ... }`) still pass through untouched.  #705
- *  _update_hook_fields additionally identity-checks HOOK_PASSED to skip its
- *  own-property probe on the common no-op outcome.
- *  @see abstract_hook_step
- *  @see abstract_everything_hook_step
- *  @internal
- */
-const HOOK_PASSED = Object.freeze({ pass: true });
-const HOOK_REJECTED = Object.freeze({ pass: false });
-/**
- *
- *  Invoke an optional transition/action hook and normalize its return value
- *  into a {@link HookComplexResult}.
- *
- *  This is the central adapter the transition pipeline uses to run every
- *  non-"everything" hook kind (basic, named, entry, exit, after, action, etc).
- *  It accepts `undefined` for the hook slot because most hooks are not set on
- *  most machines; when no hook is installed the step is a no-op pass.
- *
- *  The valid return shapes from a hook and their normalized meanings are:
- *  - `undefined` → `{ pass: true }`
- *  - `true`      → `{ pass: true }`
- *  - `false`     → `{ pass: false }`
- *  - `null`      → `{ pass: false }`
- *  - a complex result object → returned as-is
- *
- *  Anything else is a programmer error and throws.
- *  @template mDT The type of the machine data member; usually omitted.
- *  @param maybe_hook The hook handler to call, or `undefined` for the
- *  "no hook installed" case.
- *  @param hook_args The context object passed to the hook.  Includes the
- *  current and proposed state, current and proposed data, action name, and
- *  transition kind.
- *  @returns A {@link HookComplexResult} describing whether the hook passed
- *  and, optionally, any data replacements it requested.
- *  @throws {TypeError} If the hook returns a value that is not one of the
- *  legal shapes listed above.
- *  @internal
- */
-function abstract_hook_step(maybe_hook, hook_args) {
-    if (maybe_hook === undefined) {
-        return HOOK_PASSED;
-    }
-    const result = maybe_hook(hook_args);
-    if (result === undefined) {
-        return HOOK_PASSED;
-    }
-    if (result === true) {
-        return HOOK_PASSED;
-    }
-    if (result === false) {
-        return HOOK_REJECTED;
-    }
-    if (result === null) {
-        return HOOK_REJECTED;
-    }
-    if (is_hook_complex_result(result)) {
-        return result;
-    }
-    throw new TypeError(`Unknown hook result type ${String(result)}`);
-}
-/**
- *
- *  Invoke an optional "everything" hook and normalize its return value into
- *  a {@link HookComplexResult}.
- *
- *  Mechanically identical to {@link abstract_hook_step}, but typed for the
- *  everything-hook family (`pre_everything_hook` and `everything_hook`),
- *  whose context object carries an extra `hook_name` field identifying which
- *  bracket of the pipeline is firing.  Separated from `abstract_hook_step`
- *  so TypeScript can enforce that the hook handler and the context object
- *  agree on shape.
- *
- *  The valid return shapes and their meanings are the same as for
- *  `abstract_hook_step`:
- *  - `undefined` or `true` → `{ pass: true }`
- *  - `false` or `null`     → `{ pass: false }`
- *  - a complex result      → returned as-is
- *  @template mDT The type of the machine data member; usually omitted.
- *  @param maybe_hook The everything-hook handler, or `undefined` when none
- *  is installed.
- *  @param hook_args The everything-hook context object.  Differs from a
- *  normal hook context in that it also includes `hook_name`.
- *  @returns A {@link HookComplexResult} describing whether the hook passed
- *  and any data replacements it requested.
- *  @throws {TypeError} If the hook returns a value outside the legal shapes.
- *  @internal
- */
-function abstract_everything_hook_step(maybe_hook, hook_args) {
-    if (maybe_hook === undefined) {
-        return HOOK_PASSED;
-    }
-    const result = maybe_hook(hook_args);
-    if (result === undefined) {
-        return HOOK_PASSED;
-    }
-    if (result === true) {
-        return HOOK_PASSED;
-    }
-    if (result === false) {
-        return HOOK_REJECTED;
-    }
-    if (result === null) {
-        return HOOK_REJECTED;
-    }
-    if (is_hook_complex_result(result)) {
-        return result;
-    }
-    throw new TypeError(`Unknown hook result type ${String(result)}`);
-}
-/**
- * Compares two semantic version strings, including prerelease versions.
- *
- * The numeric (`major.minor.patch`) parts compare numerically, with missing
- * segments treated as zero.  Prerelease parts (everything after the first
- * `-`) follow semver precedence: a version *with* a prerelease precedes the
- * same version *without* one; prerelease identifiers compare dot-by-dot,
- * numeric identifiers numerically and below alphanumeric ones, alphanumeric
- * identifiers in ASCII order, and a shorter identifier set precedes a longer
- * one that it prefixes.
- * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
- * @param {string} v2 - Second version string (e.g., "5.103.1")
- * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("5.104.2", "5.103.1");  // => 1
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("5.104.2", "6.0.0");  // => -1
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("5.104.2", "5.104.2");  // => 0
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
- * @example
- * import { compareVersions } from 'jssm';
- * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
- */
-function compareVersions(v1, v2) {
-    var _a, _b;
-    const hyphen1 = v1.indexOf('-'), hyphen2 = v2.indexOf('-');
-    const main1 = (hyphen1 === -1) ? v1 : v1.slice(0, hyphen1), main2 = (hyphen2 === -1) ? v2 : v2.slice(0, hyphen2), pre1 = (hyphen1 === -1) ? undefined : v1.slice(hyphen1 + 1), pre2 = (hyphen2 === -1) ? undefined : v2.slice(hyphen2 + 1);
-    const parts1 = main1.split('.').map(Number);
-    const parts2 = main2.split('.').map(Number);
-    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const num1 = (_a = parts1[i]) !== null && _a !== void 0 ? _a : 0;
-        const num2 = (_b = parts2[i]) !== null && _b !== void 0 ? _b : 0;
-        if (num1 !== num2) {
-            return num1 - num2;
-        }
-    }
-    // numeric parts equal; a version with a prerelease precedes one without
-    if (pre1 === undefined && pre2 === undefined) {
-        return 0;
-    }
-    if (pre1 === undefined) {
-        return 1;
-    }
-    if (pre2 === undefined) {
-        return -1;
-    }
-    // both have prereleases: compare dot-separated identifiers per semver
-    const ids1 = pre1.split('.'), ids2 = pre2.split('.');
-    for (let i = 0; i < Math.max(ids1.length, ids2.length); i++) {
-        const id1 = ids1[i];
-        if (id1 === undefined) {
-            return -1;
-        } // shorter identifier set precedes
-        const id2 = ids2[i];
-        if (id2 === undefined) {
-            return 1;
-        }
-        const n1 = /^\d+$/.test(id1) ? Number(id1) : undefined, n2 = /^\d+$/.test(id2) ? Number(id2) : undefined;
-        if (n1 !== undefined && n2 !== undefined) {
-            if (n1 !== n2) {
-                return n1 - n2;
-            }
-        }
-        else if (n1 !== undefined) {
-            return -1;
-        } // numeric below alphanumeric
-        else if (n2 !== undefined) {
-            return 1;
-        }
-        else if (id1 !== id2) {
-            return (id1 < id2) ? -1 : 1;
-        }
-    }
-    return 0;
-}
-/**
- * Deserializes a previously serialized machine state.
- *
- * This function recreates a machine from a serialization object, restoring its
- * state, data, and history. For security and compatibility reasons, it will
- * refuse to deserialize data from future versions of the library.
- * @template mDT - The type of the machine data member
- * @param {string} machine_string - The FSL string defining the machine structure
- * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
- * @returns {Machine<mDT>} - The restored machine instance
- * @throws {Error} If the serialization is from a future version
- * @example
- * import { from, deserialize } from 'jssm';
- * const machine    = from("a -> b;");
- * const serialized = machine.serialize();
- * const restored   = deserialize("a -> b;", serialized);
- * restored.state();  // => 'a'
- */
-function deserialize(machine_string, ser) {
-    var _a;
-    // Refuse to deserialize data from future versions
-    if (compareVersions(ser.jssm_version, version) > 0) {
-        throw new Error(`Cannot deserialize from future version ${ser.jssm_version} ` +
-            `(current version is ${version}). Please upgrade jssm to deserialize this data.`);
-    }
-    const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
-    machine._state = ser.state;
-    machine._state_id = (_a = machine._state_interner.id_of(ser.state)) !== null && _a !== void 0 ? _a : NaN;
-    // `from()` armed the *initial* state's `after` timer; the restored state may
-    // differ, so that timer is both a ghost (it targets the wrong state) and a
-    // gap (the restored state's own `after` was never armed).  Clear it and arm
-    // the restored state's timer instead.  clear must precede arm because
-    // set_state_timeout throws if a timer is already pending.  StoneCypher/fsl#1946
-    machine.clear_state_timeout();
-    machine.auto_set_state_timeout();
-    for (const history_item of ser.history)
-        machine._history.push(history_item);
-    return machine;
-}
-
 exports.FslDirections = FslDirections;
 exports.JssmError = JssmError;
-exports.Machine = Machine;
 exports.ReplayError = ReplayError;
 exports.STOCHASTIC_DEFAULT_MAX_STEPS = STOCHASTIC_DEFAULT_MAX_STEPS;
 exports.STOCHASTIC_DEFAULT_RUNS = STOCHASTIC_DEFAULT_RUNS;
 exports.SUPPORTED_TAPE_VERSION = SUPPORTED_TAPE_VERSION;
 exports.abstract_everything_hook_step = abstract_everything_hook_step;
 exports.abstract_hook_step = abstract_hook_step;
+exports.act = act;
+exports.action = act;
 exports.action_label_chars = action_label_chars;
+exports.actions = actions;
+exports.active_state_style = active_state_style;
+exports.all_action_label_chars = all_action_label_chars;
+exports.all_state_name_chars = all_state_name_chars;
+exports.all_state_name_first_chars = all_state_name_first_chars;
+exports.all_themes = all_themes;
+exports.allow_islands = allow_islands;
+exports.allows_override = allows_override;
 exports.arrow_direction = arrow_direction;
 exports.arrow_left_kind = arrow_left_kind;
 exports.arrow_right_kind = arrow_right_kind;
+exports.auto_set_state_timeout = auto_set_state_timeout;
 exports.build_time = build_time;
+exports.canonical = canonical;
+exports.clear_state_timeout = clear_state_timeout;
+exports.code_allows_override = code_allows_override;
 exports.compareVersions = compareVersions;
 exports.compile = compile;
+exports.config_allows_override = config_allows_override;
 exports.constants = constants;
+exports.create = create;
+exports.create_start_time = create_start_time;
+exports.creation_date = creation_date;
+exports.creation_timestamp = creation_timestamp;
+exports.current_action_edge_for = current_action_edge_for;
+exports.current_action_for = current_action_for;
+exports.current_state_timeout = current_state_timeout;
+exports.data = data;
+exports.default_graph_config = default_graph_config;
+exports.default_size = default_size;
+exports.default_transition_config = default_transition_config;
 exports.deserialize = deserialize;
+exports.display_text = display_text;
+exports.dot_preamble = dot_preamble;
+exports.edges_between = edges_between;
+exports.editor_config = editor_config;
+exports.end_state_style = end_state_style;
+exports.failed_outputs = failed_outputs;
 exports.find_repeated = find_repeated;
+exports.flow = flow;
+exports.force_transition = force_transition;
 exports.from = from;
 exports.fsl = fsl;
 exports.fslCompletions = fslCompletions;
 exports.fslDiagnostics = fslDiagnostics;
 exports.fslSemanticSpans = fslSemanticSpans;
 exports.fsl_fence_lang = fsl_fence_lang;
+exports.fsl_version = fsl_version;
 exports.gen_splitmix32 = gen_splitmix32;
+exports.get_transition_by_state_names = get_transition_by_state_names;
+exports.go = go;
+exports.graph_layout = graph_layout;
+exports.groups = groups;
+exports.groupsOf = groupsOf;
 exports.gviz_shapes = gviz_shapes;
+exports.has_completes = has_completes;
+exports.has_hook = has_hook;
+exports.has_state = has_state;
+exports.has_terminals = has_terminals;
+exports.has_unenterables = has_unenterables;
 exports.histograph = histograph;
+exports.history = history;
+exports.history_inclusive = history_inclusive;
+exports.history_length = history_length;
+exports.hook = hook;
+exports.hook_action = hook_action;
+exports.hook_after = hook_after;
+exports.hook_after_any = hook_after_any;
+exports.hook_any_action = hook_any_action;
+exports.hook_any_transition = hook_any_transition;
+exports.hook_entry = hook_entry;
+exports.hook_everything = hook_everything;
+exports.hook_exit = hook_exit;
+exports.hook_forced_transition = hook_forced_transition;
+exports.hook_global_action = hook_global_action;
+exports.hook_main_transition = hook_main_transition;
+exports.hook_post_everything = hook_post_everything;
+exports.hook_pre_everything = hook_pre_everything;
+exports.hook_pre_post_everything = hook_pre_post_everything;
+exports.hook_registry = hook_registry;
+exports.hook_standard_transition = hook_standard_transition;
+exports.hooked_state_style = hooked_state_style;
+exports.hooks_on = hooks_on;
+exports.instance_name = instance_name;
+exports.isIn = isIn;
+exports.is_complete = is_complete;
+exports.is_end_state = is_end_state;
+exports.is_failed = is_failed;
+exports.is_failed_output = is_failed_output;
+exports.is_final = is_final;
 exports.is_hook_complex_result = is_hook_complex_result;
 exports.is_hook_rejection = is_hook_rejection;
+exports.is_start_state = is_start_state;
 exports.is_state_name_char = is_state_name_char;
 exports.is_state_name_first_char = is_state_name_first_char;
+exports.is_terminal = is_terminal;
+exports.is_unenterable = is_unenterable;
+exports.known_prop = known_prop;
+exports.known_props = known_props;
+exports.known_val = known_val;
+exports.known_vals = known_vals;
+exports.label_for = label_for;
+exports.list_actions = list_actions;
+exports.list_edges = list_edges;
+exports.list_entrances = list_entrances;
+exports.list_exit_actions = list_exit_actions;
+exports.list_exits = list_exits;
+exports.list_named_transitions = list_named_transitions;
 exports.list_shares = list_shares;
+exports.list_states_having_action = list_states_having_action;
+exports.list_transitions = list_transitions;
+exports.lookup_transition_for = lookup_transition_for;
+exports.machine_author = machine_author;
+exports.machine_comment = machine_comment;
+exports.machine_contributor = machine_contributor;
+exports.machine_definition = machine_definition;
+exports.machine_language = machine_language;
+exports.machine_license = machine_license;
+exports.machine_name = machine_name;
+exports.machine_state = machine_state;
+exports.machine_version = machine_version;
 exports.make = make;
 exports.membership_distance = membership_distance;
 exports.name_bind_prop_and_state = name_bind_prop_and_state;
 exports.named_colors = named_colors;
+exports.npm_name = npm_name;
+exports.off = off;
+exports.on = on;
+exports.once = once;
+exports.override = override;
 exports.parse = wrap_parse;
 exports.parse_fence_info = parse_fence_info;
 exports.parse_tape = parse_tape;
+exports.post_hook = post_hook;
+exports.post_hook_action = post_hook_action;
+exports.post_hook_any_action = post_hook_any_action;
+exports.post_hook_any_transition = post_hook_any_transition;
+exports.post_hook_entry = post_hook_entry;
+exports.post_hook_exit = post_hook_exit;
+exports.post_hook_forced_transition = post_hook_forced_transition;
+exports.post_hook_global_action = post_hook_global_action;
+exports.post_hook_main_transition = post_hook_main_transition;
+exports.post_hook_standard_transition = post_hook_standard_transition;
+exports.probabilistic_histo_walk = probabilistic_histo_walk;
+exports.probabilistic_transition = probabilistic_transition;
+exports.probabilistic_walk = probabilistic_walk;
+exports.probable_action_exits = probable_action_exits;
+exports.probable_exits_for = probable_exits_for;
+exports.prop = prop;
+exports.props = props;
+exports.raw_state_declarations = raw_state_declarations;
+exports.remove_hook = remove_hook;
 exports.replay = replay;
+exports.resolve_state_config = resolve_state_config;
+exports.rng_seed = rng_seed;
+exports.sample_start_state = sample_start_state;
 exports.seq = seq;
+exports.serialize = serialize;
 exports.serialize_tape = serialize_tape;
+exports.set_data = set_data;
+exports.set_history_length = set_history_length;
+exports.set_hook = set_hook;
+exports.set_rng_seed = set_rng_seed;
+exports.set_state_timeout = set_state_timeout;
+exports.set_themes = set_themes;
+exports.set_val = set_val;
 exports.shapes = shapes;
 exports.sleep = sleep;
 exports.sm = sm;
+exports.standard_state_style = standard_state_style;
+exports.start_state_style = start_state_style;
+exports.start_state_weights = start_state_weights;
+exports.state = state;
+exports.state_declaration = state_declaration;
+exports.state_declarations = state_declarations;
+exports.state_for = state_for;
+exports.state_has_hooks = state_has_hooks;
+exports.state_is_complete = state_is_complete;
+exports.state_is_final = state_is_final;
+exports.state_is_terminal = state_is_terminal;
 exports.state_name_chars = state_name_chars;
 exports.state_name_first_chars = state_name_first_chars;
 exports.state_style_condense = state_style_condense;
+exports.state_timeout_for = state_timeout_for;
+exports.states = states;
+exports.statesIn = statesIn;
+exports.stochastic_runs = stochastic_runs;
+exports.stochastic_summary = stochastic_summary;
+exports.strict_prop = strict_prop;
+exports.style_for = style_for;
+exports.terminal_state_style = terminal_state_style;
+exports.themes = themes;
 exports.transfer_state_properties = transfer_state_properties;
+exports.transition = transition;
 exports.unique = unique;
+exports.uses_actions = uses_actions;
+exports.uses_forced_transitions = uses_forced_transitions;
+exports.val = val;
+exports.val_type = val_type;
+exports.valid_action = valid_action;
+exports.valid_force_transition = valid_force_transition;
+exports.valid_transition = valid_transition;
+exports.vals = vals;
 exports.version = version;
 exports.weighted_histo_key = weighted_histo_key;
 exports.weighted_rand_select = weighted_rand_select;

@@ -207,18 +207,19 @@ function makeTransition<StateType, mDT>(
  *
  *  Parses the intermediate representation of a compiled string down to a
  *  machine configuration object.  If you're using this (probably don't,) you're
- *  probably also using {@link compile} and {@link Machine.constructor}.
+ *  probably also using {@link compile} and {@link create} (or, through
+ *  `jssm/compat`, the `Machine` constructor).
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  import { parse, compile, create } from 'jssm';
  *
- *  const intermediate = wrap_parse('a -> b;', {});
+ *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
  *
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *
@@ -1443,11 +1444,11 @@ function fold_graph_config(
  *
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
- *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.constructor} to turn the config object into a workable machine.
+ *  {@link parse} to get the IR, and {@link create} (or, through `jssm/compat`,
+ *  the `Machine` constructor) to turn the config object into a workable machine.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
+ *  import { parse, compile, create } from 'jssm';
  *
  *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -1455,7 +1456,7 @@ function fold_graph_config(
  *  const cfg = compile(intermediate);
  *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
  *
- *  const machine = new Machine(cfg);
+ *  const machine = create(cfg);
  *  // Machine { _instance_name: undefined, _state: 'a', ...
  *  ```
  *

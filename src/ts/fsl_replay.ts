@@ -4,7 +4,8 @@
  * with an injected logical clock and a controlled timer queue (no wall-clock,
  * no real setTimeout, no host hooks). Zero Node deps.
  */
-import { Machine, make }     from './jssm';
+import { make }              from './jssm';
+import { Machine }           from './machine/machine';
 import { source_hash }       from './fsl_hash';
 import { canonical_config }  from './fsl_canonical';
 import { ReplayError }       from './fsl_stimulus_tape';

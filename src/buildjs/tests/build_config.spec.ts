@@ -116,9 +116,10 @@ describe('buildPlan — dependency cascade', () => {
     const { stages, disabled, warnings } = buildPlan({ argv: ['--profile=coreless'], env: {}, cwd: dir });
     const scripts = flat(stages);
     expect(scripts).not.toContain('make_core');
-    expect(scripts).not.toContain('min_iife'); // requires make_core
-    expect(scripts).not.toContain('site');     // requires min_iife
-    expect(disabled).toEqual(expect.arrayContaining(['make_core', 'min_iife', 'min_es6', 'min_cjs', 'site']));
+    expect(scripts).not.toContain('min_iife');  // requires make_core
+    expect(scripts).not.toContain('min_compat'); // requires make_core
+    expect(scripts).not.toContain('site');      // requires min_iife
+    expect(disabled).toEqual(expect.arrayContaining(['make_core', 'min_iife', 'min_es6', 'min_compat', 'min_cjs', 'site']));
     expect(warnings.some(w => /auto-disabl/i.test(w))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   });
