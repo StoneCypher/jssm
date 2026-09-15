@@ -115,7 +115,7 @@ ever sees it.
 
 <!-- the drawing functions, as a module -->
 <script type="module">
-  import { fsl_to_svg_string } from 'https://esm.sh/jssm-viz';
+  import { fsl_to_svg_string } from 'https://esm.sh/jssm-viz@6';
 
   const svg = await fsl_to_svg_string('a -> b;');
   document.getElementById('chart').innerHTML = svg;
