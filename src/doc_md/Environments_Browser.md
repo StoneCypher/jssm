@@ -25,20 +25,23 @@ the sibling page for that runtime.
 
 # Script tag from CDN (the "just run already" way)
 
-The IIFE build, `dist/jssm.es5.iife.js`, attaches a single global named `jssm`
-when loaded with a plain `<script>` tag.  Both major CDNs carry it:
+The IIFE build ships as its own package in 6.0: `jssm-iife`, whose single
+artifact is `dist/jssm.iife.js`.  It attaches a single global named `jssm` when
+loaded with a plain `<script>` tag.  (In 5.x this build lived in the `jssm`
+package at `dist/jssm.es5.iife.js`; the main package is ESM only now, so the
+old path is gone.)  Both major CDNs carry the new package:
 
 ```html
 <!-- jsDelivr -->
-<script src="https://cdn.jsdelivr.net/npm/jssm@5/dist/jssm.es5.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js"></script>
 
 <!-- or unpkg -->
-<script src="https://unpkg.com/jssm@5/dist/jssm.es5.iife.js"></script>
+<script src="https://unpkg.com/jssm-iife@6/dist/jssm.iife.js"></script>
 ```
 
-The `@5` pins the major version.  You can pin harder (`jssm@5.162.9`) or not at
-all (`jssm`), but unpinned means that a major release years from now silently
-changes what your page loads, so, pin at least the major.
+The `@6` pins the major version.  You can pin harder (`jssm-iife@6.0.0`) or not
+at all (`jssm-iife`), but unpinned means that a major release years from now
+silently changes what your page loads, so, pin at least the major.
 
 For anything past experimentation, prefer a bundler or a self-hosted copy over
 a CDN tag.  If a CDN tag does go to production, pin an *exact* version and add
@@ -46,7 +49,7 @@ a CDN tag.  If a CDN tag does go to production, pin an *exact* version and add
 (`integrity="sha384-..." crossorigin="anonymous"`) so a compromised CDN can't
 swap the script under you — note SRI only works with exact-version URLs, since
 the hash is of the file's bytes.  The examples on this page omit it because
-they float on `@5` for copy-paste freshness.
+they float on `@6` for copy-paste freshness.
 
 Here's a complete page you can save as an `.html` file and open — no server,
 no build, no install:
@@ -57,7 +60,7 @@ no build, no install:
 
   <head>
     <title>Traffic light</title>
-    <script src="https://cdn.jsdelivr.net/npm/jssm@5/dist/jssm.es5.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js"></script>
   </head>
 
   <body>
@@ -112,7 +115,7 @@ specifiers, no import map needed:
 ```html
 <script type="module">
 
-  import { sm } from 'https://cdn.jsdelivr.net/npm/jssm@5/dist/jssm.es6.mjs';
+  import { sm } from 'https://cdn.jsdelivr.net/npm/jssm@6/dist/jssm.es6.mjs';
 
   const traffic_light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
 
@@ -126,7 +129,7 @@ ESM-flavored CDNs work too, and resolve the package's `exports` map for you:
 
 ```html
 <script type="module">
-  import { sm } from 'https://esm.sh/jssm@5';
+  import { sm } from 'https://esm.sh/jssm@6';
 </script>
 ```
 
@@ -144,8 +147,9 @@ poke the machine from the developer console, hang it on `window` yourself
 
 # Bundlers (Vite, webpack, Rollup, esbuild, ...)
 
-There is no step three.  `jssm` declares `exports`, `module`, `main`, and
-`browser` fields, so every mainstream bundler picks the right build on its own:
+There is no step three.  `jssm` declares `exports`, `module`, and `main`, all
+pointing at the same ESM build, so every mainstream bundler picks it up on its
+own:
 
 ```sh
 npm install jssm
@@ -158,9 +162,11 @@ const traffic_light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
 ```
 
 TypeScript typings ride along in the package; no `@types/jssm` exists or is
-needed.  If you also want visualization, `import from 'jssm/viz'` — it's a
-separate subpath precisely so that apps which don't draw graphs don't pay for
-Graphviz.  See {@page Visualization.md Visualization}.
+needed.  If you also want visualization, `npm install jssm-viz` and
+`import from 'jssm-viz'` — it's a separate package precisely so that apps which
+don't draw graphs don't pay for Graphviz.  (In 5.x it was the `jssm/viz`
+subpath; that subpath is gone in 6.0.)  See
+{@page Visualization.md Visualization}.
 
 
 
@@ -172,7 +178,7 @@ Graphviz.  See {@page Visualization.md Visualization}.
 
 # Web components (a machine in your markup)
 
-`jssm` ships Lit-based custom elements — canonical names are `fsl-*` — that
+`jssm-viz` ships Lit-based custom elements — canonical names are `fsl-*` — that
 render and drive machines with no glue code.  The quickest is `<fsl-viz>`,
 which renders FSL source as an SVG graph.  Complete page:
 
@@ -188,7 +194,7 @@ which renders FSL source as an SVG graph.  Complete page:
       { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz@3/lib/viz-standalone.mjs" } }
     </script>
 
-    <script type="module" src="https://cdn.jsdelivr.net/npm/jssm@5/dist/cdn/viz.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 
   </head>
 
@@ -208,12 +214,12 @@ on page load.
 Under a bundler instead, it's a side-effect import:
 
 ```javascript
-import 'jssm/wc/viz/define';   // registers <fsl-viz>
+import 'jssm-viz/wc/viz/define';   // registers <fsl-viz>
 ```
 
 There is also `<fsl-instance>` (a full machine workspace element, loaded from
-`dist/cdn/instance.js` or `jssm/wc/instance/define`), plus editor, widgets,
-and docs panels.  The whole component family — properties, events, slots,
+`jssm-viz`'s `dist/cdn/instance.js` or `jssm-viz/wc/instance/define`), plus
+editor, widgets, and docs panels.  The whole component family — properties, events, slots,
 trace highlighting — is documented in {@page WebComponents.md Web Components}.
 
 
@@ -227,10 +233,12 @@ trace highlighting — is documented in {@page WebComponents.md Web Components}.
 # Visualization without components
 
 If you want SVG strings or elements rather than a custom element — say, to
-place the graph in your own layout — the `jssm/viz` subpath works in the
-browser too, in both ESM and script-tag styles.  The same `@viz-js/viz`
-import-map requirement applies to script-tag setups.  Worked examples for
-both are in {@page Visualization.md Visualization}.
+place the graph in your own layout — the `jssm-viz` package works in the
+browser too.  It publishes ES modules only, so load it from a
+`<script type="module">` or through your bundler; there is no viz global build
+in 6.0.  The same `@viz-js/viz` import-map requirement applies whenever the
+bare specifier is not rewritten for you.  Worked examples are in
+{@page Visualization.md Visualization}.
 
 
 
@@ -257,7 +265,12 @@ both are in {@page Visualization.md Visualization}.
   `.state()`, hooks) is fully synchronous; only drawing waits.
 
 * **The `.mjs` build needs `type="module"`** — loading `jssm.es6.mjs` from a
-  plain `<script>` tag fails on its `import`/`export` syntax.  Classic tags
-  get the IIFE; module tags get the `.mjs`.
+  plain `<script>` tag fails on its `import`/`export` syntax.  Classic tags get
+  the IIFE from `jssm-iife`; module tags get the `.mjs` from `jssm`.
+
+* **`jssm` has no CDN path ending in `.iife.js` any more** — the main package
+  is ESM only in 6.0.  A 5.x URL like
+  `cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.js` will 404 on 6.x; use
+  `cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js` instead.
 
 * **`<jssm-viz>` was removed in 6.0** — write `<fsl-viz>`.

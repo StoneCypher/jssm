@@ -3,21 +3,25 @@
 There's a tutorial on {@page WhatAreStateMachines.md what state machines are}
 elsewhere; this page is on using this library.
 
-Like many modern Javascript libraries, JSSM is available in many builds, on NPM,
-on Github Packages, and from CDN.  JSSM is packaged as an `es6 module` for
-modern node, modern browsers, and packagers; as a `commonjs module` for node
-back to 2018 and older bundlers; and as an `iife` for classic browsers.  JSSM
-also ships with typescript support, and full documentation.
+Like many modern Javascript libraries, JSSM is available on NPM and from CDN.
+As of 6.0 the formats are split across packages rather than bundled into one:
 
-Generally, you should be able to use the system you're used to, in whatever
-environment you're used to - be that `include` or `require` or a `<script>` tag,
-in node, browser, typescript, deno, es6 environments, es5 environments, modern
-stuff, ancient stuff, whatever - and it should ***Just Work*** &trade;.
+| You want | Install | What it is |
+|---|---|---|
+| `import` in modern node, modern browsers, or a bundler | `jssm` | The main package, an ES module.  Ships TypeScript typings. |
+| `require()` in node or an older bundler | `jssm-commonjs` | A self-contained CommonJS build. |
+| a plain `<script>` tag in a browser | `jssm-iife` | A self-contained browser global named `jssm`. |
+
+So you should still be able to use the system you're used to, in whatever
+environment you're used to — be that `import` or `require` or a `<script>` tag,
+in node, browser, typescript, Deno, a bundler, whatever — you just pick the
+package that matches, and it should ***Just Work*** &trade;.
 
 This tutorial works from CDN.  The next tutorial goes over how to work with
 various environments, builds, and so on.  There are also dedicated environment
 pages for {@page Environments_Browser.md the browser} and
-{@page Environments_Deno.md Deno}.
+{@page Environments_Deno.md Deno} (which reads the npm packages directly — 6.0
+dropped the separate `deno.land/x` build, and that page explains why).
 
 
 
@@ -30,7 +34,8 @@ pages for {@page Environments_Browser.md the browser} and
 # Just getting going from CDN
 
 To start with, let's do things the sloppy, "just run already" way.  We'll load
-the library directly in the HTML, from CDN.
+the library directly in the HTML, from CDN.  A classic `<script>` tag wants the
+browser-global build, which is the `jssm-iife` package:
 ```html
 <!doctype html>
 <html>
@@ -38,7 +43,7 @@ the library directly in the HTML, from CDN.
   <head>
 
     <script type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.min.js">
+            src="https://cdn.jsdelivr.net/npm/jssm-iife@6/dist/jssm.iife.js">
     </script>
 
   </head>
@@ -47,6 +52,8 @@ the library directly in the HTML, from CDN.
 ```
 
 At this point, you can already play with the library, in the developer console.
+The tag attaches one global, `jssm`, so it's `jssm.sm` — or
+`const { sm } = jssm;` once at the top of your own script.
 
 <div class="youtube-embed"><iframe src="//www.youtube.com/embed/hIezzLrVvRQ?html5=1" frameborder="0" allowfullscreen></iframe></div>
 
@@ -143,8 +150,10 @@ End result should look a bit like this:
 
 Next, let's have the machine and the UI interact a bit.
 
-If you pull the CSS out from the previous example into a file called `tl.css`
-and otherwise assume it hasn't changed, you're left with this:
+If you pull the CSS out from the previous example into a file called `tl.css`,
+and self-host the library instead of loading it from CDN (copy
+`node_modules/jssm-iife/dist/jssm.iife.js` next to your page), you're left with
+this:
 
 ```html
 <!doctype html>
@@ -155,7 +164,7 @@ and otherwise assume it hasn't changed, you're left with this:
     <link rel="stylesheet" type="text/css" href="tl.css" />
 
     <script type="text/javascript"
-            src="./jssm.es5.iife.js"></script>
+            src="./jssm.iife.js"></script>
 
     <script type="text/javascript">
 

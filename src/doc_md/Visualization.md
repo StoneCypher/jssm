@@ -1,12 +1,14 @@
 # Visualization
 
-`jssm/viz` is the visualization subpath of `jssm`.  It renders state machines
+`jssm-viz` is the visualization package.  It renders state machines
 to graphviz dot source or to SVG using
 [`@viz-js/viz`](https://www.npmjs.com/package/@viz-js/viz), a WebAssembly
 build of Graphviz.
 
-The viz subpath is opt-in: `import { sm } from 'jssm'` does not pull in
-`@viz-js/viz`.  Visualization is only loaded when you import from `jssm/viz`.
+Visualization is its own package in 6.0 — it used to be the `jssm/viz` subpath
+of `jssm`, and that subpath is gone.  `import { sm } from 'jssm'` does not pull
+in `@viz-js/viz`; visualization is only loaded when you install and import
+`jssm-viz`.
 
 
 
@@ -18,18 +20,19 @@ The viz subpath is opt-in: `import { sm } from 'jssm'` does not pull in
 
 # Installation
 
-`@viz-js/viz` is declared as an `optionalDependency` of jssm.  In nearly all
-environments, npm installs it automatically.
+`@viz-js/viz` is declared as an `optionalDependency` of `jssm-viz`.  In nearly
+all environments, npm installs it automatically.  `jssm-viz` depends on `jssm`,
+so installing it brings the core library along.
 
 ```sh
-npm install jssm
+npm install jssm-viz
 ```
 
 If your platform cannot build `@viz-js/viz`, npm will skip it without failing
 the install.  Visualization will throw a clear error at runtime in that case.
 
-For browser-only usage (no npm), the IIFE bundles can be loaded from a CDN
-(see "Browser, IIFE" below).
+For browser-only usage (no npm), `jssm-viz` publishes ready-to-load CDN entries
+(see "Browser, script tag" below).
 
 
 
@@ -43,7 +46,7 @@ For browser-only usage (no npm), the IIFE bundles can be loaded from a CDN
 
 ```typescript
 import { sm } from 'jssm';
-import { fsl_to_svg_string, machine_to_svg_string } from 'jssm/viz';
+import { fsl_to_svg_string, machine_to_svg_string } from 'jssm-viz';
 
 // from FSL source:
 const svg1 = await fsl_to_svg_string('a -> b;');
@@ -69,7 +72,7 @@ serving over HTTP, or interpolating into HTML.
 ```html
 <script type="module">
   import { sm }                     from 'https://esm.sh/jssm';
-  import { fsl_to_svg_element }     from 'https://esm.sh/jssm/viz';
+  import { fsl_to_svg_element }     from 'https://esm.sh/jssm-viz';
 
   const el = await fsl_to_svg_element('a -> b;');
   document.getElementById('chart').appendChild(el);
@@ -88,23 +91,48 @@ serving over HTTP, or interpolating into HTML.
 
 &nbsp;
 
-# Browser, IIFE — with import map
+# Browser, script tag — with import map
 
-For classic `<script>`-tag setups, declare an import map in the page so the
-dynamic `import('@viz-js/viz')` inside jssm/viz can be resolved:
+**There is no global (IIFE) build of the visualization layer in 6.0.**  The
+`jssm` package used to publish `dist/jssm.es5.iife.js` and
+`dist/jssm_viz.iife.cjs`; neither ships from `jssm` any more.  The replacements
+are two separate packages:
+
+* the core library as a classic global — `jssm-iife`, whose single artifact is
+  `dist/jssm.iife.js` and which attaches the global `jssm`
+* the visualization layer — `jssm-viz`, which publishes **ES modules only**,
+  including the ready-to-load CDN entries `dist/cdn/viz.js` (registers
+  `<fsl-viz>`) and `dist/cdn/instance.js` (registers `<fsl-instance>`)
+
+So a no-tooling page mixes a classic tag for the machine global with a module
+tag for the drawing, and declares an import map so the dynamic
+`import('@viz-js/viz')` inside `jssm-viz` can be resolved:
 
 ```html
 <script type="importmap">
   { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz/+esm" } }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm_viz.iife.cjs"></script>
+<!-- the machine library, as the classic global `jssm` -->
+<script src="https://cdn.jsdelivr.net/npm/jssm-iife/dist/jssm.iife.js"></script>
 
-<script>
-  jssm_viz.fsl_to_svg_string('a -> b;')
-    .then(svg => document.getElementById('chart').innerHTML = svg);
+<!-- the drawing functions, as a module -->
+<script type="module">
+  import { fsl_to_svg_string } from 'https://esm.sh/jssm-viz';
+
+  const svg = await fsl_to_svg_string('a -> b;');
+  document.getElementById('chart').innerHTML = svg;
 </script>
+```
+
+If all you want is a rendered machine in markup, skip the functions entirely
+and load the custom element instead:
+
+```html
+<script type="module"
+        src="https://cdn.jsdelivr.net/npm/jssm-viz/dist/cdn/viz.js"></script>
+
+<fsl-viz fsl="a -> b;"></fsl-viz>
 ```
 
 The import map is document-scoped; the same map services both classic
@@ -125,7 +153,7 @@ automatically.  In Node, you must inject one — typically from `jsdom`:
 
 ```typescript
 import { JSDOM }                    from 'jsdom';
-import { configure, fsl_to_svg_element } from 'jssm/viz';
+import { configure, fsl_to_svg_element } from 'jssm-viz';
 
 configure({ DOMParser: new JSDOM().window.DOMParser });
 

@@ -1,6 +1,6 @@
 # Web Components
 
-`jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
+`jssm-viz` exposes web-component versions of the visualization layer for direct use in plain HTML or for wrapping by any framework. (In 5.x these shipped from the `jssm` package's `jssm/wc/*` subpaths; in 6.0 the visualization layer, custom elements included, is the separate `jssm-viz` package.) This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
 
 > **Tag names:** every component is spelled `fsl-*` (`<fsl-viz>`, class `FslViz`). The `jssm-*` tags, the `Jssm*` class aliases, the `data-jssm-*` attributes, and the `--jssm-viz-*` CSS properties were deprecated in 5.x and **removed in 6.0** — rename them to the `fsl-` spelling (`<jssm-viz>` → `<fsl-viz>`, `data-jssm-action` → `data-fsl-action`, `--jssm-viz-max-height` → `--fsl-viz-max-height`). A leftover `jssm-*` companion child (e.g. a stray `<jssm-hook>` or `<jssm-on>`) is no longer stripped from a host's inline-text FSL source and will corrupt it — remove or rename such children too.
 
@@ -12,7 +12,7 @@ For static HTML pages with no build step:
 <script type="importmap">
   { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz@3/lib/viz-standalone.mjs" } }
 </script>
-<script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
@@ -22,13 +22,13 @@ The import map is required so that `<fsl-viz>`'s dynamic import of `@viz-js/viz`
 ## Quick start — npm
 
 ```bash
-npm install jssm lit
+npm install jssm-viz lit
 ```
 
 Side-effect import that registers the tag:
 
 ```ts
-import 'jssm/wc/viz/define';
+import 'jssm-viz/wc/viz/define';
 ```
 
 Then anywhere in your markup:
@@ -42,7 +42,7 @@ Then anywhere in your markup:
 To register the class under a different tag name, or to subclass it:
 
 ```ts
-import { FslViz } from 'jssm/wc/viz';
+import { FslViz } from 'jssm-viz/wc/viz';
 import { css } from 'lit';
 
 customElements.define('my-fsl-viz', class extends FslViz {
@@ -208,7 +208,7 @@ never observe a half-applied transition. For your own deferral use `queueMicrota
 | Member | Description |
 |---|---|
 | `el.machine` | The raw `Machine` instance. Full power; couples you to the library API. |
-| `el.do(action, data?)` | Convenience for `machine.action(...)`; repaints reflection and re-renders. |
+| `el.do(action, data?)` | Convenience for `act(machine, action, data?)` — equivalently the `machine.action(...)` method, which 6.0 keeps; repaints reflection and re-renders. |
 | `el.state()` | The current state name. |
 
 ```html
@@ -229,5 +229,5 @@ A widget control may default itself off based on what the loaded machine contain
 
 ## See also
 
-- `jssm/viz` headless API — same rendering pipeline, no shadow DOM. Use when wiring SVG into a custom layout.
-- `custom-elements.json` at the package root — full programmatic description of every web component for use by framework-wrapper generators.
+- The `jssm-viz` headless API — same rendering pipeline, no shadow DOM. Use when wiring SVG into a custom layout. See {@page Visualization.md Visualization}.
+- `custom-elements.json` at the `jssm-viz` package root (also reachable as the `jssm-viz/custom-elements.json` export) — full programmatic description of every web component for use by framework-wrapper generators.
