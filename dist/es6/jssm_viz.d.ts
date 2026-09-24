@@ -694,5 +694,5 @@ export declare const _test: {
 };
 export { version, build_time } from './version.js';
 export { tonal_provider } from './jssm_viz_tonal.js';
-export type { TonalRenderOptions, TonalStateContent, TonalIcon } from './jssm_viz_tonal.js';
+export type { TonalRenderOptions, TonalStateContent, TonalIcon, TonalSvgIcon, TonalIconNode } from './jssm_viz_tonal.js';
 export type { VizRenderProvider, VizRenderContext, VizLayoutOverrides } from './jssm_viz_provider.js';

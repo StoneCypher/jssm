@@ -8,7 +8,7 @@ flow: down;
 arrange [Green Yellow];
 Off 'Enable' -> Red;
 Red 'Next' => Green 'Next' => Yellow 'Next' => Red;
-[Red Yellow Green] ~> Off;
+[Red Yellow Green] 'Disable' ~> Off;
 state Red: {background-color: pink; corners: rounded;};
 state Green: {background-color: lightgreen; corners: rounded;};
 state Yellow: {background-color: lightyellow; corners: rounded;};

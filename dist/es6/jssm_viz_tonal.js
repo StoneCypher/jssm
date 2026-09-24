@@ -1,3 +1,5 @@
+const title_size = 22;
+const header_height = title_size * 1.5;
 const header_marker = '#010203';
 const icon_marker = '#020304';
 let render_sequence = 0;
@@ -60,7 +62,10 @@ function html_lines(text, columns) {
 }
 function card_label(label, content, columns, text_color, octagon = false) {
     var _a, _b;
-    const heading = `<TR><TD ALIGN="LEFT" BGCOLOR="${header_marker}" CELLPADDING="${octagon ? 18 : 12}">${font(`<B>${html_lines(label, columns)}</B>`, 22)}</TD></TR>`;
+    // Reserve a single 1.5em line, with horizontal padding independent of height.
+    const inset = octagon ? 36 : 12;
+    const title = xml(label.replace(/\r?\n/g, ' '));
+    const heading = `<TR><TD ALIGN="LEFT" BGCOLOR="${header_marker}" CELLPADDING="0"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD WIDTH="${inset}">${font('&#160;', 1)}</TD><TD ALIGN="LEFT" VALIGN="MIDDLE" HEIGHT="${header_height}">${font(`<B>${title || '&#160;'}</B>`, title_size)}</TD><TD WIDTH="${inset}">${font('&#160;', 1)}</TD></TR></TABLE></TD></TR>`;
     const paragraphs = [];
     if (content.description) {
         paragraphs.push(`<TR><TD ALIGN="LEFT">${font(`<B>${html_lines(content.description, columns)}</B>`, 15)}</TD></TR>`);
@@ -117,7 +122,7 @@ function geometry(ops = [], attrs = '') {
         }
     }).join('');
 }
-function texts(ops = [], override_color, halo) {
+function texts(ops = [], override_color, halo, header) {
     let size = 15;
     let face = 'Arial';
     let fill = '#17212c';
@@ -139,8 +144,13 @@ function texts(ops = [], override_color, halo) {
         }
         const anchor = op.align === 'l' ? 'start' : (op.align === 'r' ? 'end' : 'middle');
         const length = op.width > 0 ? ` textLength="${op.width}" lengthAdjust="spacingAndGlyphs"` : '';
+        const heading = header && size === title_size;
+        // Graphviz may stretch the spacer columns to match a wider body.
+        const x = heading ? header.bounds[0] + header.inset : op.pt[0];
+        const y = heading ? (header.bounds[1] + header.bounds[3]) / 2 : -op.pt[1];
+        const centered = heading ? ' class="tonal-title" dominant-baseline="central"' : '';
         const outline = halo ? ` stroke="${xml(halo)}" stroke-width="5" stroke-linejoin="round" paint-order="stroke"` : '';
-        return `<text x="${op.pt[0]}" y="${-op.pt[1]}" text-anchor="${anchor}" font-family="${xml(face)}, sans-serif" font-size="${size}" font-weight="${flags & 1 ? 600 : 400}" fill="${xml(override_color !== null && override_color !== void 0 ? override_color : fill)}"${length}${outline}>${xml(op.text)}</text>`;
+        return `<text x="${x}" y="${y}"${centered} text-anchor="${anchor}" font-family="${xml(face)}, sans-serif" font-size="${size}" font-weight="${flags & 1 ? 600 : 400}" fill="${xml(override_color !== null && override_color !== void 0 ? override_color : fill)}"${length}${outline}>${xml(op.text)}</text>`;
     }).join('');
 }
 function marker_bounds(ops = [], marker) {
@@ -158,6 +168,38 @@ function marker_bounds(ops = [], marker) {
     }
     return undefined;
 }
+// Only self-contained drawing primitives are accepted from icon libraries.
+const icon_tags = new Set(['path', 'circle', 'ellipse', 'rect', 'line', 'polyline', 'polygon']);
+const icon_attributes = new Set(['d', 'points', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'ry',
+    'width', 'height', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit',
+    'fill-rule', 'clip-rule', 'opacity', 'fill-opacity', 'stroke-opacity', 'transform']);
+function icon_node([tag, attributes]) {
+    if (!icon_tags.has(tag)) {
+        throw new TypeError(`Unsupported tonal icon element: ${tag}`);
+    }
+    const attrs = Object.entries(attributes).flatMap(([name, value]) => {
+        // Some libraries attach framework bookkeeping to their shape records.
+        if (name === 'key' || value === undefined) {
+            return [];
+        }
+        if (!icon_attributes.has(name)) {
+            throw new TypeError(`Unsupported tonal icon attribute: ${name}`);
+        }
+        if (typeof value !== 'string' && (typeof value !== 'number' || !Number.isFinite(value))) {
+            throw new TypeError(`Invalid tonal icon attribute: ${name}`);
+        }
+        const safe = name === 'fill' || name === 'stroke' ? color(String(value), 'none') : String(value);
+        return [`${name}="${xml(safe)}"`];
+    });
+    return `<${tag} ${attrs.join(' ')}/>`;
+}
+function icon_viewbox(value = '0 0 24 24') {
+    const dimensions = value.trim().split(/[\s,]+/).map(Number);
+    if (dimensions.length !== 4 || dimensions.some(n => !Number.isFinite(n)) || dimensions[2] <= 0 || dimensions[3] <= 0) {
+        throw new TypeError('Tonal icon viewBox must contain four finite numbers with positive width and height');
+    }
+    return dimensions.join(' ');
+}
 function icon_svg(icon, bounds, fill) {
     if (!bounds) {
         return '';
@@ -166,7 +208,12 @@ function icon_svg(icon, bounds, fill) {
     const x = left + (right - left - 40) / 2;
     const y = top + (bottom - top - 62) / 2;
     if (typeof icon === 'object') {
-        return `<svg x="${x}" y="${y}" width="40" height="62" viewBox="0 0 24 24" fill="none" stroke="${xml(fill)}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${xml(icon.path)}"/></svg>`;
+        if ('emoji' in icon) {
+            return `<text class="tonal-icon-emoji" x="${x + 20}" y="${y + 31}" text-anchor="middle" dominant-baseline="central" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif" font-size="36" fill="${xml(fill)}">${xml(icon.emoji)}</text>`;
+        }
+        const shapes = 'nodes' in icon ? icon.nodes.map(icon_node).join('')
+            : (typeof icon.path === 'string' ? [icon.path] : icon.path).map(d => icon_node(['path', { d }])).join('');
+        return `<svg class="tonal-icon-svg" x="${x}" y="${y}" width="40" height="62" viewBox="${icon_viewbox(icon.viewBox)}" color="${xml(fill)}" fill="${xml(color(icon.fill, 'none'))}" stroke="${xml(color(icon.stroke, 'currentColor'))}" stroke-width="${bounded(icon.stroke_width, 1.5, 0, 100)}" stroke-linecap="round" stroke-linejoin="round">${shapes}</svg>`;
     }
     const active = ['traffic-red', 'traffic-yellow', 'traffic-green'].indexOf(icon);
     const lights = ['#f34255', '#efbf24', '#27b778'];
@@ -300,8 +347,8 @@ function card(node, content, prefix, shade, declared_border) {
 <defs><clipPath id="${clip}">${geometry(shape)}</clipPath><linearGradient id="${gradient}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="white" stop-opacity="0.12"/><stop offset="1" stop-color="black" stop-opacity="0.035"/></linearGradient></defs>
 ${geometry(shape, `fill="${xml(fill)}" filter="url(#${prefix}-shadow)"`)}
 <g clip-path="url(#${clip})"><rect x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${h + 2}" fill="url(#${gradient})"/>
-${header ? `<rect class="tonal-header" x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${header[3] - top + 1}" fill="black" opacity="${shade}"/>` : ''}
-${texts(node._ldraw_)}${content.icon ? icon_svg(content.icon, icon_bounds, ink) : ''}</g>
+${header ? `<rect class="tonal-header" x="${left - 1}" y="${header[1]}" width="${w + 2}" height="${header_height}" fill="black" opacity="${shade}"/>` : ''}
+${texts(node._ldraw_, undefined, undefined, header ? { bounds: header, inset: outline ? 36 : 12 } : undefined)}${content.icon ? icon_svg(content.icon, icon_bounds, ink) : ''}</g>
 ${geometry(shape, `class="tonal-border" fill="none" stroke="${xml(border)}" stroke-width="1.2"${dash}`)}</g>`;
 }
 /** Draw the measured Graphviz geometry with tonal cards and restrained transition styling. */
@@ -329,7 +376,7 @@ async function render_tonal(context) {
         const octagon = style.shape === 'octagon';
         const content = content_for(name);
         const table = card_label(label, content, columns, ink, octagon);
-        nodes.set(name, `${octagon ? 'shape=box jssm_shape="octagon" ' : ''}label=<${table}> margin=0 fontname="Arial" fontcolor=${quoted(ink)} style=${quoted(`filled,rounded,${style.lineStyle || 'solid'}`)}`);
+        nodes.set(name, `${octagon ? 'shape=box jssm_shape="octagon" ' : ''}label=<${table}> margin=0 height=0 fontname="Arial" fontcolor=${quoted(ink)} style=${quoted(`filled,rounded,${style.lineStyle || 'solid'}`)}`);
     }
     const dot = context.to_dot({
         nodes,

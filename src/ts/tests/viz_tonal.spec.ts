@@ -4,7 +4,7 @@ import {
   fsl_to_svg_string, machine_to_svg_string, fsl_to_svg_element, machine_to_svg_element,
   fsl_to_dot, tonal_provider
 } from '../jssm_viz';
-import type { VizRenderProvider } from '../jssm_viz';
+import type { VizRenderProvider, TonalIcon } from '../jssm_viz';
 
 const traffic = `
 machine_name: "Traffic light";
@@ -42,6 +42,98 @@ function polygon_points(el: Element): number[][] {
 }
 
 describe('tonal SVG provider', () => {
+  it('keeps headers at 1.5em with centered titles and extra octagon clearance', async () => {
+    const doc = document_for(await fsl_to_svg_string(traffic, { provider: 'tonal', tonal: { states: annotations } }));
+    for (const node of doc.querySelectorAll('.node')) {
+      const header = node.querySelector('.tonal-header');
+      const title = node.querySelector('.tonal-title');
+      const height = Number(header.getAttribute('height'));
+      expect(height).toBe(Number(title.getAttribute('font-size')) * 1.5);
+      expect(Number(title.getAttribute('y'))).toBeCloseTo(Number(header.getAttribute('y')) + height / 2, 2);
+      expect(title.getAttribute('dominant-baseline')).toBe('central');
+      const left = Number(header.getAttribute('x')) + 1;
+      const inset = Number(title.getAttribute('x')) - left;
+      expect(inset).toBeCloseTo(node.querySelector('title').textContent === 'off' ? 36 : 12, 1);
+      const bottom = Number(header.getAttribute('y')) + height;
+      const body = [...node.querySelectorAll('text')].filter(el => !el.classList.contains('tonal-title'));
+      expect(body.every(el => Number(el.getAttribute('y')) > bottom)).toBe(true);
+    }
+  });
+
+  it('measures long titles on one line while retaining body wrapping and group chips', async () => {
+    const name = 'A state with a deliberately long name';
+    const doc = document_for(await fsl_to_svg_string(`&group: ["${name}"]; "${name}" -> b;`, {
+      provider: 'tonal', render_groups: 'chips', tonal: { wrap_columns: 8, states: { [name]: { description: 'Several words in the body' } } }
+    }));
+    const node = doc.querySelector('.node');
+    expect(node.querySelectorAll('.tonal-title')).toHaveLength(1);
+    expect(node.querySelector('.tonal-title').textContent).toContain(name);
+    expect(node.querySelector('.tonal-title').textContent).toContain('[group]');
+    const title = node.querySelector('.tonal-title');
+    const band = node.querySelector('.tonal-header');
+    expect(Number(title.getAttribute('x')) + Number(title.getAttribute('textLength')))
+      .toBeLessThan(Number(band.getAttribute('x')) + Number(band.getAttribute('width')));
+    expect(node.querySelectorAll('text').length).toBeGreaterThan(3);
+  });
+
+  it('renders every named forced action without dimming its label or inventing unnamed actions', async () => {
+    const doc = document_for(await fsl_to_svg_string("a 'Disable' ~> b; b 'reset<&' ~> a; c ~> a;", { provider: 'tonal' }));
+    expect(doc.querySelectorAll('[data-transition-kind="forced"]')).toHaveLength(3);
+    expect(doc.querySelectorAll(':scope [data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
+    const labels = [...doc.querySelectorAll(':scope .edge-labels text')];
+    expect(labels.map(el => el.textContent)).toEqual(['Disable', 'reset<&']);
+    expect(labels.every(el => el.getAttribute('fill') === '#a9cfff' && !el.closest('[opacity]'))).toBe(true);
+  });
+
+  it('accepts emoji, Lucide-compatible shape records, and filled paths in library view boxes', async () => {
+    // This is Lucide's public IconNode type; it must be assignable without casts.
+    const nodes: [string, Record<string, string | number | undefined>][] = [
+      ['circle', { cx: '12', cy: '12', r: '10', key: 'circle', opacity: undefined }],
+      ['path', { d: 'm9 12 2 2 4-4', 'stroke-width': 2 }]
+    ];
+    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; Emoji -> Outline -> Solid;', {
+      tonal: { states: {
+        Emoji: { icon: { emoji: '👩🏽‍💻' } },
+        Outline: { icon: { nodes } },
+        Solid: { icon: { path: ['M0 0H512V512H0Z', 'M128 128H384V384H128Z'], viewBox: '0 0 512 512', fill: 'currentColor', stroke: 'none' } }
+      } }
+    }));
+    expect(doc.querySelector('.tonal-icon-emoji').textContent).toBe('👩🏽‍💻');
+    expect(doc.querySelector('.tonal-icon-emoji').getAttribute('font-family')).toContain('Segoe UI Emoji');
+    const [outline, solid] = [...doc.querySelectorAll('.tonal-icon-svg')];
+    expect(outline.querySelector('circle').getAttribute('r')).toBe('10');
+    expect(outline.querySelector('[key]')).toBeNull();
+    expect(outline.getAttribute('stroke')).toBe('currentColor');
+    expect(solid.getAttribute('viewBox')).toBe('0 0 512 512');
+    expect(solid.getAttribute('fill')).toBe('currentColor');
+    expect(solid.getAttribute('stroke')).toBe('none');
+    expect(solid.querySelectorAll('path')).toHaveLength(2);
+    expect(doc.querySelectorAll('.node')).toHaveLength(3);
+  });
+
+  it('escapes emoji and icon path text and rejects executable or externally referenced SVG data', async () => {
+    const svg = await fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { states: {
+      a: { icon: { emoji: '<script>alert(1)</script>' } },
+      b: { icon: { path: 'M0 0"/><script>alert(1)</script><path d="' } }
+    } } });
+    const doc = document_for(svg);
+    expect(doc.querySelector('script')).toBeNull();
+    expect(doc.querySelector('.tonal-icon-emoji').textContent).toBe('<script>alert(1)</script>');
+    const invalid: TonalIcon[] = [
+      { nodes: [['script', {}]] },
+      { nodes: [['path', { d: 'M0 0', onload: 'alert(1)' }]] },
+      { nodes: [['path', { d: 'M0 0', fill: 'url(https://example.com/paint)' }]] },
+      { nodes: [['use', { href: 'https://example.com/icon.svg' }]] },
+      { path: 'M0 0', viewBox: '0 0 0 24' },
+      { path: 'M0 0', viewBox: '0 0 Infinity 24' },
+      { path: 'M0 0', stroke: 'url(#external)' },
+      { path: 'M0 0', stroke_width: -1 }
+    ];
+    for (const icon of invalid) {
+      await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { states: { a: { icon } } } })).rejects.toThrow();
+    }
+  });
+
   it('selects tonal from FSL through every SVG entry point without a provider option', async () => {
     const source = 'graph_layout: tonal; a => b;';
     const machine = from(source);

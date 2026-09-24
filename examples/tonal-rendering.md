@@ -36,16 +36,21 @@ const svg = await fsl_to_svg_string(source, {
 Annotations are optional presentation metadata keyed by the original state
 name. They do not change FSL or execution. Unannotated states use compact cards.
 `action` is a monospace prefix in the body; edge action labels always come from
-the machine. Built-in icons are `traffic-red`, `traffic-yellow`, `traffic-green`
-and `traffic-off`. Supply `{ path: 'M…' }` for a monochrome SVG path in a 24×24
-view box. Content is escaped as text; raw SVG/HTML is not accepted as annotation
-content.
+the machine, including forced transitions. An unnamed transition stays unlabeled;
+write `[Red Yellow Green] 'Disable' ~> Off;` to label all three forced returns.
+The traffic-light example now declares this action explicitly.
+
+Built-in icons are `traffic-red`, `traffic-yellow`, `traffic-green`
+and `traffic-off`. Supply `{ emoji: '🚦' }` for emoji or `{ path: 'M…' }`
+for a monochrome SVG path. Library integration examples are below.
 
 `background` defaults to `#101827`, `action_color` to `#a9cfff`, and
-`wrap_columns` to 24. Graphviz measures the wrapped label with the selected
-fonts, sizes the node and routes edges around it. The resulting SVG uses those
-same measurements. State colors, shapes and line styles come from the machine. Octagons use compact
-card bounds with clipped corners, rather than an expanded regular polygon.
+`wrap_columns` to 24 for body text. Headers are exactly 1.5em tall (33 points
+at the 22-point title size), with vertically centered text. Titles remain on one
+line; long names widen the card, and title line breaks are displayed as spaces.
+Graphviz measures the title and wrapped body, sizes the node and routes edges
+around it. The resulting SVG uses those same measurements. State colors, shapes and line styles come from the machine. Octagons use compact
+card bounds with clipped corners and a larger title inset to clear the diagonal.
 Borders default to a darker tone of the resolved node fill. Explicit FSL
 `border-color` declarations retain their color and alpha, including declarations
 in state defaults, groups, state kinds, and active-state overlays.
@@ -56,6 +61,52 @@ Use `id_prefix` for reproducible SVG exports. Give each chart a distinct prefix
 when embedding multiple exports in one document. If omitted, each render gets
 a unique document-local prefix. SVG output works with the existing rasterizer
 and can be used directly in tutorial graphics.
+
+## Emoji and icon libraries
+
+Use an emoji in the same slot:
+
+```js
+const states = { Green: { icon: { emoji: '🚦' }, description: 'Traffic may proceed.' } };
+```
+
+Emoji use the viewer's installed color-emoji font. For identical artwork across
+video exports and browsers, use SVG icon data. No icon library is bundled or
+loaded from a network by the renderer.
+
+Lucide's shape records can be passed directly:
+
+```js
+import { icons } from 'lucide';
+const states = { Green: { icon: { nodes: icons.CircleCheck } } };
+```
+
+Font Awesome's path data works with its native view box:
+
+```js
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+const [width, height, , , path] = faCircleCheck.icon;
+const states = {
+  Green: { icon: { path, viewBox: `0 0 ${width} ${height}`, fill: 'currentColor', stroke: 'none' } }
+};
+```
+
+Pass any of these `states` objects as `tonal: { states }` in render options, or
+assign it through the chart's `.tonal` property. The integration uses the libraries'
+public [Lucide IconNode](https://github.com/lucide-icons/lucide/blob/main/packages/lucide/src/types.ts)
+and [Font Awesome IconDefinition](https://github.com/FortAwesome/Font-Awesome/blob/7.x/js-packages/@fortawesome/fontawesome-common-types/index.d.ts)
+data formats.
+
+`TonalSvgIcon` accepts `path` (one path or an array) or `nodes` (shape/attribute
+pairs), optional `viewBox` (default `0 0 24 24`), `fill` (default `none`),
+`stroke` (default `currentColor`), and `stroke_width` (default `1.5`).
+`currentColor` uses the state's text color. Supported shapes are `path`,
+`circle`, `ellipse`, `rect`, `line`, `polyline`, and `polygon`. Shape geometry,
+transforms, fill/stroke styling and opacity are supported; framework `key`
+attributes are ignored. Raw SVG/HTML, event handlers, external references and
+paint-server URLs are rejected. Libraries that supply SVG strings need to be
+converted to these drawing records by the application.
+
 
 ## Chart component
 

@@ -389,7 +389,7 @@
       "id": "viz-config",
       "surface": "viz",
       "title": "Render configuration",
-      "units": ["configure", "VizRenderOpts", "RenderGroups", "tonal_provider", "TonalIcon", "TonalRenderOptions", "TonalStateContent", "VizRenderProvider", "VizRenderContext", "VizLayoutOverrides"],
+      "units": ["configure", "VizRenderOpts", "RenderGroups", "tonal_provider", "TonalIcon", "TonalSvgIcon", "TonalIconNode", "TonalRenderOptions", "TonalStateContent", "VizRenderProvider", "VizRenderContext", "VizLayoutOverrides"],
       "tier": "intermediate",
       "dependsOn": ["viz-render"],
       "indexTerms": ["configure", "render options", "groups"]

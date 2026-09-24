@@ -3954,9 +3954,28 @@ interface VizRenderProvider {
     render: (context: VizRenderContext) => string | Promise<string>;
 }
 
-/** Built-in traffic signals, or a monochrome SVG path in a 24 by 24 view box. */
-type TonalIcon = 'traffic-red' | 'traffic-yellow' | 'traffic-green' | 'traffic-off' | {
-    path: string;
+/**
+ * SVG shape data, compatible with Lucide's IconNode entries. Supported tags are
+ * path, circle, ellipse, rect, line, polyline and polygon; attributes are validated.
+ */
+type TonalIconNode = readonly [tag: string, attributes: Readonly<Record<string, string | number | undefined>>];
+/** Library-neutral SVG data; no DOM, raw markup or external assets are required. */
+type TonalSvgIcon = ({
+    path: string | readonly string[];
+} | {
+    nodes: readonly TonalIconNode[];
+}) & {
+    /** Defaults to 0 0 24 24. Supply the library's native coordinate system. */
+    viewBox?: string;
+    /** Defaults to none; currentColor uses the state's text color. */
+    fill?: string;
+    /** Defaults to currentColor. Use none for solid icons. */
+    stroke?: string;
+    stroke_width?: number;
+};
+/** Built-in traffic signals, an emoji grapheme, or portable SVG icon-library data. */
+type TonalIcon = 'traffic-red' | 'traffic-yellow' | 'traffic-green' | 'traffic-off' | TonalSvgIcon | {
+    emoji: string;
 };
 /** Optional explanatory content. These annotations never change the machine. */
 interface TonalStateContent {
@@ -3975,7 +3994,7 @@ interface TonalRenderOptions {
     forced_opacity?: number;
     /** Dark overlay over the node's own color; default 0.1. */
     header_shade?: number;
-    /** Characters per line before Graphviz measures the wrapped text; default 24. */
+    /** Characters per body line before Graphviz measures it; default 24. Titles stay on one line. */
     wrap_columns?: number;
     /** Set for reproducible exports; use different prefixes for diagrams sharing a document. */
     id_prefix?: string;
@@ -4674,4 +4693,4 @@ declare const _test: {
 };
 
 export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, slug_for, state_svg_label_texts, tonal_provider, version };
-export type { RenderGroups, TonalIcon, TonalRenderOptions, TonalStateContent, VizEngine, VizLayoutOverrides, VizRenderContext, VizRenderOpts, VizRenderProvider };
+export type { RenderGroups, TonalIcon, TonalIconNode, TonalRenderOptions, TonalStateContent, TonalSvgIcon, VizEngine, VizLayoutOverrides, VizRenderContext, VizRenderOpts, VizRenderProvider };
