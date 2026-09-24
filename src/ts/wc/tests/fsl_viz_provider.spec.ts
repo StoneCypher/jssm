@@ -6,6 +6,32 @@ import type { VizRenderProvider } from '../../jssm_viz';
 afterEach(() => { document.body.replaceChildren(); });
 
 describe('chart rendering providers', () => {
+  it('follows source selection and switches back when it is removed', async () => {
+    const el = document.createElement('fsl-viz');
+    el.fsl = 'graph_layout: tonal; a -> b;';
+    document.body.append(el);
+    await vi.waitFor(() => { expect(el.shadowRoot?.querySelector('[data-render-provider="tonal"]')).not.toBeNull(); });
+    el.fsl = 'graph_layout: neato; a -> b;';
+    await vi.waitFor(() => {
+      expect(el.shadowRoot?.querySelector('svg')).not.toBeNull();
+      expect(el.shadowRoot?.querySelector('[data-render-provider="tonal"]')).toBeNull();
+    });
+  });
+
+  it('follows the bound machine source and respects an explicit provider override', async () => {
+    const host = document.createElement('fsl-instance');
+    host.fsl = 'graph_layout: tonal; a -> b;';
+    const el = document.createElement('fsl-viz');
+    host.append(el);
+    document.body.append(host);
+    await vi.waitFor(() => { expect(el.shadowRoot?.querySelector('[data-render-provider="tonal"]')).not.toBeNull(); });
+    el.provider = 'graphviz';
+    await vi.waitFor(() => {
+      expect(el.shadowRoot?.querySelector('svg')).not.toBeNull();
+      expect(el.shadowRoot?.querySelector('[data-render-provider="tonal"]')).toBeNull();
+    });
+  });
+
   it('switches a standalone chart to tonal and updates its annotations', async () => {
     const el = document.createElement('fsl-viz');
     el.fsl = 'Idle -> Running;';

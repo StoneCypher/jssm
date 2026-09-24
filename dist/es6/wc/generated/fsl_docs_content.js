@@ -774,7 +774,7 @@ export const DOCS_PAGES = [
             "allows_override",
             "failed_outputs"
         ],
-        "body": "\n# Single-value configuration\n\nSome settings are a single `key : value;` rather than a block — graph layout, island rules, override permission, and similar machine-wide switches.\n\n```fsl {teaches: single-value-configs, run: true}\ngraph_layout  : circo;\nallow_islands : false;\na 'go' -> b;\n```\n\n`graph_layout` chooses a Graphviz engine (`dot`, `circo`, `fdp`, `neato`, `twopi`); `allow_islands` controls whether disconnected components are permitted.\n"
+        "body": "\n# Single-value configuration\n\nSome settings are a single `key : value;` rather than a block — graph layout, island rules, override permission, and similar machine-wide switches.\n\n```fsl {teaches: single-value-configs, run: true}\ngraph_layout  : circo;\nallow_islands : false;\na 'go' -> b;\n```\n\n`graph_layout` chooses a renderer: a Graphviz engine (`dot`, `circo`, `fdp`, `neato`, `twopi`) or `tonal`, which draws state cards using `dot` geometry; `allow_islands` controls whether disconnected components are permitted.\n"
     },
     {
         "id": "tut-state-styling",
@@ -932,7 +932,7 @@ export const DOCS_PAGES = [
             "groups",
             "viz"
         ],
-        "body": "\n# Viz: render configuration\n\n`configure` sets global render defaults, and the `VizRenderOpts` / `RenderGroups` types let you tune a single render — engine choice, group rendering, and more.\n\n```js\nimport { configure, fsl_to_svg_string } from 'jssm/viz';\n\nconfigure({ /* global defaults */ });\nconst svg = await fsl_to_svg_string(`a -> b;`, { /* VizRenderOpts */ });\n```\n\nRender options shape how a machine like this is drawn without changing the FSL:\n\n```fsl {teaches: viz-config, run: true}\ngraph_layout : circo;\na 'go' -> b;\n```\n"
+        "body": "\n# Viz: render configuration\n\n`configure` sets global render defaults, and the `VizRenderOpts` / `RenderGroups` types let you tune a single render — engine choice, group rendering, and more.\n\n```js\nimport { configure, fsl_to_svg_string } from 'jssm/viz';\n\nconfigure({ /* global defaults */ });\nconst svg = await fsl_to_svg_string(`a -> b;`, { /* VizRenderOpts */ });\n```\n\nRender options shape how a machine like this is drawn without changing the FSL:\n\n```fsl {teaches: viz-config, run: true}\ngraph_layout : circo;\na 'go' -> b;\n```\n\nSelect the tonal state-card renderer directly in your source:\n\n```fsl {teaches: viz-config, run: true}\ngraph_layout: tonal;\na 'go' -> b;\n```\n\nThis also works in the chart component and CLI exports. JavaScript callers can\noverride the source choice with `{ provider: 'tonal' }` or\n`{ provider: 'graphviz' }`. Tonal uses `dot` geometry by default; an explicit\n`engine` option changes the geometry without changing its appearance.\nOptional `tonal.states`\nannotations add descriptions, monospace action names and icons without changing\nthe machine. See `examples/tonal-rendering.md` and the runnable\n`examples/tonal-traffic-light.mjs` example. Custom application providers can\nimplement the exported `VizRenderProvider` interface.\n"
     },
     {
         "id": "tut-viz-dot",

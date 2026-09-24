@@ -18,4 +18,4 @@ allow_islands : false;
 a 'go' -> b;
 ```
 
-`graph_layout` chooses a Graphviz engine (`dot`, `circo`, `fdp`, `neato`, `twopi`); `allow_islands` controls whether disconnected components are permitted.
+`graph_layout` chooses a renderer: a Graphviz engine (`dot`, `circo`, `fdp`, `neato`, `twopi`) or `tonal`, which draws state cards using `dot` geometry; `allow_islands` controls whether disconnected components are permitted.

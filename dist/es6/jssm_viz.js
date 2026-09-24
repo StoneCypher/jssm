@@ -1350,10 +1350,12 @@ async function fsl_to_svg_string(fsl, opts = {}) {
  *  @returns A promise resolving to an SVG XML string.
  */
 async function machine_to_svg_string(u_jssm, opts = {}) {
-    var _a;
-    const provider = opts.provider;
-    const engine = (_a = opts.engine) !== null && _a !== void 0 ? _a : u_jssm.graph_layout();
-    if (provider === undefined || provider === 'graphviz') {
+    var _a, _b;
+    const layout = u_jssm.graph_layout();
+    const provider = (_a = opts.provider) !== null && _a !== void 0 ? _a : (layout === 'tonal' ? 'tonal' : 'graphviz');
+    // Tonal selects a drawing provider; Graphviz still receives a geometry engine.
+    const engine = (_b = opts.engine) !== null && _b !== void 0 ? _b : (layout === 'tonal' ? 'dot' : layout);
+    if (provider === 'graphviz') {
         return dot_to_svg(machine_to_dot(u_jssm, opts), { engine });
     }
     const selected = provider === 'tonal' ? tonal_provider : provider;

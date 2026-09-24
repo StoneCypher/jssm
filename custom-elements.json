@@ -4523,8 +4523,8 @@
               "type": {
                 "text": "VizRenderOpts['provider']"
               },
-              "default": "'graphviz'",
-              "description": "SVG drawing provider: graphviz (default), tonal, or a provider object.",
+              "default": "undefined",
+              "description": "SVG drawing provider override. Omitted follows the source's graph_layout.",
               "attribute": "provider"
             },
             {
@@ -4680,8 +4680,8 @@
               "type": {
                 "text": "VizRenderOpts['provider']"
               },
-              "default": "'graphviz'",
-              "description": "SVG drawing provider: graphviz (default), tonal, or a provider object.",
+              "default": "undefined",
+              "description": "SVG drawing provider override. Omitted follows the source's graph_layout.",
               "fieldName": "provider"
             }
           ],

@@ -486,7 +486,7 @@ type VizRenderOpts = {
     footer?: string;
     engine?: string;
     render_groups?: RenderGroups;
-    /** SVG drawing provider. Omitted or 'graphviz' retains the existing renderer. */
+    /** SVG drawing provider override. When omitted, follows FSL graph_layout (tonal or Graphviz). */
     provider?: 'graphviz' | 'tonal' | VizRenderProvider;
     /** Optional annotations and appearance settings for the tonal provider. */
     tonal?: TonalRenderOptions;

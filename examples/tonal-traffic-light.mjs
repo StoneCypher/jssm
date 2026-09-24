@@ -3,6 +3,7 @@ import { fsl_to_svg_string } from '../dist/jssm_viz.mjs';
 
 const source = `
 machine_name: "Traffic light";
+graph_layout: tonal;
 flow: down;
 arrange [Green Yellow];
 Off 'Enable' -> Red;
@@ -15,7 +16,6 @@ state Off: {background-color: steelblue; text-color: white; shape: octagon; line
 `;
 
 const svg = await fsl_to_svg_string(source, {
-  provider: 'tonal',
   tonal: {
     id_prefix: 'traffic-light',
     states: {

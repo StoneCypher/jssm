@@ -1,7 +1,14 @@
 # Tonal state cards
 
-The SVG entry points in `jssm/viz` accept an optional rendering provider. The
-default `graphviz` provider retains the existing appearance. `tonal` draws
+Select the renderer in FSL, just like `dot` or `neato`:
+
+```fsl
+graph_layout: tonal;
+Idle 'start' -> Running;
+```
+
+This selects tonal in SVG exports, the CLI renderer, and chart components.
+Omitting `graph_layout` keeps the existing Graphviz appearance. `tonal` draws
 navy-backed state cards with darker headers, soft shadows, blue monospace action
 labels, and quieter forced transitions. Layout still uses Graphviz, including
 FSL flow, arrangements, groups, self-loops and parallel actions.
@@ -10,7 +17,7 @@ FSL flow, arrangements, groups, self-loops and parallel actions.
 import { fsl_to_svg_string } from 'jssm/viz';
 
 const svg = await fsl_to_svg_string(source, {
-  provider: 'tonal',
+  provider: 'tonal', // Optional override; unnecessary when source selects tonal.
   tonal: {
     forced_opacity: 0.7,
     header_shade: 0.1,
@@ -37,7 +44,8 @@ content.
 `background` defaults to `#101827`, `action_color` to `#a9cfff`, and
 `wrap_columns` to 24. Graphviz measures the wrapped label with the selected
 fonts, sizes the node and routes edges around it. The resulting SVG uses those
-same measurements. State colors, shapes and line styles come from the machine.
+same measurements. State colors, shapes and line styles come from the machine. Octagons use compact
+card bounds with clipped corners, rather than an expanded regular polygon.
 Normal, main and forced transitions retain their distinct arrowheads. Opposite
 transitions are drawn separately so their styles remain independent.
 
@@ -49,13 +57,20 @@ and can be used directly in tutorial graphics.
 ## Chart component
 
 ```html
-<fsl-viz provider="tonal" fsl="Idle 'start' -> Running;"></fsl-viz>
+<fsl-viz fsl="graph_layout: tonal; Idle 'start' -> Running;"></fsl-viz>
 ```
 
 Set the component's `.tonal` JavaScript property to the same options object
 used above. Provider and annotation changes trigger a render in standalone and
 `fsl-instance`-bound charts. The existing trace-highlighting API continues to
 recognize nodes and transitions.
+
+Tonal uses `dot` for geometry by default. An explicit `engine: 'neato'`
+option (or the chart's `engine` attribute) changes geometry while retaining
+the source-selected tonal appearance. An explicit `provider` overrides the
+source's appearance choice; `provider: 'graphviz'` restores standard drawing.
+Existing `graph_layout: dot`, `neato`, `circo`, `fdp`, and `twopi` retain
+their existing behavior.
 
 ## Application providers
 

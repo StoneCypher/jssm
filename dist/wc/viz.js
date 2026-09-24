@@ -152,8 +152,8 @@ class FslViz extends LitElement {
         this.fsl = '';
         /** Optional Graphviz layout engine override (e.g. 'dot', 'neato'). */
         this.engine = undefined;
-        /** SVG drawing provider: graphviz (default), tonal, or a provider object. */
-        this.provider = 'graphviz';
+        /** SVG drawing provider override. Omitted follows the source's graph_layout. */
+        this.provider = undefined;
         /** Optional tonal card annotations and appearance, supplied as a JavaScript property. */
         this.tonal = undefined;
         /** Every request invalidates older results, including provider and engine changes. */

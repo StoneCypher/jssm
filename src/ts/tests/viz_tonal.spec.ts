@@ -32,7 +32,82 @@ function document_for(svg: string): Document {
   return doc;
 }
 
+function card_size(node: Element): number[] {
+  const rect = node.querySelector(':scope g[clip-path] > rect');
+  return [Number(rect.getAttribute('width')), Number(rect.getAttribute('height'))];
+}
+
+function polygon_points(el: Element): number[][] {
+  return el.getAttribute('points').trim().split(/\s+/).map(pair => pair.split(',').map(Number));
+}
+
 describe('tonal SVG provider', () => {
+  it('selects tonal from FSL through every SVG entry point without a provider option', async () => {
+    const source = 'graph_layout: tonal; a => b;';
+    const machine = from(source);
+    const opts = { tonal: { id_prefix: 'source-selected' } };
+    const svg = await fsl_to_svg_string(source, opts);
+    expect(document_for(svg).querySelector<SVGSVGElement>('svg').dataset.renderProvider).toBe('tonal');
+    expect(await machine_to_svg_string(machine, opts)).toBe(svg);
+    const source_element = await fsl_to_svg_element(source);
+    const machine_element = await machine_to_svg_element(machine);
+    expect(source_element.dataset.renderProvider).toBe('tonal');
+    expect(machine_element.dataset.renderProvider).toBe('tonal');
+    expect(fsl_to_dot(source)).toBe(fsl_to_dot('a => b;'));
+  });
+
+  it('allows an explicit provider to override tonal selected in the source', async () => {
+    const standard = await fsl_to_svg_string('a -> b;');
+    expect(await fsl_to_svg_string('graph_layout: tonal; a -> b;', { provider: 'graphviz' })).toBe(standard);
+  });
+
+  it('allows geometry overrides without losing the source-selected tonal appearance', async () => {
+    const opts = { engine: 'circo', tonal: { id_prefix: 'source-geometry' } };
+    const svg = await fsl_to_svg_string('graph_layout: tonal; a -> b -> c -> a;', opts);
+    expect(svg).toBe(await fsl_to_svg_string('graph_layout: circo; a -> b -> c -> a;', { ...opts, provider: 'tonal' }));
+    expect(document_for(svg).querySelector<SVGSVGElement>('svg').dataset.renderProvider).toBe('tonal');
+  });
+
+  it('keeps existing source-selected Graphviz layouts working', async () => {
+    expect(await fsl_to_svg_string('graph_layout: neato; a -> b;'))
+      .toBe(await fsl_to_svg_string('a -> b;', { engine: 'neato' }));
+  });
+
+  it('bounds an octagon like a card instead of expanding it around the label', async () => {
+    const content = { description: 'Signal is disabled.', action: 'Enable', detail: 'starts the cycle at red.', icon: 'traffic-off' as const };
+    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; Off -> Box; state Off: {shape: octagon;};', {
+      tonal: { states: { Off: content, Box: content } }
+    }));
+    const nodes = [...doc.querySelectorAll('.node')];
+    const octagon = nodes.find(node => node.querySelector('title')?.textContent === 'off');
+    const box = nodes.find(node => node.querySelector('title')?.textContent === 'box');
+    const [w, h] = card_size(octagon), [box_w, box_h] = card_size(box);
+    expect(w).toBeLessThanOrEqual(box_w + 12);
+    expect(h).toBeLessThanOrEqual(box_h + 14);
+    expect(octagon.querySelector(':scope > polygon[stroke]')?.getAttribute('points')?.split(' ')).toHaveLength(8);
+  });
+
+  it.each(['up', 'right', 'down', 'left'])('meets compact octagons with arrows and self-loops flowing %s', async flow => {
+    const source = `graph_layout: tonal; flow: ${flow}; a -> b; b => c; c ~> a; a 'stay' -> a;
+      state a: {shape: octagon;}; state b: {shape: octagon;}; state c: {shape: octagon;};`;
+    const doc = document_for(await fsl_to_svg_string(source));
+    const outlines = new Map([...doc.querySelectorAll('.node')].map(node =>
+      [node.querySelector('title').textContent, polygon_points(node.querySelector(':scope > polygon[stroke]'))]));
+    for (const edge of doc.querySelectorAll('.edge')) {
+      const target = edge.querySelector('title').textContent.split('->', 2)[1];
+      const outline = outlines.get(target);
+      const arrow = polygon_points(edge.querySelector('polygon'));
+      const distances = arrow.flatMap(p => outline.map((a, i) => {
+        const b = outline[(i + 1) % outline.length];
+        const dx = b[0] - a[0], dy = b[1] - a[1];
+        const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy)));
+        return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+      }));
+      expect(Math.min(...distances)).toBeLessThan(2);
+    }
+    expect(doc.querySelectorAll('.edge')).toHaveLength(4);
+  });
+
   it('renders all four annotated cards and every directed transition', async () => {
     const svg = await fsl_to_svg_string(traffic, { provider: 'tonal', tonal: { states: annotations } });
     const doc = document_for(svg);

@@ -1368,7 +1368,7 @@ type VizRenderOpts = {
   footer?: string,
   engine?: string,
   render_groups?: RenderGroups,
-  /** SVG drawing provider. Omitted or 'graphviz' retains the existing renderer. */
+  /** SVG drawing provider override. When omitted, follows FSL graph_layout (tonal or Graphviz). */
   provider?: 'graphviz' | 'tonal' | VizRenderProvider,
   /** Optional annotations and appearance settings for the tonal provider. */
   tonal?: TonalRenderOptions
@@ -1626,9 +1626,11 @@ async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise
  *  @returns A promise resolving to an SVG XML string.
  */
 async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<string> {
-  const provider = opts.provider;
-  const engine = opts.engine ?? u_jssm.graph_layout();
-  if (provider === undefined || provider === 'graphviz') {
+  const layout = u_jssm.graph_layout();
+  const provider = opts.provider ?? (layout === 'tonal' ? 'tonal' : 'graphviz');
+  // Tonal selects a drawing provider; Graphviz still receives a geometry engine.
+  const engine = opts.engine ?? (layout === 'tonal' ? 'dot' : layout);
+  if (provider === 'graphviz') {
     return dot_to_svg(machine_to_dot(u_jssm, opts), { engine });
   }
   const selected = provider === 'tonal' ? tonal_provider : provider;

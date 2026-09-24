@@ -68,7 +68,7 @@ export const DEPRECATED_KEYWORDS = new Set([
  */
 export const ENUM_KEYWORDS = new Set([
     'true', 'false', 'none', 'default', 'modern', 'ocean', 'bold',
-    'dot', 'circo', 'fdp', 'neato', 'twopi',
+    'dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal',
     'up', 'right', 'down', 'left',
     'solid', 'dotted', 'dashed',
     'regular', 'rounded', 'lined',

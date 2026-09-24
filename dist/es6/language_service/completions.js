@@ -15,7 +15,7 @@ const SMALL_VALUE_ENUMS = {
     'line-style': ['solid', 'dotted', 'dashed'],
     linestyle: ['solid', 'dotted', 'dashed'],
     flow: [...FslDirections],
-    graph_layout: ['dot', 'circo', 'fdp', 'neato', 'twopi'],
+    graph_layout: ['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal'],
     theme: ['default', 'ocean', 'modern', 'plain', 'bold'],
     hooks: ['open', 'closed'],
     allows_override: ['true', 'false', 'undefined'],

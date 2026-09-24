@@ -28,7 +28,7 @@ import * as jssm from '../jssm';
 //     edge-color line, and the legacy `whargarbl`/`todo` stubs.
 //
 // Single-value has five forms:
-//   - graph_layout : GvizLayout (`dot`/`circo`/`fdp`/`neato`/`twopi`)
+//   - graph_layout : GvizLayout (`dot`/`circo`/`fdp`/`neato`/`twopi`/`tonal`)
 //   - start_states : LabelList
 //   - end_states   : LabelList
 //   - graph_bg_color : Color
@@ -203,9 +203,9 @@ describe('§8 Config — single-value configs (5 forms)', () => {
     expect(node.value).toBe('dot');
   });
 
-  test('All five documented GvizLayout values parse to themselves', () => {
+  test('All documented graph_layout values parse to themselves', () => {
 
-    const LAYOUTS = ['dot', 'circo', 'fdp', 'neato', 'twopi'] as const;
+    const LAYOUTS = ['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal'] as const;
 
     for (const layout of LAYOUTS) {
       const node = parse_config(`graph_layout: ${layout};`);

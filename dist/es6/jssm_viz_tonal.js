@@ -58,9 +58,9 @@ function font(text, size, face = 'Arial', fill) {
 function html_lines(text, columns) {
     return wrap(text, columns).map(xml).join('<BR ALIGN="LEFT"/>') + '<BR ALIGN="LEFT"/>';
 }
-function card_label(label, content, columns, text_color) {
+function card_label(label, content, columns, text_color, octagon = false) {
     var _a, _b;
-    const heading = `<TR><TD ALIGN="LEFT" BGCOLOR="${header_marker}" CELLPADDING="12">${font(`<B>${html_lines(label, columns)}</B>`, 22)}</TD></TR>`;
+    const heading = `<TR><TD ALIGN="LEFT" BGCOLOR="${header_marker}" CELLPADDING="${octagon ? 18 : 12}">${font(`<B>${html_lines(label, columns)}</B>`, 22)}</TD></TR>`;
     const paragraphs = [];
     if (content.description) {
         paragraphs.push(`<TR><TD ALIGN="LEFT">${font(`<B>${html_lines(content.description, columns)}</B>`, 15)}</TD></TR>`);
@@ -172,6 +172,79 @@ function icon_svg(icon, bounds, fill) {
     const lights = ['#f34255', '#efbf24', '#27b778'];
     return `<g transform="translate(${x},${y})" stroke="${xml(fill)}" stroke-width="1.5" fill="none"><rect x="8" y="1" width="25" height="60" rx="5"/><path d="M8 9 H1 L8 17 M33 9 H40 L33 17 M8 29 H1 L8 37 M33 29 H40 L33 37 M8 49 H1 L8 57 M33 49 H40 L33 57"/>${lights.map((c, i) => `<circle cx="20.5" cy="${12 + i * 19}" r="7.2" fill="${i === active ? c : 'none'}"/>`).join('')}</g>`;
 }
+/** Compact octagons use the measured card bounds, with short 45-degree corners. */
+function compact_outline(node) {
+    if (node.jssm_shape !== 'octagon') {
+        return undefined;
+    }
+    const [x, y] = node.pos.split(',').map(Number);
+    const w = Number(node.width) * 72;
+    const h = Number(node.height) * 72;
+    const cut = Math.min(32, w * 0.16, h * 0.25);
+    const l = x - w / 2, r = x + w / 2, b = y - h / 2, t = y + h / 2;
+    return [[l + cut, t], [r - cut, t], [r, t - cut], [r, b + cut],
+        [r - cut, b], [l + cut, b], [l, b + cut], [l, t - cut]];
+}
+/** Extend a box-routed spline and its arrow to a clipped corner when necessary. */
+function clip_compact_endpoint(edge, node, head) {
+    var _a, _b, _c;
+    const outline = compact_outline(node);
+    const curve = (_b = (_a = edge._draw_) === null || _a === void 0 ? void 0 : _a.find(op => op.op === 'b' || op.op === 'B')) === null || _b === void 0 ? void 0 : _b.points;
+    if (!outline || !curve || curve.length < 4) {
+        return;
+    }
+    const index = head ? curve.length - 1 : 0;
+    const handle = head ? index - 1 : 1;
+    const end = curve[index];
+    const dx = end[0] - curve[handle][0], dy = end[1] - curve[handle][1];
+    const length = Math.hypot(dx, dy);
+    if (length < 1e-6) {
+        return;
+    }
+    const direction = [dx / length, dy / length];
+    const arrow = (_c = (head ? edge._hdraw_ : edge._tdraw_)) !== null && _c !== void 0 ? _c : [];
+    const arrow_points = arrow.flatMap(op => { var _a; return (_a = op.points) !== null && _a !== void 0 ? _a : []; });
+    // The point furthest along the tangent is the arrow's contact tip.
+    const tip = arrow_points.reduce((best, p) => p[0] * direction[0] + p[1] * direction[1] > best[0] * direction[0] + best[1] * direction[1] ? p : best, end);
+    const cross = (a, b) => a[0] * b[1] - a[1] * b[0];
+    if (outline.every((a, i) => {
+        const b = outline[(i + 1) % outline.length];
+        return cross([b[0] - a[0], b[1] - a[1]], [tip[0] - a[0], tip[1] - a[1]]) <= 0.01;
+    })) {
+        return;
+    }
+    let distance = Infinity;
+    for (let i = 0; i < outline.length; i++) {
+        const a = outline[i], b = outline[(i + 1) % outline.length];
+        const segment = [b[0] - a[0], b[1] - a[1]];
+        const offset = [a[0] - tip[0], a[1] - tip[1]];
+        const divisor = cross(direction, segment);
+        if (Math.abs(divisor) < 1e-6) {
+            continue;
+        }
+        const t = cross(offset, segment) / divisor;
+        const u = cross(offset, direction) / divisor;
+        if (t >= -0.1 && u >= 0 && u <= 1) {
+            distance = Math.min(distance, Math.max(0, t));
+        }
+    }
+    // Preserve Graphviz's sub-point border spacing on unchanged straight sides.
+    if (!Number.isFinite(distance) || distance <= 1.5) {
+        return;
+    }
+    const shift = (p) => [p[0] + direction[0] * distance, p[1] + direction[1] * distance];
+    curve[index] = shift(end);
+    curve[handle] = shift(curve[handle]);
+    for (const op of arrow) {
+        if (op.points) {
+            op.points = op.points.map(shift);
+        }
+        if (op.rect) {
+            const shifted = shift([op.rect[0], op.rect[1]]);
+            op.rect = [shifted[0], shifted[1], op.rect[2], op.rect[3]];
+        }
+    }
+}
 function card(node, content, prefix, shade) {
     var _a, _b, _c, _d, _e, _f;
     const [x, y] = node.pos.split(',').map(Number);
@@ -181,18 +254,20 @@ function card(node, content, prefix, shade) {
     const top = -y - h / 2;
     const clip = `${prefix}-clip-${node._gvid}`;
     const gradient = `${prefix}-fill-${node._gvid}`;
+    const outline = compact_outline(node);
+    const shape = outline ? [{ op: 'P', points: outline }] : node._draw_;
     const header = marker_bounds(node._ldraw_, header_marker);
     const icon_bounds = marker_bounds(node._ldraw_, icon_marker);
     const fill = (_d = (_c = (_b = (_a = node._draw_) === null || _a === void 0 ? void 0 : _a.find(op => op.op === 'C')) === null || _b === void 0 ? void 0 : _b.color) !== null && _c !== void 0 ? _c : node.fillcolor) !== null && _d !== void 0 ? _d : '#d9e7f0';
     const ink = node.fontcolor || '#17212c';
     const dash = ((_e = node.style) === null || _e === void 0 ? void 0 : _e.includes('dashed')) ? ' stroke-dasharray="7 5"' : (((_f = node.style) === null || _f === void 0 ? void 0 : _f.includes('dotted')) ? ' stroke-dasharray="1 4"' : '');
     return `<g class="node" id="${prefix}-node-${xml(node.name)}"><title>${xml(node.name)}</title>
-<defs><clipPath id="${clip}">${geometry(node._draw_)}</clipPath><linearGradient id="${gradient}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="white" stop-opacity="0.12"/><stop offset="1" stop-color="black" stop-opacity="0.035"/></linearGradient></defs>
-${geometry(node._draw_, `fill="${xml(fill)}" filter="url(#${prefix}-shadow)"`)}
+<defs><clipPath id="${clip}">${geometry(shape)}</clipPath><linearGradient id="${gradient}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="white" stop-opacity="0.12"/><stop offset="1" stop-color="black" stop-opacity="0.035"/></linearGradient></defs>
+${geometry(shape, `fill="${xml(fill)}" filter="url(#${prefix}-shadow)"`)}
 <g clip-path="url(#${clip})"><rect x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${h + 2}" fill="url(#${gradient})"/>
 ${header ? `<rect class="tonal-header" x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${header[3] - top + 1}" fill="black" opacity="${shade}"/>` : ''}
 ${texts(node._ldraw_)}${content.icon ? icon_svg(content.icon, icon_bounds, ink) : ''}</g>
-${geometry(node._draw_, `fill="none" stroke="white" stroke-opacity="0.65" stroke-width="1.2"${dash}`)}</g>`;
+${geometry(shape, `fill="none" stroke="white" stroke-opacity="0.65" stroke-width="1.2"${dash}`)}</g>`;
 }
 /** Draw the measured Graphviz geometry with tonal cards and restrained transition styling. */
 async function render_tonal(context) {
@@ -214,10 +289,12 @@ async function render_tonal(context) {
     const nodes = new Map();
     for (const name of machine.states()) {
         const label = options.hide_state_labels ? '' : context.state_labels.get(name);
-        const ink = machine.style_for(name).textColor || '#17212c';
+        const style = machine.style_for(name);
+        const ink = style.textColor || '#17212c';
+        const octagon = style.shape === 'octagon';
         const content = content_for(name);
-        const table = card_label(label, content, columns, ink);
-        nodes.set(name, `label=<${table}> margin=0 fontname="Arial" fontcolor=${quoted(ink)} style=${quoted(`filled,rounded,${machine.style_for(name).lineStyle || 'solid'}`)}`);
+        const table = card_label(label, content, columns, ink, octagon);
+        nodes.set(name, `${octagon ? 'shape=box jssm_shape="octagon" ' : ''}label=<${table}> margin=0 fontname="Arial" fontcolor=${quoted(ink)} style=${quoted(`filled,rounded,${style.lineStyle || 'solid'}`)}`);
     }
     const dot = context.to_dot({
         nodes,
@@ -250,6 +327,8 @@ async function render_tonal(context) {
         if (!edge._draw_) {
             return '';
         }
+        clip_compact_endpoint(edge, by_id.get(edge.head), true);
+        clip_compact_endpoint(edge, by_id.get(edge.tail), false);
         const kind = (_a = edge.jssm_kind) !== null && _a !== void 0 ? _a : 'legal';
         const forced = kind === 'forced';
         const stroke = forced ? '#a8b9d3' : '#ffffff';

@@ -1,4 +1,6 @@
 import * as jssm from './jssm.js';
+import type { TonalRenderOptions } from './jssm_viz_tonal.js';
+import type { VizRenderProvider } from './jssm_viz_provider.js';
 import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from './jssm_types.js';
 /**
  *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
@@ -22,7 +24,7 @@ type RenderGroups = 'cluster' | 'chips' | 'off';
  *  factory: the caller instantiates (and, if needed, awaits) their engine
  *  themselves, then hands over the finished object.  `renderString` receives
  *  the dot source and an options object whose members jssm/viz uses are
- *  `format` (always `'svg'`) and `engine` (a Graphviz layout engine name,
+ *  `format` (`'svg'` for the default provider; `'json'` for tonal) and `engine` (a Graphviz layout engine name,
  *  when the caller of a render function supplied one); it may return the
  *  output string synchronously (like `@viz-js/viz`) or as a promise (like
  *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
@@ -154,7 +156,6 @@ declare function undoublequote(txt: string): string;
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
@@ -485,6 +486,10 @@ type VizRenderOpts = {
     footer?: string;
     engine?: string;
     render_groups?: RenderGroups;
+    /** SVG drawing provider override. When omitted, follows FSL graph_layout (tonal or Graphviz). */
+    provider?: 'graphviz' | 'tonal' | VizRenderProvider;
+    /** Optional annotations and appearance settings for the tonal provider. */
+    tonal?: TonalRenderOptions;
 };
 /**
  *  Assemble the node-declaration block for a machine, honouring the
@@ -688,3 +693,6 @@ export declare const _test: {
     graph_bg_color_from_config: typeof graph_bg_color_from_config;
 };
 export { version, build_time } from './version.js';
+export { tonal_provider } from './jssm_viz_tonal.js';
+export type { TonalRenderOptions, TonalStateContent, TonalIcon } from './jssm_viz_tonal.js';
+export type { VizRenderProvider, VizRenderContext, VizLayoutOverrides } from './jssm_viz_provider.js';

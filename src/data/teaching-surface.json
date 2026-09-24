@@ -232,7 +232,7 @@
       "title": "Single-value configuration",
       "grammar": {
         "rules": ["ConfigGraphLayout", "GvizLayout", "ConfigFailedOutputs", "ConfigGraphBgColor", "ConfigAllowsOverride", "OverrideT", "ConfigAllowIslands", "IslandsT", "LabelList", "LabelOrLabelList", "DotPreamble", "DefaultSize", "DefaultSizeVal"],
-        "terminals": ["graph_layout", "start_states", "end_states", "failed_outputs", "graph_bg_color", "allows_override", "allow_islands", "dot", "circo", "fdp", "neato", "twopi", "with_start"]
+        "terminals": ["graph_layout", "start_states", "end_states", "failed_outputs", "graph_bg_color", "allows_override", "allow_islands", "dot", "circo", "fdp", "neato", "twopi", "tonal", "with_start"]
       },
       "tier": "intermediate",
       "dependsOn": ["config-blocks"],
@@ -389,7 +389,7 @@
       "id": "viz-config",
       "surface": "viz",
       "title": "Render configuration",
-      "units": ["configure", "VizRenderOpts", "RenderGroups"],
+      "units": ["configure", "VizRenderOpts", "RenderGroups", "tonal_provider", "TonalIcon", "TonalRenderOptions", "TonalStateContent", "VizRenderProvider", "VizRenderContext", "VizLayoutOverrides"],
       "tier": "intermediate",
       "dependsOn": ["viz-render"],
       "indexTerms": ["configure", "render options", "groups"]
