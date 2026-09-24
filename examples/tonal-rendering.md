@@ -46,6 +46,9 @@ content.
 fonts, sizes the node and routes edges around it. The resulting SVG uses those
 same measurements. State colors, shapes and line styles come from the machine. Octagons use compact
 card bounds with clipped corners, rather than an expanded regular polygon.
+Borders default to a darker tone of the resolved node fill. Explicit FSL
+`border-color` declarations retain their color and alpha, including declarations
+in state defaults, groups, state kinds, and active-state overlays.
 Normal, main and forced transitions retain their distinct arrowheads. Opposite
 transitions are drawn separately so their styles remain independent.
 

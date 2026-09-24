@@ -108,6 +108,58 @@ describe('tonal SVG provider', () => {
     expect(doc.querySelectorAll('.edge')).toHaveLength(4);
   });
 
+  it('derives distinct default borders from named node fills', async () => {
+    const doc = document_for(await fsl_to_svg_string(`graph_layout: tonal; a -> b;
+      state a: {background-color: lightgreen;}; state b: {background-color: pink;};`));
+    const borders = [...doc.querySelectorAll('.tonal-border')].map(el => el.getAttribute('stroke'));
+    expect(borders).toEqual(['#76c376', '#d19da6']);
+    expect(doc.querySelectorAll(':scope .edge [stroke="#ffffff"]')).not.toHaveLength(0);
+  });
+
+  it.each([
+    ['white', '#ffffff'], ['black', '#000000'], ['#33669980', '#33669980'], ['transparent', '#00000000']
+  ])('preserves an explicit %s border and its alpha on a compact octagon', async (color, expected) => {
+    const doc = document_for(await fsl_to_svg_string(`graph_layout: tonal; a -> b;
+      state a: {shape: octagon; background-color: lightgreen; border-color: ${color}; linestyle: dashed;};`));
+    const border = doc.querySelector('.tonal-border');
+    expect(border.getAttribute('stroke')).toBe(expected);
+    expect(border.getAttribute('stroke-opacity')).toBeNull();
+    expect(border.getAttribute('stroke-dasharray')).toBe('7 5');
+  });
+
+  it.each([
+    ['start_state: {border-color: orange;};', 'a', '#ffa500'],
+    ['terminal_state: {border-color: purple;};', 'c', '#800080'],
+    ['end_states: [b]; end_state: {border-color: blue;};', 'b', '#0000ff'],
+    ['active_state: {border-color: lime;};', 'a', '#00ff00'],
+    ['&group: [b]; state &group: {border-color: navy;};', 'b', '#000080'],
+    ["on enter b do 'observe'; hooked_state: {border-color: red;};", 'b', '#ff0000']
+  ])('detects a border declared only through %s', async (declaration, name, expected) => {
+    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; a -> b -> c; ' + declaration));
+    const node = [...doc.querySelectorAll('.node')].find(el => el.querySelector('title').textContent === name);
+    expect(node.querySelector('.tonal-border').getAttribute('stroke')).toBe(expected);
+  });
+
+  it('respects declared borders throughout the style cascade and tracks the active state', async () => {
+    const machine = from(`graph_layout: tonal;
+      &group: [grouped overridden];
+      root -> grouped -> overridden -> end;
+      end_states: [end];
+      state: {border-color: red;};
+      state &group: {border-color: blue;};
+      state overridden: {border-color: white;};
+      end_state: {border-color: yellow;};
+      active_state: {border-color: lime;};`);
+    const borders = async () => {
+      const doc = document_for(await machine_to_svg_string(machine));
+      return Object.fromEntries([...doc.querySelectorAll('.node')].map(node =>
+        [node.querySelector('title').textContent, node.querySelector('.tonal-border').getAttribute('stroke')]));
+    };
+    expect(await borders()).toEqual({ root: '#00ff00', grouped: '#0000ff', overridden: '#ffffff', end: '#ffff00' });
+    machine.transition('grouped');
+    expect(await borders()).toEqual({ root: '#ff0000', grouped: '#00ff00', overridden: '#ffffff', end: '#ffff00' });
+  });
+
   it('renders all four annotated cards and every directed transition', async () => {
     const svg = await fsl_to_svg_string(traffic, { provider: 'tonal', tonal: { states: annotations } });
     const doc = document_for(svg);

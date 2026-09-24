@@ -245,8 +245,42 @@ function clip_compact_endpoint(edge, node, head) {
         }
     }
 }
-function card(node, content, prefix, shade) {
-    var _a, _b, _c, _d, _e, _f;
+/**
+ * Detect source declarations without treating theme defaults as explicit borders.
+ * The winning color still comes from style_for via Graphviz's resolved stroke.
+ */
+function has_declared_border(machine, name) {
+    const configs = [machine.standard_state_style, machine.state_declaration(name)];
+    if (machine.state_has_hooks(name)) {
+        configs.push(machine.hooked_state_style);
+    }
+    if (machine.state_is_terminal(name)) {
+        configs.push(machine.terminal_state_style);
+    }
+    if (machine.is_start_state(name)) {
+        configs.push(machine.start_state_style);
+    }
+    if (machine.is_end_state(name)) {
+        configs.push(machine.end_state_style);
+    }
+    if (machine.state() === name) {
+        configs.push(machine.active_state_style);
+    }
+    return configs.some(config => (config === null || config === void 0 ? void 0 : config.borderColor) !== undefined)
+        || [...machine.groupsOf(name)].some(group => { var _a; return ((_a = machine._group_metadata.get(group)) === null || _a === void 0 ? void 0 : _a.borderColor) !== undefined; });
+}
+/** Graphviz resolves named fills to RGB(A); retain hue and alpha, darken by 18%. */
+function tonal_border(fill) {
+    var _a;
+    const rgb = /^#([\da-f]{6})([\da-f]{2})?$/i.exec(fill);
+    if (!rgb) {
+        return fill;
+    }
+    const channels = [0, 2, 4].map(offset => Math.round(Number.parseInt(rgb[1].slice(offset, offset + 2), 16) * 0.82).toString(16).padStart(2, '0'));
+    return '#' + channels.join('') + ((_a = rgb[2]) !== null && _a !== void 0 ? _a : '');
+}
+function card(node, content, prefix, shade, declared_border) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     const [x, y] = node.pos.split(',').map(Number);
     const w = Number(node.width) * 72;
     const h = Number(node.height) * 72;
@@ -260,14 +294,15 @@ function card(node, content, prefix, shade) {
     const icon_bounds = marker_bounds(node._ldraw_, icon_marker);
     const fill = (_d = (_c = (_b = (_a = node._draw_) === null || _a === void 0 ? void 0 : _a.find(op => op.op === 'C')) === null || _b === void 0 ? void 0 : _b.color) !== null && _c !== void 0 ? _c : node.fillcolor) !== null && _d !== void 0 ? _d : '#d9e7f0';
     const ink = node.fontcolor || '#17212c';
-    const dash = ((_e = node.style) === null || _e === void 0 ? void 0 : _e.includes('dashed')) ? ' stroke-dasharray="7 5"' : (((_f = node.style) === null || _f === void 0 ? void 0 : _f.includes('dotted')) ? ' stroke-dasharray="1 4"' : '');
+    const border = declared_border ? (_g = (_f = (_e = node._draw_) === null || _e === void 0 ? void 0 : _e.find(op => op.op === 'c')) === null || _f === void 0 ? void 0 : _f.color) !== null && _g !== void 0 ? _g : tonal_border(fill) : tonal_border(fill);
+    const dash = ((_h = node.style) === null || _h === void 0 ? void 0 : _h.includes('dashed')) ? ' stroke-dasharray="7 5"' : (((_j = node.style) === null || _j === void 0 ? void 0 : _j.includes('dotted')) ? ' stroke-dasharray="1 4"' : '');
     return `<g class="node" id="${prefix}-node-${xml(node.name)}"><title>${xml(node.name)}</title>
 <defs><clipPath id="${clip}">${geometry(shape)}</clipPath><linearGradient id="${gradient}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="white" stop-opacity="0.12"/><stop offset="1" stop-color="black" stop-opacity="0.035"/></linearGradient></defs>
 ${geometry(shape, `fill="${xml(fill)}" filter="url(#${prefix}-shadow)"`)}
 <g clip-path="url(#${clip})"><rect x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${h + 2}" fill="url(#${gradient})"/>
 ${header ? `<rect class="tonal-header" x="${left - 1}" y="${top - 1}" width="${w + 2}" height="${header[3] - top + 1}" fill="black" opacity="${shade}"/>` : ''}
 ${texts(node._ldraw_)}${content.icon ? icon_svg(content.icon, icon_bounds, ink) : ''}</g>
-${geometry(shape, `fill="none" stroke="white" stroke-opacity="0.65" stroke-width="1.2"${dash}`)}</g>`;
+${geometry(shape, `class="tonal-border" fill="none" stroke="${xml(border)}" stroke-width="1.2"${dash}`)}</g>`;
 }
 /** Draw the measured Graphviz geometry with tonal cards and restrained transition styling. */
 async function render_tonal(context) {
@@ -336,7 +371,7 @@ async function render_tonal(context) {
         labels.push(texts(edge._ldraw_, action_color, background));
         return `<g class="edge" data-transition-kind="${kind}" id="${prefix}-edge-${edge._gvid}"><title>${xml(title)}</title><g opacity="${forced ? opacity : 1}">${geometry(edge._draw_, `fill="none" stroke="${stroke}" stroke-width="1.8" stroke-linecap="round"${forced ? ' stroke-dasharray="5 6"' : ''}`)}${geometry(edge._hdraw_, `fill="${kind === 'main' ? stroke : background}" stroke="${stroke}" stroke-width="1.6"`)}${geometry(edge._tdraw_, `fill="${background}" stroke="${stroke}" stroke-width="1.6"`)}</g></g>`;
     }).join('');
-    const cards = objects.filter(obj => by_name.has(obj.name)).map(obj => card(obj, content_for(by_name.get(obj.name)), prefix, shade)).join('');
+    const cards = objects.filter(obj => by_name.has(obj.name)).map(obj => card(obj, content_for(by_name.get(obj.name)), prefix, shade, has_declared_border(machine, by_name.get(obj.name)))).join('');
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}pt" height="${height}pt" viewBox="0 0 ${width} ${height}" role="img" data-render-provider="tonal"><title>${xml(machine.machine_name() || 'State machine')}</title>
 <defs><filter id="${prefix}-shadow" x="-30%" y="-40%" width="160%" height="190%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/></filter></defs>
 <rect width="100%" height="100%" fill="${xml(background)}"/>
