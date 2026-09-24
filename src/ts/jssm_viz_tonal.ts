@@ -34,6 +34,7 @@ export interface TonalStateContent {
 export interface TonalRenderOptions {
   states?: Readonly<Record<string, TonalStateContent>>;
   background?: string;
+  /** Override all edge-label colors; their weight and style still distinguish edge kinds. */
   action_color?: string;
   /** Multiplier for forced connection strokes and arrowheads; default 0.7. */
   forced_opacity?: number;
@@ -225,9 +226,146 @@ function texts(ops: DrawOp[] = [], override_color?: string, halo?: string, heade
     const x = heading ? header.bounds[0] + header.inset : op.pt[0];
     const y = heading ? (header.bounds[1] + header.bounds[3]) / 2 : -op.pt[1];
     const centered = heading ? ' class="tonal-title" dominant-baseline="central"' : '';
+    const italic = flags & 2 ? ' font-style="italic"' : '';
     const outline = halo ? ` stroke="${xml(halo)}" stroke-width="5" stroke-linejoin="round" paint-order="stroke"` : '';
-    return `<text x="${x}" y="${y}"${centered} text-anchor="${anchor}" font-family="${xml(face)}, sans-serif" font-size="${size}" font-weight="${flags & 1 ? 600 : 400}" fill="${xml(override_color ?? fill)}"${length}${outline}>${xml(op.text)}</text>`;
+    return `<text x="${x}" y="${y}"${centered} text-anchor="${anchor}" font-family="${xml(face)}, sans-serif" font-size="${size}" font-weight="${flags & 1 ? 600 : 400}"${italic} fill="${xml(override_color ?? fill)}"${length}${outline}>${xml(op.text)}</text>`;
   }).join('');
+}
+
+type Bounds = [number, number, number, number];
+
+/** Conservative text bounds in Graphviz coordinates, including italic overhang and halo. */
+function text_bounds(ops: DrawOp[] = []): Bounds | undefined {
+  let size = 15;
+  const boxes: Bounds[] = [];
+  for (const op of ops) {
+    if (op.op === 'F') { size = op.size; }
+    if (op.op !== 'T' || !op.text?.trim()) { continue; }
+    const x = op.pt[0] - (op.align === 'l' ? 0 : (op.align === 'r' ? op.width : op.width / 2));
+    boxes.push([x - 4, op.pt[1] - size * 0.3 - 4, x + op.width + 4, op.pt[1] + size * 0.9 + 4]);
+  }
+  return boxes.length > 0 ? [Math.min(...boxes.map(b => b[0])), Math.min(...boxes.map(b => b[1])),
+    Math.max(...boxes.map(b => b[2])), Math.max(...boxes.map(b => b[3]))] : undefined;
+}
+
+function overlaps(a: Bounds, b: Bounds): boolean {
+  return a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
+}
+
+/** Flatten cubic splines for label clearance; the actual rendered routes stay untouched. */
+function edge_segments(edge: LayoutEdge): [Point, Point][] {
+  const segments: [Point, Point][] = [];
+  const operations = edge._draw_ ?? [];
+  for (const op of operations) {
+    const points = op.points ?? [];
+    if (op.op === 'L') {
+      for (let i = 1; i < points.length; i++) { segments.push([points[i - 1], points[i]]); }
+    } else if (op.op === 'b' || op.op === 'B') {
+      for (let i = 0; i + 3 < points.length; i += 3) {
+        let previous = points[i];
+        for (let step = 1; step <= 20; step++) {
+          const t = step / 20, u = 1 - t;
+          const p = [0, 1].map(axis => u ** 3 * points[i][axis] + 3 * u * u * t * points[i + 1][axis]
+            + 3 * u * t * t * points[i + 2][axis] + t ** 3 * points[i + 3][axis]) as Point;
+          segments.push([previous, p]); previous = p;
+        }
+      }
+    }
+  }
+  return segments;
+}
+
+function crosses(box: Bounds, [a, b]: [Point, Point]): boolean {
+  let low = 0, high = 1;
+  for (let axis = 0; axis < 2; axis++) {
+    const delta = b[axis] - a[axis];
+    if (Math.abs(delta) < 0.000001) {
+      if (a[axis] < box[axis] || a[axis] > box[axis + 2]) { return false; }
+    } else {
+      const t1 = (box[axis] - a[axis]) / delta, t2 = (box[axis + 2] - a[axis]) / delta;
+      low = Math.max(low, Math.min(t1, t2)); high = Math.min(high, Math.max(t1, t2));
+      if (low > high) { return false; }
+    }
+  }
+  return true;
+}
+
+/** Place labels beside their routes without feeding label dimensions back into layout. */
+function place_edge_labels(layout: Layout): void {
+  const nodes = (layout.objects ?? []).filter(obj => obj.pos);
+  const boxes: Bounds[] = nodes.map(node => {
+    const [x, y] = node.pos.split(',').map(Number);
+    return [x - Number(node.width) * 36 - 6, y - Number(node.height) * 36 - 6,
+      x + Number(node.width) * 36 + 6, y + Number(node.height) * 36 + 6];
+  });
+  const objects = layout.objects ?? [];
+  for (const object of objects) {
+    if (object.pos) { continue; }
+    const bounds = text_bounds(object._ldraw_);
+    if (bounds) { boxes.push(bounds); }
+  }
+  const graph_label = text_bounds(layout._ldraw_);
+  if (graph_label) { boxes.push(graph_label); }
+  const center = nodes.length > 0 ? [0, 1].map(axis => nodes.reduce((sum, node) =>
+    sum + Number(node.pos.split(',')[axis]), 0) / nodes.length) as Point : [0, 0] as Point;
+  const edges = (layout.edges ?? []).filter(edge => edge._draw_);
+  const routes = new Map(edges.map(edge => [edge, edge_segments(edge)]));
+  const all_segments = [...routes.values()].flat();
+  const placed: Bounds[] = [];
+  for (const edge of edges) {
+    const bounds = text_bounds(edge._ldraw_);
+    const segments = routes.get(edge);
+    if (!bounds || segments.length === 0) { continue; }
+    const lengths = segments.map(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1]));
+    let remaining = lengths.reduce((sum, n) => sum + n, 0) / 2;
+    let index = 0;
+    while (index < lengths.length - 1 && remaining > lengths[index]) { remaining -= lengths[index++]; }
+    const [a, b] = segments[index], length = lengths[index] || 1;
+    const midpoint: Point = [a[0] + (b[0] - a[0]) * remaining / length, a[1] + (b[1] - a[1]) * remaining / length];
+    const normal: Point = [-(b[1] - a[1]) / length, (b[0] - a[0]) / length];
+    const direction = normal[0] * (midpoint[0] - center[0]) + normal[1] * (midpoint[1] - center[1]) < 0 ? -1 : 1;
+    const w = bounds[2] - bounds[0], h = bounds[3] - bounds[1];
+    const clearance = Math.abs(normal[0]) * w / 2 + Math.abs(normal[1]) * h / 2 + 6;
+    const preferred: Point = [midpoint[0] + normal[0] * clearance * direction, midpoint[1] + normal[1] * clearance * direction];
+    const initial: Bounds = [preferred[0] - w / 2, preferred[1] - h / 2, preferred[0] + w / 2, preferred[1] + h / 2];
+    // Bound the search and retain every label even if a dense graph has no clear location.
+    let best = bounds, best_score = Infinity;
+    const opposite: Bounds = [midpoint[0] * 2 - initial[2], midpoint[1] * 2 - initial[3], midpoint[0] * 2 - initial[0], midpoint[1] * 2 - initial[1]];
+    const search: Bounds = [Math.min(initial[0], opposite[0], bounds[0]) - 128,
+      Math.min(initial[1], opposite[1], bounds[1]) - 128,
+      Math.max(initial[2], opposite[2], bounds[2]) + 128,
+      Math.max(initial[3], opposite[3], bounds[3]) + 128];
+    const nearby = all_segments.filter(segment => crosses(search, segment));
+    const candidates: Bounds[] = [initial, opposite, bounds];
+    const own_segments = new Set(segments);
+    for (let radius = 4; radius <= 128; radius += 4) {
+      for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+        candidates.push([initial[0] + dx * radius, initial[1] + dy * radius, initial[2] + dx * radius, initial[3] + dy * radius]);
+      }
+    }
+    for (const candidate of candidates) {
+      // Keep the visual association with the owning route: prefer the other side
+      // before placing a label across a neighboring transition.
+      const nearest: Point = [Math.max(candidate[0], Math.min(midpoint[0], candidate[2])),
+        Math.max(candidate[1], Math.min(midpoint[1], candidate[3]))];
+      const tether: Bounds = [Math.min(midpoint[0], nearest[0]), Math.min(midpoint[1], nearest[1]),
+        Math.max(midpoint[0], nearest[0]), Math.max(midpoint[1], nearest[1])];
+      const score = boxes.filter(box => overlaps(candidate, box)).length * 1_000_000
+        + placed.filter(box => overlaps(candidate, box)).length * 100_000
+        + nearby.filter(segment => crosses(candidate, segment)).length * 10_000
+        + Number(nearby.some(segment => !own_segments.has(segment) && crosses(tether, segment))) * 1000
+        + Math.hypot(candidate[0] - initial[0], candidate[1] - initial[1]);
+      if (score < best_score) { best = candidate; best_score = score; }
+      // eslint-disable-next-line unicorn/no-break-in-nested-loop -- zero is the lower bound for this label
+      if (score === 0) { break; }
+    }
+    const dx = best[0] - bounds[0], dy = best[1] - bounds[1];
+    const label_operations = edge._ldraw_ ?? [];
+    for (const op of label_operations) {
+      if (op.op === 'T') { op.pt = [op.pt[0] + dx, op.pt[1] + dy]; }
+    }
+    placed.push(best);
+  }
 }
 
 function marker_bounds(ops: DrawOp[] = [], marker: string): number[] | undefined {
@@ -403,7 +541,11 @@ async function render_tonal(context: VizRenderContext): Promise<string> {
   const { machine, options } = context;
   const opts = options.tonal ?? {};
   const background = color(opts.background, '#101827');
-  const action_color = color(opts.action_color, '#a9cfff');
+  const action_colors = {
+    main: color(opts.action_color, '#b9dbff'),
+    legal: color(opts.action_color, '#a9cfff'),
+    forced: color(opts.action_color, '#91a6c2')
+  };
   const opacity = bounded(opts.forced_opacity, 0.7, 0, 1);
   const shade = bounded(opts.header_shade, 0.1, 0, 1);
   const columns = Math.floor(bounded(opts.wrap_columns, 24, 8, 120));
@@ -423,38 +565,57 @@ async function render_tonal(context: VizRenderContext): Promise<string> {
     const table = card_label(label, content, columns, ink, octagon);
     nodes.set(name, `${octagon ? 'shape=box jssm_shape="octagon" ' : ''}label=<${table}> margin=0 height=0 fontname="Arial" fontcolor=${quoted(ink)} style=${quoted(`filled,rounded,${style.lineStyle || 'solid'}`)}`);
   }
+  // Reserve the same label clearance everywhere, rather than distorting individual routes.
+  const label_span = Math.max(61, ...machine.list_edges().flatMap(tr =>
+    [tr.action ?? '', tr.probability === undefined ? '' : String(tr.probability)]
+      .flatMap(text => text.split('\n').map(line => [...line].length * 9 + 40))));
+  const horizontal = machine.flow() === 'left' || machine.flow() === 'right';
   const dot = context.to_dot({
     nodes,
     separate_edges: true,
-    graph: 'nodesep=0.85; ranksep=0.9; pad=0; outputorder=edgesfirst;',
+    // External labels are placed after routing so their text cannot unbalance the graph.
+    // Force placement even on dense graphs: a named action must never silently disappear.
+    graph: `nodesep=${Math.min(label_span, 120) / 72}; ranksep=${horizontal ? Math.max(1.15, label_span / 72) : 1.15}; pad=0; outputorder=edgesfirst; forcelabels=true;`,
     edge: tr => {
       const label = [tr.action, tr.probability === undefined ? undefined : String(tr.probability)].filter(v => v !== undefined && v !== '').join('\n');
-      return `taillabel="" headlabel="" label=${quoted(label)} fontname="Courier New" fontsize=15 arrowsize=0.8 jssm_kind=${quoted(tr.forced_only ? 'forced' : (tr.main_path ? 'main' : 'legal'))}`;
+      const kind = tr.forced_only ? 'forced' : (tr.main_path ? 'main' : 'legal');
+      const escaped = xml(label).replace(/\n/g, '<BR/>');
+      const formatted = kind === 'main' ? `<B>${escaped}</B>` : (kind === 'forced' ? `<I>${escaped}</I>` : escaped);
+      return `taillabel="" headlabel="" label="" xlabel=${label ? `<${formatted}>` : '""'} fontname="Courier New" fontsize=${kind === 'forced' ? 14 : 15} arrowsize=${kind === 'main' ? 0.9 : 0.8} jssm_kind=${quoted(kind)}`;
     }
   });
   const layout = JSON.parse(await context.render_dot(dot, 'json')) as Layout;
   if (typeof layout.bb !== 'string') { throw new TypeError('Tonal rendering requires Graphviz JSON layout output'); }
   const bb = layout.bb.split(',').map(Number);
   if (bb.length !== 4 || bb.some(v => !Number.isFinite(v))) { throw new TypeError('Invalid Graphviz layout bounds'); }
+  const by_id = new Map((layout.objects ?? []).map(obj => [obj._gvid, obj]));
+  const layout_edges = layout.edges ?? [];
+  for (const edge of layout_edges) {
+    clip_compact_endpoint(edge, by_id.get(edge.head), true);
+    clip_compact_endpoint(edge, by_id.get(edge.tail), false);
+  }
+  place_edge_labels(layout);
+  for (const edge of layout_edges) {
+    const label = text_bounds(edge._ldraw_);
+    if (label) { bb[0] = Math.min(bb[0], label[0]); bb[1] = Math.min(bb[1], label[1]); bb[2] = Math.max(bb[2], label[2]); bb[3] = Math.max(bb[3], label[3]); }
+  }
   const pad = 36;
   const width = bb[2] - bb[0] + pad * 2;
   const height = bb[3] - bb[1] + pad * 2;
   const objects = layout.objects ?? [];
-  const by_id = new Map(objects.map(obj => [obj._gvid, obj]));
   const by_name = new Map([...context.state_ids].map(([name, id]) => [id, name]));
   const clusters = objects.filter(obj => obj.bb && !obj.pos).map(obj => `<g class="cluster"><title>${xml(obj.name)}</title>${geometry(obj._draw_, 'fill="none" stroke="#93adc9" stroke-opacity="0.3" stroke-width="1"')}${texts(obj._ldraw_, '#cbd7e5')}</g>`).join('');
   const labels: string[] = [];
   const edges = (layout.edges ?? []).map(edge => {
     // Invisible edges introduced by arrange ordering have no drawing operations.
     if (!edge._draw_) { return ''; }
-    clip_compact_endpoint(edge, by_id.get(edge.head), true);
-    clip_compact_endpoint(edge, by_id.get(edge.tail), false);
-    const kind = edge.jssm_kind ?? 'legal';
+    const kind = edge.jssm_kind === 'main' ? 'main' : (edge.jssm_kind === 'forced' ? 'forced' : 'legal');
     const forced = kind === 'forced';
     const stroke = forced ? '#a8b9d3' : '#ffffff';
+    const stroke_width = kind === 'main' ? 2.5 : (forced ? 1.4 : 1.65);
     const title = `${by_id.get(edge.tail).name}->${by_id.get(edge.head).name}`;
-    labels.push(texts(edge._ldraw_, action_color, background));
-    return `<g class="edge" data-transition-kind="${kind}" id="${prefix}-edge-${edge._gvid}"><title>${xml(title)}</title><g opacity="${forced ? opacity : 1}">${geometry(edge._draw_, `fill="none" stroke="${stroke}" stroke-width="1.8" stroke-linecap="round"${forced ? ' stroke-dasharray="5 6"' : ''}`)}${geometry(edge._hdraw_, `fill="${kind === 'main' ? stroke : background}" stroke="${stroke}" stroke-width="1.6"`)}${geometry(edge._tdraw_, `fill="${background}" stroke="${stroke}" stroke-width="1.6"`)}</g></g>`;
+    labels.push(`<g class="edge-label edge-label-${kind}" data-edge-id="${prefix}-edge-${edge._gvid}">${texts(edge._ldraw_, action_colors[kind], background)}</g>`);
+    return `<g class="edge" data-transition-kind="${kind}" id="${prefix}-edge-${edge._gvid}"><title>${xml(title)}</title><g opacity="${forced ? opacity : 1}">${geometry(edge._draw_, `fill="none" stroke="${stroke}" stroke-width="${stroke_width}" stroke-linecap="round"${forced ? ' stroke-dasharray="5 6"' : ''}`)}${geometry(edge._hdraw_, `fill="${kind === 'main' ? stroke : background}" stroke="${stroke}" stroke-width="1.6"`)}${geometry(edge._tdraw_, `fill="${background}" stroke="${stroke}" stroke-width="1.6"`)}</g></g>`;
   }).join('');
   const cards = objects.filter(obj => by_name.has(obj.name)).map(obj => card(obj, content_for(by_name.get(obj.name)), prefix, shade, has_declared_border(machine, by_name.get(obj.name)))).join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}pt" height="${height}pt" viewBox="0 0 ${width} ${height}" role="img" data-render-provider="tonal"><title>${xml(machine.machine_name() || 'State machine')}</title>

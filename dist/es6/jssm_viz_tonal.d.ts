@@ -34,6 +34,7 @@ export interface TonalStateContent {
 export interface TonalRenderOptions {
     states?: Readonly<Record<string, TonalStateContent>>;
     background?: string;
+    /** Override all edge-label colors; their weight and style still distinguish edge kinds. */
     action_color?: string;
     /** Multiplier for forced connection strokes and arrowheads; default 0.7. */
     forced_opacity?: number;

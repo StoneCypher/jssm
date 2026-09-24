@@ -42,6 +42,103 @@ function polygon_points(el: Element): number[][] {
 }
 
 describe('tonal SVG provider', () => {
+  it('retains escaped action text and zero probabilities in multiline labels', async () => {
+    const doc = document_for(await fsl_to_svg_string("a 'go<&' 0% => b; b 'reset' 12.5% ~> a;", { provider: 'tonal' }));
+    expect([...doc.querySelectorAll(':scope .edge-label-main text')].map(label => label.textContent)).toEqual(['go<&', '0']);
+    expect([...doc.querySelectorAll(':scope .edge-label-forced text')].map(label => label.textContent)).toEqual(['reset', '12.5']);
+    expect(doc.querySelectorAll('.edge')).toHaveLength(2);
+  });
+
+  it('distinguishes label kinds even with a shared custom color', async () => {
+    const doc = document_for(await fsl_to_svg_string("a 'advance' => b; b 'choose' -> c; c 'reset' ~> a;", {
+      provider: 'tonal', tonal: { action_color: '#abc', forced_opacity: 0 }
+    }));
+    const label = (kind: string) => doc.querySelector(`.edge-label-${kind} text`);
+    const main = label('main'), legal = label('legal'), forced = label('forced');
+    expect([main, legal, forced].every(el => el.getAttribute('fill') === '#abc')).toBe(true);
+    expect(Number(main.getAttribute('font-weight'))).toBeGreaterThan(Number(legal.getAttribute('font-weight')));
+    expect(forced.getAttribute('font-style')).toBe('italic');
+    expect(legal.getAttribute('font-style')).toBeNull();
+    expect(Number(forced.getAttribute('font-size'))).toBeLessThan(Number(legal.getAttribute('font-size')));
+    expect(forced.closest('[opacity]')).toBeNull();
+    const edges = [...doc.querySelectorAll<SVGGElement>('.edge')];
+    const width = (kind: string) => Number(edges.find(edge => edge.dataset.transitionKind === kind).querySelector('path').getAttribute('stroke-width'));
+    expect(width('main')).toBeGreaterThan(width('legal'));
+    expect(width('legal')).toBeGreaterThan(width('forced'));
+  });
+
+  it('preserves mirrored traffic-light return curves with named actions', async () => {
+    const source = traffic.replace('[Red Yellow Green] ~>', "[Red Yellow Green] 'Disable' ~>");
+    const doc = document_for(await fsl_to_svg_string(source, { provider: 'tonal', tonal: { states: annotations } }));
+    const red = [...doc.querySelectorAll('.node')].find(node => node.querySelector('title').textContent === 'red');
+    const band = red.querySelector('.tonal-header');
+    const center = Number(band.getAttribute('x')) + Number(band.getAttribute('width')) / 2;
+    const controls = (title: string) => [...doc.querySelectorAll('.edge')]
+      .find(edge => edge.querySelector('title').textContent === title).querySelector('path')
+      .getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);
+    const left = controls('green->off'), right = controls('yellow->off');
+    expect(left).toHaveLength(right.length);
+    for (let i = 0; i < left.length; i += 2) {
+      expect(Math.abs(left[i] + right[i] - center * 2)).toBeLessThan(2);
+      expect(Math.abs(left[i + 1] - right[i + 1])).toBeLessThan(2);
+    }
+    expect(doc.querySelectorAll(':scope .edge-labels text')).toHaveLength(7);
+  });
+
+  it('keeps traffic-light action ink clear of cards, other labels and its own curve', async () => {
+    const doc = document_for(await fsl_to_svg_string(traffic.replace('[Red Yellow Green] ~>', "[Red Yellow Green] 'Disable' ~>"), {
+      provider: 'tonal', tonal: { states: annotations }
+    }));
+    const cards = [...doc.querySelectorAll(':scope .node g[clip-path] > rect')].map(rect => {
+      const x = Number(rect.getAttribute('x')), y = Number(rect.getAttribute('y'));
+      return [x, y, x + Number(rect.getAttribute('width')), y + Number(rect.getAttribute('height'))];
+    });
+    const placed: number[][] = [];
+    for (const label of doc.querySelectorAll<SVGTextElement>(':scope .edge-labels text')) {
+      const size = Number(label.getAttribute('font-size')), width = Number(label.getAttribute('textLength'));
+      const x = Number(label.getAttribute('x')), y = Number(label.getAttribute('y'));
+      const left = x - (label.getAttribute('text-anchor') === 'start' ? 0 : width / 2);
+      const box = [left, y - size * 0.85, left + width, y + size * 0.25];
+      for (const obstacle of [...cards, ...placed]) {
+        expect(box[0] < obstacle[2] && box[2] > obstacle[0] && box[1] < obstacle[3] && box[3] > obstacle[1]).toBe(false);
+      }
+      placed.push(box);
+      const id = label.parentElement.dataset.edgeId;
+      const coordinates = [...doc.querySelectorAll('.edge')].find(edge => edge.id === id).querySelector('path').getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);
+      for (let segment = 0; segment + 7 < coordinates.length; segment += 6) {
+        for (let step = 0; step <= 40; step++) {
+          const t = step / 40, u = 1 - t;
+          const point = [0, 1].map(axis => u ** 3 * coordinates[segment + axis]
+            + 3 * u * u * t * coordinates[segment + 2 + axis]
+            + 3 * u * t * t * coordinates[segment + 4 + axis] + t ** 3 * coordinates[segment + 6 + axis]);
+          expect(point[0] > box[0] && point[0] < box[2] && point[1] > box[1] && point[1] < box[3]).toBe(false);
+        }
+      }
+    }
+  });
+
+  it.each(['dot', 'neato', 'circo'])('retains every parallel, opposite and self-loop action within %s export bounds', async engine => {
+    const source = "a 'stay<&' -> a; a 'first' => b; a 'second' -> b; b 'return' ~> a; c 'a much longer disconnected action' -> d;";
+    const svg = await fsl_to_svg_string(source, { provider: 'tonal', engine });
+    const doc = document_for(svg);
+    const [tx, ty] = doc.querySelector('.graph').getAttribute('transform').match(/-?\d+(?:\.\d+)?/g).map(Number);
+    const [width, height] = doc.documentElement.getAttribute('viewBox').split(' ').slice(2).map(Number);
+    const labels = [...doc.querySelectorAll<SVGTextElement>(':scope .edge-labels text')];
+    expect(labels.map(label => label.textContent).sort((a, b) => a.localeCompare(b))).toEqual(['stay<&', 'first', 'second', 'return', 'a much longer disconnected action'].sort((a, b) => a.localeCompare(b)));
+    for (const label of labels) {
+      const x = Number(label.getAttribute('x')) + tx, y = Number(label.getAttribute('y')) + ty;
+      const size = Number(label.getAttribute('font-size')), length = Number(label.getAttribute('textLength'));
+      expect(x).toBeGreaterThan(0);
+      expect(x + length).toBeLessThan(width);
+      expect(y - size).toBeGreaterThan(0);
+      expect(y + size * 0.3).toBeLessThan(height);
+      expect([...doc.querySelectorAll('.edge')].some(edge => edge.id === label.parentElement.dataset.edgeId)).toBe(true);
+    }
+    expect(doc.querySelectorAll('.edge')).toHaveLength(5);
+    expect(svg).not.toMatch(/NaN|undefined/);
+  });
+
+
   it('keeps headers at 1.5em with centered titles and extra octagon clearance', async () => {
     const doc = document_for(await fsl_to_svg_string(traffic, { provider: 'tonal', tonal: { states: annotations } }));
     for (const node of doc.querySelectorAll('.node')) {
@@ -82,7 +179,7 @@ describe('tonal SVG provider', () => {
     expect(doc.querySelectorAll(':scope [data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
     const labels = [...doc.querySelectorAll(':scope .edge-labels text')];
     expect(labels.map(el => el.textContent)).toEqual(['Disable', 'reset<&']);
-    expect(labels.every(el => el.getAttribute('fill') === '#a9cfff' && !el.closest('[opacity]'))).toBe(true);
+    expect(labels.every(el => el.getAttribute('fill') === '#91a6c2' && !el.closest('[opacity]'))).toBe(true);
   });
 
   it('accepts emoji, Lucide-compatible shape records, and filled paths in library view boxes', async () => {
@@ -263,7 +360,7 @@ describe('tonal SVG provider', () => {
     expect(doc.querySelectorAll('[data-transition-kind="forced"]')).toHaveLength(3);
     expect(doc.querySelectorAll(':scope [data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
     expect(doc.querySelector('.edge-labels')?.textContent).toContain('Enable');
-    expect(doc.querySelectorAll(':scope .edge-labels text[fill="#a9cfff"]')).toHaveLength(4);
+    expect(doc.querySelectorAll(':scope .edge-labels text')).toHaveLength(4);
     expect(doc.querySelectorAll(':scope .node text[font-family^="Courier New"][fill="#003366"]')).toHaveLength(3);
     expect(doc.documentElement.textContent).toContain('Traffic may proceed.');
     expect(doc.querySelectorAll('circle')).toHaveLength(12);

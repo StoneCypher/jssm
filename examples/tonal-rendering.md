@@ -44,8 +44,10 @@ Built-in icons are `traffic-red`, `traffic-yellow`, `traffic-green`
 and `traffic-off`. Supply `{ emoji: '🚦' }` for emoji or `{ path: 'M…' }`
 for a monochrome SVG path. Library integration examples are below.
 
-`background` defaults to `#101827`, `action_color` to `#a9cfff`, and
-`wrap_columns` to 24 for body text. Headers are exactly 1.5em tall (33 points
+`background` defaults to `#101827`. Edge labels use pale blue for main paths,
+blue for regular paths, and a quieter blue-gray for forced paths. Set
+`action_color` to override all three colors while keeping their typography.
+`wrap_columns` defaults to 24 for body text. Headers are exactly 1.5em tall (33 points
 at the 22-point title size), with vertically centered text. Titles remain on one
 line; long names widen the card, and title line breaks are displayed as spaces.
 Graphviz measures the title and wrapped body, sizes the node and routes edges
@@ -54,8 +56,17 @@ card bounds with clipped corners and a larger title inset to clear the diagonal.
 Borders default to a darker tone of the resolved node fill. Explicit FSL
 `border-color` declarations retain their color and alpha, including declarations
 in state defaults, groups, state kinds, and active-state overlays.
-Normal, main and forced transitions retain their distinct arrowheads. Opposite
-transitions are drawn separately so their styles remain independent.
+Main transitions have a heavier white stroke and bold monospace action labels.
+Regular transitions have plain monospace labels; forced transitions use smaller,
+italic labels and a thinner dashed stroke. `forced_opacity` affects the stroke
+and arrowhead, keeping action names readable. All three retain their distinct
+arrowheads. Opposite transitions are drawn separately.
+
+Action labels use Graphviz external labels, followed by a bounded clearance pass.
+They do not become individual routing constraints. Uniform spacing reserves
+room for text, and the SVG bounds include displaced labels. This preserves
+balanced routes on symmetric machines. Placement tries to avoid cards, labels
+and curves; crowded graphs can still require flow or arrangement adjustments.
 
 Use `id_prefix` for reproducible SVG exports. Give each chart a distinct prefix
 when embedding multiple exports in one document. If omitted, each render gets
