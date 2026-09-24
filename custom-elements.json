@@ -4478,11 +4478,11 @@
               "description": "The thrown value to normalize."
             }
           ],
-          "description": "Normalize an arbitrary thrown value into a JssmVizErrorDetail.\r\nAccepts anything (Error instances, JssmErrors with `.location`, plain\r\nstrings, etc.) and always produces a string `message`.\r\n\r\n```typescript\r\nnormalize_viz_error(new Error('boom'));\r\n// => { message: 'boom', location: undefined }\r\n\r\nnormalize_viz_error({ message: 'parse failed', location: { line: 1 } });\r\n// => { message: 'parse failed', location: { line: 1 } }\r\n\r\nnormalize_viz_error('bare string failure');\r\n// => { message: 'bare string failure', location: undefined }\r\n```"
+          "description": "Normalize an arbitrary thrown value into a JssmVizErrorDetail.\nAccepts anything (Error instances, JssmErrors with `.location`, plain\nstrings, etc.) and always produces a string `message`.\n\n```typescript\nnormalize_viz_error(new Error('boom'));\n// => { message: 'boom', location: undefined }\n\nnormalize_viz_error({ message: 'parse failed', location: { line: 1 } });\n// => { message: 'parse failed', location: { line: 1 } }\n\nnormalize_viz_error('bare string failure');\n// => { message: 'bare string failure', location: undefined }\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<fsl-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,\r\n     found via `closest_wc(this, 'instance')` at `connectedCallback`):\r\n     bind to the parent's machine and re-render on every `transition`\r\n     event.  The element's own `fsl` attribute is ignored in this mode;\r\n     supplying it emits a `console.warn` for developer feedback.",
+          "description": "Web component that renders a jssm machine as inline SVG.\n\nTwo operating modes:\n\n  1. **Standalone** (no parent `<fsl-instance>` ancestor): render from\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\n     attribute change.\n  2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,\n     found via `closest_wc(this, 'instance')` at `connectedCallback`):\n     bind to the parent's machine and re-render on every `transition`\n     event.  The element's own `fsl` attribute is ignored in this mode;\n     supplying it emits a `console.warn` for developer feedback.",
           "name": "FslViz",
           "cssProperties": [
             {
@@ -4519,6 +4519,35 @@
             },
             {
               "kind": "field",
+              "name": "provider",
+              "type": {
+                "text": "VizRenderOpts['provider']"
+              },
+              "default": "'graphviz'",
+              "description": "SVG drawing provider: graphviz (default), tonal, or a provider object.",
+              "attribute": "provider"
+            },
+            {
+              "kind": "field",
+              "name": "tonal",
+              "type": {
+                "text": "VizRenderOpts['tonal']"
+              },
+              "default": "undefined",
+              "description": "Optional tonal card annotations and appearance, supplied as a JavaScript property."
+            },
+            {
+              "kind": "field",
+              "name": "_render_revision",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0",
+              "description": "Every request invalidates older results, including provider and engine changes."
+            },
+            {
+              "kind": "field",
               "name": "_svg",
               "type": {
                 "text": "string"
@@ -4534,7 +4563,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in\r\n`connectedCallback` when a parent is found.  When non-null the viz is\r\nin nested mode and renders the parent's machine instead of its own\r\n`fsl` attribute."
+              "description": "Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in\n`connectedCallback` when a parent is found.  When non-null the viz is\nin nested mode and renders the parent's machine instead of its own\n`fsl` attribute."
             },
             {
               "kind": "field",
@@ -4544,7 +4573,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Unsubscribe callback returned from `host.machine.on('transition', ...)`.\r\nHeld so `disconnectedCallback` can release the subscription."
+              "description": "Unsubscribe callback returned from `host.machine.on('transition', ...)`.\nHeld so `disconnectedCallback` can release the subscription."
             },
             {
               "kind": "field",
@@ -4554,7 +4583,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the\r\nviz to the host's new machine after a live rebuild, #1387). Captures the\r\nexact host the listener was attached to, so teardown is correct even if\r\n`_parent_host` was cleared or replaced. Null when standalone / before binding."
+              "description": "Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the\nviz to the host's new machine after a live rebuild, #1387). Captures the\nexact host the listener was attached to, so teardown is correct even if\n`_parent_host` was cleared or replaced. Null when standalone / before binding."
             },
             {
               "kind": "method",
@@ -4565,7 +4594,7 @@
                   "text": ""
                 }
               },
-              "description": "Nested-mode render path.  Renders the bound parent's machine via the\r\nmachine_to_svg_string pipeline and commits the result to\r\n`_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the\r\nSVG."
+              "description": "Nested-mode render path.  Renders the bound parent's machine via the\nmachine_to_svg_string pipeline and commits the result to\n`_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the\nSVG."
             },
             {
               "kind": "method",
@@ -4576,7 +4605,7 @@
                   "text": ""
                 }
               },
-              "description": "Render the current `fsl` source to an SVG string via the headless\r\n`fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a\r\n`viz-error` `CustomEvent` on failure. Guards against stale results\r\nwhen `fsl` changes mid-flight."
+              "description": "Render the current `fsl` source to an SVG string via the headless\n`fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a\n`viz-error` `CustomEvent` on failure. Guards against stale results\nwhen `fsl` changes mid-flight."
             },
             {
               "kind": "method",
@@ -4587,7 +4616,7 @@
                   "text": "void"
                 }
               },
-              "description": "Clears any active programmatic highlights from the rendered SVG,\r\nrestoring every node and edge to its default Graphviz presentation.\r\n\r\nRemoves only the inline `fill` / `stroke` / `opacity` overrides that\r\nhighlightTrace installs; the SVG's own presentation attributes\r\nare untouched. Safe to call when nothing is highlighted, before the\r\nfirst render, or while detached — it no-ops if there is no rendered\r\nSVG to clear.\r\n\r\n```typescript\r\nconst viz = document.querySelector('fsl-viz');\r\nviz.highlightTrace(['a', 'b']);\r\nviz.clearHighlights();   // back to the default rendering\r\n```"
+              "description": "Clears any active programmatic highlights from the rendered SVG,\nrestoring every node and edge to its default Graphviz presentation.\n\nRemoves only the inline `fill` / `stroke` / `opacity` overrides that\nhighlightTrace installs; the SVG's own presentation attributes\nare untouched. Safe to call when nothing is highlighted, before the\nfirst render, or while detached — it no-ops if there is no rendered\nSVG to clear.\n\n```typescript\nconst viz = document.querySelector('fsl-viz');\nviz.highlightTrace(['a', 'b']);\nviz.clearHighlights();   // back to the default rendering\n```"
             },
             {
               "kind": "method",
@@ -4604,7 +4633,7 @@
                   "type": {
                     "text": "string[]"
                   },
-                  "description": "Ordered state names describing the path (e.g.\r\n`['A', 'B', 'C']`). Consecutive pairs select the edges\r\n`A->B` and `B->C`. An empty array is a no-op."
+                  "description": "Ordered state names describing the path (e.g.\n`['A', 'B', 'C']`). Consecutive pairs select the edges\n`A->B` and `B->C`. An empty array is a no-op."
                 },
                 {
                   "name": "options",
@@ -4612,10 +4641,10 @@
                   "type": {
                     "text": "HighlightOptions"
                   },
-                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   * "
+                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\n   *                to crimson with off-trace fading enabled.\n   * "
                 }
               ],
-              "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` and edges by the `from->to`\r\ntitle Graphviz emits, applying inline style overrides so the highlight\r\ncomposes over — and is reversible against — the default rendering (see\r\nclearHighlights, which this calls first). No-ops when detached,\r\nbefore the first render, or given an empty trace.\r\n\r\nBecause dot generation slugs state names into node identifiers (fsl#1935\r\n— `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name\r\nis matched in **both** its raw form and its slugged form, using the same\r\n`slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,\r\n`'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore\r\nboth work. Names whose slug is empty (e.g. `'!!!'`, which renders under\r\nan indexed `node-N` title) are only matchable by passing that literal\r\n`node-N` title.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n\r\n// Display-form names match their slugged titles:\r\nviz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm\r\n```"
+              "description": "Programmatically highlights one execution trace (a path of state names)\nthrough the rendered graph, optionally fading everything off the path.\n\nMatches nodes by their Graphviz `<title>` and edges by the `from->to`\ntitle Graphviz emits, applying inline style overrides so the highlight\ncomposes over — and is reversible against — the default rendering (see\nclearHighlights, which this calls first). No-ops when detached,\nbefore the first render, or given an empty trace.\n\nBecause dot generation slugs state names into node identifiers (fsl#1935\n— `'Wrong Pin'` renders with `<title>wrong-pin</title>`), each trace name\nis matched in **both** its raw form and its slugged form, using the same\n`slug_for` the dot generator uses. Display names (`'Red'`, `'Wrong Pin'`,\n`'Röd'`) and already-slug-form names (`'red'`, `'wrong-pin'`) therefore\nboth work. Names whose slug is empty (e.g. `'!!!'`, which renders under\nan indexed `node-N` title) are only matchable by passing that literal\n`node-N` title.\n\n```typescript\n// Highlight a -> b -> c in green, without dimming the rest:\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\n\n// Display-form names match their slugged titles:\nviz.highlightTrace(['Wrong Pin', 'Alarm']);   // titles wrong-pin, alarm\n```"
             }
           ],
           "events": [
@@ -4645,6 +4674,15 @@
               "default": "undefined",
               "description": "Optional Graphviz layout engine override (e.g. 'dot', 'neato').",
               "fieldName": "engine"
+            },
+            {
+              "name": "provider",
+              "type": {
+                "text": "VizRenderOpts['provider']"
+              },
+              "default": "'graphviz'",
+              "description": "SVG drawing provider: graphviz (default), tonal, or a provider object.",
+              "fieldName": "provider"
             }
           ],
           "superclass": {

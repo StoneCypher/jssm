@@ -67,6 +67,12 @@ export class FslViz extends LitElement {
         this.fsl = '';
         /** Optional Graphviz layout engine override (e.g. 'dot', 'neato'). */
         this.engine = undefined;
+        /** SVG drawing provider: graphviz (default), tonal, or a provider object. */
+        this.provider = 'graphviz';
+        /** Optional tonal card annotations and appearance, supplied as a JavaScript property. */
+        this.tonal = undefined;
+        /** Every request invalidates older results, including provider and engine changes. */
+        this._render_revision = 0;
         this._svg = '';
         /**
          * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
@@ -100,12 +106,12 @@ export class FslViz extends LitElement {
             // Nested mode: ignore `fsl` attr changes; renders come from the
             // parent's transition events.  `engine` changes still re-render
             // because they apply to whichever source is in use.
-            if (changed.has('engine')) {
+            if (changed.has('engine') || changed.has('provider') || changed.has('tonal')) {
                 void this._rerenderFromHostMachine();
             }
             return;
         }
-        if (changed.has('fsl') || changed.has('engine')) {
+        if (changed.has('fsl') || changed.has('engine') || changed.has('provider') || changed.has('tonal')) {
             void this._renderSvg();
         }
     }
@@ -180,6 +186,7 @@ export class FslViz extends LitElement {
      */
     disconnectedCallback() {
         super.disconnectedCallback();
+        this._render_revision++;
         if (this._parent_sub !== null) {
             this._parent_sub();
             this._parent_sub = null;
@@ -198,19 +205,23 @@ export class FslViz extends LitElement {
      * @returns A promise that resolves once the render attempt has finished.
      */
     async _rerenderFromHostMachine() {
+        const revision = ++this._render_revision;
         const host = this._parent_host;
         if (host === null) {
             return;
         }
         try {
             const m = host.machine;
-            const result = await machine_to_svg_string(m, this.engine ? { engine: this.engine } : undefined);
+            const result = await machine_to_svg_string(m, { engine: this.engine, provider: this.provider, tonal: this.tonal });
             // Guard against the parent disappearing mid-render.
-            if (this._parent_host === host) {
+            if (this._parent_host === host && this._render_revision === revision) {
                 this._svg = reorder_svg_layers(result);
             }
         }
         catch (error) {
+            if (this._render_revision !== revision) {
+                return;
+            }
             this._svg = '';
             this.dispatchEvent(new CustomEvent('viz-error', {
                 detail: normalize_viz_error(error),
@@ -227,19 +238,23 @@ export class FslViz extends LitElement {
      * @returns A promise that resolves once the render attempt has finished.
      */
     async _renderSvg() {
+        const revision = ++this._render_revision;
         const source = this.fsl;
         if (!source) {
             this._svg = '';
             return;
         }
         try {
-            const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
+            const result = await fsl_to_svg_string(source, { engine: this.engine, provider: this.provider, tonal: this.tonal });
             // Guard against stale results: only commit if fsl has not changed since this render started.
-            if (this.fsl === source) {
+            if (this.fsl === source && this._render_revision === revision) {
                 this._svg = reorder_svg_layers(result);
             }
         }
         catch (error) {
+            if (this._render_revision !== revision) {
+                return;
+            }
             this._svg = '';
             this.dispatchEvent(new CustomEvent('viz-error', {
                 detail: normalize_viz_error(error),
@@ -252,8 +267,8 @@ export class FslViz extends LitElement {
      * Lit render method. Injects the most recent SVG string into the shadow
      * tree via the `unsafeHTML` directive.
      *
-     * SVG content originates from `@viz-js/viz` (Graphviz WASM), which emits
-     * sanitized SVG. `unsafeHTML` is required because Lit's template-literal
+     * Built-in providers escape machine labels and annotations. Custom providers
+     * are trusted SVG producers supplied by the application. `unsafeHTML` is required because Lit's template-literal
      * interpolation otherwise escapes the markup as text. The directive name
      * makes the trust boundary explicit at the call site.
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.
@@ -463,6 +478,12 @@ __decorate([
 __decorate([
     property({ type: String })
 ], FslViz.prototype, "engine", void 0);
+__decorate([
+    property({ type: String })
+], FslViz.prototype, "provider", void 0);
+__decorate([
+    property({ attribute: false })
+], FslViz.prototype, "tonal", void 0);
 __decorate([
     state()
 ], FslViz.prototype, "_svg", void 0);

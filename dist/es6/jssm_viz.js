@@ -1,6 +1,7 @@
 import * as jssm from './jssm.js';
 import { JssmError } from './jssm_error.js';
 import { default_viz_colors } from './jssm_viz_colors.js';
+import { tonal_provider } from './jssm_viz_tonal.js';
 import { membership_distance } from './jssm_compiler.js';
 /**
  *  Cached resolved viz.js instance.  Populated on first call to
@@ -21,7 +22,7 @@ let injected_dom_parser = null;
 /**
  *  Returns the Graphviz engine the render path should use: the engine
  *  injected via {@link configure}`({ viz })` when one is set (checked
- *  *before* the default import, so the `@viz-js/viz` WASM module is never
+ *  before the default import, so the `@viz-js/viz` WASM module is never
  *  even loaded in environments that injected their own); otherwise a cached
  *  `@viz-js/viz` instance, lazily instantiated on first call.  Internal
  *  helper for the rendering functions.
@@ -217,7 +218,6 @@ function undoublequote(txt) {
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
@@ -792,7 +792,7 @@ function colored_label(tr, which, color) {
  *  accumulator and O(n) `find` probe.
  *  @internal
  */
-function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
+function states_to_edges_string(u_jssm, l_states, state_index, state_kinds, layout = {}) {
     const strike = new Set();
     const kind_of = (s) => { var _a; return (_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base'; };
     // `farrange` forces its members' left-to-right order by relaxing the rank
@@ -809,7 +809,7 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
         const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
         const arrowHead = arrow_for(tr);
         const edgeInline = `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, tr.kind, '_solo')}"`;
-        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
+        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}${layout.edge ? `;${layout.edge(tr)}` : ''}];`;
     };
     return l_states.map((s) => u_jssm.list_exits(s).map((ex) => {
         if (strike.has(`${s}|${ex}`)) {
@@ -824,7 +824,7 @@ function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
         // edge each way between two distinct states draws as a single `dir=both`
         // edge with head/tail labels.  Parallel edges (#325) or self-loops fall
         // through to one directed line per edge.
-        if (forward.length === 1 && reverse.length === 1) {
+        if (!layout.separate_edges && forward.length === 1 && reverse.length === 1) {
             const edge_tr = forward[0];
             const pair_tr = reverse[0];
             const s_kind = kind_of(s);
@@ -1254,18 +1254,28 @@ function state_svg_label_texts(u_jssm, opts = {}) {
  *  @returns A complete graphviz dot source string.
  */
 function machine_to_dot(u_jssm, opts = {}) {
-    var _a, _b;
+    return layout_dot(u_jssm, opts);
+}
+/** Build DOT with provider-specific measurements while retaining groups and arrangements. */
+function layout_dot(u_jssm, opts, layout = {}) {
+    var _a, _b, _c, _d;
     const l_states = u_jssm.states();
     const state_index = slug_states(l_states);
     const state_kinds = classify_states(u_jssm, l_states);
     const hide_labels = opts.hide_state_labels;
     const mode = (_a = opts.render_groups) !== null && _a !== void 0 ? _a : 'cluster';
     const nodes = node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels, mode);
-    const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
+    const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds, layout);
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
-    const footer = (_b = opts === null || opts === void 0 ? void 0 : opts.footer) !== null && _b !== void 0 ? _b : '';
+    const node_overrides = [...((_b = layout.nodes) !== null && _b !== void 0 ? _b : [])].map(([name, attrs]) => {
+        if (!state_index.has(name)) {
+            throw new JssmError(undefined, 'Unknown layout state: ' + name);
+        }
+        return node_of(name, state_index) + ' [' + attrs + '];';
+    }).join('\n');
+    const footer = [(_c = opts.footer) !== null && _c !== void 0 ? _c : '', (_d = layout.graph) !== null && _d !== void 0 ? _d : '', node_overrides].filter(Boolean).join('\n');
     // `transition: {}` → default `edge [ … ]` attrs; `graph: {}` → graph-scope
     // attrs.  The graph background reconciles through the single `bgcolor` slot
     // (the `graph: {}` value already won last-wins in the compiler), so it is
@@ -1331,7 +1341,7 @@ async function dot_to_svg(dot, options) {
  *  @returns A promise resolving to an SVG XML string.
  */
 async function fsl_to_svg_string(fsl, opts = {}) {
-    return dot_to_svg(fsl_to_dot(fsl, opts), opts);
+    return machine_to_svg_string(jssm.from(fsl), opts);
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
@@ -1340,7 +1350,27 @@ async function fsl_to_svg_string(fsl, opts = {}) {
  *  @returns A promise resolving to an SVG XML string.
  */
 async function machine_to_svg_string(u_jssm, opts = {}) {
-    return dot_to_svg(machine_to_dot(u_jssm, opts));
+    var _a;
+    const provider = opts.provider;
+    const engine = (_a = opts.engine) !== null && _a !== void 0 ? _a : u_jssm.graph_layout();
+    if (provider === undefined || provider === 'graphviz') {
+        return dot_to_svg(machine_to_dot(u_jssm, opts), { engine });
+    }
+    const selected = provider === 'tonal' ? tonal_provider : provider;
+    if (typeof selected !== 'object' || selected === null || typeof selected.render !== 'function') {
+        throw new JssmError(undefined, 'Unknown SVG rendering provider: ' + (typeof provider === 'string' ? provider : 'invalid provider object'));
+    }
+    return selected.render({
+        machine: u_jssm,
+        options: opts,
+        state_ids: slug_states(u_jssm.states()),
+        state_labels: state_svg_label_texts(u_jssm, opts),
+        to_dot: overrides => layout_dot(u_jssm, opts, overrides),
+        render_dot: async (source, format) => {
+            const viz = await get_viz();
+            return viz.renderString(source, { format, engine });
+        }
+    });
 }
 /**
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
@@ -1379,7 +1409,9 @@ async function dot_to_svg_element(dot) {
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
 async function fsl_to_svg_element(fsl, opts = {}) {
-    return dot_to_svg_element(fsl_to_dot(fsl, opts));
+    const ParserCtor = get_dom_parser();
+    const svg = await fsl_to_svg_string(fsl, opts);
+    return new ParserCtor().parseFromString(svg, 'image/svg+xml').documentElement;
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
@@ -1389,7 +1421,9 @@ async function fsl_to_svg_element(fsl, opts = {}) {
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
 async function machine_to_svg_element(u_jssm, opts = {}) {
-    return dot_to_svg_element(machine_to_dot(u_jssm, opts));
+    const ParserCtor = get_dom_parser();
+    const svg = await machine_to_svg_string(u_jssm, opts);
+    return new ParserCtor().parseFromString(svg, 'image/svg+xml').documentElement;
 }
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
@@ -1415,3 +1449,4 @@ export const _test = {
     graph_attr_for, graph_attrs_body, graph_bg_color_from_config
 };
 export { version, build_time } from './version.js';
+export { tonal_provider } from './jssm_viz_tonal.js';

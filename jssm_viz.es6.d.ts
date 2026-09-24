@@ -3925,6 +3925,64 @@ declare class Machine<mDT> {
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 
+/** Layout changes a drawing provider can request without rebuilding FSL semantics. */
+interface VizLayoutOverrides {
+    /** Keep opposite transitions independent, including their labels and arrow types. */
+    separate_edges?: boolean;
+    /** Additional DOT attributes by original state name. Values are trusted DOT fragments. */
+    nodes?: ReadonlyMap<string, string>;
+    /** Additional DOT attributes for each directed transition. Values are trusted DOT fragments. */
+    edge?: (transition: JssmTransition<string, unknown>) => string;
+    /** Trusted DOT statements applied after the machine's graph defaults. */
+    graph?: string;
+}
+/** Services supplied to a renderer; custom providers need no global registration. */
+interface VizRenderContext {
+    machine: Machine<unknown>;
+    options: VizRenderOpts;
+    /** Stable, collision-resolved DOT names keyed by original state name. */
+    state_ids: ReadonlyMap<string, string>;
+    /** Display labels including the requested group-membership chips. */
+    state_labels: ReadonlyMap<string, string>;
+    to_dot: (overrides?: VizLayoutOverrides) => string;
+    /** Uses configure({ viz }) when supplied, otherwise the bundled Graphviz adapter. */
+    render_dot: (dot: string, format: string) => Promise<string>;
+}
+/** A trusted SVG producer. The result is embedded as SVG by the chart component. */
+interface VizRenderProvider {
+    name: string;
+    render: (context: VizRenderContext) => string | Promise<string>;
+}
+
+/** Built-in traffic signals, or a monochrome SVG path in a 24 by 24 view box. */
+type TonalIcon = 'traffic-red' | 'traffic-yellow' | 'traffic-green' | 'traffic-off' | {
+    path: string;
+};
+/** Optional explanatory content. These annotations never change the machine. */
+interface TonalStateContent {
+    description?: string;
+    /** Monospace prefix for the second line, such as the action name `Next`. */
+    action?: string;
+    detail?: string;
+    icon?: TonalIcon;
+}
+/** Presentation settings for the tonal SVG provider. All dimensions are SVG points. */
+interface TonalRenderOptions {
+    states?: Readonly<Record<string, TonalStateContent>>;
+    background?: string;
+    action_color?: string;
+    /** Multiplier for forced connection strokes and arrowheads; default 0.7. */
+    forced_opacity?: number;
+    /** Dark overlay over the node's own color; default 0.1. */
+    header_shade?: number;
+    /** Characters per line before Graphviz measures the wrapped text; default 24. */
+    wrap_columns?: number;
+    /** Set for reproducible exports; use different prefixes for diagrams sharing a document. */
+    id_prefix?: string;
+}
+/** Opt-in SVG renderer with tonal state headers, annotations and a navy background. */
+declare const tonal_provider: VizRenderProvider;
+
 /**
  *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
  *
@@ -3947,7 +4005,7 @@ type RenderGroups = 'cluster' | 'chips' | 'off';
  *  factory: the caller instantiates (and, if needed, awaits) their engine
  *  themselves, then hands over the finished object.  `renderString` receives
  *  the dot source and an options object whose members jssm/viz uses are
- *  `format` (always `'svg'`) and `engine` (a Graphviz layout engine name,
+ *  `format` (`'svg'` for the default provider; `'json'` for tonal) and `engine` (a Graphviz layout engine name,
  *  when the caller of a render function supplied one); it may return the
  *  output string synchronously (like `@viz-js/viz`) or as a promise (like
  *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
@@ -4079,7 +4137,6 @@ declare function undoublequote(txt: string): string;
  *  Exported so consumers which must match rendered SVG node `<title>`s back
  *  to state names (notably `FslViz.highlightTrace`, fsl#1935) can slug with
  *  the *same* function the dot generator used, rather than a drifting copy.
- *
  *  @param state The state name to slugify.
  *  @returns The lowercase hyphen-separated slug, or empty string if none of
  *  the characters were retainable.
@@ -4410,6 +4467,10 @@ type VizRenderOpts = {
     footer?: string;
     engine?: string;
     render_groups?: RenderGroups;
+    /** SVG drawing provider. Omitted or 'graphviz' retains the existing renderer. */
+    provider?: 'graphviz' | 'tonal' | VizRenderProvider;
+    /** Optional annotations and appearance settings for the tonal provider. */
+    tonal?: TonalRenderOptions;
 };
 /**
  *  Assemble the node-declaration block for a machine, honouring the
@@ -4612,5 +4673,5 @@ declare const _test: {
     graph_bg_color_from_config: typeof graph_bg_color_from_config;
 };
 
-export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, slug_for, state_svg_label_texts, version };
-export type { RenderGroups, VizEngine, VizRenderOpts };
+export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, slug_for, state_svg_label_texts, tonal_provider, version };
+export type { RenderGroups, TonalIcon, TonalRenderOptions, TonalStateContent, VizEngine, VizLayoutOverrides, VizRenderContext, VizRenderOpts, VizRenderProvider };

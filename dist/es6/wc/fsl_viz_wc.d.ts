@@ -1,4 +1,5 @@
 import { LitElement, TemplateResult, PropertyValues } from 'lit';
+import type { VizRenderOpts } from '../jssm_viz.js';
 import type { Machine } from '../jssm.js';
 /**
  * Styling options for {@link FslViz.highlightTrace}.
@@ -81,6 +82,12 @@ export declare class FslViz extends LitElement {
     fsl: string;
     /** Optional Graphviz layout engine override (e.g. 'dot', 'neato'). */
     engine: string | undefined;
+    /** SVG drawing provider: graphviz (default), tonal, or a provider object. */
+    provider: VizRenderOpts['provider'];
+    /** Optional tonal card annotations and appearance, supplied as a JavaScript property. */
+    tonal: VizRenderOpts['tonal'];
+    /** Every request invalidates older results, including provider and engine changes. */
+    private _render_revision;
     private _svg;
     /**
      * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
@@ -147,8 +154,8 @@ export declare class FslViz extends LitElement {
      * Lit render method. Injects the most recent SVG string into the shadow
      * tree via the `unsafeHTML` directive.
      *
-     * SVG content originates from `@viz-js/viz` (Graphviz WASM), which emits
-     * sanitized SVG. `unsafeHTML` is required because Lit's template-literal
+     * Built-in providers escape machine labels and annotations. Custom providers
+     * are trusted SVG producers supplied by the application. `unsafeHTML` is required because Lit's template-literal
      * interpolation otherwise escapes the markup as text. The directive name
      * makes the trust boundary explicit at the call site.
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.

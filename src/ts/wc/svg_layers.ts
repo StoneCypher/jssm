@@ -22,6 +22,8 @@ export function reorder_svg_layers(svg: string): string {
   const background = graph.querySelector(':scope > polygon');
   const edges = [...graph.querySelectorAll(':scope > g.edge')];
   const nodes = [...graph.querySelectorAll(':scope > g.node')];
+  // Providers may already collect action labels in their own top paint layer.
+  const labelLayers = [...graph.querySelectorAll(':scope > g.edge-labels')];
 
   // Hoist every edge's label out of its group so it lands on the top layer.
   const labels: Element[] = [];
@@ -35,6 +37,7 @@ export function reorder_svg_layers(svg: string): string {
   for (const edge of edges)   { graph.append(edge); }
   for (const node of nodes)   { graph.append(node); }
   for (const label of labels) { graph.append(label); }
+  for (const layer of labelLayers) { graph.append(layer); }
 
   return new XMLSerializer().serializeToString(doc);
 }

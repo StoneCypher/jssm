@@ -25,3 +25,10 @@ Render options shape how a machine like this is drawn without changing the FSL:
 graph_layout : circo;
 a 'go' -> b;
 ```
+
+Select the tonal state-card renderer with `{ provider: 'tonal' }`. The default
+`graphviz` provider keeps the existing appearance. Optional `tonal.states`
+annotations add descriptions, monospace action names and icons without changing
+the machine. See `examples/tonal-rendering.md` and the runnable
+`examples/tonal-traffic-light.mjs` example. Custom application providers can
+implement the exported `VizRenderProvider` interface.
