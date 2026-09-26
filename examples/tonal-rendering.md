@@ -73,6 +73,32 @@ when embedding multiple exports in one document. If omitted, each render gets
 a unique document-local prefix. SVG output works with the existing rasterizer
 and can be used directly in tutorial graphics.
 
+## Perceptually balanced pastel example
+
+The traffic-light example uses [HPLuv](https://www.hsluv.org/comparison/), the
+pastel variant of HSLuv. All three signal fills share lightness L=90 and
+pastel saturation P=100. At a fixed lightness, equal HPLuv P means equal
+CIELUV chroma across hues; equal HSLuv S alone does not. The unrounded
+colors have C*=22.1733. Conversion to 8-bit sRGB introduces small differences.
+
+| State | HPLuv hue | Fill |
+| --- | ---: | --- |
+| Red | 10 | `#fedadb` |
+| Green | 135 | `#cbead1` |
+| Yellow | 75 | `#eae3c7` |
+
+These values were generated with `hsluv@1.0.2`: create a `Hsluv` instance,
+set `hpluv_h`, `hpluv_p`, and `hpluv_l`, call `hpluvToHex()`, then read
+`hex`. The example stores the resulting colors in FSL, so conversion is not
+a runtime dependency. The renderer's shared shading gives them matching tonal
+headers and subtle depth. Bright signal lamps remain small accents.
+
+Off uses a rounded card, a power icon, and muted blue-gray `#626b7c`
+(HPLuv 250, 45, 45) with white text. This keeps the card shape consistent and
+avoids the stop-sign association of an octagon. The dashed outline remains.
+These are example styling choices: the provider continues to respect explicit
+FSL colors and shapes, including octagons.
+
 ## Emoji and icon libraries
 
 Use an emoji in the same slot:
