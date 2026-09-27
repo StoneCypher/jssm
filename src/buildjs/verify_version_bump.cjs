@@ -3,54 +3,55 @@ const { execSync }     = require('child_process'),
       { readFileSync } = require('fs'),
       semver           = require('semver');
 
-const pkg              = readFileSync('./package.json'),
-      pJson            = JSON.parse(pkg),
-      priv_version     = pJson.version;
-
-const public_version   = `${execSync('npm view jssm version')}`.trim(),
-      last_commit_msg  = `${execSync('git show -s --format=%s')}`.trim().replace(/[^0-9a-z _\-=]/gi, '');
 
 
+/**
+ * Decides whether the local package version is a valid bump over the published one.
+ *
+ * CI runs this on every push, and every push to `main` is a release, so a
+ * version that is not strictly greater than npm's would republish or regress.
+ * The check is read-only: the release tag is created later by
+ * `gh release create` in the `release` job, never here.
+ * @param local_version - the version in this checkout's package.json
+ * @param public_version - the version npm currently serves for jssm
+ * @returns `ok` is true only for a strict semver increase; `message` explains the verdict
+ * @example
+ * check_version_bump('5.164.1', '5.164.0');
+ * // { ok: true, message: 'Version is updated; passing ☑\n  (public 5.164.0, private 5.164.1)' }
+ * @example
+ * check_version_bump('5.164.0', '5.164.0');
+ * // { ok: false, message: 'Version unchanged: locally 5.164.0, publicly also 5.164.0' }
+ */
+function check_version_bump(local_version, public_version) {
 
-if (semver.valid(public_version)) {
-  if (semver.valid(priv_version)) {
-    if (semver.gt(public_version, priv_version)) {
-      console.log(`Version regression: locally ${priv_version}, publicly ${public_version}`);
-    } else {
-      if (semver.gt(priv_version, public_version)) {
+  if (!semver.valid(public_version)) { return { ok: false, message: `Invalid public version ${public_version}` }; }
+  if (!semver.valid(local_version))  { return { ok: false, message: `Invalid private version ${local_version}` }; }
 
-        try {
+  if (semver.gt(public_version, local_version)) {
+    return { ok: false, message: `Version regression: locally ${local_version}, publicly ${public_version}` };
+  }
 
-          console.log(`Version is updated; passing ☑\n  (public ${public_version}, private ${priv_version})\n\nApplying tags`);
-          execSync(`git tag -a v${priv_version} -m ${JSON.stringify(last_commit_msg)}`);
-          process.exit(0);
+  if (semver.gt(local_version, public_version)) {
+    return { ok: true, message: `Version is updated; passing ☑\n  (public ${public_version}, private ${local_version})` };
+  }
 
-        } catch (e) {
+  return { ok: false, message: `Version unchanged: locally ${local_version}, publicly also ${public_version}` };
 
-          console.log("Error!\n=====\n");
-
-          console.log( e.stdout.toString() );
-
-          console.log("\n-----\n");
-          console.log( e.stderr.toString() );
-
-          console.log("\n-----\n");
-
-          console.log( require('util').inspect(e) );
-
-          console.log("\n=====\n");
-
-        }
-
-
-      } else {
-        console.log(`Version unchanged: locally ${priv_version}, publicly also ${public_version}`);
-    } }
-  } else {
-    console.log(`Invalid private version ${priv_version}`);
-} } else {
-  console.log(`Invalid public version ${public_version}`);
 }
 
-// valid exit manually controls as 0; anything getting here was in error
-process.exit(1);
+
+
+if (require.main === module) {
+
+  const local_version  = JSON.parse(readFileSync('./package.json')).version,
+        public_version = `${execSync('npm view jssm version')}`.trim(),
+        { ok, message } = check_version_bump(local_version, public_version);
+
+  console.log(message);
+  process.exit(ok ? 0 : 1);
+
+}
+
+
+
+module.exports = { check_version_bump };
