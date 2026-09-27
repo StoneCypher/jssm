@@ -323,9 +323,7 @@ describe('build_shootout: renderGenerated', () => {
  * The example's `export const` is stripped so the body can run inside a
  * function with `sm` in scope; everything else runs verbatim, so a wrong
  * variable name, a missing hook method, or FSL that fails to parse all throw.
- *
  * @param machine - the comparables machine slug, e.g. `'traffic-light'`
- *
  * @example
  * const light = await runJssmExample('traffic-light');
  * light.action('next');   // red -> green
@@ -341,7 +339,7 @@ async function runJssmExample(machine: string): Promise<any> {
 describe('build_shootout: the jssm examples are correct as published', () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
 
-  beforeEach(() => { logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined); });
+  beforeEach(() => { logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}); });
   afterEach(()  => { logSpy.mockRestore(); });
 
   const logged = () => logSpy.mock.calls.map(c => c[0]);
