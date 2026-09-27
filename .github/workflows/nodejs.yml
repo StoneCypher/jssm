@@ -768,8 +768,6 @@ jobs:
     - name: Verify the version was bumped
       run: |
         npm install semver --no-save --no-audit --no-fund
-        git config --global user.email "stonecypher@users.noreply.github.com"
-        git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.cjs
 
 
@@ -793,7 +791,7 @@ jobs:
     # package settings page matching org=StoneCypher, repo=jssm,
     # workflow=nodejs.yml.
     permissions:
-      contents: write   # for actions/checkout, git push --tags, and create-release
+      contents: write   # for actions/checkout and create-release (which creates the tag)
       id-token: write   # for OIDC token issuance to npm
 
     steps:
@@ -811,9 +809,6 @@ jobs:
         node-version: 24.x
         cache: npm
         registry-url: https://registry.npmjs.org/
-
-    - name: Push tags
-      run: git push origin --tags
 
     - name: Create or update the release
       env:
