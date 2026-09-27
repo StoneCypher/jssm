@@ -325,37 +325,22 @@ TCP/IP, essentially the foundation of the internet, is fundamentally defined as
 a state machine and currently codified on
 [page 22 of RFC793](https://datatracker.ietf.org/doc/html/rfc793).
 
-A TCP/IP socket both starts and ends in `Closed`.
+A TCP/IP socket both starts and ends in `Closed`.  Each chain below is one
+scenario from the protocol; the client's lifecycle, active open through active
+close, is marked as the main path with `=>`.
 
 ```fsl
-Closed 'Passive open'      -> Listen;
-Closed 'Active Open / SYN' -> SynSent;
+Closed 'Passive open' -> Listen 'SYN / SYN+ACK' -> SynRcvd 'ACK' -> Established 'FIN / ACK' -> CloseWait 'Close / FIN' -> LastAck 'ACK' -> Closed;  // passive open, passive close
+Closed 'Active Open / SYN' => SynSent 'SYN+ACK / ACK' => Established 'Close / FIN' => FinWait1 'ACK / Nothing' => FinWait2 'FIN / ACK' => TimeWait 'Up to 2*MSL' => Closed;  // active open, active close (main path)
 
-Listen 'Close'         -> Closed;
-Listen 'Send / SYN'    -> SynSent;
-Listen 'SYN / SYN+ACK' -> SynRcvd;
+FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait;  // simultaneous close
+FinWait1 'FIN+ACK / ACK' -> TimeWait;  // peer's FIN and ACK arrive together
 
-SynSent 'Close'         -> Closed;
-SynSent 'SYN / SYN+ACK' -> SynRcvd;
-SynSent 'SYN+ACK / ACK' -> Established;
+Listen 'Send / SYN' -> SynSent 'SYN / SYN+ACK' -> SynRcvd;  // listener sends first; simultaneous open
+SynRcvd 'Close / FIN' -> FinWait1;  // close during the handshake
+SynRcvd 'Timeout / RST' -> Closed;  // handshake times out
 
-SynRcvd 'Timeout / RST' -> Closed;
-SynRcvd 'Close / FIN'   -> FinWait1;
-SynRcvd 'ACK'           -> Established;
-
-Established 'Close / FIN' -> FinWait1;
-Established 'FIN / ACK'   -> CloseWait;
-
-FinWait1 'FIN / ACK'     -> Closing;
-FinWait1 'FIN+ACK / ACK' -> TimeWait;
-FinWait1 'ACK / Nothing' -> FinWait2;
-
-FinWait2  'FIN / ACK'   -> TimeWait;
-Closing   'ACK'         -> TimeWait;
-TimeWait  'Up to 2*MSL' -> Closed;
-CloseWait 'Close / FIN' -> LastAck;
-
-LastAck 'ACK' -> Closed;
+[Listen SynSent] 'Close' -> Closed;  // abandon before connecting
 ```
 
 If you want to play golf, you can get that down to seven lines using lists and
@@ -364,7 +349,7 @@ chaining:
 ```fsl
 Closed 'Passive open' -> Listen 'Send / SYN' -> SynSent;
 [Listen SynSent] 'Close' -> Closed 'Active Open / SYN' -> SynSent 'SYN+ACK / ACK' -> Established 'FIN / ACK' -> CloseWait 'Close / FIN' -> LastAck 'ACK' -> Closed;
-[SynRcvd Established] 'Close / FIN' -> FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait
+[SynRcvd Established] 'Close / FIN' -> FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait;
 [Listen SynSent] 'SYN / SYN+ACK' -> SynRcvd 'Timeout / RST' -> Closed;
 FinWait1 'FIN+ACK / ACK' -> TimeWait 'Up to 2*MSL' -> Closed;
 FinWait1 'ACK / Nothing' -> FinWait2 'FIN / ACK' -> TimeWait;
