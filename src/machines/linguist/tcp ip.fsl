@@ -15,7 +15,7 @@ graph_layout      : dot;
 // http://www.cs.odu.edu/~cs779/spring17/lectures/architecture_files/image009.jpg
 
 Closed 'Passive open' -> Listen 'SYN / SYN+ACK' -> SynRcvd 'ACK' -> Established 'FIN / ACK' -> CloseWait 'Close / FIN' -> LastAck 'ACK' -> Closed;  // passive open, passive close
-Closed 'Active Open / SYN' -> SynSent 'SYN+ACK / ACK' -> Established 'Close / FIN' -> FinWait1 'ACK / Nothing' -> FinWait2 'FIN / ACK' -> TimeWait 'Up to 2*MSL' -> Closed;  // active open, active close
+Closed 'Active Open / SYN' => SynSent 'SYN+ACK / ACK' => Established 'Close / FIN' => FinWait1 'ACK / Nothing' => FinWait2 'FIN / ACK' => TimeWait 'Up to 2*MSL' => Closed;  // active open, active close (main path)
 
 FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait;  // simultaneous close
 FinWait1 'FIN+ACK / ACK' -> TimeWait;  // peer's FIN and ACK arrive together
