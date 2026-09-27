@@ -4,7 +4,7 @@ export interface RasterOptions {
     scale?: number;
     quality?: number;
 }
-type RasterTarget = 'png' | 'jpeg';
+export type RasterTarget = 'png' | 'jpeg';
 /**
  * Rasterize an SVG string to PNG or JPEG bytes.
  *
@@ -52,4 +52,3 @@ export interface RgbaRaster {
  *   const { rgba, width, height } = await rasterizeRgba(svgString, { scale: 100 });
  */
 export declare function rasterizeRgba(svg: string, opts?: RasterOptions): Promise<RgbaRaster>;
-export {};
