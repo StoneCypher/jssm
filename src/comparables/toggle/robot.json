@@ -13,6 +13,6 @@
     "url": "https://thisrobot.life/api/action.html",
     "note": "Robot did not have a toggle example. I made this, following this unrelated machine as a style guide."
   },
-  "code": "const toggleMachine = createMachine(\n  {\n    inactive: state(\n      transition(\n        \"toggle\",\n        \"active\"\n      )\n    ),\n    active: state(\n      transition(\n        \"toggle\",\n        \"inactive\"\n      )\n    ),\n  },\n  () => true\n);",
+  "code": "export const toggleMachine = createMachine({\n  inactive: state(transition(\"toggle\", \"active\")),\n  active: state(transition(\"toggle\", \"inactive\")),\n});",
   "formattedWith": "prettier"
 }

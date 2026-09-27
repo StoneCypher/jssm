@@ -13,6 +13,6 @@
   "source": {
     "note": "Exported and consted."
   },
-  "code": "export const toggleMachine = new StateMachine({\n  init: \"inactive\",\n  transitions: [\n    { name: \"toggle\", from: \"inactive\", to: \"active\" },\n    { name: \"toggle\", from: \"active\", to: \"inactive\" },\n  ]\n});",
+  "code": "export const toggleMachine = new StateMachine({\n  init: \"inactive\",\n  transitions: [\n    { name: \"toggle\", from: \"inactive\", to: \"active\" },\n    { name: \"toggle\", from: \"active\", to: \"inactive\" },\n  ],\n});",
   "formattedWith": "prettier"
 }

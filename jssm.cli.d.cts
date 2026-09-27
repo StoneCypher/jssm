@@ -13,7 +13,7 @@ declare const RENDER_TARGETS: readonly ["svg", "dot", "png", "jpeg", "html", "gi
  * A render target the CLI and library can produce.  Derived from
  * {@link RENDER_TARGETS} so the type can never drift from the runtime enum.
  */
-declare type RenderTarget = typeof RENDER_TARGETS[number];
+type RenderTarget = typeof RENDER_TARGETS[number];
 /**
  * Options accepted by `render()` and `renderSet()`.
  *
@@ -52,7 +52,7 @@ interface RasterResult {
     kind: 'raster';
     buffer: Uint8Array;
 }
-declare type RenderResult = TextResult | RasterResult;
+type RenderResult = TextResult | RasterResult;
 /**
  * Base error class for render-time failures.
  */
@@ -107,7 +107,7 @@ interface RenderSetItemErr {
     index: number;
     error: Error;
 }
-declare type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
+type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
 /**
  * Render multiple FSL source strings in parallel, returning one result
  * per input. Errors are captured per-input rather than aborting the whole
@@ -130,7 +130,7 @@ interface RasterOptions {
     scale?: number;
     quality?: number;
 }
-declare type RasterTarget = 'png' | 'jpeg';
+type RasterTarget = 'png' | 'jpeg';
 /**
  * Rasterize an SVG string to PNG or JPEG bytes.
  *
@@ -153,7 +153,7 @@ declare type RasterTarget = 'png' | 'jpeg';
  */
 declare function rasterize(svg: string, target: RasterTarget, opts?: RasterOptions): Promise<Uint8Array>;
 
-declare type FlagType = 'string' | 'number' | 'boolean';
+type FlagType = 'string' | 'number' | 'boolean';
 interface FlagSpec {
     short?: string;
     type?: FlagType;

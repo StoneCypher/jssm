@@ -10,34 +10,18 @@ graph_layout      : dot;
 
 
 
-Closed 'Passive open'      -> Listen;
-Closed 'Active Open / SYN' -> SynSent;
+// The source diagram has the FinWait1 -> Closing and FinWait1 -> FinWait2
+// actions wrong; corrected here, see
+// http://www.cs.odu.edu/~cs779/spring17/lectures/architecture_files/image009.jpg
 
-Listen 'Close'         -> Closed;
-Listen 'Send / SYN'    -> SynSent;
-Listen 'SYN / SYN+ACK' -> SynRcvd;
+Closed 'Passive open' -> Listen 'SYN / SYN+ACK' -> SynRcvd 'ACK' -> Established 'FIN / ACK' -> CloseWait 'Close / FIN' -> LastAck 'ACK' -> Closed;  // passive open, passive close
+Closed 'Active Open / SYN' => SynSent 'SYN+ACK / ACK' => Established 'Close / FIN' => FinWait1 'ACK / Nothing' => FinWait2 'FIN / ACK' => TimeWait 'Up to 2*MSL' => Closed;  // active open, active close (main path)
 
-SynSent 'Close'         -> Closed;
-SynSent 'SYN / SYN+ACK' -> SynRcvd;
-SynSent 'SYN+ACK / ACK' -> Established;
+FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait;  // simultaneous close
+FinWait1 'FIN+ACK / ACK' -> TimeWait;  // peer's FIN and ACK arrive together
 
-SynRcvd 'Timeout / RST' -> Closed;
-SynRcvd 'Close / FIN'   -> FinWait1;
-SynRcvd 'ACK'           -> Established;
+Listen 'Send / SYN' -> SynSent 'SYN / SYN+ACK' -> SynRcvd;  // listener sends first; simultaneous open
+SynRcvd 'Close / FIN' -> FinWait1;  // close during the handshake
+SynRcvd 'Timeout / RST' -> Closed;  // handshake times out
 
-Established 'Close / FIN' -> FinWait1;
-Established 'FIN / ACK'   -> CloseWait;
-
-FinWait1 'FIN / ACK'     -> Closing;  // the source diagram has this action wrong
-FinWait1 'FIN+ACK / ACK' -> TimeWait;
-FinWait1 'ACK / Nothing' -> FinWait2; // this too, see http://www.cs.odu.edu/~cs779/spring17/lectures/architecture_files/image009.jpg
-
-FinWait2 'FIN / ACK' -> TimeWait;
-
-Closing 'ACK' -> TimeWait;
-
-TimeWait 'Up to 2*MSL' -> Closed;
-
-CloseWait 'Close / FIN' -> LastAck;
-
-LastAck 'ACK' -> Closed;
+[Listen SynSent] 'Close' -> Closed;  // abandon before connecting

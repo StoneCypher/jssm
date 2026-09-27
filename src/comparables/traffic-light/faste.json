@@ -7,12 +7,12 @@
   },
   "machine": "traffic-light",
   "language": "javascript",
-  "official": false,
+  "official": true,
   "canImplement": true,
   "source": {
     "url": "https://www.npmjs.com/package/faste#example",
-    "note": "Taken from the readme. Only change was to rename and export the variable."
+    "note": "Taken from the readme. Renamed and exported the variable; added the red light hook with the `@enter` phase event."
   },
-  "code": "export const trafficLight = faste()\n  .withPhases([\"red\", \"yellow\", \"green\"])\n  .withTransitions({\n    green: [\"yellow\"],\n    yellow: [\"red\"],\n    red: [\"green\"],\n  })\n  .withMessages([\"switch\"])\n  .on(\"switch\", [\"red\"], ({ transitTo }) => transitTo(\"green\"))\n  .on(\"switch\", [\"green\"], ({ transitTo }) => transitTo(\"yellow\"))\n  .on(\"switch\", [\"yellow\"], ({ transitTo }) => {\n    console.log(\"Red light!\");\n    transitTo(\"red\");\n  });",
+  "code": "export const trafficLight = faste()\n  .withPhases([\"red\", \"yellow\", \"green\"])\n  .withTransitions({\n    green: [\"yellow\"],\n    yellow: [\"red\"],\n    red: [\"green\"],\n  })\n  .withMessages([\"switch\"])\n  .on(\"switch\", [\"green\"], ({ transitTo }) => transitTo(\"yellow\"))\n  .on(\"switch\", [\"yellow\"], ({ transitTo }) => transitTo(\"red\"))\n  .on(\"switch\", [\"red\"], ({ transitTo }) => transitTo(\"green\"))\n  .on(\"@enter\", [\"red\"], () => console.log(\"Red light!\"));",
   "formattedWith": "prettier"
 }
