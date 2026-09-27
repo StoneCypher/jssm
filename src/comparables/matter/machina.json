@@ -8,11 +8,11 @@
   "machine": "matter",
   "language": "javascript",
   "official": false,
-  "canImplement": false,
+  "canImplement": true,
   "source": {
-    "url": "http://machina-js.org/",
-    "note": "No states of matter example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines. machina does not support on-action hooks and does not pass the previous state in its global enter hook, making it impossible to distinguish condense-from-gas and melt-from-solid transitions for liquid."
+    "url": "https://github.com/ifandelse/machina.js#readme",
+    "note": "No states of matter example was available; wrote from scratch following the readme, using function handlers that log and return the next state."
   },
-  "code": "export const matter = new machina.Fsm({\n  initialState: \"solid\",\n  states: {\n    uninitialized: {\n      \"*\": function () {\n        this.deferUntilTransition();\n        this.transition(\"solid\");\n      },\n    },\n    solid: {\n      _melt: \"liquid\",\n    },\n    liquid: {\n      _freeze: \"solid\",\n      _vaporize: \"gas\",\n    },\n    gas: {\n      _condense: \"liquid\",\n      _onEnter: function () {\n        console.log(\"Red light!\");\n      },\n    },\n  },\n  melt: function () {\n    this.handle(\"_melt\");\n  },\n  freeze: function () {\n    this.handle(\"_freeze\");\n  },\n  vaporize: function () {\n    this.handle(\"_vaporize\");\n  },\n  condense: function () {\n    this.handle(\"_condense\");\n  },\n});",
+  "code": "export const matter = createFsm({\n  id: \"matter\",\n  initialState: \"solid\",\n  states: {\n    solid: {\n      melt() {\n        console.log(\"I melted\");\n        return \"liquid\";\n      },\n    },\n    liquid: {\n      freeze() {\n        console.log(\"I froze\");\n        return \"solid\";\n      },\n      vaporize() {\n        console.log(\"I vaporized\");\n        return \"gas\";\n      },\n    },\n    gas: {\n      condense() {\n        console.log(\"I condensed\");\n        return \"liquid\";\n      },\n    },\n  },\n});",
   "formattedWith": "prettier"
 }
