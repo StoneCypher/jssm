@@ -13,6 +13,6 @@
     "url": "https://thisrobot.life/api/action.html",
     "note": "robot did not have a states of matter example. I made this, following this unrelated machine as a style guide."
   },
-  "code": "export const matter = createMachine({\n  solid: state(\n    transition(\"melt\", \"liquid\", action(() => console.log(\"I melted\"))),\n  ),\n  liquid: state(\n    transition(\"freeze\", \"solid\", action(() => console.log(\"I froze\"))),\n    transition(\"vaporize\", \"gas\", action(() => console.log(\"I vaporized\"))),\n  ),\n  gas: state(\n    transition(\"condense\", \"liquid\", action(() => console.log(\"I condensed\"))),\n  ),\n});",
+  "code": "export const matter = createMachine({\n  solid: state(\n    transition(\n      \"melt\",\n      \"liquid\",\n      action(() => console.log(\"I melted\")),\n    ),\n  ),\n  liquid: state(\n    transition(\n      \"freeze\",\n      \"solid\",\n      action(() => console.log(\"I froze\")),\n    ),\n    transition(\n      \"vaporize\",\n      \"gas\",\n      action(() => console.log(\"I vaporized\")),\n    ),\n  ),\n  gas: state(\n    transition(\n      \"condense\",\n      \"liquid\",\n      action(() => console.log(\"I condensed\")),\n    ),\n  ),\n});",
   "formattedWith": "prettier"
 }
