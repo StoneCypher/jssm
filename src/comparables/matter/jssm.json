@@ -9,6 +9,6 @@
   "language": "javascript",
   "official": true,
   "canImplement": true,
-  "code": "export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas`;\ntrafficLight.hook_global_action('melt', () => console.log('I melted'));\ntrafficLight.hook_global_action('freeze', () => console.log('I froze'));\ntrafficLight.hook_global_action('vaporize', () => console.log('I vaporized'));\ntrafficLight.hook_global_action('condense', () => console.log('I condensed'));",
+  "code": "export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas;`;\nmatter.hook_global_action(\"melt\", () => console.log(\"I melted\"));\nmatter.hook_global_action(\"freeze\", () => console.log(\"I froze\"));\nmatter.hook_global_action(\"vaporize\", () => console.log(\"I vaporized\"));\nmatter.hook_global_action(\"condense\", () => console.log(\"I condensed\"));",
   "formattedWith": "prettier"
 }

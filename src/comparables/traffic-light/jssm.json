@@ -9,6 +9,6 @@
   "language": "javascript",
   "official": true,
   "canImplement": true,
-  "code": "export const trafficLight = sm`red 'next' => green 'next' => yellow 'next' => red;`;\ntrafficLight.hook_global_action(\"next\", () => console.log(\"Red light!\"));",
+  "code": "export const trafficLight = sm`red 'next' => green 'next' => yellow 'next' => red;`;\ntrafficLight.hook_entry(\"red\", () => console.log(\"Red light!\"));",
   "formattedWith": "prettier"
 }

@@ -11,8 +11,8 @@
   "canImplement": true,
   "source": {
     "url": "https://github.com/fschaefer/Stately.js#examples",
-    "note": "stately did not have a traffic light example. I made this, following this unrelated machine as a style guide."
+    "note": "stately did not have a traffic light example. I made this from the readme, using its per-state onEnter hook."
   },
-  "code": "export const matter = Stately.machine({\n  red: {\n    onEnter: () => console.log(\"Red light!\"),\n    next: () => {\n      return this.green;\n    },\n  },\n  green: {\n    next: () => {\n      return this.yellow;\n    },\n  },\n  gas: {\n    next: () => {\n      return this.red;\n    },\n  },\n});",
+  "code": "export const trafficLight = Stately.machine({\n  red: {\n    onEnter: () => console.log(\"Red light!\"),\n    next: () => \"green\",\n  },\n  green: {\n    next: () => \"yellow\",\n  },\n  yellow: {\n    next: () => \"red\",\n  },\n});",
   "formattedWith": "prettier"
 }

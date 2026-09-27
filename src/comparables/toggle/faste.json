@@ -11,8 +11,8 @@
   "canImplement": true,
   "source": {
     "url": "https://www.npmjs.com/package/faste#using-different-handlers-in-different-states",
-    "note": "Taken from the readme. Renamed, bound, and exported the machine result; changed the labels."
+    "note": "Taken from the readme. Renamed, bound, and exported the machine result; changed the event and phase names to toggle / inactive / active."
   },
-  "code": "export const toggleMachine = faste()\n .on('toggle', 'inactive', ({transitTo}) => transitTo('enabled'))\n .on('toggle', 'active', ({transitTo}) => transitTo('disabled'))",
+  "code": "export const toggleMachine = faste()\n  .on(\"toggle\", \"inactive\", ({ transitTo }) => transitTo(\"active\"))\n  .on(\"toggle\", \"active\", ({ transitTo }) => transitTo(\"inactive\"));",
   "formattedWith": "prettier"
 }

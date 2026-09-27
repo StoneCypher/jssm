@@ -10,9 +10,9 @@
   "official": false,
   "canImplement": true,
   "source": {
-    "url": "http://machina-js.org/",
-    "note": "No toggle machine example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines."
+    "url": "https://github.com/ifandelse/machina.js#readme",
+    "note": "No toggle machine example was available; wrote from scratch following the readme, using its string-shorthand handlers."
   },
-  "code": "export const matter = new machina.Fsm({\n  initialState: \"inactive\",\n  states: {\n    uninitialized: {\n      \"*\": function () {\n        this.deferUntilTransition();\n        this.transition(\"inactive\");\n      },\n    },\n    inactive: {\n      _toggle: \"active\",\n    },\n    active: {\n      _toggle: \"inactive\",\n    },\n  },\n  toggle: function () {\n    this.handle(\"_toggle\");\n  },\n});",
+  "code": "export const toggleMachine = createFsm({\n  id: \"toggle\",\n  initialState: \"inactive\",\n  states: {\n    inactive: {\n      toggle: \"active\",\n    },\n    active: {\n      toggle: \"inactive\",\n    },\n  },\n});",
   "formattedWith": "prettier"
 }

@@ -9,6 +9,6 @@
   "language": "javascript",
   "official": true,
   "canImplement": true,
-  "code": "export const toggleMachine = sm`active 'TOGGLE' <=> 'TOGGLE' inactive;`;",
+  "code": "export const toggleMachine = sm`inactive 'toggle' <=> 'toggle' active;`;",
   "formattedWith": "prettier"
 }

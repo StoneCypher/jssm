@@ -10,9 +10,9 @@
   "official": false,
   "canImplement": true,
   "source": {
-    "url": "https://xstate.js.org/docs/guides/machines.html#options",
-    "note": "There's most of a traffic light between their documentation here and also here (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and it seems to piece together into this"
+    "url": "https://stately.ai/docs/actions#entry-and-exit-actions",
+    "note": "xstate did not have a traffic light example. Written in XState v5, laid out like their official toggle example, with an inline entry action on red."
   },
-  "code": "export const trafficLight = createMachine(\n  {\n    initial: \"green\",\n    states: {\n      green: {\n        on: {\n          next: {\n            target: \"yellow\",\n          },\n        },\n      },\n      yellow: {\n        on: {\n          next: {\n            target: \"red\",\n          },\n        },\n      },\n      red: {\n        entry: \"alertRed\",\n        on: {\n          next: {\n            target: \"green\",\n          },\n        },\n      },\n    },\n  },\n  {\n    actions: {\n      alertGreen: (context, event) => {\n        alert(\"Green!\");\n      },\n    },\n  }\n);",
+  "code": "export const trafficLight = createMachine({\n  initial: \"red\",\n  states: {\n    red: {\n      entry: () => console.log(\"Red light!\"),\n      on: {\n        next: \"green\",\n      },\n    },\n    green: {\n      on: {\n        next: \"yellow\",\n      },\n    },\n    yellow: {\n      on: {\n        next: \"red\",\n      },\n    },\n  },\n});",
   "formattedWith": "prettier"
 }

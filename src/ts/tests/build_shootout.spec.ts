@@ -1,6 +1,8 @@
-import { mkdtemp, mkdir, writeFile, copyFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, copyFile, readFile } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
+
+import { sm } from '../jssm';
 
 async function tmpComparables(perLibraryFiles: Record<string, unknown>): Promise<string> {
   const realRoot = path.resolve(__dirname, '..', '..', 'comparables');
@@ -226,9 +228,10 @@ describe('build_shootout: renderQuickTab', () => {
   it('wraps a library with any canImplement:false cell in <fail>', async () => {
     const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
     const md = renderQuickTab(machines, entries);
-    // nanostate and machina both have canImplement:false on their matter entries
+    // nanostate has canImplement:false on its matter entry; machina does not
     expect(md).toMatch(/<fail>nanostate<\/fail>/);
-    expect(md).toMatch(/<fail>machina<\/fail>/);
+    expect(md).not.toMatch(/<fail>machina<\/fail>/);
+    expect(md).toMatch(/\| machina \|/);
   });
 
   it('bolds official-upstream line counts', async () => {
@@ -242,13 +245,13 @@ describe('build_shootout: renderQuickTab', () => {
     const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
     const md = renderQuickTab(machines, entries);
     const jssmIdx       = md.indexOf('| jssm ');
-    const machinaIdx    = md.indexOf('<fail>machina</fail>');
+    const xstateIdx     = md.indexOf('| xstate ');
     const nanostateIdx  = md.indexOf('<fail>nanostate</fail>');
     expect(jssmIdx).toBeGreaterThan(-1);
-    expect(machinaIdx).toBeGreaterThan(-1);
+    expect(xstateIdx).toBeGreaterThan(-1);
     expect(nanostateIdx).toBeGreaterThan(-1);
-    expect(jssmIdx).toBeLessThan(machinaIdx);
-    expect(jssmIdx).toBeLessThan(nanostateIdx);
+    expect(jssmIdx).toBeLessThan(xstateIdx);
+    expect(xstateIdx).toBeLessThan(nanostateIdx);
   });
 });
 
@@ -279,14 +282,14 @@ describe('build_shootout: renderMachineSection', () => {
   it('sorts the per-machine table rows ascending by line count, fails last', async () => {
     const { renderMachineSection } = await import('../../buildjs/build_shootout.mjs');
     const md = renderMachineSection('matter', machines.matter, entries);
-    const jssmTableIdx     = md.indexOf('| jssm |');
-    const machinaTableIdx  = md.indexOf('<fail>machina</fail>');
+    const jssmTableIdx      = md.indexOf('| jssm |');
+    const machinaTableIdx   = md.indexOf('| machina |');
     const nanostateTableIdx = md.indexOf('<fail>nanostate</fail>');
     expect(jssmTableIdx).toBeGreaterThan(-1);
     expect(machinaTableIdx).toBeGreaterThan(-1);
     expect(nanostateTableIdx).toBeGreaterThan(-1);
     expect(jssmTableIdx).toBeLessThan(machinaTableIdx);
-    expect(jssmTableIdx).toBeLessThan(nanostateTableIdx);
+    expect(machinaTableIdx).toBeLessThan(nanostateTableIdx);
   });
 });
 
@@ -311,6 +314,64 @@ describe('build_shootout: renderGenerated', () => {
     expect(toggleIdx).toBeGreaterThan(-1);
     expect(trafficIdx).toBeGreaterThan(toggleIdx);
     expect(matterIdx).toBeGreaterThan(trafficIdx);
+  });
+});
+
+/**
+ * Runs one jssm shootout example as published, returning the machine it exports.
+ *
+ * The example's `export const` is stripped so the body can run inside a
+ * function with `sm` in scope; everything else runs verbatim, so a wrong
+ * variable name, a missing hook method, or FSL that fails to parse all throw.
+ * @param machine - the comparables machine slug, e.g. `'traffic-light'`
+ * @example
+ * const light = await runJssmExample('traffic-light');
+ * light.action('next');   // red -> green
+ */
+async function runJssmExample(machine: string): Promise<any> {
+  const file    = path.resolve(__dirname, '..', '..', 'comparables', machine, 'jssm.json');
+  const { code } = JSON.parse(await readFile(file, 'utf8'));
+  const name    = /export const (\w+)/.exec(code)![1];
+  const body    = code.replaceAll(/^export /gm, '');
+  return new Function('sm', `${body}\nreturn ${name};`)(sm);
+}
+
+describe('build_shootout: the jssm examples are correct as published', () => {
+  let logSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => { logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}); });
+  afterEach(()  => { logSpy.mockRestore(); });
+
+  const logged = () => logSpy.mock.calls.map(c => c[0]);
+
+  it('toggle starts inactive and toggles both ways', async () => {
+    const toggle = await runJssmExample('toggle');
+    expect(toggle.state()).toBe('inactive');
+    expect(toggle.action('toggle')).toBe(true);
+    expect(toggle.state()).toBe('active');
+    expect(toggle.action('toggle')).toBe(true);
+    expect(toggle.state()).toBe('inactive');
+  });
+
+  it('traffic light logs "Red light!" only on entering red, once per cycle', async () => {
+    const light = await runJssmExample('traffic-light');
+    expect(light.state()).toBe('red');
+    light.action('next');
+    light.action('next');
+    expect(logged()).toEqual([]);
+    light.action('next');
+    expect(light.state()).toBe('red');
+    expect(logged()).toEqual(['Red light!']);
+  });
+
+  it('states of matter logs the right line for each of the four transitions', async () => {
+    const matter = await runJssmExample('matter');
+    expect(matter.state()).toBe('solid');
+    for (const act of ['melt', 'vaporize', 'condense', 'freeze']) {
+      expect(matter.action(act)).toBe(true);
+    }
+    expect(matter.state()).toBe('solid');
+    expect(logged()).toEqual(['I melted', 'I vaporized', 'I condensed', 'I froze']);
   });
 });
 

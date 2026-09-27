@@ -11,8 +11,8 @@
   "canImplement": true,
   "source": {
     "url": "https://github.com/fschaefer/Stately.js#examples",
-    "note": "Stately did not have a light switch example. I made this, following this unrelated machine as a style guide."
+    "note": "Stately did not have a light switch example. I made this from the readme, whose actions return the next state by name."
   },
-  "code": "export const toggleMachine = Stately.machine({\n  inactive: {\n    toggle: \"active\",\n  },\n  active: {\n    toggle: \"inactive\",\n  },\n});",
+  "code": "export const toggleMachine = Stately.machine({\n  inactive: {\n    toggle: () => \"active\",\n  },\n  active: {\n    toggle: () => \"inactive\",\n  },\n});",
   "formattedWith": "prettier"
 }

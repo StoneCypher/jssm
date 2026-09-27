@@ -15,7 +15,13 @@ one could hook all actions, and print from an object whose property names were
 the state names, to get that down to two lines; this is the expected "natural"
 way to write it, instead.
 
-All code samples are formatted with `prettier` for fairness.
+Code samples are run through `prettier` (3.x, default settings) for fairness,
+except finity, whose fluent chains `prettier` flattens unreadably; finity keeps
+its documentation's indentation.  Each library is written in the most compact
+form its own documentation uses, then formatted, so the line counts are
+`prettier`'s rather than anyone's hand-formatting.  Every competitor example
+has been executed against its library's current npm release and checked to
+behave as its machine's description requires.
 
 Numbers in bold represent official code; numbers not in bold are examples I
 wrote, and despite good faith, may not represent ideal notation.  If the text
@@ -32,15 +38,15 @@ the end.
 | Library | Toggle | Traffic | States | Avg |
 | ---- | ---- | ---- | ---- | ---- |
 | jssm | **[1](#jssm-toggle-machine-1-line)** | **[2](#jssm-traffic-light-2-lines)** | **[5](#jssm-states-of-matter-5-lines)** | 2.67 |
-| state-machine | [5](#created-state-machine-toggle-machine-5-lines) | [8](#created-state-machine-traffic-light-8-lines) | [14](#created-state-machine-states-of-matter-14-lines) | 9 |
-| faste | **[3](#faste-toggle-machine-3-lines)** | [14](#created-faste-traffic-light-14-lines) | [24](#created-faste-states-of-matter-24-lines) | 13.67 |
+| state-machine | [3](#created-state-machine-toggle-machine-3-lines) | [6](#created-state-machine-traffic-light-6-lines) | [14](#created-state-machine-states-of-matter-14-lines) | 7.67 |
+| finity | [7](#created-finity-toggle-machine-7-lines) | [10](#created-finity-traffic-light-10-lines) | [10](#created-finity-states-of-matter-10-lines) | 9 |
+| faste | **[3](#faste-toggle-machine-3-lines)** | **[12](#faste-traffic-light-12-lines)** | [17](#created-faste-states-of-matter-17-lines) | 10.67 |
 | javascript-state-machine | **[7](#javascript-state-machine-toggle-machine-7-lines)** | [13](#created-javascript-state-machine-traffic-light-13-lines) | **[23](#javascript-state-machine-states-of-matter-23-lines)** | 14.33 |
-| finity | [7](#created-finity-toggle-machine-7-lines) | [10](#created-finity-traffic-light-10-lines) | [28](#created-finity-states-of-matter-28-lines) | 15 |
-| stately | [8](#created-stately-toggle-machine-8-lines) | [18](#created-stately-traffic-light-18-lines) | [24](#created-stately-states-of-matter-24-lines) | 16.67 |
-| robot | [17](#created-robot-toggle-machine-17-lines) | [24](#created-robot-traffic-light-24-lines) | [31](#created-robot-states-of-matter-31-lines) | 24 |
-| xstate | **[16](#xstate-toggle-machine-16-lines)** | [36](#created-xstate-traffic-light-36-lines) | [33](#created-xstate-states-of-matter-33-lines) | 28.33 |
+| robot | [4](#created-robot-toggle-machine-4-lines) | [11](#created-robot-traffic-light-11-lines) | [28](#created-robot-states-of-matter-28-lines) | 14.33 |
+| stately | [8](#created-stately-toggle-machine-8-lines) | [12](#created-stately-traffic-light-12-lines) | [24](#created-stately-states-of-matter-24-lines) | 14.67 |
+| machina | [12](#created-machina-toggle-machine-12-lines) | [16](#created-machina-traffic-light-16-lines) | [28](#created-machina-states-of-matter-28-lines) | 18.67 |
+| xstate | **[16](#xstate-toggle-machine-16-lines)** | [21](#created-xstate-traffic-light-21-lines) | [33](#created-xstate-states-of-matter-33-lines) | 23.33 |
 | <fail>nanostate</fail> | [8](#created-nanostate-toggle-machine-8-lines) | **[13](#nanostate-traffic-light-13-lines)** | <fail>[19](#created-nanostate-states-of-matter-19-lines)</fail> | <fail>13.33</fail> |
-| <fail>machina</fail> | [20](#created-machina-toggle-machine-20-lines) | [26](#created-machina-traffic-light-26-lines) | <fail>[36](#created-machina-states-of-matter-36-lines)</fail> | <fail>27.33</fail> |
 
 </span>
 
@@ -54,48 +60,60 @@ In essence, a simple light switch.  Just shows the basics of making states, and 
 | ---- | ---- |
 | jssm | **[1](#jssm-toggle-machine-1-line)** |
 | faste | **[3](#faste-toggle-machine-3-lines)** |
-| state-machine | [5](#created-state-machine-toggle-machine-5-lines) |
+| state-machine | [3](#created-state-machine-toggle-machine-3-lines) |
+| robot | [4](#created-robot-toggle-machine-4-lines) |
 | finity | [7](#created-finity-toggle-machine-7-lines) |
 | javascript-state-machine | **[7](#javascript-state-machine-toggle-machine-7-lines)** |
 | nanostate | [8](#created-nanostate-toggle-machine-8-lines) |
 | stately | [8](#created-stately-toggle-machine-8-lines) |
+| machina | [12](#created-machina-toggle-machine-12-lines) |
 | xstate | **[16](#xstate-toggle-machine-16-lines)** |
-| robot | [17](#created-robot-toggle-machine-17-lines) |
-| machina | [20](#created-machina-toggle-machine-20-lines) |
 
 &nbsp;
 
 ### `jssm` Toggle machine, 1 line
 
 ```javascript
-export const toggleMachine = sm`active 'TOGGLE' <=> 'TOGGLE' inactive;`;
+export const toggleMachine = sm`inactive 'toggle' <=> 'toggle' active;`;
 ```
 
 &nbsp;
 
 ### `faste` Toggle machine, 3 lines
 
-Taken from the readme. Renamed, bound, and exported the machine result; changed the labels.
+Taken from the readme. Renamed, bound, and exported the machine result; changed the event and phase names to toggle / inactive / active.
 Source: <https://www.npmjs.com/package/faste#using-different-handlers-in-different-states>
 
 ```javascript
 export const toggleMachine = faste()
- .on('toggle', 'inactive', ({transitTo}) => transitTo('enabled'))
- .on('toggle', 'active', ({transitTo}) => transitTo('disabled'))
+  .on("toggle", "inactive", ({ transitTo }) => transitTo("active"))
+  .on("toggle", "active", ({ transitTo }) => transitTo("inactive"));
 ```
 
 &nbsp;
 
-### (created) `state-machine` Toggle machine, 5 lines
+### (created) `state-machine` Toggle machine, 3 lines
 
 No toggle machine was available; wrote from scratch and used the docs for usage guidelines.
 Source: <https://github.com/davestewart/javascript-state-machine/blob/d390627b384b30605b5ee90a70bae713e8b09002/docs/main/usage.md>
 
 ```javascript
-var toggleMachine = new StateMachine({
-  transitions: [
-    'toggle : inactive > active > inactive'
-  ]
+export const toggleMachine = new StateMachine({
+  transitions: ["toggle : inactive > active > inactive"],
+});
+```
+
+&nbsp;
+
+### (created) `robot` Toggle machine, 4 lines
+
+Robot did not have a toggle example. I made this, following this unrelated machine as a style guide.
+Source: <https://thisrobot.life/api/action.html>
+
+```javascript
+export const toggleMachine = createMachine({
+  inactive: state(transition("toggle", "active")),
+  active: state(transition("toggle", "inactive")),
 });
 ```
 
@@ -128,7 +146,7 @@ export const toggleMachine = new StateMachine({
   transitions: [
     { name: "toggle", from: "inactive", to: "active" },
     { name: "toggle", from: "active", to: "inactive" },
-  ]
+  ],
 });
 ```
 
@@ -136,7 +154,7 @@ export const toggleMachine = new StateMachine({
 
 ### (created) `nanostate` Toggle machine, 8 lines
 
-Robot did not have a toggle example.  I made this, following this unrelated machine as a style guide.
+nanostate did not have a toggle example. I made this, following this unrelated machine as a style guide.
 Source: <https://github.com/choojs/nanostate/blob/master/README.md>
 
 ```javascript
@@ -154,16 +172,38 @@ export const toggleMachine = nanostate("inactive", {
 
 ### (created) `stately` Toggle machine, 8 lines
 
-Stately did not have a light switch example. I made this, following this unrelated machine as a style guide.
+Stately did not have a light switch example. I made this from the readme, whose actions return the next state by name.
 Source: <https://github.com/fschaefer/Stately.js#examples>
 
 ```javascript
 export const toggleMachine = Stately.machine({
   inactive: {
-    toggle: "active",
+    toggle: () => "active",
   },
   active: {
-    toggle: "inactive",
+    toggle: () => "inactive",
+  },
+});
+```
+
+&nbsp;
+
+### (created) `machina` Toggle machine, 12 lines
+
+No toggle machine example was available; wrote from scratch following the readme, using its string-shorthand handlers.
+Source: <https://github.com/ifandelse/machina.js#readme>
+
+```javascript
+export const toggleMachine = createFsm({
+  id: "toggle",
+  initialState: "inactive",
+  states: {
+    inactive: {
+      toggle: "active",
+    },
+    active: {
+      toggle: "inactive",
+    },
   },
 });
 ```
@@ -196,63 +236,6 @@ export const toggleMachine = createMachine({
 
 &nbsp;
 
-### (created) `robot` Toggle machine, 17 lines
-
-Robot did not have a toggle example. I made this, following this unrelated machine as a style guide.
-Source: <https://thisrobot.life/api/action.html>
-
-```javascript
-const toggleMachine = createMachine(
-  {
-    inactive: state(
-      transition(
-        "toggle",
-        "active"
-      )
-    ),
-    active: state(
-      transition(
-        "toggle",
-        "inactive"
-      )
-    ),
-  },
-  () => true
-);
-```
-
-&nbsp;
-
-### (created) `machina` Toggle machine, 20 lines
-
-No toggle machine example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines.
-Source: <http://machina-js.org/>
-
-```javascript
-export const matter = new machina.Fsm({
-  initialState: "inactive",
-  states: {
-    uninitialized: {
-      "*": function () {
-        this.deferUntilTransition();
-        this.transition("inactive");
-      },
-    },
-    inactive: {
-      _toggle: "active",
-    },
-    active: {
-      _toggle: "inactive",
-    },
-  },
-  toggle: function () {
-    this.handle("_toggle");
-  },
-});
-```
-
-&nbsp;
-
 ## Traffic light
 
 Three state, no `off`, no `flashing red`.  Emit a console log of `'Red light!'` whenever the red state is entered.
@@ -262,15 +245,15 @@ Shows the basics, as well as putting a hook on a state (or a node in some system
 | lib | length |
 | ---- | ---- |
 | jssm | **[2](#jssm-traffic-light-2-lines)** |
-| state-machine | [8](#created-state-machine-traffic-light-8-lines) |
+| state-machine | [6](#created-state-machine-traffic-light-6-lines) |
 | finity | [10](#created-finity-traffic-light-10-lines) |
+| robot | [11](#created-robot-traffic-light-11-lines) |
+| faste | **[12](#faste-traffic-light-12-lines)** |
+| stately | [12](#created-stately-traffic-light-12-lines) |
 | javascript-state-machine | [13](#created-javascript-state-machine-traffic-light-13-lines) |
 | nanostate | **[13](#nanostate-traffic-light-13-lines)** |
-| faste | [14](#created-faste-traffic-light-14-lines) |
-| stately | [18](#created-stately-traffic-light-18-lines) |
-| robot | [24](#created-robot-traffic-light-24-lines) |
-| machina | [26](#created-machina-traffic-light-26-lines) |
-| xstate | [36](#created-xstate-traffic-light-36-lines) |
+| machina | [16](#created-machina-traffic-light-16-lines) |
+| xstate | [21](#created-xstate-traffic-light-21-lines) |
 
 &nbsp;
 
@@ -278,24 +261,22 @@ Shows the basics, as well as putting a hook on a state (or a node in some system
 
 ```javascript
 export const trafficLight = sm`red 'next' => green 'next' => yellow 'next' => red;`;
-trafficLight.hook_global_action("next", () => console.log("Red light!"));
+trafficLight.hook_entry("red", () => console.log("Red light!"));
 ```
 
 &nbsp;
 
-### (created) `state-machine` Traffic light, 8 lines
+### (created) `state-machine` Traffic light, 6 lines
 
 No traffic light was available; wrote from scratch and used the docs for usage guidelines.
 Source: <https://github.com/davestewart/javascript-state-machine/blob/d390627b384b30605b5ee90a70bae713e8b09002/docs/main/usage.md>
 
 ```javascript
 export const trafficLight = new StateMachine({
-  transitions: [
-    'next : red > green > yellow > red'
-  ],
+  transitions: ["next : red > green > yellow > red"],
   handlers: {
-    'red' : () => console.log('Red light!')
-  }
+    red: () => console.log("Red light!"),
+  },
 });
 ```
 
@@ -307,7 +288,7 @@ finity did not have a traffic light example. I made this, following this unrelat
 Source: <https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js>
 
 ```javascript
-const matter = Finity
+export const trafficLight = Finity
   .configure()
     .initialState('red')
       .onEnter(() => console.log('Red light!'))
@@ -321,12 +302,77 @@ const matter = Finity
 
 &nbsp;
 
+### (created) `robot` Traffic light, 11 lines
+
+Robot did not have a traffic light example. I made this, following this unrelated machine as a style guide. Robot does not appear to support hooks on nodes, so we've faked it with hooks on transitions.
+Source: <https://thisrobot.life/api/action.html>
+
+```javascript
+export const trafficLight = createMachine({
+  red: state(transition("next", "green")),
+  green: state(transition("next", "yellow")),
+  yellow: state(
+    transition(
+      "next",
+      "red",
+      action(() => console.log("Red light!")),
+    ),
+  ),
+});
+```
+
+&nbsp;
+
+### `faste` Traffic light, 12 lines
+
+Taken from the readme. Renamed and exported the variable; added the red light hook with the `@enter` phase event.
+Source: <https://www.npmjs.com/package/faste#example>
+
+```javascript
+export const trafficLight = faste()
+  .withPhases(["red", "yellow", "green"])
+  .withTransitions({
+    green: ["yellow"],
+    yellow: ["red"],
+    red: ["green"],
+  })
+  .withMessages(["switch"])
+  .on("switch", ["green"], ({ transitTo }) => transitTo("yellow"))
+  .on("switch", ["yellow"], ({ transitTo }) => transitTo("red"))
+  .on("switch", ["red"], ({ transitTo }) => transitTo("green"))
+  .on("@enter", ["red"], () => console.log("Red light!"));
+```
+
+&nbsp;
+
+### (created) `stately` Traffic light, 12 lines
+
+stately did not have a traffic light example. I made this from the readme, using its per-state onEnter hook.
+Source: <https://github.com/fschaefer/Stately.js#examples>
+
+```javascript
+export const trafficLight = Stately.machine({
+  red: {
+    onEnter: () => console.log("Red light!"),
+    next: () => "green",
+  },
+  green: {
+    next: () => "yellow",
+  },
+  yellow: {
+    next: () => "red",
+  },
+});
+```
+
+&nbsp;
+
 ### (created) `javascript-state-machine` Traffic light, 13 lines
 
 javascript-state-machine did not have a traffic light example. Made from scratch.
 
 ```javascript
-export const matter = new StateMachine({
+export const trafficLight = new StateMachine({
   init: "red",
   transitions: [
     { name: "next", from: "red", to: "green" },
@@ -361,56 +407,30 @@ export const trafficLight = nanostate("red", {
   },
 });
 
-trafficLight.on('red', () => console.log('Red light!'));
+trafficLight.on("red", () => console.log("Red light!"));
 ```
 
 &nbsp;
 
-### (created) `faste` Traffic light, 14 lines
+### (created) `machina` Traffic light, 16 lines
 
-Taken from the readme. Only change was to rename and export the variable.
-Source: <https://www.npmjs.com/package/faste#example>
-
-```javascript
-export const trafficLight = faste()
-  .withPhases(["red", "yellow", "green"])
-  .withTransitions({
-    green: ["yellow"],
-    yellow: ["red"],
-    red: ["green"],
-  })
-  .withMessages(["switch"])
-  .on("switch", ["red"], ({ transitTo }) => transitTo("green"))
-  .on("switch", ["green"], ({ transitTo }) => transitTo("yellow"))
-  .on("switch", ["yellow"], ({ transitTo }) => {
-    console.log("Red light!");
-    transitTo("red");
-  });
-```
-
-&nbsp;
-
-### (created) `stately` Traffic light, 18 lines
-
-stately did not have a traffic light example. I made this, following this unrelated machine as a style guide.
-Source: <https://github.com/fschaefer/Stately.js#examples>
+No traffic light example was available; wrote from scratch following the readme, using its _onEnter lifecycle hook.
+Source: <https://github.com/ifandelse/machina.js#readme>
 
 ```javascript
-export const matter = Stately.machine({
-  red: {
-    onEnter: () => console.log("Red light!"),
-    next: () => {
-      return this.green;
+export const trafficLight = createFsm({
+  id: "traffic-light",
+  initialState: "red",
+  states: {
+    red: {
+      _onEnter: () => console.log("Red light!"),
+      next: "green",
     },
-  },
-  green: {
-    next: () => {
-      return this.yellow;
+    green: {
+      next: "yellow",
     },
-  },
-  gas: {
-    next: () => {
-      return this.red;
+    yellow: {
+      next: "red",
     },
   },
 });
@@ -418,118 +438,33 @@ export const matter = Stately.machine({
 
 &nbsp;
 
-### (created) `robot` Traffic light, 24 lines
+### (created) `xstate` Traffic light, 21 lines
 
-Robot did not have a traffic light example. I made this, following this unrelated machine as a style guide. Robot does not appear to support hooks on nodes, so we've faked it with hooks on transitions.
-Source: <https://thisrobot.life/api/action.html>
-
-```javascript
-export const trafficLight = createMachine(
-  {
-    red: state(
-      transition(
-        "next",
-        "green"
-      )
-    ),
-    green: state(
-      transition(
-        "next",
-        "yellow"
-      )
-    ),
-    yellow: state(
-      transition(
-        "next",
-        "red",
-        action(() => console.log("Red light!"))
-      )
-    ),
-  },
-  () => true
-);
-```
-
-&nbsp;
-
-### (created) `machina` Traffic light, 26 lines
-
-Adapted from the pedestrianSignal example on their landing page.
-Source: <http://machina-js.org/>
+xstate did not have a traffic light example. Written in XState v5, laid out like their official toggle example, with an inline entry action on red.
+Source: <https://stately.ai/docs/actions#entry-and-exit-actions>
 
 ```javascript
-export const trafficLight = new machina.Fsm({
-  initialState: "red",
+export const trafficLight = createMachine({
+  initial: "red",
   states: {
-    uninitialized: {
-      "*": function () {
-        this.deferUntilTransition();
-        this.transition("red");
+    red: {
+      entry: () => console.log("Red light!"),
+      on: {
+        next: "green",
       },
     },
     green: {
-      _next: "yellow",
+      on: {
+        next: "yellow",
+      },
     },
     yellow: {
-      _next: "red",
-    },
-    red: {
-      _next: "green",
-      _onEnter: function () {
-        console.log("Red light!");
+      on: {
+        next: "red",
       },
     },
-  },
-  next: function () {
-    this.handle("_next");
   },
 });
-```
-
-&nbsp;
-
-### (created) `xstate` Traffic light, 36 lines
-
-There's most of a traffic light between their documentation here and also here (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and it seems to piece together into this
-Source: <https://xstate.js.org/docs/guides/machines.html#options>
-
-```javascript
-export const trafficLight = createMachine(
-  {
-    initial: "green",
-    states: {
-      green: {
-        on: {
-          next: {
-            target: "yellow",
-          },
-        },
-      },
-      yellow: {
-        on: {
-          next: {
-            target: "red",
-          },
-        },
-      },
-      red: {
-        entry: "alertRed",
-        on: {
-          next: {
-            target: "green",
-          },
-        },
-      },
-    },
-  },
-  {
-    actions: {
-      alertGreen: (context, event) => {
-        alert("Green!");
-      },
-    },
-  }
-);
 ```
 
 &nbsp;
@@ -543,26 +478,46 @@ In addition to the basics, shows how to put a hook on a transition (or an action
 | lib | length |
 | ---- | ---- |
 | jssm | **[5](#jssm-states-of-matter-5-lines)** |
+| finity | [10](#created-finity-states-of-matter-10-lines) |
 | state-machine | [14](#created-state-machine-states-of-matter-14-lines) |
+| faste | [17](#created-faste-states-of-matter-17-lines) |
 | javascript-state-machine | **[23](#javascript-state-machine-states-of-matter-23-lines)** |
-| faste | [24](#created-faste-states-of-matter-24-lines) |
 | stately | [24](#created-stately-states-of-matter-24-lines) |
-| finity | [28](#created-finity-states-of-matter-28-lines) |
-| robot | [31](#created-robot-states-of-matter-31-lines) |
+| machina | [28](#created-machina-states-of-matter-28-lines) |
+| robot | [28](#created-robot-states-of-matter-28-lines) |
 | xstate | [33](#created-xstate-states-of-matter-33-lines) |
 | <fail>nanostate</fail> | <fail>[19](#created-nanostate-states-of-matter-19-lines)</fail> |
-| <fail>machina</fail> | <fail>[36](#created-machina-states-of-matter-36-lines)</fail> |
 
 &nbsp;
 
 ### `jssm` States of Matter, 5 lines
 
 ```javascript
-export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas`;
-trafficLight.hook_global_action('melt', () => console.log('I melted'));
-trafficLight.hook_global_action('freeze', () => console.log('I froze'));
-trafficLight.hook_global_action('vaporize', () => console.log('I vaporized'));
-trafficLight.hook_global_action('condense', () => console.log('I condensed'));
+export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas;`;
+matter.hook_global_action("melt", () => console.log("I melted"));
+matter.hook_global_action("freeze", () => console.log("I froze"));
+matter.hook_global_action("vaporize", () => console.log("I vaporized"));
+matter.hook_global_action("condense", () => console.log("I condensed"));
+```
+
+&nbsp;
+
+### (created) `finity` States of Matter, 10 lines
+
+finity did not have a states of matter example. I made this from the readme, using its per-transition withAction hook.
+Source: <https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js>
+
+```javascript
+export const matter = Finity
+  .configure()
+    .initialState('solid')
+      .on('melt').transitionTo('liquid').withAction(() => console.log('I melted'))
+    .state('liquid')
+      .on('freeze').transitionTo('solid').withAction(() => console.log('I froze'))
+      .on('vaporize').transitionTo('gas').withAction(() => console.log('I vaporized'))
+    .state('gas')
+      .on('condense').transitionTo('liquid').withAction(() => console.log('I condensed'))
+  .start();
 ```
 
 &nbsp;
@@ -587,6 +542,33 @@ export const matter = new StateMachine({
     "@condense": () => console.log("I condensed"),
   },
 });
+```
+
+&nbsp;
+
+### (created) `faste` States of Matter, 17 lines
+
+faste did not have a states of matter example. I made this, following the readme. withPhases / withTransitions / withMessages are omitted, as in the readme's own toggle example.
+Source: <https://www.npmjs.com/package/faste#example>
+
+```javascript
+export const matter = faste()
+  .on("melt", ["solid"], ({ transitTo }) => {
+    console.log("I melted");
+    transitTo("liquid");
+  })
+  .on("freeze", ["liquid"], ({ transitTo }) => {
+    console.log("I froze");
+    transitTo("solid");
+  })
+  .on("vaporize", ["liquid"], ({ transitTo }) => {
+    console.log("I vaporized");
+    transitTo("gas");
+  })
+  .on("condense", ["gas"], ({ transitTo }) => {
+    console.log("I condensed");
+    transitTo("liquid");
+  });
 ```
 
 &nbsp;
@@ -624,43 +606,9 @@ export const matter = new StateMachine({
 
 &nbsp;
 
-### (created) `faste` States of Matter, 24 lines
-
-faste did not have a states of matter example. I made this, following this unrelated machine as a style guide.
-Source: <https://www.npmjs.com/package/faste#example>
-
-```javascript
-export const matter = faste()
-  .withPhases(["solid", "liquid", "gas"])
-  .withTransitions({
-    solid: ["liquid"],
-    liquid: ["solid", "gas"],
-    gas: ["liquid"],
-  })
-  .withMessages(["melt", "freeze", "vaporize", "condense"])
-  .on("melt", ["solid"], ({ transitTo }) => {
-    console.log("I melted");
-    transitTo("liquid");
-  })
-  .on("freeze", ["liquid"], ({ transitTo }) => {
-    console.log("I froze");
-    transitTo("solid");
-  })
-  .on("vaporize", ["liquid"], ({ transitTo }) => {
-    console.log("I vaporized");
-    transitTo("gas");
-  })
-  .on("condense", ["gas"], ({ transitTo }) => {
-    console.log("I condensed");
-    transitTo("liquid");
-  });
-```
-
-&nbsp;
-
 ### (created) `stately` States of Matter, 24 lines
 
-stately did not have a states of matter example. I made this, following this unrelated machine as a style guide.
+stately did not have a states of matter example. I made this from the readme, whose actions return the next state by name.
 Source: <https://github.com/fschaefer/Stately.js#examples>
 
 ```javascript
@@ -668,23 +616,23 @@ export const matter = Stately.machine({
   solid: {
     melt: () => {
       console.log("I melted");
-      return this.liquid;
+      return "liquid";
     },
   },
   liquid: {
     freeze: () => {
       console.log("I froze");
-      return this.solid;
+      return "solid";
     },
     vaporize: () => {
       console.log("I vaporized");
-      return this.gas;
+      return "gas";
     },
   },
   gas: {
     condense: () => {
       console.log("I condensed");
-      return this.liquid;
+      return "liquid";
     },
   },
 });
@@ -692,88 +640,85 @@ export const matter = Stately.machine({
 
 &nbsp;
 
-### (created) `finity` States of Matter, 28 lines
+### (created) `machina` States of Matter, 28 lines
 
-finity did not have a states of matter example. I made this, following this unrelated machine as a style guide.
-Source: <https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js>
+No states of matter example was available; wrote from scratch following the readme, using function handlers that log and return the next state.
+Source: <https://github.com/ifandelse/machina.js#readme>
 
 ```javascript
-const matter = Finity
-  .configure()
-    .initialState('solid')
-      .on('melt').transitionTo('liquid')
-    .state('liquid')
-      .on('vaporize').transitionTo('gas')
-      .on('freeze').transitionTo('solid')
-    .state('gas')
-      .on('condense').transitionTo('liquid')
-    .global()
-      .onTransition( (fromState, toState) => {
-        switch (fromState) {
-          case 'solid':
-            console.log('I melted');
-            break;
-          case 'liquid':
-            if (toState === solid) {
-              console.log('I froze');
-            } else if (toState === gas) {
-              console.log('I vaporized');
-            }
-            break;
-          case 'gas':
-            console.log('I condensed');
-            break;
-        }
-      })
-  .start();
+export const matter = createFsm({
+  id: "matter",
+  initialState: "solid",
+  states: {
+    solid: {
+      melt() {
+        console.log("I melted");
+        return "liquid";
+      },
+    },
+    liquid: {
+      freeze() {
+        console.log("I froze");
+        return "solid";
+      },
+      vaporize() {
+        console.log("I vaporized");
+        return "gas";
+      },
+    },
+    gas: {
+      condense() {
+        console.log("I condensed");
+        return "liquid";
+      },
+    },
+  },
+});
 ```
 
 &nbsp;
 
-### (created) `robot` States of Matter, 31 lines
+### (created) `robot` States of Matter, 28 lines
 
 robot did not have a states of matter example. I made this, following this unrelated machine as a style guide.
 Source: <https://thisrobot.life/api/action.html>
 
 ```javascript
-const matter = createMachine(
-  {
-    solid: state(
-      transition(
-        "melt",
-        "liquid",
-        action(() => console.log("I melted"))
-      )
+export const matter = createMachine({
+  solid: state(
+    transition(
+      "melt",
+      "liquid",
+      action(() => console.log("I melted")),
     ),
-    liquid: state(
-      transition(
-        "freeze",
-        "solid",
-        action(() => console.log("I froze"))
-      ),
-      transition(
-        "vaporize",
-        "gas",
-        action(() => console.log("I vaporized"))
-      )
+  ),
+  liquid: state(
+    transition(
+      "freeze",
+      "solid",
+      action(() => console.log("I froze")),
     ),
-    gas: state(
-      transition(
-        "condense",
-        "liquid",
-        action(() => console.log("I condensed"))
-      )
+    transition(
+      "vaporize",
+      "gas",
+      action(() => console.log("I vaporized")),
     ),
-  },
-  () => true
-);
+  ),
+  gas: state(
+    transition(
+      "condense",
+      "liquid",
+      action(() => console.log("I condensed")),
+    ),
+  ),
+});
 ```
 
 &nbsp;
 
 ### (created) `xstate` States of Matter, 33 lines
 
-xstate did not have a states of matter example. I made this, following this unrelated machine (https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js) and this one (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and also this one (https://xstate.js.org/docs/guides/events.html#sending-events) as style guides.
+xstate did not have a states of matter example. Written in XState v5, laid out like their official toggle example, with inline transition actions.
 
 ```javascript
 export const matter = createMachine({
@@ -819,7 +764,7 @@ nanostate did not have a states of matter example.  I made this, following this 
 Source: <https://github.com/choojs/nanostate/blob/master/README.md>
 
 ```javascript
-export const trafficLight = nanostate("solid", {
+export const matter = nanostate("solid", {
   solid: {
     melt: "liquid",
   },
@@ -832,58 +777,12 @@ export const trafficLight = nanostate("solid", {
   },
 });
 
-trafficLight.on("solid", () => console.log("I froze"));
-trafficLight.on("gas", () => console.log("I vaporized"));
+matter.on("solid", () => console.log("I froze"));
+matter.on("gas", () => console.log("I vaporized"));
 
-trafficLight.on("liquid", () =>
-  console.log("❌ FAIL: cannot tell if melt or condense")
+matter.on("liquid", () =>
+  console.log("❌ FAIL: cannot tell if melt or condense"),
 );
-```
-
-&nbsp;
-
-### (created) `machina` States of Matter, 36 lines
-
-No states of matter example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines. machina does not support on-action hooks and does not pass the previous state in its global enter hook, making it impossible to distinguish condense-from-gas and melt-from-solid transitions for liquid.
-Source: <http://machina-js.org/>
-
-```javascript
-export const matter = new machina.Fsm({
-  initialState: "solid",
-  states: {
-    uninitialized: {
-      "*": function () {
-        this.deferUntilTransition();
-        this.transition("solid");
-      },
-    },
-    solid: {
-      _melt: "liquid",
-    },
-    liquid: {
-      _freeze: "solid",
-      _vaporize: "gas",
-    },
-    gas: {
-      _condense: "liquid",
-      _onEnter: function () {
-        console.log("Red light!");
-      },
-    },
-  },
-  melt: function () {
-    this.handle("_melt");
-  },
-  freeze: function () {
-    this.handle("_freeze");
-  },
-  vaporize: function () {
-    this.handle("_vaporize");
-  },
-  condense: function () {
-    this.handle("_condense");
-  },
-});
 ```
 
 &nbsp;
