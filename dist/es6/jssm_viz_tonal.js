@@ -85,7 +85,8 @@ function card_label(label, content, columns, text_color, octagon = false) {
             });
         paragraphs.push('<TR><TD ALIGN="LEFT">' + lines.join('<BR ALIGN="LEFT"/>') + '<BR ALIGN="LEFT"/></TD></TR>');
     }
-    const icon = content.icon ? `<TD WIDTH="60" HEIGHT="66" BGCOLOR="${icon_marker}">&#160;</TD>` : '';
+    // Match the icon's left inset: 16pt body padding minus 3pt text-cell padding.
+    const icon = content.icon ? `<TD WIDTH="60" HEIGHT="66" BGCOLOR="${icon_marker}">&#160;</TD><TD WIDTH="13">${font('&#160;', 1)}</TD>` : '';
     const body = paragraphs.length > 0 || content.icon
         ? `<TR><TD ALIGN="LEFT" CELLPADDING="16"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR>${icon}<TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">${paragraphs.join('') || '<TR><TD>&#160;</TD></TR>'}</TABLE></TD></TR></TABLE></TD></TR>`
         : '';
