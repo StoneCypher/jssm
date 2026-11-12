@@ -3,6 +3,10 @@ import * as jssm                 from './jssm.js';
 import { JssmError }              from './jssm_error.js';
 import { default_viz_colors }     from './jssm_viz_colors.js';
 
+import { tonal_provider } from './jssm_viz_tonal.js';
+import type { TonalRenderOptions } from './jssm_viz_tonal.js';
+import type { VizRenderProvider, VizLayoutOverrides } from './jssm_viz_provider.js';
+
 import { membership_distance }    from './jssm_compiler.js';
 
 import type { Viz }               from '@viz-js/viz';
@@ -36,7 +40,7 @@ type RenderGroups = 'cluster' | 'chips' | 'off';
  *  factory: the caller instantiates (and, if needed, awaits) their engine
  *  themselves, then hands over the finished object.  `renderString` receives
  *  the dot source and an options object whose members jssm/viz uses are
- *  `format` (always `'svg'`) and `engine` (a Graphviz layout engine name,
+ *  `format` (`'svg'` for the default provider; `'json'` for tonal) and `engine` (a Graphviz layout engine name,
  *  when the caller of a render function supplied one); it may return the
  *  output string synchronously (like `@viz-js/viz`) or as a promise (like
  *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
@@ -79,7 +83,7 @@ let injected_dom_parser: typeof globalThis.DOMParser | null = null;
 /**
  *  Returns the Graphviz engine the render path should use: the engine
  *  injected via {@link configure}`({ viz })` when one is set (checked
- *  before* the default import, so the `@viz-js/viz` WASM module is never
+ *  before the default import, so the `@viz-js/viz` WASM module is never
  *  even loaded in environments that injected their own); otherwise a cached
  *  `@viz-js/viz` instance, lazily instantiated on first call.  Internal
  *  helper for the rendering functions.
@@ -960,7 +964,7 @@ function colored_label<T>(tr: JssmTransition<string, T> | undefined, which: 'hea
  *  accumulator and O(n) `find` probe.
  *  @internal
  */
-function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>): string {
+function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, layout: VizLayoutOverrides = {}): string {
 
   const strike      = new Set<string>();
   const kind_of     = (s: string): StateKind => state_kinds.get(s) ?? 'base';
@@ -982,7 +986,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
     const maybeLabel  = label ? `taillabel="${doublequote(label)}";` : '';
     const arrowHead   = arrow_for(tr);
     const edgeInline  = `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, tr.kind, '_solo')}"`;
-    return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}];`;
+    return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${cf(s, ex)}${labelInline}${edgeInline}${layout.edge ? `;${layout.edge(tr)}` : ''}];`;
   };
 
   return l_states.map((s) =>
@@ -1000,7 +1004,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
       // edge each way between two distinct states draws as a single `dir=both`
       // edge with head/tail labels.  Parallel edges (#325) or self-loops fall
       // through to one directed line per edge.
-      if (forward.length === 1 && reverse.length === 1) {
+      if (!layout.separate_edges && forward.length === 1 && reverse.length === 1) {
 
         const edge_tr = forward[0];
         const pair_tr = reverse[0];
@@ -1377,7 +1381,11 @@ type VizRenderOpts = {
   hide_state_labels?: boolean,
   footer?: string,
   engine?: string,
-  render_groups?: RenderGroups
+  render_groups?: RenderGroups,
+  /** SVG drawing provider override. When omitted, follows FSL graph_layout (tonal or Graphviz). */
+  provider?: 'graphviz' | 'tonal' | VizRenderProvider,
+  /** Optional annotations and appearance settings for the tonal provider. */
+  tonal?: TonalRenderOptions
 };
 
 
@@ -1515,6 +1523,23 @@ function state_svg_label_texts<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts =
  *  @returns A complete graphviz dot source string.
  */
 function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): string {
+  return layout_dot(u_jssm, opts);
+}
+
+/**
+ *  Builds DOT for a machine, letting a drawing provider add node
+ *  measurements, per-edge attributes and graph statements while keeping the
+ *  FSL groups, arrangements, flow and theme intact.  With no overrides the
+ *  output is exactly {@link machine_to_dot}'s.
+ *  @param u_jssm The machine to render.
+ *  @param opts   Optional render flags.  See {@link VizRenderOpts}.
+ *  @param layout Provider-requested changes.  See {@link VizLayoutOverrides}.
+ *  @returns A complete graphviz dot source string.
+ *  @throws {JssmError} when `layout.nodes` names a state the machine lacks.
+ *  @see VizRenderContext.to_dot
+ *  @internal
+ */
+function layout_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts, layout: VizLayoutOverrides = {}): string {
 
   const l_states     = u_jssm.states();
   const state_index  = slug_states(l_states);
@@ -1523,12 +1548,16 @@ function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): s
   const mode: RenderGroups = opts.render_groups ?? 'cluster';
 
   const nodes    = node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels, mode);
-  const edges    = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
+  const edges    = states_to_edges_string(u_jssm, l_states, state_index, state_kinds, layout);
   const arranges = arranges_for(u_jssm, state_index);
 
   const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
   const preamble = u_jssm.dot_preamble() || '';
-  const footer   = opts?.footer ?? '';
+  const node_overrides = [...(layout.nodes ?? [])].map(([name, attrs]) => {
+    if (!state_index.has(name)) { throw new JssmError(undefined, 'Unknown layout state: ' + name); }
+    return node_of(name, state_index) + ' [' + attrs + '];';
+  }).join('\n');
+  const footer = [opts.footer ?? '', layout.graph ?? '', node_overrides].filter(Boolean).join('\n');
 
   // `transition: {}` → default `edge [ … ]` attrs; `graph: {}` → graph-scope
   // attrs.  The graph background reconciles through the single `bgcolor` slot
@@ -1604,13 +1633,15 @@ async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<s
  *  ```typescript
  *  const svg = await fsl_to_svg_string('a -> b;');
  *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  const svg_tonal = await fsl_to_svg_string('graph_layout: tonal; a -> b;');
  *  ```
+ *  Picks the drawing provider the same way {@link machine_to_svg_string} does.
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
 async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise<string> {
-  return dot_to_svg(fsl_to_dot(fsl, opts), opts);
+  return machine_to_svg_string(jssm.from(fsl), opts);
 }
 
 
@@ -1618,12 +1649,48 @@ async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise
 
 /**
  *  Render a {@link jssm.Machine} to SVG.
+ *
+ *  The drawing provider is `opts.provider` when given; otherwise the
+ *  machine's `graph_layout` decides: `tonal` draws state cards with
+ *  {@link tonal_provider}, anything else draws with Graphviz.  The layout
+ *  engine is `opts.engine`, else the machine's `graph_layout` (`dot` when
+ *  that is `tonal`), so an explicit engine changes geometry without changing
+ *  the appearance the source chose.
+ *
+ *  ```typescript
+ *  const plain = await machine_to_svg_string(sm`a -> b;`);
+ *  const cards = await machine_to_svg_string(sm`a -> b;`, { provider: 'tonal', tonal: { states: { a: { description: 'Start here.' } } } });
+ *  ```
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
+ *  @throws {JssmError} when `opts.provider` is neither a known name nor an
+ *          object with a `render` function.
+ *  @see VizRenderProvider
  */
 async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<string> {
-  return dot_to_svg(machine_to_dot(u_jssm, opts));
+  const layout = u_jssm.graph_layout();
+  const provider = opts.provider ?? (layout === 'tonal' ? 'tonal' : 'graphviz');
+  // Tonal selects a drawing provider; Graphviz still receives a geometry engine.
+  const engine = opts.engine ?? (layout === 'tonal' ? 'dot' : layout);
+  if (provider === 'graphviz') {
+    return dot_to_svg(machine_to_dot(u_jssm, opts), { engine });
+  }
+  const selected = provider === 'tonal' ? tonal_provider : provider;
+  if (typeof selected !== 'object' || selected === null || typeof selected.render !== 'function') {
+    throw new JssmError(undefined, 'Unknown SVG rendering provider: ' + (typeof provider === 'string' ? provider : 'invalid provider object'));
+  }
+  return selected.render({
+    machine: u_jssm,
+    options: opts,
+    state_ids: slug_states(u_jssm.states()),
+    state_labels: state_svg_label_texts(u_jssm, opts),
+    to_dot: overrides => layout_dot(u_jssm, opts, overrides),
+    render_dot: async (source, format) => {
+      const viz = await get_viz();
+      return viz.renderString(source, { format, engine });
+    }
+  });
 }
 
 
@@ -1671,7 +1738,9 @@ async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
 async function fsl_to_svg_element(fsl: string, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
-  return dot_to_svg_element(fsl_to_dot(fsl, opts));
+  const ParserCtor = get_dom_parser();
+  const svg = await fsl_to_svg_string(fsl, opts);
+  return new ParserCtor().parseFromString(svg, 'image/svg+xml').documentElement as unknown as SVGSVGElement;
 }
 
 
@@ -1685,7 +1754,9 @@ async function fsl_to_svg_element(fsl: string, opts: VizRenderOpts = {}): Promis
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
 async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
-  return dot_to_svg_element(machine_to_dot(u_jssm, opts));
+  const ParserCtor = get_dom_parser();
+  const svg = await machine_to_svg_string(u_jssm, opts);
+  return new ParserCtor().parseFromString(svg, 'image/svg+xml').documentElement as unknown as SVGSVGElement;
 }
 
 
@@ -1731,3 +1802,6 @@ export const _test = {
 };
 
 export {version, build_time} from './version.js';
+export { tonal_provider } from './jssm_viz_tonal.js';
+export type { TonalRenderOptions, TonalStateContent, TonalIcon, TonalSvgIcon, TonalIconNode } from './jssm_viz_tonal.js';
+export type { VizRenderProvider, VizRenderContext, VizLayoutOverrides } from './jssm_viz_provider.js';

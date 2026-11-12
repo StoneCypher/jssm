@@ -74,7 +74,7 @@ export const DEPRECATED_KEYWORDS: ReadonlySet<string> = new Set([
  */
 export const ENUM_KEYWORDS: ReadonlySet<string> = new Set([
   'true', 'false', 'none', 'default', 'modern', 'ocean', 'bold',
-  'dot', 'circo', 'fdp', 'neato', 'twopi',
+  'dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal',
   'up', 'right', 'down', 'left',
   'solid', 'dotted', 'dashed',
   'regular', 'rounded', 'lined',

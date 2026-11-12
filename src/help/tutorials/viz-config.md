@@ -25,3 +25,20 @@ Render options shape how a machine like this is drawn without changing the FSL:
 graph_layout : circo;
 a 'go' -> b;
 ```
+
+Select the tonal state-card renderer directly in your source:
+
+```fsl {teaches: viz-config, run: true}
+graph_layout: tonal;
+a 'go' -> b;
+```
+
+This also works in the chart component and CLI exports. JavaScript callers can
+override the source choice with `{ provider: 'tonal' }` or
+`{ provider: 'graphviz' }`. Tonal uses `dot` geometry by default; an explicit
+`engine` option changes the geometry without changing its appearance.
+Optional `tonal.states`
+annotations add descriptions, monospace action names and icons without changing
+the machine. See `examples/tonal-rendering.md` and the runnable
+`examples/tonal-traffic-light.mjs` example. Custom application providers can
+implement the exported `VizRenderProvider` interface.

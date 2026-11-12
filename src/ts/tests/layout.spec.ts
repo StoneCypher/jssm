@@ -12,6 +12,7 @@ describe('graph attributes don\'t throw', () => {
   const machine = sm`graph_layout: circo; a->b->c->d->e->f->a;`;
 
   test('layout is circo', () => expect(machine.graph_layout()).toBe('circo') );
+  test('layout is tonal', () => expect(sm`graph_layout: tonal; a -> b;`.graph_layout()).toBe('tonal') );
 
 });
 

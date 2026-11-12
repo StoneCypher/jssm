@@ -24,6 +24,12 @@ describe('fslCompletions', () => {
       expect.arrayContaining(['up', 'right', 'down', 'left']));
   });
 
+  it('offers tonal alongside Graphviz renderers after graph_layout', () => {
+    const doc = 'graph_layout: ';
+    expect(labels(fslCompletions(doc, doc.length))).toEqual(
+      expect.arrayContaining(['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal']));
+  });
+
   it('offers top-level keys at the start of a line', () => {
     const doc = 'mac';
     expect(labels(fslCompletions(doc, doc.length))).toContain('machine_name');
