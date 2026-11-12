@@ -62,6 +62,7 @@ describe('FSL tokenizer — token classes', () => {
 
   it('classifies enumerated literals as atoms', () => {
     expect(classify('dot')).toBe('atom');
+    expect(classify('tonal')).toBe('atom');
     expect(classify('rounded')).toBe('atom');
   });
 

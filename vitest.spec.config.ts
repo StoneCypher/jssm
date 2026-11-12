@@ -50,6 +50,7 @@ export default defineConfig({
         'src/ts/e2e/**',
         'src/ts/jssm_viz.ts',
         'src/ts/jssm_viz_colors.ts',
+        'src/ts/jssm_viz_tonal.ts', // same renderer exclusion; exercised by SVG integration specs
         'src/ts/fsl_parser.ts',
         'src/ts/fsl_parser.js'
       ],

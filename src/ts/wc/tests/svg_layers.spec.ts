@@ -54,3 +54,9 @@ describe('reorder_svg_layers', () => {
   });
 
 });
+
+
+it('keeps a provider action-label layer above nodes and edges', () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg"><g class="graph"><g class="edge-labels"><text>Next</text></g><g class="node"/><g class="edge"/></g></svg>';
+  expect(childTags(reorder_svg_layers(svg))).toEqual(['g.edge', 'g.node', 'g.edge-labels']);
+});

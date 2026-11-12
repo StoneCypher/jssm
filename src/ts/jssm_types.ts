@@ -123,7 +123,7 @@ type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
  *  rendered diagram; `'dot'` is the default and most useful for state
  *  machines.  See the Graphviz documentation for the differences.
  */
-type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';  // todo add the rest
+type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato' | 'tonal';  // todo add the rest
 
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
