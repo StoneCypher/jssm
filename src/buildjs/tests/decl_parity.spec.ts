@@ -3,6 +3,10 @@
 // name-set differ (no filesystem); the full pair walk is exercised by the
 // "declaration parity gate" CI step against the real built declarations.
 
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, join, posix } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dp = require('../decl_parity.cjs');
 
@@ -85,11 +89,52 @@ describe('diffNameSets', () => {
 
 });
 
+/**
+ * Collects every `types` path declared by the root manifest and each
+ * packages/* manifest (top-level `types` plus every `types` condition inside
+ * `exports`), as repo-root-relative paths, so the gate's pairs can be checked
+ * against what the packages really publish.
+ *
+ * @returns Repo-relative declaration paths, e.g. 'packages/jssm-commonjs/dist/jssm.d.cts'
+ */
+const publishedTypesPaths = (): Set<string> => {
+
+  const root  = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..'),
+        dirs  = ['', ...readdirSync(join(root, 'packages')).map((d: string) => `packages/${d}`)],
+        found = new Set<string>();
+
+  const walk = (dir: string, node: unknown, key?: string): void => {
+    if (typeof node === 'string') {
+      if (key === 'types') { found.add(posix.join(dir, node)); }
+    } else if (node && typeof node === 'object') {
+      for (const [k, v] of Object.entries(node)) { walk(dir, v, k); }
+    }
+  };
+
+  for (const dir of dirs) {
+    const manifest = join(root, dir, 'package.json');
+    if (!existsSync(manifest)) { continue; }
+    const pkg = JSON.parse(readFileSync(manifest, 'utf8'));
+    walk(dir, { types: pkg.types, exports: pkg.exports });
+  }
+
+  return found;
+
+};
+
 describe('gate wiring constants', () => {
 
-  test('all three published declaration twins are gated', () => {
+  test('the published require/import declaration pairs are gated', () => {
     const labels = dp.PAIRS.map((p: [string, string, string]) => p[0]).sort();
-    expect(labels).toEqual(['jssm', 'jssm_cli', 'jssm_viz']);
+    expect(labels).toEqual(['jssm', 'jssm_cli', 'jssm_compat']);
+  });
+
+  test('every gated file is a types target some package publishes', () => {
+    const published = publishedTypesPaths();
+    const unpublished = dp.PAIRS
+      .flatMap((p: [string, string, string]) => [p[1], p[2]])
+      .filter((f: string) => !published.has(f));
+    expect(unpublished).toEqual([]);
   });
 
   test('the allowlist ships empty', () => {

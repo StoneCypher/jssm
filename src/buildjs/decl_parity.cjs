@@ -1,18 +1,21 @@
 /**
- * Declaration-surface parity gate — verifies that each paired root type
- * declaration (the `.d.cts` served to `require`-condition consumers and the
- * `.d.ts` served to `import`-condition consumers) exports the identical name
- * set, so the two module-format type surfaces cannot silently diverge
- * (fsl#1940).  attw passes when each surface is merely self-consistent; only
- * this cross-surface name-set diff catches one fork of a pair dropping an
- * export the other keeps.
+ * Declaration-surface parity gate — verifies that each published CommonJS
+ * type surface (what `require`-condition consumers get) exports the same
+ * name set as its ES module counterpart (what `import`-condition consumers
+ * get), so the two cannot silently diverge (fsl#1940).  attw passes when each
+ * surface is merely self-consistent; only this cross-surface name-set diff
+ * catches one side of a pair dropping an export the other keeps.
  *
- * Checked pairs (all root-level, all published):
- *   jssm.es5.d.cts     <-> jssm.es6.d.ts      (rollup.config.core.js dts build)
- *   jssm_viz.es5.d.cts <-> jssm_viz.es6.d.ts  (rollup.config.viz.js dts build)
- *   jssm.cli.d.cts     <-> jssm.cli.d.ts      (rollup.config.cli.js dts build)
+ * Checked pairs, every file one a package actually publishes:
+ *   packages/jssm-commonjs/dist/jssm.d.cts   <-> jssm.es6.d.ts     (jssm-commonjs vs jssm)
+ *   packages/jssm-commonjs/dist/compat.d.cts <-> jssm.compat.d.ts  (jssm-commonjs/compat vs jssm/compat)
+ *   packages/jssm-cli/dist/lib.d.ts          <-> packages/jssm-cli/dist/lib.d.mts  (jssm-cli require vs import)
  *
- * (`jssm.fence.d.ts` has no CJS twin, so it has nothing to be compared to.)
+ * Until 6.0 this compared root-level `.d.cts` twins (`jssm.es5.d.cts`,
+ * `jssm_viz.es5.d.cts`, `jssm.cli.d.cts`) that no package shipped, so a
+ * green gate said nothing about any published surface; those twins are gone.
+ * jssm-viz and jssm-fence publish one declaration for both conditions, so
+ * they have no pair to compare.
  *
  * Intentional asymmetries, should one ever exist, go in `ALLOWLIST` below,
  * keyed by pair label; it is empty by default and any entry should cite the
@@ -22,9 +25,9 @@
  * asymmetric names remain or a declaration file is missing/unreadable.
  *
  * @example
- * // gate the committed root declarations (the normal build/CI invocation)
+ * // gate the built declarations (the normal build/CI invocation)
  * //   $ node src/buildjs/decl_parity.cjs
- * //   decl_parity: jssm.es5.d.cts <-> jssm.es6.d.ts ok (65 names)
+ * //   decl_parity: .../packages/jssm-commonjs/dist/jssm.d.cts <-> .../jssm.es6.d.ts ok (249 names)
  * //   ...
  *
  * @example
@@ -47,19 +50,20 @@ const { readFileSync } = require('fs'),
 const ROOT = join(__dirname, '..', '..');
 
 /**
- * The paired declaration twins to gate: [label, cjs-flavored file,
- * esm-flavored file], paths relative to repo root.  Every generator that
- * grows a new .d.cts/.d.ts pair should add it here.
+ * The published declaration pairs to gate: [label, require-side file,
+ * import-side file], paths relative to repo root.  Each path is a `types`
+ * target in some package manifest (the spec checks this).  A package that
+ * grows separate require and import declarations should add its pair here.
  */
 const PAIRS = [
-  ['jssm',     'jssm.es5.d.cts',     'jssm.es6.d.ts'    ],
-  ['jssm_viz', 'jssm_viz.es5.d.cts', 'jssm_viz.es6.d.ts'],
-  ['jssm_cli', 'jssm.cli.d.cts',     'jssm.cli.d.ts'    ],
+  ['jssm',        'packages/jssm-commonjs/dist/jssm.d.cts',   'jssm.es6.d.ts'                   ],
+  ['jssm_compat', 'packages/jssm-commonjs/dist/compat.d.cts', 'jssm.compat.d.ts'                ],
+  ['jssm_cli',    'packages/jssm-cli/dist/lib.d.ts',          'packages/jssm-cli/dist/lib.d.mts'],
 ];
 
 /**
  * Intentional per-pair asymmetries, empty by default.  Keyed by pair label
- * (`'jssm'`, `'jssm_viz'`, `'jssm_cli'`); each value is an array of export
+ * (`'jssm'`, `'jssm_compat'`, `'jssm_cli'`); each value is an array of export
  * names ignored in BOTH directions for that pair.  Any entry added here
  * should carry a comment citing the issue that ruled the asymmetry
  * intentional.
@@ -122,8 +126,8 @@ const extractExportNames = (source) => {
  * Diffs two export name-sets after removing allowlisted names, so a pair's
  * intentional asymmetries do not fail the gate.  Pure; the fs never enters.
  *
- * @param {Set<string>} cjs_names - Names exported by the .d.cts side
- * @param {Set<string>} esm_names - Names exported by the .d.ts side
+ * @param {Set<string>} cjs_names - Names exported by the require-side declaration
+ * @param {Set<string>} esm_names - Names exported by the import-side declaration
  * @param {string[]} allow - Names permitted to differ, in either direction
  * @returns {{only_cjs: string[], only_esm: string[]}} - Sorted asymmetric names per side; both empty means parity
  *
@@ -149,8 +153,8 @@ const diffNameSets = (cjs_names, esm_names, allow) => {
  * one-line ok or a multi-line FAIL with the asymmetric names.
  *
  * @param {string} label - Pair label, also the ALLOWLIST key
- * @param {string} cjs_path - Absolute path of the .d.cts side
- * @param {string} esm_path - Absolute path of the .d.ts side
+ * @param {string} cjs_path - Absolute path of the require-side declaration
+ * @param {string} esm_path - Absolute path of the import-side declaration
  * @param {string[]} allow - Allowlisted names for this pair
  * @returns {boolean} - true when the pair passes
  */

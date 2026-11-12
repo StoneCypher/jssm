@@ -14,7 +14,10 @@
   "module": "./dist/lib.mjs",
   "types": "./dist/lib.d.ts",
   "exports": {
-    ".": { "types": "./dist/lib.d.ts", "require": "./dist/lib.cjs", "import": "./dist/lib.mjs" }
+    ".": {
+      "import":  { "types": "./dist/lib.d.mts", "default": "./dist/lib.mjs" },
+      "require": { "types": "./dist/lib.d.ts",  "default": "./dist/lib.cjs" }
+    }
   },
   "files": ["dist/", "README.md"],
   "sideEffects": false,

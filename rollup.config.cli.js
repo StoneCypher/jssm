@@ -79,12 +79,13 @@ export default [
     plugins: jsPlugins(),
   },
 
-  // jssm/cli type declarations — one build, both module formats
+  // jssm/cli type declarations.  dts_pkg_cli copies this one file into
+  // packages/jssm-cli twice: lib.d.ts (CommonJS-typed there, for `require`)
+  // and lib.d.mts (for `import`).
   {
     input: 'src/ts/cli/lib.ts',
     output: [
       { file: 'jssm.cli.d.ts',  format: 'esm' },
-      { file: 'jssm.cli.d.cts', format: 'cjs' },
     ],
     external: ['@viz-js/viz', '@resvg/resvg-wasm'],
     plugins: [dts({ tsconfig: './tsconfig.cli.json' })],

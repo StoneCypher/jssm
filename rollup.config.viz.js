@@ -44,11 +44,10 @@ export default [
     plugins: vizPlugins(true),
   },
 
-  // jssm_viz type declarations — both outputs from one dts build
+  // jssm_viz type declarations (dts_pkg_viz copies them into packages/jssm-viz)
   {
     input: 'dist/es6/jssm_viz.d.ts',
     output: [
-      { file: './jssm_viz.es5.d.cts', format: 'es' },
       { file: './jssm_viz.es6.d.ts',  format: 'es' },
     ],
     plugins: [dts()],

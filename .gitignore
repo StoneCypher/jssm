@@ -124,9 +124,6 @@ cc-state.png
 # jssm.compat.d.ts) from test-main-full's build, handed over as an artifact.
 /jssm.es6.d.ts
 /jssm.compat.d.ts
-/jssm.es5.d.cts
 /jssm_viz.es6.d.ts
-/jssm_viz.es5.d.cts
 /jssm.cli.d.ts
-/jssm.cli.d.cts
 /jssm.fence.d.ts
