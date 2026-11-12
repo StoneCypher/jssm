@@ -5,6 +5,26 @@ import type { VizRenderProvider } from '../../jssm_viz';
 
 afterEach(() => { document.body.replaceChildren(); });
 
+/**
+ * Attaches a chart that renders its own `fsl` source.
+ * @param el The chart to attach.
+ */
+function mount_standalone(el: HTMLElementTagNameMap['fsl-viz']): void {
+  el.fsl = 'a -> b;';
+  document.body.append(el);
+}
+
+/**
+ * Attaches a chart inside an `<fsl-instance>`, so it renders the host's machine.
+ * @param el The chart to attach.
+ */
+function mount_bound(el: HTMLElementTagNameMap['fsl-viz']): void {
+  const host = document.createElement('fsl-instance');
+  host.fsl = 'a -> b;';
+  host.append(el);
+  document.body.append(host);
+}
+
 describe('chart rendering providers', () => {
   it('follows source selection and switches back when it is removed', async () => {
     const el = document.createElement('fsl-viz');
@@ -80,6 +100,27 @@ describe('chart rendering providers', () => {
     await Promise.resolve();
     await el.updateComplete;
     expect(el.shadowRoot?.querySelector('[data-stale]')).toBeNull();
+    expect(el.shadowRoot?.querySelector('[data-current]')).not.toBeNull();
+  });
+
+  it.each([
+    ['a standalone chart', mount_standalone],
+    ['a chart bound to an instance', mount_bound]
+  ])('drops a failure from a superseded render in %s instead of reporting it', async (_label, mount) => {
+    let fail: ((reason: Error) => void) | undefined;
+    const slow: VizRenderProvider = { name: 'slow', render: () => new Promise<string>((_resolve, reject) => { fail = reject; }) };
+    const el = document.createElement('fsl-viz');
+    const error = vi.fn();
+    el.addEventListener('viz-error', error);
+    el.provider = slow;
+    mount(el);
+    await vi.waitFor(() => { expect(fail).toBeDefined(); });
+    el.provider = { name: 'fast', render: () => '<svg data-current="true"></svg>' };
+    await vi.waitFor(() => { expect(el.shadowRoot?.querySelector('[data-current]')).not.toBeNull(); });
+    fail(new Error('stale failure'));
+    await new Promise(resolve => { setTimeout(resolve, 0); });
+    await el.updateComplete;
+    expect(error).not.toHaveBeenCalled();
     expect(el.shadowRoot?.querySelector('[data-current]')).not.toBeNull();
   });
 
