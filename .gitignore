@@ -116,3 +116,14 @@ cc-state.png
 /dist/jssm_viz.es5.iife.nonmin.cjs
 /dist/jssm_viz.es5.nonmin.cjs
 /dist/jssm_viz.es6.nonmin.cjs
+
+# Root type declarations: rebuilt by every build (rollup-plugin-dts in
+# rollup.config.core.js, .viz.js, .cli.js and .fence.es6.js), then copied into
+# packages/* by the dts_pkg_* scripts.  Tracking them only produced stale
+# copies.  The release job publishes the root package's two (jssm.es6.d.ts,
+# jssm.compat.d.ts) from test-main-full's build, handed over as an artifact.
+/jssm.es6.d.ts
+/jssm.compat.d.ts
+/jssm_viz.es6.d.ts
+/jssm.cli.d.ts
+/jssm.fence.d.ts

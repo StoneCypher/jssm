@@ -626,11 +626,11 @@ jobs:
       run: |
         npm run attw
 
-    # Declaration-surface parity gate (fsl#1940): the paired root .d.cts /
-    # .d.ts twins (jssm, jssm_viz, cli) must export identical name sets.
-    # attw passes when each surface is self-consistent; only this
-    # cross-surface name-set diff catches one fork of a pair silently
-    # dropping an export the other keeps.
+    # Declaration-surface parity gate (fsl#1940): each published require-side
+    # declaration (jssm-commonjs's .d.cts files, jssm-cli's lib.d.ts) must
+    # export the same names as its import-side counterpart.  attw passes when
+    # each surface is self-consistent; only this cross-surface name-set diff
+    # catches one side of a pair silently dropping an export the other keeps.
     - name: declaration parity gate
       run: |
         npm run decl_parity
@@ -651,6 +651,22 @@ jobs:
         path: docs/
         retention-days: 1
         include-hidden-files: true
+
+    # The root type declarations are build output and are not committed, but
+    # the release job publishes from a plain checkout without building.  Hand
+    # it the two the root package ships (its `types` targets) from this build.
+    # The packages/* copies are made by the dts_pkg_* scripts and are still
+    # committed with the rest of each package's dist, so they need no hand-off.
+    - name: Upload the root package's type declarations for release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: root-declarations
+        path: |
+          jssm.es6.d.ts
+          jssm.compat.d.ts
+        if-no-files-found: error
+        retention-days: 1
 
 
 
@@ -807,6 +823,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
+
+    # The root package's `types` targets are not committed; they come from
+    # test-main-full's build of this same commit.  Fetched and checked first,
+    # before tags or the GitHub release are made, so a missing hand-off stops
+    # the job before anything irreversible and never publishes an untyped jssm.
+    - name: Download the root type declarations built by test-main-full
+      uses: actions/download-artifact@v4
+      with:
+        name: root-declarations
+        path: .
+
+    - name: Verify the root type declarations are present
+      run: |
+        test -s jssm.es6.d.ts
+        test -s jssm.compat.d.ts
 
     - name: Export tag to envvars
       run: |

@@ -41,11 +41,11 @@ export default [
     plugins: core_plugins(),
   },
 
-  // jssm type declarations — both module formats from one dts build
+  // jssm type declarations.  ES only: the package is ESM only, and CommonJS
+  // consumers get their types from jssm-commonjs's own dist/jssm.d.cts.
   {
     input: 'dist/es6/jssm.d.ts',
     output: [
-      { file: './jssm.es5.d.cts', format: 'cjs' },
       { file: './jssm.es6.d.ts',  format: 'es' },
     ],
     plugins: [dts()],
