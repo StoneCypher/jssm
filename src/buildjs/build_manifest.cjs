@@ -49,7 +49,13 @@ const { join, relative, sep } = require('path');
 /** Repo root, relative to this file at src/buildjs/. */
 const ROOT = join(__dirname, '..', '..');
 
-/** Root-level type-declaration artifacts (published, deterministic). */
+/**
+ * Root-level type-declaration artifacts every build emits (deterministic).
+ * They are build output and gitignored, never committed; the spec in
+ * tests/root_declarations_untracked.spec.ts holds that line.
+ *
+ * @see tests/root_declarations_untracked.spec.ts
+ */
 const ROOT_DECLS = [
   'jssm.es5.d.cts', 'jssm.es6.d.ts', 'jssm.compat.d.ts',
   'jssm_viz.es5.d.cts', 'jssm_viz.es6.d.ts',
@@ -212,6 +218,7 @@ function diffManifests(ref, cur) {
 }
 
 module.exports = {
+  ROOT_DECLS,
   buildManifest,
   diffManifests,
   neutralizeBuildTime,
