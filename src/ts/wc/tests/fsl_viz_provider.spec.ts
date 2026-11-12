@@ -45,9 +45,9 @@ describe('chart rendering providers', () => {
     await vi.waitFor(() => { expect(el.shadowRoot?.textContent).toContain('Ready to begin.'); });
     const svg = el.shadowRoot.querySelector('svg');
     el.highlightTrace(['Idle', 'Running']);
-    expect(svg.querySelector('.edge path')?.getAttribute('style')).toContain('stroke');
+    expect(svg.querySelector('.edge')?.querySelector('path')?.getAttribute('style')).toContain('stroke');
     el.clearHighlights();
-    expect(svg.querySelector('.edge path')?.getAttribute('style') || '').not.toContain('stroke:');
+    expect(svg.querySelector('.edge')?.querySelector('path')?.getAttribute('style') || '').not.toContain('stroke:');
   });
 
   it('applies provider changes to a chart bound to an instance', async () => {

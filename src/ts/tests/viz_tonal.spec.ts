@@ -44,8 +44,8 @@ function polygon_points(el: Element): number[][] {
 describe('tonal SVG provider', () => {
   it('retains escaped action text and zero probabilities in multiline labels', async () => {
     const doc = document_for(await fsl_to_svg_string("a 'go<&' 0% => b; b 'reset' 12.5% ~> a;", { provider: 'tonal' }));
-    expect([...doc.querySelectorAll('.edge-label-main text')].map(label => label.textContent)).toEqual(['go<&', '0']);
-    expect([...doc.querySelectorAll('.edge-label-forced text')].map(label => label.textContent)).toEqual(['reset', '12.5']);
+    expect([...doc.querySelectorAll(':scope .edge-label-main text')].map(label => label.textContent)).toEqual(['go<&', '0']);
+    expect([...doc.querySelectorAll(':scope .edge-label-forced text')].map(label => label.textContent)).toEqual(['reset', '12.5']);
     expect(doc.querySelectorAll('.edge')).toHaveLength(2);
   });
 
@@ -82,19 +82,19 @@ describe('tonal SVG provider', () => {
       expect(Math.abs(left[i] + right[i] - center * 2)).toBeLessThan(2);
       expect(Math.abs(left[i + 1] - right[i + 1])).toBeLessThan(2);
     }
-    expect(doc.querySelectorAll('.edge-labels text')).toHaveLength(7);
+    expect(doc.querySelectorAll(':scope .edge-labels text')).toHaveLength(7);
   });
 
   it('keeps traffic-light action ink clear of cards, other labels and its own curve', async () => {
     const doc = document_for(await fsl_to_svg_string(traffic.replace('[Red Yellow Green] ~>', "[Red Yellow Green] 'Disable' ~>"), {
       provider: 'tonal', tonal: { states: annotations }
     }));
-    const cards = [...doc.querySelectorAll('.node g[clip-path] > rect')].map(rect => {
+    const cards = [...doc.querySelectorAll(':scope .node g[clip-path] > rect')].map(rect => {
       const x = Number(rect.getAttribute('x')), y = Number(rect.getAttribute('y'));
       return [x, y, x + Number(rect.getAttribute('width')), y + Number(rect.getAttribute('height'))];
     });
     const placed: number[][] = [];
-    for (const label of doc.querySelectorAll<SVGTextElement>('.edge-labels text')) {
+    for (const label of doc.querySelectorAll<SVGTextElement>(':scope .edge-labels text')) {
       const size = Number(label.getAttribute('font-size')), width = Number(label.getAttribute('textLength'));
       const x = Number(label.getAttribute('x')), y = Number(label.getAttribute('y'));
       const left = x - (label.getAttribute('text-anchor') === 'start' ? 0 : width / 2);
@@ -123,7 +123,7 @@ describe('tonal SVG provider', () => {
     const doc = document_for(svg);
     const [tx, ty] = doc.querySelector('.graph').getAttribute('transform').match(/-?\d+(?:\.\d+)?/g).map(Number);
     const [width, height] = doc.documentElement.getAttribute('viewBox').split(' ').slice(2).map(Number);
-    const labels = [...doc.querySelectorAll<SVGTextElement>('.edge-labels text')];
+    const labels = [...doc.querySelectorAll<SVGTextElement>(':scope .edge-labels text')];
     expect(labels.map(label => label.textContent).sort((a, b) => a.localeCompare(b))).toEqual(['stay<&', 'first', 'second', 'return', 'a much longer disconnected action'].sort((a, b) => a.localeCompare(b)));
     for (const label of labels) {
       const x = Number(label.getAttribute('x')) + tx, y = Number(label.getAttribute('y')) + ty;
@@ -176,8 +176,8 @@ describe('tonal SVG provider', () => {
   it('renders every named forced action without dimming its label or inventing unnamed actions', async () => {
     const doc = document_for(await fsl_to_svg_string("a 'Disable' ~> b; b 'reset<&' ~> a; c ~> a;", { provider: 'tonal' }));
     expect(doc.querySelectorAll('[data-transition-kind="forced"]')).toHaveLength(3);
-    expect(doc.querySelectorAll('[data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
-    const labels = [...doc.querySelectorAll('.edge-labels text')];
+    expect(doc.querySelectorAll(':scope [data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
+    const labels = [...doc.querySelectorAll(':scope .edge-labels text')];
     expect(labels.map(el => el.textContent)).toEqual(['Disable', 'reset<&']);
     expect(labels.every(el => el.getAttribute('fill') === '#91a6c2' && !el.closest('[opacity]'))).toBe(true);
   });
@@ -302,7 +302,7 @@ describe('tonal SVG provider', () => {
       state a: {background-color: lightgreen;}; state b: {background-color: pink;};`));
     const borders = [...doc.querySelectorAll('.tonal-border')].map(el => el.getAttribute('stroke'));
     expect(borders).toEqual(['#76c376', '#d19da6']);
-    expect(doc.querySelectorAll('.edge [stroke="#ffffff"]')).not.toHaveLength(0);
+    expect(doc.querySelectorAll(':scope .edge [stroke="#ffffff"]')).not.toHaveLength(0);
   });
 
   it.each([
@@ -358,10 +358,10 @@ describe('tonal SVG provider', () => {
     expect(doc.querySelectorAll('[data-transition-kind="main"]')).toHaveLength(3);
     expect(doc.querySelectorAll('[data-transition-kind="legal"]')).toHaveLength(1);
     expect(doc.querySelectorAll('[data-transition-kind="forced"]')).toHaveLength(3);
-    expect(doc.querySelectorAll('[data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
+    expect(doc.querySelectorAll(':scope [data-transition-kind="forced"] > g[opacity="0.7"]')).toHaveLength(3);
     expect(doc.querySelector('.edge-labels')?.textContent).toContain('Enable');
-    expect(doc.querySelectorAll('.edge-labels text')).toHaveLength(4);
-    expect(doc.querySelectorAll('.node text[font-family^="Courier New"][fill="#003366"]')).toHaveLength(3);
+    expect(doc.querySelectorAll(':scope .edge-labels text')).toHaveLength(4);
+    expect(doc.querySelectorAll(':scope .node text[font-family^="Courier New"][fill="#003366"]')).toHaveLength(3);
     expect(doc.documentElement.textContent).toContain('Traffic may proceed.');
     expect(doc.querySelectorAll('circle')).toHaveLength(12);
     expect(svg).not.toMatch(/NaN|undefined/);
@@ -409,9 +409,9 @@ describe('tonal SVG provider', () => {
     const doc = document_for(await fsl_to_svg_string(source, {
       provider: 'tonal', tonal: { states: { 'A B': { description: '<img src=x onerror=alert(1)>', icon: { path: 'M2 2 L22 22' } } } }
     }));
-    const titles = [...doc.querySelectorAll('.node > title')].map(el => el.textContent);
+    const titles = [...doc.querySelectorAll(':scope .node > title')].map(el => el.textContent);
     expect(new Set(titles).size).toBe(3);
-    expect(doc.querySelector('script, img, [onerror]')).toBeNull();
+    expect(doc.querySelector(':scope script, img, [onerror]')).toBeNull();
     expect(doc.documentElement.textContent).toContain('go<&');
     expect(doc.documentElement.textContent).toContain('<script>');
   });
@@ -421,16 +421,16 @@ describe('tonal SVG provider', () => {
     const horizontal = document_for(await fsl_to_svg_string('flow: right; a -> b;', { provider: 'tonal' }));
     expect(horizontal.documentElement.getAttribute('viewBox')).not.toBe(vertical.documentElement.getAttribute('viewBox'));
     const shaped = document_for(await fsl_to_svg_string('a -> b; state a: {shape: ellipse;};', { provider: 'tonal', engine: 'circo' }));
-    expect(shaped.querySelector('.node ellipse')).not.toBeNull();
+    expect(shaped.querySelector(':scope .node ellipse')).not.toBeNull();
     const hidden = document_for(await fsl_to_svg_string('Secret -> Other;', { provider: 'tonal', hide_state_labels: true }));
-    expect([...hidden.querySelectorAll('.node text')].map(el => el.textContent).join('')).not.toContain('Secret');
+    expect([...hidden.querySelectorAll(':scope .node text')].map(el => el.textContent).join('')).not.toContain('Secret');
   });
 
   it('supports opaque/transparent forced edges and validates appearance parameters', async () => {
     const doc = document_for(await fsl_to_svg_string('a ~> b;', {
       provider: 'tonal', tonal: { forced_opacity: 0, header_shade: 0.2, background: '#001122', action_color: '#ace' }
     }));
-    expect(doc.querySelector('[data-transition-kind="forced"] > g')?.getAttribute('opacity')).toBe('0');
+    expect(doc.querySelector(':scope [data-transition-kind="forced"] > g')?.getAttribute('opacity')).toBe('0');
     expect(doc.querySelector('.tonal-header')?.getAttribute('opacity')).toBe('0.2');
     await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { forced_opacity: 2 } })).rejects.toThrow(RangeError);
     await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { background: 'url(https://example.com)' } })).rejects.toThrow(TypeError);

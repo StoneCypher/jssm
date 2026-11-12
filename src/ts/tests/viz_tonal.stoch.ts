@@ -48,9 +48,33 @@ function svg_document(svg: string): Document {
  *  @returns The sorted title texts.
  */
 function sorted_titles(doc: Document, selector: string): string[] {
-  return [...doc.querySelectorAll(`${selector} > title`)]
-    .map(el => el.textContent ?? '')
-    .sort();
+  return [...doc.querySelectorAll(selector)]
+    .map(el => el.querySelector('title')?.textContent ?? '')
+    .sort(by_text);
+}
+
+
+
+/**
+ *  Orders strings by locale collation, for comparing title sets.
+ *  @param a One string.
+ *  @param b Another string.
+ *  @returns Negative, zero or positive, as `localeCompare` defines.
+ *  @example ['b', 'a'].sort(by_text)  // ['a', 'b']
+ */
+function by_text(a: string, b: string): number {
+  return a.localeCompare(b);
+}
+
+
+
+/**
+ *  The edge titles a plan's transitions should produce, sorted like {@link sorted_titles}.
+ *  @param edges The plan's directed `[from, to]` pairs.
+ *  @returns `from->to` for every pair, sorted.
+ */
+function expected_edge_titles(edges: [string, string][]): string[] {
+  return edges.map(([f, t]) => `${f}->${t}`).sort(by_text);
 }
 
 
@@ -68,9 +92,9 @@ describe('tonal provider over constructed machines', () => {
 
           const doc = svg_document(await fsl_to_svg_string(`graph_layout: tonal; ${fsl}`));
 
-          expect(doc.documentElement.getAttribute('data-render-provider')).toBe('tonal');
-          expect(sorted_titles(doc, '.node')).toEqual([...names].sort());
-          expect(sorted_titles(doc, '.edge')).toEqual(edges.map(([f, t]) => `${f}->${t}`).sort());
+          expect((doc.documentElement as unknown as SVGSVGElement).dataset.renderProvider).toBe('tonal');
+          expect(sorted_titles(doc, '.node')).toEqual([...names].sort(by_text));
+          expect(sorted_titles(doc, '.edge')).toEqual(expected_edge_titles(edges));
 
         }
       ),
@@ -113,7 +137,7 @@ describe('tonal provider over constructed machines', () => {
             .find(node => node.querySelector('title')?.textContent === names[0]);
 
           expect(first_card?.textContent).toContain(description.trim().replace(/\s+/g, ' '));
-          expect(sorted_titles(doc, '.edge')).toEqual(edges.map(([f, t]) => `${f}->${t}`).sort());
+          expect(sorted_titles(doc, '.edge')).toEqual(expected_edge_titles(edges));
 
         }
       ),

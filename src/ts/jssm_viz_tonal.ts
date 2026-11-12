@@ -307,8 +307,10 @@ function geometry(ops: DrawOp[] = [], attrs = ''): string {
  *  @param ops            The xdot label operations.
  *  @param override_color Replaces every text color, as edge labels do.
  *  @param halo           Background-colored outline that keeps labels readable over curves.
- *  @param header         Header-band bounds and inset; title-sized text is
- *                        re-centered in it, since Graphviz may stretch spacer columns.
+ *  @param header         Where title-sized text goes; it is re-centered in the
+ *                        header band, since Graphviz may stretch spacer columns.
+ *  @param header.bounds  The header band as `[left, top, right, bottom]`.
+ *  @param header.inset   Horizontal title inset from the band's left edge, in points.
  *  @returns The SVG markup.
  */
 function texts(ops: DrawOp[] = [], override_color?: string, halo?: string, header?: { bounds: number[]; inset: number }): string {
