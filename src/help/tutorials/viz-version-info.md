@@ -13,7 +13,7 @@ indexTerms: [version, build_time, viz]
 The viz module reports its own `version` and `build_time`, independent of the core package — useful when the renderer is loaded from a CDN separately from the core.
 
 ```js
-import { version, build_time } from 'jssm/viz';
+import { version, build_time } from 'jssm-viz';
 
 version;      // the viz build's version
 build_time;   // when it was built
