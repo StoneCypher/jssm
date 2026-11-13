@@ -19,6 +19,10 @@ For static HTML pages with no build step:
 
 The import map is required so that `<fsl-viz>`'s dynamic import of `@viz-js/viz` resolves in the browser. Hosting providers other than jsDelivr work identically — substitute the base URL.
 
+A page that sends a `Content-Security-Policy` must also allow `'wasm-unsafe-eval'` in `script-src`. `@viz-js/viz` is Graphviz compiled to WebAssembly, and a policy without that source expression refuses to compile it. It is the narrow one: it permits WebAssembly compilation, not `eval()` or `new Function()`.
+
+If either is missing, `<fsl-viz>` stays empty, fires `viz-error`, and logs the reason to the console once per page load.
+
 ## Quick start — npm
 
 ```bash
@@ -66,7 +70,7 @@ The class export has no side effects — importing it does not register any tag.
 
 | Event | Detail | Description |
 |---|---|---|
-| `viz-error` | `{ message: string; location?: unknown }` | Fired when the FSL source fails to parse or render. Bubbles and crosses shadow boundaries. |
+| `viz-error` | `{ message: string; location?: unknown }` | Fired when the FSL source fails to parse or render. Bubbles and crosses shadow boundaries. When the cause is that the Graphviz engine could not be loaded (no import map entry for `@viz-js/viz`, or a Content-Security-Policy without `'wasm-unsafe-eval'`), `message` names the fix, and the error is also logged with `console.error`, once per page load. |
 
 ## CSS custom properties
 

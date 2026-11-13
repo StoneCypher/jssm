@@ -140,6 +140,9 @@ It is a separate install - `npm install jssm-viz`.  Importing only from `jssm`
 never loads `@viz-js/viz`: the core bundle contains no reference to it.  See
 the Visualization doc page for browser, ESM, and CDN usage patterns.
 
+If Graphviz cannot be loaded, the `*_to_svg_*` functions reject with a
+`VizEngineLoadError` whose message names what the page is missing.
+
 
 
 <br/>
@@ -268,6 +271,10 @@ CDN one-liner (with an import map for `@viz-js/viz`):
 <script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
+
+A page that sends a `Content-Security-Policy` must also allow
+`'wasm-unsafe-eval'` in `script-src`: Graphviz runs as WebAssembly, and that
+is the source expression that lets it compile (it does not enable `eval()`).
 
 npm one-liner:
 
