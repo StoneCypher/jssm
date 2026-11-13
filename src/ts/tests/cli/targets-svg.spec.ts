@@ -10,7 +10,7 @@ const trafficLight = readFileSync(
 describe('svgTarget', () => {
 
   it('selects tonal from FSL without CLI-specific options', async () => {
-    const out = await svgTarget('graph_layout: tonal; a -> b;');
+    const out = await svgTarget('graph_renderer: tonal; a -> b;');
     expect(out).toContain('data-render-provider="tonal"');
     expect(out).toContain('class="tonal-header"');
   });

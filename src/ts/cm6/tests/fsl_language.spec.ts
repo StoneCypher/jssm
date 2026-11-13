@@ -48,6 +48,7 @@ describe('FSL tokenizer — token classes', () => {
 
   it('classifies config/property keys', () => {
     expect(classify('machine_name')).toBe('propertyName');
+    expect(classify('graph_renderer')).toBe('propertyName');
     expect(classify('linestyle')).toBe('propertyName');
   });
 
@@ -62,6 +63,7 @@ describe('FSL tokenizer — token classes', () => {
 
   it('classifies enumerated literals as atoms', () => {
     expect(classify('dot')).toBe('atom');
+    expect(classify('graphviz')).toBe('atom');
     expect(classify('tonal')).toBe('atom');
     expect(classify('rounded')).toBe('atom');
   });
