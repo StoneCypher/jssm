@@ -24,10 +24,21 @@ describe('fslCompletions', () => {
       expect.arrayContaining(['up', 'right', 'down', 'left']));
   });
 
-  it('offers tonal alongside Graphviz renderers after graph_layout', () => {
+  it('offers only the Graphviz engines after graph_layout', () => {
     const doc = 'graph_layout: ';
-    expect(labels(fslCompletions(doc, doc.length))).toEqual(
-      expect.arrayContaining(['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal']));
+    expect(labels(fslCompletions(doc, doc.length))).toEqual(['dot', 'circo', 'fdp', 'neato', 'twopi']);
+  });
+
+  it('offers the built-in renderers after graph_renderer', () => {
+    const doc = 'graph_renderer: ';
+    const out = fslCompletions(doc, doc.length);
+    expect(labels(out)).toEqual(['graphviz', 'tonal']);
+    expect(out.every(i => i.kind === 'value-enum')).toBe(true);
+  });
+
+  it('offers graph_renderer as a top-level key', () => {
+    const doc = 'graph_r';
+    expect(labels(fslCompletions(doc, doc.length))).toContain('graph_renderer');
   });
 
   it('offers top-level keys at the start of a line', () => {

@@ -1,17 +1,27 @@
 # Tonal state cards
 
-Select the renderer in FSL, just like `dot` or `neato`:
+Select the renderer in FSL with `graph_renderer`:
 
 ```fsl
-graph_layout: tonal;
+graph_renderer: tonal;
 Idle 'start' -> Running;
 ```
 
 This selects tonal in SVG exports, the CLI renderer, and chart components.
-Omitting `graph_layout` keeps the existing Graphviz appearance. `tonal` draws
+Omitting `graph_renderer` keeps the standard Graphviz appearance
+(`graph_renderer: graphviz;` says so explicitly). `tonal` draws
 navy-backed state cards with darker headers, soft shadows, blue monospace action
 labels, and quieter forced transitions. Layout still uses Graphviz, including
 FSL flow, arrangements, groups, self-loops and parallel actions.
+
+`graph_renderer` chooses how the machine is drawn; `graph_layout` still
+chooses the Graphviz geometry engine underneath it, so the two combine:
+
+```fsl
+graph_renderer: tonal;
+graph_layout: circo;
+a -> b -> c -> a;
+```
 
 ```js
 import { fsl_to_svg_string } from 'jssm-viz';
@@ -149,7 +159,7 @@ converted to these drawing records by the application.
 
 ```html
 <script type="module">import 'jssm-viz/wc/viz/define';</script>
-<fsl-viz fsl="graph_layout: tonal; Idle 'start' -> Running;"></fsl-viz>
+<fsl-viz fsl="graph_renderer: tonal; Idle 'start' -> Running;"></fsl-viz>
 ```
 
 Set the component's `.tonal` JavaScript property to the same options object
@@ -157,22 +167,73 @@ used above. Provider and annotation changes trigger a render in standalone and
 `fsl-instance`-bound charts. The existing trace-highlighting API continues to
 recognize nodes and transitions.
 
-Tonal uses `dot` for geometry by default. An explicit `engine: 'neato'`
-option (or the chart's `engine` attribute) changes geometry while retaining
-the source-selected tonal appearance. An explicit `provider` overrides the
-source's appearance choice; `provider: 'graphviz'` restores standard drawing.
-Existing `graph_layout: dot`, `neato`, `circo`, `fdp`, and `twopi` retain
-their existing behavior.
+Geometry comes from `graph_layout` (default `dot`), whichever renderer draws.
+An explicit `engine: 'neato'` option (or the chart's `engine` attribute)
+overrides it while keeping the source-selected tonal appearance. An explicit
+`provider` (option, or the chart's `provider` attribute) overrides the
+source's `graph_renderer`; `provider: 'graphviz'` restores standard drawing.
+`graph_layout: dot`, `neato`, `circo`, `fdp`, and `twopi` keep their existing
+behavior.
 
 ## Application providers
 
 `provider` also accepts a `VizRenderProvider` object with `name` and
-`render(context)` members. No global registration is required. The context
+`render(context)` members, used directly with no registration. The context
 exposes the machine, render options, collision-resolved state IDs and display
 labels; `to_dot(overrides)` retains the existing FSL layout semantics while
 allowing node measurements and independent edges; `render_dot(dot, format)`
-uses the configured Graphviz adapter. The provider returns SVG synchronously
-or asynchronously. Custom providers are trusted application code.
+uses the configured Graphviz adapter with the selected geometry engine. The
+provider returns SVG synchronously or asynchronously. Custom providers are
+trusted application code.
+
+## Registering a renderer so FSL can name it
+
+Register a provider once and any FSL source, render call or chart on the page
+can select it by name, with no further code:
+
+```js
+import { register_renderer, fsl_to_svg_string } from 'jssm-viz';
+
+// Standard Graphviz drawing, tagged with a class the page's CSS can style.
+register_renderer({
+  name: 'framed',
+  render: async ctx => {
+    const svg = await ctx.render_dot(ctx.to_dot(), 'svg');
+    return svg.replace('<svg ', '<svg class="framed" ');
+  }
+});
+
+await fsl_to_svg_string('graph_renderer: framed; a -> b;');
+```
+
+```html
+<fsl-viz fsl="graph_renderer: framed; a -> b;"></fsl-viz>
+<fsl-viz provider="framed" fsl="a -> b;"></fsl-viz>
+```
+
+The renderer is chosen in this order: the `provider` option or chart
+property (a name or an object), then the machine's `graph_renderer`, then
+`graphviz`. A name nobody registered fails the render with a `JssmError`
+that names it and lists the registered renderers; `<fsl-viz>` reports that
+through its `viz-error` event.
+
+Names are exact and case-sensitive. Write identifier-like names bare
+(`graph_renderer: framed;`) and anything else quoted
+(`graph_renderer: "framed v2";`). `renderer_names()` lists what is
+registered (built-ins first, then registration order), `renderer_for(name)`
+looks one up, and `unregister_renderer(name)` removes one.
+
+Registering a name that is already taken throws, so two libraries cannot
+silently replace each other; pass `{ replace: true }` to replace your own
+renderer on purpose. The built-ins `graphviz` and `tonal` can never be
+replaced or unregistered, so `graph_renderer: tonal;` means the same thing on
+every page.
+
+The registry belongs to the copy of `jssm-viz` that registered into it.
+`<fsl-viz>` from `jssm-viz/wc/viz` shares the package's registry; the
+self-contained `jssm-viz/cdn/viz` build carries its own copy of jssm-viz, so
+renderers registered through a separate `jssm-viz` import are not visible to
+it.
 
 Both string and DOM-element render entry points use the same provider.
 `machine_to_dot` / `fsl_to_dot` continue to export semantic DOT independent of

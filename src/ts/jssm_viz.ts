@@ -3,9 +3,9 @@ import * as jssm                 from './jssm.js';
 import { JssmError }              from './jssm_error.js';
 import { default_viz_colors }     from './jssm_viz_colors.js';
 
-import { tonal_provider } from './jssm_viz_tonal.js';
+import { select_renderer } from './jssm_viz_registry.js';
 import type { TonalRenderOptions } from './jssm_viz_tonal.js';
-import type { VizRenderProvider, VizLayoutOverrides } from './jssm_viz_provider.js';
+import type { VizRenderProvider, VizRendererName, VizLayoutOverrides } from './jssm_viz_provider.js';
 
 import { membership_distance }    from './jssm_compiler.js';
 
@@ -589,7 +589,8 @@ function edge_defaults_body(config: JssmTransitionConfig | undefined): string {
  *  Map a single `graph: {}` config item (`{ key, value }`) to a Graphviz
  *  graph*-scope attribute `name="value"` pair, or `undefined` when the key is
  *  either not graph-meaningful or already handled by another machine path
- *  (`graph_layout` → SVG engine, `flow` → `rankdir`, `theme` → style cascade,
+ *  (`graph_layout` → SVG engine, `graph_renderer` → renderer selection,
+ *  `flow` → `rankdir`, `theme` → style cascade,
  *  `dot_preamble` → preamble).  `background-color` is handled separately — it
  *  feeds the existing single `bgcolor` slot in {@link dot_template} so it is
  *  never double-emitted — and so is excluded here.
@@ -1376,14 +1377,20 @@ function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: string[]): M
  *  - `render_groups` (default `'cluster'`) — how FSL state groups are drawn;
  *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
  *    output byte-for-byte.
+ *  - `provider` — the renderer that draws the SVG: a registered name (see
+ *    `register_renderer`) or a {@link VizRenderProvider} object.  Overrides
+ *    the machine's FSL `graph_renderer`.  `engine` (else the machine's
+ *    `graph_layout`) still picks the Graphviz geometry for every renderer
+ *    that lays out through Graphviz.
+ *  - `tonal` — annotations and appearance settings for the tonal renderer.
  */
 type VizRenderOpts = {
   hide_state_labels?: boolean,
   footer?: string,
   engine?: string,
   render_groups?: RenderGroups,
-  /** SVG drawing provider override. When omitted, follows FSL graph_layout (tonal or Graphviz). */
-  provider?: 'graphviz' | 'tonal' | VizRenderProvider,
+  /** Renderer override: a registered name or a provider object. When omitted, follows FSL graph_renderer, else Graphviz. */
+  provider?: VizRendererName | VizRenderProvider,
   /** Optional annotations and appearance settings for the tonal provider. */
   tonal?: TonalRenderOptions
 };
@@ -1633,7 +1640,7 @@ async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<s
  *  ```typescript
  *  const svg = await fsl_to_svg_string('a -> b;');
  *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
- *  const svg_tonal = await fsl_to_svg_string('graph_layout: tonal; a -> b;');
+ *  const svg_tonal = await fsl_to_svg_string('graph_renderer: tonal; a -> b;');
  *  ```
  *  Picks the drawing provider the same way {@link machine_to_svg_string} does.
  *  @param fsl The FSL source.
@@ -1650,36 +1657,32 @@ async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
- *  The drawing provider is `opts.provider` when given; otherwise the
- *  machine's `graph_layout` decides: `tonal` draws state cards with
- *  {@link tonal_provider}, anything else draws with Graphviz.  The layout
- *  engine is `opts.engine`, else the machine's `graph_layout` (`dot` when
- *  that is `tonal`), so an explicit engine changes geometry without changing
- *  the appearance the source chose.
+ *  Geometry and drawing are chosen separately.  The renderer is
+ *  `opts.provider` when given (a registered name or a provider object),
+ *  otherwise the machine's FSL `graph_renderer`, otherwise `graphviz`.  The
+ *  Graphviz layout engine is `opts.engine`, otherwise the machine's
+ *  `graph_layout`, and it applies to every renderer that lays out through
+ *  `render_dot` (both built-ins do), so `graph_renderer: tonal;
+ *  graph_layout: circo;` draws tonal cards on circo geometry.
  *
  *  ```typescript
  *  const plain = await machine_to_svg_string(sm`a -> b;`);
- *  const cards = await machine_to_svg_string(sm`a -> b;`, { provider: 'tonal', tonal: { states: { a: { description: 'Start here.' } } } });
+ *  const cards = await machine_to_svg_string(sm`graph_renderer: tonal; a -> b;`);
+ *  const again = await machine_to_svg_string(sm`a -> b;`, { provider: 'tonal', tonal: { states: { a: { description: 'Start here.' } } } });
  *  ```
  *  @param u_jssm The machine to render.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
- *  @throws {JssmError} when `opts.provider` is neither a known name nor an
- *          object with a `render` function.
+ *  @throws {JssmError} (as a rejection) when the selected renderer name is
+ *          not registered — the message names it and lists the registered
+ *          names — or when `opts.provider` is an object without a `render`
+ *          function.
+ *  @see register_renderer
  *  @see VizRenderProvider
  */
 async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<string> {
-  const layout = u_jssm.graph_layout();
-  const provider = opts.provider ?? (layout === 'tonal' ? 'tonal' : 'graphviz');
-  // Tonal selects a drawing provider; Graphviz still receives a geometry engine.
-  const engine = opts.engine ?? (layout === 'tonal' ? 'dot' : layout);
-  if (provider === 'graphviz') {
-    return dot_to_svg(machine_to_dot(u_jssm, opts), { engine });
-  }
-  const selected = provider === 'tonal' ? tonal_provider : provider;
-  if (typeof selected !== 'object' || selected === null || typeof selected.render !== 'function') {
-    throw new JssmError(undefined, 'Unknown SVG rendering provider: ' + (typeof provider === 'string' ? provider : 'invalid provider object'));
-  }
+  const selected = select_renderer(opts.provider, u_jssm.graph_renderer());
+  const engine   = opts.engine ?? u_jssm.graph_layout();
   return selected.render({
     machine: u_jssm,
     options: opts,
@@ -1804,4 +1807,6 @@ export const _test = {
 export {version, build_time} from './version.js';
 export { tonal_provider } from './jssm_viz_tonal.js';
 export type { TonalRenderOptions, TonalStateContent, TonalIcon, TonalSvgIcon, TonalIconNode } from './jssm_viz_tonal.js';
-export type { VizRenderProvider, VizRenderContext, VizLayoutOverrides } from './jssm_viz_provider.js';
+export type { VizRenderProvider, VizRenderContext, VizLayoutOverrides, VizRendererName } from './jssm_viz_provider.js';
+export { graphviz_provider, register_renderer, unregister_renderer, renderer_names, renderer_for } from './jssm_viz_registry.js';
+export type { RegisterRendererOptions } from './jssm_viz_registry.js';

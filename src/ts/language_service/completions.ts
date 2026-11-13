@@ -19,7 +19,10 @@ const SMALL_VALUE_ENUMS: Record<string, string[]> = {
   'line-style':    ['solid', 'dotted', 'dashed'],
   linestyle:       ['solid', 'dotted', 'dashed'],
   flow:            [...FslDirections],
-  graph_layout:    ['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal'],
+  graph_layout:    ['dot', 'circo', 'fdp', 'neato', 'twopi'],
+  // The built-in renderers.  Applications can register more in jssm-viz, but
+  // the language service has no view of that registry, so it offers these.
+  graph_renderer:  ['graphviz', 'tonal'],
   theme:           ['default', 'ocean', 'modern', 'plain', 'bold'],
   hooks:           ['open', 'closed'],
   allows_override: ['true', 'false', 'undefined'],
@@ -33,7 +36,7 @@ const TOP_LEVEL_KEYS = [
   'machine_name', 'machine_version', 'machine_author', 'machine_contributor',
   'machine_comment', 'machine_definition', 'machine_reference', 'machine_license',
   'machine_language', 'npm_name', 'fsl_version',
-  'theme', 'flow', 'graph_layout', 'default_size', 'dot_preamble', 'hooks',
+  'theme', 'flow', 'graph_layout', 'graph_renderer', 'default_size', 'dot_preamble', 'hooks',
   'start_states', 'end_states', 'failed_outputs', 'allows_override', 'allow_islands',
   'graph', 'state', 'start_state', 'end_state', 'active_state', 'terminal_state',
   'hooked_state', 'transition',

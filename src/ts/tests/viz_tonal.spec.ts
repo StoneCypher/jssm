@@ -188,7 +188,7 @@ describe('tonal SVG provider', () => {
       ['circle', { cx: '12', cy: '12', r: '10', key: 'circle', opacity: undefined }],
       ['path', { d: 'm9 12 2 2 4-4', 'stroke-width': 2 }]
     ];
-    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; Emoji -> Outline -> Solid;', {
+    const doc = document_for(await fsl_to_svg_string('graph_renderer: tonal; Emoji -> Outline -> Solid;', {
       tonal: { states: {
         Emoji: { icon: { emoji: '👩🏽‍💻' } },
         Outline: { icon: { nodes } },
@@ -232,7 +232,7 @@ describe('tonal SVG provider', () => {
   });
 
   it('selects tonal from FSL through every SVG entry point without a provider option', async () => {
-    const source = 'graph_layout: tonal; a => b;';
+    const source = 'graph_renderer: tonal; a => b;';
     const machine = from(source);
     const opts = { tonal: { id_prefix: 'source-selected' } };
     const svg = await fsl_to_svg_string(source, opts);
@@ -247,14 +247,22 @@ describe('tonal SVG provider', () => {
 
   it('allows an explicit provider to override tonal selected in the source', async () => {
     const standard = await fsl_to_svg_string('a -> b;');
-    expect(await fsl_to_svg_string('graph_layout: tonal; a -> b;', { provider: 'graphviz' })).toBe(standard);
+    expect(await fsl_to_svg_string('graph_renderer: tonal; a -> b;', { provider: 'graphviz' })).toBe(standard);
   });
 
   it('allows geometry overrides without losing the source-selected tonal appearance', async () => {
     const opts = { engine: 'circo', tonal: { id_prefix: 'source-geometry' } };
-    const svg = await fsl_to_svg_string('graph_layout: tonal; a -> b -> c -> a;', opts);
+    const svg = await fsl_to_svg_string('graph_renderer: tonal; a -> b -> c -> a;', opts);
     expect(svg).toBe(await fsl_to_svg_string('graph_layout: circo; a -> b -> c -> a;', { ...opts, provider: 'tonal' }));
     expect(document_for(svg).querySelector<SVGSVGElement>('svg').dataset.renderProvider).toBe('tonal');
+  });
+
+  it('takes geometry from graph_layout and drawing from graph_renderer when the source names both', async () => {
+    const opts = { tonal: { id_prefix: 'both-in-source' } };
+    const both = await fsl_to_svg_string('graph_renderer: tonal; graph_layout: circo; a -> b -> c -> a;', opts);
+    expect(both).toBe(await fsl_to_svg_string('a -> b -> c -> a;', { ...opts, provider: 'tonal', engine: 'circo' }));
+    expect(both).not.toBe(await fsl_to_svg_string('graph_renderer: tonal; a -> b -> c -> a;', opts));
+    expect(document_for(both).querySelector<SVGSVGElement>('svg').dataset.renderProvider).toBe('tonal');
   });
 
   it('keeps existing source-selected Graphviz layouts working', async () => {
@@ -264,7 +272,7 @@ describe('tonal SVG provider', () => {
 
   it('bounds an octagon like a card instead of expanding it around the label', async () => {
     const content = { description: 'Signal is disabled.', action: 'Enable', detail: 'starts the cycle at red.', icon: 'traffic-off' as const };
-    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; Off -> Box; state Off: {shape: octagon;};', {
+    const doc = document_for(await fsl_to_svg_string('graph_renderer: tonal; Off -> Box; state Off: {shape: octagon;};', {
       tonal: { states: { Off: content, Box: content } }
     }));
     const nodes = [...doc.querySelectorAll('.node')];
@@ -277,7 +285,7 @@ describe('tonal SVG provider', () => {
   });
 
   it.each(['up', 'right', 'down', 'left'])('meets compact octagons with arrows and self-loops flowing %s', async flow => {
-    const source = `graph_layout: tonal; flow: ${flow}; a -> b; b => c; c ~> a; a 'stay' -> a;
+    const source = `graph_renderer: tonal; flow: ${flow}; a -> b; b => c; c ~> a; a 'stay' -> a;
       state a: {shape: octagon;}; state b: {shape: octagon;}; state c: {shape: octagon;};`;
     const doc = document_for(await fsl_to_svg_string(source));
     const outlines = new Map([...doc.querySelectorAll('.node')].map(node =>
@@ -298,7 +306,7 @@ describe('tonal SVG provider', () => {
   });
 
   it('derives distinct default borders from named node fills', async () => {
-    const doc = document_for(await fsl_to_svg_string(`graph_layout: tonal; a -> b;
+    const doc = document_for(await fsl_to_svg_string(`graph_renderer: tonal; a -> b;
       state a: {background-color: lightgreen;}; state b: {background-color: pink;};`));
     const borders = [...doc.querySelectorAll('.tonal-border')].map(el => el.getAttribute('stroke'));
     expect(borders).toEqual(['#76c376', '#d19da6']);
@@ -308,7 +316,7 @@ describe('tonal SVG provider', () => {
   it.each([
     ['white', '#ffffff'], ['black', '#000000'], ['#33669980', '#33669980'], ['transparent', '#00000000']
   ])('preserves an explicit %s border and its alpha on a compact octagon', async (color, expected) => {
-    const doc = document_for(await fsl_to_svg_string(`graph_layout: tonal; a -> b;
+    const doc = document_for(await fsl_to_svg_string(`graph_renderer: tonal; a -> b;
       state a: {shape: octagon; background-color: lightgreen; border-color: ${color}; linestyle: dashed;};`));
     const border = doc.querySelector('.tonal-border');
     expect(border.getAttribute('stroke')).toBe(expected);
@@ -324,13 +332,13 @@ describe('tonal SVG provider', () => {
     ['&group: [b]; state &group: {border-color: navy;};', 'b', '#000080'],
     ["on enter b do 'observe'; hooked_state: {border-color: red;};", 'b', '#ff0000']
   ])('detects a border declared only through %s', async (declaration, name, expected) => {
-    const doc = document_for(await fsl_to_svg_string('graph_layout: tonal; a -> b -> c; ' + declaration));
+    const doc = document_for(await fsl_to_svg_string('graph_renderer: tonal; a -> b -> c; ' + declaration));
     const node = [...doc.querySelectorAll('.node')].find(el => el.querySelector('title').textContent === name);
     expect(node.querySelector('.tonal-border').getAttribute('stroke')).toBe(expected);
   });
 
   it('respects declared borders throughout the style cascade and tracks the active state', async () => {
-    const machine = from(`graph_layout: tonal;
+    const machine = from(`graph_renderer: tonal;
       &group: [grouped overridden];
       root -> grouped -> overridden -> end;
       end_states: [end];
@@ -435,7 +443,7 @@ describe('tonal SVG provider', () => {
     await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { forced_opacity: 2 } })).rejects.toThrow(RangeError);
     await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { background: 'url(https://example.com)' } })).rejects.toThrow(TypeError);
     await expect(fsl_to_svg_string('a -> b;', { provider: 'tonal', tonal: { id_prefix: 'bad" id' } })).rejects.toThrow(TypeError);
-    await expect(fsl_to_svg_string('a -> b;', { provider: 'unknown' as 'tonal' })).rejects.toThrow('Unknown SVG rendering provider');
+    await expect(fsl_to_svg_string('a -> b;', { provider: 'unknown' })).rejects.toThrow('Unknown renderer "unknown"');
   });
 
   it('supports application providers with shared machine and layout services', async () => {
