@@ -1,7 +1,7 @@
 import { LitElement, html, css, TemplateResult, PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { fsl_to_svg_string, machine_to_svg_string, slug_for } from '../jssm_viz.js';
+import { fsl_to_svg_string, machine_to_svg_string, slug_for, VizEngineLoadError } from '../jssm_viz.js';
 import type { VizRenderOpts } from '../jssm_viz.js';
 import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
@@ -67,6 +67,45 @@ export function normalize_viz_error(e: unknown): FslVizErrorDetail {
 }
 
 /**
+ * Whether this page load has already reported a Graphviz engine load failure
+ * to the console.  Module state on purpose: every `<fsl-viz>` on the page
+ * shares it, which is what makes the report once per page load rather than
+ * once per element or once per render.
+ * @see report_engine_load_failure
+ */
+let engine_load_failure_reported = false;
+
+/**
+ * Report a Graphviz engine load failure with `console.error`, once per page
+ * load, and ignore every other render failure.
+ *
+ * `<fsl-viz>` announces every failed render with a `viz-error` event, but a
+ * page that is not listening sees only an empty element.  A missing engine —
+ * a {@link VizEngineLoadError} — is a page setup problem: no import map entry
+ * for `@viz-js/viz`, or a Content-Security-Policy without
+ * `'wasm-unsafe-eval'`.  It fails every element and every render the same
+ * way, so it earns one line in the console and no more.  Failures of the FSL
+ * being drawn stay event-only: a live editor re-renders as its user types
+ * and would flood the console.
+ *
+ * ```typescript
+ * const failure = new VizEngineLoadError('import', new Error('no import map'));
+ *
+ * report_engine_load_failure(failure);                         // logged with console.error
+ * report_engine_load_failure(failure);                         // silent: already reported
+ * report_engine_load_failure(new Error('FSL syntax error'));   // silent: not the engine
+ * ```
+ * @param e The value a render path caught.
+ * @see VizEngineLoadError
+ */
+function report_engine_load_failure(e: unknown): void {
+  if (engine_load_failure_reported || !(e instanceof VizEngineLoadError)) { return; }
+  // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- deliberate once-per-page-load latch shared by every <fsl-viz>
+  engine_load_failure_reported = true;
+  console.error(e);
+}
+
+/**
  * Web component that renders a jssm machine as inline SVG.
  *
  * Two operating modes:
@@ -79,6 +118,12 @@ export function normalize_viz_error(e: unknown): FslVizErrorDetail {
  *      bind to the parent's machine and re-render on every `transition`
  *      event.  The element's own `fsl` attribute is ignored in this mode;
  *      supplying it emits a `console.warn` for developer feedback.
+ *
+ * A failed render fires `viz-error` and leaves the element empty.  When the
+ * cause is that the Graphviz engine (`@viz-js/viz`) could not be loaded — on
+ * a browser page, a missing import map entry or a Content-Security-Policy
+ * without `'wasm-unsafe-eval'` in `script-src` — the error is also written to
+ * the console with `console.error`, once per page load.
  * @element fsl-viz
  * @cssproperty [--fsl-viz-min-height=100px] - Minimum height of the rendered SVG container.
  * @cssproperty [--fsl-viz-max-height=none] - Maximum height of the control; the rendered SVG stays bounded (aspect preserved, letterboxed) within it. Equivalent to setting `max-height` on the host from outside, without shadow surgery.
@@ -291,7 +336,8 @@ export class FslViz extends LitElement {
    * Nested-mode render path.  Renders the bound parent's machine via the
    * {@link machine_to_svg_string} pipeline and commits the result to
    * `_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the
-   * SVG.
+   * SVG; a Graphviz engine load failure is also reported to the console,
+   * once per page load (see {@link report_engine_load_failure}).
    * @returns A promise that resolves once the render attempt has finished.
    */
   private async _rerenderFromHostMachine(): Promise<void> {
@@ -318,13 +364,16 @@ export class FslViz extends LitElement {
         bubbles  : true,
         composed : true,
       }));
+      report_engine_load_failure(error);
     }
   }
 
   /**
    * Render the current `fsl` source to an SVG string via the headless
    * `fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a
-   * `viz-error` `CustomEvent` on failure. Guards against stale results
+   * `viz-error` `CustomEvent` on failure, and also reports a Graphviz engine
+   * load failure to the console, once per page load (see
+   * {@link report_engine_load_failure}). Guards against stale results
    * when `fsl` changes mid-flight.
    * @returns A promise that resolves once the render attempt has finished.
    */
@@ -349,6 +398,7 @@ export class FslViz extends LitElement {
         bubbles  : true,
         composed : true,
       }));
+      report_engine_load_failure(error);
     }
   }
 
