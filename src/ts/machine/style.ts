@@ -336,6 +336,27 @@ export function graph_layout<mDT>(m: Machine<mDT>): string {
 
 
 /**
+ * Get the name of the renderer the machine asks to be drawn with, set via
+ *  the FSL `graph_renderer` directive.  This is only the name: jssm-viz
+ *  resolves it against its renderer registry at render time, so an
+ *  unregistered name is not an error here.  It is independent of
+ *  {@link graph_layout}, which chooses the Graphviz geometry engine.
+ *  @example
+ *  import { sm, graph_renderer } from 'jssm';
+ *  graph_renderer(sm`graph_renderer: tonal; a -> b;`);   // => 'tonal'
+ *  graph_renderer(sm`a -> b;`);                          // => undefined
+ *  @param m The machine to read.
+ *  @returns The renderer name exactly as written in the FSL, or `undefined`
+ *  when the machine does not declare one (jssm-viz then draws with Graphviz).
+ *  @see graph_layout
+ */
+export function graph_renderer<mDT>(m: Machine<mDT>): string | undefined {
+  return m._graph_renderer;
+}
+
+
+
+/**
  * Get the Graphviz DOT preamble string, injected before the graph body
  *  during visualization.  Set via the FSL `dot_preamble` directive.
  *  @param m The machine to read.

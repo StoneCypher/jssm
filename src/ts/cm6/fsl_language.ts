@@ -49,7 +49,7 @@ export const PROPERTY_KEYWORDS: ReadonlySet<string> = new Set([
   'machine_comment', 'machine_contributor', 'machine_definition',
   'machine_language', 'machine_reference', 'npm_name', 'fsl_version',
   // graph / layout
-  'graph_layout', 'start_states', 'end_states', 'failed_outputs',
+  'graph_layout', 'graph_renderer', 'start_states', 'end_states', 'failed_outputs',
   'allows_override', 'allow_islands', 'edge_color', 'theme', 'flow',
   'dot_preamble', 'default_size',
   // per-element style keys
@@ -69,12 +69,16 @@ export const DEPRECATED_KEYWORDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Enumerated literal values (layout engines, corner/line styles, directions,
- * booleans, theme names). Highlighted as `atom`.
+ * Enumerated literal values (layout engines, built-in renderer names,
+ * corner/line styles, directions, booleans, theme names). Highlighted as
+ * `atom`. `graphviz` and `tonal` are the built-in `graph_renderer` values;
+ * application-registered renderer names are open-ended, so they highlight
+ * like any other name.
  */
 export const ENUM_KEYWORDS: ReadonlySet<string> = new Set([
   'true', 'false', 'none', 'default', 'modern', 'ocean', 'bold',
-  'dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal',
+  'dot', 'circo', 'fdp', 'neato', 'twopi',
+  'graphviz', 'tonal',
   'up', 'right', 'down', 'left',
   'solid', 'dotted', 'dashed',
   'regular', 'rounded', 'lined',

@@ -1315,7 +1315,7 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
   // things that can only exist once and are just a value under their own name
   const tautologies: Array<string> = [
-    'graph_layout', 'graph_bg_color', 'start_states', 'end_states', 'failed_outputs',
+    'graph_layout', 'graph_renderer', 'graph_bg_color', 'start_states', 'end_states', 'failed_outputs',
     'machine_name', 'machine_version', 'machine_comment', 'machine_author',
     'machine_contributor', 'machine_definition', 'machine_reference', 'machine_license',
     'fsl_version', 'state_config', 'theme', 'flow', 'dot_preamble', 'allows_override',
@@ -1364,7 +1364,8 @@ function canonical_graph_alias_key(alias_key: string): string {
 /*********
  *
  *  Folds the deprecated top-level graph keywords (`graph_layout`,
- *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`) into the consolidated
+ *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`), and the top-level
+ *  `graph_renderer` keyword, into the consolidated
  *  `default_graph_config` list, then appends the items from an explicit
  *  `graph: {}` block so that, on a canonical-key conflict, the explicit block
  *  wins.
@@ -1372,7 +1373,7 @@ function canonical_graph_alias_key(alias_key: string): string {
  *  Only `graph_bg_color` emits a `console.warn` deprecation notice, because
  *  it is the only alias that has a direct `graph: {}` block replacement today
  *  (`graph: { background-color: … }`).  The other aliases (`graph_layout`,
- *  `theme`, `flow`, `dot_preamble`) fold silently — they have no block-level
+ *  `graph_renderer`, `theme`, `flow`, `dot_preamble`) fold silently — they have no block-level
  *  equivalent yet, so warning on them would be misleading spam.  The warning
  *  fires once per compile (the key can only appear once in a valid FSL source).
  *
@@ -1530,6 +1531,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   const results: {
     graph_layout                  : Array<JssmLayout>,
+    graph_renderer                : Array<string>,
     graph_bg_color                : Array<JssmColor>,
     transition                    : Array<JssmTransition<StateType, mDT>>,
     start_states                  : Array<StateType>,
@@ -1576,6 +1578,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     editor_config                 : Array<{ key: string; value: unknown }>
   } = {
     graph_layout                  : [],
+    graph_renderer                : [],
     graph_bg_color                : [],
     transition                    : [],
     start_states                  : [],
@@ -1771,7 +1774,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   }
 
   const oneOnlyKeys: Array<string> = [
-    'graph_layout', 'graph_bg_color', 'machine_name', 'machine_version',
+    'graph_layout', 'graph_renderer', 'graph_bg_color', 'machine_name', 'machine_version',
     'machine_comment', 'fsl_version', 'machine_license', 'machine_definition',
     'machine_language', 'flow', 'dot_preamble', 'allows_override', 'allow_islands',
     'npm_name', 'default_size'
@@ -1808,6 +1811,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   result_cfg.default_graph_config = fold_graph_config(
     {
       graph_layout   : results.graph_layout,
+      graph_renderer : results.graph_renderer,
       graph_bg_color : results.graph_bg_color,
       dot_preamble   : results.dot_preamble,
       theme          : results.theme,
