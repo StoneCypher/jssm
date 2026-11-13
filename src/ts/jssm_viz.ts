@@ -81,12 +81,210 @@ let injected_dom_parser: typeof globalThis.DOMParser | null = null;
 
 
 /**
+ *  The step at which loading the default Graphviz engine failed, carried on
+ *  a {@link VizEngineLoadError} so the two failures can be told apart:
+ *
+ *  - `'import'` — `import('@viz-js/viz')` itself failed.  In a browser that
+ *    is a bare specifier no import map (or bundler) resolved; under Node, the
+ *    package is not installed.
+ *  - `'instantiate'` — the package was imported, but its WebAssembly engine
+ *    would not start.  In a browser that is nearly always a
+ *    Content-Security-Policy without `'wasm-unsafe-eval'` in `script-src`.
+ *  @see VizEngineLoadError
+ */
+type VizEngineLoadStage = 'import' | 'instantiate';
+
+
+
+
+/**
+ *  What failed and what fixes it, for each {@link VizEngineLoadStage}.  This
+ *  is the middle of a {@link VizEngineLoadError}'s message; it exists as a
+ *  table so each stage leads with the remedy that stage actually needs.
+ *  @internal
+ */
+const ENGINE_LOAD_ADVICE: Record<VizEngineLoadStage, string> = {
+
+  import:
+    'importing "@viz-js/viz" failed. A browser page needs an import map entry for "@viz-js/viz", '
+    + 'declared before the first module script, or a bundler that resolves it; under Node, install '
+    + `@viz-js/viz. A page with a Content-Security-Policy must also allow 'wasm-unsafe-eval' in script-src.`,
+
+  instantiate:
+    '"@viz-js/viz" was imported, so its import map entry or bundler is working, but its WebAssembly '
+    + `engine would not start. A page with a Content-Security-Policy must allow 'wasm-unsafe-eval' in script-src.`
+
+};
+
+
+
+
+/**
+ *  Renders a caught value as text for an error message.  A caught value is
+ *  usually an `Error`, which prints as `Name: message`, but anything can be
+ *  thrown — including a value with no string form at all, such as a
+ *  null-prototype object — and describing one failure must never throw a
+ *  second, unrelated one.
+ *
+ *  ```typescript
+ *  thrown_text(new TypeError('no import map'));   // 'TypeError: no import map'
+ *  thrown_text('engine said no');                 // 'engine said no'
+ *  thrown_text(Object.create(null));              // 'a value that could not be shown as text'
+ *  ```
+ *  @param thrown The caught value, of any type.
+ *  @returns Its string form, or a fixed placeholder when it has none.
+ *  @internal
+ */
+function thrown_text(thrown: unknown): string {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string -- deliberate: an arbitrary thrown value is described as well as String() can; an Error prints as "Name: message", and '[object Object]' is the accepted floor for a message-less object
+    return String(thrown);
+  } catch {
+    return 'a value that could not be shown as text';
+  }
+}
+
+
+
+
+/**
+ *  Builds the message of a {@link VizEngineLoadError}: what failed, then what
+ *  fixes it (from {@link ENGINE_LOAD_ADVICE}), then — last, because it is the
+ *  least readable part — the text of whatever the failed step threw.
+ *
+ *  ```typescript
+ *  engine_load_message('instantiate', new Error('Aborted(CompileError: ...)'));
+ *  // 'jssm-viz: the Graphviz engine could not be loaded: "@viz-js/viz" was
+ *  //  imported, ... must allow 'wasm-unsafe-eval' in script-src. Original
+ *  //  error: Error: Aborted(CompileError: ...)'
+ *  ```
+ *  @param stage Which step of loading the engine failed.
+ *  @param cause The value that step threw.
+ *  @returns The complete error message.
+ *  @internal
+ */
+function engine_load_message(stage: VizEngineLoadStage, cause: unknown): string {
+  return `jssm-viz: the Graphviz engine could not be loaded: ${ENGINE_LOAD_ADVICE[stage]} Original error: ${thrown_text(cause)}`;
+}
+
+
+
+
+/**
+ *  The error every SVG render function rejects with when the default Graphviz
+ *  engine, `@viz-js/viz`, cannot be loaded.  It exists because the two ways
+ *  that happens on a browser page — no import map for the bare specifier, and
+ *  a Content-Security-Policy that refuses WebAssembly — used to surface as
+ *  whatever the browser threw, with nothing to say what was missing.  Its
+ *  message names the cause and the remedy; `stage` says which step failed
+ *  (see {@link VizEngineLoadStage}); and `cause` is the value that step
+ *  threw, untouched.
+ *
+ *  It is a {@link JssmError}, like every other error jssm-viz throws, so
+ *  existing `instanceof JssmError` handling still catches it.  An engine
+ *  injected with {@link configure}`({ viz })` replaces the default engine
+ *  entirely, so it never raises this error.
+ *
+ *  ```typescript
+ *  import { fsl_to_svg_element, VizEngineLoadError } from 'jssm-viz';
+ *
+ *  try {
+ *    chart.replaceChildren(await fsl_to_svg_element('a -> b;'));
+ *  } catch (e) {
+ *    if (e instanceof VizEngineLoadError) {
+ *      // e.stage   — 'import' (no import map) or 'instantiate' (CSP)
+ *      // e.message — "jssm-viz: the Graphviz engine could not be loaded: ..."
+ *      // e.cause   — what the browser threw
+ *      chart.textContent = 'Diagram unavailable.';
+ *    } else {
+ *      throw e;   // e.g. an FSL syntax error
+ *    }
+ *  }
+ *  ```
+ *  @see VizEngineLoadStage
+ *  @see configure
+ */
+class VizEngineLoadError extends JssmError {
+
+  /** Which step of loading the engine failed. */
+  stage : VizEngineLoadStage;
+
+  /** The value the failed step threw, exactly as it was thrown; usually an `Error`. */
+  cause : unknown;
+
+  /**
+   *  Builds the error for one failed step of loading the engine, composing
+   *  the message that names that step's remedy.
+   *
+   *  ```typescript
+   *  const failure = new VizEngineLoadError('import', new TypeError('Failed to resolve module specifier "@viz-js/viz"'));
+   *  failure.stage;   // 'import'
+   *  failure.cause;   // the TypeError
+   *  ```
+   *  @param stage Which step of loading the engine failed.
+   *  @param cause The value that step threw.  Kept as-is on `cause`, and
+   *  quoted at the end of the message.
+   */
+  constructor(stage: VizEngineLoadStage, cause: unknown) {
+    super(undefined, engine_load_message(stage, cause));
+    this.name  = 'VizEngineLoadError';
+    this.stage = stage;
+    this.cause = cause;
+  }
+
+}
+
+
+
+
+/**
+ *  Imports `@viz-js/viz` and starts its WebAssembly Graphviz engine — the two
+ *  steps of loading the default engine — turning a failure of either into a
+ *  {@link VizEngineLoadError} that says which step failed and what fixes it.
+ *  Nothing is cached here: {@link get_viz} keeps a started engine, and a
+ *  failed load is simply tried again by the next render.
+ *
+ *  ```typescript
+ *  const viz = await load_default_viz();
+ *  viz.renderString('digraph G { a -> b }', { format: 'svg' });   // '<?xml ... <svg ...'
+ *  ```
+ *  @returns A started `@viz-js/viz` engine.
+ *  @throws {VizEngineLoadError} with `stage: 'import'` if the package cannot
+ *  be imported, or `stage: 'instantiate'` if its engine will not start.
+ *  @see get_viz
+ *  @internal
+ */
+async function load_default_viz(): Promise<Viz> {
+
+  let mod: typeof import('@viz-js/viz');
+
+  try {
+    mod = await import('@viz-js/viz');
+  } catch (error: unknown) {
+    throw new VizEngineLoadError('import', error);
+  }
+
+  try {
+    return await mod.instance();
+  } catch (error: unknown) {
+    throw new VizEngineLoadError('instantiate', error);
+  }
+
+}
+
+
+
+
+/**
  *  Returns the Graphviz engine the render path should use: the engine
  *  injected via {@link configure}`({ viz })` when one is set (checked
  *  before the default import, so the `@viz-js/viz` WASM module is never
  *  even loaded in environments that injected their own); otherwise a cached
  *  `@viz-js/viz` instance, lazily instantiated on first call.  Internal
  *  helper for the rendering functions.
+ *  @throws {VizEngineLoadError} if no engine was injected and the default
+ *  `@viz-js/viz` engine cannot be imported or started.
+ *  @see load_default_viz
  *  @internal
  */
 async function get_viz(): Promise<Viz | VizEngine> {
@@ -94,9 +292,8 @@ async function get_viz(): Promise<Viz | VizEngine> {
   if (injected_viz !== null) { return injected_viz; }
 
   if (viz_instance === null) {
-    const mod = await import('@viz-js/viz');
     // eslint-disable-next-line unicorn/no-top-level-assignment-in-function -- deliberate lazy-singleton init of the module-level viz cache
-    viz_instance = await mod.instance();
+    viz_instance = await load_default_viz();
   }
 
   return viz_instance;
@@ -1618,6 +1815,10 @@ function fsl_to_dot(fsl: string, opts: VizRenderOpts = {}): string {
  *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
  *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
+ *  @throws {VizEngineLoadError} if no engine was injected and the default
+ *  `@viz-js/viz` engine cannot be loaded — in a browser, a missing import map
+ *  entry or a Content-Security-Policy without `'wasm-unsafe-eval'`.
+ *  @see VizEngineLoadError
  */
 async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<string> {
   const viz = await get_viz();
@@ -1639,6 +1840,7 @@ async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<s
  *  @param fsl The FSL source.
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
+ *  @throws {VizEngineLoadError} if the default Graphviz engine is needed and cannot be loaded.
  */
 async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise<string> {
   return machine_to_svg_string(jssm.from(fsl), opts);
@@ -1666,6 +1868,7 @@ async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise
  *  @returns A promise resolving to an SVG XML string.
  *  @throws {JssmError} when `opts.provider` is neither a known name nor an
  *          object with a `render` function.
+ *  @throws {VizEngineLoadError} if the default Graphviz engine is needed and cannot be loaded.
  *  @see VizRenderProvider
  */
 async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<string> {
@@ -1718,6 +1921,7 @@ function get_dom_parser(): typeof globalThis.DOMParser {
  *  @param dot Graphviz dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available.
+ *  @throws {VizEngineLoadError} if the default Graphviz engine is needed and cannot be loaded.
  */
 async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
   const ParserCtor = get_dom_parser();
@@ -1736,6 +1940,7 @@ async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
+ *  @throws {VizEngineLoadError} if the default Graphviz engine is needed and cannot be loaded.
  */
 async function fsl_to_svg_element(fsl: string, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
   const ParserCtor = get_dom_parser();
@@ -1752,6 +1957,7 @@ async function fsl_to_svg_element(fsl: string, opts: VizRenderOpts = {}): Promis
  *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
+ *  @throws {VizEngineLoadError} if the default Graphviz engine is needed and cannot be loaded.
  */
 async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
   const ParserCtor = get_dom_parser();
@@ -1775,7 +1981,7 @@ function dot<T>(machine: jssm.Machine<T>): string {
 
 
 export {
-  configure,
+  configure, VizEngineLoadError,
   dot, dot_to_svg,
   fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element,
   machine_to_dot, machine_to_svg_string, machine_to_svg_element,
@@ -1784,7 +1990,7 @@ export {
 
 };
 
-export type { VizRenderOpts, RenderGroups, VizEngine };
+export type { VizRenderOpts, RenderGroups, VizEngine, VizEngineLoadStage };
 
 /** @internal */
 export const _test = {
