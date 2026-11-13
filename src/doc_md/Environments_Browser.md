@@ -211,6 +211,18 @@ specifier `@viz-js/viz` only resolves in a browser if an import map says where
 it lives.  Forget the map and you get a resolution error on first render, not
 on page load.
 
+If your page sends a `Content-Security-Policy`, it must also allow
+`'wasm-unsafe-eval'` in `script-src` (or in `default-src`, if the policy has
+no `script-src`), because that engine is compiled from WebAssembly in the
+page:
+
+```text
+Content-Security-Policy: script-src <your existing sources> 'wasm-unsafe-eval'
+```
+
+`'wasm-unsafe-eval'` is the narrow source expression: it permits WebAssembly
+compilation, and does not permit `eval()` or `new Function()`.
+
 Under a bundler instead, it's a side-effect import:
 
 ```javascript
@@ -258,6 +270,17 @@ bare specifier is not rewritten for you.  Worked examples are in
   component (or called a `*_to_svg_*` function) without the import map.  Add
   the `<script type="importmap">` block shown above; it's document-scoped, so
   one map serves everything on the page.
+
+* **`CompileError: WebAssembly.instantiate(): ... violates the following
+  Content Security policy directive`** (Chrome's wording) — the import map is
+  fine, but the page's `Content-Security-Policy` refuses to compile the
+  WebAssembly Graphviz.  Add `'wasm-unsafe-eval'` to its `script-src`.
+
+* **`jssm-viz: the Graphviz engine could not be loaded`** — the wrapper around
+  either of the two errors above.  `<fsl-viz>` logs it once per page load and
+  carries it in its `viz-error` event; the `*_to_svg_*` functions reject with
+  it (a `VizEngineLoadError`).  The message says which of the two is missing,
+  and ends with the browser's original error.
 
 * **Rendering is async** — the first graph render initializes a WebAssembly
   Graphviz, so `fsl_to_svg_string` and friends return Promises, and `<fsl-viz>`

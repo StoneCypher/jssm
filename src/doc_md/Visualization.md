@@ -142,6 +142,19 @@ The import map is what lets `dist/cdn/viz.js` resolve its bare
 `import('@viz-js/viz')`.  A module loaded from an ESM CDN such as esm.sh does
 not need one — that CDN rewrites the specifier before your page ever sees it.
 
+However the engine reaches the page, a page that sends a
+`Content-Security-Policy` must allow `'wasm-unsafe-eval'` in `script-src`.
+`@viz-js/viz` is Graphviz compiled to WebAssembly, and a policy without that
+source expression refuses to compile it.  It is the narrow one: it permits
+WebAssembly compilation, not `eval()` or `new Function()`.
+
+If the engine cannot be loaded for either reason, the `*_to_svg_*` functions
+reject with a `VizEngineLoadError` (exported from `jssm-viz`).  Its message
+names what is missing, `stage` is `'import'` (the specifier did not resolve)
+or `'instantiate'` (the WebAssembly would not start), and `cause` is the
+browser's original error.  `<fsl-viz>` reports the same error in its
+`viz-error` event, and logs it to the console once per page load.
+
 
 
 
