@@ -14,7 +14,12 @@ export interface VizLayoutOverrides {
   graph?: string;
 }
 
-/** Services supplied to a renderer; custom providers need no global registration. */
+/**
+ *  Services supplied to a renderer.  A provider object passed directly as
+ *  the `provider` render option needs no registration; registering it with
+ *  `register_renderer` is what lets FSL (`graph_renderer: <name>;`) and
+ *  `provider: '<name>'` select it by name.
+ */
 export interface VizRenderContext {
   machine: Machine<unknown>;
   options: VizRenderOpts;
@@ -29,6 +34,20 @@ export interface VizRenderContext {
 
 /** A trusted SVG producer. The result is embedded as SVG by the chart component. */
 export interface VizRenderProvider {
+  /** The name the renderer is registered under and selected by, e.g. `'tonal'`. */
   name: string;
   render: (context: VizRenderContext) => string | Promise<string>;
 }
+
+/**
+ *  The name of a registered renderer: one of the built-ins `'graphviz'` and
+ *  `'tonal'`, or any name an application registered with
+ *  `register_renderer`.  Typed as an open string so registered names are
+ *  accepted, while editors still suggest the built-ins.
+ *
+ *  ```typescript
+ *  const by_name: VizRendererName = 'tonal';
+ *  ```
+ *  @see VizRenderProvider
+ */
+export type VizRendererName = 'graphviz' | 'tonal' | (string & Record<never, never>);

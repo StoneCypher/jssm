@@ -144,7 +144,14 @@ export class FslViz extends LitElement {
   /** Optional Graphviz layout engine override (e.g. 'dot', 'neato'). */
   @property({ type: String }) engine: string | undefined = undefined;
 
-  /** SVG drawing provider override. Omitted follows the source's graph_layout. */
+  /**
+   * Renderer override: any registered renderer name (the built-ins
+   * `graphviz` and `tonal`, or one added with `register_renderer`), or a
+   * provider object set as a JavaScript property.  Omitted follows the
+   * source's `graph_renderer`, else Graphviz.  An unregistered name fails the
+   * render like any other render error: the chart clears and fires
+   * `viz-error`, whose message names the renderer and the registered names.
+   */
   @property({ type: String }) provider: VizRenderOpts['provider'] = undefined;
 
   /** Optional tonal card annotations and appearance, supplied as a JavaScript property. */
