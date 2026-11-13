@@ -625,7 +625,12 @@ themselves) and were removed in StoneCypher/fsl#1366.
 ### Single-value configs
 
 - `graph_layout : <GvizLayout>;` — `dot`, `circo`, `fdp`, `neato`,
-  `twopi`
+  `twopi`; the Graphviz geometry engine only
+- `graph_renderer : <Label>;` — the renderer that draws the machine
+  (`graphviz` or `tonal` built in, or any name registered with jssm-viz's
+  `register_renderer`); bareword or quoted string, stored verbatim and
+  resolved at render time, so an unregistered name parses and compiles.
+  Independent of `graph_layout`; one per machine
 - `start_states    : <WeightedLabelList>;` — `[idle 90% booting 10%]`
   declares the initial distribution used by `sample_start_state()` and
   `stochastic_runs`; the constructed machine still starts at the first
