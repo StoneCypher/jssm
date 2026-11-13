@@ -2,7 +2,7 @@ import { fsl_to_svg_string } from '../../../../jssm_viz.js';
 import { RenderError } from '../../../types.js';
 
 /**
- * Render FSL source to an SVG string via the `jssm/viz` pipeline.
+ * Render FSL source to an SVG string via the `jssm-viz` pipeline.
  * @param fsl - FSL source text
  * @returns SVG string (XML-prefixed, suitable for direct file write)
  * @throws RenderError if the FSL fails to parse or viz fails to render

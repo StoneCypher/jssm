@@ -34,16 +34,16 @@ type RenderGroups = 'cluster' | 'chips' | 'off';
 
 
 /**
- *  The Graphviz engine surface jssm/viz actually consumes: one ready-to-use
+ *  The Graphviz engine surface jssm-viz actually consumes: one ready-to-use
  *  object with a `renderString(dot, options)` method.  This is the contract
  *  for {@link configure}`({ viz })` injection — a *direct adapter*, not a
  *  factory: the caller instantiates (and, if needed, awaits) their engine
  *  themselves, then hands over the finished object.  `renderString` receives
- *  the dot source and an options object whose members jssm/viz uses are
+ *  the dot source and an options object whose members jssm-viz uses are
  *  `format` (`'svg'` for the default provider; `'json'` for tonal) and `engine` (a Graphviz layout engine name,
  *  when the caller of a render function supplied one); it may return the
  *  output string synchronously (like `@viz-js/viz`) or as a promise (like
- *  asm.js `viz.js` 2.x), and jssm/viz awaits either.
+ *  asm.js `viz.js` 2.x), and jssm-viz awaits either.
  *
  *  ```typescript
  *  import { instance } from '@viz-js/viz';
@@ -107,7 +107,7 @@ async function get_viz(): Promise<Viz | VizEngine> {
 
 
 /**
- *  Inject runtime configuration for jssm/viz — a custom `DOMParser`
+ *  Inject runtime configuration for jssm-viz —a custom `DOMParser`
  *  constructor for the `*_svg_element` functions, a replacement Graphviz
  *  engine for every render path, or both.
  *
@@ -129,7 +129,7 @@ async function get_viz(): Promise<Viz | VizEngine> {
  *  ```typescript
  *  // Node, with jsdom:
  *  import { JSDOM } from 'jsdom';
- *  import { configure, fsl_to_svg_element } from 'jssm/viz';
+ *  import { configure, fsl_to_svg_element } from 'jssm-viz';
  *
  *  configure({ DOMParser: new JSDOM().window.DOMParser });
  *  const el = await fsl_to_svg_element('a -> b;');
@@ -137,7 +137,7 @@ async function get_viz(): Promise<Viz | VizEngine> {
  *
  *  ```typescript
  *  // strict-CSP webview, with an asm.js Graphviz:
- *  import { configure, fsl_to_svg_string } from 'jssm/viz';
+ *  import { configure, fsl_to_svg_string } from 'jssm-viz';
  *
  *  configure({ viz: my_asm_graphviz });  // anything with renderString(dot, opts)
  *  const svg = await fsl_to_svg_string('a -> b;');
@@ -1468,7 +1468,7 @@ function chips_for_render_mode<T>(u_jssm: jssm.Machine<T>, l_states: string[], m
  *
  *  ```typescript
  *  import { sm } from 'jssm';
- *  import { state_svg_label_texts } from 'jssm/viz';
+ *  import { state_svg_label_texts } from 'jssm-viz';
  *
  *  // a state in two groups renders a chip suffix in its node label
  *  state_svg_label_texts(sm`&g1 : [a b]; &g2 : [a]; a -> b;`).get('a');  // 'a [g1]'
@@ -1500,7 +1500,7 @@ function state_svg_label_texts<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts =
  *
  *  ```typescript
  *  import { sm } from 'jssm';
- *  import { machine_to_dot } from 'jssm/viz';
+ *  import { machine_to_dot } from 'jssm-viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
@@ -1582,7 +1582,7 @@ function layout_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts, layout: Viz
  *  Render an FSL string directly to graphviz dot source.
  *
  *  ```typescript
- *  import { fsl_to_dot } from 'jssm/viz';
+ *  import { fsl_to_dot } from 'jssm-viz';
  *  const dot = fsl_to_dot('a -> b;');
  *
  *  // suppress state-name labels
