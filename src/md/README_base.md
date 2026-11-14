@@ -292,6 +292,19 @@ CDN one-liner (with an import map for `@viz-js/viz`):
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
+The CDN module bundles its own copy of jssm-viz, so it also exports that
+copy's renderer registry (`register_renderer`, `unregister_renderer`,
+`renderer_names`, `renderer_for`, `graphviz_provider`).  Register through it
+and FSL on the same page can name your renderer:
+
+```html
+<script type="module">
+  import { register_renderer } from 'https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js';
+  register_renderer({ name: 'framed', render: async ctx => (await ctx.render_dot(ctx.to_dot(), 'svg')).replace('<svg ', '<svg class="framed" ') });
+</script>
+<fsl-viz fsl="graph_renderer: framed; Off -> On -> Off;"></fsl-viz>
+```
+
 npm one-liner:
 
 ```ts

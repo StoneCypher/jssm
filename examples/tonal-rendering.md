@@ -233,7 +233,28 @@ The registry belongs to the copy of `jssm-viz` that registered into it.
 `<fsl-viz>` from `jssm-viz/wc/viz` shares the package's registry; the
 self-contained `jssm-viz/cdn/viz` build carries its own copy of jssm-viz, so
 renderers registered through a separate `jssm-viz` import are not visible to
-it.
+it. That build exports its own registry instead: import `register_renderer`
+(and `unregister_renderer`, `renderer_names`, `renderer_for`,
+`graphviz_provider`) from the same CDN module that defines `<fsl-viz>`:
+
+```html
+<script type="importmap">
+  { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz@3/lib/viz-standalone.mjs" } }
+</script>
+<script type="module">
+  import { register_renderer } from 'https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js';
+
+  register_renderer({
+    name: 'framed',
+    render: async ctx => {
+      const svg = await ctx.render_dot(ctx.to_dot(), 'svg');
+      return svg.replace('<svg ', '<svg class="framed" ');
+    }
+  });
+</script>
+
+<fsl-viz fsl="graph_renderer: framed; a -> b;"></fsl-viz>
+```
 
 Both string and DOM-element render entry points use the same provider.
 `machine_to_dot` / `fsl_to_dot` continue to export semantic DOT independent of
