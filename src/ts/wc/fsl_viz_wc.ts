@@ -7,6 +7,30 @@ import { closest_wc, type FslInstanceHost } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 
 /**
+ * The renderer registry that `<fsl-viz>` draws through, handed out from the
+ * element's own module so a page that only has this module can still add
+ * renderers.
+ *
+ * These are re-exported from the very `jssm_viz` module the element imports
+ * its render calls from, never from a copy, so a renderer registered here is
+ * one `graph_renderer: <name>;` and `provider="<name>"` can select.  Every
+ * bundle keeps that sharing: the package build turns the import into the
+ * external `jssm-viz` the element also uses, and the self-contained CDN
+ * build inlines one copy of the registry for both.
+ *
+ * ```typescript
+ * import { register_renderer, renderer_names } from 'jssm-viz/wc/viz';
+ *
+ * register_renderer({ name: 'cards', render: ctx => ctx.render_dot(ctx.to_dot(), 'svg') });
+ * renderer_names();   // => ['graphviz', 'tonal', 'cards']
+ * ```
+ * @see register_renderer
+ * @see renderer_for
+ */
+export { register_renderer, unregister_renderer, renderer_names, renderer_for, graphviz_provider } from '../jssm_viz.js';
+export type { RegisterRendererOptions, VizRendererName, VizRenderProvider, VizRenderContext } from '../jssm_viz.js';
+
+/**
  * Styling options for {@link FslViz.highlightTrace}.
  * color      Stroke/fill colour applied to the highlighted nodes
  *                      and edges. Any CSS colour string; defaults to a
@@ -144,7 +168,14 @@ export class FslViz extends LitElement {
   /** Optional Graphviz layout engine override (e.g. 'dot', 'neato'). */
   @property({ type: String }) engine: string | undefined = undefined;
 
-  /** SVG drawing provider override. Omitted follows the source's graph_layout. */
+  /**
+   * Renderer override: any registered renderer name (the built-ins
+   * `graphviz` and `tonal`, or one added with `register_renderer`), or a
+   * provider object set as a JavaScript property.  Omitted follows the
+   * source's `graph_renderer`, else Graphviz.  An unregistered name fails the
+   * render like any other render error: the chart clears and fires
+   * `viz-error`, whose message names the renderer and the registered names.
+   */
   @property({ type: String }) provider: VizRenderOpts['provider'] = undefined;
 
   /** Optional tonal card annotations and appearance, supplied as a JavaScript property. */

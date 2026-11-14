@@ -29,7 +29,7 @@ export const FSL_KEYWORDS = new Set([
   'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state',
   'transition', 'graph', 'on', 'enter', 'exit', 'do', 'arrange', 'arrange-start', 'arrange-end',
   'machine_name', 'machine_author', 'machine_license', 'machine_version', 'machine_comment',
-  'fsl_version', 'flow', 'graph_layout', 'allow_islands', 'allows_override', 'required',
+  'fsl_version', 'flow', 'graph_layout', 'graph_renderer', 'allow_islands', 'allows_override', 'required',
   'true', 'false', 'null', 'undefined',
 ]);
 

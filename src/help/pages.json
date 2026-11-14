@@ -236,9 +236,15 @@
         "configure",
         "render options",
         "groups",
-        "viz"
+        "viz",
+        "renderer",
+        "register_renderer"
       ],
       "fences": [
+        {
+          "teaches": "viz-config",
+          "run": true
+        },
         {
           "teaches": "viz-config",
           "run": true
@@ -920,6 +926,7 @@
       ],
       "indexTerms": [
         "graph_layout",
+        "graph_renderer",
         "allow_islands",
         "allows_override",
         "failed_outputs"
@@ -1082,6 +1089,14 @@
         "random"
       ],
       "fences": [
+        {
+          "teaches": "weighted-arrows",
+          "run": true
+        },
+        {
+          "teaches": "weighted-arrows",
+          "run": true
+        },
         {
           "teaches": "weighted-arrows",
           "run": true

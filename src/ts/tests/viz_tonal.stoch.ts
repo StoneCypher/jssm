@@ -90,7 +90,7 @@ describe('tonal provider over constructed machines', () => {
         ring_plan_arb,
         async ({ names, edges, fsl }) => {
 
-          const doc = svg_document(await fsl_to_svg_string(`graph_layout: tonal; ${fsl}`));
+          const doc = svg_document(await fsl_to_svg_string(`graph_renderer: tonal; ${fsl}`));
 
           expect((doc.documentElement as unknown as SVGSVGElement).dataset.renderProvider).toBe('tonal');
           expect(sorted_titles(doc, '.node')).toEqual([...names].sort(by_text));
@@ -110,7 +110,7 @@ describe('tonal provider over constructed machines', () => {
         chain_plan_arb,
         async ({ names, fsl }) => {
 
-          const svg = await machine_to_svg_string(from(`graph_layout: tonal; ${fsl}`), { provider: 'graphviz' });
+          const svg = await machine_to_svg_string(from(`graph_renderer: tonal; ${fsl}`), { provider: 'graphviz' });
 
           expect(svg).not.toContain('data-render-provider="tonal"');
           for (const name of names) { expect(svg).toContain(name); }

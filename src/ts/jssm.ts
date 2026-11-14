@@ -90,7 +90,7 @@ export {
 } from './machine/stochastic.js';
 export { isIn, groupsOf, groups, statesIn } from './machine/groups.js';
 export {
-  graph_layout, dot_preamble, default_transition_config, default_graph_config,
+  graph_layout, graph_renderer, dot_preamble, default_transition_config, default_graph_config,
   all_themes, themes, set_themes, flow,
   standard_state_style, hooked_state_style, start_state_style,
   end_state_style, terminal_state_style, active_state_style,

@@ -121,9 +121,11 @@ type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 /**
  *  Graphviz layout engine selector.  Controls how jssm-viz lays out the
  *  rendered diagram; `'dot'` is the default and most useful for state
- *  machines.  See the Graphviz documentation for the differences.
+ *  machines.  See the Graphviz documentation for the differences.  This is
+ *  geometry only; which renderer draws the result is chosen separately, by
+ *  FSL's `graph_renderer` (see {@link JssmGenericConfig.graph_renderer}).
  */
-type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato' | 'tonal';  // todo add the rest
+type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';  // todo add the rest
 
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
@@ -724,13 +726,14 @@ type JssmTransitionConfig = JssmTransitionStyleKey[];
 
 /**
  *  Graph-scope default-config style items folded from the deprecated
- *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
- *  `dot_preamble`, `theme`, `flow`, and the `edge-color`/`edge_color`
- *  default) into the consolidated `graph: {}` config.  Each carries the
- *  legacy parse key so downstream consumers can disambiguate.
+ *  top-level graph keywords (`graph_layout`, `graph_renderer`,
+ *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`, and the
+ *  `edge-color`/`edge_color` default) into the consolidated `graph: {}`
+ *  config.  Each carries the legacy parse key so downstream consumers can
+ *  disambiguate.
  */
 type JssmGraphAliasKey
-  =  JssmGraphDefaultEdgeColor | { key: 'graph_layout',   value: JssmLayout      } | { key: 'graph_bg_color', value: JssmColor       } | { key: 'dot_preamble',   value: string          } | { key: 'theme',          value: FslTheme | FslTheme[] } | { key: 'flow',           value: FslDirection    };
+  =  JssmGraphDefaultEdgeColor | { key: 'graph_layout',   value: JssmLayout      } | { key: 'graph_renderer', value: string          } | { key: 'graph_bg_color', value: JssmColor       } | { key: 'dot_preamble',   value: string          } | { key: 'theme',          value: FslTheme | FslTheme[] } | { key: 'flow',           value: FslDirection    };
 
 /**
  *  A single item inside a `graph: {}` default-config block.  For v1 this
@@ -869,7 +872,16 @@ type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?                  : JssmLayout,
 
-  complete?                      : Array<StateType>,
+  /**
+   *  The name of the renderer that draws this machine, from FSL's
+   *  `graph_renderer: <name>;` (for example `'tonal'`).  jssm-viz looks the
+   *  name up in its renderer registry at render time; omitted means the
+   *  standard Graphviz drawing.  Independent of {@link graph_layout}, which
+   *  only picks the Graphviz geometry engine.
+   */
+  graph_renderer?                : string,
+
+  complete?                    : Array<StateType>,
   transitions                    : JssmTransitions<StateType, DataType>,
 
   theme?                         : FslTheme[],

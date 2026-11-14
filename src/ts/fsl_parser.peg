@@ -1022,8 +1022,7 @@ GvizLayout
   / "circo"
   / "fdp"
   / "neato"
-  / "twopi"
-  / "tonal";
+  / "twopi";
 
 // StateItemShapeKey
 //   = "shape"
@@ -1174,8 +1173,24 @@ ConfigGraphLayout
       return node;
     }
 
+// `graph_renderer: tonal;` names the drawing provider; `graph_layout` above
+// stays the Graphviz geometry engine.  The value is an open name, not an
+// enumeration, because renderers are registered at runtime by jssm-viz
+// (`register_renderer`), so it takes a Label like `machine_name`: a bareword
+// for identifier-like names, a quoted string for anything else.  Whether the
+// name is registered is checked at render time, not parse time.
+ConfigGraphRenderer
+  = WS? "graph_renderer"  WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "graph_renderer", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
 ConfigStartNodes
-  = WS? "start_states"    WS? ":" WS? value:WeightedLabelList  WS? ";" WS? {
+  = WS? "start_states"   WS? ":" WS? value:WeightedLabelList  WS? ";" WS? {
       const node: any = { key: "start_states", value: value };
       if (options.locations) { node.loc = location(); }
       return node;
@@ -1245,6 +1260,7 @@ IslandsT
 
 Config "configuration"
   = ConfigGraphLayout
+  / ConfigGraphRenderer
   / ConfigStartNodes
   / ConfigEndNodes
   / ConfigFailedOutputs

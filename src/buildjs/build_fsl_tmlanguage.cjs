@@ -90,7 +90,7 @@ const ATTRIBUTE_KEYS = [
   'machine_license', 'machine_language', 'theme', 'dot_preamble', 'flow', 'hooks',
   'default_size',
   // config
-  'graph_layout', 'start_states', 'end_states', 'failed_outputs', 'graph_bg_color',
+  'graph_layout', 'graph_renderer', 'start_states', 'end_states', 'failed_outputs', 'graph_bg_color',
   'allows_override', 'allow_islands', 'transition', 'graph', 'editor',
   // config state blocks
   'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state',

@@ -155,7 +155,7 @@ import {
 import { isIn, groupsOf, groups, statesIn } from './groups.js';
 
 import {
-  graph_layout, dot_preamble, default_transition_config, default_graph_config,
+  graph_layout, graph_renderer, dot_preamble, default_transition_config, default_graph_config,
   all_themes, themes, set_themes, flow,
   standard_state_style, hooked_state_style, start_state_style,
   end_state_style, terminal_state_style, active_state_style,
@@ -258,6 +258,7 @@ class Machine<mDT> {
   _rng      : JssmRng;
 
   _graph_layout              : JssmLayout;
+  _graph_renderer            : string | undefined;
   _dot_preamble              : string;
   _default_transition_config : JssmTransitionConfig | undefined;
   _default_graph_config      : JssmGraphConfig      | undefined;
@@ -471,6 +472,7 @@ class Machine<mDT> {
     theme                     = ['default'],
     flow                      = 'down',
     graph_layout              = 'dot',
+    graph_renderer,
     instance_name,
     history,
     boundary_depth_limit,
@@ -554,6 +556,7 @@ class Machine<mDT> {
     this._themes       = theme;
     this._flow         = flow;
     this._graph_layout = graph_layout;
+    this._graph_renderer = graph_renderer;
 
     this._has_hooks               = false;
     this._has_basic_hooks         = false;
@@ -1516,6 +1519,16 @@ class Machine<mDT> {
    */
   graph_layout(): string {
     return graph_layout(this);
+  }
+
+  /**
+   * Get the name of the renderer the machine asks to be drawn with (FSL
+   *  `graph_renderer`), or `undefined`.  Delegates to the style family's
+   *  {@link graph_renderer}, which carries the full contract and example.
+   *  @see graph_renderer
+   */
+  graph_renderer(): string | undefined {
+    return graph_renderer(this);
   }
 
   /**

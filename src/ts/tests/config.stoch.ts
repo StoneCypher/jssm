@@ -27,8 +27,9 @@ import * as jssm from '../jssm';
 //     `state: {}` style items (e.g. `color: red;`), the graph-default
 //     edge-color line, and the legacy `whargarbl`/`todo` stubs.
 //
-// Single-value has five forms:
-//   - graph_layout : GvizLayout (`dot`/`circo`/`fdp`/`neato`/`twopi`/`tonal`)
+// Single-value has six forms:
+//   - graph_layout : GvizLayout (`dot`/`circo`/`fdp`/`neato`/`twopi`)
+//   - graph_renderer : Label (any renderer name, bareword or quoted)
 //   - start_states : LabelList
 //   - end_states   : LabelList
 //   - graph_bg_color : Color
@@ -195,7 +196,7 @@ describe('§8 Config — normalized transition block accepts an edge_color branc
 
 
 
-describe('§8 Config — single-value configs (5 forms)', () => {
+describe('§8 Config — single-value configs (6 forms)', () => {
 
   test('`graph_layout: dot;` parses to value=dot', () => {
     const node = parse_config('graph_layout: dot;');
@@ -205,7 +206,7 @@ describe('§8 Config — single-value configs (5 forms)', () => {
 
   test('All documented graph_layout values parse to themselves', () => {
 
-    const LAYOUTS = ['dot', 'circo', 'fdp', 'neato', 'twopi', 'tonal'] as const;
+    const LAYOUTS = ['dot', 'circo', 'fdp', 'neato', 'twopi'] as const;
 
     for (const layout of LAYOUTS) {
       const node = parse_config(`graph_layout: ${layout};`);
@@ -217,6 +218,16 @@ describe('§8 Config — single-value configs (5 forms)', () => {
 
   test('Unknown graph_layout value throws', () => {
     expect(() => parse_config('graph_layout: spaghetti;')).toThrow();
+  });
+
+  test('`graph_layout: tonal;` throws: tonal is a renderer, chosen with graph_renderer', () => {
+    expect(() => parse_config('graph_layout: tonal;')).toThrow();
+  });
+
+  test('`graph_renderer: tonal;` parses to value=tonal', () => {
+    const node = parse_config('graph_renderer: tonal;');
+    expect(node.key  ).toBe('graph_renderer');
+    expect(node.value).toBe('tonal');
   });
 
   test('`start_states: [a b c];` yields ordered array', () => {
@@ -242,6 +253,74 @@ describe('§8 Config — single-value configs (5 forms)', () => {
     expect(parse_config('allows_override: true;'     ).value).toBe(true);
     expect(parse_config('allows_override: false;'    ).value).toBe(false);
     expect(parse_config('allows_override: undefined;').value).toBeUndefined();
+
+  });
+
+});
+
+
+
+describe('§8 Config — graph_renderer random round-trips', () => {
+
+  // graph_renderer takes an open Label, because renderers are registered at
+  // runtime: any identifier-like bareword, or any quoted string, must reach
+  // the AST and the compiled machine verbatim, independent of graph_layout.
+
+  const BAREWORD = fc.tuple(
+    fc.constantFrom(...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_'.split('')),
+    fc.array(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789_'.split('')), { maxLength: 12 })
+  ).map(([first, rest]) => first + rest.join(''));
+
+  const QUOTED_BODY = fc.array(
+    fc.constantFrom(...'abcxyz019 -.:/+#@'.split('')),
+    { minLength: 1, maxLength: 16 }
+  ).map(arr => arr.join(''));
+
+  test('random bareword renderer names round-trip through parse and compile', () => {
+
+    fc.assert(
+      fc.property(BAREWORD, (name) => {
+        const node = parse_config(`graph_renderer: ${name};`);
+        expect(node.key  ).toBe('graph_renderer');
+        expect(node.value).toBe(name);
+        expect(jssm.from(`graph_renderer: ${name}; a -> b;`).graph_renderer()).toBe(name);
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('random quoted renderer names (punctuation and spaces) round-trip verbatim', () => {
+
+    fc.assert(
+      fc.property(QUOTED_BODY, (name) => {
+        const node = parse_config(`graph_renderer: "${name}";`);
+        expect(node.value).toBe(name);
+        expect(jssm.from(`graph_renderer: "${name}"; a -> b;`).graph_renderer()).toBe(name);
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('graph_renderer and graph_layout are independent, in either order', () => {
+
+    fc.assert(
+      fc.property(
+        BAREWORD,
+        fc.constantFrom('dot', 'circo', 'fdp', 'neato', 'twopi'),
+        fc.boolean(),
+        (name, layout, renderer_first) => {
+          const r   = `graph_renderer: ${name};`,
+                l   = `graph_layout: ${layout};`,
+                src = renderer_first ? `${r} ${l} a -> b;` : `${l} ${r} a -> b;`,
+                m   = jssm.from(src);
+          expect(m.graph_renderer()).toBe(name);
+          expect(m.graph_layout()).toBe(layout);
+        }
+      ),
+      { numRuns: RUNS }
+    );
 
   });
 

@@ -140,6 +140,29 @@ It is a separate install - `npm install jssm-viz`.  Importing only from `jssm`
 never loads `@viz-js/viz`: the core bundle contains no reference to it.  See
 the Visualization doc page for browser, ESM, and CDN usage patterns.
 
+The FSL itself can choose how it is drawn.  `graph_layout` picks the Graphviz
+geometry engine; `graph_renderer` picks the renderer that draws on it, either
+a built-in (`graphviz`, the default, or `tonal` state cards) or one your page
+registered with `register_renderer`:
+
+```typescript
+import { register_renderer, fsl_to_svg_string } from 'jssm-viz';
+
+const cards = await fsl_to_svg_string('graph_renderer: tonal; graph_layout: circo; a -> b -> c -> a;');
+
+register_renderer({
+  name   : 'framed',
+  render : async ctx => {
+    const svg = await ctx.render_dot(ctx.to_dot(), 'svg');
+    return svg.replace('<svg ', '<svg class="framed" ');
+  }
+});
+const framed = await fsl_to_svg_string('graph_renderer: framed; a -> b;');
+```
+
+See `examples/tonal-rendering.md` for the selection order, the registry
+rules, and writing your own renderer.
+
 
 
 <br/>
@@ -267,6 +290,19 @@ CDN one-liner (with an import map for `@viz-js/viz`):
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js"></script>
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
+```
+
+The CDN module bundles its own copy of jssm-viz, so it also exports that
+copy's renderer registry (`register_renderer`, `unregister_renderer`,
+`renderer_names`, `renderer_for`, `graphviz_provider`).  Register through it
+and FSL on the same page can name your renderer:
+
+```html
+<script type="module">
+  import { register_renderer } from 'https://cdn.jsdelivr.net/npm/jssm-viz@6/dist/cdn/viz.js';
+  register_renderer({ name: 'framed', render: async ctx => (await ctx.render_dot(ctx.to_dot(), 'svg')).replace('<svg ', '<svg class="framed" ') });
+</script>
+<fsl-viz fsl="graph_renderer: framed; Off -> On -> Off;"></fsl-viz>
 ```
 
 npm one-liner:

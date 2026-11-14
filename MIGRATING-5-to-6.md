@@ -130,6 +130,7 @@ the 5.x class appears once.
 | `m.serialize(...)` | `serialize(m, ...)` |
 | `m.canonical(...)` | `canonical(m, ...)` |
 | `m.graph_layout(...)` | `graph_layout(m, ...)` |
+| `m.graph_renderer(...)` | `graph_renderer(m, ...)` |
 | `m.dot_preamble(...)` | `dot_preamble(m, ...)` |
 | `m.default_transition_config(...)` | `default_transition_config(m, ...)` |
 | `m.default_graph_config(...)` | `default_graph_config(m, ...)` |
@@ -530,3 +531,33 @@ Before and after, for script-tag consumers:
 The global is still named `jssm`, and it carries the class entry alongside
 the functions — `jssm.Machine` is there — because a global has no subpaths
 to split them across.
+
+
+
+
+
+## New in 6.0, with nothing to migrate
+
+These additions break nothing, so they are not in `v6_breaking_changes.json`;
+they are listed here so a 5.x reader knows they exist.
+
+### Choosing a renderer from FSL: `graph_renderer`
+
+FSL can now name the renderer that draws a machine, with no JavaScript:
+
+```fsl
+graph_renderer: tonal;
+graph_layout: circo;
+a -> b -> c -> a;
+```
+
+`graph_layout` means what it meant in 5.x — only the Graphviz geometry engine
+(`dot`, `circo`, `fdp`, `neato`, `twopi`).  `graph_renderer` chooses what
+draws on that geometry: the built-in `graphviz` (the default, the 5.x look)
+or `tonal` state cards, or any renderer the page registered with jssm-viz's
+`register_renderer`.  Identifier-like names are written bare and anything
+else quoted (`graph_renderer: "my cards";`).  The `provider` render option,
+or `<fsl-viz provider="…">`, overrides the source's choice; an unregistered
+name fails the render with an error that lists the registered names.  The
+machine reports its choice through `graph_renderer(m)` (or
+`m.graph_renderer()` on `jssm/compat`).  See `examples/tonal-rendering.md`.

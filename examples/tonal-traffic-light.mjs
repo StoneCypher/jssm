@@ -6,7 +6,7 @@ import { fsl_to_svg_string } from '../dist/jssm_viz.mjs';
 // Off uses HPLuv(250, 45, 45). See tonal-rendering.md for palette rationale.
 const source = `
 machine_name: "Traffic light";
-graph_layout: tonal;
+graph_renderer: tonal;
 flow: down;
 arrange [Green Yellow];
 Off 'Enable' -> Red;

@@ -4,7 +4,7 @@ import { describe, test, expect } from 'vitest';
 import {
   sm, go, hook, JssmError,
   is_start_state, is_end_state, state_is_terminal, state_has_hooks,
-  graph_layout, dot_preamble, default_transition_config, default_graph_config,
+  graph_layout, graph_renderer, dot_preamble, default_transition_config, default_graph_config,
   all_themes, themes, set_themes, flow,
   standard_state_style, hooked_state_style, start_state_style,
   end_state_style, terminal_state_style, active_state_style,
@@ -29,6 +29,16 @@ describe('bare functions — style family', () => {
     test('defaults to dot and follows the directive', () => {
       expect(graph_layout(sm`a -> b;`)).toBe('dot');
       expect(graph_layout(sm`graph_layout: circo; a -> b;`)).toBe('circo');
+    });
+  });
+
+
+
+  describe('graph_renderer', () => {
+    test('is the declared renderer name, or undefined', () => {
+      expect(graph_renderer(sm`graph_renderer: tonal; a -> b;`)).toBe('tonal');
+      expect(graph_renderer(sm`graph_renderer: "my cards"; a -> b;`)).toBe('my cards');
+      expect(graph_renderer(sm`a -> b;`)).toBeUndefined();
     });
   });
 
