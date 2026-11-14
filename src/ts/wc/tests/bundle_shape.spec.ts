@@ -88,6 +88,56 @@ describe('dist/wc/viz.define.js — registration entry point', () => {
 
 });
 
+/**
+ * The renderer registry's own error text, which appears in a bundle only when
+ * that bundle carries a copy of `jssm_viz_registry`.
+ */
+const REGISTRY_MARKER = 'built-in renderers cannot be removed';
+
+/**
+ * Collects the names a built ES module re-exports from `source`, across every
+ * `export { a, b as c } from 'source'` statement (minified or not).
+ * @param built  The bundle's text.
+ * @param source The module specifier the names are re-exported from.
+ * @returns The exported names, in source order.
+ * @example
+ * reexports_from("export{a,b as c}from'./viz.js';", './viz.js');   // => ['a', 'c']
+ */
+function reexports_from(built: string, source: string): string[] {
+  const escaped = source.replaceAll(/[.*+?^${}()|[\]\\/]/g, String.raw`\$&`);
+  const matches = built.matchAll(new RegExp(String.raw`export\s*\{([^}]*)\}\s*from\s*['"]${escaped}['"]`, 'g'));
+  return [...matches].flatMap(m => m[1].split(',').map(part => part.trim().split(/\s+as\s+/).at(-1)).filter(Boolean));
+}
+
+const REGISTRY_EXPORTS = ['register_renderer', 'unregister_renderer', 'renderer_names', 'renderer_for', 'graphviz_provider'];
+
+describe('the <fsl-viz> builds share one renderer registry with the element', () => {
+
+  //  A define bundle that inlined its own registry would hand out a registry
+  //  the element never reads, so registering through it would do nothing.
+  //  Each define build must re-export the registry from its class build, and
+  //  each class build from the jssm-viz it renders through.
+  it.each([
+    ['dist/wc/viz.define.js',                    './viz.js'],
+    ['packages/jssm-viz/dist/wc/viz.define.js',  './viz.js'],
+    ['dist/wc/viz.js',                           'jssm/viz'],
+    ['packages/jssm-viz/dist/wc/viz.js',         'jssm-viz']
+  ])('%s re-exports the registry from %s without a copy of its own', (rel, source) => {
+    const built = readFileSync(resolve(__dirname, '../../../../', rel), 'utf8');
+    expect(reexports_from(built, source)).toEqual(expect.arrayContaining(REGISTRY_EXPORTS));
+    expect(built).not.toContain(REGISTRY_MARKER);
+  });
+
+  it.each([
+    'dist/cdn/viz.js',
+    'packages/jssm-viz/dist/cdn/viz.js'
+  ])('the self-contained %s carries exactly one copy of the registry', rel => {
+    const built = readFileSync(resolve(__dirname, '../../../../', rel), 'utf8');
+    expect(built.split(REGISTRY_MARKER)).toHaveLength(2);
+  });
+
+});
+
 describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
   const cdn_path = resolve(__dirname, '../../../../dist/cdn/viz.js');
