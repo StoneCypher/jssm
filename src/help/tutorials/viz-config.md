@@ -13,7 +13,7 @@ indexTerms: [configure, render options, groups, viz]
 `configure` sets global render defaults, and the `VizRenderOpts` / `RenderGroups` types let you tune a single render — engine choice, group rendering, and more.
 
 ```js
-import { configure, fsl_to_svg_string } from 'jssm/viz';
+import { configure, fsl_to_svg_string } from 'jssm-viz';
 
 configure({ /* global defaults */ });
 const svg = await fsl_to_svg_string(`a -> b;`, { /* VizRenderOpts */ });

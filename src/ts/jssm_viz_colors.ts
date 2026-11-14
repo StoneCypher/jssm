@@ -1,6 +1,6 @@
 
 /**
- *  Default color palette for jssm/viz dot/svg output.  Used by the graphviz
+ *  Default color palette for jssm-viz dot/svg output.  Used by the graphviz
  *  rendering helpers in jssm_viz.ts to colorize nodes and edges based on
  *  state type (terminal/final/complete/normal) and arrow kind
  *  (legal/main/forced).
